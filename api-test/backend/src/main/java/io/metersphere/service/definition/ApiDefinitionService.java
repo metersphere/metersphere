@@ -41,6 +41,7 @@ import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.RelationshipEdgeRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.SyncApiDefinitionRequest;
@@ -52,7 +53,6 @@ import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiDefinitionSyncService;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
@@ -73,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.Function;
@@ -160,6 +160,8 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
 
     private static final String COPY = "Copy";
@@ -432,10 +434,7 @@ public class ApiDefinitionService {
 
 
     public void checkQuota(String projectId) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPIDefinitionQuota(projectId);
-        }
+        baseQuotaService.checkAPIDefinitionQuota(projectId);
     }
 
     public void delete(String apiId) {

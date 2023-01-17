@@ -20,10 +20,10 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.GroupRequest;
 import io.metersphere.request.group.EditGroupRequest;
 import io.metersphere.request.group.EditGroupUserRequest;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +36,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,6 +69,8 @@ public class GroupService {
     private MicroService microService;
     @Resource
     private BaseUserService baseUserService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
     private static final String GLOBAL = "global";
 
     // 服务权限拼装顺序
@@ -526,13 +528,12 @@ public class GroupService {
     }
 
     private void addNotSystemGroupUser(Group group, List<String> userIds, List<String> sourceIds) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         for (String userId : userIds) {
             User user = userMapper.selectByPrimaryKey(userId);
             if (user == null) {
                 continue;
             }
-            checkQuota(quotaService, group.getType(), sourceIds, Collections.singletonList(userId));
+            checkQuota(group.getType(), sourceIds, Collections.singletonList(userId));
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
             UserGroupExample userGroupExample = new UserGroupExample();
@@ -555,11 +556,9 @@ public class GroupService {
     }
 
 
-    private void checkQuota(QuotaService quotaService, String type, List<String> sourceIds, List<String> userIds) {
-        if (quotaService != null) {
-            Map<String, List<String>> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> userIds));
-            quotaService.checkMemberCount(addMemberMap, type);
-        }
+    private void checkQuota(String type, List<String> sourceIds, List<String> userIds) {
+        Map<String, List<String>> addMemberMap = sourceIds.stream().collect(Collectors.toMap( id -> id, id -> userIds));
+        baseQuotaService.checkMemberCount(addMemberMap, type);
     }
 
     public void editGroupUser(EditGroupUserRequest request) {

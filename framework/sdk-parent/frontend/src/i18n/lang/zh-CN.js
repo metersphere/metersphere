@@ -492,6 +492,7 @@ const message = {
     },
     template_delete: "模版删除",
     scope: "应用场景",
+    other: "其他"
   },
   login: {
     normal_Login: "普通登录",
@@ -3292,7 +3293,7 @@ const message = {
       api_tip: '接口定义和受影响的接口用例都会进入待更新列表',
       case_tip: '接口用例符合条件就会进入待更新列表',
       update_rule_title: '进入待更新列表规则设置',
-      no_show_setting: '不再弹出设置弹窗',
+      no_show_setting: '不再弹出此弹窗',
       api_receiver_tip: "注意：请确认接口测试任务通知中的\"API更新\"已设置\"站内信\"消息，否则，将接收不到消息提醒。",
       case_receiver_tip: "注意：请确认接口测试任务通知中的\"CASE更新\"已设置\"站内信\"消息，否则，将接收不到消息提醒。",
       no_show_setting_tip: "勾选后，不再弹出弹窗，会默认按照设置的内容执行同步和变更通知：如果需要更改设置，可以在保存按钮旁的下拉选项中，打开设置项。",

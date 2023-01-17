@@ -215,7 +215,7 @@ export default {
       }
     },
     rerunVerify() {
-      if (hasLicense() && this.fullTreeNodes && this.fullTreeNodes.length > 0 && !this.isShare) {
+      if (this.fullTreeNodes && this.fullTreeNodes.length > 0 && !this.isShare) {
         this.fullTreeNodes.forEach(item => {
             item.redirect = true;
             if (item.totalStatus === 'FAIL' || item.totalStatus === 'ERROR' || item.unExecuteTotal > 0

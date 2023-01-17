@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,9 +58,7 @@ public class ApiHomeController {
 
     @GetMapping("/api/count/{projectId}/{versionId}")
     public ApiDataCountDTO apiCount(@PathVariable String projectId, @PathVariable String versionId) {
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         List<ApiDataCountResult> countResultByProtocolList = apiDefinitionService.countProtocolByProjectID(projectId, versionId);
         apiCountResult.countProtocol(countResultByProtocolList);
@@ -103,9 +101,7 @@ public class ApiHomeController {
 
     @GetMapping("/api/case/count/{projectId}/{versionId}")
     public ApiDataCountDTO apiCaseCount(@PathVariable String projectId, @PathVariable String versionId) {
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId, versionId);
         apiCountResult.countProtocol(countResultList);
@@ -146,9 +142,7 @@ public class ApiHomeController {
 
     @GetMapping("/scenario/count/{projectId}/{versionId}")
     public ApiDataCountDTO scenarioCount(@PathVariable String projectId, @PathVariable String versionId) {
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         long scenarioCountNumber = apiAutomationService.countScenarioByProjectID(projectId, versionId);
         apiCountResult.setTotal(scenarioCountNumber);
@@ -190,11 +184,8 @@ public class ApiHomeController {
 
     @GetMapping("/schedule/task/count/{projectId}/{versionId}")
     public ApiDataCountDTO scheduleTaskCount(@PathVariable String projectId, @PathVariable String versionId) {
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         List<Schedule> allScenarioScheduleList = baseScheduleService.selectScenarioTaskByProjectId(projectId, versionId);
-
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
         long allTaskCount = allScenarioScheduleList.size();
         apiCountResult.setTotal(allTaskCount);
@@ -246,9 +237,7 @@ public class ApiHomeController {
     @PostMapping("/runningTask/{projectId}/{versionId}/{goPage}/{pageSize}")
     public Pager<List<TaskInfoResult>> runningTask(@PathVariable String projectId, @PathVariable String versionId, @PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         List<TaskInfoResult> resultList = taskService.findScenarioAndSwaggerRunningTaskInfoByProjectID(projectId, versionId);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :
@@ -266,9 +255,7 @@ public class ApiHomeController {
     @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{selectFunctionCase}/{limitNumber}/{goPage}/{pageSize}")
     public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable String versionId, @PathVariable boolean selectFunctionCase,
                                                                      @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
-        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
-            versionId = null;
-        }
+        versionId = this.initializationVersionId(versionId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, versionId, selectFunctionCase, limitNumber);
         List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
@@ -287,5 +274,14 @@ public class ApiHomeController {
             returnList.add(dataDTO);
         }
         return PageUtils.setPageInfo(page, returnList);
+    }
+
+    //初始化版本ID
+    private String initializationVersionId(String versionId) {
+        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
+            return null;
+        } else {
+            return versionId;
+        }
     }
 }

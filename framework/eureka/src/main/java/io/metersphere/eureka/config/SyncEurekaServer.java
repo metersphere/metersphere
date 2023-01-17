@@ -1,5 +1,6 @@
 package io.metersphere.eureka.config;
 
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -14,7 +15,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;

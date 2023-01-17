@@ -9,7 +9,7 @@ import io.metersphere.plan.request.LoadCaseRequest;
 import io.metersphere.track.service.PerformanceTestCaseService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RestController

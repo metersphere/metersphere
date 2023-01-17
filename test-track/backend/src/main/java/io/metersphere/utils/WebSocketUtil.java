@@ -3,8 +3,8 @@ package io.metersphere.utils;
 import io.metersphere.dto.MsgDTO;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.websocket.RemoteEndpoint;
-import javax.websocket.Session;
+import jakarta.websocket.RemoteEndpoint;
+import jakarta.websocket.Session;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;

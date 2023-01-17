@@ -4,11 +4,14 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.impl.routing.SystemDefaultRoutePlanner;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -20,19 +23,24 @@ import java.util.Arrays;
 
 public abstract class BaseClient {
 
-    protected  RestTemplate restTemplate;
+    protected RestTemplate restTemplate;
 
-     {
+    {
         try {
             TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
-            SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
+            SSLContext sslContext = SSLContexts.custom()
                     .loadTrustMaterial(null, acceptingTrustStrategy)
                     .build();
             SSLConnectionSocketFactory csf = new SSLConnectionSocketFactory(sslContext);
+
+            HttpClientConnectionManager cm = PoolingHttpClientConnectionManagerBuilder.create()
+                    .setSSLSocketFactory(csf)
+                    .build();
+
             CloseableHttpClient httpClient = HttpClients.custom()
                     // 可以支持设置系统代理
                     .setRoutePlanner(new SystemDefaultRoutePlanner(new EnvProxySelector()))
-                    .setSSLSocketFactory(csf)
+                    .setConnectionManager(cm)
                     .build();
             HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
             requestFactory.setHttpClient(httpClient);
@@ -43,7 +51,7 @@ public abstract class BaseClient {
         }
     }
 
-    protected  HttpHeaders getBasicHttpHeaders(String userName, String passWd) {
+    protected HttpHeaders getBasicHttpHeaders(String userName, String passWd) {
         String authKey = EncryptUtils.base64Encoding(userName + ":" + passWd);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + authKey);
@@ -51,21 +59,21 @@ public abstract class BaseClient {
         return headers;
     }
 
-    protected  String getResult(ResponseEntity<String> response) {
+    protected String getResult(ResponseEntity<String> response) {
         int statusCodeValue = response.getStatusCodeValue();
         LogUtil.info("responseCode: " + statusCodeValue);
-        if(statusCodeValue >= 400){
+        if (statusCodeValue >= 400) {
             MSException.throwException(response.getBody());
         }
         LogUtil.info("result: " + response.getBody());
         return response.getBody();
     }
 
-    protected  Object getResultForList(Class clazz, ResponseEntity<String> response) {
+    protected Object getResultForList(Class clazz, ResponseEntity<String> response) {
         return Arrays.asList(JSON.parseArray(getResult(response), clazz).toArray());
     }
 
-    protected  Object getResultForObject(Class clazz,ResponseEntity<String> response) {
+    protected Object getResultForObject(Class clazz, ResponseEntity<String> response) {
         return JSON.parseObject(getResult(response), clazz);
     }
 }

@@ -1,10 +1,10 @@
 package io.metersphere.workstation.controller.track;
 
 import io.metersphere.workstation.service.track.TrackSettingService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping(path = {

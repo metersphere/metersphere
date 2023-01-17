@@ -12,7 +12,7 @@ import org.xmind.core.*;
 import org.xmind.core.style.IStyle;
 import org.xmind.core.style.IStyleSheet;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

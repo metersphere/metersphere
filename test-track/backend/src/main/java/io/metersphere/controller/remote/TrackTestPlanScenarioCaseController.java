@@ -7,7 +7,7 @@ import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.service.wapper.CheckPermissionService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/test/plan/scenario/case")

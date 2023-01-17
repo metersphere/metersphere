@@ -13,7 +13,7 @@ import io.metersphere.service.FileRepositoryService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/file/repository")
@@ -35,7 +35,7 @@ public class FileRepositoryController {
             GitRepositoryUtil utils = new GitRepositoryUtil(node.getRepositoryPath(), node.getRepositoryUserName(), node.getRepositoryToken());
             utils.getBranches();
         }
-        return "suucess";
+        return "success";
     }
 
     @GetMapping(value = "/fileVersion/{refId}")

@@ -22,14 +22,14 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.WorkspaceRequest;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +57,8 @@ public class WorkspaceService {
     private EnvironmentGroupService environmentGroupService;
     @Resource
     private BaseScheduleService baseScheduleService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     private static final String GLOBAL = "global";
 
@@ -150,10 +152,7 @@ public class WorkspaceService {
         workspace.setCreateUser(SessionUtils.getUserId());
         workspaceMapper.insertSelective(workspace);
 
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.workspaceUseDefaultQuota(wsId);
-        }
+        baseQuotaService.workspaceUseDefaultQuota(wsId);
 
         // 创建工作空间为当前用户添加用户组
         UserGroup userGroup = new UserGroup();

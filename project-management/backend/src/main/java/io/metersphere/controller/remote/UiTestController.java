@@ -3,8 +3,8 @@ package io.metersphere.controller.remote;
 import io.metersphere.service.remote.UiTestService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(path = {

@@ -15,7 +15,7 @@ import io.metersphere.request.UpdateCaseFieldTemplateRequest;
 import io.metersphere.service.TestCaseTemplateService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/field/template/case")

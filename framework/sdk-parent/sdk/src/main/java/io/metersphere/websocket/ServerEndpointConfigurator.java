@@ -2,9 +2,9 @@ package io.metersphere.websocket;
 
 import io.metersphere.commons.utils.SessionUtils;
 
-import javax.websocket.HandshakeResponse;
-import javax.websocket.server.HandshakeRequest;
-import javax.websocket.server.ServerEndpointConfig;
+import jakarta.websocket.HandshakeResponse;
+import jakarta.websocket.server.HandshakeRequest;
+import jakarta.websocket.server.ServerEndpointConfig;
 
 public class ServerEndpointConfigurator extends ServerEndpointConfig.Configurator {
     @Override

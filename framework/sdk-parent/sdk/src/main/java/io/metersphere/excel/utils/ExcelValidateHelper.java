@@ -3,11 +3,11 @@ package io.metersphere.excel.utils;
 import com.alibaba.excel.annotation.ExcelProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import javax.validation.groups.Default;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.groups.Default;
 import java.lang.reflect.Field;
 import java.util.Set;
 

@@ -48,6 +48,7 @@ import io.metersphere.log.vo.schedule.ScheduleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
@@ -57,7 +58,6 @@ import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
 import io.metersphere.xpack.api.service.ApiAutomationRelationshipEdgeService;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -77,7 +77,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -157,6 +157,8 @@ public class ApiScenarioService {
     private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -297,10 +299,7 @@ public class ApiScenarioService {
     }
 
     private void checkQuota(String projectId) {
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
-        if (quotaService != null) {
-            quotaService.checkAPIAutomationQuota(projectId);
-        }
+        baseQuotaService.checkAPIAutomationQuota(projectId);
     }
 
     private void uploadFiles(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {

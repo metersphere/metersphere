@@ -9,7 +9,7 @@ import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;

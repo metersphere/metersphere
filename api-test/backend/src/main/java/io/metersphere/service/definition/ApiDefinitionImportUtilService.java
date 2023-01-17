@@ -34,7 +34,7 @@ import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 

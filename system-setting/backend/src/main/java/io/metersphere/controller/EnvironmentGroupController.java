@@ -6,7 +6,7 @@ import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.service.EnvironmentGroupService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Map;
 
 @RestController

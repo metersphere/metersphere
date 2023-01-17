@@ -434,7 +434,13 @@ export default {
       });
     },
     handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
+      let selectRowMap = new Map();
+      for (let selectRow of this.selectRows) {
+        selectRowMap.set(selectRow.id, selectRow);
+      }
+      _handleSelect(this, selection, row, selectRowMap);
+      let selectRow = Array.from(selectRowMap.values());
+      this.selectRows = new Set(selectRow);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(
         this.condition,

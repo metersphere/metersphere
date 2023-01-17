@@ -139,7 +139,7 @@ export default {
       let param = params[index];
       let childObj;
 
-      let reg = /\[\d\]$/;
+      let reg = /\[[0-9]+\]$/;
       let regIndex = param.search(reg);
       if (regIndex > -1) {
         let paramName = param.substring(0, regIndex);

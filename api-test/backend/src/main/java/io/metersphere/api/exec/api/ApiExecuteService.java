@@ -46,7 +46,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -233,12 +233,17 @@ public class ApiExecuteService {
         //检查TCP数据结构，等其他进行处理
         tcpApiParamService.checkTestElement(request.getTestElement());
 
-        String testId = request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ? request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
+        String testId = request.getTestElement() != null
+                && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())
+                && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().getFirst().getHashTree())
+                ? request.getTestElement().getHashTree().getFirst().getHashTree().getFirst().getId()
+                : request.getId();
 
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
+
         // 加载自定义JAR
         List<String> projectIds = NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
@@ -273,7 +278,8 @@ public class ApiExecuteService {
         JSONObject elementObj = JSONUtil.parseObject(testCaseWithBLOBs.getRequest());
         ElementUtil.dataFormatting(elementObj);
 
-        MsTestElement element = JSON.parseObject(elementObj.toString(), new TypeReference<MsTestElement>() {});
+        MsTestElement element = JSON.parseObject(elementObj.toString(), new TypeReference<MsTestElement>() {
+        });
         element.setProjectId(testCaseWithBLOBs.getProjectId());
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();

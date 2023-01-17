@@ -6,7 +6,7 @@ import io.metersphere.service.FileService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 public class RsaConfig implements ApplicationRunner {
     @Resource

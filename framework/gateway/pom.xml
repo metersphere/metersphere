@@ -194,6 +194,10 @@
                     <artifactId>xz</artifactId>
                     <groupId>org.tukaani</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>springdoc-openapi-ui</artifactId>
+                    <groupId>org.springdoc</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

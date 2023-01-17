@@ -8,7 +8,7 @@ import io.metersphere.ldap.service.LdapService;
 import io.metersphere.log.annotation.MsAuditLog;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @RestController
 @RequestMapping("/ldap")

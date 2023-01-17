@@ -5,12 +5,13 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthorizedException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
 
 

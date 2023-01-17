@@ -22,11 +22,11 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.DeleteReportRequest;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
-import io.metersphere.xpack.quota.service.QuotaService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +37,9 @@ import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.annotation.Resource;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -85,6 +85,8 @@ public class PerformanceReportService {
     private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
     @Resource
     private BaseEnvironmentService baseEnvironmentService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -191,21 +193,18 @@ public class PerformanceReportService {
         if (project == null || StringUtils.isBlank(project.getWorkspaceId())) {
             MSException.throwException("project is null or workspace_id of project is null. project id: " + projectId);
         }
-        QuotaService quotaService = CommonBeanFactory.getBean(QuotaService.class);
         RLock lock = redissonClient.getLock(project.getWorkspaceId());
-        if (quotaService != null) {
-            try {
-                lock.lock();
-                BigDecimal toReduceVum = quotaService.getReduceVumUsed(report);
-                if (toReduceVum.compareTo(BigDecimal.ZERO) != 0) {
-                    quotaService.updateVumUsed(projectId, toReduceVum.negate());
-                }
-                engine.stop();
-                loadTest.setStatus(PerformanceTestStatus.Saved.name());
-                loadTestMapper.updateByPrimaryKeySelective(loadTest);
-            } finally {
-                lock.unlock();
+        try {
+            lock.lock();
+            BigDecimal toReduceVum = baseQuotaService.getReduceVumUsed(report);
+            if (toReduceVum.compareTo(BigDecimal.ZERO) != 0) {
+                baseQuotaService.updateVumUsed(projectId, toReduceVum.negate());
             }
+            engine.stop();
+            loadTest.setStatus(PerformanceTestStatus.Saved.name());
+            loadTestMapper.updateByPrimaryKeySelective(loadTest);
+        } finally {
+            lock.unlock();
         }
     }
 

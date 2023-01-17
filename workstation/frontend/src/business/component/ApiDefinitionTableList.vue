@@ -603,7 +603,6 @@ export default {
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    /*this.condition.orders = getLastTableSortField(this.tableHeaderKey);*/
     if (this.isFocus) {
       if (this.condition.filters) {
         delete this.condition.filters['user_id']
@@ -671,6 +670,8 @@ export default {
       this.condition.toBeUpdated = !this.isFinish;
       if (!this.isFinish) {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      } else {
+        this.condition.filters = {status: ["Prepare", "Underway", "NO"]};
       }
       this.initTable();
     },
@@ -678,11 +679,7 @@ export default {
   methods: {
     changeTabState(name) {
       this.$refs.apiTable.clearFilter();
-      if (name === 'update') {
-        this.isFinish = false;
-      } else {
-        this.isFinish = true;
-      }
+      this.isFinish = name !== 'update';
     },
     getProjectName() {
       getProject(this.projectId).then(response => {

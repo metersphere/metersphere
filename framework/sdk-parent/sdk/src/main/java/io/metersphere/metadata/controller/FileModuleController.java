@@ -10,7 +10,7 @@ import io.metersphere.metadata.vo.FileModuleVo;
 import io.metersphere.service.BaseCheckPermissionService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/file/module")

@@ -10,7 +10,7 @@ import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.log.annotation.MsAuditLog;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/api/automation/module")

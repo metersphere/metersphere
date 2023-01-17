@@ -9,7 +9,7 @@ pipeline {
     }
     environment {
         IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
-        JAVA_HOME = '/opt/jdk-11'
+        JAVA_HOME = '/opt/jdk-17'
     }
     stages {
         stage('Preparation') {
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
-                        export JAVA_HOME=/opt/jdk-11
+                        export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
                         java -version
@@ -58,7 +58,7 @@ pipeline {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
-                        export JAVA_HOME=/opt/jdk-11
+                        export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
                         java -version
@@ -83,7 +83,7 @@ pipeline {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
-                        export JAVA_HOME=/opt/jdk-11
+                        export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:$PATH
                         java -version

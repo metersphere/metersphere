@@ -25,7 +25,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -201,7 +201,7 @@ public class MsHashTreeService {
     private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.has(ENABLE) ? element.optBoolean(ENABLE) : true;
         if (!element.has(MIX_ENABLE)) {
-            element.put(MIX_ENABLE, true);
+            element.put(MIX_ENABLE, false);
         }
 
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.optString(ID));
@@ -209,7 +209,7 @@ public class MsHashTreeService {
             boolean environmentEnable = element.has(ENV_ENABLE) ? element.optBoolean(ENV_ENABLE) : false;
             boolean variableEnable = element.has(VARIABLE_ENABLE) ? element.optBoolean(VARIABLE_ENABLE) : false;
             boolean mixEnable = element.has(MIX_ENABLE)
-                    ? element.getBoolean(MIX_ENABLE) : true;
+                    ? element.getBoolean(MIX_ENABLE) : false;
 
             if (environmentEnable && StringUtils.isNotEmpty(scenarioWithBLOBs.getEnvironmentJson())) {
                 element.put(ENV_MAP, JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));

@@ -117,7 +117,7 @@
           </div>
 
           <!-- 失败重试 -->
-          <div class="mode-row" v-if="isHasLicense">
+          <div class="mode-row">
             <el-checkbox
               v-model="runConfig.retryEnable"
               class="ms-failure-div-right"
@@ -127,7 +127,7 @@
             <span v-if="runConfig.retryEnable">
               <el-tooltip placement="top" style="margin: 0 4px 0 2px">
                 <div slot="content">{{ $t("run_mode.retry_message") }}</div>
-                <i class="el-icon-question" style="cursor: pointer"/>
+                <i class="el-icon-question" style="cursor: pointer" />
               </el-tooltip>
               <span style="margin-left: 10px">
                 {{ $t("run_mode.retry") }}
@@ -146,9 +146,8 @@
           </div>
 
           <div class="mode-row" v-if="runConfig.mode === 'serial'">
-            <el-checkbox v-model="runConfig.onSampleError">{{
-                $t("api_test.fail_to_stop")
-              }}
+            <el-checkbox v-model="runConfig.onSampleError"
+              >{{ $t("api_test.fail_to_stop") }}
             </el-checkbox>
           </div>
 
@@ -166,38 +165,38 @@
         <el-button @click="close">{{ $t("commons.cancel") }}</el-button>
         <el-dropdown @command="handleCommand" style="margin-left: 5px">
           <el-button type="primary">
-            {{
-              $t("load_test.save_and_run")
+            {{ $t("load_test.save_and_run")
             }}<i class="el-icon-arrow-down el-icon--right"></i>
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="run">{{
-                $t("load_test.save_and_run")
-              }}
+            <el-dropdown-item command="run"
+              >{{ $t("load_test.save_and_run") }}
             </el-dropdown-item>
-            <el-dropdown-item command="save">{{
-                $t("commons.save")
-              }}
+            <el-dropdown-item command="save"
+              >{{ $t("commons.save") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
-      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch"/>
+      <ms-dialog-footer v-else @cancel="close" @confirm="handleRunBatch" />
     </template>
   </el-dialog>
 </template>
 
 <script>
-import {getCurrentProjectID, getOwnerProjects, hasLicense} from "@/business/utils/sdk-utils";
-import {BODY_TYPE as ENV_TYPE} from "@/business/plan/env/ApiTestModel";
+import {
+  getCurrentProjectID,
+  getOwnerProjects,
+} from "@/business/utils/sdk-utils";
+import { BODY_TYPE as ENV_TYPE } from "@/business/plan/env/ApiTestModel";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import EnvPopover from "@/business/plan/env/EnvPopover";
-import {getProjectConfig} from "@/api/project";
-import {getSystemBaseSetting} from "metersphere-frontend/src/api/system";
+import { getProjectConfig } from "@/api/project";
+import { getSystemBaseSetting } from "metersphere-frontend/src/api/system";
 
 export default {
   name: "MsPlanRunModeWithEnv",
-  components: {EnvPopover, MsDialogFooter},
+  components: { EnvPopover, MsDialogFooter },
   data() {
     return {
       runMode: "",
@@ -220,7 +219,6 @@ export default {
         retryNum: 1,
         browser: "CHROME",
       },
-      isHasLicense: hasLicense(),
       projectEnvListMap: {},
       projectList: [],
       projectIds: new Set(),
@@ -267,8 +265,12 @@ export default {
     open(testType, runModeConfig) {
       if (runModeConfig) {
         this.runConfig = JSON.parse(runModeConfig);
-        this.runConfig.onSampleError = this.runConfig.onSampleError === 'true' || this.runConfig.onSampleError === true;
-        this.runConfig.runWithinResourcePool = this.runConfig.runWithinResourcePool === 'true' || this.runConfig.runWithinResourcePool === true;
+        this.runConfig.onSampleError =
+          this.runConfig.onSampleError === "true" ||
+          this.runConfig.onSampleError === true;
+        this.runConfig.runWithinResourcePool =
+          this.runConfig.runWithinResourcePool === "true" ||
+          this.runConfig.runWithinResourcePool === true;
       }
       this.runModeVisible = true;
       this.testType = testType;
@@ -278,21 +280,21 @@ export default {
     },
     query() {
       this.loading = true;
-      this.result = getSystemBaseSetting().then(response => {
+      this.result = getSystemBaseSetting().then((response) => {
         if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
+          response.data.runMode = "LOCAL";
         }
         this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
+        if (this.runMode === "POOL") {
           this.runConfig.runWithinResourcePool = true;
           this.getProjectApplication();
         } else {
           this.loading = false;
         }
-      })
+      });
     },
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), "").then(res => {
+      getProjectConfig(getCurrentProjectID(), "").then((res) => {
         if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
           this.runConfig.resourcePoolId = res.data.resourcePoolId;
         }
@@ -336,10 +338,9 @@ export default {
       this.runConfig.environmentGroupId = id;
     },
     getWsProjects() {
-      getOwnerProjects()
-        .then((res) => {
-          this.projectList = res.data;
-        });
+      getOwnerProjects().then((res) => {
+        this.projectList = res.data;
+      });
     },
     showPopover() {
       this.projectIds.clear();
@@ -353,7 +354,7 @@ export default {
         param = this.planCaseIds;
       } else if (this.type === "plan") {
         url = "/test/plan/case/env";
-        param = {id: this.planId};
+        param = { id: this.planId };
       }
       this.$post(url, param, (res) => {
         let data = res.data;

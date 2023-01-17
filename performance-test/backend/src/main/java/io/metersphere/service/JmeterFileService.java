@@ -11,7 +11,7 @@ import io.metersphere.engine.EngineFactory;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;

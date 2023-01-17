@@ -4,7 +4,7 @@ import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.utils.LogUtil;
 import org.quartz.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
