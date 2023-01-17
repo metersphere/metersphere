@@ -17,7 +17,7 @@
       </div>
     </el-row>
     <el-row style="margin-top: 16px">
-      <span class="text-class">{{ $t('api_test.definition.request.other_config') }}</span>
+      <span class="text-class">{{ $t('commons.other') }}</span>
       <div style="color: var(--primary_color);margin-top: 8px;">
         <el-checkbox v-model="fromData.delNotSame" @change="changeEvent">
           <span class="text-class">{{ $t('workstation.delNotSame') }}</span>

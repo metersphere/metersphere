@@ -487,7 +487,8 @@ const message = {
       ui_element: 'default',
       ui_scenario: 'default',
       ui_module: "default",
-    }
+    },
+    other: "Other"
   },
   login: {
     normal_Login: "Normal Login",
@@ -3283,7 +3284,7 @@ const message = {
       api_tip: 'Both the interface definition and the affected interface use cases will enter the to-be-updated list',
       case_tip: 'If the interface use case meets the conditions, it will enter the to-be-updated list',
       update_rule_title: 'Enter the to-be-updated list rule settings',
-      no_show_setting: 'No more setting pop-ups',
+      no_show_setting: 'Do not pop up this popup again',
       api_receiver_tip: "Note: Please confirm that \"API update\" in the API test task notification has been set \"Intra-site message\" message, otherwise, you will not receive message reminders",
       case_receiver_tip: "Note: Please confirm that \"CASE update\" in the API test task notification has been set \"Intra-site message\" message, otherwise, you will not receive message reminders",
       no_show_setting_tip: "After checking, the pop-up window will no longer pop up, and the synchronization and change notification will be performed according to the setting content by default: If you need to change the setting, you can open the setting item in the drop-down option next to the save button。",
