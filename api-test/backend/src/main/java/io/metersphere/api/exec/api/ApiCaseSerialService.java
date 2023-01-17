@@ -34,7 +34,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.xpack.api.service.ApiRetryOnFailureService;
+import io.metersphere.service.ApiRetryOnFailureService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
@@ -59,6 +59,8 @@ public class ApiCaseSerialService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private ApiRetryOnFailureService apiRetryOnFailureService;
 
     public void serial(DBTestQueue executionQueue) {
         ApiExecutionQueueDetail queue = executionQueue.getDetail();
@@ -154,7 +156,6 @@ public class ApiCaseSerialService {
                 String data = element.toString();
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     // 失败重试
-                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
                     String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
                     data = StringUtils.isNotEmpty(retryData) ? retryData : data;
                     // 格式化数据

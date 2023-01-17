@@ -59,7 +59,7 @@
             @click.stop
             @click="generate"
             style="margin-left: 10px"
-            v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
+            v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
             {{ $t('commons.generate_test_data') }}
           </el-button>
         </el-form-item>

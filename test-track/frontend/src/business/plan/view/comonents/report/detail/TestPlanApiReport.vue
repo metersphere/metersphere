@@ -62,7 +62,6 @@ import ApiResult from "@/business/plan/view/comonents/report/detail/component/Ap
 import TestPlanReportContainer from "@/business/plan/view/comonents/report/detail/TestPlanReportContainer";
 import ApiCases from "@/business/plan/view/comonents/report/detail/component/ApiCases";
 import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {apiTestExecRerun} from "@/api/remote/ui/api-test";
 
 export default {
@@ -79,7 +78,7 @@ export default {
     };
   },
   created() {
-    this.showRerunBtn = !this.isShare && hasLicense();
+    this.showRerunBtn = !this.isShare;
   },
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'

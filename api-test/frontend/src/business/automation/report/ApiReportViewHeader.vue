@@ -118,7 +118,6 @@ import {apiProjectByScenarioId, getProjectApplicationConfig} from '../../../api/
 import { apiTestReRun } from '../../../api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getApiScenarioIdByPlanScenarioId } from '@/api/test-plan';
-import {getScenarioReport} from '../../../api/scenario-report';
 
 export default {
   name: 'MsApiReportViewHeader',

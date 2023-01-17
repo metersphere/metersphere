@@ -111,9 +111,7 @@
                 :headers="request.headers"
                 :body="request.body" />
             </el-tab-pane>
-            <el-tab-pane
-              name="create"
-              v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
+            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && definitionTest">
               <template v-slot:label>
                 <el-button size="mini" type="primary" @click.stop @click="generate"
                   >{{ $t('commons.generate_test_data') }}
