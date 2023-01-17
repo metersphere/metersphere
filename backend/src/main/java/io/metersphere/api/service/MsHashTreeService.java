@@ -247,7 +247,7 @@ public class MsHashTreeService {
     private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.containsKey(ENABLE) ? element.getBoolean(ENABLE) : true;
         if (!element.containsKey(MIX_ENABLE)) {
-            element.put(MIX_ENABLE, true);
+            element.put(MIX_ENABLE, false);
         }
 
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(element.getString(ID));
