@@ -183,7 +183,8 @@ export default {
     },
     export: {
       export: "Export cases",
-      export_tip: "Switch to Case List and check Use Case Export"
+      export_tip: "Switch to Case List and check Use Case Export",
+      export_format: "Export Format",
     },
     case_desc: "Case Desc",
     passing_rate: 'Case Pass Rate',
