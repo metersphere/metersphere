@@ -11,8 +11,8 @@
       :update-permission="['PROJECT_API_SCENARIO:READ+EDIT']"
       :default-label="$t('commons.module_title')"
       :show-case-num="showCaseNum"
-      :operation_type_add="treeOperationType"
-      :operation_type_edit="treeOperationType"
+      operation_type_add="external"
+      operation_type_edit="external"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -22,24 +22,31 @@
       @nodeSelectEvent="nodeChange"
       @addOperation="fileTreeModuleAdd"
       @editOperation="fileTreeModuleEdit"
-      ref="nodeTree">
+      ref="nodeTree"
+    >
       <template v-slot:header>
-        <ms-search-bar
-          :show-operator="showOperator"
-          :condition="condition"/>
-        <ms-my-file :condition="condition" :exe="myFile" :total='total' v-if="loading"/>
+        <ms-search-bar :show-operator="showOperator" :condition="condition" />
+        <ms-my-file
+          :condition="condition"
+          :exe="myFile"
+          :total="total"
+          v-if="loading"
+        />
       </template>
     </ms-node-tree>
-    <file-module-dialog @refresh="list" ref="fileModuleDialog"/>
+    <file-module-dialog @refresh="list" ref="fileModuleDialog" />
   </div>
 </template>
 
 <script>
 import MsNodeTree from "./NodeTree.vue";
-import {buildTree} from "metersphere-frontend/src/model/NodeTree";
+import { buildTree } from "metersphere-frontend/src/model/NodeTree";
 import MsMyFile from "./MyFile";
 import MsSearchBar from "metersphere-frontend/src/components/search/MsSearchBar";
-import {getCurrentProjectID, getCurrentUserId} from "metersphere-frontend/src/utils/token";
+import {
+  getCurrentProjectID,
+  getCurrentUserId,
+} from "metersphere-frontend/src/utils/token";
 import FileModuleDialog from "@/business/menu/file/dialog/FileModuleDialog";
 import {
   createFileModule,
@@ -48,12 +55,11 @@ import {
   getFileMeta,
   getFileModule,
   modifyFileModule,
-  posModule
+  posModule,
 } from "../../../../api/file";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 
 export default {
-  name: 'MsFileModule',
+  name: "MsFileModule",
   components: {
     MsSearchBar,
     MsMyFile,
@@ -65,7 +71,7 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
     showOperator: Boolean,
     relevanceProjectId: String,
@@ -75,17 +81,13 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
-    }
+      },
+    },
   },
   computed: {
     projectId() {
       return getCurrentProjectID();
     },
-    treeOperationType() {
-      let returnStr = hasLicense() ? 'external' : 'simple'
-      return returnStr;
-    }
   },
   data() {
     return {
@@ -95,109 +97,125 @@ export default {
       loading: true,
       condition: {
         filterText: "",
-        trashEnable: false
+        trashEnable: false,
       },
       data: [],
       currentModule: undefined,
-    }
+    };
   },
   mounted() {
     this.myFiles();
     this.list();
   },
   watch: {
-    'condition.filterText'() {
+    "condition.filterText"() {
       this.filter();
     },
     relevanceProjectId() {
       this.myFiles();
       this.list();
-    }
+    },
   },
   methods: {
     fileTreeModuleAdd(param) {
-      this.$refs.fileModuleDialog.open('create', param);
+      this.$refs.fileModuleDialog.open("create", param);
     },
     fileTreeModuleEdit(data) {
-      this.$refs.fileModuleDialog.open('edit', data);
+      this.$refs.fileModuleDialog.open("edit", data);
     },
     reload() {
-      this.loading = false
+      this.loading = false;
       this.$nextTick(() => {
-        this.loading = true
+        this.loading = true;
       });
     },
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
     myFiles() {
-      this.nodeLoading = getFileMeta(getCurrentProjectID(), getCurrentUserId()).then(res => {
+      this.nodeLoading = getFileMeta(
+        getCurrentProjectID(),
+        getCurrentUserId()
+      ).then((res) => {
         this.total = res.data;
       });
     },
     list(projectId) {
-      this.nodeLoading = getFileModule(projectId ? projectId : this.projectId).then(res => {
+      this.nodeLoading = getFileModule(
+        projectId ? projectId : this.projectId
+      ).then((res) => {
         if (res.data) {
           this.data = res.data;
-          this.data.forEach(node => {
-            node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name
-            buildTree(node, {path: ''});
+          this.data.forEach((node) => {
+            node.name =
+              node.name === "DEF_MODULE"
+                ? this.$t("commons.module_title")
+                : node.name;
+            buildTree(node, { path: "" });
           });
-          this.$emit('setModuleOptions', this.data);
-          this.$emit('setNodeTree', this.data);
+          this.$emit("setModuleOptions", this.data);
+          this.$emit("setNodeTree", this.data);
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter(this.condition.filterText);
           }
         }
-      })
+      });
     },
     edit(param) {
       param.projectId = this.projectId;
       param.protocol = this.condition.protocol;
-      modifyFileModule(param).then(() => {
-        this.$success(this.$t('commons.save_success'));
-        this.list();
-        this.refresh();
-      }).catch(() => {
-        this.list();
-      });
+      modifyFileModule(param)
+        .then(() => {
+          this.$success(this.$t("commons.save_success"));
+          this.list();
+          this.refresh();
+        })
+        .catch(() => {
+          this.list();
+        });
     },
     add(param) {
       param.projectId = this.projectId;
       param.protocol = this.condition.protocol;
-      createFileModule(param).then(() => {
-        this.$success(this.$t('commons.save_success'));
-        this.list();
-      }).catch(() => {
-        this.list();
-      });
-    },
-    remove(nodeIds) {
-      deleteFileModule(nodeIds).then(() => {
-        this.list();
-        this.refresh();
-      }).catch(() => {
-        this.list();
-      });
-    },
-    drag(param, list) {
-      dragModule(param).then(() => {
-        posModule(list).then(() => {
+      createFileModule(param)
+        .then(() => {
+          this.$success(this.$t("commons.save_success"));
           this.list();
         })
-      }).catch(() => {
-        this.list();
-      });
+        .catch(() => {
+          this.list();
+        });
+    },
+    remove(nodeIds) {
+      deleteFileModule(nodeIds)
+        .then(() => {
+          this.list();
+          this.refresh();
+        })
+        .catch(() => {
+          this.list();
+        });
+    },
+    drag(param, list) {
+      dragModule(param)
+        .then(() => {
+          posModule(list).then(() => {
+            this.list();
+          });
+        })
+        .catch(() => {
+          this.list();
+        });
     },
     nodeChange(node, nodeIds, pNodes) {
       this.currentModule = node.data;
       if (!this.condition.filters) {
-        this.condition.filters = {createUser: []};
+        this.condition.filters = { createUser: [] };
       } else {
         this.condition.filters.createUser = [];
       }
       this.reload();
-      if (node.data.id === 'root') {
+      if (node.data.id === "root") {
         this.$emit("nodeSelectEvent", node, [], pNodes);
       } else {
         this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
@@ -215,16 +233,16 @@ export default {
         }
       });
       if (!this.condition.filters) {
-        this.condition.filters = {createUser: [getCurrentUserId()]};
+        this.condition.filters = { createUser: [getCurrentUserId()] };
       } else {
         this.condition.filters.createUser = [getCurrentUserId()];
       }
       this.condition.filters.moduleIds = [];
       this.$emit("myFile");
       this.reload();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
