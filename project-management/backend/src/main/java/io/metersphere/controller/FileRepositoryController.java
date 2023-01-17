@@ -35,7 +35,7 @@ public class FileRepositoryController {
             GitRepositoryUtil utils = new GitRepositoryUtil(node.getRepositoryPath(), node.getRepositoryUserName(), node.getRepositoryToken());
             utils.getBranches();
         }
-        return "suucess";
+        return "success";
     }
 
     @GetMapping(value = "/fileVersion/{refId}")

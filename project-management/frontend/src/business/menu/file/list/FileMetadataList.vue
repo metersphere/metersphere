@@ -363,7 +363,6 @@ export default {
     },
     beforeUploadFile(file) {
       if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
         return false;
       }
       if (file.size / 1024 / 1024 > 500) {
