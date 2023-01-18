@@ -876,11 +876,11 @@ public class ElementUtil {
         }
     }
 
-    public static String getScriptEnv(String environmentId, ParameterConfig config) {
+    public static String getScriptEnv(String environmentId, ParameterConfig config, String projectId) {
         if (StringUtils.isEmpty(environmentId)) {
             if (config.getConfig() != null) {
-                if (config.getProjectId() != null && config.getConfig().containsKey(config.getProjectId())) {
-                    return config.getConfig().get(config.getProjectId()).getEnvironmentId();
+                if (StringUtils.isNotBlank(projectId) && config.getConfig().containsKey(projectId)) {
+                    return config.getConfig().get(projectId).getEnvironmentId();
                 } else {
                     if (CollectionUtils.isNotEmpty(config.getConfig().values())) {
                         Optional<EnvironmentConfig> values = config.getConfig().entrySet().stream().findFirst().map(Map.Entry::getValue);
