@@ -43,7 +43,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config));
+        this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config, this.getProjectId()));
 
         TestElement processor = new BeanShellPostProcessor();
         if (jsrEnable == null || BooleanUtils.isTrue(jsrEnable)) {
