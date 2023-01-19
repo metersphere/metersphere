@@ -44,7 +44,7 @@ export function getAll() {
 }
 
 export function getUserWorkspace() {
-  return get('/workspace/list/userworkspace/');
+  return get('/workspace/list/userworkspace');
 }
 
 export function projectRelated(params) {

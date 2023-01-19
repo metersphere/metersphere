@@ -1024,7 +1024,7 @@ public class ApiDefinitionService {
 
     public void getReferenceIds(ApiScenarioRequest request) {
         ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
-        example.createCriteria().andReferenceIdEqualTo(request.getId()).andReferenceTypeEqualTo(MsTestElementConstants.REF.name());
+        example.createCriteria().andReferenceIdEqualTo(request.getId()).andReferenceTypeEqualTo(request.getRefType());
         List<ApiScenarioReferenceId> scenarioReferenceIds = apiScenarioReferenceIdMapper.selectByExample(example);
         List<String> scenarioIds = scenarioReferenceIds.stream().map(ApiScenarioReferenceId::getApiScenarioId).collect(Collectors.toList());
         request.setIds(scenarioIds);
