@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2</version>
         <relativePath/>
     </parent>
 
@@ -18,7 +18,7 @@
     <description>MeterSphere</description>
 
     <properties>
-        <revision>spring-boot-3.0</revision>
+        <revision>main</revision>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.0</spring-cloud.version>
         <dubbo.version>2.7.18</dubbo.version>
