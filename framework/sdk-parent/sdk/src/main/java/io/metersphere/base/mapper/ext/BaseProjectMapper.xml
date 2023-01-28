@@ -93,14 +93,14 @@
                             </when>
                             <when test="key == 'jira_key'">
                                 AND p.platform  = 'Jira'
-                                AND p.jira_key IN
+                                AND p.issue_config -> '$.jiraKey' IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
                             <when test="key == 'zentao_id'">
                                 AND p.platform  = 'Zentao'
-                                AND p.zentao_id IN
+                                AND p.issue_config -> '$.zentaoId' IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
