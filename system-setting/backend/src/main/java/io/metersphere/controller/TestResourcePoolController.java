@@ -64,4 +64,9 @@ public class TestResourcePoolController {
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
 
+    @GetMapping("/list/quota/ws/valid/{workspaceId}")
+    public List<TestResourcePoolDTO> listWsValidQuotaResourcePools(@PathVariable String workspaceId) {
+        return testResourcePoolService.listWsValidQuotaResourcePools(workspaceId);
+    }
+
 }
