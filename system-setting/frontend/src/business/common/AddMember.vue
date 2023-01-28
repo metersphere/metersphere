@@ -100,7 +100,7 @@ export default {
     userResourceUrl: {
       type: String,
       default() {
-        return '/user/list/';
+        return '/user/list';
       }
     }
   },
