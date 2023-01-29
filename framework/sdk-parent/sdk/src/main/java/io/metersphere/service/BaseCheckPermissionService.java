@@ -78,6 +78,9 @@ public class BaseCheckPermissionService {
     }
 
     public void checkProjectOwner(String projectId) {
+        if (SessionUtils.getUserId() != null && baseUserService.isSuperUser(SessionUtils.getUserId())) {
+            return;
+        }
         Set<String> projectIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(projectIds)) {
             return;
