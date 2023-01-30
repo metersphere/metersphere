@@ -527,8 +527,10 @@ export function handleAfterSave(rootNode) {
     rootNode.data.newId = null;
   }
   rootNode.data.deleteChild = null;
+  rootNode.data.originId = null;
   rootNode.data.changed = false;
   rootNode.data.contextChanged = false;
+  rootNode.data.isExtraNode = false;
   if (isModuleNode(rootNode)) {
     rootNode.data.type = 'node';
   } else if (isCaseNodeData(rootNode.data)) {
@@ -537,6 +539,19 @@ export function handleAfterSave(rootNode) {
   if (rootNode.children) {
     for (let i = 0; i < rootNode.children.length; i++) {
       handleAfterSave(rootNode.children[i]);
+    }
+  }
+}
+
+export function handleSaveError(rootNode) {
+  if (rootNode.data.originId) {
+    rootNode.data.id = rootNode.data.originId;
+  }
+  rootNode.data.originId = null;
+  rootNode.data.isExtraNode = false;
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      handleSaveError(rootNode.children[i]);
     }
   }
 }
