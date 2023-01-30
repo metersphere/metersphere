@@ -182,6 +182,17 @@ public class TestPlanTestCaseService {
             //记录功能用例执行信息
             functionCaseExecutionInfoService.insertExecutionInfo(testPlanTestCase.getId(), testPlanTestCase.getStatus());
         }
+        setUpdateCaseExecutor(testPlanTestCase);
+
+        testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+        testPlanTestCase.setRemark(null);
+        testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
+        testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
+
+        saveComment(testPlanTestCase);
+    }
+
+    private void setUpdateCaseExecutor(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.isNotBlank(testPlanTestCase.getStatus())) {
             TestPlanTestCaseWithBLOBs originData = testPlanTestCaseMapper.selectByPrimaryKey(testPlanTestCase.getId());
             if (!StringUtils.equals(originData.getStatus(), testPlanTestCase.getStatus())) {
@@ -189,12 +200,6 @@ public class TestPlanTestCaseService {
                 testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
             }
         }
-        testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-        testPlanTestCase.setRemark(null);
-        testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
-        testCaseService.updateLastExecuteStatus(testPlanTestCase.getCaseId(), testPlanTestCase.getStatus());
-
-        saveComment(testPlanTestCase);
     }
 
     private void saveComment(TestPlanFuncCaseEditRequest testPlanTestCase) {
@@ -451,6 +456,7 @@ public class TestPlanTestCaseService {
     public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
         testPlanTestCases.forEach(item -> {
             item.setUpdateTime(System.currentTimeMillis());
+            setUpdateCaseExecutor(item);
             testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
             testCaseService.updateLastExecuteStatus(item.getCaseId(), item.getStatus());
         });
