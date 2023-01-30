@@ -45,7 +45,7 @@ import {
   getChildNodeId,
   handleAfterSave,
   handleExpandToLevel,
-  handleMinderIssueDelete,
+  handleMinderIssueDelete, handleSaveError,
   handleTestCaseAdd,
   handTestCaeEdit,
   isCaseNodeData,
@@ -582,6 +582,7 @@ name: "TestCaseMinder",
         id: data.id,
         resource: data.resource,
       };
+      data.originId = data.id;
       if (nodeData.id && nodeData.id.length > 20) {
         nodeData.isEdit = true; // 编辑
       } else {
@@ -600,6 +601,7 @@ name: "TestCaseMinder",
     },
     throwError(tip) {
       this.$error(tip)
+      handleSaveError(window.minder.getRoot());
       throw new Error(tip);
     },
     tagEditCheck() {
