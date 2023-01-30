@@ -156,32 +156,17 @@ public class TestDataGenerator {
         value = StringUtils.isNotBlank(v) ? v : value;
         try {
             if (object.has(FORMAT)) {
-                String propertyFormat = object.get(FORMAT).getAsString();
-                switch (propertyFormat) {
-                    case "date-time":
-                        value = DateTimeSource.getInstance().randomTimestamp(LocalDate.now()) + "";
-                        break;
-                    case "date":
-                        value = DateTimeSource.getInstance().randomDate(LocalDate.now().getYear(), "yyyy-MM-dd");
-                        break;
-                    case "email":
-                        value = InternetSource.getInstance().randomEmail(maxLength);
-                        break;
-                    case "hostname":
-                        value = InternetSource.getInstance().randomDomain(maxLength);
-                        break;
-                    case "ipv4":
-                        value = InternetSource.getInstance().randomPublicIpv4();
-                        break;
-                    case "ipv6":
-                        value = InternetSource.getInstance().randomIpV6();
-                        break;
-                    case "uri":
-                        value = InternetSource.getInstance().randomStaticUrl("jpg");
-                        break;
-                }
-            }
-            if (object.has(PATTERN)) {
+                value = switch (object.get(FORMAT).getAsString()) {
+                    case "date-time" -> DateTimeSource.getInstance().randomTimestamp(LocalDate.now()) + "";
+                    case "date" -> DateTimeSource.getInstance().randomDate(LocalDate.now().getYear(), "yyyy-MM-dd");
+                    case "email" -> InternetSource.getInstance().randomEmail(maxLength);
+                    case "hostname" -> InternetSource.getInstance().randomDomain(maxLength);
+                    case "ipv4" -> InternetSource.getInstance().randomPublicIpv4();
+                    case "ipv6" -> InternetSource.getInstance().randomIpV6();
+                    case "uri" -> InternetSource.getInstance().randomStaticUrl("jpg");
+                    default -> value;
+                };
+            } else if (object.has(PATTERN)) {
                 String pattern = object.get(PATTERN).getAsString();
                 if (StringUtils.isNotEmpty(pattern)) {
                     Generex generex = new Generex(pattern);
