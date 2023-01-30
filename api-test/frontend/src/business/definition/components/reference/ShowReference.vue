@@ -6,10 +6,11 @@
         name="scenario">
         <ms-table
           v-if="!isHasRef"
-          :data="scenarioCopyData"
+          :data="scenarioData"
           style="width: 100%"
           :screen-height="screenHeight"
           :total="total"
+          :table-is-loading="result"
           :page-size="pageSize"
           :enable-selection="false"
           @refresh="search"
@@ -51,11 +52,12 @@
           :middle-button-enable="false">
           <ms-table
             v-if="activeDom === 'right'"
-            :data="scenarioRefData"
+            :data="scenarioData"
             style="width: 100%"
             :screen-height="screenHeight"
             :total="total"
             :page-size="pageSize"
+            :table-is-loading="result"
             :enable-selection="false"
             @refresh="search"
             :condition="condition">
@@ -89,11 +91,12 @@
           </ms-table>
           <ms-table
             v-if="activeDom === 'left'"
-            :data="scenarioCopyData"
+            :data="scenarioData"
             style="width: 100%"
             :screen-height="screenHeight"
             :total="total"
             :page-size="pageSize"
+            :table-is-loading="result"
             :enable-selection="false"
             @refresh="search"
             :condition="condition">
@@ -182,8 +185,7 @@ export default {
       isCopy: true,
       showTextColor: "showTextColor",
       unShowTextColor: "unShowTextColor",
-      scenarioRefData: [],
-      scenarioCopyData: [],
+      scenarioData: [],
       planData: [],
       currentPage: 1,
       pageSize: 10,
@@ -200,6 +202,7 @@ export default {
       type: '',
       projectPlanFilters: [],
       activeDom: 'left',
+      result: false
     };
   },
   props: {
@@ -269,8 +272,8 @@ export default {
       this.pageSize = 10;
       this.total = 0;
       this.condition = {};
-      this.scenarioRefData = [];
-      this.scenarioCopyData = [];
+      this.scenarioData = [];
+
       this.planData = [];
     },
     open(row, type) {
@@ -288,7 +291,7 @@ export default {
       this.isVisible = false;
     },
     getReferenceData(condition) {
-      getDefinitionReference(this.currentPage, this.pageSize, condition).then((res) => {
+      this.result = getDefinitionReference(this.currentPage, this.pageSize, condition).then((res) => {
         let data = res.data || [];
         this.total = data.itemCount || 0;
         if (this.workspaceList) {
@@ -328,12 +331,7 @@ export default {
               });
           });
         }
-        if (this.activeDom === 'left') {
-          this.scenarioCopyData = data.listObject || [];
-        } else {
-          this.scenarioRefData = data.listObject || [];
-        }
-
+        this.scenarioData = data.listObject || [];
       });
     },
     search(row) {
@@ -346,12 +344,14 @@ export default {
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.condition.scenarioType = this.type;
       if (this.activeName === 'scenario') {
-        if (!this.isHasRef) {
-          this.condition.refType = "Copy"
-          this.activeDom = 'left'
-        } else {
-          this.condition.refType = "REF"
-          this.activeDom = 'right'
+        if (!this.condition.refType) {
+          if (!this.isHasRef) {
+            this.condition.refType = "Copy"
+            this.activeDom = 'left'
+          } else {
+            this.condition.refType = "REF"
+            this.activeDom = 'right'
+          }
         }
         this.getReferenceData(this.condition);
       } else {
