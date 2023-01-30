@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 场景报告状态统一调整
 -- 失败状态
 update api_scenario_report set status ='ERROR' where status in ('Error','Timeout','Fail');

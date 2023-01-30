@@ -1,3 +1,5 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
+
 --
 -- 增加一个索引
 SELECT IF(EXISTS(SELECT DISTINCT index_name

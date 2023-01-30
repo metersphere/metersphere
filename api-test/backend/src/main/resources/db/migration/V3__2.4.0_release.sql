@@ -1,3 +1,5 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
+
 ALTER TABLE api_execution_info ADD project_id VARCHAR ( 50 ) NULL;
 ALTER TABLE api_execution_info ADD execute_type VARCHAR ( 50 ) NULL;
 ALTER TABLE api_execution_info ADD version VARCHAR ( 255 ) NULL;
