@@ -23,3 +23,5 @@ ALTER TABLE api_case_execution_info ADD INDEX idx_execute_type(execute_type);
 ALTER TABLE scenario_execution_info ADD INDEX idx_version ( version );
 ALTER TABLE scenario_execution_info ADD INDEX idx_project_id(project_id);
 ALTER TABLE scenario_execution_info ADD INDEX idx_execute_type(execute_type);
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

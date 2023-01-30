@@ -13,3 +13,5 @@ INTO @a;
 PREPARE stmt1 FROM @a;
 EXECUTE stmt1;
 DEALLOCATE PREPARE stmt1;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
