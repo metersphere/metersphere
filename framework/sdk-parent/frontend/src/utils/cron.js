@@ -7,19 +7,21 @@ import parser from "cron-parser";
  * @return True is expression is valid
  */
 export function cronValidate(cronExpression ){
-  try {
-    parser.parseExpression(cronExpression);
-  } catch (e) {
-    return false;
-  }
-
   if (!cronExpression) {
     return false;
   }
   //alert("校验函数的开始！");
-  var cronParams = cronExpression.split(" ");
-
+  let cronParams = cronExpression.split(" ");
   if (cronParams.length < 6 || cronParams.length > 7) {
+    return false;
+  }
+  let cronValue = cronExpression;
+  if(cronExpression.split(" ").length === 7){
+    cronValue = cronExpression.substring(0, cronExpression.lastIndexOf(" "));
+  }
+  try {
+    parser.parseExpression(cronValue);
+  } catch (e) {
     return false;
   }
 
@@ -81,15 +83,15 @@ function checkSecondsField(secondsField) {
 
 function checkField(secondsField, minimal, maximal) {
   if (secondsField.indexOf("-") > -1 ) {
-    var startValue = secondsField.substring(0, secondsField.indexOf( "-" ));
-    var endValue = secondsField.substring(secondsField.indexOf( "-" ) + 1);
+    let startValue = secondsField.substring(0, secondsField.indexOf( "-" ));
+    let endValue = secondsField.substring(secondsField.indexOf( "-" ) + 1);
 
     if (!(checkIntValue(startValue, minimal, maximal, true) && checkIntValue(endValue, minimal, maximal, true))) {
       return false;
     }
     try {
-      var startVal = parseInt(startValue, 10);
-      var endVal = parseInt(endValue, 10);
+      let startVal = parseInt(startValue, 10);
+      let endVal = parseInt(endValue, 10);
       //return endVal > startVal;
       return true;
     } catch (e) {
@@ -102,13 +104,13 @@ function checkField(secondsField, minimal, maximal) {
   } else if (secondsField.indexOf( "*" ) != -1) {
     return true;
   } else {
-    return checkIntValue(secondsField, minimal, maximal);
+    return checkIntValue(secondsField, minimal, maximal,true);
   }
 }
 
 function checkIntValue(value, minimal, maximal, checkExtremity) {
   try {
-    var val = parseInt(value, 10);
+    let val = parseInt(value, 10);
     //判断是否为整数
     if (value == val) {
       if (checkExtremity) {
@@ -220,11 +222,11 @@ function checkYearField(yearField) {
 
 function checkFieldWithLetter(value, letter, minimalBefore, maximalBefore,
                               minimalAfter, maximalAfter) {
-  var canBeAlone = false;
-  var canHaveIntBefore = false;
-  var canHaveIntAfter = false;
-  var mustHaveIntBefore = false;
-  var mustHaveIntAfter = false;
+  let canBeAlone = false;
+  let canHaveIntBefore = false;
+  let canHaveIntAfter = false;
+  let mustHaveIntBefore = false;
+  let mustHaveIntAfter = false;
 
   if (letter == "L") {
     canBeAlone = true;
@@ -248,8 +250,8 @@ function checkFieldWithLetter(value, letter, minimalBefore, maximalBefore,
     mustHaveIntAfter = true;
   }
 
-  var beforeLetter = "";
-  var afterLetter = "";
+  let beforeLetter = "";
+  let afterLetter = "";
 
   if (value.indexOf(letter) >= 0 ) {
     beforeLetter = value.substring( 0, value.indexOf(letter));
@@ -301,9 +303,9 @@ function checkFieldWithLetter(value, letter, minimalBefore, maximalBefore,
     } */
 
 function checkIncrementField(value, minimal, maximal) {
-  var start = value.substring(0, value.indexOf("/"));
+  let start = value.substring(0, value.indexOf("/"));
 
-  var increment = value.substring(value.indexOf("/") + 1);
+  let increment = value.substring(value.indexOf("/") + 1);
 
   if (!("*" == start)) {
     return checkIntValue(start, minimal, maximal, true) && checkIntValue(increment, minimal, maximal, false);
@@ -315,16 +317,16 @@ function checkIncrementField(value, minimal, maximal) {
 
 
 function checkListField(value, minimal, maximal ) {
-  var st = value.split(",");
+  let st = value.split(",");
 
-  var values = new Array(st.length);
+  let values = new Array(st.length);
 
-  for(var j = 0; j < st.length; j++) {
+  for(let j = 0; j < st.length; j++) {
     values[j] = st[j];
   }
 
-  for (var i= 0; i < values.length; i++) {
-    var currentValue = values[i];
+  for (let i= 0; i < values.length; i++) {
+    let currentValue = values[i];
 
     if (!checkIntValue(currentValue, minimal, maximal, true)) {
       return false;

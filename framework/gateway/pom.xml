@@ -195,7 +195,7 @@
                     <groupId>org.tukaani</groupId>
                 </exclusion>
                 <exclusion>
-                    <artifactId>springdoc-openapi-ui</artifactId>
+                    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                     <groupId>org.springdoc</groupId>
                 </exclusion>
             </exclusions>
@@ -218,7 +218,7 @@
         </dependency>
         <dependency>
             <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webflux-ui</artifactId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
             <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 

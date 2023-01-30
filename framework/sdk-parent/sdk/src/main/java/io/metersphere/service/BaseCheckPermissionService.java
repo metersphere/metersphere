@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ProjectExample;
 import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
@@ -34,6 +35,12 @@ public class BaseCheckPermissionService {
 
 
     public Set<String> getUserRelatedProjectIds() {
+        if (SessionUtils.getUserId() != null && baseUserService.isSuperUser(SessionUtils.getUserId())) {
+            List<Project> projects = projectMapper.selectByExample(new ProjectExample());
+            if (CollectionUtils.isNotEmpty(projects)) {
+                return projects.stream().map(Project::getId).collect(Collectors.toSet());
+            }
+        }
         UserDTO userDTO = baseUserService.getUserDTO(SessionUtils.getUserId());
         List<String> groupIds = userDTO.getGroups()
                 .stream()
@@ -78,6 +85,9 @@ public class BaseCheckPermissionService {
     }
 
     public void checkProjectOwner(String projectId) {
+        if (SessionUtils.getUserId() != null && baseUserService.isSuperUser(SessionUtils.getUserId())) {
+            return;
+        }
         Set<String> projectIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(projectIds)) {
             return;

@@ -17,7 +17,6 @@ pipeline {
                 script {
                     REVISION = ""
                     BUILD_SDK = false
-                    BUILD_PARENT = false
                     if (env.BRANCH_NAME.startsWith("v") ) {
                         REVISION = env.BRANCH_NAME.substring(1)
                     } else {
@@ -26,30 +25,12 @@ pipeline {
                     if (params.buildSdk) {
                         BUILD_SDK = true
                     }
-                    if (params.buildParent) {
-                        BUILD_PARENT = true
-                    }
                     if (params.frontendLink != null && !params.frontendLink.equals("")) {
                         env.FRONTEND_LINK = params.frontendLink
                     }
                     env.REVISION = "${REVISION}"
                     env.BUILD_SDK = "${BUILD_SDK}"
-                    env.BUILD_PARENT = "${BUILD_PARENT}"
-                    echo "REVISION=${REVISION}, BUILD_SDK=${BUILD_SDK}, BUILD_PARENT=${BUILD_PARENT}"
-                }
-            }
-        }
-        stage('POM') {
-            when { environment name: 'BUILD_PARENT', value: 'true' }
-            steps {
-                configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
-                    sh '''#!/bin/bash -xe
-                        export JAVA_HOME=/opt/jdk-17
-                        export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
-                        export PATH=$JAVA_HOME/bin:$PATH
-                        java -version
-                        ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
-                    '''
+                    echo "REVISION=${REVISION}, BUILD_SDK=${BUILD_SDK}"
                 }
             }
         }
@@ -74,12 +55,7 @@ pipeline {
             }
         }
         stage('Build/Test') {
-            when {
-                allOf {
-                    environment name: 'BUILD_SDK', value: 'false';
-                    environment name: 'BUILD_PARENT', value: 'false'
-                }
-            }
+            when { environment name: 'BUILD_SDK', value: 'false' }
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
                     sh '''#!/bin/bash -xe
@@ -107,12 +83,7 @@ pipeline {
             }
         }
         stage('Docker build & push') {
-            when {
-                allOf {
-                    environment name: 'BUILD_SDK', value: 'false';
-                    environment name: 'BUILD_PARENT', value: 'false'
-                }
-            }
+            when { environment name: 'BUILD_SDK', value: 'false' }
             steps {
                 script {
                     for (int i=0; i<10; i++) {
