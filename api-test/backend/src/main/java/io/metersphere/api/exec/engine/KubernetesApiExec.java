@@ -5,15 +5,11 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.resourcepool.engine.provider.ClientCredential;
-import okhttp3.Response;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -68,6 +64,15 @@ public class KubernetesApiExec {
         @Override
         public void onFailure(Throwable t, Response response) {
             // todo k8s 执行api变了
+            try {
+                LoggerUtil.info("进入K8s onFailure");
+                LoggerUtil.info(response);
+                LoggerUtil.info(t);
+                LoggerUtil.info(t.getMessage());
+                LoggerUtil.info(response.body());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 //            List<String> value = response.request().url().queryParameterValues("command");
 //            if (CollectionUtils.isNotEmpty(value) && value.size() > 2 && value.get(2).startsWith("curl")) {
 //                String query = "{" + KubernetesApiExec.getQuery(value.get(2)) + "}";
