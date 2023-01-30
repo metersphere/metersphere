@@ -5,15 +5,17 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.resourcepool.engine.provider.ClientCredential;
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class KubernetesApiExec {
@@ -27,72 +29,49 @@ public class KubernetesApiExec {
         if (CollectionUtils.isEmpty(nodePods)) {
             MSException.throwException("Execution node not found");
         }
-        Pod pod = nodePods.get(new Random().nextInt(nodePods.size()));
-        return pod;
+        return nodePods.get(new Random().nextInt(nodePods.size()));
     }
 
-    public static ExecWatch newExecWatch(KubernetesClient client, String namespace, String podName, String command) {
+    public static ExecWatch newExecWatch(KubernetesClient client, String namespace, String podName, String command, JmeterRunRequestDTO runRequest) {
         LoggerUtil.info("CURL 命令：【 " + command + " 】");
         return client.pods().inNamespace(namespace).withName(podName)
                 .readingInput(System.in)
                 .writingOutput(System.out)
                 .writingError(System.err)
                 .withTTY()
-                .usingListener(new SimpleListener())
+                .usingListener(new SimpleListener(runRequest))
                 .exec("sh", "-c", command);
     }
 
-    private static String getQuery(String content) {
-        Pattern regex = Pattern.compile("\\{([^}]*)\\}");
-        Matcher matcher = regex.matcher(content);
-        StringBuilder sql = new StringBuilder();
-        while (matcher.find()) {
-            sql.append(matcher.group(1) + ",");
-        }
-        if (sql.length() > 0) {
-            sql.deleteCharAt(sql.length() - 1);
-        }
-        return sql.toString();
-    }
-
     private static class SimpleListener implements ExecListener {
+        private JmeterRunRequestDTO runRequest;
+
+        SimpleListener(JmeterRunRequestDTO runRequest) {
+            this.runRequest = runRequest;
+        }
+
         @Override
         public void onOpen() {
-            LoggerUtil.info("The shell will remain open for 10 seconds.");
+            LoggerUtil.info("K8s命令执行监听 onOpen ", runRequest.getReportId());
         }
 
         @Override
         public void onFailure(Throwable t, Response response) {
-            // todo k8s 执行api变了
-            try {
-                LoggerUtil.info("进入K8s onFailure");
-                LoggerUtil.info(response);
-                LoggerUtil.info(t);
-                LoggerUtil.info(t.getMessage());
-                LoggerUtil.info(response.body());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            LoggerUtil.info("进入K8s onFailure处理");
+            if (runRequest != null) {
+                LoggerUtil.info("请求参数：", JSON.toJSONString(runRequest));
+                RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+                apiScenarioReportService.testEnded(runRequest, StringUtils.join("K8s执行异常：", t.getMessage()));
+            } else {
+                MSException.throwException("K8S 节点执行错误：" + t.getMessage());
             }
-//            List<String> value = response.request().url().queryParameterValues("command");
-//            if (CollectionUtils.isNotEmpty(value) && value.size() > 2 && value.get(2).startsWith("curl")) {
-//                String query = "{" + KubernetesApiExec.getQuery(value.get(2)) + "}";
-//                JmeterRunRequestDTO runRequest = JSON.parseObject(query, JmeterRunRequestDTO.class);
-//                if (runRequest != null) {
-//                    RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-//                    apiScenarioReportService.testEnded(runRequest, response.networkResponse().message());
-//                } else {
-//                    MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
-//                }
-//            } else {
-//                MSException.throwException("K8S 节点执行错误：" + response.networkResponse().message());
-//            }
-//            LoggerUtil.error("K8S 节点执行错误：" + JSON.toJSONString(value));
-//            LoggerUtil.error("K8S 节点执行错误：" + response.networkResponse());
+            LoggerUtil.error("K8S 节点执行错误：", t.getMessage());
         }
 
         @Override
         public void onClose(int code, String reason) {
-            LoggerUtil.info("The shell will now close.");
+            LoggerUtil.info(code + "_" + reason, runRequest.getReportId());
+            LoggerUtil.info("K8s命令执行监听 onClose ", runRequest.getReportId());
         }
     }
 }
