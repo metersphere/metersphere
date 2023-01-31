@@ -592,6 +592,7 @@ export default {
         row.createTime = data.createTime;
         row.updateTime = data.updateTime;
         this.compare = [];
+        row.updateUser = getCurrentUser().name;
         row.type = null;
         this.$success(this.$t('commons.save_success'));
         this.tagCount = 0;
@@ -605,7 +606,6 @@ export default {
         if (!hideAlert) {
           this.$emit('refresh');
         }
-        this.$emit('refreshCaseList',row.id);
       }, (error) => {
         this.isSave = false;
       });

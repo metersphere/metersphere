@@ -22,7 +22,6 @@
             <api-case-item
               :loading="singleLoading && singleRunId ===item.id || batchLoadingIds.indexOf(item.id) > -1"
               @refresh="refresh"
-              @refreshCaseList="refreshCaseList"
               @singleRun="singleRun"
               @stop="stop"
               @refreshModule="refreshModule"
@@ -410,21 +409,6 @@ export default {
     },
     refresh() {
       this.$emit('refresh');
-    },
-    refreshCaseList(id) {
-      return new Promise((resolve) => {
-        let commonUseEnvironment = this.$store.state.useEnvironment;
-        this.environment = commonUseEnvironment ? commonUseEnvironment : "";
-        this.result = this.$get("/api/testcase/findById/" + id, response => {
-          let apiCase = response.data;
-          if (apiCase) {
-            this.formatCase(apiCase);
-            apiCase.active = true;
-            this.apiCaseList = [apiCase];
-          }
-          resolve();
-        });
-      });
     },
     reLoadCase() {
       this.$emit('reLoadCase');
