@@ -281,6 +281,7 @@ import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import ApiCaseHeader from './ApiCaseHeader';
 import { deepClone } from 'metersphere-frontend/src/utils/tableUtils';
 import { useApiStore } from '@/store';
+import {TokenKey} from "metersphere-frontend/src/utils/constants";
 
 const store = useApiStore();
 export default {
@@ -700,6 +701,8 @@ export default {
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           this.compare = [];
+          let user = JSON.parse(localStorage.getItem(TokenKey));
+          row.updateUser = user.name;
           row.type = null;
           this.$success(this.$t('commons.save_success'));
           this.tagCount = 0;
@@ -713,7 +716,6 @@ export default {
           if (!hideAlert) {
             this.$emit('refresh');
           }
-          this.$emit('refreshCaseList',row.id);
         },
         (error) => {
           this.isSave = false;
