@@ -43,7 +43,7 @@
       </el-tab-pane>
       <el-tab-pane v-if="showPreview" :label="$t('schema.preview')" name="preview">
         <div style="min-height: 200px">
-          <pre style="width: 100%; white-space: pre-wrap;">{{ this.preview }}</pre>
+          <pre style="width: 100%; white-space: pre-wrap">{{ this.preview }}</pre>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -148,7 +148,7 @@ export default {
       if (this.activeName === 'preview') {
         this.loading = true;
         // 后台转换
-        MsConvert.schemaToJsonStr(this.schema.root, (result) => {
+        MsConvert.preview(this.schema.root, (result) => {
           this.preview = result;
           this.loading = false;
         });

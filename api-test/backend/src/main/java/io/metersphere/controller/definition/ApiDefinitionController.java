@@ -13,7 +13,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
-import io.metersphere.api.exec.generator.JSONSchemaGenerator;
+import io.metersphere.api.exec.generator.JSONSchemaParser;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.base.domain.ApiDefinition;
@@ -34,13 +34,12 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
@@ -299,7 +298,12 @@ public class ApiDefinitionController {
 
     @PostMapping("/preview")
     public String preview(@RequestBody String jsonSchema) {
-        return JSONSchemaGenerator.getJson(jsonSchema);
+        return JSONSchemaParser.preview(jsonSchema);
+    }
+
+    @PostMapping("/schema-json")
+    public String schemaToJson(@RequestBody String jsonSchema) {
+        return JSONSchemaParser.schemaToJson(jsonSchema);
     }
 
     @GetMapping("/mock-environment/{projectId}")

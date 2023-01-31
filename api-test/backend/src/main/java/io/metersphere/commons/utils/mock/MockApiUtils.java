@@ -4,7 +4,7 @@ import io.metersphere.api.dto.mock.ApiDefinitionResponseDTO;
 import io.metersphere.api.dto.mock.MockConfigRequestParams;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
-import io.metersphere.api.exec.generator.JSONSchemaGenerator;
+import io.metersphere.api.exec.generator.JSONSchemaParser;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.MockParamConditionEnums;
@@ -12,6 +12,7 @@ import io.metersphere.commons.enums.MockRequestType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.script.ScriptEngine;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -88,7 +88,7 @@ public class MockApiUtils {
                 if (isJsonSchema) {
                     if (bodyObj.has("jsonSchema")) {
                         String bodyReturnStr = bodyObj.optJSONObject("jsonSchema").toString();
-                        jsonString = JSONSchemaGenerator.getJson(bodyReturnStr);
+                        jsonString = JSONSchemaParser.schemaToJson(bodyReturnStr);
                     }
                 } else {
                     if (bodyObj.has("raw")) {
@@ -188,7 +188,7 @@ public class MockApiUtils {
                                     }
                                 }
                                 if (isJsonSchema && bodyObj.has("jsonSchema")) {
-                                    String json = JSONSchemaGenerator.getJson(bodyObj.optJSONObject("jsonSchema").toString());
+                                    String json = JSONSchemaParser.schemaToJson(bodyObj.optJSONObject("jsonSchema").toString());
                                     if (StringUtils.isNotEmpty(json)) {
                                         returnStr = json;
                                     }
@@ -305,7 +305,7 @@ public class MockApiUtils {
                         }
                     }
                     if (isJsonSchema && bodyObj.has("jsonSchema")) {
-                        String json = JSONSchemaGenerator.getJson(bodyObj.optJSONObject("jsonSchema").toString());
+                        String json = JSONSchemaParser.schemaToJson(bodyObj.optJSONObject("jsonSchema").toString());
                         if (StringUtils.isNotEmpty(json)) {
                             returnStr = json;
                         }

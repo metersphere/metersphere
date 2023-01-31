@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
-import io.metersphere.api.exec.generator.JSONSchemaRunTest;
+import io.metersphere.api.exec.generator.JSONSchemaBuilder;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.FileUtils;
@@ -99,7 +99,7 @@ public class Body {
         if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
             if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
                     && JSON_SCHEMA.equals(this.format)) {
-                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaRunTest.getJson(JSONUtil.toJSONString(this.getJsonSchema())));
+                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaBuilder.generator(JSONUtil.toJSONString(this.getJsonSchema())));
             } else {
                 try {
                     if (StringUtils.isNotEmpty(this.getRaw())) {
