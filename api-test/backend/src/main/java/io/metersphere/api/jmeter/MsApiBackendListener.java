@@ -4,10 +4,7 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
@@ -111,6 +108,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
             }
             LoggerUtil.info("TEST-END处理结果集完成", dto.getReportId());
+
+            JvmUtil.memoryInfo();
         } catch (Exception e) {
             LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {

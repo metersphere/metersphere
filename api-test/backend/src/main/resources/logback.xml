@@ -210,40 +210,6 @@
         <appender-ref ref="eurekaAsyncAppender"/>
     </logger>
 
-
-    <!-- 自定义测试计划执行的日志	-->
-    <appender name="infoTestPlanAppender"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <File>${logging.file.path}/testPlan/info.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/testPlan/info.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
-            <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-        <encoder>
-            <charset>UTF-8</charset>
-            <Pattern>%d %t %-5level %logger{36} %line - %msg%n</Pattern>
-        </encoder>
-    </appender>
-    <appender name="infoTestPlanAsyncAppender" class="ch.qos.logback.classic.AsyncAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
-        </filter>
-        <queueSize>10000</queueSize>
-        <appender-ref ref="infoTestPlanAppender"/>
-    </appender>
-    <logger name="testPlanExecuteLog" additivity="false">
-        <level value="${logger.level:INFO}"/>
-        <appender-ref ref="infoTestPlanAsyncAppender"/>
-    </logger>
-
     <!-- 自定义执行过程日志 -->
     <appender name="apiRunLogAppender"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
