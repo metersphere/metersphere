@@ -44,7 +44,7 @@ import {
   getChildNodeId,
   handleAfterSave,
   handleExpandToLevel,
-  handleMinderIssueDelete, handleSaveError,
+  handleMinderIssueDelete, handlePasteAfter, handleSaveError,
   handleTestCaseAdd,
   handTestCaeEdit,
   isCaseNodeData,
@@ -229,6 +229,10 @@ export default {
           this.setIsChange(true);
         }
 
+        if ('paste' === even.commandName) {
+          handlePasteAfter(window.minder.getSelectedNode());
+        }
+
         if ('removenode' === even.commandName) {
           let nodes = window.minder.getSelectedNodes();
           if (nodes) {
@@ -289,6 +293,10 @@ export default {
           data: this.saveExtraNode,
         }
       }
+
+      // 过滤为空的id
+      param.ids = param.ids.filter(id => id);
+
       this.result.loading = true;
       testCaseMinderEdit(param)
         .then(() => {
