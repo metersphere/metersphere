@@ -111,7 +111,7 @@
             </el-col>
             <el-col :span="2" class="ms-col-one ms-font">
               <el-link class="head" @click="showScenarioParameters"
-              >{{ $t('api_test.automation.scenario_total') }}
+                >{{ $t('api_test.automation.scenario_total') }}
               </el-link>
               ：{{ getVariableSize() }}
             </el-col>
@@ -152,10 +152,10 @@
                   size="mini"
                   @command="handleCommand"
                   v-permission="[
-                  'PROJECT_API_SCENARIO:READ+EDIT',
-                  'PROJECT_API_SCENARIO:READ+CREATE',
-                  'PROJECT_API_SCENARIO:READ+COPY',
-                ]">
+                    'PROJECT_API_SCENARIO:READ+EDIT',
+                    'PROJECT_API_SCENARIO:READ+CREATE',
+                    'PROJECT_API_SCENARIO:READ+COPY',
+                  ]">
                   {{ $t('api_test.request.debug') }}
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -172,10 +172,10 @@
                 @click="editScenario"
                 title="ctrl + s"
                 v-permission="[
-                'PROJECT_API_SCENARIO:READ+EDIT',
-                'PROJECT_API_SCENARIO:READ+CREATE',
-                'PROJECT_API_SCENARIO:READ+COPY',
-              ]">
+                  'PROJECT_API_SCENARIO:READ+EDIT',
+                  'PROJECT_API_SCENARIO:READ+CREATE',
+                  'PROJECT_API_SCENARIO:READ+COPY',
+                ]">
                 {{ $t('commons.save') }}
               </el-button>
 
@@ -196,26 +196,26 @@
                 <i
                   class="el-icon-star-off"
                   style="
-                  color: var(--primary_color);
-                  font-size: 22px;
-                  margin-right: 5px;
-                  cursor: pointer;
-                  position: relative;
-                  top: 3px;
-                "
+                    color: var(--primary_color);
+                    font-size: 22px;
+                    margin-right: 5px;
+                    cursor: pointer;
+                    position: relative;
+                    top: 3px;
+                  "
                   @click="saveFollow" />
               </el-tooltip>
               <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-show="showFollow">
                 <i
                   class="el-icon-star-on"
                   style="
-                  color: var(--primary_color);
-                  font-size: 22px;
-                  margin-right: 5px;
-                  cursor: pointer;
-                  position: relative;
-                  top: 3px;
-                "
+                    color: var(--primary_color);
+                    font-size: 22px;
+                    margin-right: 5px;
+                    cursor: pointer;
+                    position: relative;
+                    top: 3px;
+                  "
                   @click="saveFollow" />
               </el-tooltip>
               <el-link
@@ -223,7 +223,7 @@
                 style="margin-right: 5px"
                 @click="openHis"
                 v-show="path === '/api/automation/update'"
-              >{{ $t('operating_log.change_history') }}
+                >{{ $t('operating_log.change_history') }}
               </el-link>
               <!--  版本历史 -->
               <mx-version-history
@@ -258,8 +258,8 @@
                   <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
                   <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
                   <span class="ms-message-right">
-                  {{ $t('api_test.automation.request_error') }}
-                  {{ reqError }}</span
+                    {{ $t('api_test.automation.request_error') }}
+                    {{ reqError }}</span
                   >
                 </div>
               </el-col>
@@ -293,65 +293,65 @@
                       align="middle"
                       slot-scope="{ node, data }"
                       style="width: 100%">
-                    <span
-                      class="custom-tree-node-col"
-                      style="padding-left: 0px; padding-right: 0px"
-                      v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span
-                        v-show="!node.expanded"
-                        class="el-icon-circle-plus-outline custom-node_e"
-                        @click="openOrClose(node, data)" />
-                      <span
-                        v-show="node.expanded"
-                        class="el-icon-remove-outline custom-node_e"
-                        @click="openOrClose(node, data)" />
-                    </span>
+                        class="custom-tree-node-col"
+                        style="padding-left: 0px; padding-right: 0px"
+                        v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
+                        <span
+                          v-show="!node.expanded"
+                          class="el-icon-circle-plus-outline custom-node_e"
+                          @click="openOrClose(node, data)" />
+                        <span
+                          v-show="node.expanded"
+                          class="el-icon-remove-outline custom-node_e"
+                          @click="openOrClose(node, data)" />
+                      </span>
                       <!-- 批量操作 -->
                       <span
                         :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
                         style="padding-left: 0px; padding-right: 0px"
                         v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
-                      <show-more-btn
-                        :is-show="node.checked"
-                        :buttons="batchOperators"
-                        :size="selectDataCounts"
-                        v-show="data.checkBox"
-                        style="margin-right: 10px" />
-                    </span>
+                        <show-more-btn
+                          :is-show="node.checked"
+                          :buttons="batchOperators"
+                          :size="selectDataCounts"
+                          v-show="data.checkBox"
+                          style="margin-right: 10px" />
+                      </span>
                       <span style="width: calc(100% - 40px)">
-                      <!-- 步骤组件-->
-                      <ms-component-config
-                        :scenario-definition="scenarioDefinition"
-                        :message="message"
-                        :type="data.type"
-                        :scenario="data"
-                        :response="response"
-                        :currentScenario="currentScenario"
-                        :node="node"
-                        :project-list="projectList"
-                        :env-map="projectEnvMap"
-                        :env-group-id="envGroupId"
-                        :environment-type="environmentType"
-                        @remove="remove"
-                        @copyRow="copyRow"
-                        @suggestClick="suggestClick"
-                        @refReload="refReload"
-                        @runScenario="runDebug"
-                        @stopScenario="stop"
-                        @setDomain="setDomain"
-                        @openScenario="openScenario"
-                        @editScenarioAdvance="editScenarioAdvance"
-                        ref="componentConfig"
-                        v-if="
-                          stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
-                          !node.parent ||
-                          !node.parent.data ||
-                          stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
-                        " />
-                      <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
-                        {{ hideNode(node) }}
-                      </div>
-                    </span>
+                        <!-- 步骤组件-->
+                        <ms-component-config
+                          :scenario-definition="scenarioDefinition"
+                          :message="message"
+                          :type="data.type"
+                          :scenario="data"
+                          :response="response"
+                          :currentScenario="currentScenario"
+                          :node="node"
+                          :project-list="projectList"
+                          :env-map="projectEnvMap"
+                          :env-group-id="envGroupId"
+                          :environment-type="environmentType"
+                          @remove="remove"
+                          @copyRow="copyRow"
+                          @suggestClick="suggestClick"
+                          @refReload="refReload"
+                          @runScenario="runDebug"
+                          @stopScenario="stop"
+                          @setDomain="setDomain"
+                          @openScenario="openScenario"
+                          @editScenarioAdvance="editScenarioAdvance"
+                          ref="componentConfig"
+                          v-if="
+                            stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+                            !node.parent ||
+                            !node.parent.data ||
+                            stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                          " />
+                        <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                          {{ hideNode(node) }}
+                        </div>
+                      </span>
                     </el-row>
                   </el-tree>
                 </div>
@@ -576,12 +576,11 @@ import {
   saveScenario,
 } from '@/business/automation/api-automation';
 import MsComponentConfig from './component/ComponentConfig';
-import {ENV_TYPE} from 'metersphere-frontend/src/utils/constants';
-import {mergeRequestDocumentData} from '@/business/definition/api-definition';
-import {getEnvironmentByProjectId} from 'metersphere-frontend/src/api/environment';
-import {useApiStore} from '@/store';
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
-
+import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
+import { mergeRequestDocumentData } from '@/business/definition/api-definition';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
+import { useApiStore } from '@/store';
+import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 
 const store = useApiStore();
 
@@ -790,7 +789,7 @@ export default {
       debugReportId: '',
       isPreventReClick: false,
       latestVersionId: '',
-      hasLatest: false
+      hasLatest: false,
     };
   },
   created() {
@@ -922,6 +921,9 @@ export default {
     commandTreeNode(node, array) {
       if (!array) {
         array = this.scenarioDefinition;
+      }
+      if (!array) {
+        return;
       }
       let isLeaf = true;
       let nodeType = '';
@@ -2489,11 +2491,10 @@ export default {
       if (!hasLicense()) {
         return;
       }
-      getDefaultVersion(this.projectId)
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(this.projectId).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
     getVersionHistory() {
       if (!hasLicense()) {
@@ -2507,7 +2508,7 @@ export default {
         }
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
-          this.hasLatest = false
+          this.hasLatest = false;
         } else {
           this.hasLatest = true;
         }
@@ -2567,8 +2568,8 @@ export default {
         projectId: this.projectId,
         type: 'SCENARIO',
         versionId: row.id,
-        resourceId: this.currentScenario.id
-      }
+        resourceId: this.currentScenario.id,
+      };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t('commons.modify_success'));
         this.checkout(row);
