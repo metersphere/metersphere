@@ -1,4 +1,4 @@
-package io.metersphere.service;
+package io.metersphere.api.exec.generator;
 
 import com.apifan.common.random.source.DateTimeSource;
 import com.apifan.common.random.source.InternetSource;
@@ -6,7 +6,6 @@ import com.apifan.common.random.source.NumberSource;
 import com.google.gson.*;
 import com.mifmif.common.regex.Generex;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -15,8 +14,6 @@ import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 生成测试数据
@@ -177,27 +174,15 @@ public class TestDataGenerator {
         } catch (Exception e) {
             return value;
         }
-    }
-
-    public static boolean isNumber(Object obj) {
-        if (ObjectUtils.isEmpty(obj)) {
-            return false;
-        }
-        Pattern pattern = Pattern.compile("-?[0-9]+\\.?[0-9]*");
-        Matcher isNum = pattern.matcher(obj.toString());
-        if (!isNum.matches()) {
-            return false;
-        }
-        return true;
-    }
+    } 
 
     public static Object analyzeInteger(JsonObject object) {
         // 先设置空值
-        if (object.has(DEFAULT) && isNumber(object.get(DEFAULT))) {
+        if (object.has(DEFAULT) && FormatterUtil.isNumber(object.get(DEFAULT))) {
             return object.get(DEFAULT).getAsInt();
         }
         Object mockValue = getMockValue(object);
-        if (mockValue != null && isNumber(mockValue)) {
+        if (mockValue != null && FormatterUtil.isNumber(mockValue)) {
             return Integer.parseInt(mockValue.toString());
         }
         int minimum = 1;
@@ -212,11 +197,11 @@ public class TestDataGenerator {
     }
 
     public static Object analyzeNumber(JsonObject object) {
-        if (object != null && object.has(DEFAULT) && isNumber(object.has(DEFAULT))) {
+        if (object != null && object.has(DEFAULT) && FormatterUtil.isNumber(object.has(DEFAULT))) {
             return object.get(DEFAULT).getAsFloat();
         }
         Object mockValue = getMockValue(object);
-        if (mockValue != null && isNumber(mockValue)) {
+        if (mockValue != null && FormatterUtil.isNumber(mockValue)) {
             return Float.parseFloat(mockValue.toString());
         }
         float maximum = 200001.0f;

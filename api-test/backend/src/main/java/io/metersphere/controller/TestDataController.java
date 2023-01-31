@@ -1,6 +1,6 @@
 package io.metersphere.controller;
 
-import io.metersphere.service.TestDataGenerator;
+import io.metersphere.api.exec.generator.TestDataGenerator;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

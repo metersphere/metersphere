@@ -6,7 +6,7 @@ const isNumber = require('lodash.isnumber');
 const isObject = require('lodash.isobject');
 const isString = require('lodash.isstring');
 const { post } = require('@/api/base-network');
-const { apiPreview } = require('@/api/definition');
+const { schemaToJson, apiPreview } = require('@/api/definition');
 const isArray = Array.isArray;
 
 class Convert {
@@ -248,6 +248,14 @@ class Convert {
    * @param callback
    */
   schemaToJsonStr(schema, callback) {
+    schemaToJson(schema).then((response) => {
+      if (callback) {
+        callback(response.data);
+      }
+    });
+  }
+
+  preview(schema, callback) {
     apiPreview(schema).then((response) => {
       if (callback) {
         callback(response.data);

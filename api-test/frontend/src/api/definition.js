@@ -161,6 +161,10 @@ export function apiPreview(params) {
   return post('/api/definition/preview', params);
 }
 
+export function schemaToJson(params) {
+  return post('/api/definition/schema-json', params);
+}
+
 export function apiDebug(file, files, params) {
   let url = '/api/definition/run/debug';
   return fileUpload(url, file, files, params);
