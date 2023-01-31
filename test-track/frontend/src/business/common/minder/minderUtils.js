@@ -558,6 +558,20 @@ export function handleSaveError(rootNode) {
   }
 }
 
+export function handlePasteAfter(rootNode) {
+  if (rootNode.data.type === 'tmp') {
+    window.minder.removeNode(rootNode);
+    return;
+  }
+  // 粘贴的节点视为已加载，不查询下面的用例
+  rootNode.data.loaded = true;
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      handlePasteAfter(rootNode.children[i]);
+    }
+  }
+}
+
 export function getChildNodeId(rootNode, nodeIds) {
   //递归获取所有子节点ID
   if (rootNode.data.id) {
