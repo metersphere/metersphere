@@ -436,7 +436,9 @@ export default {
     close() {
       this.dialogVisible = false;
       this.form.cronValue = '';
-      this.$refs['from'].resetFields();
+      if (this.$refs['from']) {
+        this.$refs['from'].resetFields();
+      }
       if (!this.schedule.value) {
         this.$refs.crontabResult.resultList = [];
       }

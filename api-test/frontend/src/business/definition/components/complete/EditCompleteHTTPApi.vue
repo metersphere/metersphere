@@ -463,7 +463,9 @@ export default {
     setParameter() {
       this.request.path = this.httpForm.path;
       this.request.method = this.httpForm.method;
-      this.httpForm.request.useEnvironment = undefined;
+      if (this.httpForm && this.httpForm.request) {
+        this.httpForm.request.useEnvironment = undefined;
+      }
       if (this.httpForm.tags instanceof Array) {
         this.httpForm.tags = JSON.stringify(this.httpForm.tags);
       }
