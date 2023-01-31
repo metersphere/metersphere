@@ -3,10 +3,7 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.KafkaTopicConstants;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.utils.NamedThreadFactory;
-import io.metersphere.commons.utils.WebSocketUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.service.definition.ApiDefinitionEnvService;
@@ -59,8 +56,8 @@ public class MsKafkaListener {
                 task.setTestResultService(testResultService);
                 task.setRecord(item);
                 threadPool.execute(task);
-                this.outKafkaPoolLogger();
             });
+            JvmUtil.memoryInfo();
         } catch (Exception e) {
             LoggerUtil.error("KAFKA消费失败：", e);
         } finally {
