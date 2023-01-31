@@ -45,7 +45,7 @@ import {
   getChildNodeId,
   handleAfterSave,
   handleExpandToLevel,
-  handleMinderIssueDelete, handleSaveError,
+  handleMinderIssueDelete, handlePasteAfter, handleSaveError,
   handleTestCaseAdd,
   handTestCaeEdit,
   isCaseNodeData,
@@ -224,6 +224,10 @@ name: "TestCaseMinder",
           this.setIsChange(true);
         }
 
+        if ('paste' === even.commandName) {
+          handlePasteAfter(window.minder.getSelectedNode());
+        }
+
         if ('removenode' === even.commandName) {
           let nodes = window.minder.getSelectedNodes();
           if (nodes) {
@@ -282,6 +286,9 @@ name: "TestCaseMinder",
           data: this.saveExtraNode,
         }
       }
+
+      // 过滤为空的id
+      param.ids = param.ids.filter(id => id);
 
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
