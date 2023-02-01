@@ -201,22 +201,6 @@ public class TestResourcePoolService {
 
     public List<TestResourcePoolDTO> listValidResourcePools() {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
-        List<TestResourcePoolDTO> testResourcePools = listResourcePools(request);
-        // 重新校验 pool
-        for (TestResourcePoolDTO pool : testResourcePools) {
-            // 手动设置成无效的, 排除
-            if (INVALID.name().equals(pool.getStatus())) {
-                continue;
-            }
-            try {
-                validateTestResourcePool(pool);
-            } catch (Throwable e) {
-                LogUtil.error(e.getMessage(), e);
-                pool.setStatus(INVALID.name());
-                pool.setUpdateTime(System.currentTimeMillis());
-                testResourcePoolMapper.updateByPrimaryKeySelective(pool);
-            }
-        }
         request.setStatus(VALID.name());
         return listResourcePools(request);
     }
