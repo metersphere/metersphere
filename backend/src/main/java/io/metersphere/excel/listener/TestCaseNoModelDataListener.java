@@ -681,21 +681,27 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             String customName = customEntry.getKey();
             CustomFieldDao field = customEntry.getValue();
 
-            String value = null;
+            Object value;
+            String inputValue;
             if (StringUtils.equals(customName, "status")) {
-                value = data.getStatus();
+                inputValue = data.getStatus();
             } else if (StringUtils.equals(customName, "priority")) {
-                value = data.getPriority();
+                inputValue = data.getPriority();
             } else if (StringUtils.equals(customName, "maintainer")) {
-                value = data.getMaintainer();
+                inputValue = data.getMaintainer();
             } else {
-                value = data.getCustomDatas().get(customName);
+                inputValue = data.getCustomDatas().get(customName);
             }
-            if (StringUtils.isEmpty(value)) {
-                value = "";
+            if (StringUtils.isEmpty(inputValue)) {
+                inputValue = StringUtils.EMPTY;
             }
-            if (field.getType().equalsIgnoreCase("multipleSelect")) {
-                value = modifyMultipleSelectPattern(value);
+            value = inputValue;
+
+            if (StringUtils.equalsAnyIgnoreCase(field.getType(), "multipleSelect", "multipleInput")) {
+                value = modifyMultipleSelectPattern(field, inputValue);
+            }
+            if (StringUtils.equalsAnyIgnoreCase(field.getType(), "select")) {
+                value = parseText2Value(field, inputValue);
             }
             JSONObject statusObj = new JSONObject();
             statusObj.put("id", UUID.randomUUID().toString());
@@ -708,29 +714,44 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         return customArr.toJSONString();
     }
 
+    private String parseText2Value(CustomFieldDao field, String inputValue) {
+        String optionsStr = field.getOptions();
+        if (StringUtils.isNotBlank(optionsStr)) {
+            List<JSONObject> options = JSONArray.parseArray(optionsStr, JSONObject.class);
+            for (JSONObject option : options) {
+                if (StringUtils.equals(option.getString("text"), inputValue)) {
+                    return option.getString("value");
+                }
+            }
+        }
+        return inputValue;
+    }
+
     /**
      * 调整自定义多选下拉框格式，便于前端进行解析。
      * 例如对于：下拉值1，下拉值2。将调整为:["下拉值1","下拉值2"]。
      */
-    public String modifyMultipleSelectPattern(String values) {
+    public List modifyMultipleSelectPattern(CustomFieldDao field, String values) {
+        List<String> result = new ArrayList<>();
         try {
             if (StringUtils.isNotBlank(values)) {
-                JSONArray array = JSONArray.parseArray(values);
-                return array.toJSONString();
+                result = JSONArray.parseArray(values, String.class);
             }
-            return "[]";
         } catch (Exception e) {
             if (values != null) {
-                Stream<String> stringStream = Arrays.stream(values.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
-                List<String> valueList = stringStream.map(multip -> multip = "\"" + multip + "\"")
-                        .collect(Collectors.toList());
-                String modifiedValues = StringUtils.join(valueList, ",");
-                modifiedValues = "[" + modifiedValues + "]";
-                return modifiedValues;
-            } else {
-                return "[]";
+                if (values.startsWith("[")) {
+                    values = values.substring(1);
+                }
+                if (values.endsWith("]")) {
+                    values = values.substring(0, values.length() - 1);
+                }
+                result = Arrays.asList(values.split("[,;，；]")); //当标签值以中英文的逗号和分号分隔时才能正确解析
             }
         }
+        for (int i = 0; i < result.size(); i++) {
+            result.set(i, parseText2Value(field, result.get(i)));
+        }
+        return result;
     }
 
     /**
