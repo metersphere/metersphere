@@ -553,5 +553,6 @@
         <foreach collection="planCaseIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        ORDER BY t.order DESC
     </select>
 </mapper>
