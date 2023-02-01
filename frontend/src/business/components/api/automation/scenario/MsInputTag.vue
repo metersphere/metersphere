@@ -69,6 +69,7 @@ export default {
   watch: {
     innerTags() {
       this.currentScenario[this.prop] = this.innerTags;
+      this.tagChange()
     },
     'currentScenario.tags'() {
       if (this.prop === 'tags') {
