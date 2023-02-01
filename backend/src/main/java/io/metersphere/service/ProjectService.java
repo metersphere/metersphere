@@ -1082,4 +1082,8 @@ public class ProjectService {
             }
         }
     }
+
+    public ProjectDTO getProjectByScenario(String id) {
+        return extProjectMapper.getProjectByScenario(id);
+    }
 }

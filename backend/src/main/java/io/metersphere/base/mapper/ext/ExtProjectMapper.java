@@ -47,4 +47,6 @@ public interface ExtProjectMapper {
     void updateUseDefaultCaseTemplateProject(@Param("originId") String originId,@Param("templateId") String templateId,@Param("projectId") String projectId);
 
     List<String> getThirdPartProjectIds();
+
+    ProjectDTO getProjectByScenario(String scenarioId);
 }

@@ -136,16 +136,15 @@ export default {
     },
     clickResource() {
       let workspaceId = getCurrentWorkspaceId();
-      if (this.report.projectId !== getCurrentProjectID()) {
-        this.$get("/project/get/" + this.report.projectId, response => {
-          if (response.data) {
-            workspaceId = response.data.workspaceId;
-            this.checkPermission(workspaceId, this.report.projectId, response.data.name);
-          }
-        });
-      } else {
-        this.checkPermission(workspaceId, this.report.projectId, null);
-      }
+      this.$get("/project/api/project/get/" + this.scenarioId, res => {
+        let scenarioProjectId = res.data.id;
+        if (scenarioProjectId !== getCurrentProjectID()) {
+            workspaceId = res.data.workspaceId;
+            this.checkPermission(workspaceId, scenarioProjectId, res.data.name);
+        } else {
+          this.checkPermission(workspaceId, scenarioProjectId, null);
+        }
+      });
     },
     checkPermission(workspaceId, projectId, projectName) {
       this.$get("/workspace/get/" + workspaceId, response => {
