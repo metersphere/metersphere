@@ -162,6 +162,7 @@ public class MsScenario extends MsTestElement {
             if (BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
                 scenarioTree.add(ElementUtil.argumentsToUserParameters(valueSupposeMock));
             } else if (config != null && (this.isAllEnable() || config.isApi())) {
+                valueSupposeMock.setProperty("COVER", true);
                 scenarioTree.add(valueSupposeMock);
             }
         }

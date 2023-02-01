@@ -816,4 +816,38 @@ public class ElementUtil {
     public static String getDataSourceName(String name) {
         return StringUtils.join(name, "-", UUID.randomUUID().toString());
     }
+
+    /**
+     * 过程变量覆盖处理
+     *
+     * @param tree
+     */
+    public static void coverArguments(HashTree tree) {
+        Map<String, String> process = new HashMap<>();
+        coverArguments(tree, process);
+    }
+
+    public static void coverArguments(HashTree tree, Map<String, String> process) {
+        for (Object key : tree.keySet()) {
+            HashTree node = tree.get(key);
+            if (key instanceof Arguments) {
+                Arguments arguments = (Arguments) key;
+                if (arguments.getProperty("COVER") == null) {
+                    continue;
+                }
+                for (int i = 0; i < arguments.getArguments().size(); ++i) {
+                    String argKey = arguments.getArgument(i).getName();
+                    String argValue = arguments.getArgument(i).getValue();
+                    if (process.containsKey(argKey)) {
+                        arguments.getArgument(i).setValue(process.get(argKey));
+                    } else {
+                        process.put(argKey, argValue);
+                    }
+                }
+            }
+            if (node != null) {
+                coverArguments(node, process);
+            }
+        }
+    }
 }

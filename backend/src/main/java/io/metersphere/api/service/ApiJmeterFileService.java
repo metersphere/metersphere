@@ -3,6 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
@@ -89,7 +90,7 @@ public class ApiJmeterFileService {
         if (MapUtils.isEmpty(envMap)) {
             LoggerUtil.info("测试资源：【" + remoteTestId + "】, 报告【" + reportId + "】未重新选择环境");
         }
-        HashTree hashTree = null;
+        HashTree hashTree;
         if (StringUtils.equalsAnyIgnoreCase(runMode, ApiRunMode.DEFINITION.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             hashTree = apiScenarioSerialService.generateHashTree(remoteTestId, envMap, runRequest);
         } else {
@@ -113,6 +114,9 @@ public class ApiJmeterFileService {
                 }
             }
             hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
+        }
+        if (hashTree != null) {
+            ElementUtil.coverArguments(hashTree);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }

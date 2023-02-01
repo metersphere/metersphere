@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.ApiPoolDebugService;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
@@ -209,6 +210,10 @@ public class JMeterService {
         if (request.getPool().isPool()) {
             this.runNode(request);
         } else {
+            // 过程变量处理
+            if (request.getHashTree() != null) {
+                ElementUtil.coverArguments(request.getHashTree());
+            }
             execThreadPoolExecutor.addTask(request);
         }
     }
