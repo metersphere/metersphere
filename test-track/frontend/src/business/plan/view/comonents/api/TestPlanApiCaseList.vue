@@ -388,7 +388,6 @@ export default {
       selectDataCounts: 0,
       screenHeight: "calc(100vh - 250px)", //屏幕高度
       currentCaseProjectId: "",
-      runData: [],
       testPlanCaseIds: [],
       reportId: "",
       rowLoading: "",
@@ -610,7 +609,6 @@ export default {
     getData() {
       return new Promise((resolve) => {
         let index = 1;
-        this.runData = [];
         this.testPlanCaseIds = [];
         if (this.condition != null && this.condition.selectAll) {
           let selectAllRowParams = buildBatchParam(this);
@@ -621,39 +619,24 @@ export default {
               // 按照列表顺序排序
               this.orderBySelectRows(dataRows);
               dataRows.forEach((row) => {
-                apiTestCaseGet(row.caseId).then((response) => {
-                  let apiCase = response.data;
-                  let request = JSON.parse(apiCase.request);
-                  request.name = row.id;
-                  request.id = row.id;
-                  request.useEnvironment = row.environmentId;
-                  this.runData.unshift(request);
-                  this.testPlanCaseIds.unshift(row.id);
-                  if (dataRows.length === index) {
-                    resolve();
-                  }
-                  index++;
-                });
+                this.testPlanCaseIds.push(row.id);
+                if (dataRows.length === index) {
+                  resolve();
+                }
+                index++;
               });
             }
           );
         } else {
-          // 按照列表顺序排序
           let dataRows = this.orderBySelectRows(this.$refs.table.selectRows);
+          // 按照列表顺序排序
+          this.orderBySelectRows(dataRows);
           dataRows.forEach((row) => {
-            apiTestCaseGet(row.caseId).then((response) => {
-              let apiCase = response.data;
-              let request = JSON.parse(apiCase.request);
-              request.name = row.id;
-              request.id = row.id;
-              request.useEnvironment = row.environmentId;
-              this.runData.unshift(request);
-              this.testPlanCaseIds.unshift(row.id);
-              if (dataRows.length === index) {
-                resolve();
-              }
-              index++;
-            });
+            this.testPlanCaseIds.push(row.id);
+            if (dataRows.length === index) {
+              resolve();
+            }
+            index++;
           });
         }
       });
@@ -697,7 +680,7 @@ export default {
     },
     handleBatchExecute() {
       this.getData().then(() => {
-        if (this.runData && this.runData.length > 0) {
+        if (this.testPlanCaseIds && this.testPlanCaseIds.length > 0) {
           this.$refs.runMode.open("API");
         }
       });
