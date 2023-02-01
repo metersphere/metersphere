@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.base.domain.*;
@@ -23,6 +24,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -125,6 +127,9 @@ public class ApiJMeterFileService {
                 }
             }
             hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
+        }
+        if (hashTree != null) {
+            ElementUtil.coverArguments(hashTree);
         }
         return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
     }
