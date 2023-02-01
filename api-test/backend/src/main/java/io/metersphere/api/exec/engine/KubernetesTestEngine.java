@@ -3,6 +3,7 @@ package io.metersphere.api.exec.engine;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.metersphere.api.dto.MsgDTO;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
@@ -24,6 +25,8 @@ import java.util.Set;
 public class KubernetesTestEngine extends AbstractEngine {
     private JmeterRunRequestDTO runRequest;
     private final String DEBUG_ERROR = "DEBUG_ERROR";
+    private final String EXEC_URL = "api/start";
+    private final String DEBUG_URL = "debug";
 
     // 初始化API调用
     public KubernetesTestEngine(JmeterRunRequestDTO runRequest) {
@@ -60,9 +63,9 @@ public class KubernetesTestEngine extends AbstractEngine {
                     .append(StringUtils.LF).append("Pod信息：【 ")
                     .append(JSON.toJSONString(pod.getMetadata())).append(" 】");
             LoggerUtil.info(logMsg);
-            String path = "api/start";
-            if (runRequest.getHashTree() != null) {
-                path = "debug";
+            boolean isDebug = runRequest.getHashTree() != null;
+            if (isDebug) {
+                ElementUtil.coverArguments(runRequest.getHashTree());
                 if (runRequest.isDebug() && !StringUtils.equalsAny(runRequest.getRunMode(), ApiRunMode.DEFINITION.name())) {
                     runRequest.getExtendedParameters().put(ExtendedParameter.SAVE_RESULT, true);
                 } else if (!runRequest.isDebug()) {
@@ -77,7 +80,7 @@ public class KubernetesTestEngine extends AbstractEngine {
             command.append(StringUtils.SPACE).append("--connect-timeout 30");  // 设置连接超时时间为30S
             command.append(StringUtils.SPACE).append("--max-time 120");  // 设置请求超时时间为120S
             command.append(StringUtils.SPACE).append("--retry 3");  // 设置重试次数3次
-            command.append(StringUtils.SPACE).append("http://127.0.0.1:8082/jmeter/").append(path);
+            command.append(StringUtils.SPACE).append("http://127.0.0.1:8082/jmeter/").append(isDebug ? DEBUG_URL : EXEC_URL);
             KubernetesApiExec.newExecWatch(client, clientCredential.getNamespace(), pod.getMetadata().getName(), command.toString());
         } catch (Exception e) {
             MsgDTO dto = new MsgDTO();

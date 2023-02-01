@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.engine.EngineFactory;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
@@ -149,6 +150,7 @@ public class JMeterService {
             try {
                 // 缓存调试脚本
                 if (request.getHashTree() != null) {
+                    ElementUtil.coverArguments(request.getHashTree());
                     String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
                     redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
                 }
@@ -177,6 +179,7 @@ public class JMeterService {
             if (apiPoolDebugService != null) {
                 List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
                 if (request.getHashTree() != null) {
+                    ElementUtil.coverArguments(request.getHashTree());
                     String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
                     redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
                     request.setHashTree(null);
@@ -228,6 +231,7 @@ public class JMeterService {
         if (request.getPool().isPool() && StringUtils.isNotBlank(request.getRunMode())) {
             this.runNode(request);
         } else if (request.getHashTree() != null) {
+            ElementUtil.coverArguments(request.getHashTree());
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
             execThreadPoolExecutor.addTask(request);
