@@ -166,7 +166,7 @@ public class ProjectController {
     }
 
     @GetMapping("/api/project/get/{id}")
-    public ProjectDTO getProjectByScenario(@PathVariable String id) {
-        return projectService.getProjectByScenario(id);
+    public ProjectDTO getProjectByScenarioOrUi(@PathVariable String id) {
+        return projectService.getProjectByScenarioOrUi(id);
     }
 }

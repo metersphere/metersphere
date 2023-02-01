@@ -1083,7 +1083,11 @@ public class ProjectService {
         }
     }
 
-    public ProjectDTO getProjectByScenario(String id) {
-        return extProjectMapper.getProjectByScenario(id);
+    public ProjectDTO getProjectByScenarioOrUi(String id) {
+        ProjectDTO project = extProjectMapper.getProjectByScenario(id);
+        if(project == null){
+            project = extProjectMapper.getProjectByUi(id);
+        }
+        return project;
     }
 }

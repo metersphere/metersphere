@@ -136,34 +136,16 @@ export default {
     },
     clickResource() {
       //跳转修改只修改场景报告跳转逻辑。 UI部分的不清楚具体跳转细节，所以维持原来的代码逻辑。
-      if(this.isUi){
-        this.clickUiResource();
-      }else {
-        this.clickScenarioResource();
-      }
-    },
-    clickUiResource(){
-      let workspaceId = getCurrentWorkspaceId();
-      if (this.report.projectId !== getCurrentProjectID()) {
-        this.$get("/project/get/" + this.report.projectId, response => {
-          if (response.data) {
-            workspaceId = response.data.workspaceId;
-            this.checkPermission(workspaceId, this.report.projectId, response.data.name);
-          }
-        });
-      } else {
-        this.checkPermission(workspaceId, this.report.projectId, null);
-      }
-    },
-    clickScenarioResource(){
       let workspaceId = getCurrentWorkspaceId();
       this.$get("/project/api/project/get/" + this.scenarioId, res => {
-        let scenarioProjectId = res.data.id;
-        if (scenarioProjectId !== getCurrentProjectID()) {
+        if(res.data){
+          let scenarioProjectId = res.data.id;
+          if (scenarioProjectId !== getCurrentProjectID()) {
             workspaceId = res.data.workspaceId;
             this.checkPermission(workspaceId, scenarioProjectId, res.data.name);
-        } else {
-          this.checkPermission(workspaceId, scenarioProjectId, null);
+          } else {
+            this.checkPermission(workspaceId, scenarioProjectId, null);
+          }
         }
       });
     },
