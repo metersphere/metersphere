@@ -439,4 +439,13 @@
             INNER join api_scenario a on a.project_id = p.id
         where a.id = #{scenarioId}
     </select>
+
+    <select id="getProjectByUi" resultType="io.metersphere.dto.ProjectDTO">
+        SELECT p.* , w.name as workspaceName
+        from project p
+                 INNER JOIN workspace w on p.workspace_id = w.id
+                 INNER join ui_scenario a on a.project_id = p.id
+        where a.id = #{scenarioId}
+    </select>
+
 </mapper>

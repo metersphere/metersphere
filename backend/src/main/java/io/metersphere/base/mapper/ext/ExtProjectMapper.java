@@ -49,4 +49,6 @@ public interface ExtProjectMapper {
     List<String> getThirdPartProjectIds();
 
     ProjectDTO getProjectByScenario(String scenarioId);
+
+    ProjectDTO getProjectByUi(String id);
 }
