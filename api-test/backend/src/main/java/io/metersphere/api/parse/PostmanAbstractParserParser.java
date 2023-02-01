@@ -140,7 +140,11 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         if (postmanBody == null) {
             return;
         }
-        String bodyMode = postmanBody.get("mode").textValue();
+        String bodyMode = null;
+        if (postmanBody.has("mode")) {
+            bodyMode = postmanBody.get("mode").textValue();
+        }
+
         if (StringUtils.isBlank(bodyMode)) {
             return;
         }
