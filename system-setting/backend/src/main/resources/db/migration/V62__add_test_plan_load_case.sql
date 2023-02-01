@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `test_plan_load_case`
 (
     `id`             varchar(50) NOT NULL COMMENT 'ID',
@@ -10,3 +11,5 @@ CREATE TABLE IF NOT EXISTS `test_plan_load_case`
     PRIMARY KEY (`id`),
     UNIQUE KEY `plan_load_case_id` (`test_plan_id`, `load_case_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

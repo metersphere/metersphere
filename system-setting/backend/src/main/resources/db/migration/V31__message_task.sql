@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS message_task
 (
     id        varchar(50)  NOT NULL,
@@ -12,3 +13,4 @@ CREATE TABLE IF NOT EXISTS message_task
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

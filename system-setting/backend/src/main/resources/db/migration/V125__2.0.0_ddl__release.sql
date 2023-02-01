@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化V2.0.0
 -- V117_v1-20-3_custom_field
 -- 存储用例的自定义字段值
@@ -251,3 +252,5 @@ CREATE TABLE IF NOT EXISTS `attachment_module_relation`
   COLLATE = utf8mb4_general_ci;
 
 ALTER TABLE test_plan_report_content ADD COLUMN `ui_all_cases` LONGTEXT COMMENT 'ui all cases (JSON format)';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

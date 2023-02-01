@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 create table if not exists test_plan_project
 (
 	test_plan_id varchar(50) null,
@@ -7,3 +8,5 @@ create table if not exists test_plan_project
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 insert into test_plan_project(test_plan_id, project_id) select id test_plan_id, project_id project_id from test_plan;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

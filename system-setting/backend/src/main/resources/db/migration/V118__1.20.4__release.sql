@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化 sql
 -- 创建 性能测试报告和文件的关联
 -- start
@@ -49,3 +50,4 @@ DELIMITER ;
 CALL load_test_report_file_add();
 DROP PROCEDURE IF EXISTS load_test_report_file_add;
 -- end
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

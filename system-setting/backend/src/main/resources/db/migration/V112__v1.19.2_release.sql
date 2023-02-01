@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE test_plan
     MODIFY name VARCHAR(128) NOT NULL COMMENT 'Plan name';
 
@@ -14,3 +15,5 @@ DELIMITER ;
 CALL schema_change_api();
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- v2_5_modify_workspace_name_length
 -- 创建人 liyuhao
 -- 创建时间 2022-11-29 13:19:51
@@ -108,3 +109,5 @@ DROP PROCEDURE IF EXISTS init_super_permission;
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
 VALUES ('super_group', '超级管理员(系统)', '拥有系统全部工作空间以及项目的操作权限', 1, 'SYSTEM', UNIX_TIMESTAMP() * 1000,
         UNIX_TIMESTAMP() * 1000, 'system', 'system');
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

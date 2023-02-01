@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE `issue_follow`
 (
     `issue_id`  varchar(50) DEFAULT NULL,
@@ -133,3 +134,5 @@ ALTER TABLE issues
     MODIFY COLUMN title varchar(300);
 ALTER TABLE issues
     MODIFY COLUMN description LONGTEXT;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

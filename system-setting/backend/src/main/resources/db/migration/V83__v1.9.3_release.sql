@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- load_test_report
 ALTER TABLE load_test_report
     ADD project_id VARCHAR(50) NULL;
@@ -28,3 +29,5 @@ SET load_test_report.test_resource_pool_id = load_test.test_resource_pool_id;
 --
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

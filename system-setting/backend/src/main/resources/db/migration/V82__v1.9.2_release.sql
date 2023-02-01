@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 缺陷添加创建人字段
 ALTER TABLE issues
     ADD creator varchar(50) NULL COMMENT 'Creator';
@@ -21,3 +22,5 @@ where type = 'api_scenario_list';
 update system_header
 set props= '[{"id":"num","label":"ID"},{"id":"status","label":"接口状态"},{"id":"name","label":"接口名称"},{"id":"method","label":"请求类型"},{"id":"userName","label":"负责人"},{"id":"path","label":"路径"},{"id":"tags","label":"标签"},{"id":"updateTime","label":"最后更新时间"},{"id":"caseTotal","label":"用例数"},{"id":"caseStatus","label":"用例状态"},{"id":"casePassingRate","label":"用例通过率"}]'
 where type = 'api_list';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

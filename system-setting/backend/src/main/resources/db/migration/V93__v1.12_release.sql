@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 接口定义增加全局运行环境选择
 CREATE TABLE IF NOT EXISTS `api_definition_env`
 (
@@ -306,3 +307,5 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+COPY', 'PROJECT_TRACK_PLAN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'project_member', 'PROJECT_TRACK_PLAN:READ+COPY', 'PROJECT_TRACK_PLAN');
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

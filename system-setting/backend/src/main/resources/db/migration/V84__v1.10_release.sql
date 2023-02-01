@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- schedule
 alter table schedule
     add config VARCHAR(500) null;
@@ -144,3 +145,5 @@ where type = 'test_plan_list';
 update system_header
 set props='[{"id":"name","label":"名称"},{"id":"userName","label":"负责人"},{"id":"createUser","label":"创建人"},{"id":"status","label":"当前状态"},{"id":"stage","label":"测试阶段"},{"id":"testRate","label":"测试进度"},{"id":"projectName","label":"所属项目"},{"id":"plannedStartTime","label":"计划开始"},{"id":"plannedEndTime","label":"计划结束"},{"id":"actualStartTime","label":"实际开始"},{"id":"actualEndTime","label":"实际结束"},{"id":"tags","label":"标签"},{"id":"executionTimes","label":"执行次数"},{"id":"passRate","label":"通过率"}]';
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

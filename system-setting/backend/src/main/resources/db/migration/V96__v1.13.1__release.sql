@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE INDEX load_test_report_test_resource_pool_id_index
     ON load_test_report (test_resource_pool_id);
 
@@ -31,3 +32,5 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'project_member', 'PROJECT_REPORT_ANALYSIS:READ+UPDATE', 'PROJECT_REPORT_ANALYSIS');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'project_member', 'PROJECT_REPORT_ANALYSIS:READ+CREATE', 'PROJECT_REPORT_ANALYSIS');
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

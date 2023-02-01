@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- V128__2-1-0_update_api_scenario_load_report
 --
 ALTER TABLE `api_definition_exec_result`
@@ -236,3 +237,5 @@ CREATE TABLE `file_module`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

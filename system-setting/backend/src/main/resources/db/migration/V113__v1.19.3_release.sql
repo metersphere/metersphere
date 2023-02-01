@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE test_plan_report
     MODIFY name varchar(128) NULL COMMENT 'name';
 
@@ -40,3 +41,4 @@ CREATE PROCEDURE schema_change_api() BEGIN
 END//
 DELIMITER ;
 CALL schema_change_api();
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

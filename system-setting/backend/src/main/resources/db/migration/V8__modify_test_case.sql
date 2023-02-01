@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table test_case add num int null comment 'Manually controlled growth identifier';
 
 DROP PROCEDURE IF EXISTS test_cursor;
@@ -48,3 +49,4 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

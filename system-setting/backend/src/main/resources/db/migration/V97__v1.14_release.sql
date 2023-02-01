@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE test_plan
     DROP COLUMN principal;
 
@@ -530,3 +531,5 @@ WHERE 1;
 UPDATE test_case
 SET status = 'Prepare'
 WHERE status IS NULL;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

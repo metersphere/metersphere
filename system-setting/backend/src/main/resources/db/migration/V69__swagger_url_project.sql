@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 create table swagger_url_project
 (
     id          varchar(30) not null,
@@ -9,3 +10,5 @@ create table swagger_url_project
     primary key (id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- issues template and test case template
 
 -- 自定义字段表
@@ -249,3 +250,5 @@ alter table test_case add custom_num varchar(64) null comment 'custom num';
 
 -- 修改前置条件为text
 ALTER TABLE test_case MODIFY COLUMN prerequisite text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'Test case prerequisite condition';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

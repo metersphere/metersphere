@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- v1.10-lts 升级的基线是 v92，v91不会执行，这里把v91的内容加到这里，保证lts可以正常升级
 -- test resource pool
 ALTER TABLE test_resource_pool
@@ -126,3 +127,5 @@ CREATE TABLE IF NOT EXISTS test_plan_report_resource  (
 
 alter table project add azure_devops_id varchar(50) null after zentao_id;
 alter table custom_field_template modify default_value varchar(100) null ;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

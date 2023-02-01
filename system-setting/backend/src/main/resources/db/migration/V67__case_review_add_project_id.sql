@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table test_case_review add project_id varchar(50) null comment '用例评审所属项目';
 
 DROP PROCEDURE IF EXISTS test_cursor;
@@ -53,3 +54,4 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

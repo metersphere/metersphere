@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE test_plan ADD api_ids varchar(1000) NULL COMMENT 'Api id list';
 ALTER TABLE test_plan ADD scenario_ids varchar(1000) NULL COMMENT 'Scenario id list';
 
@@ -59,3 +60,5 @@ CREATE TABLE `api_scenario_report_detail` (
   `content` longblob COMMENT 'Report Content',
   PRIMARY KEY (`report_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

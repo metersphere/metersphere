@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE `user` ADD selenium_server varchar(255) DEFAULT '';
 
 -- start 2022.05.11 jar包支持项目级别和工作空间级别可见
@@ -14,3 +15,4 @@ DELETE FROM jar_config WHERE resource_id = '';
 
 -- V116_1-20-2_user_group_permission 插入UI配置权限给项目管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id) VALUES (uuid(), 'project_admin', 'PERSONAL_INFORMATION:READ+UI_SETTING', 'PERSONAL_INFORMATION');
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

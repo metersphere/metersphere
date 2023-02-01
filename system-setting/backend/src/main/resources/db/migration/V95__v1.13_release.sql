@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE `plugin` (
   `id` varchar(50) NOT NULL COMMENT 'ID',
   `name` varchar(300) DEFAULT NULL COMMENT 'plugin name',
@@ -113,3 +114,5 @@ CALL schema_change_api();
 DROP PROCEDURE IF EXISTS schema_change_api;
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

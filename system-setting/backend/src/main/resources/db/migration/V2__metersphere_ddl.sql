@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `file_content` (
     `file_id` varchar(64)  NOT NULL COMMENT 'File ID',
     `file`    longblob COMMENT 'File content',
@@ -300,3 +301,5 @@ CREATE TABLE IF NOT EXISTS `test_case_report` (
 
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
