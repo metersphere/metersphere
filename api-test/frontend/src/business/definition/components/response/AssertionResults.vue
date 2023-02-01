@@ -19,7 +19,7 @@
         </div>
       </template>
     </el-table-column>
-    <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body>
+    <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body z-index="2500">
       <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <el-col :span="codeSpan" class="script-content">
           <ms-code-edit
