@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- ws admin
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP', 'WORKSPACE_PROJECT_ENVIRONMENT');
@@ -19,3 +20,5 @@ values (UUID(), 'admin', 'SYSTEM_PLUGIN:UPLOAD', 'SYSTEM_PLUGIN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'admin', 'SYSTEM_PLUGIN:DEL', 'SYSTEM_PLUGIN');
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

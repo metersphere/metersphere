@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `error_report_library` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',
     `project_id` varchar(50)  NOT NULL COMMENT 'Project ID this report belongs to',
@@ -27,3 +28,4 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'admin', 'PROJECT_ERROR_REPORT_LIBRARY:READ+EDIT', 'PROJECT_ERROR_REPORT_LIBRARY');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'admin', 'PROJECT_ERROR_REPORT_LIBRARY:READ+DELETE', 'PROJECT_ERROR_REPORT_LIBRARY');
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

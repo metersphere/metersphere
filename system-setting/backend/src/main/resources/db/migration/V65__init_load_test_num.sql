@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table load_test add num int null;
 
 DROP PROCEDURE IF EXISTS test_cursor;
@@ -49,3 +50,5 @@ DELIMITER ;
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

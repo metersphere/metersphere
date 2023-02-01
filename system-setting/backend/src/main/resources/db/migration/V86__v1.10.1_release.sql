@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- project add column
 ALTER table project add system_id varchar(50) null;
 -- reduse old data
@@ -164,3 +165,5 @@ where type = 'test_plan_scenario_case';
 update system_header
 set props='[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"createUser","label":"创建人"},{"id":"maintainer","label":"责任人"},{"id":"priority","label":"用例等级"},{"id":"reviewStatus","label":"评审状态"},{"id":"tags","label":"标签"},{"id":"nodePath","label":"所属模块"},{"id":"updateTime","label":"更新时间"}]'
 where type = 'test_case_list';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

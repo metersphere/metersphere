@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- V117_v1-20-3_ui-element-permission
 -- start
 
@@ -16,3 +17,5 @@ values (UUID(), 'project_member', 'PROJECT_UI_ELEMENT:READ+IMPORT', 'PROJECT_UI_
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (UUID(), 'project_member', 'PROJECT_UI_ELEMENT:READ+EXPORT', 'PROJECT_UI_ELEMENT');
 -- end
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

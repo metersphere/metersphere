@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- create tale user_header
 CREATE TABLE IF NOT EXISTS `user_header`
 (
@@ -244,3 +245,5 @@ values ('test_plan_scenario_case',
         '[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"level","label":"用例等级"},{"id":"tagNames","label":"标签"},{"id":"userId","label":"创建人"},{"id":"updateTime","label":"最后更新时间"},{"id":"stepTotal","label":"通过"},{"id":"lastResult","label":"失败"},{"id":"passRate","label":"通过率"}]');
 
 alter table system_header add primary key(type);
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `api_test_environment` (
   `id` varchar(50) NOT NULL COMMENT 'Api Test Environment ID',
   `name` varchar(64) NOT NULL COMMENT 'Api Test Environment Name',
@@ -12,3 +13,5 @@ CREATE TABLE IF NOT EXISTS `api_test_environment` (
   PRIMARY KEY (`id`),
   KEY `project_id` ( `project_id` )
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

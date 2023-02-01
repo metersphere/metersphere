@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table api_definition add num int null comment 'api definition ID';
 alter table api_test_case add num int null comment 'api test case ID';
 alter table api_scenario add num int null comment 'api scenario ID';
@@ -123,3 +124,4 @@ DELIMITER ;
 
 CALL test_cursor1();
 DROP PROCEDURE IF EXISTS test_cursor1;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

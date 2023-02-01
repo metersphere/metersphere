@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 --
 -- 增加一个索引
 SELECT IF(EXISTS(SELECT DISTINCT index_name
@@ -11,3 +12,6 @@ INTO @a;
 PREPARE stmt1 FROM @a;
 EXECUTE stmt1;
 DEALLOCATE PREPARE stmt1;
+
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

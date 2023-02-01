@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE `ui_scenario_module`
 (
     `id`           varchar(50) NOT NULL COMMENT 'ui scenario node ID',
@@ -306,3 +307,5 @@ UPDATE system_parameter SET param_value = 'http://local-selenium-grid:4444' WHER
 
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

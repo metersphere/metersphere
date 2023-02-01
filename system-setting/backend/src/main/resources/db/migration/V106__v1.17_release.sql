@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- permission
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES ('36c05551-5195-4cb8-98d4-737f15ffe0bb', 'project_admin', 'PROJECT_VERSION:READ+DELETE', 'PROJECT_VERSION');
@@ -241,3 +242,5 @@ WHERE custom_num IS NULL
 
 
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 --
 -- V2_sync_supplementary_data
 -- 查出所有不重复的项目ID 循环项目ID 给 project_application 表设置默认值
@@ -269,3 +270,5 @@ VALUES (UUID(), 'project_admin', 'PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND', 'P
 
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_member', 'PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND', 'PROJECT_TRACK_CASE');
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

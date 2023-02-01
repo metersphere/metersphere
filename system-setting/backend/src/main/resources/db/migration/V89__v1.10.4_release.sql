@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 添加版本号
 ALTER TABLE api_scenario
     ADD version INT(10) DEFAULT 0 NULL COMMENT '版本号';
@@ -29,3 +30,4 @@ VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_B
 -- 场景批量复制
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_admin', 'PROJECT_API_SCENARIO:READ+BATCH_COPY', 'PROJECT_API_SCENARIO');
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

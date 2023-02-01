@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE `user_key` (
     `id`          varchar(50) NOT NULL DEFAULT '' COMMENT 'user_key ID',
     `user_id`     varchar(50) NOT NULL COMMENT '用户ID',
@@ -10,3 +11,5 @@ CREATE TABLE `user_key` (
     KEY `IDX_USER_ID` (`user_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `test_plan_api_case` (
     `id` varchar(50)  NOT NULL COMMENT 'ID',
     `test_plan_id` varchar(50)   NOT NULL COMMENT 'Test plan ID',
@@ -27,3 +28,5 @@ CREATE TABLE IF NOT EXISTS `test_plan_api_scenario` (
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 ALTER TABLE api_definition_exec_result ADD `type` varchar(20) NULL;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

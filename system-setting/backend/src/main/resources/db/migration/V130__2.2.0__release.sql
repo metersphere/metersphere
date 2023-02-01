@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- v2_2 init
 -- v2_2_init_ui_share_report_time
 -- 工单名称: v2_2_init_ui_share_report_time
@@ -156,3 +157,5 @@ ALTER TABLE `ui_scenario_module` ADD COLUMN scenario_type VARCHAR(100) NOT NULL 
 ALTER TABLE `attachment_module_relation` MODIFY COLUMN attachment_id VARCHAR(50) NULL;
 
 ALTER TABLE `attachment_module_relation` ADD COLUMN file_metadata_ref_id VARCHAR(50) DEFAULT NULL COMMENT 'FILE ASSOCIATION ID';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

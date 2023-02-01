@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table test_plan add project_id varchar(50) null comment '测试计划所属项目';
 ALTER TABLE api_test_case MODIFY COLUMN name varchar(255) NOT NULL COMMENT 'Test case name';
 
@@ -54,3 +55,4 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

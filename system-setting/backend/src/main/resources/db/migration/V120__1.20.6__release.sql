@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化 sql
 -- V120_1-20-6_test_case_modify
 -- test_case 列表查询性能优化
@@ -29,3 +30,4 @@ SET test_case_review_test_case.is_del = 1;
 -- 日志记录表添加索引
 ALTER TABLE `operating_log`
     ADD INDEX oper_project_id (`project_id`);
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

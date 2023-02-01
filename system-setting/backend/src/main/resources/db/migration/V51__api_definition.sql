@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `api_module` (
     `id`                     varchar(50) NOT NULL COMMENT 'Test case node ID',
     `project_id`             varchar(50) NOT NULL COMMENT 'Project ID this node belongs to',
@@ -67,3 +68,5 @@ ALTER TABLE `api_test_case` ADD INDEX ( `api_definition_id` );
 ALTER TABLE `api_test_case` ADD INDEX ( `create_user_id` );
 ALTER TABLE `api_test_case` ADD INDEX ( `update_user_id` );
 ALTER TABLE `api_definition_exec_result` ADD INDEX ( `resource_id` );
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- v2.4.0 init
 --
 -- 通知表时间加索引
@@ -20,3 +21,4 @@ WHERE type = 'PROJECT'
 ALTER TABLE plugin ADD xpack TINYINT(1) NULL COMMENT 'Is xpack plugin';
 -- 插件的使用场景
 ALTER TABLE plugin ADD scenario varchar(50) NOT NULL COMMENT 'Plugin usage scenarios';
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

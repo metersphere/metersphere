@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化 sql
 -- start V119_1-20-5_ws_permission
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -54,3 +55,4 @@ VALUES (UUID(), 'project_member', 'PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'project_member', 'PROJECT_TRACK_CASE:READ+BATCH_ADD_PUBLIC', 'PROJECT_TRACK_CASE');
 -- end
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

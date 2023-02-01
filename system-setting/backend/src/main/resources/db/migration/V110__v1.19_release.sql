@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 
 DROP PROCEDURE IF EXISTS project_api_appl;
 DELIMITER //
@@ -702,3 +703,4 @@ WHERE group_id = 'project_app_manager';
 
 ALTER TABLE `test_plan_report_content` ADD COLUMN `un_execute_cases` LONGTEXT COMMENT '未执行状态接口用例';
 ALTER TABLE `test_plan_report_content` ADD COLUMN `un_execute_scenarios` LONGTEXT COMMENT '未执行状态场景用例';
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

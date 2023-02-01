@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 新增字段
 ALTER TABLE `swagger_url_project`
     ADD COLUMN `config` longtext COMMENT '鉴权配置信息' AFTER `mode_id`;
@@ -105,3 +106,5 @@ CREATE TABLE IF NOT EXISTS `api_execution_queue_detail`
 ALTER TABLE load_test
     MODIFY name VARCHAR(255) NOT NULL COMMENT 'Test name';
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- quartz start
 CREATE TABLE `QRTZ_JOB_DETAILS` (
   `SCHED_NAME` varchar(120) NOT NULL,
@@ -173,3 +174,5 @@ UPDATE `api_test_report`  SET `trigger_mode` = 'MANUAL' WHERE 1;
 UPDATE `load_test_report`  SET `trigger_mode` = 'MANUAL' WHERE 1;
 
 alter table test_case add sort int null comment 'Import test case sort';
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

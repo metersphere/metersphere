@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `jar_config` (
     `id`          varchar(50) NOT NULL COMMENT 'ID',
     `name`        varchar(64) NOT NULL COMMENT 'Name',
@@ -11,3 +12,5 @@ CREATE TABLE IF NOT EXISTS `jar_config` (
     `update_time` bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

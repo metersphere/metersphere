@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE `operating_log` ADD INDEX oper_time_index ( `oper_time` );
 
 CREATE TABLE `operating_log_resource`
@@ -179,3 +180,5 @@ set t.project_id = atc.project_id where atc.id = t.resource_id;
 
 update api_scenario_report set report_type = 'SCENARIO_INTEGRATED' where scenario_id like '[%';
 update api_scenario_report set report_type = 'SCENARIO_INDEPENDENT' where report_type is null;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

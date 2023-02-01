@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `notice`(
    `EVENT` VARCHAR(100) NOT NULL,
    `TEST_ID` VARCHAR(100) NOT NULL,
@@ -6,3 +7,5 @@ CREATE TABLE IF NOT EXISTS `notice`(
 	 `ENABLE` VARCHAR(40) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

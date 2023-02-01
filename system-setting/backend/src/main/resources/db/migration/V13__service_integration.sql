@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 create table service_integration
 (
 	id varchar(50) not null,
@@ -29,3 +30,5 @@ create table if not exists issues
 	lastmodify varchar(50) null,
 	platform varchar(50) null
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

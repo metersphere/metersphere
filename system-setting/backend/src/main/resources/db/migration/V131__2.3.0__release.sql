@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- v2_3 init
 -- V2_3_micro_service_module
 -- 工单名称: V2_3_micro_service_module
@@ -36,3 +37,4 @@ FROM `group`
 WHERE type = 'PROJECT'
   AND `group`.id IN
       (SELECT group_id FROM user_group_permission WHERE permission_id = 'PROJECT_ERROR_REPORT_LIBRARY:READ');
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

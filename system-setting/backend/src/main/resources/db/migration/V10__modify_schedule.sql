@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 ALTER TABLE `schedule` ADD `workspace_id` varchar(50) NOT NULL COMMENT 'Workspace ID this schedule belongs to';
 ALTER TABLE `schedule` ADD `create_time`  bigint(13)  NULL COMMENT 'Create timestamp';
 ALTER TABLE `schedule` ADD  `update_time`  bigint(13)  NULL COMMENT 'Update timestamp';
@@ -15,3 +16,4 @@ SET schedule.workspace_id = result.workspace_id,
 schedule.create_time = result.create_time,
 schedule.update_time = result.update_time
 WHERE schedule.resource_id = result.resource_id;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

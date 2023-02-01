@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 INSERT INTO user (id, name, email, password, status, create_time, update_time, language, last_workspace_id, last_organization_id, phone)
 VALUES ('admin', 'Administrator', 'admin@metersphere.io', md5('metersphere'), '1', unix_timestamp() * 1000, unix_timestamp() * 1000, NULL, '', NULL,
         NULL);
@@ -43,3 +44,5 @@ INSERT INTO test_case_report_template (id, name, content)
 VALUES (uuid(), 'default', '{\"components\": [1,2,3,4,5]}');
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('default.language', 'zh_CN', 'text', 5);
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

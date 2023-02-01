@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 CREATE TABLE IF NOT EXISTS `api_data_view`
 (
     id varchar(50) NOT NULL primary key,
@@ -10,3 +11,5 @@ CREATE TABLE IF NOT EXISTS `api_data_view`
     create_time timestamp default CURRENT_TIMESTAMP NOT NULL,
     update_time timestamp default CURRENT_TIMESTAMP NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

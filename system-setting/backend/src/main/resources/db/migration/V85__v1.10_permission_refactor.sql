@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 UPDATE user_role
 SET source_id = 'system'
 WHERE role_id = 'admin';
@@ -607,3 +608,4 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'read_only', 'PROJECT_MANAGER:READ', 'PROJECT_MANAGER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (UUID(), 'read_only', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_OPERATING_LOG');
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

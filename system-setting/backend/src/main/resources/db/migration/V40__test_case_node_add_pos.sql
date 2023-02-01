@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 alter table test_case_node add pos double null;
 
 DROP PROCEDURE IF EXISTS pos_cursor;
@@ -56,3 +57,4 @@ DELIMITER ;
 
 CALL pos_cursor();
 DROP PROCEDURE IF EXISTS pos_cursor;
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

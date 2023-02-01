@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 -- 初始化 sql
 
 -- V121_1-20-8_clear_test_case_node
@@ -10,3 +11,5 @@ DELETE FROM test_case_node WHERE `level` = 0;
 -- 由于公共用例查询SQL排序字段未使用原本的联合索引
 -- 需新加一个联合索引
 ALTER TABLE test_case ADD INDEX test_case_public_order_index(`case_public`, `order`);
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;

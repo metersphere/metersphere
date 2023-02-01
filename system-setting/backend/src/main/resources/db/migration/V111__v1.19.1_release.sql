@@ -1,3 +1,4 @@
+SET SESSION innodb_lock_wait_timeout = 7200;
 
 DROP PROCEDURE IF EXISTS schema_change_api;
 DELIMITER //
@@ -121,3 +122,5 @@ CREATE PROCEDURE schema_change() BEGIN
 END//
 DELIMITER ;
 CALL schema_change();
+
+SET SESSION innodb_lock_wait_timeout = DEFAULT;
