@@ -164,4 +164,9 @@ public class ProjectController {
     public void checkThirdProjectExist(@RequestBody Project project) {
         projectService.checkThirdProjectExist(project);
     }
+
+    @GetMapping("/api/project/get/{id}")
+    public ProjectDTO getProjectByScenario(@PathVariable String id) {
+        return projectService.getProjectByScenario(id);
+    }
 }
