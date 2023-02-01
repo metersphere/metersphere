@@ -548,7 +548,9 @@ export function getCustomFieldValue(row, field, members) {
  * @returns {*[]|*}
  */
 export function parseMultipleInputToArray(mulInputStr) {
-  if (mulInputStr.indexOf(",")) {
+  if (mulInputStr instanceof Array) {
+    return mulInputStr;
+  } else if (mulInputStr.indexOf(",")) {
     return mulInputStr.split(",")
   } else if (mulInputStr.indexOf(";")) {
     return mulInputStr.split(";")

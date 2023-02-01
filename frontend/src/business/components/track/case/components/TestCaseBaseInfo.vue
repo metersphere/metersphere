@@ -9,6 +9,7 @@
         <el-form-item
           :placeholder="$t('test_track.case.input_name')"
           :label="$t('test_track.case.name')"
+          :label-width="formLabelWidth"
           prop="name">
           <el-input
             v-model="form.name"
@@ -22,6 +23,7 @@
 
       <el-row>
         <el-form-item :label="$t('test_track.case.module')" prop="module"
+                      :label-width="formLabelWidth"
                       v-if="!publicEnable">
           <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                           @getValue="setModule" clearable checkStrictly size="small"/>
@@ -30,6 +32,7 @@
 
       <el-row>
         <el-form-item :label="$t('test_track.case.project')" prop="projectId"
+                      :label-width="formLabelWidth"
                       v-if="publicEnable">
           <el-select v-model="form.projectId" filterable clearable>
             <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -38,7 +41,8 @@
       </el-row>
 
       <el-row>
-        <el-form-item :label="$t('commons.tag')" prop="tags">
+        <el-form-item :label="$t('commons.tag')" prop="tags"
+                      :label-width="formLabelWidth">
           <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag"
                         class="ms-case-input"></ms-input-tag>
         </el-form-item>
@@ -51,11 +55,13 @@
         <custom-filed-form-row :form="customFieldForm"
                                :disabled="readOnly"
                                :default-open="defaultOpen"
+                               :form-label-width="formLabelWidth"
                                :issue-template="testCaseTemplate"/>
       </el-form>
 
       <el-row v-if="isCustomNum">
-        <el-form-item label="ID" prop="customNum">
+        <el-form-item label="ID" prop="customNum"
+                      :label-width="formLabelWidth">
           <el-input :disabled="readOnly" v-model.trim="form.customNum" size="small"
                     class="ms-case-input"></el-input>
         </el-form-item>
@@ -80,6 +86,7 @@ export default {
   },
   data() {
     return {
+      formLabelWidth: '120px',
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
