@@ -146,7 +146,7 @@ export default {
       submitType: '',
       userSelectDisable: false,
       initUserGroupUrl: "/user/group/user/",
-      initUserUrl: "/user/list/",
+      initUserUrl: "/user/list",
       rules: {
         userIds: {required: true, message: this.$t('member.please_choose_member'), trigger: 'blur'},
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
@@ -209,7 +209,7 @@ export default {
     },
     open(group, initUserGroupUrl, initUserUrl) {
       this.initUserGroupUrl = initUserGroupUrl ? initUserGroupUrl : "/user/group/user/";
-      this.initUserUrl = initUserUrl ? initUserUrl : "/user/list/";
+      this.initUserUrl = initUserUrl ? initUserUrl : "/user/list";
       this.visible = true;
       this.group = group;
       this.init();
