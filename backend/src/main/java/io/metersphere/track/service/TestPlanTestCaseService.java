@@ -163,6 +163,13 @@ public class TestPlanTestCaseService {
         if (StringUtils.equals(TestPlanTestCaseStatus.Prepare.name(), testPlanTestCase.getStatus())) {
             testPlanTestCase.setStatus(TestPlanTestCaseStatus.Underway.name());
         }
+        setUpdateCaseExecutor(testPlanTestCase);
+        testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+        testPlanTestCase.setRemark(null);
+        testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
+    }
+
+    private void setUpdateCaseExecutor(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.isNotBlank(testPlanTestCase.getStatus())) {
             TestPlanTestCaseWithBLOBs originData = testPlanTestCaseMapper.selectByPrimaryKey(testPlanTestCase.getId());
             if (!StringUtils.equals(originData.getStatus(), testPlanTestCase.getStatus())) {
@@ -170,9 +177,6 @@ public class TestPlanTestCaseService {
                 testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
             }
         }
-        testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-        testPlanTestCase.setRemark(null);
-        testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
     }
 
     public int deleteTestCase(String id) {
@@ -394,6 +398,7 @@ public class TestPlanTestCaseService {
     public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
         testPlanTestCases.forEach(item -> {
             item.setUpdateTime(System.currentTimeMillis());
+            setUpdateCaseExecutor(item);
             testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
         });
     }
