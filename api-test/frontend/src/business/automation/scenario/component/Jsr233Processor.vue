@@ -250,6 +250,9 @@ export default {
       }
     },
     forStatus() {
+      if (!this.jsr223Processor.requestResult || this.jsr223Processor.requestResult.length == 0) {
+        this.reqSuccess = true;
+      }
       if (this.jsr223Processor && this.jsr223Processor.result && this.jsr223Processor.result.length > 0) {
         this.jsr223Processor.result.forEach((item) => {
           item.requestResult.forEach((req) => {
