@@ -3,15 +3,19 @@
     <el-form-item :label="config.i18n ? $t(config.label) : config.label">
       <ms-instructions-icon size="10" :content="config.i18n ? $t(config.instructionsInfo) : config.instructionsInfo"/>
     </el-form-item>
-    <el-form-item
-      v-for="item in config.formItems"
-      :key="item.name"
-      :label="item.i18n ? $t(item.label) : item.label"
-      :prop="item.name">
-      <custom-filed-component :form="accountConfig"
+    <span  v-for="item in config.formItems"
+           :key="item.name">
+       <el-form-item
+         v-if="!item.displayConditions
+            || accountConfig[item.displayConditions.field] === item.displayConditions.value"
+         :label="item.i18n ? $t(item.label) : item.label"
+         :prop="item.name">
+       <custom-filed-component :form="accountConfig"
                               :data="item"
                               prop="defaultValue"/>
     </el-form-item>
+
+    </span>
 
     <el-form-item>
       <el-button type="primary" style="float: right" @click="handleAuth" size="mini">
@@ -54,7 +58,7 @@ export default {
       this.init();
     },
   },
-  mounted() {
+  created() {
     this.init();
   },
   methods: {
@@ -65,7 +69,9 @@ export default {
         }
         // 设置默认值
         if (this.accountConfig[item.name]) {
-          this.$set(item, 'defaultValue', this.accountConfig[item.name]);
+          if (this.accountConfig[item.name]) {
+            this.$set(item, 'defaultValue', this.accountConfig[item.name]);
+          }
         }
       });
       this.rules = getPlatformFormRules(this.config);
