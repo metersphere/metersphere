@@ -295,10 +295,14 @@ public class TestPlanMessageService {
                         result.put("apiCaseFailedCount", v);
                         break;
                     case "default":
+                    case "pending":
+                    case "stopped":
+                    case "timeout":
                         result.put("apiCaseUnExecuteCount", v);
                         break;
                     case "errorreportresult":
                     case "fakeerror":
+                    case "fake_error":
                         result.put("apiCaseErrorReportCount", v);
                         break;
                     default:
@@ -324,10 +328,13 @@ public class TestPlanMessageService {
                         break;
                     case "unexecute":
                     case "pending":
+                    case "stopped":
+                    case "timeout":
                         result.put("apiScenarioUnExecuteCount", v);
                         break;
                     case "errorreportresult":
                     case "fakeerror":
+                    case "fake_error":
                         result.put("apiScenarioErrorReportCount", v);
                         break;
                     default:
