@@ -538,6 +538,7 @@ export default {
         .then(r => {
           this.demandOptions = [];
           if (r.data && r.data.length > 0) {
+            this.demandValue = [];
             this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
           }
           this.addOtherOption();
@@ -558,7 +559,6 @@ export default {
       this.result = {loading: false};
     },
     buildDemandCascaderOptions(data, options, pathArray) {
-      this.demandValue = [];
       data.forEach(item => {
         let option = {
           label: item.platform + ': ' + item.name,
