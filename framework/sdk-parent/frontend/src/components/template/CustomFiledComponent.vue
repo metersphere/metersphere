@@ -169,6 +169,7 @@ export default {
         }
       }
     }
+    this.setFormData();
     if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
       return;
     }
@@ -179,6 +180,11 @@ export default {
           this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
         }
       });
+  },
+  watch: {
+    form() {
+      this.setFormData();
+    }
   },
   methods: {
     getTranslateOption(item) {
@@ -191,6 +197,11 @@ export default {
       this.$emit('change', this.data.name);
       this.$forceUpdate();
     },
+    setFormData() {
+      if (this.form && this.data && this.data[this.prop]) {
+        this.$set(this.form, this.data.name, this.data[this.prop]);
+      }
+    }
   }
 };
 </script>

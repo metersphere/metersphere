@@ -3,24 +3,27 @@
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
       <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
-        <el-form-item
-          v-for="item in config.formItems"
-          :key="item.name"
-          :label="item.i18n ? $t(item.label) : item.label"
-          :prop="item.name">
-          <custom-filed-component :form="form"
-                                  :data="item"
-                                  prop="defaultValue"/>
-          <ms-instructions-icon v-if="item.instructionsIcon || item.instructionsTip" effect="light">
-            <template>
-              <img v-if="item.instructionsIcon"
-                   :src="getPlatformImageUrl(config, item)"/>
-              <span v-if="item.instructionsTip">
-              {{ item.instructionsTip }}
-            </span>
-            </template>
-          </ms-instructions-icon>
-        </el-form-item>
+        <span  v-for="item in config.formItems"
+               :key="item.name">
+         <el-form-item
+           v-if="!item.displayConditions
+            || form[item.displayConditions.field] === item.displayConditions.value"
+           :label="item.i18n ? $t(item.label) : item.label"
+           :prop="item.name">
+            <custom-filed-component :form="form"
+                                    :data="item"
+                                    prop="defaultValue"/>
+            <ms-instructions-icon v-if="item.instructionsIcon || item.instructionsTip" effect="light">
+              <template>
+                <img v-if="item.instructionsIcon"
+                     :src="getPlatformImageUrl(config, item)"/>
+                <span v-if="item.instructionsTip">
+                {{ item.instructionsTip }}
+              </span>
+              </template>
+            </ms-instructions-icon>
+         </el-form-item>
+        </span>
       </el-form>
     </div>
 
@@ -34,7 +37,7 @@
                     :show.sync="show"
                     ref="bugBtn"/>
 
-    <div class="defect-tip" >
+    <div class="defect-tip">
       <div>{{ $t('organization.integration.use_tip') }}</div>
       <div v-html="config.tips"></div>
       <div>
@@ -113,7 +116,9 @@ export default {
           this.form = form;
           // 设置默认值
           this.config.formItems.forEach(item => {
-            this.$set(item, 'defaultValue', this.form[item.name]);
+            if (this.form[item.name]) {
+              this.$set(item, 'defaultValue', this.form[item.name]);
+            }
           });
         } else {
           this.clear();
