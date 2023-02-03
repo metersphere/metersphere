@@ -1,9 +1,12 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.base.domain.FileMetadata;
+import io.metersphere.base.domain.FileMetadataWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
+import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
+import io.metersphere.enums.JmxFileMetadataColumns;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.FileRequest;
@@ -15,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -106,6 +110,183 @@ public class ApiFileUtil extends FileUtils {
         }
     }
 
+    public static void formatFilePathForNode(HashTree tree, String reportId, List<AttachmentBodyFile> fileList) {
+        if (tree != null) {
+            if (fileMetadataService == null) {
+                fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+            }
+
+            for (Object key : tree.keySet()) {
+                if (key == null) {
+                    continue;
+                }
+                HashTree node = tree.get(key);
+                if (key instanceof HTTPSamplerProxy) {
+                    getAttachmentBodyFileByHttp(key, reportId, fileList);
+                } else if (key instanceof CSVDataSet) {
+                    getAttachmentBodyFileByCsv(key, reportId, fileList);
+                }
+                if (node != null) {
+                    formatFilePathForNode(node, reportId, fileList);
+                }
+            }
+        }
+    }
+
+    public static void getAttachmentBodyFileByCsv(Object tree, String reportId, List<AttachmentBodyFile> bodyFileList) {
+        CSVDataSet source = (CSVDataSet) tree;
+        if (StringUtils.isNotEmpty(source.getPropertyAsString(ElementConstants.FILENAME))) {
+            getAttachmentFileByTestElement(source, reportId, bodyFileList);
+        }
+    }
+
+    public static void getAttachmentBodyFileByHttp(Object testElement, String reportId, List<AttachmentBodyFile> fileList) {
+        if (testElement == null) {
+            return;
+        }
+        HTTPSamplerProxy source = (HTTPSamplerProxy) testElement;
+        for (HTTPFileArg httpFileArg : source.getHTTPFiles()) {
+            getAttachmentFileByTestElement(httpFileArg, reportId, fileList);
+        }
+    }
+
+    private static void getAttachmentFileByTestElement(TestElement testElement, String reportId, List<AttachmentBodyFile> bodyFileList) {
+        if (testElement == null) {
+            return;
+        }
+        String defaultFileName = null;
+        if (testElement instanceof HTTPFileArg) {
+            defaultFileName = ((HTTPFileArg) testElement).getPath();
+        } else {
+            defaultFileName = testElement.getPropertyAsString(ElementConstants.FILENAME);
+        }
+        if (testElement.getPropertyAsBoolean(ElementConstants.IS_REF)) {
+            FileMetadataWithBLOBs fileMetadata = fileMetadataService.getFileMetadataById(
+                    testElement.getPropertyAsString(ElementConstants.FILE_ID));
+            if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
+
+                String path = getFilePathInJxm(reportId, fileMetadata.getName());
+
+                AttachmentBodyFile attachmentBodyFile = new AttachmentBodyFile();
+                attachmentBodyFile.setFileMetadataId(fileMetadata.getId());
+                attachmentBodyFile.setFileStorage(fileMetadata.getStorage());
+                attachmentBodyFile.setName(fileMetadata.getName());
+                attachmentBodyFile.setFileUpdateTime(fileMetadata.getUpdateTime());
+                attachmentBodyFile.setProjectId(fileMetadata.getProjectId());
+                attachmentBodyFile.setFilePath(path);
+                if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
+                    attachmentBodyFile.setFileAttachInfoJson(fileMetadata.getAttachInfo());
+                }
+                bodyFileList.add(attachmentBodyFile);
+
+                testElement.setProperty(ElementConstants.FILENAME, path);
+                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_STORAGE.name(), fileMetadata.getStorage());
+                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_NAME.name(), fileMetadata.getName());
+                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
+                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
+                if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_ATTACH_INFO.name(), fileMetadata.getAttachInfo());
+                }
+
+                if (testElement instanceof HTTPFileArg) {
+                    ((HTTPFileArg) testElement).setPath(path);
+                }
+
+            }
+        } else {
+            if (StringUtils.isNotBlank(defaultFileName) && new File(defaultFileName).exists()) {
+                //判断本地文件
+                AttachmentBodyFile attachmentBodyFile = new AttachmentBodyFile();
+                attachmentBodyFile.setFileStorage(StorageConstants.LOCAL.name());
+                attachmentBodyFile.setName(defaultFileName);
+                attachmentBodyFile.setFilePath(defaultFileName);
+                bodyFileList.add(attachmentBodyFile);
+            } else if (StringUtils.isNotBlank(testElement.getPropertyAsString(ElementConstants.RESOURCE_ID))) {
+                // 从MinIO下载
+                AttachmentBodyFile attachmentBodyFile = new AttachmentBodyFile();
+                attachmentBodyFile.setFileStorage(StorageConstants.MINIO.name());
+                attachmentBodyFile.setName(testElement.getPropertyAsString(ElementConstants.RESOURCE_ID));
+                attachmentBodyFile.setFilePath(defaultFileName);
+                bodyFileList.add(attachmentBodyFile);
+            }
+        }
+    }
+
+
+    private static String getFilePathInJxm(String reportId, String fileName) {
+        return StringUtils.join(BODY_FILE_DIR, File.separator, reportId, File.separator, fileName);
+    }
+
+    //    public static void formatFilePathForNode(HashTree tree, String reportId, List<AttachmentBodyFile> fileList) {
+    //        if (fileMetadataService == null) {
+    //            fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+    //        }
+    //        for (Object key : tree.keySet()) {
+    //            if (key == null) {
+    //                continue;
+    //            }
+    //            HashTree node = tree.get(key);
+    //            if (key instanceof HTTPSamplerProxy) {
+    //                formatHttpFilePathForNode(key, reportId, fileList);
+    //            } else if (key instanceof CSVDataSet) {
+    //                formatCsvFilePathForNode(key, reportId, fileList);
+    //            }
+    //            if (node != null) {
+    //                formatFilePathForNode(node, reportId, fileList);
+    //            }
+    //        }
+    //    }
+
+    //    private static void formatCsvFilePathForNode(Object key, String reportId) {
+    //        CSVDataSet source = (CSVDataSet) key;
+    //        if (StringUtils.isNotEmpty(source.getPropertyAsString(ElementConstants.FILENAME))) {
+    //            if (source.getPropertyAsBoolean(ElementConstants.IS_REF)) {
+    //                FileMetadataWithBLOBs fileMetadata = fileMetadataService.getFileMetadataById(
+    //                        source.getPropertyAsString(ElementConstants.FILE_ID));
+    //                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
+    //                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
+    //                    ((CSVDataSet) key).setProperty(ElementConstants.FILENAME, path);
+    //                    ((CSVDataSet) key).setProperty(ElementConstants.FILE_STORAGE, fileMetadata.getStorage());
+    //                    ((CSVDataSet) key).setProperty(ElementConstants.REF_FILE_NAME, fileMetadata.getName());
+    //                    ((CSVDataSet) key).setProperty(ElementConstants.REF_FILE_UPDATE_TIME, fileMetadata.getUpdateTime());
+    //                    ((CSVDataSet) key).setProperty(ElementConstants.REF_FILE_PROJECT_ID, fileMetadata.getProjectId());
+    //                    if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
+    //                        ((CSVDataSet) key).setProperty(ElementConstants.REF_FILE_ATTACH_INFO, fileMetadata.getAttachInfo());
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    private static void formatHttpFilePathForNode(Object key, String reportId, List<AttachmentBodyFile> fileList) {
+    //        if (key == null) {
+    //            return;
+    //        }
+    //        HTTPSamplerProxy source = (HTTPSamplerProxy) key;
+    //        for (HTTPFileArg httpFileArg : source.getHTTPFiles()) {
+    //            if (httpFileArg.getPropertyAsBoolean(ElementConstants.IS_REF)) {
+    //                FileMetadataWithBLOBs fileMetadata = fileMetadataService.getFileMetadataById(
+    //                        httpFileArg.getPropertyAsString(ElementConstants.FILE_ID));
+    //                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
+    //                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
+    //                    httpFileArg.setPath(path);
+    //                    httpFileArg.setProperty(ElementConstants.FILE_STORAGE, fileMetadata.getStorage());
+    //                    httpFileArg.setProperty(ElementConstants.REF_FILE_NAME, fileMetadata.getName());
+    //                    httpFileArg.setProperty(ElementConstants.REF_FILE_UPDATE_TIME, fileMetadata.getUpdateTime());
+    //                    httpFileArg.setProperty(ElementConstants.REF_FILE_PROJECT_ID, fileMetadata.getProjectId());
+    //                    if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
+    //                        httpFileArg.setProperty(ElementConstants.REF_FILE_ATTACH_INFO, fileMetadata.getAttachInfo());
+    //                    }
+    //
+    //                    fileList.add(new AttachmentBodyFile() {{
+    //                        this.setFileMetadataId(fileMetadata.getId());
+    //                    }});
+    //                }
+    //            }
+    //        }
+    //
+    //
+
     /**
      * 获取当前jmx 涉及到的文件  执行时
      *
@@ -141,19 +322,12 @@ public class ApiFileUtil extends FileUtils {
             if (source.getPropertyAsBoolean(ElementConstants.IS_REF)) {
                 FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(
                         source.getPropertyAsString(ElementConstants.FILE_ID));
-
                 if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
                     file.setStorage(fileMetadata.getStorage());
                     file.setFileId(source.getPropertyAsString(ElementConstants.FILE_ID));
                     String fileName = StringUtils.join(reportId, File.separator, fileMetadata.getName());
                     file.setName(fileName);
-
-                    String path = StringUtils.join(
-                            BODY_FILE_DIR,
-                            File.separator,
-                            reportId,
-                            File.separator,
-                            fileMetadata.getName());
+                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
                     ((CSVDataSet) key).setProperty(ElementConstants.FILENAME, path);
                 }
             } else if (!new File(source.getPropertyAsString(ElementConstants.FILENAME)).exists()
@@ -184,13 +358,7 @@ public class ApiFileUtil extends FileUtils {
                     file.setStorage(fileMetadata.getStorage());
                     file.setFileId(httpFileArg.getPropertyAsString(ElementConstants.FILE_ID));
                     file.setName(reportId + File.separator + fileMetadata.getName());
-                    String path = StringUtils.join(
-                            BODY_FILE_DIR,
-                            File.separator,
-                            reportId,
-                            File.separator,
-                            fileMetadata.getName());
-
+                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
                     httpFileArg.setPath(path);
                 }
             } else if (!new File(httpFileArg.getPath()).exists()

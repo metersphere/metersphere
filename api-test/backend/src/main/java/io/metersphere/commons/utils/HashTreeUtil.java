@@ -251,7 +251,7 @@ public class HashTreeUtil {
             FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
             if (fileMetadataService != null) {
                 Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
-                List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(repositoryFileMap.keySet());
+                List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadApiExecuteFilesByIds(repositoryFileMap.keySet());
                 fileInfoDTOList.forEach(dto -> {
                     if (ArrayUtils.isNotEmpty(dto.getFileByte())) {
                         String key = StringUtils.join(
