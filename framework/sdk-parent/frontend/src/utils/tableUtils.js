@@ -31,9 +31,9 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
     tableData.forEach(item => {
       component.$set(item, "showMore", false);
     });
-    if (condition) {
-      condition.selectAll = false;
-    }
+  }
+  if (condition) {
+    condition.selectAll = false;
   }
 }
 
@@ -113,6 +113,22 @@ export function checkTableRowIsSelect(component, condition, tableData, table, se
       }
     });
   }
+}
+
+//删除不需要的row(使用场景：点击表格下拉框全选时，在翻页的时候会把翻页的数据也加勾选，如果勾选了，table认为已经选中，当点击只选此页数据时，前几页的数据不会消失)
+export function deleteTableRow(component, condition, tableData, table, selectRows) {
+  //所有以选中的数据
+  let selectRowMap = new Map();
+  for (let selectRow of selectRows) {
+    selectRowMap.set(selectRow.id, selectRow);
+  }
+  //表格标为选中的数据
+  table.selection.forEach(t => {
+    if (!selectRowMap.get(t.id)) {
+      table.toggleRowSelection(t, false);
+    }
+  })
+
 }
 
 // nexttick:表格加载完成之后触发。判断是否需要勾选行
