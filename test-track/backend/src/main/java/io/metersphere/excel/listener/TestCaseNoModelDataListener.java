@@ -402,6 +402,12 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (TestCaseImportFiled.MAINTAINER.getFiledLangMap().containsValue(fieldName.replace("(ID)", StringUtils.EMPTY))) {
                 fieldName = TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE); // 兼容旧模板的 责任人(ID)
             }
+            if (TestCaseImportFiled.PRIORITY.getFiledLangMap().containsValue(fieldName)) {
+                fieldName = TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE);
+            }
+            if (TestCaseImportFiled.STATUS.getFiledLangMap().containsValue(fieldName)) {
+                fieldName = TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE);
+            }
             CustomFieldDao customField = customFieldsMap.get(fieldName);
             if (customField == null) {
                 continue;
@@ -420,9 +426,9 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 stringBuilder.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
             }
             if (StringUtils.equals(fieldName, TestCaseImportFiled.STATUS.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setStatus(customData.get(fieldName).toString());
+                data.setStatus(customData.get(originFieldName).toString());
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.PRIORITY.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
-                data.setPriority(customData.get(fieldName).toString());
+                data.setPriority(customData.get(originFieldName).toString());
             } else if (StringUtils.equals(fieldName, TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE))) {
                 data.setMaintainer(customData.get(originFieldName).toString());
             }

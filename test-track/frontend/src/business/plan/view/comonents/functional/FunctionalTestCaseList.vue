@@ -314,7 +314,7 @@ import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/Tes
 import {
   getProjectMemberOption,
   getProjectVersions,
-  getAdvSearchCustomField
+  getAdvSearchCustomField, parseTag
 } from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
@@ -628,13 +628,14 @@ export default {
             this.total = r.data.itemCount;
             this.pageCount = Math.ceil(this.total / this.pageSize);
             this.tableData = r.data.listObject;
+            parseTag(this.tableData);
             parseCustomFilesForList(this.tableData);
             for (let i = 0; i < this.tableData.length; i++) {
               if (this.tableData[i]) {
                 if (this.tableData[i].customFields) {
                   this.tableData[i].customFields = JSON.parse(this.tableData[i].customFields);
                 }
-                this.$set(this.tableData[i], "showTags", JSON.parse(this.tableData[i].tags));
+                this.$set(this.tableData[i], "showTags", this.tableData[i].tags);
                 this.$set(this.tableData[i], "issuesSize", this.tableData[i].issuesCount);
                 this.$set(this.tableData[i], "hasLoadIssue", false);
                 this.$set(this.tableData[i], "issuesContent", []);
