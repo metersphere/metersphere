@@ -3,7 +3,7 @@ package io.metersphere.commons.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShiroUtils {
+public class FilterChainUtils {
 
     public static Map<String, String> loadBaseFilterChain() {
         Map<String, String> filterChainDefinitionMap = new HashMap<>();

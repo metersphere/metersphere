@@ -1,6 +1,6 @@
 package io.metersphere.gateway.filter;
 
-import io.metersphere.commons.utils.ShiroUtils;
+import io.metersphere.commons.utils.FilterChainUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springdoc.core.properties.SwaggerUiConfigProperties;
@@ -38,7 +38,7 @@ public class LoginFilter implements WebFilter, Ordered {
         // 各模块首页
         swaggerUiConfigProperties.getUrls().forEach(v -> excludePatterns.add(new PathPatternParser().parse("/" + v.getName())));
 
-        ShiroUtils.loadBaseFilterChain()
+        FilterChainUtils.loadBaseFilterChain()
                 .forEach((url, v) -> {
                     excludePatterns.add(new PathPatternParser().parse(url));
                     excludePatterns.add(new PathPatternParser().parse("/*" + url));
