@@ -26,6 +26,7 @@ import org.springframework.context.annotation.DependsOn;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
+
 import java.util.*;
 
 public class ShiroConfig {
@@ -42,9 +43,9 @@ public class ShiroConfig {
         shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
 
-        ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
+        filterChainDefinitionMap.putAll(ShiroUtils.loadBaseFilterChain());
 
-        ShiroUtils.ignoreCsrfFilter(filterChainDefinitionMap);
+        filterChainDefinitionMap.putAll(ShiroUtils.ignoreCsrfFilter());
 
         filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
         return shiroFilterFactoryBean;

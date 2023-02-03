@@ -1,11 +1,12 @@
 package io.metersphere.commons.utils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ShiroUtils {
 
-    public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap) {
-
+    public static Map<String, String> loadBaseFilterChain() {
+        Map<String, String> filterChainDefinitionMap = new HashMap<>();
         filterChainDefinitionMap.put("/resource/md/get/**", "anon");
         filterChainDefinitionMap.put("/resource/ui/get/**", "anon");
         filterChainDefinitionMap.put("/platform/plugin/resource/**", "anon");
@@ -82,11 +83,15 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/performance/update/cache", "anon");
         // websocket
         filterChainDefinitionMap.put("/websocket/**", "csrf");
+
+        return filterChainDefinitionMap;
     }
 
-    public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
+    public static Map<String, String> ignoreCsrfFilter() {
+        Map<String, String> filterChainDefinitionMap = new HashMap<>();
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
+        return filterChainDefinitionMap;
     }
 }
