@@ -1,10 +1,10 @@
 package io.metersphere.service.plugin;
 
-import im.metersphere.plugin.storage.StorageStrategy;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.plugin.storage.StorageStrategy;
 
 import java.io.IOException;
 import java.io.InputStream;
