@@ -119,6 +119,7 @@ public class LocalFileRepository implements FileRepository {
                 }
                 return new FileInfoDTO(
                         fileRequest.getResourceId(), fileRequest.getFileName(),
+                        fileRequest.getProjectId(), fileRequest.getUpdateTime(),
                         fileRequest.getStorage(), fileRequest.getPath(), content);
             }).collect(Collectors.toList());
         }

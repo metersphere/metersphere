@@ -5,6 +5,7 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.api.ApiCaseSerialService;
+import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -13,6 +14,7 @@ import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
@@ -24,6 +26,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -50,6 +53,8 @@ public class ApiJMeterFileService {
     private FileMetadataService fileMetadataService;
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -132,7 +137,7 @@ public class ApiJMeterFileService {
         if (hashTree != null) {
             ElementUtil.coverArguments(hashTree);
         }
-        return zipFilesToByteArray((reportId + "_" + remoteTestId), hashTree);
+        return zipFilesToByteArray((reportId + "_" + remoteTestId), reportId, hashTree);
     }
 
     public byte[] downloadJmeterJar() {
@@ -221,15 +226,6 @@ public class ApiJMeterFileService {
         return jarFiles;
     }
 
-    private Map<String, byte[]> getMultipartFiles(String reportId, HashTree hashTree) {
-        Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
-        // 获取附件
-        List<BodyFile> files = new LinkedList<>();
-        ApiFileUtil.getExecuteFiles(hashTree, reportId, files);
-        HashTreeUtil.downFile(files, multipartFiles, fileMetadataService);
-        return multipartFiles;
-    }
-
     private String replaceJmx(String jmx) {
         jmx = StringUtils.replace(jmx, "<DubboSample", "<io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
         jmx = StringUtils.replace(jmx, "</DubboSample>", "</io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample>");
@@ -239,12 +235,25 @@ public class ApiJMeterFileService {
         return jmx;
     }
 
-    private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
-        String bodyFilePath = FileUtils.BODY_FILE_DIR;
+    private byte[] zipFilesToByteArray(String testId, String reportId, HashTree hashTree) {
         String fileName = testId + ".jmx";
 
-        // 获取JMX使用到的附件
-        Map<String, byte[]> multipartFiles = this.getMultipartFiles(testId, hashTree);
+        /*
+            v2.7版本修改jmx附件逻辑：
+            在node执行机器设置临时文件目录。这里只提供jmx
+            node拿到jmx后解析jmx中包含的附件信息。附件通过以下流程来获取：
+              1 从node执行机的临时文件夹
+              2 临时文件夹中未找到的文件，根据文件类型来判断是否从minio/git下载，然后缓存到临时文件夹。
+              3 MinIO、Git中依然未能找到的文件（主要是Local文件），通过主工程下载，然后缓存到临时文件夹
+            所以这里不再使用以下方法来获取附件内容
+            Map<String, byte[]> multipartFiles = this.getMultipartFiles(testId, hashTree);
+            转为解析jmx中附件节点，赋予相关信息(例如文件关联类型、路径、更新时间等),并将文件信息存储在redis中，为了进行连接ms下载时的安全校验
+         */
+        List<AttachmentBodyFile> attachmentBodyFileList = new ArrayList<>();
+        ApiFileUtil.formatFilePathForNode(hashTree, testId, attachmentBodyFileList);
+        if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
+            redisTemplate.opsForValue().set(JmxFileUtil.REDIS_JMX_FILE_PREFIX + reportId, JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
+        }
 
         String jmx = new MsTestPlan().getJmx(hashTree);
         // 处理dubbo请求生成jmx文件
@@ -255,17 +264,6 @@ public class ApiJMeterFileService {
         //  每个测试生成一个文件夹
         files.put(fileName, jmx.getBytes(StandardCharsets.UTF_8));
 
-        if (multipartFiles != null && !multipartFiles.isEmpty()) {
-            for (String k : multipartFiles.keySet()) {
-                byte[] v = multipartFiles.get(k);
-                if (k.startsWith(bodyFilePath)) {
-                    files.put(StringUtils.substringAfter(k, bodyFilePath), v);
-                } else {
-                    LogUtil.error("WARNING:Attachment path is not in body_file_path: " + k);
-                    files.put(k, v);
-                }
-            }
-        }
         return listBytesToZip(files);
     }
 
@@ -290,10 +288,11 @@ public class ApiJMeterFileService {
     public byte[] zipFilesToByteArray(BodyFileRequest request) {
         Map<String, byte[]> files = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            List<BodyFile> bodyFiles = this.getLegalFiles(request);
             LoggerUtil.info("开始从三方仓库下载文件");
-            HashTreeUtil.downFile(request.getBodyFiles(), files, fileMetadataService);
+            HashTreeUtil.downFile(bodyFiles, files, fileMetadataService);
             LoggerUtil.info("从三方仓库下载文件");
-            for (BodyFile bodyFile : request.getBodyFiles()) {
+            for (BodyFile bodyFile : bodyFiles) {
                 File file = new File(bodyFile.getName());
                 if (!file.exists()) {
                     // 从MinIO下载
@@ -308,7 +307,40 @@ public class ApiJMeterFileService {
                 }
             }
         }
-        return listBytesToZip(files);
+        Map<String, byte[]> zipFiles = new LinkedHashMap<>();
+        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
+            //去除文件路径前的body路径
+            String filePath = entry.getKey();
+            if (StringUtils.startsWith(filePath, FileUtils.BODY_FILE_DIR + "/")) {
+                filePath = StringUtils.substring(filePath, FileUtils.BODY_FILE_DIR.length() + 1);
+            }
+            zipFiles.put(filePath, entry.getValue());
+        }
+        return listBytesToZip(zipFiles);
+    }
+
+    private List<BodyFile> getLegalFiles(BodyFileRequest request) {
+        List<BodyFile> returnList = new ArrayList<>();
+
+        Object jmxFileInfoObj = redisTemplate.opsForValue().get(JmxFileUtil.REDIS_JMX_FILE_PREFIX + request.getReportId());
+        List<AttachmentBodyFile> fileInJmx = JmxFileUtil.formatRedisJmxFileString(jmxFileInfoObj);
+        if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            request.getBodyFiles().forEach(attachmentBodyFile -> {
+                for (AttachmentBodyFile jmxFile : fileInJmx) {
+                    if (StringUtils.isBlank(attachmentBodyFile.getRefResourceId())) {
+                        if (StringUtils.equals(attachmentBodyFile.getName(), jmxFile.getFilePath())
+                                && StringUtils.equals(attachmentBodyFile.getName(), jmxFile.getName())) {
+                            returnList.add(attachmentBodyFile);
+                        }
+                    } else {
+                        if (StringUtils.equals(attachmentBodyFile.getRefResourceId(), jmxFile.getFileMetadataId())) {
+                            returnList.add(attachmentBodyFile);
+                        }
+                    }
+                }
+            });
+        }
+        return returnList;
     }
 
 }

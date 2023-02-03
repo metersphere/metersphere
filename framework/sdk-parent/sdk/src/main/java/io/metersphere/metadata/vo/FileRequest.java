@@ -21,6 +21,10 @@ public class FileRequest {
     //文件附属信息
     private RemoteFileAttachInfo fileAttachInfo;
 
+    //文件更新时间。  用于在缓存文件中判断是否需要更新
+    private long updateTime;
+    //缓存文件夹中通过moduleId作为内部文件结构
+
     public FileRequest() {
 
     }
@@ -30,7 +34,7 @@ public class FileRequest {
         this.projectId = projectId;
         this.type = StringUtils.isNotEmpty(type) ? type.toLowerCase() : null;
         this.fileName = name;
-        if (StringUtils.isNotEmpty(this.type) && !name.endsWith(this.type)) {
+        if (!StringUtils.equalsIgnoreCase(this.storage, StorageConstants.MINIO.name()) && StringUtils.isNotEmpty(this.type) && !name.endsWith(this.type)) {
             this.fileName = StringUtils.join(name, ".", this.type);
         }
     }
