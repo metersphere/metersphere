@@ -55,6 +55,7 @@ export default {
   watch: {
     innerTags() {
       this.data[this.prop] = this.innerTags;
+      this.tagChange();
     }
   },
   methods: {
