@@ -560,11 +560,16 @@ export default {
       let param = this.buildPram();
       this.parseOldFields(param);
       let option = this.getOption(param);
-      saveOrUpdateIssue(option.url, option.data).then((response) => {
-        this.$emit('close');
-        this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh', response.data);
-      })
+      this.result.loading = true;
+      saveOrUpdateIssue(option.url, option.data)
+        .then((response) => {
+          this.$emit('close');
+          this.$success(this.$t('commons.save_success'));
+          this.$emit('refresh', response.data);
+          this.result.loading = false;
+        }).catch(() => {
+          this.result.loading = false;
+        });
     },
     parseOldFields(param) {
       let customFieldsStr = param.customFields;
