@@ -35,14 +35,14 @@ public class GitFileRepository implements FileRepository {
 
     @Override
     public byte[] getFile(FileRequest request) throws Exception {
-        byte[] buffer = new byte[0];
+        byte[] fileBytes = new byte[0];
         if (request.getFileAttachInfo() != null) {
             RemoteFileAttachInfo gitFileInfo = request.getFileAttachInfo();
             GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
                     gitFileInfo.getRepositoryPath(), gitFileInfo.getUserName(), gitFileInfo.getToken());
-            buffer = repositoryUtils.getSingleFile(gitFileInfo.getFilePath(), gitFileInfo.getCommitId());
+            fileBytes = repositoryUtils.getSingleFile(gitFileInfo.getFilePath(), gitFileInfo.getCommitId());
         }
-        return buffer;
+        return fileBytes;
     }
 
     @Override
@@ -71,32 +71,41 @@ public class GitFileRepository implements FileRepository {
                 List<FileRequest> requestList = entry.getValue();
                 RemoteFileAttachInfo baseGitFileInfo = null;
 
-                List<RepositoryRequest> repositoryRequestList = new ArrayList<>();
+                List<RepositoryRequest> downloadFileList = new ArrayList<>();
+                Map<String, byte[]> fileByteMap = new HashMap<>();
                 for (FileRequest fileRequest : requestList) {
                     RemoteFileAttachInfo gitFileInfo = fileRequest.getFileAttachInfo();
                     if (baseGitFileInfo == null) {
                         baseGitFileInfo = gitFileInfo;
                     }
-                    repositoryRequestList.add(new RepositoryRequest() {{
+                    downloadFileList.add(new RepositoryRequest() {{
                         this.setCommitId(gitFileInfo.getCommitId());
                         this.setFilePath(gitFileInfo.getFilePath());
                         this.setFileMetadataId(fileRequest.getResourceId());
+                        this.setProjectId(fileRequest.getProjectId());
+                        this.setUpdateTime(fileRequest.getUpdateTime());
                     }});
                 }
 
-                GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
-                        baseGitFileInfo.getRepositoryPath(),
-                        baseGitFileInfo.getUserName(), baseGitFileInfo.getToken());
+                if (CollectionUtils.isNotEmpty(downloadFileList) && baseGitFileInfo != null) {
+                    GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
+                            baseGitFileInfo.getRepositoryPath(),
+                            baseGitFileInfo.getUserName(), baseGitFileInfo.getToken());
+                    Map<String, byte[]> downloadFileMap = repositoryUtils.getFiles(downloadFileList);
+                    fileByteMap.putAll(downloadFileMap);
+                }
 
-                Map<String, byte[]> fileByteMap = repositoryUtils.getFiles(repositoryRequestList);
-                repositoryRequestList.forEach(repositoryFile -> {
-                    if (fileByteMap.get(repositoryFile.getFileMetadataId()) != null) {
+                requestList.forEach(fileRequest -> {
+                    RemoteFileAttachInfo gitFileInfo = fileRequest.getFileAttachInfo();
+                    if (fileByteMap.get(fileRequest.getResourceId()) != null) {
                         FileInfoDTO repositoryFileDTO = new FileInfoDTO(
-                                repositoryFile.getFileMetadataId(),
-                                MetadataUtils.getFileNameByRemotePath(repositoryFile.getFilePath()),
+                                fileRequest.getResourceId(),
+                                MetadataUtils.getFileNameByRemotePath(gitFileInfo.getFilePath()),
+                                fileRequest.getProjectId(),
+                                fileRequest.getUpdateTime(),
                                 StorageConstants.GIT.name(),
-                                repositoryFile.getFilePath(),
-                                fileByteMap.get(repositoryFile.getFileMetadataId()));
+                                gitFileInfo.getFilePath(),
+                                fileByteMap.get(fileRequest.getResourceId()));
                         list.add(repositoryFileDTO);
                     }
                 });
