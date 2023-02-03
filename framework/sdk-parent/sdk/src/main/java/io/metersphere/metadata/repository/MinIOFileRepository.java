@@ -7,12 +7,12 @@ import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.metadata.vo.FileRequest;
 import io.minio.*;
 import io.minio.messages.Item;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public class MinIOFileRepository implements FileRepository {
         List<FileInfoDTO> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(requestList)) {
             for (FileRequest fileRequest : requestList) {
-                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getStorage(), fileRequest.getPath(), this.getFile(fileRequest));
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileRequest.getResourceId(), fileRequest.getFileName(), fileRequest.getProjectId(), fileRequest.getUpdateTime(), fileRequest.getStorage(), fileRequest.getPath(), this.getFile(fileRequest));
                 list.add(fileInfoDTO);
             }
         }

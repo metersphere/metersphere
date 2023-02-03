@@ -10,10 +10,7 @@ import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.FileModuleTypeConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -25,6 +22,8 @@ import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.metadata.vo.*;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.QueryProjectFileRequest;
+import io.metersphere.utils.TemporaryFileUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.InputStream;
 import java.util.*;
@@ -53,6 +51,8 @@ public class FileMetadataService {
     private FileContentMapper fileContentMapper;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
+
+    private TemporaryFileUtil temporaryFileUtil;
 
     public List<FileMetadata> create(FileMetadataCreateRequest fileMetadata, List<MultipartFile> files) {
         List<FileMetadata> result = new ArrayList<>();
@@ -239,6 +239,7 @@ public class FileMetadataService {
             request.setPath(fileMetadata.getPath());
             request.setStorage(fileMetadata.getStorage());
             request.setFileAttachInfoByString(fileMetadata.getAttachInfo());
+            request.setUpdateTime(fileMetadata.getUpdateTime());
             bytes = fileManagerService.downloadFile(request);
         }
         return bytes;
@@ -347,7 +348,7 @@ public class FileMetadataService {
         return fileMetadata;
     }
 
-    public FileMetadata getFileMetadataById(String fileId) {
+    public FileMetadataWithBLOBs getFileMetadataById(String fileId) {
         return fileMetadataMapper.selectByPrimaryKey(fileId);
     }
 
@@ -520,8 +521,70 @@ public class FileMetadataService {
         return fileMetadataList.stream().map(FileMetadata::getId).collect(Collectors.toList());
     }
 
+    /**
+     * 接口测试执行时下载附件的方法。
+     * 该方法会优先判断是否存在已下载好的文件，避免多次执行造成多次下载的情况
+     *
+     * @param fileIdList
+     * @return
+     */
+    public List<FileInfoDTO> downloadApiExecuteFilesByIds(Collection<String> fileIdList) {
+        if (temporaryFileUtil == null) {
+            temporaryFileUtil = CommonBeanFactory.getBean(TemporaryFileUtil.class);
+        }
+
+        List<FileInfoDTO> fileInfoDTOList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(fileIdList)) {
+            return fileInfoDTOList;
+        }
+        LogUtil.info(JSON.toJSONString(fileIdList) + " 获取执行文件开始");
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(new ArrayList<>(fileIdList));
+        List<FileMetadataWithBLOBs> fileMetadataWithBLOBList = fileMetadataMapper.selectByExampleWithBLOBs(example);
+        List<FileRequest> downloadFileRequest = new ArrayList<>();
+        //检查是否存在已下载的文件
+        fileMetadataWithBLOBList.forEach(fileMetadata -> {
+            File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getName());
+            if (file != null && file.exists() && file.isFile()) {
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileMetadata.getId(), fileMetadata.getName(), fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getStorage(), fileMetadata.getPath(), FileUtils.fileToByte(file));
+                fileInfoDTOList.add(fileInfoDTO);
+            } else {
+                downloadFileRequest.add(this.genFileRequest(fileMetadata));
+            }
+        });
+        List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(downloadFileRequest);
+        //将文件存储到执行文件目录中，避免多次执行时触发多次下载
+        if (CollectionUtils.isNotEmpty(repositoryFileDTOList)) {
+            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
+            fileInfoDTOList.addAll(repositoryFileDTOList);
+        }
+        return fileInfoDTOList;
+    }
+
+    private FileRequest genFileRequest(FileMetadataWithBLOBs fileMetadata) {
+        if (fileMetadata != null) {
+            FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
+            request.setResourceId(fileMetadata.getId());
+            request.setResourceType(fileMetadata.getResourceType());
+            request.setPath(fileMetadata.getPath());
+            request.setStorage(fileMetadata.getStorage());
+            request.setUpdateTime(fileMetadata.getUpdateTime());
+            if (StringUtils.equals(fileMetadata.getStorage(), StorageConstants.GIT.name())) {
+                try {
+                    RemoteFileAttachInfo gitFileInfo = JSON.parseObject(fileMetadata.getAttachInfo(), RemoteFileAttachInfo.class);
+                    request.setFileAttachInfo(gitFileInfo);
+                } catch (Exception e) {
+                    LogUtil.error("解析Git附加信息【" + fileMetadata.getAttachInfo() + "】失败!", e);
+                }
+            }
+            return request;
+        } else {
+            return new FileRequest();
+        }
+    }
+
     public List<FileInfoDTO> downloadFileByIds(Collection<String> fileIdList) {
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(fileIdList)) {
+        if (CollectionUtils.isEmpty(fileIdList)) {
             return new ArrayList<>(0);
         }
         LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件开始");
@@ -532,22 +595,8 @@ public class FileMetadataService {
 
         List<FileRequest> requestList = new ArrayList<>();
         fileMetadataWithBLOBs.forEach(fileMetadata -> {
-            FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
-            request.setResourceId(fileMetadata.getId());
-            request.setResourceType(fileMetadata.getResourceType());
-            request.setPath(fileMetadata.getPath());
-            request.setStorage(fileMetadata.getStorage());
-            if (StringUtils.equals(fileMetadata.getStorage(), StorageConstants.GIT.name())) {
-                try {
-                    RemoteFileAttachInfo gitFileInfo = JSON.parseObject(fileMetadata.getAttachInfo(), RemoteFileAttachInfo.class);
-                    request.setFileAttachInfo(gitFileInfo);
-                } catch (Exception e) {
-                    LogUtil.error("解析Git附加信息【" + fileMetadata.getAttachInfo() + "】失败!", e);
-                }
-            }
-            requestList.add(request);
+            requestList.add(this.genFileRequest(fileMetadata));
         });
-
         List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(requestList);
         LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件结束。");
         return repositoryFileDTOList;
@@ -564,12 +613,12 @@ public class FileMetadataService {
                 RemoteFileAttachInfo gitFileAttachInfo = repositoryUtils.selectLastCommitIdByBranch(baseAttachInfo.getBranch(), baseAttachInfo.getFilePath());
                 if (gitFileAttachInfo != null &&
                         !StringUtils.equals(gitFileAttachInfo.getCommitId(), baseAttachInfo.getCommitId())) {
-                    //有新的commitId，更新filemetadata的版本
-                    long thistime = System.currentTimeMillis();
-                    FileMetadataWithBLOBs newMetadata = this.genOtherVersionFileMetadata(baseMetadata, thistime, gitFileAttachInfo);
+                    //有新的commitId，更新fileMetadata的版本
+                    long thisTime = System.currentTimeMillis();
+                    FileMetadataWithBLOBs newMetadata = this.genOtherVersionFileMetadata(baseMetadata, thisTime, gitFileAttachInfo);
                     fileMetadataMapper.insert(newMetadata);
 
-                    baseMetadata.setUpdateTime(thistime);
+                    baseMetadata.setUpdateTime(thisTime);
                     baseMetadata.setLatest(false);
                     baseMetadata.setUpdateUser(SessionUtils.getUserId());
                     fileMetadataMapper.updateByPrimaryKeySelective(baseMetadata);

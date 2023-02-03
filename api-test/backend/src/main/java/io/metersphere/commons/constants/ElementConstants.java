@@ -54,6 +54,7 @@ public class ElementConstants {
     public static final String BEANSHELL = "beanshell";
     public static final String IS_REF = "isRef";
     public static final String FILE_ID = "fileId";
+    
     public static final String RESOURCE_ID = "resourceId";
     public static final String FILENAME = "filename";
     public static final String COVER = "COVER";

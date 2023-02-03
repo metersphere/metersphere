@@ -8,14 +8,15 @@ import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.service.definition.ApiDefinitionEnvService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -38,6 +39,9 @@ public class MsKafkaListener {
     // 线程池所使用的缓冲队列大小
     private final static int WORK_QUEUE_SIZE = 10000;
 
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
     private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
             CORE_POOL_SIZE,
             MAX_POOL_SIZE,
@@ -55,6 +59,7 @@ public class MsKafkaListener {
                 task.setApiExecutionQueueService(apiExecutionQueueService);
                 task.setTestResultService(testResultService);
                 task.setRecord(item);
+                task.setRedisTemplate(redisTemplate);
                 threadPool.execute(task);
             });
             JvmUtil.memoryInfo();
