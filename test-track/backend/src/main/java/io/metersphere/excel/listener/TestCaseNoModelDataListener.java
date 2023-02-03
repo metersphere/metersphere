@@ -400,7 +400,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             Object value = customData.get(fieldName);
             String originFieldName = fieldName;
             if (TestCaseImportFiled.MAINTAINER.getFiledLangMap().containsValue(fieldName.replace("(ID)", StringUtils.EMPTY))) {
-                fieldName = fieldName.replace("(ID)", StringUtils.EMPTY); // 兼容旧模板的 责任人(ID)
+                fieldName = TestCaseImportFiled.MAINTAINER.getFiledLangMap().get(Locale.SIMPLIFIED_CHINESE); // 兼容旧模板的 责任人(ID)
             }
             CustomFieldDao customField = customFieldsMap.get(fieldName);
             if (customField == null) {
