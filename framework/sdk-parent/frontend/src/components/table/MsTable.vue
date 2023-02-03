@@ -137,13 +137,13 @@ import {
   _sort,
   checkTableRowIsSelect,
   clearShareDragParam,
+  deleteTableRow,
   getCustomTableHeader,
   getSelectDataCounts,
   handleRowDrop,
   saveCustomTableWidth,
   saveLastTableSortField,
   setUnSelectIds,
-  toggleAllSelection,
 } from "../../utils/tableUtils";
 import MsTableHeaderSelectPopover from "./MsTableHeaderSelectPopover";
 import MsTablePagination from "../pagination/TablePagination";
@@ -337,6 +337,7 @@ export default {
           }
           this.doLayout();
           this.checkTableRowIsSelect();
+          this.deleteTableRow();
           this.listenRowDrop();
         });
       }
@@ -421,11 +422,7 @@ export default {
         this.condition
       );
       setUnSelectIds(selection, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(
-        this.condition,
-        this.total,
-        this.selectRows
-      );
+      this.selectDataCounts = this.selectRows.size
       this.selectIds = Array.from(this.selectRows).map((o) => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
       this.$emit("callBackSelectAll", selection);
@@ -458,6 +455,11 @@ export default {
       this.condition.selectAll = data;
       //显示隐藏菜单
       _handleSelectAll(this, this.data, this.data, this.selectRows);
+      //选中行
+      this.selectRows.forEach(t => {
+        this.$refs.table.toggleRowSelection(t, true);
+      })
+      this.deleteTableRow();
       //设置未选择ID(更新)
       this.condition.unSelectIds = [];
       //更新统计信息
@@ -546,6 +548,15 @@ export default {
     },
     checkTableRowIsSelect() {
       checkTableRowIsSelect(
+        this,
+        this.condition,
+        this.data,
+        this.$refs.table,
+        this.selectRows
+      );
+    },
+    deleteTableRow() {
+      deleteTableRow(
         this,
         this.condition,
         this.data,
