@@ -65,6 +65,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/share-api-report", "anon");
         filterChainDefinitionMap.put("/api/scenario/report/get/**", "anon");
         filterChainDefinitionMap.put("/shareUiReport", "anon");
+        filterChainDefinitionMap.put("/ui/automation/download/**", "anon");
 
         filterChainDefinitionMap.put("/system/theme", "anon");
         filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");
