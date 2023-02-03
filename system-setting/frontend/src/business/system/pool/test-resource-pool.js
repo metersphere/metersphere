@@ -91,7 +91,7 @@ spec:
         name: metersphere-logs
 `;
 
-const sa = `apiVersion: rbac.authorization.k8s.io/v1beta1
+const role = `apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: metersphere
@@ -177,8 +177,8 @@ export function getYaml(type, name, namespace, image) {
       .replace('{namespace}', namespace)
       .replace('{image}', image);
   }
-  if (type === 'sa') {
-    return sa.replace('{namespace}', namespace);
+  if (type === 'role') {
+    return role.replace('{namespace}', namespace);
   }
 }
 

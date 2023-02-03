@@ -123,7 +123,7 @@
                         trigger="hover">
                         <div>
                           <strong>{{ $t('test_resource_pool.k8s_sa_tips') }}</strong><br>
-                          <el-link type="primary" @click="downloadYaml(item, 'sa')">sa.yaml</el-link>
+                          <el-link type="primary" @click="downloadYaml(item, 'role')">role.yaml</el-link>
                         </div>
 
                         <div style="padding-top: 20px">
