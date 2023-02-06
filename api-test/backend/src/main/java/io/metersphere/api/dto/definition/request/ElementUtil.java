@@ -827,6 +827,7 @@ public class ElementUtil {
         if (StringUtils.isNotEmpty(vo.getScript())) {
             vo.setScript(StringUtils.replace(vo.getScript(), RunningParamKeys.API_ENVIRONMENT_ID, "\"" + RunningParamKeys.RUNNING_PARAMS_PREFIX + vo.getEnvironmentId() + ".\""));
         }
+        testElement.setProperty("cacheKey", false);
         testElement.setProperty(TestElement.TEST_CLASS, testElement.getClass().getSimpleName());
         testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
         String scriptLanguage = vo.getScriptLanguage();
