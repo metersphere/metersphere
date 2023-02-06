@@ -9,21 +9,23 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
+import io.metersphere.commons.config.MinioConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.PluginConfigDTO;
+import io.metersphere.dto.PluginDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
-
-import jakarta.annotation.Resource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -160,10 +162,19 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadPlugJar() {
+    public byte[] downloadPluginJar(List<String> jarPaths) {
         Map<String, byte[]> files = new HashMap<>();
         // 获取JAR
-        Map<String, byte[]> jarFiles = this.getPlugJar();
+        Map<String, byte[]> jarFiles = new LinkedHashMap<>();
+        jarPaths.forEach(item -> {
+            File file = new File(item);
+            if (file.exists() && !file.isDirectory()) {
+                byte[] fileByte = FileUtils.fileToByte(file);
+                if (ArrayUtils.isNotEmpty(fileByte)) {
+                    jarFiles.put(file.getName(), fileByte);
+                }
+            }
+        });
         if (MapUtils.isNotEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
@@ -171,6 +182,26 @@ public class ApiJMeterFileService {
             }
         }
         return listBytesToZip(files);
+    }
+
+    public PluginConfigDTO downloadPluginJarList() {
+        PluginConfigDTO pluginConfigDTO = new PluginConfigDTO();
+        List<Plugin> plugins = pluginService.list();
+        if (CollectionUtils.isNotEmpty(plugins)) {
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                    new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+            List<PluginDTO> plugin = plugins.stream().map(
+                    item -> {
+                        PluginDTO pluginDTO = new PluginDTO();
+                        pluginDTO.setPluginId(item.getPluginId());
+                        pluginDTO.setSourcePath(item.getSourcePath());
+                        return pluginDTO;
+                    }
+            ).collect(Collectors.toList());
+            pluginConfigDTO.setPluginDTOS(plugin);
+        }
+        pluginConfigDTO.setConfig(MinioConfig.getMinio());
+        return pluginConfigDTO;
     }
 
     private Map<String, byte[]> getJar(String projectId) {
@@ -196,7 +227,7 @@ public class ApiJMeterFileService {
         }
     }
 
-    private Map<String, byte[]> getPlugJar() {
+    public Map<String, byte[]> getPlugJar() {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
         List<Plugin> plugins = pluginService.list();
         if (CollectionUtils.isNotEmpty(plugins)) {
