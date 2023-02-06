@@ -38,19 +38,30 @@
       @filter="search"
       ref="table"
     >
+      <ms-table-column
+        v-if="!customNum"
+        prop="num"
+        sortable
+        :label="$t('commons.id')"/>
+      <ms-table-column
+        v-if="customNum"
+        prop="customNum"
+        sortable
+        :label="$t('commons.id')"/>
       <span v-for="item in fields" :key="item.key">
-        <ms-table-column
+
+<!--        <ms-table-column
           v-if="item.id == 'num'"
           prop="customNum"
           sortable="custom"
           :fields-width="fieldsWidth"
           :label="$t('commons.id')"
-          min-width="120px"/>
+          min-width="120px"/>-->
 
         <ms-table-column
           prop="name"
           :field="item"
-          sortable="custom"
+          sortable
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
           min-width="120px"/>
@@ -73,7 +84,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           :filters="priorityFilters"
-          sortable="custom"
+          sortable
           min-width="120px"
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
@@ -193,6 +204,7 @@ import {
 } from "@/api/test-review";
 import {useStore} from "@/store";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {getProjectApplicationConfig} from "@/api/project-application";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -281,7 +293,8 @@ export default {
           {name: this.$t('test_track.review.un_pass'), id: 'UnPass'},
         ]
       },
-      versionFilters: []
+      versionFilters: [],
+      customNum: false,
     };
   },
   props: {
@@ -337,6 +350,7 @@ export default {
     this.initTableHeader();
     this.getVersionOptions();
     this.getProject();
+    this.getCustomNum();
   },
   methods: {
     nextPage() {
@@ -551,6 +565,17 @@ export default {
         getVersionFilters(getCurrentProjectID())
           .then(r => this.versionFilters = r.data);
       }
+    },
+    getCustomNum() {
+      getProjectApplicationConfig('CASE_CUSTOM_NUM')
+        .then(result => {
+          let data = result.data;
+          if (data && data.typeValue === 'true') {
+            this.customNum = true;
+          } else {
+            this.customNum = false;
+          }
+        });
     },
   }
 };
