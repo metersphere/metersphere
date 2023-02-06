@@ -8,7 +8,7 @@
     <div v-loading="loading" class="group-row">
       <el-form class="row-form">
         <el-form-item v-for="(item,index) in envGroupProject" :key="index">
-          <el-row type="flex" justify="space-between" :gutter="10">
+          <el-row type="flex" :gutter="10">
             <el-col :span="6">
               <el-select v-model="item.projectId" filterable clearable style="width: 100%" @change="projectChange(item)"
                          :size="itemSize" @clear="clearProjectSelect"
@@ -37,7 +37,7 @@
               <el-input v-else v-model="item.domainName" :disabled="true" :size="itemSize"/>
             </el-col>
 
-            <el-col :span="5">
+            <el-col :span="4">
               <el-input prop="description" show-overflow-tooltip :placeholder="$t('commons.description')"
                         maxlength="100"
                         v-model="item.domainDescription"
