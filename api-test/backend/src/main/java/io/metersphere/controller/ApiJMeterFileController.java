@@ -2,7 +2,6 @@ package io.metersphere.controller;
 
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
-import io.metersphere.dto.PluginConfigDTO;
 import io.metersphere.service.ApiJMeterFileService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -66,12 +65,6 @@ public class ApiJMeterFileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
                 .body(bytes);
     }
-
-    @GetMapping("download/plugin/jar/list")
-    public PluginConfigDTO downloadPlugLists() {
-        return apiJmeterFileService.downloadPluginJarList();
-    }
-
 
     @PostMapping("download/files")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody BodyFileRequest request) {

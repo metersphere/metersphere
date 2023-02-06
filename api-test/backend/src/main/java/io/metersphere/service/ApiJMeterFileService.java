@@ -9,12 +9,9 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
-import io.metersphere.commons.config.MinioConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.PluginConfigDTO;
-import io.metersphere.dto.PluginDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
@@ -182,26 +179,6 @@ public class ApiJMeterFileService {
             }
         }
         return listBytesToZip(files);
-    }
-
-    public PluginConfigDTO downloadPluginJarList() {
-        PluginConfigDTO pluginConfigDTO = new PluginConfigDTO();
-        List<Plugin> plugins = pluginService.list();
-        if (CollectionUtils.isNotEmpty(plugins)) {
-            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
-                    new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
-            List<PluginDTO> plugin = plugins.stream().map(
-                    item -> {
-                        PluginDTO pluginDTO = new PluginDTO();
-                        pluginDTO.setPluginId(item.getPluginId());
-                        pluginDTO.setSourcePath(item.getSourcePath());
-                        return pluginDTO;
-                    }
-            ).collect(Collectors.toList());
-            pluginConfigDTO.setPluginDTOS(plugin);
-        }
-        pluginConfigDTO.setConfig(MinioConfig.getMinio());
-        return pluginConfigDTO;
     }
 
     private Map<String, byte[]> getJar(String projectId) {
