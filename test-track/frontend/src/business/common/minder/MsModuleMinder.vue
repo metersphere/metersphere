@@ -116,9 +116,17 @@ export default {
     this.height = document.body.clientHeight - 285;
   },
   destroyed() {
+    if (this.$EventBus) {
+      this.$EventBus.$off("appFixedChange", this.setFullScreenLeft);
+    }
     minderPageInfoMap.clear();
   },
   mounted() {
+    if (this.$EventBus) {
+      // 导出的报告不走这里
+      this.$EventBus.$on("appFixedChange", this.setFullScreenLeft);
+    }
+    this.setFullScreenLeft();
     this.defaultMode = 3;
     if (this.minderKey) {
       let model = localStorage.getItem(this.minderKey + 'minderModel');
@@ -159,6 +167,13 @@ export default {
           this.setExtraNodeCount(countMap, node.children);
         }
       });
+    },
+    setFullScreenLeft() {
+      const root = document.querySelector(':root');
+      // 获取 :root 上 --screen-left 变量的值
+      const left = getComputedStyle(root).getPropertyValue('--screen-left').trim();
+      // 设置 :root 上 --screen-left 变量的值
+      root.style.setProperty('--screen-left', left === '44px' ? '150px' : '44px');
     },
     handleMoldChange(index) {
       if (this.minderKey) {
@@ -299,11 +314,15 @@ export default {
       };
       return importJson;
     }
-  }
+  },
 }
 </script>
 
 <style scoped>
+:root {
+  --screen-left: var(--asideWidth);
+}
+
 .minder-container :deep(.save-btn) {
   right: 30px;
   bottom: auto;
@@ -323,10 +342,10 @@ export default {
 
 .full-screen {
   position: fixed;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  background: white;
+  top: 0;
+  left: var(--screen-left);
+  right: 0;
+  background: #fff;
   height: 100vh;
   z-index: 2;
 }
