@@ -108,3 +108,7 @@ export function updateSeleniumServer(data) {
 export function modifyUserByResourceId(resourceId) {
   return get(`/user/update/current-by-resource/${resourceId}`);
 }
+
+export function isSuperUser(userId) {
+  return get(`/user/is/super/${userId}`);
+}
