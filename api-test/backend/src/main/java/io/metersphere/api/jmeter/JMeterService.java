@@ -21,6 +21,7 @@ import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.NodeDTO;
+import io.metersphere.dto.PluginConfigDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
@@ -153,6 +154,11 @@ public class JMeterService {
 
     private void runNode(JmeterRunRequestDTO request) {
         request.setKafkaConfig(KafkaConfig.getKafka());
+        //获取MinIO配置和系统下的插件jar包
+        PluginConfigDTO pluginConfigDTO = pluginService.getPluginConfig();
+        if (pluginConfigDTO != null) {
+            request.setPluginConfigDTO(pluginConfigDTO);
+        }
         // 如果是K8S调用
         if (request.getPool().isK8s()) {
             try {

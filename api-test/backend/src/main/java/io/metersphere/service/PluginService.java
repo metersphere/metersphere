@@ -6,20 +6,22 @@ import io.metersphere.base.domain.Plugin;
 import io.metersphere.base.domain.PluginExample;
 import io.metersphere.base.domain.PluginWithBLOBs;
 import io.metersphere.base.mapper.PluginMapper;
+import io.metersphere.commons.config.MinioConfig;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.PluginConfigDTO;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.vo.FileRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -182,5 +184,25 @@ public class PluginService {
         example.createCriteria().andScenarioNotEqualTo(PluginScenario.platform.name());
         List<Plugin> plugins = pluginMapper.selectByExample(example);
         return plugins;
+    }
+
+    public PluginConfigDTO getPluginConfig() {
+        PluginConfigDTO pluginConfigDTO = new PluginConfigDTO();
+        List<Plugin> plugins = this.list();
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(plugins)) {
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
+                    new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+            List<io.metersphere.dto.PluginDTO> plugin = plugins.stream().map(
+                    item -> {
+                        io.metersphere.dto.PluginDTO pluginDTO = new io.metersphere.dto.PluginDTO();
+                        pluginDTO.setPluginId(item.getPluginId());
+                        pluginDTO.setSourcePath(item.getSourcePath());
+                        return pluginDTO;
+                    }
+            ).collect(Collectors.toList());
+            pluginConfigDTO.setPluginDTOS(plugin);
+        }
+        pluginConfigDTO.setConfig(MinioConfig.getMinio());
+        return pluginConfigDTO;
     }
 }

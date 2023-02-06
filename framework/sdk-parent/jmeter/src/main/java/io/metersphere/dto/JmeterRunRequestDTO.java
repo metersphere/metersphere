@@ -90,6 +90,9 @@ public class JmeterRunRequestDTO {
     // 失败重试次数
     private long retryNum;
 
+    //MinIO配置和系统插件信息
+    private PluginConfigDTO pluginConfigDTO;
+
     public JmeterRunRequestDTO() {
     }
 
