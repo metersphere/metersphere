@@ -195,6 +195,7 @@ import {PROJECT_CONFIGS} from "metersphere-frontend/src/components/search/search
 import MsRolesTag from "metersphere-frontend/src/components/MsRolesTag";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import AddMember from "../../common/AddMember";
+import {isSuperUser} from "metersphere-frontend/src/api/user.js";
 import {
   addProjectMember,
   delProjectMember,
@@ -308,20 +309,29 @@ export default {
         let {listObject} = res.data;
         this.memberLineData = listObject;
         let arr = this.memberLineData.filter(item => item.id === getCurrentUserId());
-        if (arr <= 0) {
-          this.$warning(this.$t("commons.project_permission"));
-          return;
-        }
-        // 跳转的时候更新用户的last_project_id
-        sessionStorage.setItem(PROJECT_ID, row.id);
-        const loading = fullScreenLoading(this);
-        switchProject({id: getCurrentUserId(), lastProjectId: row.id}).then(() => {
-          this.$router.push('/track/home').then(() => {
-            location.reload();
-            stopFullScreenLoading(loading);
+        if (arr.length > 0) {
+          this.doJump(row);
+        } else {
+          isSuperUser(getCurrentUserId()).then(r => {
+            if (r && r.data) {
+              this.doJump(row);
+            } else {
+              this.$warning(this.$t("commons.project_permission"));
+            }
           });
-        })
+        }
       });
+    },
+    doJump(row) {
+      // 跳转的时候更新用户的last_project_id
+      sessionStorage.setItem(PROJECT_ID, row.id);
+      const loading = fullScreenLoading(this);
+      switchProject({id: getCurrentUserId(), lastProjectId: row.id}).then(() => {
+        this.$router.push('/track/home').then(() => {
+          location.reload();
+          stopFullScreenLoading(loading);
+        });
+      })
     },
     getMaintainerOptions() {
       getCurrentProjectUserList().then(res => {
