@@ -1,7 +1,7 @@
 package io.metersphere.controller;
 
+import io.metersphere.request.GraphBatchRequest;
 import io.metersphere.service.ApiGraphService;
-import io.metersphere.xpack.graph.request.GraphBatchRequest;
 import io.metersphere.dto.RelationshipGraphData;
 import org.springframework.web.bind.annotation.*;
 

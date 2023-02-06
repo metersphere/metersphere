@@ -1,6 +1,6 @@
 <template>
   <div class="dependencies-container">
-    <el-tooltip v-xpack class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
+    <el-tooltip class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
       <font-awesome-icon class="graph-icon" :icon="['fas', 'sitemap']" size="lg" @click="openGraph" />
     </el-tooltip>
 
@@ -25,7 +25,7 @@
       :resource-type="resourceType"
       ref="postRelationshipList" />
 
-    <mx-relationship-graph-drawer v-xpack v-permission :graph-data="graphData" ref="relationshipGraph" />
+    <relationship-graph-drawer v-permission :graph-data="graphData" ref="relationshipGraph" />
   </div>
 </template>
 
@@ -37,7 +37,7 @@ export default {
   name: 'DependenciesList',
   components: {
     RelationshipList,
-    MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
+    RelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/RelationshipGraphDrawer'),
   },
   props: ['resourceId', 'resourceType', 'readOnly', 'versionEnable'],
   data() {

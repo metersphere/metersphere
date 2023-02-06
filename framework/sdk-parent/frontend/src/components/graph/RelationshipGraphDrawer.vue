@@ -16,10 +16,10 @@
 <script>
 import MsDrawer from "../MsDrawer";
 import DrawerHeader from "../head/DrawerHeader";
-import RelationshipGraph from "./MxRelationshipGraph";
+import RelationshipGraph from "./RelationshipGraph";
 
 export default {
-  name: "MxRelationshipGraphDrawer",
+  name: "RelationshipGraphDrawer",
   components: {RelationshipGraph, DrawerHeader, MsDrawer},
   props: ['graphData'],
   data() {

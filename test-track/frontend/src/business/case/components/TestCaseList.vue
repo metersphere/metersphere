@@ -208,7 +208,7 @@
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
 
-    <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
 
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
@@ -264,7 +264,7 @@ import {
 } from "@/api/testCase";
 import {getGraphByCondition} from "@/api/graph";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
-import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer";
+import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/RelationshipGraphDrawer";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import {mapState} from "pinia";
 import {useStore} from "@/store"
@@ -355,7 +355,6 @@ export default {
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
-          isXPack: true,
           handleClick: this.generateGraph,
           permissions: ['PROJECT_TRACK_CASE:READ+GENERATE_DEPENDENCIES']
         },

@@ -8,7 +8,7 @@ import DrawerHeader from "../head/DrawerHeader";
 import MsChart from "../chart/MsChart";
 
 export default {
-  name: "MxRelationshipGraph",
+  name: "RelationshipGraph",
   components: {MsChart, DrawerHeader, MsDrawer},
   props: {
     data: Array, links: Array,
