@@ -122,13 +122,24 @@
           prop="tags"
           :field="item"
           :fields-width="fieldsWidth"
-          :label="$t('commons.tag')"
-          min-width="80">
+          min-width="80px"
+          :show-overflow-tooltip="false"
+          :label="$t('commons.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :show-tooltip="scope.row.tags.length===1&&itemName.length*12<=80"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
-            <span/>
+              <el-tooltip class="item" effect="dark" placement="top">
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+                <div class="oneLine">
+                  <ms-tag
+                    v-for="(itemName, index) in scope.row.tags"
+                    :key="index"
+                    type="success"
+                    effect="plain"
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                    :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
+                </div>
+              </el-tooltip>
+              <span/>
           </template>
         </ms-table-column>
 
@@ -552,6 +563,17 @@ export default {
           this.loading = false;
         });
       });
+    },
+    getTagToolTips(tags) {
+      try {
+        let showTips = '';
+        tags.forEach((item) => {
+          showTips += item + ',';
+        });
+        return showTips.substr(0, showTips.length - 1);
+      } catch (e) {
+        return '';
+      }
     },
     initConditionComponents() {
       this.condition.components = initTestCaseConditionComponents(this.condition, this.testCaseTemplate.customFields, this.trashEnable);
@@ -1070,6 +1092,12 @@ export default {
 
 .el-tag {
   margin-left: 10px;
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 :deep(.el-table) {
