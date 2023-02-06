@@ -26,6 +26,7 @@ import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.service.ApiPoolDebugService;
+import io.metersphere.service.PluginService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.PostConstruct;
@@ -65,6 +66,8 @@ public class JMeterService {
     private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
     private ApiPoolDebugService apiPoolDebugService;
+    @Resource
+    private PluginService pluginService;
 
     @PostConstruct
     private void init() {

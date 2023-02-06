@@ -39,7 +39,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/api/jmeter/download/files", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
         filterChainDefinitionMap.put("/api/jmeter/download/jar/**", "anon");
-        filterChainDefinitionMap.put("/api/jmeter/download/plug/jar", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download/plugin/**", "anon");
         filterChainDefinitionMap.put("/api/jmeter/get-script", "anon");
 
         // for swagger
