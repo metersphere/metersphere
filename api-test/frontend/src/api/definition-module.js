@@ -6,7 +6,7 @@ export function getApiModules(projectId, protocol, currentVersion) {
 }
 
 export function postApiModules(projectId, protocol, currentVersion, param) {
-  let url = '/api/module/list/' + projectId + '/' + protocol + (currentVersion ? '/' + currentVersion : '');
+  let url = '/api/module/list/' + projectId + '/' + protocol;
   return post(url, param);
 }
 
@@ -21,7 +21,7 @@ export function getApiModuleByTrash(projectId, protocol, currentVersion) {
 }
 
 export function postApiModuleByTrash(projectId, protocol, currentVersion, param) {
-  let url = '/api/module/trash/list/' + projectId + '/' + protocol + '/' + (currentVersion ? '/' + currentVersion : '');
+  let url = '/api/module/trash/list/' + projectId + '/' + protocol;
   return post(url, param);
 }
 
