@@ -53,12 +53,12 @@
               {{ request.passAssertions + ' / ' + request.totalAssertions }}
             </api-report-request-header-item>
 
-            <api-report-request-header-item :title="$t('api_report.response_code')" style="width: 300px">
+            <api-report-request-header-item :title="$t('api_report.response_code')" style="width: 200px">
               {{ request.responseResult.responseCode }}
             </api-report-request-header-item>
 
             <api-report-request-header-item :title="$t('api_report.result')" style="width: 50px">
-              <el-tag v-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }} </el-tag>
+              <el-tag v-if="request.unexecute">Pending </el-tag>
               <el-tag v-else-if="!request.success && request.status && request.status === 'PENDING'">Pending </el-tag>
               <el-tag v-else-if="request.errorCode" class="ms-test-error_code"> FakeError </el-tag>
               <el-tag size="mini" type="success" v-else-if="request.success"> Success </el-tag>
@@ -122,7 +122,7 @@ export default {
 .scenario-result {
   margin-top: 20px;
   margin-bottom: 20px;
-  min-width: 1200px;
+  min-width: 1000px;
 }
 
 .method {
@@ -157,5 +157,12 @@ export default {
   color: #f6972a;
   background-color: #fdf5ea;
   border-color: #fdf5ea;
+}
+
+:deep(.report-left) {
+  float: none;
+}
+:deep(.metric-box-total) {
+  min-width: 100px;
 }
 </style>
