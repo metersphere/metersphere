@@ -130,6 +130,7 @@ import {
 } from '../../../api/scenario-report';
 import { STEP } from '../../automation/scenario/Setting';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
+import print from 'print-js';
 
 export default {
   name: 'MsApiReport',
@@ -708,9 +709,25 @@ export default {
       name = this.encodeSearchKey(name);
       this.$nextTick(() => {
         setTimeout(() => {
-          downloadPDF(document.getElementById('apiTestReport'), name || 'scenario-report');
+          this.printHTML();
           reset();
         }, 5000);
+      });
+    },
+    printHTML() {
+      function closeFuc() {
+        location.reload();
+      }
+
+      print({
+        printable: 'apiTestReport',
+        type: 'html',
+        maxWidth: 1200,
+        documentTitle: '',
+        scanStyles: true,
+        header: '',
+        targetStyles: ['*'], // 打印内容使用所有HTML样式，没有设置这个属性/值，设置分页打印没有效果
+        onPrintDialogClose: closeFuc,
       });
     },
     // 对报告名称中的特殊字符进行编码

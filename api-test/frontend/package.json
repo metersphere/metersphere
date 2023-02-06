@@ -26,6 +26,7 @@
     "fit2cloud-ui": "^1.8.0",
     "html2canvas": "^1.0.0-rc.7",
     "js-base64": "^3.4.4",
+    "js-file-download": "^0.4.12",
     "jsencrypt": "^3.1.0",
     "json-bigint": "^1.0.0",
     "json-schema-faker": "^0.5.0-rcv.32",
@@ -50,6 +51,7 @@
     "pdfjs-dist": "2.5.207",
     "pinia": "^2.0.14",
     "pinia-plugin-persistedstate": "^1.6.3",
+    "print-js": "^1.6.0",
     "sha.js": "^2.4.11",
     "vue": "^2.7.3",
     "vue-calendar-heatmap": "^0.8.4",
@@ -66,8 +68,7 @@
     "vue2-ace-editor": "0.0.15",
     "vuedraggable": "^2.24.3",
     "xml-js": "^1.6.11",
-    "yan-progress": "^1.0.3",
-    "js-file-download": "^0.4.12"
+    "yan-progress": "^1.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

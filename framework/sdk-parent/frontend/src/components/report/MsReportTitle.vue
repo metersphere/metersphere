@@ -5,47 +5,38 @@
         <div class="title">
           【{{ type }}】- {{ title }}
           <span v-if="report && (report.endTime || report.createTime)">
-            <span style="margin-left: 10px"
-              >{{ $t("report.test_start_time") }}：</span
-            >
+            <span style="margin-left: 10px">{{ $t("report.test_start_time") }}：</span>
             <span class="time"> {{ report.createTime | datetimeFormat }}</span>
-            <span style="margin-left: 10px"
-              >{{ $t("report.test_end_time") }}：</span
-            >
+            <span style="margin-left: 10px">{{ $t("report.test_end_time") }}：</span>
             <span class="time"> {{ report.endTime | datetimeFormat }}</span>
           </span>
         </div>
       </div>
       <div class="report-right">
-        <img class="logo" src="/assets/logo-MeterSphere.png" />
+        <img class="logo" src="/assets/logo-MeterSphere.png"/>
       </div>
     </el-row>
     <el-row type="flex" style="margin-top: 5px">
       <el-col v-if="this.mode">
-        <div style="float: left">
-          <span> {{ $t("report.run_model") + ":" }} </span>
-        </div>
-        <div style="color: #61c550; margin-left: 10px; float: left">
-          {{ getModeName(this.mode) }}
-        </div>
+        <span> {{ $t("report.run_model") + ":" }} </span>
+        <span style="color: #61c550; ">
+            {{ getModeName(this.mode) }}
+          </span>
       </el-col>
       <el-col v-if="this.poolName">
-        <div style="float: left">
-          <span> {{ $t("load_test.select_resource_pool") + ":" }} </span>
-        </div>
-        <div style="color: #61c550; margin-left: 10px; float: left">
-          {{ this.poolName }}
-        </div>
+        <span> {{ $t("load_test.select_resource_pool") + ":" }} </span>
+        <span style="color: #61c550; ">
+            {{ this.poolName }}
+          </span>
       </el-col>
-      <el-col></el-col>
     </el-row>
-    <el-row v-if="showProjectEnv" type="flex" style="margin-top: 5px">
-      <span> {{ $t("commons.environment") + ":" }} </span>
-      <div
-        v-for="(values, key) in projectEnvMap"
-        :key="key"
-        style="margin-right: 10px"
-      >
+    <el-row v-if="showProjectEnv" style="margin-top: 5px">
+      <el-col>
+        <span> {{ $t("commons.environment") + ":" }} </span>
+        <span
+          v-for="(values, key) in projectEnvMap"
+          :key="key"
+          style="margin-right: 10px">
         {{ key + ":" }}
         <ms-tag
           v-for="(item, index) in values"
@@ -54,7 +45,8 @@
           :content="item"
           style="margin-left: 2px"
         />
-      </div>
+      </span>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -64,7 +56,7 @@ import MsTag from "../MsTag";
 
 export default {
   name: "MsReportTitle",
-  components: { MsTag },
+  components: {MsTag},
   props: {
     title: String,
     type: String,
