@@ -14,6 +14,7 @@ import io.metersphere.dto.PluginResourceDTO;
 import io.metersphere.plugin.core.api.UiScriptApi;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.utils.CommonUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.reflect.ClassFinder;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;

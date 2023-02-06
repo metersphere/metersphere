@@ -2,8 +2,10 @@ package io.metersphere.controller;
 
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
+import io.metersphere.dto.PluginConfigDTO;
 import io.metersphere.service.ApiJMeterFileService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -11,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -56,14 +58,20 @@ public class ApiJMeterFileController {
                 .body(bytes);
     }
 
-    @GetMapping("download/plug/jar")
-    public ResponseEntity<byte[]> downloadPlugFiles() {
-        byte[] bytes = apiJmeterFileService.downloadPlugJar();
+    @PostMapping("download/plugin/jar")
+    public ResponseEntity<byte[]> downloadPlugFiles(@RequestBody List<String> request) {
+        byte[] bytes = apiJmeterFileService.downloadPlugJar(request);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
                 .body(bytes);
     }
+
+    @GetMapping("download/plugin/jar/list")
+    public PluginConfigDTO downloadPlugLists() {
+        return apiJmeterFileService.downloadPluginJarList();
+    }
+
 
     @PostMapping("download/files")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody BodyFileRequest request) {
@@ -73,6 +81,7 @@ public class ApiJMeterFileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getReportId() + ".zip\"")
                 .body(bytes);
     }
+
     @GetMapping("get-script")
     public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
         String key = StringUtils.join(reportId, "-", testId);
