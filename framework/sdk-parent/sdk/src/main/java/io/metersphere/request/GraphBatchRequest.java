@@ -1,7 +1,5 @@
-package io.metersphere.xpack.graph.request;
+package io.metersphere.request;
 
-import io.metersphere.request.BaseQueryRequest;
-import io.metersphere.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 

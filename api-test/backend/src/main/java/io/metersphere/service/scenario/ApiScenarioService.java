@@ -57,7 +57,6 @@ import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
-import io.metersphere.xpack.api.service.ApiAutomationRelationshipEdgeService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -159,6 +158,8 @@ public class ApiScenarioService {
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
     @Resource
     private BaseQuotaService baseQuotaService;
+    @Resource
+    private ApiAutomationRelationshipEdgeService apiAutomationRelationshipEdgeService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -290,10 +291,8 @@ public class ApiScenarioService {
         apiScenarioMapper.insert(scenario);
         apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         // 存储依赖关系
-        ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
-        if (relationshipEdgeService != null) {
-            relationshipEdgeService.initRelationshipEdge(null, scenario);
-        }
+        apiAutomationRelationshipEdgeService.initRelationshipEdge(null, scenario);
+
         uploadFiles(request, bodyFiles, scenarioFiles);
         return scenario;
     }
@@ -396,10 +395,8 @@ public class ApiScenarioService {
         uploadFiles(request, bodyFiles, scenarioFiles);
 
         // 存储依赖关系
-        ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
-        if (relationshipEdgeService != null) {
-            relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
-        }
+        apiAutomationRelationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
+
         String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
         if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(beforeScenario.getRefId());
@@ -1332,10 +1329,8 @@ public class ApiScenarioService {
                 sendImportScenarioCreateNotice(scenarioWithBLOBs);
                 batchMapper.insert(scenarioWithBLOBs);
                 // 存储依赖关系
-                ApiAutomationRelationshipEdgeService relationshipEdgeService = CommonBeanFactory.getBean(ApiAutomationRelationshipEdgeService.class);
-                if (relationshipEdgeService != null) {
-                    relationshipEdgeService.initRelationshipEdge(null, scenarioWithBLOBs);
-                }
+                apiAutomationRelationshipEdgeService.initRelationshipEdge(null, scenarioWithBLOBs);
+
                 apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenarioWithBLOBs);
                 extApiScenarioMapper.clearLatestVersion(scenarioWithBLOBs.getRefId());
                 extApiScenarioMapper.addLatestVersion(scenarioWithBLOBs.getRefId());

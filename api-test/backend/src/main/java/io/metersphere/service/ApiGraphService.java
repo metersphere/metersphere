@@ -1,11 +1,9 @@
 package io.metersphere.service;
 
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.xpack.graph.request.GraphBatchRequest;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.dto.RelationshipGraphData;
-import io.metersphere.xpack.graph.GraphService;
+import io.metersphere.request.GraphBatchRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +17,10 @@ public class ApiGraphService {
     ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private GraphService graphService;
 
     public RelationshipGraphData getGraphData(String id, String type) {
-        GraphService graphService = CommonBeanFactory.getBean(GraphService.class);
         if (StringUtils.equals(type, "API")) {
             return graphService.getGraphData(id, extApiDefinitionMapper::getForGraph);
         }
@@ -29,7 +28,6 @@ public class ApiGraphService {
     }
 
     public RelationshipGraphData getGraphDataByCondition(GraphBatchRequest request, String type) {
-        GraphService graphService = CommonBeanFactory.getBean(GraphService.class);
         request.getCondition().setNotEqStatus("Trash");
         if (StringUtils.equals(type, "API_SCENARIO")) {
             return graphService.getGraphDataByCondition(request, extApiScenarioMapper::selectIdsByQuery, extApiScenarioMapper::getTestCaseForGraph);

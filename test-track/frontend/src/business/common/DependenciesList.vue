@@ -20,25 +20,25 @@
     </div>
 
     <div class="left-icon">
-      <el-tooltip v-xpack class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
+      <el-tooltip class="item" effect="dark" :content="$t('commons.relationship.graph')" placement="left">
         <font-awesome-icon class="graph-icon" :icon="['fas', 'sitemap']" size="lg" @click="openGraph"/>
       </el-tooltip>
     </div>
 
-    <mx-relationship-graph-drawer v-xpack v-permission :graph-data="graphData" @closeRelationGraph="closeRelationGraph" ref="relationshipGraph"/>
+    <relationship-graph-drawer v-permission :graph-data="graphData" @closeRelationGraph="closeRelationGraph" ref="relationshipGraph"/>
 
   </div>
 </template>
 
 <script>
-import MxRelationshipGraphDrawer from "metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer";
+import RelationshipGraphDrawer from "metersphere-frontend/src/components/graph/RelationshipGraphDrawer";
 import RelationshipList from "./RelationshipList";
 import {getRelationshipGraph} from "@/api/graph";
 
 export default {
   name: "DependenciesList",
   components: {
-    MxRelationshipGraphDrawer,
+    RelationshipGraphDrawer,
     RelationshipList,
   },
   props: [

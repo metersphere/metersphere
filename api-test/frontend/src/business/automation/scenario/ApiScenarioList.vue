@@ -360,7 +360,7 @@
       @errorRefresh="errorRefresh"
       ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
-    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
     <scenario-delete-confirm ref="apiDeleteConfirmVersion" @handleDelete="_handleDelete"/>
     <!--  删除场景弹窗  -->
@@ -472,7 +472,7 @@ export default {
     MsTableOperatorButton: () => import('metersphere-frontend/src/components/MsTableOperatorButton'),
     MsTaskCenter: () => import('metersphere-frontend/src/components/task/TaskCenter'),
     MsRun: () => import('./DebugRun'),
-    MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
+    RelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/RelationshipGraphDrawer'),
   },
   props: {
     referenced: {
@@ -637,7 +637,6 @@ export default {
         {
           name: this.$t('test_track.case.generate_dependencies'),
           handleClick: this.generateGraph,
-          isXPack: true,
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
         {

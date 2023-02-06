@@ -238,7 +238,7 @@
     <ms-show-reference ref="viewRef" :show-plan="false" :is-has-ref="false" api-type="API"/>
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"/>
 
-    <mx-relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
+    <relationship-graph-drawer :graph-data="graphData" ref="relationshipGraph"/>
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDelete"/>
   </span>
@@ -333,7 +333,7 @@ export default {
     TableExtendBtns,
     MsShowReference,
     MsApiReportStatus: () => import('../../../automation/report/ApiReportStatus'),
-    MxRelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/MxRelationshipGraphDrawer'),
+    RelationshipGraphDrawer: () => import('metersphere-frontend/src/components/graph/RelationshipGraphDrawer'),
   },
   data() {
     return {
@@ -381,7 +381,6 @@ export default {
         },
         {
           name: this.$t('test_track.case.generate_dependencies'),
-          isXPack: true,
           handleClick: this.generateGraph,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API'],
         },
