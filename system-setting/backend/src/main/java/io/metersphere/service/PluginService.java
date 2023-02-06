@@ -19,6 +19,7 @@ import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.vo.FileRequest;
 import io.metersphere.request.PluginDTO;
 import io.metersphere.request.PluginRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
