@@ -4,6 +4,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.request.RunTestPlanRequest;
+import io.metersphere.sechedule.MsScheduleJob;
 import io.metersphere.service.PerformanceTestService;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -18,7 +19,7 @@ public class PerformanceTestJob extends MsScheduleJob {
     }
 
     @Override
-    void businessExecute(JobExecutionContext context) {
+    protected void businessExecute(JobExecutionContext context) {
         RunTestPlanRequest request = new RunTestPlanRequest();
         request.setId(resourceId);
         request.setUserId(userId);
