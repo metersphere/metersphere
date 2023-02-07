@@ -48,6 +48,7 @@ public class BaseScheduleService {
 
     private final String API_SCENARIO_JOB = "io.metersphere.sechedule.ApiScenarioTestJob";
     private final String API_SWAGGER_IMPORT_JOB = "io.metersphere.sechedule.SwaggerUrlImportJob";
+    private final String TEST_PLAN_JOB = "io.metersphere.plan.job.TestPlanTestJob";
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
@@ -143,6 +144,7 @@ public class BaseScheduleService {
         switch (group) {
             case API_SCENARIO_TEST -> schedule.setJob(API_SCENARIO_JOB);
             case SWAGGER_IMPORT -> schedule.setJob(API_SWAGGER_IMPORT_JOB);
+            case TEST_PLAN_TEST -> schedule.setJob(TEST_PLAN_JOB);
         }
     }
 
