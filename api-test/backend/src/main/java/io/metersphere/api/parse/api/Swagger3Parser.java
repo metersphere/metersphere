@@ -151,6 +151,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
                     request.setFollowRedirects(true);
+                    request.setResponseTimeout("60000");
+                    request.setConnectTimeout("60000");
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
                     apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
