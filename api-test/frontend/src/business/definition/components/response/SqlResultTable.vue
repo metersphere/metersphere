@@ -34,17 +34,27 @@ export default {
     body: String,
   },
   created() {
-    if (!this.body) {
-      return;
-    }
-    let rowArray = this.body.split('\n');
-    // 过多会有性能问题
-    if (rowArray.length > 100) {
-      rowArray = rowArray.slice(0, 100);
-    }
-    this.getTableData(rowArray);
+    this.init();
+  },
+  watch: {
+    body() {
+      this.init();
+    },
   },
   methods: {
+    init() {
+      if (!this.body) {
+        return;
+      }
+      this.tables = [];
+      this.titles = [];
+      let rowArray = this.body.split('\n');
+      // 过多会有性能问题
+      if (rowArray.length > 100) {
+        rowArray = rowArray.slice(0, 100);
+      }
+      this.getTableData(rowArray);
+    },
     getTableData(rowArray) {
       let titles;
       let result = [];
