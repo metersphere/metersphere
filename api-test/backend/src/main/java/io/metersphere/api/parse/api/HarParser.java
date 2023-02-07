@@ -103,6 +103,8 @@ public class HarParser extends HarAbstractParser {
             if (harRequest != null) {
                 MsHTTPSamplerProxy request = super.buildRequest(reqName, url, harRequest.method, null);
                 request.setFollowRedirects(true);
+                request.setResponseTimeout("60000");
+                request.setConnectTimeout("60000");
                 ApiDefinitionWithBLOBs apiDefinition = super.buildApiDefinition(request.getId(), reqName, url, harRequest.method, importRequest);
                 parseParameters(harRequest, request);
                 parseRequestBody(harRequest, request.getBody());
