@@ -30,6 +30,7 @@ import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,9 @@ public class BaseScheduleService {
     private BaseScheduleMapper baseScheduleMapper;
     @Resource
     private UserMapper userMapper;
+
+    private final String API_SCENARIO_JOB = "io.metersphere.sechedule.ApiScenarioTestJob";
+    private final String API_SWAGGER_IMPORT_JOB = "io.metersphere.sechedule.SwaggerUrlImportJob";
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
@@ -135,12 +139,21 @@ public class BaseScheduleService {
         return scheduleMapper.selectByExample(example);
     }
 
+    private void jobConvert(Schedule schedule, ScheduleGroup group) {
+        switch (group) {
+            case API_SCENARIO_TEST -> schedule.setJob(API_SCENARIO_JOB);
+            case SWAGGER_IMPORT -> schedule.setJob(API_SWAGGER_IMPORT_JOB);
+        }
+    }
+
     public void startEnableSchedules(ScheduleGroup group) {
         List<Schedule> Schedules = getEnableSchedule(group);
 
         Schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
+                    // 兼容历史数据
+                    jobConvert(schedule, group);
                     LogUtil.info("初始化任务：" + JSON.toJSONString(schedule));
                     scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
                             new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(),
