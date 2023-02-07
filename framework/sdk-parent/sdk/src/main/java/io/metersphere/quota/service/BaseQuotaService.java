@@ -165,26 +165,13 @@ public class BaseQuotaService {
     private Object getQuotaCount(Quota quota, String type) {
         Object count = null;
         switch (type) {
-            case API:
-                count = quota.getApi();
-                break;
-            case LOAD:
-                count = quota.getPerformance();
-                break;
-            case DURATION:
-                count = quota.getDuration();
-                break;
-            case MAX_THREAD:
-                count = quota.getMaxThreads();
-                break;
-            case MEMBER:
-                count = quota.getMember();
-                break;
-            case PROJECT:
-                count = quota.getProject();
-                break;
-            default:
-                MSException.throwException("get quota count fail, don't have type: " + type);
+            case API -> count = quota.getApi();
+            case LOAD -> count = quota.getPerformance();
+            case DURATION -> count = quota.getDuration();
+            case MAX_THREAD -> count = quota.getMaxThreads();
+            case MEMBER -> count = quota.getMember();
+            case PROJECT -> count = quota.getProject();
+            default -> MSException.throwException("get quota count fail, don't have type: " + type);
         }
         return count;
     }
@@ -192,23 +179,19 @@ public class BaseQuotaService {
     /**
      * 性能测试配额检查
      * @param request 压力配置
-     * @param checkPerformance 是：检查创建数量配额 / 否：检查并发数和时间
+     * @param checkPerformanceCount 是：检查创建数量配额 / 否：检查并发数和时间
      */
     @Transactional(noRollbackFor = MSException.class, rollbackFor = Exception.class)
-    public void checkLoadTestQuota(TestPlanRequest request, boolean checkPerformance) {
-        String loadConfig = request.getLoadConfiguration();
-        int threadNum = 0;
-        long duration = 0;
-        if (loadConfig != null) {
-            threadNum = getIntegerValue(loadConfig, "TargetLevel");
-            duration = getIntegerValue(loadConfig, "duration");
-        }
+    public void checkLoadTestQuota(TestPlanRequest request, boolean checkPerformanceCount) {
         String projectId = request.getProjectId();
-        if (checkPerformance) {
+        if (checkPerformanceCount) {
             this.checkPerformance(projectId);
         } else {
-            checkMaxThread(projectId, threadNum);
-            checkDuration(projectId, duration);
+            String loadConfig = request.getLoadConfiguration();
+            if (loadConfig != null) {
+                checkMaxThread(projectId, getIntegerValue(loadConfig, "TargetLevel"));
+                checkDuration(projectId, getIntegerValue(loadConfig, "duration"));
+            }
         }
     }
 
@@ -606,7 +589,6 @@ public class BaseQuotaService {
         }
     }
 
-    // todo
     private List<LoadTestReportResult> queryReportResult(String id, String key) {
         return extLoadTestReportResultMapper.selectByIdAndKey(id, key);
     }
@@ -641,8 +623,7 @@ public class BaseQuotaService {
         try {
             overview = JSON.parseObject(content, TestOverview.class);
         } catch (Exception e) {
-            LogUtil.error("parse test overview error.");
-            LogUtil.error(e.getMessage(), e);
+            LogUtil.error("parse test overview error.", e);
         }
         return overview;
     }

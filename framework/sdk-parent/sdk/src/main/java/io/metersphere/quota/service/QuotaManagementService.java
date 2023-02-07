@@ -8,7 +8,6 @@ import io.metersphere.base.mapper.QuotaMapper;
 import io.metersphere.base.mapper.ext.ExtQuotaMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -16,12 +15,12 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.quota.dto.QuotaConstants;
 import io.metersphere.quota.dto.QuotaResult;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -29,8 +28,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Quota 中 project_id 和 workspace_id 不同时存在
+ * project_id不为空: 表示数据是项目配额
+ * workspace_id不为空: 表示数据是工作空间配额
+ * project_id、workspace_id都为空: 表示数据是默认配额
  * 工作空间默认配额(全局唯一)：QuotaConstants.DefaultType.workspace
- * 工作空间下项目的默认配额(工作空间下唯一)：QuotaConstants.prefix + workspace_id
+ * 项目默认配额(工作空间下唯一)：QuotaConstants.prefix + workspace_id
  */
 
 @Service
@@ -57,12 +60,20 @@ public class QuotaManagementService {
         if (StringUtils.isBlank(workspaceId)) {
             return new Quota();
         }
-        Quota quota = quotaMapper.selectByPrimaryKey(QuotaConstants.prefix + workspaceId);
+        String workspaceGlobalQuotaId = getWorkspaceGlobalQuotaId(workspaceId);
+        Quota quota = quotaMapper.selectByPrimaryKey(workspaceGlobalQuotaId);
         if (quota == null) {
             quota = new Quota();
-            quota.setId(QuotaConstants.prefix + workspaceId);
+            quota.setId(workspaceGlobalQuotaId);
         }
         return quota;
+    }
+
+    private String getWorkspaceGlobalQuotaId(String workspaceId) {
+        if (StringUtils.isBlank(workspaceId)) {
+            MSException.throwException("get workspace global quota id error, workspace id is null.");
+        }
+        return QuotaConstants.prefix + workspaceId;
     }
 
     public void saveQuota(Quota quota) {
@@ -107,39 +118,40 @@ public class QuotaManagementService {
             quota.setId(UUID.randomUUID().toString());
         }
 
-        if (StringUtils.isNotBlank(quota.getWorkspaceId()) && StringUtils.isNotBlank(quota.getProjectId())) {
-            LogUtil.error("save quota error, illegal parameter, workspace id and project id cannot exist at the same time");
-            return;
-        } else if (StringUtils.isNotBlank(quota.getWorkspaceId()) && StringUtils.isBlank(quota.getProjectId())) {
-            QuotaExample quotaExample = new QuotaExample();
-            quotaExample.createCriteria().andWorkspaceIdEqualTo(quota.getWorkspaceId())
-                    .andProjectIdIsNull();
-            if (quotaMapper.countByExample(quotaExample) > 0) {
-                LogUtil.error("save quota error, repeat insert workspace quota, id is: " + quota.getWorkspaceId());
-                return;
-            }
-        } else if (StringUtils.isNotBlank(quota.getProjectId()) && StringUtils.isBlank(quota.getWorkspaceId())) {
-            QuotaExample quotaExample = new QuotaExample();
-            quotaExample.createCriteria().andProjectIdEqualTo(quota.getProjectId())
-                    .andWorkspaceIdIsNull();
-            if (quotaMapper.countByExample(quotaExample) > 0) {
-                LogUtil.error("save quota error, repeat insert project quota, id is: " + quota.getProjectId());
-                return;
-            }
-        } else if (this.isDefaultQuota(quota)) {
-            QuotaExample quotaExample = new QuotaExample();
-            quotaExample.createCriteria().andIdEqualTo(quota.getId());
-            if (quotaMapper.countByExample(quotaExample) > 0) {
-                LogUtil.error("save quota error, repeat insert default quota, id is: " + quota.getId());
-                return;
-            }
-        }
+        this.checkQuotaSaveParam(quota);
+
         BigDecimal vumTotal = quota.getVumTotal();
         BigDecimal max = BigDecimal.valueOf(99999999.00);
         if (vumTotal.compareTo(max) > 0) {
             MSException.throwException("总vum数量不能超过99999999！");
         }
         quotaMapper.insert(quota);
+    }
+
+    private void checkQuotaSaveParam(Quota quota) {
+        if (StringUtils.isNotBlank(quota.getWorkspaceId()) && StringUtils.isNotBlank(quota.getProjectId())) {
+            MSException.throwException("illegal parameter, workspace id and project id cannot exist at the same time");
+        } else if (StringUtils.isNotBlank(quota.getWorkspaceId()) && StringUtils.isBlank(quota.getProjectId())) {
+            QuotaExample quotaExample = new QuotaExample();
+            quotaExample.createCriteria().andWorkspaceIdEqualTo(quota.getWorkspaceId())
+                    .andProjectIdIsNull();
+            if (quotaMapper.countByExample(quotaExample) > 0) {
+                MSException.throwException("repeat insert workspace quota, id is: " + quota.getWorkspaceId());
+            }
+        } else if (StringUtils.isNotBlank(quota.getProjectId()) && StringUtils.isBlank(quota.getWorkspaceId())) {
+            QuotaExample quotaExample = new QuotaExample();
+            quotaExample.createCriteria().andProjectIdEqualTo(quota.getProjectId())
+                    .andWorkspaceIdIsNull();
+            if (quotaMapper.countByExample(quotaExample) > 0) {
+                MSException.throwException("repeat insert project quota, id is: " + quota.getProjectId());
+            }
+        } else if (this.isDefaultQuota(quota)) {
+            QuotaExample quotaExample = new QuotaExample();
+            quotaExample.createCriteria().andIdEqualTo(quota.getId());
+            if (quotaMapper.countByExample(quotaExample) > 0) {
+                MSException.throwException("repeat insert default quota, id is: " + quota.getId());
+            }
+        }
     }
 
     public void wsVumCompare(Quota quota) {
