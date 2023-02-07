@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.PluginConfigDTO;
+import io.metersphere.dto.PluginInfoDTO;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.vo.FileRequest;
 import jakarta.annotation.Resource;
@@ -189,12 +190,12 @@ public class PluginService {
     public PluginConfigDTO getPluginConfig() {
         PluginConfigDTO pluginConfigDTO = new PluginConfigDTO();
         List<Plugin> plugins = this.list();
-        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(plugins)) {
+        if (CollectionUtils.isNotEmpty(plugins)) {
             plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
                     new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
-            List<io.metersphere.dto.PluginDTO> plugin = plugins.stream().map(
+            List<PluginInfoDTO> plugin = plugins.stream().map(
                     item -> {
-                        io.metersphere.dto.PluginDTO pluginDTO = new io.metersphere.dto.PluginDTO();
+                        PluginInfoDTO pluginDTO = new PluginInfoDTO();
                         pluginDTO.setPluginId(item.getPluginId());
                         pluginDTO.setSourcePath(item.getSourcePath());
                         return pluginDTO;

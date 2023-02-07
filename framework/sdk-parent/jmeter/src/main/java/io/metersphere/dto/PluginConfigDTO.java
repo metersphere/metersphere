@@ -8,6 +8,6 @@ import java.util.Map;
 @Data
 public class PluginConfigDTO {
 
-    private List<PluginDTO> pluginDTOS;
+    private List<PluginInfoDTO> pluginDTOS;
     private Map<String, Object> config;
 }
