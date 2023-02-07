@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class PluginDTO implements Serializable {
+public class PluginInfoDTO implements Serializable {
 
     private String pluginId;
 
