@@ -88,7 +88,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
         }
         processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        /*processor.setProperty("cacheKey", "true");*/
+        processor.setProperty("cacheKey", false);
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
         if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
             processor.setProperty("scriptLanguage", "nashorn");
