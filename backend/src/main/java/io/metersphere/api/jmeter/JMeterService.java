@@ -2,12 +2,12 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.definition.request.ElementUtil;
-import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.ApiPoolDebugService;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.api.service.RedisTemplateService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
@@ -54,11 +54,13 @@ public class JMeterService {
     @Resource
     private RestTemplate restTemplate;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
     @Resource
     private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
     private RemakeReportService remakeReportService;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @PostConstruct
     private void init() {
@@ -148,14 +150,12 @@ public class JMeterService {
         if (request.getPool().isK8s()) {
             try {
                 // 缓存调试脚本
-                if (request.getHashTree() != null) {
-                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
-                }
+                redisTemplateService.initDebug(request);
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
+                redisTemplateService.deleteDebug(request);
                 remakeReportService.testEnded(request, e.getMessage());
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }

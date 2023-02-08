@@ -47,7 +47,8 @@ public class ApiJmeterFileService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
-
+    @Resource
+    private RedisTemplateService redisTemplateService;
     @Resource
     private EnvironmentGroupProjectService environmentGroupProjectService;
 
@@ -203,33 +204,28 @@ public class ApiJmeterFileService {
         List<BodyFile> files = new LinkedList<>();
         FileUtils.getFiles(hashTree, files);
         if (CollectionUtils.isNotEmpty(files)) {
-            for (BodyFile bodyFile : files) {
-                File file = new File(bodyFile.getName());
-                if (file != null && file.exists()) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        multipartFiles.put(file.getAbsolutePath(), fileByte);
-                    }
-                }
-            }
+            getBodyFIleByte(multipartFiles, files);
         }
         return multipartFiles;
     }
 
     public byte[] zipFilesToByteArray(BodyFileRequest request) {
         Map<String, byte[]> files = new LinkedHashMap<>();
-        if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
-            for (BodyFile bodyFile : request.getBodyFiles()) {
-                File file = new File(bodyFile.getName());
-                if (file != null && file.exists()) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        files.put(file.getAbsolutePath(), fileByte);
-                    }
+        List<BodyFile> bodyFiles = redisTemplateService.getDebugFiles(request);
+        getBodyFIleByte(files, bodyFiles);
+        return listBytesToZip(files);
+    }
+
+    private void getBodyFIleByte(Map<String, byte[]> files, List<BodyFile> bodyFiles) {
+        for (BodyFile bodyFile : bodyFiles) {
+            File file = new File(bodyFile.getName());
+            if (file != null && file.exists()) {
+                byte[] fileByte = FileUtils.fileToByte(file);
+                if (fileByte != null) {
+                    files.put(file.getAbsolutePath(), fileByte);
                 }
             }
         }
-        return listBytesToZip(files);
     }
 
     private byte[] zipFilesToByteArray(String testId, HashTree hashTree) {
@@ -269,7 +265,7 @@ public class ApiJmeterFileService {
             zos.close();
             return baos.toByteArray();
         } catch (Exception e) {
-            return null;
+            return new byte[0];
         }
     }
 }
