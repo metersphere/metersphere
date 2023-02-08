@@ -26,6 +26,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class FileUtils {
+
+    public static final String ROOT_DIR = "/opt/metersphere/";
     public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
     public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
     public static final String UI_IMAGE_DIR = "/opt/metersphere/data/image/ui/screenshots";

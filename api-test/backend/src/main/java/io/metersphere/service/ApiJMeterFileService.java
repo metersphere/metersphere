@@ -8,8 +8,10 @@ import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.PluginMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
@@ -45,9 +47,9 @@ public class ApiJMeterFileService {
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
-    private PluginService pluginService;
-    @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private PluginMapper pluginMapper;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -159,23 +161,16 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadPluginJar(List<String> jarPaths) {
+    public byte[] downloadPluginJar(List<String> pluginIds) {
         Map<String, byte[]> files = new HashMap<>();
-        // 获取JAR
-        Map<String, byte[]> jarFiles = new LinkedHashMap<>();
-        jarPaths.forEach(item -> {
-            File file = new File(item);
-            if (file.exists() && !file.isDirectory()) {
-                byte[] fileByte = FileUtils.fileToByte(file);
-                if (ArrayUtils.isNotEmpty(fileByte)) {
-                    jarFiles.put(file.getName(), fileByte);
+        if (!CollectionUtils.isNotEmpty(pluginIds)) {
+            // 获取JAR
+            Map<String, byte[]> jarFiles = this.getPlugJar(pluginIds);
+            if (MapUtils.isNotEmpty(jarFiles)) {
+                for (String k : jarFiles.keySet()) {
+                    byte[] v = jarFiles.get(k);
+                    files.put(k, v);
                 }
-            }
-        });
-        if (MapUtils.isNotEmpty(jarFiles)) {
-            for (String k : jarFiles.keySet()) {
-                byte[] v = jarFiles.get(k);
-                files.put(k, v);
             }
         }
         return listBytesToZip(files);
@@ -204,9 +199,11 @@ public class ApiJMeterFileService {
         }
     }
 
-    public Map<String, byte[]> getPlugJar() {
+    public Map<String, byte[]> getPlugJar(List<String> pluginIds) {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
-        List<Plugin> plugins = pluginService.list();
+        PluginExample example = new PluginExample();
+        example.createCriteria().andPluginIdIn(pluginIds).andScenarioNotEqualTo(PluginScenario.platform.name());
+        List<Plugin> plugins = pluginMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(plugins)) {
             plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() ->
                     new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
@@ -303,7 +300,7 @@ public class ApiJMeterFileService {
                     ApiFileUtil.downloadFile(bodyFile.getId(), bodyFile.getName());
                     file = new File(bodyFile.getName());
                 }
-                if (file != null && file.exists()) {
+                if (file != null && file.exists() && StringUtils.startsWith(file.getPath(), FileUtils.ROOT_DIR)) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
                         files.put(file.getAbsolutePath(), fileByte);
