@@ -34,7 +34,7 @@
                     reserve-keyword
                     :placeholder="$t('member.input_id_or_email_or_name')"
                     :remote-method="querySearch"
-                    @clear="initTableData"
+                    @change="initTableData"
                     :loading="selectLoading">
                     <el-option
                       v-for="item in options"
