@@ -445,23 +445,6 @@
       <!-- 底部操作按钮 -->
       <div class="edit-footer-container" v-if="editable">
         <template>
-          <!-- 保存 -->
-          <div
-            class="save-btn-row"
-            v-if="showAddBtn">
-            <el-button size="small" @click="handleCommand" :disabled="readOnly">
-              {{ $t("commons.save") }}
-            </el-button>
-          </div>
-          <!-- 保存并添加到公共用例库 -->
-          <div
-            class="save-add-pub-row"
-            v-if="showPublic"
-            @click="handleCommand('ADD_AND_PUBLIC')">
-            <el-button size="small" :disabled="readOnly">
-              {{ $t("test_track.case.save_add_public") }}
-            </el-button>
-          </div>
           <!-- 保存并新建 -->
           <div class="save-create-row">
             <el-button
@@ -469,13 +452,30 @@
               @click="handleCommand('ADD_AND_CREATE')"
               v-if="showAddBtn"
               :disabled="readOnly">
-              {{ $t("test_track.case.save_create_continue") }}
+              {{ $t("case.saveAndCreate") }}
+            </el-button>
+          </div>
+          <!-- 保存并添加到公共用例库 -->
+          <div
+          class="save-add-pub-row"
+          v-if="showPublic"
+          @click="handleCommand('ADD_AND_PUBLIC')">
+          <el-button size="small" :disabled="readOnly">
+            {{ $t("test_track.case.save_add_public") }}
+          </el-button>
+        </div>
+          <!-- 保存 -->
+          <div
+            class="save-btn-row"
+            v-if="showAddBtn">
+            <el-button size="small" @click="handleCommand" :disabled="readOnly" type="primary">
+              {{ $t("commons.save") }}
             </el-button>
           </div>
         </template>
       </div>
     </div>
-    <el-dialog
+    <!-- <el-dialog
     :fullscreen="true"
     :visible.sync="dialogVisible"
     :destroy-on-close="true"
@@ -488,7 +488,10 @@
       :tree-nodes="treeNodes"
     ></test-case-version-diff>
   </el-dialog>
-    <version-create-other-info-select
+   -->
+  <!-- since v2.7 -->
+  <case-diff-side-viewer ref="caseDiffViewerRef" ></case-diff-side-viewer>
+   <version-create-other-info-select
       @confirmOtherInfo="confirmOtherInfo"
       ref="selectPropDialog"/>
 
@@ -577,7 +580,7 @@ import {buildTree} from "metersphere-frontend/src/model/NodeTree";
 import {versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
-
+import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer"
 
 export default {
   name: "TestCaseEdit",
@@ -610,7 +613,8 @@ export default {
     MsAsideContainer,
     MsMainContainer,
     MxVersionHistory,
-    ListItemDeleteConfirm
+    ListItemDeleteConfirm,
+    CaseDiffSideViewer
   },
   data() {
     return {
@@ -1564,27 +1568,31 @@ export default {
       }
       return versionName;
     },
-    async compareBranch(t1, t2) {
-      let t1Case = await testCaseGetByVersionId(t1.id, this.currentTestCaseInfo.id);
-      let t2Case = await testCaseGetByVersionId(t2.id, this.currentTestCaseInfo.id);
+    compareBranch(t1, t2) {
+       // 打开对比
+       this.dialogVisible = true;
+       this.$refs.caseDiffViewerRef.open(t1.id, t2.id, this.currentTestCaseInfo.id)
 
-      let p1 = getTestCase(t1Case.data.id);
-      let p2 = getTestCase(t2Case.data.id);
-      let that = this;
-      Promise.all([p1, p2]).then((r) => {
-        if (r[0] && r[1]) {
-          that.newData = r[0].data;
-          that.oldData = r[1].data;
-          that.newData.createTime = t1.createTime;
-          that.oldData.createTime = t2.createTime;
-          that.newData.versionName = t1.name;
-          that.oldData.versionName = t2.name;
-          that.newData.userName = t1Case.data.createName;
-          that.oldData.userName = t2Case.data.createName;
-          this.setSpecialPropForCompare(that);
-          that.dialogVisible = true;
-        }
-      });
+      // let t1Case = await testCaseGetByVersionId(t1.id, this.currentTestCaseInfo.id);
+      // let t2Case = await testCaseGetByVersionId(t2.id, this.currentTestCaseInfo.id);
+
+      // let p1 = getTestCase(t1Case.data.id);
+      // let p2 = getTestCase(t2Case.data.id);
+      // let that = this;
+      // Promise.all([p1, p2]).then((r) => {
+      //   if (r[0] && r[1]) {
+      //     that.newData = r[0].data;
+      //     that.oldData = r[1].data;
+      //     that.newData.createTime = t1.createTime;
+      //     that.oldData.createTime = t2.createTime;
+      //     that.newData.versionName = t1.name;
+      //     that.oldData.versionName = t2.name;
+      //     that.newData.userName = t1Case.data.createName;
+      //     that.oldData.userName = t2Case.data.createName;
+      //     this.setSpecialPropForCompare(that);
+      //     that.dialogVisible = true;
+      //   }
+      // });
     },
     compare(row) {
       testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId).then(
@@ -2268,6 +2276,7 @@ export default {
       font-size: 14px;
       line-height: 22px;
       text-align: center;
+      justify-content: flex-end;
       // 底部按钮激活样式
       .opt-active-primary {
         background: #783887;
@@ -2287,7 +2296,7 @@ export default {
       }
 
       .save-btn-row {
-        margin-left: px2rem(24);
+        margin: 0 24px 0 12px;
         el-button {
         }
       }

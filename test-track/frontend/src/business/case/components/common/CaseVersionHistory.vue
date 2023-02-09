@@ -147,6 +147,7 @@ import {
   getProjectVersions,
   isProjectVersionEnable,
 } from "metersphere-frontend/src/api/version";
+import { getTestCaseVersions } from "@/api/testCase";
 
 export default {
   name: "CaseVersionHistory",
@@ -224,13 +225,27 @@ export default {
       );
       this.clearSelectData();
     },
-    getVersionOptionList(callback) {
-      getProjectVersions(this.currentProjectId).then((response) => {
-        this.versionOptions = response.data.filter((v) => v.status === "open");
-        if (callback) {
-          callback(this.versionOptions);
-        }
+    async getVersionOptionList(callback) {
+      // getProjectVersions(this.currentProjectId).then((response) => {
+      //   this.versionOptions = response.data.filter((v) => v.status === "open");
+      //   if (callback) {
+      //     callback(this.versionOptions);
+      //   }
+      // });
+      let response = await getProjectVersions(this.currentProjectId);
+      let versions = response.data || [];
+      let getAllVersions = await getTestCaseVersions(this.currentId);
+      let allVersionCases = getAllVersions.data || [];
+      let tempMap = new Map();
+      allVersionCases.forEach((c) => {
+        tempMap.set(c.versionId, c);
       });
+      this.versionOptions = versions.filter((v) => {
+        return tempMap.get(v.id);
+      });
+      if (callback) {
+        callback(this.versionOptions);
+      }
     },
     updateUserDataByExternal() {
       if (this.testUsers && this.testUsers.length > 0) {
@@ -440,8 +455,9 @@ export default {
     .icon {
       margin-left: 11.67px;
       margin-right: 4.6px;
-      width: 14.67px;
-      height: 13.33px;
+      margin-top: 3px;
+      /* width: 14.67px;
+      height: 13.33px; */
       img {
         width: 100%;
         height: 100%;
