@@ -443,10 +443,11 @@ public class IssuesService {
         List<String> issueIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         String projectId = issues.get(0).getProjectId();
         Project project = projectMapper.selectByPrimaryKey(projectId);
-        if (project == null) {
+        IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(project.getId());
+        if (issueTemplate == null) {
             return;
         }
-        String templateId = project.getIssueTemplateId();
+        String templateId = issueTemplate.getId();
         if (StringUtils.isBlank(templateId)) {
             return;
         }
@@ -1286,12 +1287,11 @@ public class IssuesService {
             return;
         }
         IssuesWithBLOBs issue = issuesMapper.selectByPrimaryKey(issuesId);
-        Project project = projectMapper.selectByPrimaryKey(issue.getProjectId());
-        if (project == null) {
+        IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(issue.getProjectId());
+        if (issueTemplate == null) {
             return;
         }
-        String templateId = project.getIssueTemplateId();
-        if (StringUtils.isNotBlank(templateId)) {
+        if (StringUtils.isNotBlank(issueTemplate.getId())) {
             // 模版对于同一个系统字段应该只关联一次
             CustomField customField = baseCustomFieldService.getCustomFieldByName(issue.getProjectId(), SystemCustomField.ISSUE_STATUS);
             if (customField != null) {
