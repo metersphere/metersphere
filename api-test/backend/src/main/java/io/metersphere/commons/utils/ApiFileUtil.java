@@ -1,16 +1,15 @@
 package io.metersphere.commons.utils;
 
-import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.FileMetadataWithBLOBs;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
+import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.enums.JmxFileMetadataColumns;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.FileRequest;
-import io.metersphere.request.BodyFile;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.TemporaryFileUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -32,18 +31,19 @@ public class ApiFileUtil extends FileUtils {
     private static FileMetadataService fileMetadataService;
     private static TemporaryFileUtil temporaryFileUtil;
 
-    public static String getFilePath(BodyFile file) {
-        String type = StringUtils.isNotEmpty(file.getFileType()) ? file.getFileType().toLowerCase() : null;
-        String name = file.getName();
-        if (type != null && !name.endsWith(type)) {
-            name = StringUtils.join(name, ".", type);
-        }
-        return StringUtils.join(ApiFileUtil.BODY_FILE_DIR, File.separator, file.getProjectId(), File.separator, name);
-    }
-
-    public static void createFiles(List<FileInfoDTO> infoDTOS) {
+    public static void createFiles(List<FileInfoDTO> infoDTOS, String key, List<ProjectJarConfig> value) {
         infoDTOS.forEach(item -> {
-            createFile(item.getPath(), item.getFileByte());
+            value.forEach(config -> {
+                if (StringUtils.equals(item.getId(), config.getId())) {
+                    createFile(StringUtils.join(ApiFileUtil.LOCAL_JAR,
+                            File.separator,
+                            key,
+                            File.separator,
+                            config.getId(),
+                            File.separator,
+                            String.valueOf(config.getUpdateTime()), ".jar"), item.getFileByte());
+                }
+            });
         });
     }
 
@@ -233,86 +233,4 @@ public class ApiFileUtil extends FileUtils {
         return StringUtils.join(BODY_FILE_DIR, File.separator, reportId, File.separator, fileName);
     }
 
-    /**
-     * 获取当前jmx 涉及到的文件  执行时
-     *
-     * @param tree
-     */
-    public static void getExecuteFiles(HashTree tree, String reportId, List<BodyFile> files) {
-        if (fileMetadataService == null) {
-            fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
-        }
-        for (Object key : tree.keySet()) {
-            if (key == null) {
-                continue;
-            }
-            HashTree node = tree.get(key);
-            if (key instanceof HTTPSamplerProxy) {
-                dealWithHttp(key, reportId, files);
-            } else if (key instanceof CSVDataSet) {
-                dealWithCsv(key, reportId, files);
-            }
-            if (node != null) {
-                getExecuteFiles(node, reportId, files);
-            }
-        }
-    }
-
-    private static void dealWithCsv(Object key, String reportId, List<BodyFile> files) {
-        CSVDataSet source = (CSVDataSet) key;
-        if (StringUtils.isNotEmpty(source.getPropertyAsString(ElementConstants.FILENAME))) {
-            BodyFile file = new BodyFile();
-            file.setId(source.getPropertyAsString(ElementConstants.FILENAME));
-            file.setName(source.getPropertyAsString(ElementConstants.FILENAME));
-
-            if (source.getPropertyAsBoolean(ElementConstants.IS_REF)) {
-                FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(
-                        source.getPropertyAsString(ElementConstants.FILE_ID));
-                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
-                    file.setStorage(fileMetadata.getStorage());
-                    file.setFileId(source.getPropertyAsString(ElementConstants.FILE_ID));
-                    String fileName = StringUtils.join(reportId, File.separator, fileMetadata.getName());
-                    file.setName(fileName);
-                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
-                    ((CSVDataSet) key).setProperty(ElementConstants.FILENAME, path);
-                }
-            } else if (!new File(source.getPropertyAsString(ElementConstants.FILENAME)).exists()
-                    && StringUtils.isNotBlank(source.getPropertyAsString(ElementConstants.RESOURCE_ID))) {
-                // 从MinIO下载
-                downloadFile(source.getPropertyAsString(ElementConstants.RESOURCE_ID),
-                        source.getPropertyAsString(ElementConstants.FILENAME));
-            }
-            files.add(file);
-        }
-    }
-
-    private static void dealWithHttp(Object key, String reportId, List<BodyFile> files) {
-        HTTPSamplerProxy source = (HTTPSamplerProxy) key;
-        if (source == null || source.getHTTPFiles().length == 0) {
-            return;
-        }
-        for (HTTPFileArg httpFileArg : source.getHTTPFiles()) {
-            BodyFile file = new BodyFile();
-            file.setId(httpFileArg.getParamName());
-            file.setName(httpFileArg.getPath());
-
-            if (httpFileArg.getPropertyAsBoolean(ElementConstants.IS_REF)) {
-                FileMetadata fileMetadata = fileMetadataService.getFileMetadataById(
-                        httpFileArg.getPropertyAsString(ElementConstants.FILE_ID));
-
-                if (fileMetadata != null && !StringUtils.equals(fileMetadata.getStorage(), StorageConstants.LOCAL.name())) {
-                    file.setStorage(fileMetadata.getStorage());
-                    file.setFileId(httpFileArg.getPropertyAsString(ElementConstants.FILE_ID));
-                    file.setName(reportId + File.separator + fileMetadata.getName());
-                    String path = getFilePathInJxm(reportId, fileMetadata.getName());
-                    httpFileArg.setPath(path);
-                }
-            } else if (!new File(httpFileArg.getPath()).exists()
-                    && StringUtils.isNotBlank(httpFileArg.getPropertyAsString(ElementConstants.RESOURCE_ID))) {
-                // 从MinIO下载
-                downloadFile(httpFileArg.getPropertyAsString(ElementConstants.RESOURCE_ID), httpFileArg.getPath());
-            }
-            files.add(file);
-        }
-    }
 }

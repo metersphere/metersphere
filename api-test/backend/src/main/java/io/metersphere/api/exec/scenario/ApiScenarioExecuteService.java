@@ -22,6 +22,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -29,10 +30,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.vo.RunPlanScenarioVO;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
@@ -43,18 +41,19 @@ import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -437,8 +436,6 @@ public class ApiScenarioExecuteService {
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         this.testElement(request);
-        // 加载自定义JAR
-        List<String> projectIds = NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
@@ -453,8 +450,12 @@ public class ApiScenarioExecuteService {
             BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
             runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
         }
-        if (CollectionUtils.isNotEmpty(projectIds)) {
-            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_ID, JSON.toJSONString(projectIds));
+        // 加载自定义JAR
+        Map<String, List<ProjectJarConfig>> loadJar = NewDriverManager.loadJar(request, runRequest.getPool());
+        if (MapUtils.isNotEmpty(loadJar)) {
+            TestPlan test = (TestPlan) runRequest.getHashTree().getArray()[0];
+            test.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(loadJar.keySet().stream().toList()));
+            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_JAR_MAP, JSON.toJSONString(loadJar));
         }
         jMeterService.run(runRequest);
         return request.getId();

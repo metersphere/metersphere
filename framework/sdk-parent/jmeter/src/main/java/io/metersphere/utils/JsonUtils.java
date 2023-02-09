@@ -2,6 +2,7 @@ package io.metersphere.utils;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -32,7 +33,7 @@ public class JsonUtils {
     }
 
     public static Object parseObject(String content) {
-       return parseObject(content, Object.class);
+        return parseObject(content, Object.class);
     }
 
     public static <T> T parseObject(String content, Class<T> valueType) {
@@ -46,6 +47,14 @@ public class JsonUtils {
     public static <T> T parseObject(InputStream src, Class<T> valueType) {
         try {
             return objectMapper.readValue(src, valueType);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T parseObject(String content, TypeReference<T> valueType) {
+        try {
+            return objectMapper.readValue(content, valueType);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

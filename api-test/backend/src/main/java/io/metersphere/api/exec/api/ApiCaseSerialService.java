@@ -32,9 +32,10 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.service.ApiRetryOnFailureService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
@@ -42,7 +43,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -135,9 +135,9 @@ public class ApiCaseSerialService {
                 if (!runRequest.getPool().isPool()) {
                     // 获取自定义JAR
                     String projectId = caseWithBLOBs.getProjectId();
-                    testPlan.setJarPaths(NewDriverManager.getJars(new ArrayList<>() {{
+                    testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
                         this.add(projectId);
-                    }}));
+                    }}, runRequest.getPool()).keySet().stream().toList());
                 }
                 testPlan.setHashTree(new LinkedList<>());
                 MsThreadGroup group = new MsThreadGroup();

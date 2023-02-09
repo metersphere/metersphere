@@ -3,6 +3,7 @@ package io.metersphere.controller;
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.api.jmeter.utils.JmxFileUtil;
+import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.service.ApiJMeterFileService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,9 +40,9 @@ public class ApiJMeterFileController {
                 .body(bytes);
     }
 
-    @GetMapping("download/jar/{projectId}")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@PathVariable String projectId) {
-        byte[] bytes = apiJmeterFileService.downloadJmeterJar(projectId);
+    @PostMapping("download/jar")
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody Map<String, List<ProjectJarConfig>> jarConfigs) {
+        byte[] bytes = apiJmeterFileService.downloadJmeterJar(jarConfigs);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
