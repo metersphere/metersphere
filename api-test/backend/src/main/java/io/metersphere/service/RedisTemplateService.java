@@ -1,10 +1,10 @@
 package io.metersphere.service;
 
 import io.metersphere.commons.utils.LogUtil;
+import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,6 +29,15 @@ public class RedisTemplateService {
             LogUtil.error(e);
             return false;
         }
+    }
+
+    public Object get(String key) {
+        try {
+            return redisTemplate.opsForValue().get(key);
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
     }
 
     public boolean delete(String key) {
