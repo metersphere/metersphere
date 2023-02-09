@@ -248,7 +248,7 @@ public class ApiJMeterFileService {
             Map<String, byte[]> multipartFiles = this.getMultipartFiles(testId, hashTree);
             转为解析jmx中附件节点，赋予相关信息(例如文件关联类型、路径、更新时间等),并将文件信息存储在redis中，为了进行连接ms下载时的安全校验
          */
-        List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(hashTree, reportId);
+        List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(hashTree, reportId, false);
         if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
             redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(reportId), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
         }
