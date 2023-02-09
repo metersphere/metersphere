@@ -1,6 +1,7 @@
 package io.metersphere.job.sechedule;
 
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.quartz.*;
 import org.springframework.stereotype.Component;
@@ -83,7 +84,7 @@ public class ScheduleManager {
 
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            MSException.throwException("定时任务配置异常: " + e.getMessage());
         }
     }
 
@@ -127,7 +128,7 @@ public class ScheduleManager {
                 scheduler.rescheduleJob(triggerKey, trigger);// 修改一个任务的触发时间
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            MSException.throwException("定时任务配置异常: " + e.getMessage());
         }
     }
 
@@ -179,7 +180,7 @@ public class ScheduleManager {
 
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            throw new RuntimeException(e);
+            MSException.throwException("定时任务配置异常: " + e.getMessage());
         }
     }
 
