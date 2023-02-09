@@ -10,6 +10,7 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.StorageConstants;
+import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
@@ -27,7 +28,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author song.tianyang
@@ -238,36 +242,18 @@ public class HashTreeUtil {
         if (runRequest.getPool().isPool() || runRequest.getPool().isK8s()) {
             return;
         }
-        List<BodyFile> files = new LinkedList<>();
-        ApiFileUtil.getExecuteFiles(runRequest.getHashTree(), runRequest.getReportId(), files);
-        if (CollectionUtils.isNotEmpty(files)) {
-            Map<String, String> repositoryFileMap = new HashMap<>();
-            for (BodyFile bodyFile : files) {
-                if (!StringUtils.equals(bodyFile.getStorage(), StorageConstants.LOCAL.name())
-                        && StringUtils.isNotBlank(bodyFile.getFileId())) {
-                    repositoryFileMap.put(bodyFile.getFileId(), bodyFile.getName());
-                }
-            }
-            FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
-            if (fileMetadataService != null) {
-                Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
-                List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadApiExecuteFilesByIds(repositoryFileMap.keySet());
-                fileInfoDTOList.forEach(dto -> {
-                    if (ArrayUtils.isNotEmpty(dto.getFileByte())) {
-                        String key = StringUtils.join(
-                                FileUtils.BODY_FILE_DIR,
-                                File.separator,
-                                repositoryFileMap.get(dto.getId()));
-                        multipartFiles.put(key, dto.getFileByte());
-                    }
-                });
+        List<AttachmentBodyFile> downloadFileList = ApiFileUtil.getExecuteFile(runRequest.getHashTree(), runRequest.getReportId(), true);
 
-                for (Map.Entry<String, byte[]> fileEntry : multipartFiles.entrySet()) {
-                    String fileName = fileEntry.getKey();
-                    byte[] fileBytes = fileEntry.getValue();
-                    FileUtils.createFile(fileName, fileBytes);
-                }
+        Map<String, String> repositoryFileMap = new HashMap<>();
+        for (AttachmentBodyFile bodyFile : downloadFileList) {
+            if (!StringUtils.equals(bodyFile.getFileStorage(), StorageConstants.LOCAL.name())
+                    && StringUtils.isNotBlank(bodyFile.getFileMetadataId())) {
+                repositoryFileMap.put(bodyFile.getFileMetadataId(), bodyFile.getName());
             }
+        }
+        FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+        if (fileMetadataService != null) {
+            fileMetadataService.downloadApiExecuteFilesByIds(repositoryFileMap.keySet());
         }
     }
 
