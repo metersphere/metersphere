@@ -23,8 +23,8 @@ import java.util.List;
 public class MsTestPlan extends MsTestElement {
     private String type = ElementConstants.TEST_PLAN;
     private String clazzName = MsTestPlan.class.getCanonicalName();
-    // 自定义JAR
-    private List<String> jarPaths;
+    // 自定义JAR项目id
+    private List<String> projectJarIds;
 
     private boolean serializeThreadGroups = false;
 
@@ -47,8 +47,8 @@ public class MsTestPlan extends MsTestElement {
         testPlan.setFunctionalMode(false);
         testPlan.setSerialized(serializeThreadGroups);
         testPlan.setTearDownOnShutdown(true);
-        if (CollectionUtils.isNotEmpty(jarPaths)) {
-            testPlan.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(jarPaths));
+        if (CollectionUtils.isNotEmpty(projectJarIds)) {
+            testPlan.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(projectJarIds));
         }
         testPlan.setUserDefinedVariables(new Arguments());
         return testPlan;
