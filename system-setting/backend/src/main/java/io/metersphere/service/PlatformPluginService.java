@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import io.metersphere.base.domain.Plugin;
+import io.metersphere.base.domain.PluginExample;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.platform.api.Platform;
@@ -17,6 +19,7 @@ import io.metersphere.dto.PlatformProjectOptionRequest;
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.utils.PluginManagerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -73,9 +76,18 @@ public class PlatformPluginService {
     public PluginWithBLOBs addPlatformPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
 
-        PluginManagerUtil.uploadPlugin(id, file);
         PluginManagerUtil.loadPlugin(id, getPluginManager(), file);
         PluginMetaInfo pluginMetaInfo = getPluginManager().getImplInstance(id, PluginMetaInfo.class);
+
+        PluginExample example = new PluginExample();
+        example.createCriteria().andScriptIdEqualTo(pluginMetaInfo.getKey());
+        if (pluginMapper.countByExample(example) > 0) {
+            // 校验插件类型是否存在
+            unload(id);
+            MSException.throwException(pluginMetaInfo.getKey() + " plugin is already exist!");
+        }
+
+        PluginManagerUtil.uploadPlugin(id, file);
 
         Map map = JSON.parseMap(pluginMetaInfo.getFrontendMetaData());
         map.put("id", id);
