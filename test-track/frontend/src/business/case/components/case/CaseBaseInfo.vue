@@ -30,7 +30,7 @@
                   <ms-select-tree
                     :disabled="readOnly"
                     :data="treeNodes"
-                    :defaultKey="form.module"
+                    :defaultKey="defaultModuleKey"
                     :obj="moduleObj"
                     @getValue="(id, data) => setModule(id, data)"
                     clearable
@@ -460,18 +460,19 @@ export default {
     isCustomNum() {
       return useStore().currentProjectIsCustomNum;
     },
-    //   this.customFieldForm["用例等级"] = this.form.priority;
-    //   this.customFieldForm["责任人"] = this.form.maintainer;
-    //   this.customFieldForm["用例状态"] = this.form.status;
-    // priority() {
-    //   return this.customFieldForm["用例等级"] || this.form.priority;
-    // },
-    // maintainer() {
-    //   return this.customFieldForm["责任人"] || this.form.maintainer;
-    // },
-    // status() {
-    //   return this.customFieldForm["用例状态"] || this.form.status;
-    // },
+    defaultModuleKey() {
+      if (this.editable) {
+        let defaultNodeKey = '';
+        this.treeNodes.forEach(node => {
+          if (node.label === '未规划用例') {
+            defaultNodeKey = node.id;
+          }
+        })
+        return defaultNodeKey;
+      } else {
+        return this.form.module
+      }
+    }
   },
   mounted() {
     this.getDemandOptions();
