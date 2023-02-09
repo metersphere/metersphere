@@ -5,7 +5,18 @@
         <img :src="iconSrc" alt="" />
       </div>
       <div class="detail">
-        <div class="filename">{{ fileItem.name }}</div>
+        <div class="filename">
+          <div
+            :class="
+              fileItem.diffStatus == 2 ? ['content', 'line-through'] : 'content'
+            "
+          >
+            {{ fileItem.name }}
+          </div>
+          <case-diff-status
+            :diffStatus="fileItem.diffStatus"
+          ></case-diff-status>
+        </div>
         <div class="file-info-row" v-if="isSuccess">
           <div class="size">{{ fileItem.size }}</div>
           <div class="split">|</div>
@@ -80,8 +91,12 @@
 <script>
 import {byteToSize, sizeToByte} from "@/business/utils/sdk-utils";
 
+import CaseDiffStatus from "./diff/CaseDiffStatus";
 export default {
   name: "CaseAttachmentItem",
+  components: {
+    CaseDiffStatus,
+  },
   props: {
     fileItem: Object,
     index: Number,
@@ -340,12 +355,17 @@ export default {
       flex-direction: column;
       .filename {
         width: 100%;
-        color: #1f2329;
-        height: px2rem(22);
-        line-height: px2rem(22);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        display: flex;
+        align-items: center;
+        .content {
+          width: 100%;
+          color: #1f2329;
+          height: px2rem(22);
+          line-height: px2rem(22);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
       .wait-upload {
         height: px2rem(20);
