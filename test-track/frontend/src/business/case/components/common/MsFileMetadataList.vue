@@ -261,11 +261,6 @@
             {{ $t("case.empty_file") }}
           </div>
         </div>
-        <div class="upload-file" style="margin-top: 16px">
-          <el-button type="primary" size="small" icon="el-icon-upload2">{{
-            $t("case.upload_file")
-          }}</el-button>
-        </div>
       </div>
     </div>
   </el-drawer>

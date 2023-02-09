@@ -95,15 +95,6 @@
           prop="description"
         />
       </div>
-      <div class="remark-wrap">
-        <form-rich-text-item
-          v-if="!enableThirdPartTemplate"
-          :title="$t('commons.remark')"
-          :data="form"
-          :default-open="richTextDefaultOpen"
-          prop="remark"
-        />
-      </div>
       <el-form-item :label="$t('test_track.case.attachment')"></el-form-item>
     </el-form>
 
