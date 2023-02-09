@@ -26,7 +26,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -54,7 +53,7 @@ public class ApiJMeterFileService {
     @Resource
     private PluginMapper pluginMapper;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -249,10 +248,9 @@ public class ApiJMeterFileService {
             Map<String, byte[]> multipartFiles = this.getMultipartFiles(testId, hashTree);
             转为解析jmx中附件节点，赋予相关信息(例如文件关联类型、路径、更新时间等),并将文件信息存储在redis中，为了进行连接ms下载时的安全校验
          */
-        List<AttachmentBodyFile> attachmentBodyFileList = new ArrayList<>();
-        ApiFileUtil.formatFilePathForNode(hashTree, testId, attachmentBodyFileList);
+        List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(hashTree, reportId);
         if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
-            redisTemplate.opsForValue().set(JmxFileUtil.REDIS_JMX_FILE_PREFIX + reportId, JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
+            redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(reportId), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
         }
 
         String jmx = new MsTestPlan().getJmx(hashTree);
@@ -285,21 +283,21 @@ public class ApiJMeterFileService {
         }
     }
 
-    public byte[] zipFilesToByteArray(BodyFileRequest request) {
+    /**
+     * 打包ms本地文件
+     *
+     * @param request
+     * @return
+     */
+    public byte[] zipLocalFilesToByteArray(BodyFileRequest request) {
         Map<String, byte[]> files = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
+            //获取要下载的合法文件
             List<BodyFile> bodyFiles = this.getLegalFiles(request);
-            LoggerUtil.info("开始从三方仓库下载文件");
             HashTreeUtil.downFile(bodyFiles, files, fileMetadataService);
-            LoggerUtil.info("从三方仓库下载文件");
             for (BodyFile bodyFile : bodyFiles) {
                 File file = new File(bodyFile.getName());
-                if (!file.exists()) {
-                    // 从MinIO下载
-                    ApiFileUtil.downloadFile(bodyFile.getId(), bodyFile.getName());
-                    file = new File(bodyFile.getName());
-                }
-                if (file != null && file.exists() && StringUtils.startsWith(file.getPath(), FileUtils.ROOT_DIR)) {
+                if (file.exists() && StringUtils.startsWith(file.getPath(), FileUtils.ROOT_DIR)) {
                     byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
                         files.put(file.getAbsolutePath(), fileByte);
@@ -322,8 +320,10 @@ public class ApiJMeterFileService {
     private List<BodyFile> getLegalFiles(BodyFileRequest request) {
         List<BodyFile> returnList = new ArrayList<>();
 
-        Object jmxFileInfoObj = redisTemplate.opsForValue().get(JmxFileUtil.REDIS_JMX_FILE_PREFIX + request.getReportId());
+        Object jmxFileInfoObj = redisTemplateService.get(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
         List<AttachmentBodyFile> fileInJmx = JmxFileUtil.formatRedisJmxFileString(jmxFileInfoObj);
+        redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
+
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
             request.getBodyFiles().forEach(attachmentBodyFile -> {
                 for (AttachmentBodyFile jmxFile : fileInJmx) {
