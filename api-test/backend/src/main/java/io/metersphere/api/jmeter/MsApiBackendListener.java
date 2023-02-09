@@ -16,7 +16,6 @@ import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.RetryResultUtil;
-import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.services.FileServer;
@@ -37,7 +36,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
     // 当前场景报告/用例结果状态
     private ResultVO resultVO;
 
-    @Resource
     private RedisTemplateService redisTemplateService;
 
     /**
@@ -53,6 +51,9 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         }
         if (testResultService == null) {
             testResultService = CommonBeanFactory.getBean(TestResultService.class);
+        }
+        if (redisTemplateService == null) {
+            redisTemplateService = CommonBeanFactory.getBean(RedisTemplateService.class);
         }
         resultVO = new ResultVO();
         super.setupTest(context);

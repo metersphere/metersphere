@@ -162,7 +162,7 @@ public class JMeterService {
                 if (request.getHashTree() != null) {
                     ElementUtil.coverArguments(request.getHashTree());
                     //解析HashTree里的文件信息
-                    List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(request.getHashTree(), request.getReportId());
+                    List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(request.getHashTree(), request.getReportId(), false);
                     if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
                         redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
                     }
@@ -197,7 +197,7 @@ public class JMeterService {
 
 
                 //解析HashTree里的文件信息
-                List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(request.getHashTree(), request.getReportId());
+                List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(request.getHashTree(), request.getReportId(), false);
                 if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
                     redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
                 }

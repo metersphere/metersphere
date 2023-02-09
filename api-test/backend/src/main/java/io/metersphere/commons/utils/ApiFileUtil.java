@@ -12,6 +12,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.FileRequest;
 import io.metersphere.request.BodyFile;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.utils.TemporaryFileUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,7 @@ import java.util.List;
 public class ApiFileUtil extends FileUtils {
     private static FileManagerService fileManagerService;
     private static FileMetadataService fileMetadataService;
+    private static TemporaryFileUtil temporaryFileUtil;
 
     public static String getFilePath(BodyFile file) {
         String type = StringUtils.isNotEmpty(file.getFileType()) ? file.getFileType().toLowerCase() : null;
@@ -111,13 +113,16 @@ public class ApiFileUtil extends FileUtils {
         }
     }
 
-    public static List<AttachmentBodyFile> getExecuteFileForNode(HashTree tree, String reportId) {
+    public static List<AttachmentBodyFile> getExecuteFile(HashTree tree, String reportId, boolean isLocal) {
+        if (temporaryFileUtil == null) {
+            temporaryFileUtil = CommonBeanFactory.getBean(TemporaryFileUtil.class);
+        }
         List<AttachmentBodyFile> fileList = new ArrayList<>();
-        formatFilePathForNode(tree, reportId, fileList);
+        formatFilePathForNode(tree, reportId, isLocal, fileList);
         return fileList;
     }
 
-    private static void formatFilePathForNode(HashTree tree, String reportId, List<AttachmentBodyFile> fileList) {
+    private static void formatFilePathForNode(HashTree tree, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
         if (tree != null) {
             if (fileMetadataService == null) {
                 fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
@@ -129,35 +134,35 @@ public class ApiFileUtil extends FileUtils {
                 }
                 HashTree node = tree.get(key);
                 if (key instanceof HTTPSamplerProxy) {
-                    getAttachmentBodyFileByHttp(key, reportId, fileList);
+                    getAttachmentBodyFileByHttp(key, reportId, isLocal, fileList);
                 } else if (key instanceof CSVDataSet) {
-                    getAttachmentBodyFileByCsv(key, reportId, fileList);
+                    getAttachmentBodyFileByCsv(key, reportId, isLocal, fileList);
                 }
                 if (node != null) {
-                    formatFilePathForNode(node, reportId, fileList);
+                    formatFilePathForNode(node, reportId, isLocal, fileList);
                 }
             }
         }
     }
 
-    public static void getAttachmentBodyFileByCsv(Object tree, String reportId, List<AttachmentBodyFile> bodyFileList) {
+    public static void getAttachmentBodyFileByCsv(Object tree, String reportId, boolean isLocal, List<AttachmentBodyFile> bodyFileList) {
         CSVDataSet source = (CSVDataSet) tree;
         if (StringUtils.isNotEmpty(source.getPropertyAsString(ElementConstants.FILENAME))) {
-            getAttachmentFileByTestElement(source, reportId, bodyFileList);
+            getAttachmentFileByTestElement(source, reportId, isLocal, bodyFileList);
         }
     }
 
-    public static void getAttachmentBodyFileByHttp(Object testElement, String reportId, List<AttachmentBodyFile> fileList) {
+    public static void getAttachmentBodyFileByHttp(Object testElement, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
         if (testElement == null) {
             return;
         }
         HTTPSamplerProxy source = (HTTPSamplerProxy) testElement;
         for (HTTPFileArg httpFileArg : source.getHTTPFiles()) {
-            getAttachmentFileByTestElement(httpFileArg, reportId, fileList);
+            getAttachmentFileByTestElement(httpFileArg, reportId, isLocal, fileList);
         }
     }
 
-    private static void getAttachmentFileByTestElement(TestElement testElement, String reportId, List<AttachmentBodyFile> bodyFileList) {
+    private static void getAttachmentFileByTestElement(TestElement testElement, String reportId, boolean isLocal, List<AttachmentBodyFile> bodyFileList) {
         if (testElement == null) {
             return;
         }
@@ -186,15 +191,19 @@ public class ApiFileUtil extends FileUtils {
                 }
                 bodyFileList.add(attachmentBodyFile);
 
-                testElement.setProperty(ElementConstants.FILENAME, path);
-                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_STORAGE.name(), fileMetadata.getStorage());
-                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_NAME.name(), fileMetadata.getName());
-                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
-                testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
-                if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
-                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_ATTACH_INFO.name(), fileMetadata.getAttachInfo());
+                if (!isLocal) {
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_STORAGE.name(), fileMetadata.getStorage());
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_NAME.name(), fileMetadata.getName());
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
+                    if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
+                        testElement.setProperty(JmxFileMetadataColumns.REF_FILE_ATTACH_INFO.name(), fileMetadata.getAttachInfo());
+                    }
+                } else {
+                    path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName());
                 }
 
+                testElement.setProperty(ElementConstants.FILENAME, path);
                 if (testElement instanceof HTTPFileArg) {
                     ((HTTPFileArg) testElement).setPath(path);
                 }
