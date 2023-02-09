@@ -16,6 +16,7 @@ import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
@@ -152,22 +153,32 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    public byte[] downloadJmeterJar(String projectId) {
+    public byte[] downloadJmeterJar(Map<String, List<ProjectJarConfig>> map) {
         Map<String, byte[]> files = new HashMap<>();
-        // 获取JAR
-        Map<String, byte[]> jarFiles = this.getJar(projectId);
-        if (!MapUtils.isEmpty(jarFiles)) {
-            for (String k : jarFiles.keySet()) {
-                byte[] v = jarFiles.get(k);
-                files.put(k, v);
-            }
+        if (MapUtils.isNotEmpty(map)) {
+            //获取文件内容
+            FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+            map.forEach((key, value) -> {
+                //历史数据
+                value.forEach(s -> {
+                    //获取文件内容;
+                    // 兼容历史数据
+                    byte[] bytes = fileMetadataService.getContent(s.getId());
+                    files.put(StringUtils.join(
+                            key,
+                            File.separator,
+                            s.getId(),
+                            File.separator,
+                            String.valueOf(s.getUpdateTime()), ".jar"), bytes);
+                });
+            });
         }
         return listBytesToZip(files);
     }
 
     public byte[] downloadPluginJar(List<String> pluginIds) {
         Map<String, byte[]> files = new HashMap<>();
-        if (!CollectionUtils.isNotEmpty(pluginIds)) {
+        if (CollectionUtils.isNotEmpty(pluginIds)) {
             // 获取JAR
             Map<String, byte[]> jarFiles = this.getPlugJar(pluginIds);
             if (MapUtils.isNotEmpty(jarFiles)) {

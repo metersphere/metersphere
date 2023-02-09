@@ -20,25 +20,21 @@ import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.ElementConstants;
-import io.metersphere.commons.constants.ExtendedParameter;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.MsExecResponseDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.json.JSONObject;
@@ -46,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -85,7 +80,8 @@ public class ApiExecuteService {
         if (caseWithBLOBs == null) {
             return null;
         }
-        jMeterService.verifyPool(caseWithBLOBs.getProjectId(), new RunModeConfigDTO());
+        RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+        jMeterService.verifyPool(caseWithBLOBs.getProjectId(), runModeConfigDTO);
 
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
@@ -132,7 +128,7 @@ public class ApiExecuteService {
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
-                HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
+                HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs, runModeConfigDTO);
                 if (LoggerUtil.getLogger().isDebugEnabled()) {
                     LoggerUtil.debug("生成jmx文件：" + ElementUtil.hashTreeToString(jmeterHashTree));
                 }
@@ -192,9 +188,9 @@ public class ApiExecuteService {
         threadGroup.setName(MsThreadGroup.class.getCanonicalName());
         threadGroup.setHashTree(new LinkedList<>());
         testPlan.getHashTree().add(threadGroup);
-        testPlan.setJarPaths(NewDriverManager.getJars(new ArrayList<>() {{
+        testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
             this.add(request.getProjectId());
-        }}));
+        }}, new BooleanPool()).keySet().stream().toList());
         threadGroup.getHashTree().add(request);
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
@@ -244,8 +240,6 @@ public class ApiExecuteService {
             runMode = ApiRunMode.API_PLAN.name();
         }
 
-        // 加载自定义JAR
-        List<String> projectIds = NewDriverManager.loadJar(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String jmx = request.getTestElement().getJmx(hashTree);
         LoggerUtil.info("生成执行JMX内容【 " + jmx + " 】");
@@ -260,9 +254,6 @@ public class ApiExecuteService {
             this.put(CommonConstants.USER_ID, SessionUtils.getUser().getId());
             this.put("userName", SessionUtils.getUser().getName());
         }});
-        if (CollectionUtils.isNotEmpty(projectIds)) {
-            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_ID, JSON.toJSONString(projectIds));
-        }
         // 开始执行
         if (StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             runRequest.setPool(GenerateHashTreeUtil.isResourcePool(request.getConfig().getResourcePoolId()));
@@ -270,10 +261,17 @@ public class ApiExecuteService {
             BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
             runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
         }
+        // 加载自定义JAR
+        Map<String, List<ProjectJarConfig>> projectJarMap = NewDriverManager.loadJar(request, runRequest.getPool());
+        if (MapUtils.isNotEmpty(projectJarMap)) {
+            TestPlan test = (TestPlan) runRequest.getHashTree().getArray()[0];
+            test.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(projectJarMap.keySet().stream().toList()));
+            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_JAR_MAP, JSON.toJSONString(projectJarMap));
+        }
         return runRequest;
     }
 
-    public HashTree generateHashTree(RunCaseRequest request, ApiTestCaseWithBLOBs testCaseWithBLOBs) throws Exception {
+    public HashTree generateHashTree(RunCaseRequest request, ApiTestCaseWithBLOBs testCaseWithBLOBs, RunModeConfigDTO runModeConfigDTO) throws Exception {
         PerformInspectionUtil.countMatches(testCaseWithBLOBs.getRequest(), testCaseWithBLOBs.getId());
         JSONObject elementObj = JSONUtil.parseObject(testCaseWithBLOBs.getRequest());
         ElementUtil.dataFormatting(elementObj);
@@ -295,9 +293,10 @@ public class ApiExecuteService {
         MsTestPlan testPlan = new MsTestPlan();
         // 获取自定义JAR
         String projectId = testCaseWithBLOBs.getProjectId();
-        testPlan.setJarPaths(NewDriverManager.getJars(new ArrayList<>() {{
+        BooleanPool pool = GenerateHashTreeUtil.isResourcePool(runModeConfigDTO.getResourcePoolId());
+        testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
             this.add(projectId);
-        }}));
+        }}, pool).keySet().stream().toList());
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
 

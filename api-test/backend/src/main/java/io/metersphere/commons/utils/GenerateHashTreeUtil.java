@@ -20,10 +20,10 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
-import io.metersphere.service.ApiRetryOnFailureService;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -122,7 +122,7 @@ public class GenerateHashTreeUtil {
                     projectIds.add(k);
                 });
             }
-            testPlan.setJarPaths(NewDriverManager.getJars(projectIds));
+            testPlan.setProjectJarIds(NewDriverManager.getJars(projectIds, runRequest.getPool()).keySet().stream().toList());
         }
         testPlan.setHashTree(new LinkedList<>());
         try {

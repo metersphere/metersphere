@@ -33,6 +33,7 @@ public class FileUtils {
     public static final String UI_IMAGE_DIR = "/opt/metersphere/data/image/ui/screenshots";
     public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
     public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
+    public static final String LOCAL_JAR = "/opt/metersphere/data/local-jar/jar";
 
     public static void validateFileName(String fileName) {
         if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
