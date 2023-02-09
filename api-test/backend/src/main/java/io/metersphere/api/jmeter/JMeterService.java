@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.engine.EngineFactory;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
+import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.TestResource;
@@ -12,22 +13,17 @@ import io.metersphere.commons.config.KafkaConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FixedCapacityUtil;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
-import io.metersphere.commons.utils.HashTreeUtil;
-import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.NodeDTO;
-import io.metersphere.dto.PluginConfigDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.service.PluginService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.PostConstruct;
@@ -53,14 +49,14 @@ import java.util.List;
 @Service
 public class JMeterService {
     public static final String BASE_URL = "http://%s:%d";
-    public static final String POOL = "POOL";
-
     @Resource
     private JmeterProperties jmeterProperties;
     @Resource
     private RestTemplate restTemplate;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RedisTemplateService redisTemplateService;
     @Resource
     private RemakeReportService remakeReportService;
     @Resource
@@ -165,16 +161,21 @@ public class JMeterService {
                 // 缓存调试脚本
                 if (request.getHashTree() != null) {
                     ElementUtil.coverArguments(request.getHashTree());
-                    String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-                    redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+                    //解析HashTree里的文件信息
+                    List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(request.getHashTree(), request.getReportId());
+                    if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
+                        redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
+                    }
+
+                    redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()), new MsTestPlan().getJmx(request.getHashTree()));
                 }
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
                 engine.start();
             } catch (Exception e) {
                 remakeReportService.testEnded(request, e.getMessage());
-                String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-                redisTemplate.delete(key);
+                redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
+                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -193,16 +194,23 @@ public class JMeterService {
             if (request.getHashTree() != null) {
                 // 过程变量处理
                 ElementUtil.coverArguments(request.getHashTree());
-                String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-                redisTemplate.opsForValue().set(key, new MsTestPlan().getJmx(request.getHashTree()));
+
+
+                //解析HashTree里的文件信息
+                List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFileForNode(request.getHashTree(), request.getReportId());
+                if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
+                    redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
+                }
+
+                redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()), new MsTestPlan().getJmx(request.getHashTree()));
                 request.setHashTree(null);
             }
             apiPoolDebugService.run(request, resources);
         } catch (Exception e) {
             LoggerUtil.error(e);
             remakeReportService.remake(request);
-            String key = StringUtils.join(request.getReportId(), "-", request.getTestId());
-            redisTemplate.delete(key);
+            redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
+            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
             MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
         }

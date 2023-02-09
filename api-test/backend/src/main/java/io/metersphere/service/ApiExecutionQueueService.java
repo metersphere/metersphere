@@ -6,6 +6,7 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
+import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
@@ -23,6 +24,7 @@ import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -32,7 +34,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -377,6 +378,7 @@ public class ApiExecutionQueueService {
             dto.setQueueId(item.getQueueId());
             dto.setTestId(item.getTestId());
             if (StringUtils.equalsAnyIgnoreCase(queue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(item.getReportId()));
                 ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 // 报告已经被删除则队列也删除
                 if (report == null) {
@@ -386,7 +388,6 @@ public class ApiExecutionQueueService {
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name()) && report.getUpdateTime() < timeout) {
                     report.setStatus(ApiReportStatus.ERROR.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-
                     LoggerUtil.info("超时处理报告：" + report.getId());
                     if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
                         // 删除串行资源锁
@@ -405,6 +406,7 @@ public class ApiExecutionQueueService {
                     }
                 }
             } else {
+                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(item.getReportId()));
                 // 用例/接口超时结果处理
                 ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
                 if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
