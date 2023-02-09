@@ -290,6 +290,10 @@
             <artifactId>jorphan</artifactId>
             <version>${jmeter.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
 
     </dependencies>
 

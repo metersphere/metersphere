@@ -561,6 +561,25 @@ public class FileMetadataService {
         return fileInfoDTOList;
     }
 
+    public List<FileInfoDTO> downloadFileByIds(Collection<String> fileIdList) {
+        if (CollectionUtils.isEmpty(fileIdList)) {
+            return new ArrayList<>(0);
+        }
+        LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件开始");
+
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(new ArrayList<>(fileIdList));
+        List<FileMetadataWithBLOBs> fileMetadataWithBLOBs = fileMetadataMapper.selectByExampleWithBLOBs(example);
+
+        List<FileRequest> requestList = new ArrayList<>();
+        fileMetadataWithBLOBs.forEach(fileMetadata -> {
+            requestList.add(this.genFileRequest(fileMetadata));
+        });
+        List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(requestList);
+        LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件结束。");
+        return repositoryFileDTOList;
+    }
+
     private FileRequest genFileRequest(FileMetadataWithBLOBs fileMetadata) {
         if (fileMetadata != null) {
             FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
@@ -582,26 +601,7 @@ public class FileMetadataService {
             return new FileRequest();
         }
     }
-
-    public List<FileInfoDTO> downloadFileByIds(Collection<String> fileIdList) {
-        if (CollectionUtils.isEmpty(fileIdList)) {
-            return new ArrayList<>(0);
-        }
-        LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件开始");
-
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andIdIn(new ArrayList<>(fileIdList));
-        List<FileMetadataWithBLOBs> fileMetadataWithBLOBs = fileMetadataMapper.selectByExampleWithBLOBs(example);
-
-        List<FileRequest> requestList = new ArrayList<>();
-        fileMetadataWithBLOBs.forEach(fileMetadata -> {
-            requestList.add(this.genFileRequest(fileMetadata));
-        });
-        List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(requestList);
-        LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件结束。");
-        return repositoryFileDTOList;
-    }
-
+    
     public FileMetadata pullFromRepository(FileMetadata request) {
         FileMetadata returnModel = null;
         FileMetadataWithBLOBs baseMetadata = fileMetadataMapper.selectByPrimaryKey(request.getId());
