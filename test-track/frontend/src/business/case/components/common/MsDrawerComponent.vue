@@ -126,7 +126,7 @@ export default {
         return {
           isEmpty: false,
           imgUrl: "/assets/module/figma/icon_none.svg",
-          label: "暂无数据",
+          label: this.$t("case.no_data"),
         };
       },
     },
