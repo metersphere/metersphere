@@ -30,10 +30,11 @@ import io.metersphere.utils.ListUtil;
 import io.metersphere.xpack.version.service.ProjectVersionService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -54,6 +55,7 @@ public class TestReviewTestCaseService {
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
     @Resource
+    @Lazy
     TestCaseReviewService testCaseReviewService;
     @Resource
     TestCaseMapper testCaseMapper;
