@@ -2,10 +2,10 @@ package io.metersphere.controller;
 
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
+import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.service.ApiJMeterFileService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -68,8 +68,8 @@ public class ApiJMeterFileController {
 
 
     @PostMapping("download/files")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody BodyFileRequest request) {
-        byte[] bytes = apiJmeterFileService.zipFilesToByteArray(request);
+    public ResponseEntity<byte[]> downloadJmeterLocalFiles(@RequestBody BodyFileRequest request) {
+        byte[] bytes = apiJmeterFileService.zipLocalFilesToByteArray(request);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getReportId() + ".zip\"")
@@ -78,7 +78,7 @@ public class ApiJMeterFileController {
 
     @GetMapping("get-script")
     public String getScript(@RequestParam("reportId") String reportId, @RequestParam("testId") String testId) {
-        String key = StringUtils.join(reportId, "-", testId);
+        String key = JmxFileUtil.getExecuteScriptKey(reportId, testId);
         LoggerUtil.info("获取执行脚本", key);
         Object script = redisTemplate.opsForValue().get(key);
         redisTemplate.delete(key);

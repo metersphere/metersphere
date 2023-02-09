@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
@@ -15,7 +16,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.*;
 
@@ -25,7 +25,7 @@ public class KafkaListenerTask implements Runnable {
     private ApiExecutionQueueService apiExecutionQueueService;
     private TestResultService testResultService;
 
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
 
     private static final Map<String, String> RUN_MODE_MAP = new HashMap<String, String>() {{
         this.put(ApiRunMode.SCHEDULE_API_PLAN.name(), "schedule-task");
@@ -58,9 +58,7 @@ public class KafkaListenerTask implements Runnable {
             if (dto == null) {
                 return;
             }
-            if (redisTemplate != null) {
-                redisTemplate.delete(JmxFileUtil.REDIS_JMX_FILE_PREFIX + dto.getReportId());
-            }
+            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
 
             if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey(ExtendedParameter.TEST_END)
                     && (Boolean) dto.getArbitraryData().get(ExtendedParameter.TEST_END)) {

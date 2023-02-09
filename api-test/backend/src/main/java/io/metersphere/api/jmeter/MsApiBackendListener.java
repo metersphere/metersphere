@@ -12,6 +12,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.TestResultService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.RetryResultUtil;
@@ -21,7 +22,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -38,7 +38,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
     private ResultVO resultVO;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplateService redisTemplateService;
 
     /**
      * 参数初始化方法
@@ -64,9 +64,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         if (dto.isRetryEnable()) {
             queues.addAll(sampleResults);
         } else {
-            if (redisTemplate != null) {
-                redisTemplate.delete(JmxFileUtil.REDIS_JMX_FILE_PREFIX + dto.getReportId());
-            }
+            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
 
             if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 dto.setConsole(FixedCapacityUtil.getJmeterLogger(getReportId(), false));
@@ -85,10 +83,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         try {
             LoggerUtil.info("进入TEST-END处理报告" + dto.getRunMode(), dto.getReportId());
 
-            if (redisTemplate != null) {
-                redisTemplate.delete(JmxFileUtil.REDIS_JMX_FILE_PREFIX + dto.getReportId());
-            }
-            
+            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
+
             super.teardownTest(context);
             // 获取执行日志
             if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JmxFileUtil {
-    public static final String REDIS_JMX_FILE_PREFIX = "JMX.FILE.";
+    public static final String REDIS_JMX_EXECUTE_FILE_PREFIX = "JMX.FILE.";
 
     private static final String JMX_INFO_KEY_ID = "id";
     private static final String JMX_INFO_KEY_FILE_PATH = "filePath";
@@ -20,6 +20,14 @@ public class JmxFileUtil {
     private static final String JMX_INFO_KEY_FILE_NAME = "fileName";
 
     private static final String JMX_INFO_KEY_FILE_STORAGE = "storage";
+
+    public static String getExecuteFileKeyInRedis(String reportId) {
+        return StringUtils.join(REDIS_JMX_EXECUTE_FILE_PREFIX, reportId);
+    }
+
+    public static String getExecuteScriptKey(String reportId, String testId) {
+        return StringUtils.join(reportId, "-", testId);
+    }
 
     public static String getRedisJmxFileString(List<AttachmentBodyFile> listFile) {
         List<Map<String, String>> jmxFileList = new ArrayList<>();
