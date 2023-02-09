@@ -4,7 +4,7 @@
       <div class="header-img-row">{{ getShortName(comment.authorName) }}</div>
       <div class="info">
         <div class="username">{{ comment.authorName }}</div>
-        <div class="fiexed">{{$t('case.commented')}}</div>
+        <div class="fiexed">{{ $t("case.commented") }}</div>
         <div class="time">{{ comment.createTime | datetimeFormat }}</div>
 
         <template v-if="!readOnly">
@@ -13,15 +13,22 @@
             <div class="icon">
               <i class="el-icon-edit"></i>
             </div>
-            <div class="label">{{$t('commons.edit')}}</div>
+            <div class="label">{{ $t("commons.edit") }}</div>
           </div>
           <div class="remove opt-row" @click="deleteComment">
             <div class="icon">
               <i class="el-icon-delete"></i>
             </div>
-            <div class="label">{{$t('commons.delete')}}</div>
+            <div class="label">{{ $t("commons.delete") }}</div>
           </div>
         </template>
+        <div
+          class="status"
+          v-if="comment.diffStatus > 0"
+          style="margin-left: 5px"
+        >
+          <case-diff-status :diffStatus="comment.diffStatus"></case-diff-status>
+        </div>
       </div>
     </div>
     <div class="viewer">
@@ -38,10 +45,12 @@
 import CaseCommentEdit from "./CaseCommentEdit";
 import { getCurrentUser } from "metersphere-frontend/src/utils/token";
 import { deleteMarkDownImgByName } from "@/business/utils/sdk-utils";
+import CaseDiffStatus from "./diff/CaseDiffStatus";
 export default {
   name: "CaseCommentViewItem",
   components: {
     CaseCommentEdit,
+    CaseDiffStatus,
   },
   props: {
     comment: Object,
