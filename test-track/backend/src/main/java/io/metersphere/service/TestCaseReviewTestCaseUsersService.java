@@ -4,10 +4,10 @@ package io.metersphere.service;
 import io.metersphere.base.domain.TestCaseReviewTestCaseUsers;
 import io.metersphere.base.domain.TestCaseReviewTestCaseUsersExample;
 import io.metersphere.base.mapper.TestCaseReviewTestCaseUsersMapper;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
