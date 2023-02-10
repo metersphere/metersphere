@@ -98,6 +98,10 @@
                  {{ scope.row.createTime | datetimeFormat }}
               </span>
 
+              <span v-else-if="item.id === 'updateTime'">
+                 {{ scope.row.updateTime | datetimeFormat }}
+              </span>
+
               <span v-else-if="item.id === 'caseCount'">
                  <router-link
                    :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
@@ -265,6 +269,10 @@ export default {
         },
         resourceName: {},
         createTime: {
+          sortable: true,
+          minWidth: 180
+        },
+        updateTime: {
           sortable: true,
           minWidth: 180
         },

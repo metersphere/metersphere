@@ -137,6 +137,7 @@ const TRACK_HEADER = {
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
+    {id: 'updateTime', key: 'a', label: 'commons.update_time'}
   ],
   //用例评审
   TEST_CASE_REVIEW: [
