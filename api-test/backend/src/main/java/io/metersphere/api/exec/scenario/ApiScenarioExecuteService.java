@@ -23,7 +23,6 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ApiTestConstants;
-import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
@@ -455,7 +454,7 @@ public class ApiScenarioExecuteService {
         if (MapUtils.isNotEmpty(loadJar)) {
             TestPlan test = (TestPlan) runRequest.getHashTree().getArray()[0];
             test.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(loadJar.keySet().stream().toList()));
-            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_JAR_MAP, JSON.toJSONString(loadJar));
+            runRequest.setCustomJarInfo(loadJar);
         }
         jMeterService.run(runRequest);
         return request.getId();
