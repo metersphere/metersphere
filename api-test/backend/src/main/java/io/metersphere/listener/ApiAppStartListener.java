@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.service.*;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
@@ -95,6 +96,8 @@ public class ApiAppStartListener implements ApplicationRunner {
         scheduleService.startEnableSchedules(ScheduleGroup.API_SCENARIO_TEST);
         scheduleService.startEnableSchedules(ScheduleGroup.SWAGGER_IMPORT);
         LogUtil.info("Startup complete");
+
+        ProjectClassLoader.initClassLoader();
     }
 
 
