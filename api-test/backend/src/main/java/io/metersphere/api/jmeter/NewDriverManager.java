@@ -59,24 +59,26 @@ public class NewDriverManager {
                 //获取文件内容
                 FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 map.forEach((key, value) -> {
-                    //历史数据
-                    value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
-                        //获取文件内容
-                        byte[] bytes = new byte[0];
-                        // 兼容历史数据
-                        bytes = fileMetadataService.getContent(s.getId());
-                        ApiFileUtil.createFile(StringUtils.join(ApiFileUtil.LOCAL_JAR,
-                                File.separator,
-                                key,
-                                File.separator,
-                                s.getId(),
-                                File.separator,
-                                String.valueOf(s.getUpdateTime()), ".jar"), bytes);
-                    });
-                    List<String> jarIds = value.stream().distinct().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
-                    if (CollectionUtils.isNotEmpty(jarIds)) {
-                        List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
-                        ApiFileUtil.createFiles(fileInfoDTOS, key, value);
+                    if (CollectionUtils.isNotEmpty(value)) {
+                        //历史数据
+                        value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
+                            //获取文件内容
+                            byte[] bytes = new byte[0];
+                            // 兼容历史数据
+                            bytes = fileMetadataService.getContent(s.getId());
+                            ApiFileUtil.createFile(StringUtils.join(ApiFileUtil.LOCAL_JAR,
+                                    File.separator,
+                                    key,
+                                    File.separator,
+                                    s.getId(),
+                                    File.separator,
+                                    String.valueOf(s.getUpdateTime()), ".jar"), bytes);
+                        });
+                        List<String> jarIds = value.stream().distinct().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
+                        if (CollectionUtils.isNotEmpty(jarIds)) {
+                            List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
+                            ApiFileUtil.createFiles(fileInfoDTOS, key, value);
+                        }
                     }
                 });
             }

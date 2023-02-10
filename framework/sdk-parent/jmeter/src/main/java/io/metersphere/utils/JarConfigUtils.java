@@ -62,9 +62,7 @@ public class JarConfigUtils {
                         //本地没有文件，需要从服务器下载
                         jarConfigs.add(projectJarConfig);
                     }
-                    if (CollectionUtils.isNotEmpty(jarConfigs)) {
-                        jarConfigsMap.put(item, jarConfigs);
-                    }
+                    jarConfigsMap.put(item, jarConfigs);
                 });
             }
         });

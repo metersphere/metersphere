@@ -266,7 +266,7 @@ public class ApiExecuteService {
         if (MapUtils.isNotEmpty(projectJarMap)) {
             TestPlan test = (TestPlan) runRequest.getHashTree().getArray()[0];
             test.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(projectJarMap.keySet().stream().toList()));
-            runRequest.getExtendedParameters().put(ExtendedParameter.PROJECT_JAR_MAP, JSON.toJSONString(projectJarMap));
+            runRequest.setCustomJarInfo(projectJarMap);
         }
         return runRequest;
     }
