@@ -499,6 +499,24 @@ public class FileUtils {
         return file.isDirectory();
     }
 
+    public static void deleteBodyTmpFiles(String reportId) {
+        if (StringUtils.isNotEmpty(reportId)) {
+            String executeTmpFolder = StringUtils.join(
+                    BODY_FILE_DIR,
+                    File.separator,
+                    "tmp",
+                    File.separator,
+                    reportId
+            );
+            try {
+                FileUtils.deleteDir(executeTmpFolder);
+            } catch (Exception e) {
+                LoggerUtil.error("删除[" + reportId + "]执行中产生的临时文件失败!", e);
+            }
+
+        }
+    }
+
     public List<Object> getZipJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包

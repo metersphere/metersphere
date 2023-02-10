@@ -494,8 +494,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     keystoreConfig.setProperty("endIndex", -1);
                     keystoreConfig.setProperty("preload", true);
                     keystoreConfig.setProperty("startIndex", 0);
-                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PATH", msKeyStore.getPath());
-                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PASSWORD", msKeyStore.getPassword());
+                    keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PATH, msKeyStore.getPath());
+                    keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PASSWORD, msKeyStore.getPassword());
                     httpSamplerTree.add(keystoreConfig);
                     config.getKeyStoreMap().put(this.getProjectId(), new MsKeyStore(msKeyStore.getPath(), msKeyStore.getPassword()));
                 }
