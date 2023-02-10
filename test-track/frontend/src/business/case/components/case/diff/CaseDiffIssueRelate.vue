@@ -85,11 +85,7 @@
                 trigger="click"
               >
                 <span class="el-dropdown-link">
-                  {{
-                    getCustomFieldValue(scope.row, field)
-                      ? getCustomFieldValue(scope.row, field)
-                      : issueStatusMap[scope.row.status]
-                  }}
+                  {{ getStatus(scope.row, field) }}
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
                   <span v-for="(item, index) in status" :key="index">
@@ -132,6 +128,9 @@ import {
 } from "metersphere-frontend/src/utils/tableUtils";
 import { LOCAL } from "metersphere-frontend/src/utils/constants";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
+import { ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
+import { issueStatusChange } from "@/api/issue";
+
 export default {
   name: "CaseDiffIssueRelate",
   components: {
@@ -151,6 +150,11 @@ export default {
       issueRelateVisible: false,
       fields: [],
     };
+  },
+  computed: {
+    issueStatusMap() {
+      return ISSUE_STATUS_MAP;
+    },
   },
   created() {
     getIssuePartTemplateWithProject((template, project) => {
@@ -187,11 +191,24 @@ export default {
       }
     });
   },
-  methods: {},
+  methods: {
+    getStatus(row, field) {
+      return getCustomFieldValue(row, field)
+        ? getCustomFieldValue(row, field)
+        : this.issueStatusMap[row.status];
+    },
+    statusChange(param) {
+      issueStatusChange(param).then(() => {
+        this.getIssues();
+        this.$success(this.$t("commons.modify_success"), false);
+      });
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>
 .issue-wrap {
   margin-top: 22px;
+  min-height: 300px;
 }
 </style>
