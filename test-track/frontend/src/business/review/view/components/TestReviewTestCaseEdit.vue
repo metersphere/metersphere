@@ -172,7 +172,6 @@ export default {
       testCaseTemplate: {},
       formLabelWidth: "100px",
       isCustomFiledActive: false,
-      oldReviewStatus: "",
       titleWith: 0,
       relationGraphOpen: false,
       isCommentEmpty: true
@@ -341,7 +340,6 @@ export default {
         );
         this.isCustomFiledActive = true;
         this.testCase = item;
-        this.oldReviewStatus = this.testCase.reviewStatus;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
@@ -364,8 +362,6 @@ export default {
       this.loading = true;
 
       this.showDialog = true;
-      // 一开始加载时候需要保存用例评审旧的状态
-      this.oldReviewStatus = testCase.reviewStatus;
       this.activeTab = "detail";
       listenGoBack(this.handleClose);
       let initFuc = this.getTestCase;
