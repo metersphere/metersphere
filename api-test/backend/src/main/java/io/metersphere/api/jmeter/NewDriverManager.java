@@ -14,6 +14,7 @@ import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.utils.JarConfigUtils;
 import io.metersphere.vo.BooleanPool;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -59,7 +60,7 @@ public class NewDriverManager {
                 FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 map.forEach((key, value) -> {
                     //历史数据
-                    value.stream().filter(s -> s.isHasFile()).forEach(s -> {
+                    value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
                         //获取文件内容
                         byte[] bytes = new byte[0];
                         // 兼容历史数据
@@ -72,9 +73,11 @@ public class NewDriverManager {
                                 File.separator,
                                 String.valueOf(s.getUpdateTime()), ".jar"), bytes);
                     });
-                    List<String> jarIds = value.stream().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
-                    List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
-                    ApiFileUtil.createFiles(fileInfoDTOS, key, value);
+                    List<String> jarIds = value.stream().distinct().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(jarIds)) {
+                        List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
+                        ApiFileUtil.createFiles(fileInfoDTOS, key, value);
+                    }
                 });
             }
         }
