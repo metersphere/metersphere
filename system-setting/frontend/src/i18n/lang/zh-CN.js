@@ -4,7 +4,8 @@ import mf from "metersphere-frontend/src/i18n/lang/zh-CN"
 
 const message = {
   system_user: {
-    search_get_more_tip: '搜索获取其他选项'
+    search_get_more_tip: '搜索获取其他选项',
+    remove_group_tip: '至少拥有一个用户组权限'
   },
   system: {
     environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",

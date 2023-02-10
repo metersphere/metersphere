@@ -4,7 +4,8 @@ import mf from "metersphere-frontend/src/i18n/lang/en-US"
 
 const message = {
   user: {
-    search_get_more_tip: 'Search for other options'
+    search_get_more_tip: 'Search for other options',
+    remove_group_tip: 'Have at least one user group permission'
   },
   system: {
     environment_import_repeat_tip: "(Environment configuration with the same name filtered {0})",
