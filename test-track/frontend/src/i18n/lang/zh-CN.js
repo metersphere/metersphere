@@ -141,6 +141,9 @@ const message = {
     project: "项目",
     create_version: "新建版本",
     choose_copy_info: "选择复制信息",
+    current_display_history_version: "当前展示历史版本",
+    compare_with_the_latest_version: "与最新版本比较",
+    view_the_latest_version: "查看最新版本",
 
   },
 };
