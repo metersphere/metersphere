@@ -17,7 +17,7 @@
 
     <el-container>
       <el-aside
-        :class="isCollapse ? 'ms-aside': 'ms-aside-collapse-open'"
+        :class="[isCollapse ? 'ms-aside': 'ms-aside-collapse-open', isFullScreen ? 'is-fullscreen' : '']"
         class="ms-left-aside"
         :style="isFixed ? 'opacity:100%; position: relative;z-index: 666;': 'opacity: 95%;position: fixed'"
         @mouseenter.native="collapseOpen"
@@ -72,7 +72,8 @@ export default {
       headerHeight: "0px",
       isFixed: false,
       sideTheme: "",
-      sysTitle: undefined
+      sysTitle: undefined,
+      isFullScreen: false,
     };
   },
   computed: {
@@ -109,6 +110,13 @@ export default {
 
     this.isFixed = localStorage.getItem('app-fixed') === 'true' || false;
     this.isCollapse = this.isFixed === true ? false : true;
+
+    this.$EventBus.$on("toggleFullScreen", (param) => {
+      this.isFullScreen = param
+    });
+  },
+  destroyed() {
+    this.$EventBus.$off("toggleFullScreen");
   },
   // 提供可注入子组件属性
   provide() {
@@ -327,5 +335,9 @@ export default {
 
 .ms-menu-pin:hover {
   cursor: pointer;
+}
+
+.is-fullscreen {
+  display: none;
 }
 </style>

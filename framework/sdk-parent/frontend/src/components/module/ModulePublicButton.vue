@@ -4,7 +4,6 @@
       <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 4px;left: 1px;margin-right: 9px;"/>
       <span style="margin-right: 12px;">{{ $t('project.case_public') }}</span>
       <span style="color: #8F959E">{{ '(' + publicTotal + ')' }}</span>
-      <svg-icon icon-class="icon_arrow-right_outlined_1" style="float: right;position: relative;top: 5px;width: 1.3em;height: 1.3em;"/>
     </div>
   </div>
 </template>
@@ -73,6 +72,7 @@ export default {
 .to-public {
   width: auto;
   border-radius: 4px;
+  display: flex;
 }
 
 .to-public:hover {

@@ -2,11 +2,13 @@
   <ms-container v-if="renderComponent" v-loading="loading">
     <!-- operate-button  -->
     <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode && !editable" style="margin-bottom: 16px">
-      <el-button size="small" icon="el-icon-plus" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" class="iconBtn" type="primary">
+      <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" type="primary">
+        <svg-icon icon-class="icon_add_outlined_white"/>
         {{$t('test_track.case.create_case')}}
       </el-button>
-      <el-dropdown @command="handleImportCommand" placement="bottom-start" style="margin-left: 12px">
-        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']" class="btn-dropdown">
+      <el-dropdown @command="handleImportCommand" placement="bottom-start" style="margin-left: 12px" class="btn-dropdown">
+        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+IMPORT']">
+          <svg-icon icon-class="icon_upload_outlined"/>
           {{$t('commons.import')}}
         </el-button>
         <el-dropdown-menu slot="dropdown">
@@ -22,6 +24,7 @@
       </el-dropdown>
       <el-dropdown @command="handleExportCommand" placement="bottom-start" style="margin-left: 12px" class="btn-dropdown">
         <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+EXPORT']">
+          <svg-icon icon-class="icon_download_outlined"/>
           {{$t('commons.export')}}
         </el-button>
         <el-dropdown-menu slot="dropdown">
@@ -708,6 +711,7 @@ export default {
     },
     toggleMinderFullScreen(isFullScreen) {
       this.enableAsideHidden = isFullScreen;
+
     },
     refreshPublic() {
       if (this.$refs.testCasePublicList) {
@@ -833,20 +837,9 @@ export default {
   -webkit-filter: drop-shadow(0px 0px 0px #783887);
 }
 
-.iconBtn {
-  width: 98px;
-}
-
-:deep(.iconBtn i){
+:deep(.svg-icon) {
   position: relative;
-  top: -5px;
-  width: 12px;
-  height: 12px;
-}
-
-:deep(.iconBtn span) {
-  position: relative;
-  left: -7px;
+  top: 2px;
 }
 
 .export-model {

@@ -26,7 +26,7 @@
       <template v-slot:footer>
         <div class="dialog-footer" style="margin-top: 30px">
           <el-button size="small" @click="reset">{{ $t('commons.adv_search.reset') }}</el-button>
-          <el-button size="small" type="primary" @click="search">{{ $t('commons.adv_search.search') }}</el-button>
+          <el-button size="small" type="primary" @click="search" class="custom-btn">{{ $t('commons.adv_search.search') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -314,6 +314,19 @@ export default {
 }
 </style>
 
+<style lang="scss">
+.adv-dialog {
+  .el-dialog__header{
+    text-align: left!important;
+  }
+  .el-dialog__body {
+    text-align: left!important;
+  }
+  button.el-button.custom-btn.el-button--primary.el-button--small {
+    color: #FFFFFF!important;
+  }
+}
+</style>
 <style scoped>
 
 .dialog-footer {
@@ -478,7 +491,6 @@ span.condition-num {
   font-size: 14px;
   line-height: 22px;
   text-align: center;
-  color: #1F2329;
 }
 
 :deep(.el-button--small span) {
