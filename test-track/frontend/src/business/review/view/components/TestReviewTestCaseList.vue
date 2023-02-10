@@ -17,7 +17,7 @@
     <status-edit ref="statusEdit" :plan-id="reviewId"
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
     <ms-table
-      v-loading="result.loading"
+      v-loading="loading"
       :field-key="tableHeaderKey"
       :data="tableData"
       :condition="condition"
@@ -208,6 +208,7 @@ import {useStore} from "@/store";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
+import {getProjectApplicationConfig} from "@/api/project-application";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -230,7 +231,7 @@ export default {
       headerItems: Test_Case_Review_Case_List,
       screenHeight: 'calc(100vh - 240px)',
       tableLabel: [],
-      result: {},
+      loading: false,
       condition: {
         components: TEST_REVIEW_CASE
       },
@@ -412,6 +413,7 @@ export default {
 
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
+        this.loading = true;
         getTestReviewTestCase(this.currentPage, this.pageSize, this.condition)
           .then((response) => {
             this.total = response.data.itemCount;
@@ -421,6 +423,7 @@ export default {
             if (callback && callback instanceof Function) {
               callback();
             }
+            this.loading = false;
           });
         this.getNexPageData();
       }
