@@ -1,223 +1,5 @@
 <template>
   <div class="case-edit-wrap">
-    <el-card :bodyStyle="{ padding: '0px' }" v-if="false">
-      <div class="card-content">
-        <div class="ms-main-div" @click="showAll">
-          <ms-container v-loading="loading" style="overflow: auto">
-            <ms-aside-container :height="pageHeight">
-              <test-case-base-info
-                :form="form"
-                :is-form-alive="isFormAlive"
-                :isloading="loading"
-                :read-only="readOnly"
-                :public-enable="publicEnable"
-                :show-input-tag="showInputTag"
-                :tree-nodes="treeNodes"
-                :project-list="projectList"
-                :custom-field-form="customFieldForm"
-                :custom-field-rules="customFieldRules"
-                :test-case-template="testCaseTemplate"
-                :default-open="richTextDefaultOpen"
-                ref="testCaseBaseInfo"
-              />
-            </ms-aside-container>
-            <ms-main-container :style="{ height: pageHeight + 'px' }">
-              <el-form
-                :model="form"
-                :rules="rules"
-                ref="caseFrom"
-                class="case-form"
-              >
-                <!--操作按钮-->
-                <div class="ms-opt-btn">
-                  <el-tooltip
-                    :content="$t('commons.follow')"
-                    placement="bottom"
-                    effect="dark"
-                    v-if="!showFollow"
-                  >
-                    <i
-                      class="el-icon-star-off"
-                      style="
-                        color: var(--primary_color);
-                        font-size: 25px;
-                        margin-right: 15px;
-                        cursor: pointer;
-                        position: relative;
-                        top: 5px;
-                      "
-                      @click="saveFollow"
-                    />
-                  </el-tooltip>
-                  <el-tooltip
-                    :content="$t('commons.cancel')"
-                    placement="bottom"
-                    effect="dark"
-                    v-if="showFollow"
-                  >
-                    <i
-                      class="el-icon-star-on"
-                      style="
-                        color: var(--primary_color);
-                        font-size: 28px;
-                        margin-right: 15px;
-                        cursor: pointer;
-                        position: relative;
-                        top: 5px;
-                      "
-                      @click="saveFollow"
-                    />
-                  </el-tooltip>
-                  <el-link
-                    type="primary"
-                    style="margin-right: 20px"
-                    @click="openHis"
-                    v-if="form.id"
-                  >
-                    {{ $t("operating_log.change_history") }}
-                  </el-link>
-                  <!--  版本历史 -->
-                  <mx-version-history
-                    v-show="isXpack"
-                    ref="versionHistory"
-                    :version-data="versionData"
-                    :current-id="currentTestCaseInfo.id"
-                    :is-read="readOnly"
-                    @confirmOtherInfo="confirmOtherInfo"
-                    :current-project-id="currentProjectId"
-                    :has-latest="hasLatest"
-                    @setLatest="setLatest"
-                    @compare="compare"
-                    @checkout="checkout"
-                    @create="create"
-                    @del="del"
-                  />
-                  <el-dropdown
-                    split-button
-                    type="primary"
-                    class="ms-api-buttion"
-                    @click="handleCommand"
-                    @command="handleCommand"
-                    size="small"
-                    style="float: right; margin-right: 20px"
-                    v-if="isAdd || showPublic"
-                    :disabled="readOnly"
-                  >
-                    {{ $t("commons.save") }}
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item
-                        command="ADD_AND_CREATE"
-                        v-if="isAdd"
-                      >{{ $t("test_track.case.save_create_continue") }}
-                      </el-dropdown-item>
-                      <el-dropdown-item
-                        command="ADD_AND_PUBLIC"
-                        v-if="showPublic"
-                      >{{ $t("test_track.case.save_add_public") }}
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                  <el-button
-                    v-else
-                    type="primary"
-                    class="ms-api-buttion"
-                    @click="handleCommand"
-                    :disabled="readOnly"
-                    @command="handleCommand"
-                    size="small"
-                    style="float: right; margin-right: 20px"
-                  >
-                    {{ $t("commons.save") }}
-                  </el-button>
-                </div>
-                <ms-form-divider :title="$t('test_track.case.step_info')" />
-
-                <form-rich-text-item
-                  :disabled="readOnly"
-                  :label-width="formLabelWidth"
-                  :title="$t('test_track.case.prerequisite')"
-                  :data="form"
-                  :default-open="richTextDefaultOpen"
-                  prop="prerequisite"
-                />
-
-                <step-change-item :label-width="formLabelWidth" :form="form" />
-                <form-rich-text-item
-                  v-if="form.stepModel === 'TEXT'"
-                  prop="stepDescription"
-                  :disabled="readOnly"
-                  :label-width="formLabelWidth"
-                  :title="$t('test_track.case.step_desc')"
-                  :data="form"
-                  :default-open="richTextDefaultOpen"
-                />
-
-                <form-rich-text-item
-                  v-if="form.stepModel === 'TEXT'"
-                  prop="expectedResult"
-                  :disabled="readOnly"
-                  :label-width="formLabelWidth"
-                  :title="$t('test_track.case.expected_results')"
-                  :data="form"
-                  :default-open="richTextDefaultOpen"
-                />
-
-                <test-case-step-item
-                  v-if="form.stepModel === 'STEP' || !form.stepModel"
-                  :label-width="formLabelWidth"
-                  :form="form"
-                  :read-only="readOnly"
-                />
-
-                <ms-form-divider :title="$t('test_track.case.other_info')" />
-
-                <test-case-edit-other-info
-                  :read-only="readOnly"
-                  :project-id="projectId"
-                  :form="form"
-                  :is-copy="currentTestCaseInfo.isCopy"
-                  :copy-case-id="caseId"
-                  :label-width="formLabelWidth"
-                  :case-id="form.id"
-                  :type="type"
-                  :comments.sync="comments"
-                  @openComment="openComment"
-                  :is-click-attachment-tab.sync="isClickAttachmentTab"
-                  :version-enable="versionEnable"
-                  :default-open="richTextDefaultOpen"
-                  ref="otherInfo"
-                />
-                <test-case-comment
-                  :case-id="form.id"
-                  @getComments="getComments"
-                  ref="testCaseComment"
-                />
-              </el-form>
-            </ms-main-container>
-          </ms-container>
-        </div>
-        <ms-change-history ref="changeHistory" />
-        <el-dialog
-          :fullscreen="true"
-          :visible.sync="dialogVisible"
-          :destroy-on-close="true"
-          width="100%"
-        >
-          <test-case-version-diff
-            v-if="dialogVisible"
-            :old-data="oldData"
-            :new-data="newData"
-            :tree-nodes="treeNodes"
-          ></test-case-version-diff>
-        </el-dialog>
-
-        <version-create-other-info-select
-          @confirmOtherInfo="confirmOtherInfo"
-          ref="selectPropDialog"
-        ></version-create-other-info-select>
-      </div>
-    </el-card>
-
     <!-- since v2.6 -->
     <div class="case-edit-box">
       <!-- 创建 or 编辑用例 -->
@@ -393,6 +175,17 @@
           >
             <span class="el-icon-close"></span>
           </div>
+        </div>
+      </div>
+      <!-- 检测版本 是否不是最新 -->
+      <div class="diff-latest-container" v-if="!editable && versionEnable && !isLastedVersion">
+        <div class="left-view-row">
+          <div class="view-icon"><img src="/assets/module/figma/icon_warning_colorful.svg" alt=""></div>
+          <div class="view-content">{{$t("case.current_display_history_version")}}</div>
+        </div>
+        <div class="right-diff-opt">
+          <div class="diff-latest" @click="diffWithLatest">{{$t("case.compare_with_the_latest_version")}}</div>
+          <div class="show-latest" @click="checkoutLatest">{{$t("case.view_the_latest_version")}}</div>
         </div>
       </div>
       <!-- 正文 -->
@@ -754,7 +547,10 @@ export default {
       currentTestCaseInfo: {},
       versionOptions: [],
       currentVersionName: "",
-      versionEnable: false
+      versionEnable: false,
+      // 是否为最新版本
+      isLastedVersion: true,
+      caseId: ""
     };
   },
   props: {
@@ -798,9 +594,14 @@ export default {
         !hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
       );
     },
-    caseId() {
-      return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
-    },
+    // caseId: {
+    //   get: function(){
+    //     return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
+    //   },
+    //   set: function(val){
+    //     this.$route.params.caseId = val;
+    //   }
+    // },
     editType() {
       return this.$route.query.type;
     },
@@ -837,6 +638,11 @@ export default {
         if(val.versionId && !this.currentVersionName){
           this.fetchVersionName();
         }
+
+        if(!this.editable && val.versionId){
+          // 检测是否为最新版本
+          this.checkIsLatestVersion(val.versionId);
+        }
       },
       deep: true,
     },
@@ -865,6 +671,8 @@ export default {
     );
   },
   mounted() {
+    this.caseId = !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
+
     this.getSelectOptions();
 
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
@@ -882,6 +690,9 @@ export default {
     if (this.form.id) {
       useStore().testCaseMap.set(this.form.id, 0);
     }
+
+    //获取版本信息
+    this.getVersionOptionList();
   },
   activated() {
     this.loadTestCase();
@@ -890,6 +701,33 @@ export default {
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
   },
   methods: {
+    checkoutLatest(){
+      //切换最新版本
+      this.checkout({id: this.latestVersionId})
+    },
+    //与最新版本比较
+    diffWithLatest(){
+      if(!this.latestVersionId){
+        return;
+      }
+      if(!this.currentTestCaseInfo){
+        return;
+      }
+      this.compareBranchWithVersionId(this.latestVersionId, this.currentTestCaseInfo.versionId);
+    },
+    checkIsLatestVersion(id){
+      if(!this.versionOptions || this.versionOptions.length <= 0){
+        this.isLastedVersion = true;
+        return true;
+      }
+      let version =  this.versionOptions.filter(v => v.id == id);
+      if(!version || version.length <= 0){
+        this.isLastedVersion = true;
+        return true;
+      }
+      this.isLastedVersion = version[0].latest;
+      return version[0].latest;
+    },
     loadTestCase() {
       let initFuc = this.initEdit;
       this.loading = true;
@@ -1568,11 +1406,13 @@ export default {
       }
       return versionName;
     },
-    compareBranch(t1, t2) {
+    compareBranchWithVersionId(originId, targetId){
        // 打开对比
        this.dialogVisible = true;
-       this.$refs.caseDiffViewerRef.open(t1.id, t2.id, this.currentTestCaseInfo.id)
-
+       this.$refs.caseDiffViewerRef.open(originId, targetId, this.currentTestCaseInfo.id)
+    },
+    compareBranch(t1, t2) {
+       this.compareBranchWithVersionId(t1.id, t2.id);
       // let t1Case = await testCaseGetByVersionId(t1.id, this.currentTestCaseInfo.id);
       // let t2Case = await testCaseGetByVersionId(t2.id, this.currentTestCaseInfo.id);
 
@@ -1634,6 +1474,12 @@ export default {
       if (testCase) {
         getTestCase(testCase.id).then((response) => {
           let testCase = response.data;
+          this.currentTestCaseInfo = testCase;
+          this.form = testCase;
+          this.caseId = testCase.id;
+          //版本切换展示
+          this.currentVersionName = this.findVersionNameByID(this.form.versionId)
+          this.checkIsLatestVersion(this.form.versionId);
           this.$emit("checkout", testCase);
           this.$refs.versionHistory.loading = false;
         });
@@ -1895,7 +1741,7 @@ export default {
     .edit-header-container {
       height: 56px;
       width: 100%;
-      border-bottom: 1px solid rgba(31, 35, 41, 0.15);
+      // border-bottom: 1px solid rgba(31, 35, 41, 0.15);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -2108,13 +1954,68 @@ export default {
         }
       }
     }
+    .diff-latest-container {
+      background: linear-gradient(0deg, rgba(255, 136, 0, 0.15), rgba(255, 136, 0, 0.15)), #FFFFFF;
+      border-radius: 4px;
+      height: 40px;
+      margin-left: 12px;
+      margin-right: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      .left-view-row {
+        display: flex;
+        .view-icon {
+          width: 14.67px;
+          height: 14.67px;
+          margin-left: 16.67px;
+          margin-right: 8.67px;
+          img {
+            width: 100%;
+            height: 100%;
+          }
+        }
 
+        .view-content {
+          color: #1F2329;
+          font-weight: 400;
+          font-size: 14px;
+        }
+      }
+
+      .right-diff-opt {
+        display: flex;
+        .diff-latest {
+          font-weight: 400;
+          font-size: 14px;
+          color: #783887;
+          cursor: pointer;
+        }
+        .diff-latest:hover{
+          background: rgba(120, 56, 135, 0.1);
+          border-radius: 4px;
+        }
+        .show-latest:hover{
+          background: rgba(120, 56, 135, 0.1);
+          border-radius: 4px;
+        }
+        .show-latest {
+          margin: 0 16px;
+          font-weight: 400;
+          font-size: 14px;
+          color: #783887;
+          cursor: pointer;
+        }
+      }
+    }
     .edit-content-container {
       width: 100%;
       height: 100%;
       display: flex;
       justify-content: space-between;
       background-color: #fff;
+      border-top: 1px solid rgba(31, 35, 41, 0.15);
       .required-item:after {
         content: "*";
         color: #f54a45;
