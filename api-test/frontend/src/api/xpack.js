@@ -24,6 +24,10 @@ export function getProjectVersions(projectId) {
   return get('/project/version/get-project-versions/' + projectId);
 }
 
+export function getVersionsByProjectIds(param) {
+  return post('/project/version/get-versions', param);
+}
+
 export function versionEnableByProjectId(projectId) {
   return get('/project/version/enable/' + projectId);
 }
