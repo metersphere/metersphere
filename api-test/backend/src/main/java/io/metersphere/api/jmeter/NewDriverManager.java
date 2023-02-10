@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.ApiFileUtil;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.ProjectJarConfig;
+import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.utils.JarConfigUtils;
 import io.metersphere.vo.BooleanPool;
@@ -57,9 +58,12 @@ public class NewDriverManager {
             Map<String, List<ProjectJarConfig>> map = JarConfigUtils.getJarConfigs(projectIds, jarConfigMap);
             if (MapUtils.isNotEmpty(map)) {
                 //获取文件内容
+                List<String> loaderProjectIds = new ArrayList<>();
+
                 FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 map.forEach((key, value) -> {
                     if (CollectionUtils.isNotEmpty(value)) {
+                        loaderProjectIds.add(key);
                         //历史数据
                         value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
                             //获取文件内容
@@ -81,6 +85,9 @@ public class NewDriverManager {
                         }
                     }
                 });
+
+                // 初始化类加载器
+                ProjectClassLoader.initClassLoader(loaderProjectIds);
             }
         }
         return jarConfigMap;

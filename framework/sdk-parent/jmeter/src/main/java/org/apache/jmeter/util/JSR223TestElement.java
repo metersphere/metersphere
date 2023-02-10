@@ -168,10 +168,11 @@ public abstract class JSR223TestElement extends ScriptingTestElement
         // 设置自定义类加载器
         Object dynamicClassLoader = JMeterContextService.getContext().getVariables().getObject(CustomizeFunctionUtil.MS_CLASS_LOADER);
         if (dynamicClassLoader != null) {
-            GroovyClassLoader classLoader = (GroovyClassLoader) dynamicClassLoader;
+            ClassLoader classLoader = (ClassLoader) dynamicClassLoader;
             if (scriptEngine instanceof GroovyScriptEngineImpl) {
+                GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
                 GroovyScriptEngineImpl groovyScriptEngine = (GroovyScriptEngineImpl) scriptEngine;
-                groovyScriptEngine.setClassLoader(classLoader);
+                groovyScriptEngine.setClassLoader(groovyClassLoader);
             } else {
                 Thread.currentThread().setContextClassLoader(classLoader);
             }

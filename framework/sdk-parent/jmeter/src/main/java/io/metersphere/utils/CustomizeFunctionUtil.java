@@ -1,7 +1,6 @@
 package io.metersphere.utils;
 
-import groovy.lang.GroovyClassLoader;
-import io.metersphere.jmeter.MsClassLoader;
+import io.metersphere.jmeter.ProjectClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,11 +29,18 @@ public class CustomizeFunctionUtil {
             String pathStr = testPlan.getPropertyAsString(JAR_PATH);
             JMeterContext context = JMeterContextService.getContext();
             if (StringUtils.isNotEmpty(pathStr) && context != null) {
-                List<String> jarPaths = JsonUtils.parseObject(pathStr, List.class);
-                LoggerUtil.info(testPlan.getName() + "加载JAR:", jarPaths);
-                if (CollectionUtils.isNotEmpty(jarPaths)) {
+                List<String> projectIds = JsonUtils.parseObject(pathStr, List.class);
+                LoggerUtil.info("加载JAR-PROJECT-ID:" + projectIds, testPlan.getName());
+                LoggerUtil.info("PRE-PATH:" + LocalPathUtil.prePath, testPlan.getName());
+                if (CollectionUtils.isNotEmpty(projectIds)) {
+                    // 读取所有JAR路径
+                    List<String> jarPaths = JarConfigUtils.findPathByProjectIds(projectIds);
+                    LoggerUtil.info("加载JAR-PATH:" + JsonUtils.toJSONString(jarPaths), testPlan.getName());
+                    if (CollectionUtils.isEmpty(jarPaths)) {
+                        return;
+                    }
                     // 初始化类加载器
-                    GroovyClassLoader loader = MsClassLoader.getDynamic(jarPaths);
+                    ClassLoader loader = ProjectClassLoader.getClassLoader(projectIds);
                     if (loader == null) {
                         return;
                     }

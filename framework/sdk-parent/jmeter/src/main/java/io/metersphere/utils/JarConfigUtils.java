@@ -6,11 +6,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.aspectj.util.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JarConfigUtils {
 
@@ -98,5 +103,25 @@ public class JarConfigUtils {
         if (file.exists()) {
             file.delete();
         }
+    }
+
+    public static List<String> findPathByProjectIds(List<String> projectIds) {
+        List<String> jarPaths = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            projectIds.forEach(item -> {
+                jarPaths.addAll(walk(LocalPathUtil.prePath + File.separator + item));
+            });
+        }
+        return jarPaths;
+    }
+
+
+    public static List<String> walk(String dirName) {
+        try (Stream<Path> paths = Files.walk(Paths.get(dirName), 2)) {
+            return paths.map(path -> path.toString()).filter(f -> f.endsWith(".jar")).collect(Collectors.toList());
+        } catch (IOException e) {
+            LoggerUtil.error("读取文件路径异常：", e);
+        }
+        return new ArrayList<>();
     }
 }
