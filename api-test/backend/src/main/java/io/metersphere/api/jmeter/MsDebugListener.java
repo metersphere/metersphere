@@ -111,6 +111,8 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         LoggerUtil.debug("send. " + this.getName());
         WebSocketUtil.sendMessageSingle(dto);
         PoolExecBlockingQueueUtil.offer(this.getName());
+        //删除可能出现的临时文件
+        FileUtils.deleteBodyTmpFiles(this.getName());
         JvmUtil.memoryInfo();
     }
 

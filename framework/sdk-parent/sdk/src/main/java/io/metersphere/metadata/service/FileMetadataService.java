@@ -22,6 +22,7 @@ import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.metadata.vo.*;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.QueryProjectFileRequest;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.TemporaryFileUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -545,10 +546,12 @@ public class FileMetadataService {
         //检查是否存在已下载的文件
         fileMetadataWithBLOBList.forEach(fileMetadata -> {
             File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getName());
-            if (file != null && file.exists() && file.isFile()) {
+            if (file != null) {
+                LoggerUtil.info("文件【" + fileMetadata.getUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】已找到，无需下载");
                 FileInfoDTO fileInfoDTO = new FileInfoDTO(fileMetadata.getId(), fileMetadata.getName(), fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getStorage(), fileMetadata.getPath(), FileUtils.fileToByte(file));
                 fileInfoDTOList.add(fileInfoDTO);
             } else {
+                LoggerUtil.info("文件【" + fileMetadata.getUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】未找到，需要下载");
                 downloadFileRequest.add(this.genFileRequest(fileMetadata));
             }
         });
