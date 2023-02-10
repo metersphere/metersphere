@@ -17,6 +17,7 @@ import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.service.ExtErrorReportLibraryService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -251,10 +252,13 @@ public class HashTreeUtil {
                 repositoryFileMap.put(bodyFile.getFileMetadataId(), bodyFile.getName());
             }
         }
+
+        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + repositoryFileMap.size() + "]个文件,开始下载......");
         FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
         if (fileMetadataService != null) {
             fileMetadataService.downloadApiExecuteFilesByIds(repositoryFileMap.keySet());
         }
+        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + repositoryFileMap.size() + "]个文件,下载结束。");
     }
 
     public static void downFile(

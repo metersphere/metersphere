@@ -16,6 +16,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.CSVDataSet;
+import org.apache.jmeter.config.KeystoreConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.testelement.TestElement;
@@ -137,6 +138,8 @@ public class ApiFileUtil extends FileUtils {
                     getAttachmentBodyFileByHttp(key, reportId, isLocal, fileList);
                 } else if (key instanceof CSVDataSet) {
                     getAttachmentBodyFileByCsv(key, reportId, isLocal, fileList);
+                } else if (key instanceof KeystoreConfig) {
+                    getAttachmentBodyFileByKeystoreConfig(key, fileList);
                 }
                 if (node != null) {
                     formatFilePathForNode(node, reportId, isLocal, fileList);
@@ -151,6 +154,20 @@ public class ApiFileUtil extends FileUtils {
             getAttachmentFileByTestElement(source, reportId, isLocal, bodyFileList);
         }
     }
+
+    public static void getAttachmentBodyFileByKeystoreConfig(Object tree, List<AttachmentBodyFile> bodyFileList) {
+        KeystoreConfig source = (KeystoreConfig) tree;
+        if (StringUtils.isNotEmpty(source.getPropertyAsString(ElementConstants.MS_KEYSTORE_FILE_PATH))) {
+            String filePath = source.getPropertyAsString(ElementConstants.MS_KEYSTORE_FILE_PATH);
+            //判断本地文件
+            AttachmentBodyFile attachmentBodyFile = new AttachmentBodyFile();
+            attachmentBodyFile.setFileStorage(StorageConstants.LOCAL.name());
+            attachmentBodyFile.setName(filePath);
+            attachmentBodyFile.setFilePath(filePath);
+            bodyFileList.add(attachmentBodyFile);
+        }
+    }
+
 
     public static void getAttachmentBodyFileByHttp(Object testElement, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
         if (testElement == null) {
