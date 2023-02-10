@@ -397,6 +397,9 @@ i.el-icon-more:hover {
 .case-step-item-popover .delete-row .title {
   color: #f54a45;
 }
+.case-step-item-popover .delete-row {
+  background-color: transparent!important;
+}
 .opt-readonly {
   pointer-events: none;
   color: #fab6b6;

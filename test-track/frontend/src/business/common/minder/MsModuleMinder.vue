@@ -315,7 +315,8 @@ export default {
       return importJson;
     },
     toggleMinderFullScreen(isFullScreen) {
-      this.$emit("toggleMinderFullScreen", isFullScreen)
+      this.$emit("toggleMinderFullScreen", isFullScreen);
+      this.$EventBus.$emit('toggleFullScreen', isFullScreen);
     }
   },
 }
@@ -360,11 +361,10 @@ export default {
 .full-screen {
   position: fixed;
   top: 0;
-  left: var(--screen-left);
+  left: 0;
   right: 0;
   background: #fff;
   padding: 12px;
-  width: calc(100% - 50px);
   height: 100vh;
   z-index: 1999;
   max-height: calc(100vh);

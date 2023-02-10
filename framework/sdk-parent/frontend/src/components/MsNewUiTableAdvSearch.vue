@@ -357,6 +357,7 @@ export default {
   height: 26px;
   width: 112px;
   border-radius: 4px;
+  float: left;
 }
 
 :deep(span.el-select__tags-text) {
