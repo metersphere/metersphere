@@ -167,15 +167,21 @@
 </template>
 <script>
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
-import { apiProjectRelated, getOwnerProjectIds, getProject, getUserWorkspace, projectRelated } from '@/api/project';
-import { getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
+import {
+  getOwnerProjectIds,
+  getOwnerProjects,
+  getProject,
+  getUserWorkspace,
+  projectRelated
+} from '@/api/project';
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from 'metersphere-frontend/src/utils/token';
 import {getUUID} from 'metersphere-frontend/src/utils';
 import {hasLicense} from 'metersphere-frontend/src/utils/permission';
 import {getDefinitionReference, getPlanReference} from '@/api/definition';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsTabButton from '@/business/commons/MsTabs';
-import {getProjectVersions} from "@/api/xpack";
+import {getVersionsByProjectIds} from "@/api/xpack";
 
 export default {
   name: 'ShowReference',
@@ -247,22 +253,33 @@ export default {
         this.projectList = res.data ? res.data : [];
       });
     },
-    getVersionOptions(currentVersion) {
+    getVersionOptions(projectIds, data) {
+      if (!projectIds || projectIds.length === 0) {
+        projectIds = [];
+      }
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID()).then((response) => {
-          if (currentVersion) {
-            this.versionFilters = response.data
-              .filter((u) => u.id === currentVersion)
-              .map((u) => {
-                return {text: u.name, value: u.id};
-              });
+        getVersionsByProjectIds(projectIds).then((response) => {
+          if (this.projectFilters.length === 0 || !this.projectFilters.length) {
+            this.versionFilters = [];
           } else {
-            this.versionFilters = response.data.map((u) => {
-              return {text: u.name, value: u.id};
+            this.versionFilters = response.data.filter((version) => {
+              return data.listObject.find((i) => i.versionId === version.id);
+            }).map((u) => {
+              return {text: u.name + "-" + this.getProjectName(u.projectId), value: u.id};
             });
           }
         });
       }
+    },
+    getProjectName(id) {
+      let name
+      for (let item of this.projectFilters) {
+        if (item.value === id) {
+          name = item.text;
+          break;
+        }
+      }
+      return name;
     },
     /**
      * 操作方法
@@ -281,7 +298,6 @@ export default {
       this.init();
       this.getUserProjectList();
       this.getWorkSpaceList();
-      this.getVersionOptions();
       this.isVisible = true;
       this.scenarioId = row.id;
       this.type = type;
@@ -318,17 +334,16 @@ export default {
               workspaceIds.push(item.value);
             });
           }
-          apiProjectRelated({
-            userId: getCurrentUserId(),
-            workspaceIds: workspaceIds,
-          }).then((res) => {
+          getOwnerProjects().then((res) => {
             this.projectFilters = res.data
-              .filter((project) => {
-                return data.listObject.find((i) => i.projectId === project.id);
-              })
-              .map((e) => {
-                return {text: e.name, value: e.id};
-              });
+                .filter((project) => {
+                  return data.listObject.find((i) => i.projectId === project.id);
+                })
+                .map((e) => {
+                  return {text: e.name, value: e.id};
+                });
+            let map = res.data.map(item => item.id);
+            this.getVersionOptions(map, data);
           });
         }
         this.scenarioData = data.listObject || [];
