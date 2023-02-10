@@ -131,6 +131,7 @@ public class TestReviewTestCaseService {
             testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(testCaseReviewTestCase.getCaseId());
             testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
         }
+        testCaseCommentService.deleteByBelongIdAndCaseId(testCaseReviewTestCase.getCaseId(), request.getReviewId());
         return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
     }
 
