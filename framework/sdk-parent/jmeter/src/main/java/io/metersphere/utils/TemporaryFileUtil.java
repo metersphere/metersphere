@@ -21,8 +21,8 @@ public class TemporaryFileUtil {
         this.fileFolder = File.separator + "opt"
                 + File.separator + "metersphere"
                 + File.separator + "data"
-                + File.separator + "body"
-                + File.separator + "local-file"
+                + File.separator + "api-folder"
+                + File.separator + "file"
                 + File.separator + folder
                 + File.separator;
     }
