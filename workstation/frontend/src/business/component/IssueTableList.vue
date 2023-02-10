@@ -34,20 +34,20 @@
       >
         <template v-slot="scope">
 
-              <span v-if="item.id === 'platformStatus'">
-                <span v-if="scope.row.platform === 'Tapd'">
-                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
-                </span>
-                <span v-else-if="scope.row.platform ==='Local'">
-                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
-                </span>
-                <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
-                  {{ platformStatusMap.get(scope.row.platformStatus) }}
-                </span>
-                <span v-else>
-                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
-                </span>
-              </span>
+          <span v-if="item.id === 'platformStatus'">
+            <span v-if="scope.row.platform === 'Tapd'">
+              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+            </span>
+            <span v-else-if="scope.row.platform ==='Local'">
+              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+            </span>
+            <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+              {{ platformStatusMap.get(scope.row.platformStatus) }}
+            </span>
+            <span v-else>
+              {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+            </span>
+          </span>
 
           <ms-review-table-item
             v-else-if="item.id === 'description'"
@@ -55,40 +55,44 @@
             prop="description"/>
 
           <span v-else-if="item.id === 'resourceName'">
-                 <el-link v-if="scope.row.resourceName"
-                          @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
-                  {{ scope.row.resourceName }}
-                </el-link>
-                <span v-else>
-                  --
-                 </span>
-              </span>
+             <el-link v-if="scope.row.resourceName"
+                      @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
+              {{ scope.row.resourceName }}
+            </el-link>
+            <span v-else>
+              --
+             </span>
+          </span>
 
           <span v-else-if="item.id === 'createTime'">
                  {{ scope.row.createTime | datetimeFormat }}
-              </span>
+          </span>
+
+          <span v-else-if="item.id === 'updateTime'">
+                 {{ scope.row.updateTime | datetimeFormat }}
+          </span>
 
           <span v-else-if="item.id === 'caseCount'">
-                 <router-link
-                   :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
-                   {{ scope.row.caseCount }}
-                 </router-link>
-              </span>
+             <router-link
+               :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
+               {{ scope.row.caseCount }}
+             </router-link>
+         </span>
 
           <!-- 自定义字段 -->
           <span v-else-if="item.isCustom">
-                <span v-if="item.type === 'richText' && scope.row.displayValueMap[item.id]">
-                     <ms-review-table-item
-                       :data="scope.row.displayValueMap" :prop="item.id"/>
-                </span>
-                <span v-else>
-                  {{ scope.row.displayValueMap[item.id] }}
-                </span>
-              </span>
+            <span v-if="item.type === 'richText' && scope.row.displayValueMap[item.id]">
+                 <ms-review-table-item
+                   :data="scope.row.displayValueMap" :prop="item.id"/>
+            </span>
+            <span v-else>
+              {{ scope.row.displayValueMap[item.id] }}
+            </span>
+          </span>
 
           <span v-else>
-                {{ scope.row[item.id] }}
-              </span>
+            {{ scope.row[item.id] }}
+          </span>
 
         </template>
       </ms-table-column>
@@ -192,6 +196,10 @@ export default {
         },
         resourceName: {},
         createTime: {
+          sortable: true,
+          minWidth: 180
+        },
+        updateTime: {
           sortable: true,
           minWidth: 180
         },
