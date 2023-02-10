@@ -893,7 +893,8 @@ export default {
     add_workspace_batch: "批量添加到工作空間",
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
     import_user_tip: '用戶組只支持系統默認用戶組',
-    search_get_more_tip: '搜索獲取其他選項'
+    search_get_more_tip: '搜索獲取其他選項',
+    remove_group_tip: '至少擁有一個用戶組權限'
   },
   group: {
     add: '添加用戶組',

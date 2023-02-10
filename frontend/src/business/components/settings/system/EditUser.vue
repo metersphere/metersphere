@@ -37,7 +37,7 @@
               >
               </el-option>
             </el-select>
-            <el-button @click.prevent="removeGroup(group)" style="margin-left: 20px;" v-if="form.groups.length > 1">
+            <el-button @click.prevent="removeGroup(group)" style="margin-left: 20px;">
               {{ $t('commons.delete') }}
             </el-button>
           </el-form-item>
@@ -239,6 +239,10 @@ export default {
       })
     },
     removeGroup(item) {
+      if (this.form.groups.length === 1) {
+        this.$info(this.$t('user.remove_group_tip'));
+        return;
+      }
       let index = this.form.groups.indexOf(item);
       let isRemove = this.checkRemove(item,index);
       if (!isRemove) {
