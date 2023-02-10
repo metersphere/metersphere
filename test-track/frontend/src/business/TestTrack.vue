@@ -118,7 +118,7 @@ button.el-button.el-button--default.el-button--small {
 }
 
 button.el-button.el-button--default.el-button--small.el-button--primary {
-  color: #FFFFFF;
+  color: #FFFFFF!important;
 }
 
 button.el-button.el-button--default.el-button--small.el-button--danger {
@@ -198,12 +198,14 @@ button.el-button.el-button--default.el-button--small {
   color: #1F2329;
 }
 
-button.el-button.el-button--default.el-button--small:hover{
-  color: #783887;
+button.el-button.el-button--default.el-button--small:hover {
+  color: #1F2329;
+  border-color: #DCDFE6;
+  background-color: whitesmoke;
 }
 
 button.el-button.el-button--default.el-button--small.el-button--primary {
-  color: #FFFFFF;
+  color: #FFFFFF!important;
 }
 
 button.el-button.el-button--default.el-button--small.el-button--danger {
@@ -217,6 +219,7 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
 
 .el-dialog__header {
   padding: 0px!important;
+  text-align: left!important;
 }
 
 .el-dialog__title {

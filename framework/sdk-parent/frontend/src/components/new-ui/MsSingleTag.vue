@@ -1,5 +1,5 @@
 <template>
-  <el-tag size="mini" class="status-label">{{ content }}</el-tag>
+  <el-tag size="mini" class="status-label">{{ content | ellipsis}}</el-tag>
 </template>
 
 <script>
@@ -8,6 +8,15 @@ export default {
   props: {
     content: {
       type: String
+    }
+  },
+  filters: {
+    ellipsis: (value) => {
+      if (value.length > 7) {
+        return value.substring(0, 7) + "...";
+      } else {
+        return value;
+      }
     }
   }
 }

@@ -143,7 +143,7 @@
           prop="tags"
           :field="item"
           :fields-width="fieldsWidth"
-          min-width="80px"
+          max-width="180px"
           :show-overflow-tooltip="false"
           :label="$t('commons.tag')">
           <template v-slot:default="scope">
@@ -151,7 +151,7 @@
                 <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
                 <div class="oneLine">
                   <ms-single-tag
-                    v-for="(itemName, index) in scope.row.tags"
+                    v-for="(itemName, index) in parseColumnTag(scope.row.tags)"
                     :key="index"
                     type="success"
                     effect="plain"
@@ -640,6 +640,16 @@ export default {
         return showTips.substr(0, showTips.length - 1);
       } catch (e) {
         return '';
+      }
+    },
+    parseColumnTag(tags) {
+      if (tags.length > 1) {
+        let parseTags = [];
+        parseTags.push(tags[0]);
+        parseTags.push("+" + (tags.length - 1));
+        return parseTags;
+      } else {
+        return tags;
       }
     },
     initConditionComponents() {
@@ -1222,7 +1232,6 @@ export default {
 .oneLine {
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 :deep(.el-table) {

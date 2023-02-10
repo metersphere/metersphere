@@ -57,7 +57,6 @@ export default {
 }
 
 .recycle:hover {
-  color: #6d317c;
   cursor: pointer;
 }
 
