@@ -4,7 +4,7 @@
       <span>
         {{ testCase.name }}
       </span>
-      <el-popover v-if="reviewerStatus" placement="right" trigger="hover">
+      <el-popover v-if="reviewerStatus && reviewerStatus.length > 0" placement="right" trigger="hover">
 
         <div class="status-tip" v-for="item in reviewerStatus" :key="item.author">
           <span style="font-size: 14px;color: #909399;font-weight: bold">

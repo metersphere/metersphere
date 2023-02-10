@@ -122,14 +122,20 @@ public class TestCaseCommentService {
         if (!sTime.equals("null")) {
             start = sdf.format(new Date(Long.parseLong(sTime)));
         }
-        String context = StringUtils.EMPTY;
-        context = "测试评审任务通知：" + user.getName() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
-        return context;
+        return "测试评审任务通知：" + user.getName() + "在" + start + "为" + "'" + testCaseWithBLOBs.getName() + "'" + "添加评论:" + testCaseComment.getDescription();
     }
 
     public void delete(String commentId) {
         checkCommentOwner(commentId);
         testCaseCommentMapper.deleteByPrimaryKey(commentId);
+    }
+
+    public void deleteByBelongIdAndCaseId(String caseId, String belongId) {
+        TestCaseCommentExample example = new TestCaseCommentExample();
+        example.createCriteria()
+                .andCaseIdEqualTo(caseId)
+                .andBelongIdEqualTo(belongId);
+        testCaseCommentMapper.deleteByExample(example);
     }
 
     public TestCaseComment edit(SaveCommentRequest request) {

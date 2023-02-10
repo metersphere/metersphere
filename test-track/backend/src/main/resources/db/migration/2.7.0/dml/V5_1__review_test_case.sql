@@ -1,6 +1,5 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
 
--- 给历史的评审评论，设置评审ID
 -- 初始化数据
 INSERT INTO test_case_review_test_case_users
 SELECT DISTINCT t1.case_id, t2.review_id, t2.user_id
