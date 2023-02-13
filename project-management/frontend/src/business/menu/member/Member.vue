@@ -160,7 +160,8 @@ export default {
       let groupIds = this.form.groups.map(r => r.id);
       this.dialogResult = getUserGroupList({
         type: GROUP_PROJECT,
-        resourceId: getCurrentWorkspaceId()
+        resourceId: getCurrentWorkspaceId(),
+        projectId: getCurrentProjectID(),
       }).then(response => {
         this.$set(this.form, "allgroups", response.data);
       });
