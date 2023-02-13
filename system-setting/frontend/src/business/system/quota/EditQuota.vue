@@ -94,6 +94,7 @@ export default {
       type: Boolean,
       default: false
     },
+    defaultQuota: Object,
     title: String,
     quota: Object,
     resources: Array,
@@ -132,6 +133,15 @@ export default {
         this.form.member = 0;
         this.form.project = 0;
         this.form.vumTotal = 0;
+      } else {
+        this.form.api = this.defaultQuota.api;
+        this.form.performance = this.defaultQuota.performance;
+        this.form.maxThreads = this.defaultQuota.maxThreads;
+        this.form.duration = this.defaultQuota.duration;
+        this.form.resourcePool = this.defaultQuota.resourcePool ? this.defaultQuota.resourcePool.split(",") : [];
+        this.form.member = this.defaultQuota.member;
+        this.form.project = this.defaultQuota.project;
+        this.form.vumTotal = this.defaultQuota.vumTotal;
       }
     },
     open() {
