@@ -142,7 +142,7 @@ export default {
         { text: "P3", value: "P3" },
       ],
       methodColorMap: new Map(API_METHOD_COLOUR),
-      screenHeight: "calc(100vh - 400px)", //屏幕高度
+      screenHeight: "calc(100vh - 300px)", //屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,

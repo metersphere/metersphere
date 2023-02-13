@@ -296,7 +296,7 @@ export default {
         return;
       }
       let latestData = versionData.filter((v) => v.latest === true);
-      if (latestData) {
+      if (latestData && latestData.length > 0) {
         this.dataLatestId = latestData[0].versionId;
       }
       this.versionOptions.forEach((version) => {
