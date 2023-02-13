@@ -230,6 +230,7 @@ export default {
   },
   watch: {
     activeDom() {
+      this.workspaceFilters = [];
       this.getScenarioData();
     },
     activeName(o) {
