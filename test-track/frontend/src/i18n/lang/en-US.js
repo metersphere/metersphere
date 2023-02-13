@@ -73,7 +73,7 @@ const message = {
     review_pass_rule: 'Review Pass Criteria',
     review_pass_rule_all: 'All Pass',
     review_pass_rule_single: 'Single Pass',
-    update_review_reviewer_tip: "Note: Modifying the reviewer will overwrite the reviewers associated with the use case. Please exercise caution!",
+    update_review_reviewer_tip: "Note: Modifying the reviewer will overwrite the reviewers associated with the use case, and update the review status of the use case, Please exercise caution!",
     review_rule_tip: "All pass: Pass only if all reviewers pass <\/br> Single pass: Pass if any reviewers pass",
     update_review_rule_tip: "Note: Modifying the standard will affect the reviewed use cases, please exercise caution!",
     review_history: "Review History",
