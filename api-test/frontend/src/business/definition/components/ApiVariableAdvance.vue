@@ -91,7 +91,6 @@
                   @row-click="edit"
                   v-loading="loading"
                   height="325px">
-                  <el-table-column type="selection" width="38" />
                   <el-table-column prop="num" label="ID" sortable width="60" />
                   <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip />
                   <el-table-column prop="type" :label="$t('test_track.case.type')" width="70">
@@ -263,6 +262,7 @@ import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer
 import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import { useApiStore } from '@/store';
+import OutsideClick from '../../automation/scenario/common/outside-click';
 
 export default {
   name: 'MsApiVariableAdvance',
@@ -292,6 +292,8 @@ export default {
     MsContainer,
     MsComponentConfig: () => import('../../automation/scenario/component/ComponentConfig'),
   },
+  directives: { OutsideClick },
+
   data() {
     return {
       itemValueVisible: false,
@@ -402,7 +404,6 @@ export default {
       return this.valuePlaceholder || this.$t('api_test.value');
     },
   },
-  directives: {},
   mounted() {
     this.prepareData();
   },

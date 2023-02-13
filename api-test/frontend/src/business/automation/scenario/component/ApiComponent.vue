@@ -273,7 +273,9 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
-    this.request.currentScenarioId = this.currentScenario.id;
+    if (this.currentScenario) {
+      this.request.currentScenarioId = this.currentScenario.id;
+    }
     // 传递场景ID
     if (this.request.hashTree) {
       this.setOwnEnvironment(this.request.hashTree);
