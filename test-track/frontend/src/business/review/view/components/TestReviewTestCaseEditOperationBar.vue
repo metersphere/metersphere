@@ -32,7 +32,6 @@
     </div>
 
     <div class="bar-item click-item"
-         :disabled="countNum !== total || countNum >= total"
          @click="handleNext">
       <span>
         {{ $t('commons.next_page') }}
@@ -41,7 +40,6 @@
     </div>
 
     <div class="bar-item click-item"
-         :disabled="countNum === total || countNum <= 1"
          @click="handlePre">
       <i class="el-icon-arrow-left"/>
       <span>
@@ -126,9 +124,17 @@ export default {
   },
   methods: {
     handlePre() {
+      if (this.countNum === 1) {
+        this.$error(this.$t('commons.already_pre_page'));
+        return;
+      }
       this.$emit('pre');
     },
     handleNext() {
+      if (this.countNum >= this.total) {
+        this.$error(this.$t('commons.already_next_page'));
+        return;
+      }
       this.$emit('next');
     },
     addComment(comment) {

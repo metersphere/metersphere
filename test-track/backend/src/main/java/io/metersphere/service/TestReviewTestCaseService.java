@@ -28,13 +28,13 @@ import io.metersphere.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
 import io.metersphere.utils.ListUtil;
 import io.metersphere.xpack.version.service.ProjectVersionService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -466,6 +466,15 @@ public class TestReviewTestCaseService {
                     testCaseReviewTestCaseUsersMapper.insert(insertData);
                 }
             }
+
+
+            // 修改评审人后重新计算用例的评审状态
+            TestCaseReview testReview = testCaseReviewService.getTestReview(request.getReviewId());
+            List<TestCaseReviewTestCase> testCaseReviewTestCases = selectForReviewChange(request.getReviewId());
+            for (TestCaseReviewTestCase  reviewTestCase : testCaseReviewTestCases) {
+                // 重新计算评审状态
+                reCalcReviewCaseStatus(testReview.getReviewPassRule(), reviewTestCase);
+            }
         }
     }
 
@@ -643,11 +652,15 @@ public class TestReviewTestCaseService {
     }
 
     public void handlePassRuleChange(String originPassRule, TestCaseReview review) {
-        List<TestCaseReviewTestCase> reviewTestCases = extTestCaseReviewTestCaseMapper.selectForRuleChange(review.getId());
+        List<TestCaseReviewTestCase> reviewTestCases = selectForReviewChange(review.getId());
         for (TestCaseReviewTestCase  reviewTestCase : reviewTestCases) {
             // 如果是已经评审过的用例，则重新计算
             updateReviewCaseStatusForRuleChange(originPassRule, reviewTestCase, review.getReviewPassRule());
         }
+    }
+
+    public List<TestCaseReviewTestCase> selectForReviewChange(String reviewId) {
+        return extTestCaseReviewTestCaseMapper.selectForReviewChange(reviewId);
     }
 
     public void updateReviewCaseStatusForRuleChange(String originPassRule, TestCaseReviewTestCase reviewTestCase, String reviewPassRule) {
@@ -670,6 +683,24 @@ public class TestReviewTestCaseService {
         };
 
         updateReviewCaseStatus(reviewTestCase, reviewPassRule, comments, handleStatusChangeFunc);
+    }
+
+    /**
+     * 重新计算用例的评审状态
+     * @param reviewPassRule
+     * @param reviewTestCase
+     */
+    public void reCalcReviewCaseStatus(String reviewPassRule, TestCaseReviewTestCase reviewTestCase) {
+        List<TestCaseCommentDTO> comments =
+                testCaseCommentService.getCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
+
+        comments = filterAgainComments(comments);
+
+        if (CollectionUtils.isEmpty(comments)) {
+            return;
+        }
+
+        updateReviewCaseStatus(reviewTestCase, reviewPassRule, comments, null);
     }
 
     /**
