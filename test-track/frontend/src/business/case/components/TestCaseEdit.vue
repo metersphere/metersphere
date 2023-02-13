@@ -373,7 +373,7 @@ import {buildTree} from "metersphere-frontend/src/model/NodeTree";
 import {versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
-import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer"
+import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
 
 export default {
   name: "TestCaseEdit",
@@ -715,7 +715,12 @@ export default {
       }
       this.compareBranchWithVersionId(this.latestVersionId, this.currentTestCaseInfo.versionId);
     },
-    checkIsLatestVersion(id){
+    async checkIsLatestVersion(id){
+      let allCaseVersions = await getTestCaseVersions(this.currentTestCaseInfo.id);
+      if (allCaseVersions.data) {
+        this.isLastedVersion = allCaseVersions.data.length === 1;
+        return true;
+      }
       if(!this.versionOptions || this.versionOptions.length <= 0){
         this.isLastedVersion = true;
         return true;
