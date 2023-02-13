@@ -371,6 +371,7 @@ export default {
         this.isThirdPart = false;
       } else {
         this.isThirdPart = true;
+        this.loading = false;
       }
       let fields = getTableHeaderWithCustomFields('ISSUE_LIST', template.customFields, this.members);
       if (!this.isThirdPart) {
@@ -561,6 +562,9 @@ export default {
             this.loading = false;
             this.getIssues();
           }
+        }).catch((response) => {
+          this.$warning("请求异常，请重试，异常信息："+response);
+          this.loading = false;
         });
     },
     syncIssues() {
@@ -574,7 +578,10 @@ export default {
             this.loading = false;
             this.getIssues();
           }
-        });
+        }).catch((response) => {
+          this.$warning("请求异常，请重试，异常信息："+response);
+          this.loading = false;
+      });
     },
     editParam() {
       let id = this.$route.query.id;

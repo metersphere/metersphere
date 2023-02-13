@@ -273,7 +273,10 @@ export function getIssuePartTemplateWithProject(callback) {
             .then((template) => {
               if (callback)
                 callback(template, currentProject);
-            });
+            }).catch((template) => {
+              $warning("请求异常，请重试，异常信息："+template);
+              callback(template, currentProject);
+          });
         } else {
           Promise.all([getPluginCustomFields(currentProject.id), getIssueTemplate()])
             .then(data => {

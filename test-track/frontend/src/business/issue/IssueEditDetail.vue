@@ -384,16 +384,20 @@ export default {
         this.$refs.testCaseIssueList.isXpack = hasLicense();
       }
       this.$nextTick(() => {
-        getIssuePartTemplateWithProject((template, project) => {
-          this.currentProject = project;
-          this.init(template, data);
-          this.getDataInfoAsync(data);
-
-          enableThirdPartTemplate(this.currentProject.id)
-            .then(r => {
-              this.enableThirdPartTemplate = r.data;
+          getIssuePartTemplateWithProject((template, project) => {
+            if(template.response.status === 500){
+              this.result.loading = false;
+            }
+            this.currentProject = project;
+            this.init(template, data);
+            this.getDataInfoAsync(data);
+            enableThirdPartTemplate(this.currentProject.id)
+              .then(r => {
+                this.enableThirdPartTemplate = r.data;
+              }).catch(() => {
+                this.result.loading = false;
             });
-        });
+          });
       });
     },
     getDataInfoAsync(data) {
@@ -406,6 +410,8 @@ export default {
               break;
             }
           }
+        }).catch(() => {
+          this.result.loading = false;
         });
       } else {
         this.issueId = null;
