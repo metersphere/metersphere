@@ -145,7 +145,7 @@
       </span>
     </ms-table>
 
-    <edit-quota :title="title" :quota="quota" :resources="resources"
+    <edit-quota :title="title" :quota="quota" :resources="resources" :default-quota="defaultQuota"
                    @confirm="confirm" :quota-type="quotaType" ref="editQuota"/>
     <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
