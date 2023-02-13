@@ -146,7 +146,9 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
             scenarioWithBLOBs.setStepTotal(msScenario.getHashTree().size());
-            scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
+            if (StringUtils.isNotBlank(msScenario.getName())) {
+                scenarioWithBLOBs.setModulePath("/" + msScenario.getName());
+            }
         }
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
