@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class JarConfigUtils {
 
     public static Map<String, List<ProjectJarConfig>> getJarConfigs(List<String> projectIds, Map<String, List<ProjectJarConfig>> jarConfigMap) {
-        String localPath = LocalPathUtil.prePath;
+        String localPath = LocalPathUtil.JAR_PATH;
         Map<String, List<ProjectJarConfig>> jarConfigsMap = new HashMap<>();
         projectIds.forEach(item -> {
             List<ProjectJarConfig> jarConfigs = new ArrayList<>();
@@ -109,7 +109,7 @@ public class JarConfigUtils {
         List<String> jarPaths = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(projectIds)) {
             projectIds.forEach(item -> {
-                jarPaths.addAll(walk(LocalPathUtil.prePath + File.separator + item));
+                jarPaths.addAll(walk(LocalPathUtil.JAR_PATH + File.separator + item));
             });
         }
         return jarPaths;
