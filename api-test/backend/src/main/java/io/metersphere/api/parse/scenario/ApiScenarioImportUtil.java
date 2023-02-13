@@ -250,6 +250,7 @@ public class ApiScenarioImportUtil {
         JSONObject objectNew = JSONUtil.parseObject(object.toString());
         objectNew.remove("refType");
         objectNew.remove("referenced");
+        objectNew.put("enable", true);
         test.setRequest(objectNew.toString());
         HttpResponse httpResponse = new HttpResponse();
         KeyValue keyValue = new KeyValue();
@@ -305,6 +306,7 @@ public class ApiScenarioImportUtil {
         JSONObject objectNew = JSONUtil.parseObject(object.toString());
         objectNew.remove("refType");
         objectNew.remove("referenced");
+        objectNew.put("enable", true);
         apiTestCase.setRequest(objectNew.toString());
         apiTestCase.setOrder(apiDefinitionImportUtilService.getImportNextCaseOrder(projectId));
         if (apiTestCase.getName().length() > 255) {
