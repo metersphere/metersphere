@@ -30,6 +30,7 @@
           :page-size="pageSize"
           :total="total"
           :showSelectAll="false"
+          :screenHeight="screenHeight"
           @selectCountChange="selectCountChange"
           @refresh="initTable"
           ref="table"
@@ -126,7 +127,7 @@ export default {
         components: TEST_CASE_RELEVANCE_LOAD_CASE,
       },
       result: {},
-      screenHeight: "100vh - 400px", //屏幕高度
+      screenHeight: "100vh - 300px", //屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
