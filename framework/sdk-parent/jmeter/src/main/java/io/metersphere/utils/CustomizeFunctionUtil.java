@@ -31,7 +31,7 @@ public class CustomizeFunctionUtil {
             if (StringUtils.isNotEmpty(pathStr) && context != null) {
                 List<String> projectIds = JsonUtils.parseObject(pathStr, List.class);
                 LoggerUtil.info("加载JAR-PROJECT-ID:" + projectIds, testPlan.getName());
-                LoggerUtil.info("PRE-PATH:" + LocalPathUtil.prePath, testPlan.getName());
+                LoggerUtil.info("PRE-PATH:" + LocalPathUtil.JAR_PATH, testPlan.getName());
                 if (CollectionUtils.isNotEmpty(projectIds)) {
                     // 读取所有JAR路径
                     List<String> jarPaths = JarConfigUtils.findPathByProjectIds(projectIds);
