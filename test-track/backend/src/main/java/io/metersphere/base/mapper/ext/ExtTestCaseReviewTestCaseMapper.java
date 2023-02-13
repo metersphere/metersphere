@@ -11,7 +11,7 @@ public interface ExtTestCaseReviewTestCaseMapper {
 
     List<TestCaseReviewTestCase> getCaseStatusByReviewIds(@Param("reviewIds") List<String> reviewIds);
 
-    List<TestCaseReviewTestCase> selectForRuleChange(@Param("reviewId") String reviewId);
+    List<TestCaseReviewTestCase> selectForReviewChange(@Param("reviewId") String reviewId);
 
     List<TestCaseReviewTestCase> selectForReReview(@Param("caseId") String caseId);
 }

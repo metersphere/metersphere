@@ -6,6 +6,8 @@ const message = {
   commons: {
     pre_page: '上一頁',
     next_page: '下一頁',
+    already_pre_page: '已經是第一頁',
+    already_next_page: '已經是最後一頁',
     table_select_row_count: '已選擇 {0} 條',
     header_custom_select_tips: '請選擇列表中要展示的信息',
     advance_search_total_suffix: '個結果',
@@ -894,7 +896,7 @@ const message = {
     scenario_custom_id: '場景自定義ID',
     scenario_custom_id_info: '場景用例ID默認為系統自增ID',
     re_review: '重新提審',
-    re_review_info: '評審中的用例發生變更，用例狀態自動切換為重新提審',
+    re_review_info: '評審活動中的用例發生變更，用例狀態自動切換為重新提審',
     version: {
       name: '版本',
       read: '查看',
