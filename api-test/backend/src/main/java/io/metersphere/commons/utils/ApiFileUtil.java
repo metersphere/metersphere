@@ -10,6 +10,7 @@ import io.metersphere.enums.JmxFileMetadataColumns;
 import io.metersphere.metadata.service.FileManagerService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.utils.LocalPathUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.TemporaryFileUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,7 +37,7 @@ public class ApiFileUtil extends FileUtils {
         infoDTOS.forEach(item -> {
             value.forEach(config -> {
                 if (StringUtils.equals(item.getId(), config.getId())) {
-                    createFile(StringUtils.join(ApiFileUtil.LOCAL_JAR,
+                    createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
                             File.separator,
                             key,
                             File.separator,

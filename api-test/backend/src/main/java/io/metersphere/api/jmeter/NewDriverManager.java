@@ -14,6 +14,7 @@ import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.utils.JarConfigUtils;
+import io.metersphere.utils.LocalPathUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -70,7 +71,7 @@ public class NewDriverManager {
                             byte[] bytes = new byte[0];
                             // 兼容历史数据
                             bytes = fileMetadataService.getContent(s.getId());
-                            ApiFileUtil.createFile(StringUtils.join(ApiFileUtil.LOCAL_JAR,
+                            ApiFileUtil.createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
                                     File.separator,
                                     key,
                                     File.separator,
