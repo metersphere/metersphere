@@ -44,8 +44,7 @@
             @checkout="checkout"
             @create="create"
             @setLatest="setLatest"
-            @del="del"
-          />
+            @del="del" />
           <el-button
             v-if="!isXpack || !apiSyncRuleRelation.showUpdateRule"
             type="primary"
@@ -155,8 +154,7 @@
       :batch-sync-api-visible="batchSyncApiVisible"
       :show-api-sync-config="true"
       @batchSync="batchSync"
-      ref="syncCaseConfig"
-    >
+      ref="syncCaseConfig">
     </api-sync-case-config>
   </div>
 </template>
@@ -184,21 +182,21 @@ import MsJsr233Processor from '../../../automation/scenario/component/Jsr233Proc
 import MsSelectTree from 'metersphere-frontend/src/components/select-tree/SelectTree';
 import MsChangeHistory from '@/business/history/ApiHistory';
 import { getCurrentUser } from 'metersphere-frontend/src/utils/token';
-import {getUUID} from 'metersphere-frontend/src/utils';
-import {hasLicense} from 'metersphere-frontend/src/utils/permission';
+import { getUUID } from 'metersphere-frontend/src/utils';
+import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import MsFormDivider from 'metersphere-frontend/src/components/MsFormDivider';
 import ApiOtherInfo from '@/business/definition/components/complete/ApiOtherInfo';
 import HttpApiVersionDiff from './version/HttpApiVersionDiff';
-import {createComponent} from '.././jmeter/components';
-import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
+import { createComponent } from '.././jmeter/components';
+import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import {getProjectMemberOption} from '@/api/project';
-import {getDefaultVersion, setLatestVersionById} from 'metersphere-frontend/src/api/version';
+import { getProjectMemberOption } from '@/api/project';
+import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 
-import {useApiStore} from '@/store';
-import ApiSyncCaseConfig from "@/business/definition/components/sync/ApiSyncCaseConfig";
+import { useApiStore } from '@/store';
+import ApiSyncCaseConfig from '@/business/definition/components/sync/ApiSyncCaseConfig';
 
-const {Body} = require('@/business/definition/model/ApiTestModel');
+const { Body } = require('@/business/definition/model/ApiTestModel');
 const Sampler = require('@/business/definition/components/jmeter/components/sampler/sampler');
 
 const store = useApiStore();
@@ -217,7 +215,7 @@ export default {
     MsSelectTree,
     MsChangeHistory,
     HttpApiVersionDiff,
-    ApiSyncCaseConfig
+    ApiSyncCaseConfig,
   },
   data() {
     let validateURL = (rule, value, callback) => {
@@ -312,7 +310,7 @@ export default {
       noShowSyncRuleRelation: false,
       citedScenarioCount: 0,
       latestVersionId: '',
-      hasLatest: false
+      hasLatest: false,
     };
   },
   props: {
@@ -498,31 +496,35 @@ export default {
                 let requestHeaders = [];
                 let beforeHeaders = [];
                 for (let i = 0; i < this.request.headers.length; i++) {
-                  this.beforeRequest.headers[i].valid = this.request.headers[i].valid
+                  this.beforeRequest.headers[i].valid = this.request.headers[i].valid;
                   if (this.request.headers[i].isEdit !== undefined) {
-                    this.beforeRequest.headers[i].isEdit = this.request.headers[i].isEdit
+                    this.beforeRequest.headers[i].isEdit = this.request.headers[i].isEdit;
                   }
                   if (this.request.headers[i].uuid) {
-                    this.beforeRequest.headers[i].uuid = this.request.headers[i].uuid
+                    this.beforeRequest.headers[i].uuid = this.request.headers[i].uuid;
                   }
                   if (this.request.headers[i].time) {
-                    this.beforeRequest.headers[i].time = this.request.headers[i].time
+                    this.beforeRequest.headers[i].time = this.request.headers[i].time;
                   }
                   if (this.request.headers[i].name === undefined) {
-                    this.beforeRequest.headers[i].name = undefined
+                    this.beforeRequest.headers[i].name = undefined;
                   }
                   let newRequest = this.request.headers[i];
                   const ordered = {};
-                  Object.keys(newRequest).sort().forEach(function (key) {
-                    ordered[key] = newRequest[key];
-                  });
+                  Object.keys(newRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      ordered[key] = newRequest[key];
+                    });
                   requestHeaders.push(ordered);
                   let beforeRequest = this.beforeRequest.headers[i];
                   const beforeOrdered = {};
-                  Object.keys(beforeRequest).sort().forEach(function (key) {
-                    beforeOrdered[key] = beforeRequest[key];
-                  });
-                  beforeHeaders.push(beforeOrdered)
+                  Object.keys(beforeRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      beforeOrdered[key] = beforeRequest[key];
+                    });
+                  beforeHeaders.push(beforeOrdered);
                 }
 
                 let submitRequestHeaders = JSON.stringify(requestHeaders);
@@ -546,30 +548,34 @@ export default {
                 let beforeArguments = [];
                 for (let i = 0; i < this.request.arguments.length; i++) {
                   if (this.request.arguments[i].isEdit !== undefined) {
-                    this.beforeRequest.arguments[i].isEdit = this.request.arguments[i].isEdit
+                    this.beforeRequest.arguments[i].isEdit = this.request.arguments[i].isEdit;
                   }
                   if (this.request.arguments[i].uuid) {
-                    this.beforeRequest.arguments[i].uuid = this.request.arguments[i].uuid
+                    this.beforeRequest.arguments[i].uuid = this.request.arguments[i].uuid;
                   }
                   if (this.request.arguments[i].time) {
-                    this.beforeRequest.arguments[i].time = this.request.arguments[i].time
+                    this.beforeRequest.arguments[i].time = this.request.arguments[i].time;
                   }
                   if (this.request.arguments[i].name === undefined) {
-                    this.beforeRequest.arguments[i].name = undefined
+                    this.beforeRequest.arguments[i].name = undefined;
                   }
-                  this.beforeRequest.arguments[i].valid = this.request.arguments[i].valid
+                  this.beforeRequest.arguments[i].valid = this.request.arguments[i].valid;
                   let newRequest = this.request.arguments[i];
                   const ordered = {};
-                  Object.keys(newRequest).sort().forEach(function (key) {
-                    ordered[key] = newRequest[key];
-                  });
+                  Object.keys(newRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      ordered[key] = newRequest[key];
+                    });
                   requestArguments.push(ordered);
                   let beforeRequest = this.beforeRequest.arguments[i];
                   const beforeOrdered = {};
-                  Object.keys(beforeRequest).sort().forEach(function (key) {
-                    beforeOrdered[key] = beforeRequest[key];
-                  });
-                  beforeArguments.push(beforeOrdered)
+                  Object.keys(beforeRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      beforeOrdered[key] = beforeRequest[key];
+                    });
+                  beforeArguments.push(beforeOrdered);
                 }
                 let submitRequestQuery = JSON.stringify(requestArguments);
                 let beforeRequestQuery = JSON.stringify(beforeArguments);
@@ -592,31 +598,35 @@ export default {
                 let beforeRest = [];
                 for (let i = 0; i < this.request.rest.length; i++) {
                   if (this.request.rest[i].isEdit !== undefined) {
-                    this.beforeRequest.rest[i].isEdit = this.request.rest[i].isEdit
+                    this.beforeRequest.rest[i].isEdit = this.request.rest[i].isEdit;
                   }
                   if (this.request.rest[i].uuid) {
-                    this.beforeRequest.rest[i].uuid = this.request.rest[i].uuid
+                    this.beforeRequest.rest[i].uuid = this.request.rest[i].uuid;
                   }
                   if (this.request.rest[i].time) {
-                    this.beforeRequest.rest[i].time = this.request.rest[i].time
+                    this.beforeRequest.rest[i].time = this.request.rest[i].time;
                   }
                   if (this.request.rest[i].name === undefined) {
-                    this.beforeRequest.rest[i].name = undefined
+                    this.beforeRequest.rest[i].name = undefined;
                   }
-                  this.beforeRequest.rest[i].valid = this.request.rest[i].valid
+                  this.beforeRequest.rest[i].valid = this.request.rest[i].valid;
 
                   let newRequest = this.request.rest[i];
                   const ordered = {};
-                  Object.keys(newRequest).sort().forEach(function (key) {
-                    ordered[key] = newRequest[key];
-                  });
+                  Object.keys(newRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      ordered[key] = newRequest[key];
+                    });
                   requestRest.push(ordered);
                   let beforeRequest = this.beforeRequest.rest[i];
                   const beforeOrdered = {};
-                  Object.keys(beforeRequest).sort().forEach(function (key) {
-                    beforeOrdered[key] = beforeRequest[key];
-                  });
-                  beforeRest.push(beforeOrdered)
+                  Object.keys(beforeRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      beforeOrdered[key] = beforeRequest[key];
+                    });
+                  beforeRest.push(beforeOrdered);
                 }
                 let submitRequestRest = JSON.stringify(requestRest);
                 let beforeRequestRest = JSON.stringify(beforeRest);
@@ -635,47 +645,51 @@ export default {
             }
             if (this.request.body && this.beforeRequest.body) {
               if (this.request.body.valid) {
-                this.beforeRequest.body.valid = this.request.body.valid
+                this.beforeRequest.body.valid = this.request.body.valid;
               }
               if (this.request.body.kvs.length === this.beforeRequest.body.kvs.length) {
                 let requestKvs = [];
                 let beforeKvs = [];
                 for (let i = 0; i < this.request.body.kvs.length; i++) {
                   if (this.request.body.kvs[i].isEdit !== undefined) {
-                    this.beforeRequest.body.kvs[i].isEdit = this.request.body.kvs[i].isEdit
+                    this.beforeRequest.body.kvs[i].isEdit = this.request.body.kvs[i].isEdit;
                   }
                   if (this.request.body.kvs[i].files !== null && this.request.body.kvs[i].files.length === 0) {
-                    this.beforeRequest.body.kvs[i].files = this.request.body.kvs[i].files
+                    this.beforeRequest.body.kvs[i].files = this.request.body.kvs[i].files;
                   }
                   if (this.request.body.kvs[i].uuid) {
-                    this.beforeRequest.body.kvs[i].uuid = this.request.body.kvs[i].uuid
+                    this.beforeRequest.body.kvs[i].uuid = this.request.body.kvs[i].uuid;
                   }
                   if (this.request.body.kvs[i].time) {
-                    this.beforeRequest.body.kvs[i].time = this.request.body.kvs[i].time
+                    this.beforeRequest.body.kvs[i].time = this.request.body.kvs[i].time;
                   }
                   if (this.request.body.kvs[i].name === undefined) {
-                    this.beforeRequest.body.kvs[i].name = undefined
+                    this.beforeRequest.body.kvs[i].name = undefined;
                   }
-                  this.beforeRequest.body.kvs[i].valid = this.request.body.kvs[i].valid
+                  this.beforeRequest.body.kvs[i].valid = this.request.body.kvs[i].valid;
 
                   let newRequest = this.request.body.kvs[i];
                   const ordered = {};
-                  Object.keys(newRequest).sort().forEach(function (key) {
-                    ordered[key] = newRequest[key];
-                  });
+                  Object.keys(newRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      ordered[key] = newRequest[key];
+                    });
                   requestKvs.push(ordered);
                   let beforeRequest = this.request.body.kvs[i];
                   const beforeOrdered = {};
-                  Object.keys(beforeRequest).sort().forEach(function (key) {
-                    beforeOrdered[key] = beforeRequest[key];
-                  });
-                  beforeKvs.push(beforeOrdered)
+                  Object.keys(beforeRequest)
+                    .sort()
+                    .forEach(function (key) {
+                      beforeOrdered[key] = beforeRequest[key];
+                    });
+                  beforeKvs.push(beforeOrdered);
                 }
                 this.request.body.kvs = requestKvs;
-                this.beforeRequest.body.kvs = beforeKvs
+                this.beforeRequest.body.kvs = beforeKvs;
               }
               if (Object.keys(this.request.body).indexOf('type')) {
-                this.beforeRequest.body.type = this.request.body.type
+                this.beforeRequest.body.type = this.request.body.type;
               }
               let submitRequestBody = JSON.stringify(this.request.body);
               let beforeRequestBody = JSON.stringify(this.beforeRequest.body);
@@ -714,7 +728,6 @@ export default {
             if (this.batchSyncApiVisible !== true) {
               this.$emit('saveApi', this.httpForm);
             }
-
           } else {
             this.$emit('saveApi', this.httpForm);
           }
@@ -791,6 +804,7 @@ export default {
                     name: keyValues[0],
                     required: false,
                     value: keyValues[1],
+                    isEdit: false,
                   })
                 );
               }
@@ -857,11 +871,10 @@ export default {
       }
     },
     getDefaultVersion() {
-      getDefaultVersion(this.projectId)
-        .then(response => {
-          this.latestVersionId = response.data;
-          this.getVersionHistory();
-        });
+      getDefaultVersion(this.projectId).then((response) => {
+        this.latestVersionId = response.data;
+        this.getVersionHistory();
+      });
     },
     getVersionHistory() {
       getDefinitionVersions(this.httpForm.id).then((response) => {
@@ -877,7 +890,7 @@ export default {
         }
         let latestVersionData = response.data.filter((v) => v.versionId === this.latestVersionId);
         if (latestVersionData.length > 0) {
-          this.hasLatest = false
+          this.hasLatest = false;
         } else {
           this.hasLatest = true;
         }
@@ -1072,8 +1085,8 @@ export default {
         projectId: this.projectId,
         type: 'API',
         versionId: row.id,
-        resourceId: this.basisData.id
-      }
+        resourceId: this.basisData.id,
+      };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t('commons.modify_success'));
         this.checkout(row);
@@ -1162,7 +1175,7 @@ export default {
       this.getCitedScenarioCount();
       this.getCaseCount();
     }
-  }
+  },
 };
 </script>
 
