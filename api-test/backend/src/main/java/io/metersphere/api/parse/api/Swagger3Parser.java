@@ -499,11 +499,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (ref.split("/").length > 3) {
             ref = ref.replace("#/components/schemas/", StringUtils.EMPTY);
         }
-        if (this.components.getSchemas() != null) {
-            Schema schema = this.components.getSchemas().get(ref);
-            schema.setName(ref);
-            return schema;
-        }
+        if (this.components.getSchemas() != null) return this.components.getSchemas().get(ref);
         return null;
     }
 
