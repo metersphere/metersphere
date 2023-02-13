@@ -13,10 +13,7 @@ import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.ResultDTO;
-import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
@@ -112,18 +109,6 @@ public class GenerateHashTreeUtil {
 
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
-        if (!runRequest.getPool().isPool()) {
-            // 获取自定义JAR
-            String projectId = item.getProjectId();
-            List<String> projectIds = new ArrayList<>();
-            projectIds.add(projectId);
-            if (MapUtils.isNotEmpty(planEnvMap)) {
-                planEnvMap.forEach((k, v) -> {
-                    projectIds.add(k);
-                });
-            }
-            testPlan.setProjectJarIds(NewDriverManager.getJars(projectIds, runRequest.getPool()).keySet().stream().toList());
-        }
         testPlan.setHashTree(new LinkedList<>());
         try {
             MsThreadGroup group = new MsThreadGroup();
@@ -139,6 +124,27 @@ public class GenerateHashTreeUtil {
             } else {
                 setScenarioEnv(scenario, item);
             }
+            // 获取自定义JAR
+            String currentProjectId = item.getProjectId();
+            List<String> projectIds = new ArrayList<>();
+            projectIds.add(currentProjectId);
+            if (MapUtils.isNotEmpty(planEnvMap)) {
+                planEnvMap.forEach((projectId, env) -> {
+                    if (!projectIds.contains(projectId)) {
+                        projectIds.add(projectId);
+                    }
+                });
+            }
+            if (MapUtils.isNotEmpty(scenario.getEnvironmentMap())) {
+                scenario.getEnvironmentMap().forEach((projectId, env) -> {
+                    if (!projectIds.contains(projectId)) {
+                        projectIds.add(projectId);
+                    }
+                });
+            }
+            Map<String, List<ProjectJarConfig>> jarsMap = NewDriverManager.getJars(projectIds, runRequest.getPool());
+            testPlan.setProjectJarIds(jarsMap.keySet().stream().toList());
+            testPlan.setPoolJarsMap(jarsMap);
             String data = definition;
             // 失败重试
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {

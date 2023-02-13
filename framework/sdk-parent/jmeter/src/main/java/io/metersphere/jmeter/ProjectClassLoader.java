@@ -20,7 +20,7 @@ public class ProjectClassLoader {
     public static void initClassLoader(List<String> projectIds) {
         // 读取所有JAR路径
         for (String projectId : projectIds) {
-            List<String> jarPaths = JarConfigUtils.walk(LocalPathUtil.prePath + File.separator + projectId);
+            List<String> jarPaths = JarConfigUtils.walk(LocalPathUtil.JAR_PATH + File.separator + projectId);
             if (CollectionUtils.isNotEmpty(jarPaths)) {
                 LoggerUtil.info("加载JAR-PATH:" + JsonUtils.toJSONString(jarPaths), projectId);
                 // 初始化类加载器
@@ -48,7 +48,7 @@ public class ProjectClassLoader {
 
     public static void initClassLoader() {
         // 读取所有JAR路径
-        List<String> projectIds = JarConfigUtils.getFileNames(LocalPathUtil.prePath + File.separator);
+        List<String> projectIds = JarConfigUtils.getFileNames(LocalPathUtil.JAR_PATH + File.separator);
         LoggerUtil.info("初始化所有JAR：" + JsonUtils.toJSONString(projectIds));
         if (CollectionUtils.isNotEmpty(projectIds)) {
             initClassLoader(projectIds);

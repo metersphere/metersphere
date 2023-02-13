@@ -28,6 +28,7 @@ import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
@@ -131,14 +132,13 @@ public class ApiCaseSerialService {
             if (caseWithBLOBs != null) {
                 HashTree jmeterHashTree = new HashTree();
                 MsTestPlan testPlan = new MsTestPlan();
-
-                if (!runRequest.getPool().isPool()) {
-                    // 获取自定义JAR
-                    String projectId = caseWithBLOBs.getProjectId();
-                    testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
-                        this.add(projectId);
-                    }}, runRequest.getPool()).keySet().stream().toList());
-                }
+                // 获取自定义JAR
+                String projectId = caseWithBLOBs.getProjectId();
+                Map<String, List<ProjectJarConfig>> jars = NewDriverManager.getJars(new ArrayList<>() {{
+                    this.add(projectId);
+                }}, runRequest.getPool());
+                testPlan.setProjectJarIds(jars.keySet().stream().toList());
+                testPlan.setPoolJarsMap(jars);
                 testPlan.setHashTree(new LinkedList<>());
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(caseWithBLOBs.getName());

@@ -4,11 +4,14 @@ import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.dto.ProjectJarConfig;
+import io.metersphere.enums.JmxFileMetadataColumns;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -16,6 +19,7 @@ import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -27,6 +31,9 @@ public class MsTestPlan extends MsTestElement {
     private List<String> projectJarIds;
 
     private boolean serializeThreadGroups = false;
+
+    // 资源池调用的时候需要的jar配置
+    private Map<String, List<ProjectJarConfig>> poolJarsMap;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -49,6 +56,9 @@ public class MsTestPlan extends MsTestElement {
         testPlan.setTearDownOnShutdown(true);
         if (CollectionUtils.isNotEmpty(projectJarIds)) {
             testPlan.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(projectJarIds));
+        }
+        if (MapUtils.isNotEmpty(poolJarsMap)) {
+            testPlan.setProperty(JmxFileMetadataColumns.JAR_PATH_CONFIG.name(), JSON.toJSONString(poolJarsMap));
         }
         testPlan.setUserDefinedVariables(new Arguments());
         return testPlan;

@@ -21,6 +21,7 @@ import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.vo.BooleanPool;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -71,6 +72,9 @@ public class ApiJMeterFileService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode);
         runRequest.setReportType(reportType);
         runRequest.setQueueId(queueId);
+        BooleanPool booleanPool = new BooleanPool();
+        booleanPool.setK8s(true);
+        runRequest.setPool(booleanPool);
 
         ApiScenarioWithBLOBs scenario = null;
         if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
@@ -140,19 +144,6 @@ public class ApiJMeterFileService {
         return zipFilesToByteArray((reportId + "_" + remoteTestId), reportId, hashTree);
     }
 
-    public byte[] downloadJmeterJar() {
-        Map<String, byte[]> files = new HashMap<>();
-        // 获取JAR
-        Map<String, byte[]> jarFiles = this.getJar(null);
-        if (!MapUtils.isEmpty(jarFiles)) {
-            for (String k : jarFiles.keySet()) {
-                byte[] v = jarFiles.get(k);
-                files.put(k, v);
-            }
-        }
-        return listBytesToZip(files);
-    }
-
     public byte[] downloadJmeterJar(Map<String, List<ProjectJarConfig>> map) {
         Map<String, byte[]> files = new HashMap<>();
         if (MapUtils.isNotEmpty(map)) {
@@ -180,7 +171,7 @@ public class ApiJMeterFileService {
         Map<String, byte[]> files = new HashMap<>();
         if (CollectionUtils.isNotEmpty(pluginIds)) {
             // 获取JAR
-            Map<String, byte[]> jarFiles = this.getPlugJar(pluginIds);
+            Map<String, byte[]> jarFiles = this.getPluginJar(pluginIds);
             if (MapUtils.isNotEmpty(jarFiles)) {
                 for (String k : jarFiles.keySet()) {
                     byte[] v = jarFiles.get(k);
@@ -191,30 +182,7 @@ public class ApiJMeterFileService {
         return listBytesToZip(files);
     }
 
-    private Map<String, byte[]> getJar(String projectId) {
-        Map<String, byte[]> jarFiles = new LinkedHashMap<>();
-        FileMetadataService jarConfigService = CommonBeanFactory.getBean(FileMetadataService.class);
-        if (jarConfigService != null) {
-            List<String> files = jarConfigService.getJar(new ArrayList<>() {{
-                this.add(projectId);
-            }});
-            files.forEach(path -> {
-                File file = new File(path);
-                if (file.isDirectory() && !path.endsWith("/")) {
-                    file = new File(path + "/");
-                }
-                byte[] fileByte = FileUtils.fileToByte(file);
-                if (fileByte != null) {
-                    jarFiles.put(file.getName(), fileByte);
-                }
-            });
-            return jarFiles;
-        } else {
-            return new HashMap<>();
-        }
-    }
-
-    public Map<String, byte[]> getPlugJar(List<String> pluginIds) {
+    public Map<String, byte[]> getPluginJar(List<String> pluginIds) {
         Map<String, byte[]> jarFiles = new LinkedHashMap<>();
         PluginExample example = new PluginExample();
         example.createCriteria().andPluginIdIn(pluginIds).andScenarioNotEqualTo(PluginScenario.platform.name());
