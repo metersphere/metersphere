@@ -73,7 +73,7 @@ const message = {
     review_pass_rule: '評審通過標準',
     review_pass_rule_all: '全部通過',
     review_pass_rule_single: '單人通過',
-    update_review_reviewer_tip: "註：修改評審人，會覆蓋已關聯用例的評審人，請謹慎操作！",
+    update_review_reviewer_tip: "註：修改評審人，會覆蓋已關聯用例的評審人，並且更新用例的評審狀態，請謹慎操作！",
     review_rule_tip: "全部通過：所有評審人都通過才通過<\/br>單人通過：任意評審人通過則通過",
     update_review_rule_tip: "註：修改通過標準會影響已評審過的用例，請謹慎操作！",
     review_history: "評審歷史",

@@ -73,7 +73,7 @@ const message = {
     review_pass_rule: "评审通过标准",
     review_pass_rule_all: "全部通过",
     review_pass_rule_single: "单人通过",
-    update_review_reviewer_tip: "注：修改评审人，会覆盖已关联用例的评审人，请谨慎操作！",
+    update_review_reviewer_tip: "注：修改评审人，会覆盖已关联用例的评审人，并且更新用例的评审状态，请谨慎操作！",
     review_rule_tip: "全部通过：所有评审人都通过才通过<\/br>单人通过：任意评审人通过则通过",
     update_review_rule_tip: "注：修改通过标准会影响已评审过的用例，请谨慎操作！",
     review_history: "评审历史",

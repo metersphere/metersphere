@@ -6,6 +6,8 @@ const message = {
   commons: {
     pre_page: '上一页',
     next_page: '下一页',
+    already_pre_page: '已经是第一页',
+    already_next_page: '已经是最后一页',
     table_select_row_count: '已选择 {0} 条',
     header_custom_select_tips: '请选择列表中要展示的信息',
     advance_search_total_suffix: '个结果',
@@ -892,7 +894,7 @@ const message = {
     code_segment_desc: '自定义代码片段',
     test_case_custom_id: '测试用例自定义ID',
     re_review: '重新提审',
-    re_review_info: '评审中的用例发生变更，用例状态自动切换为重新提审',
+    re_review_info: '评审活动中的用例发生变更，用例状态自动切换为重新提审',
     test_case_custom_id_info: '用例ID默认为系统自增ID',
     scenario_custom_id: '场景自定义ID',
     scenario_custom_id_info: '场景用例ID默认为系统自增ID',
