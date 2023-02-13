@@ -301,6 +301,8 @@ export default {
           });
           getIssuePartTemplateWithProject((template) => {
             this.initFields(template);
+          }, () => {
+            this.loading = false;
           });
         });
       this.getIssues();
@@ -558,10 +560,13 @@ export default {
             checkSyncIssues(this.loading);
           } else {
             this.$success(this.$t('test_track.issue.sync_complete'));
-            this.loading = false;
+
             this.getIssues();
           }
-        });
+        })
+      .catch(() => {
+        this.loading = false;
+      });
     },
     syncIssues() {
       this.loading = true;
@@ -574,6 +579,8 @@ export default {
             this.loading = false;
             this.getIssues();
           }
+        }).catch(() => {
+          this.loading = false;
         });
     },
     editParam() {

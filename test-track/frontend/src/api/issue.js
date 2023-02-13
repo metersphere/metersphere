@@ -263,7 +263,7 @@ export function getPluginCustomFields(projectId) {
   return get(BASE_URL + `plugin/custom/fields/${projectId}`);
 }
 
-export function getIssuePartTemplateWithProject(callback) {
+export function getIssuePartTemplateWithProject(callback, reject) {
   getCurrentProject().then((response) => {
     let currentProject = response.data;
     enableThirdPartTemplate(currentProject.id)
@@ -273,6 +273,10 @@ export function getIssuePartTemplateWithProject(callback) {
             .then((template) => {
               if (callback)
                 callback(template, currentProject);
+            }).catch((r) => {
+              if (reject) {
+                reject(r);
+              }
             });
         } else {
           Promise.all([getPluginCustomFields(currentProject.id), getIssueTemplate()])

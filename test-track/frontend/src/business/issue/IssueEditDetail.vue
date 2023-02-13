@@ -393,6 +393,8 @@ export default {
             .then(r => {
               this.enableThirdPartTemplate = r.data;
             });
+        }, () => {
+          this.result.loading = false;
         });
       });
     },
