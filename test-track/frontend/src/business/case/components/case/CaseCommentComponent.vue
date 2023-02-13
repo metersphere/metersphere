@@ -78,6 +78,7 @@ export default {
       testCaseCommentAdd(comment).then(() => {
         this.result.loading = false;
         this.$success(this.$t("test_track.comment.send_success"), false);
+        this.cancel("");
         this.refresh(comment.caseId);
         this.formData.richText = "";
       });
