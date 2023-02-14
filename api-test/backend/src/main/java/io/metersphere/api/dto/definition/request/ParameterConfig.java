@@ -22,7 +22,6 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 
@@ -226,7 +225,7 @@ public class ParameterConfig extends MsParameter {
     }
 
     public void margeVariables(List<ScenarioVariable> variables, List<ScenarioVariable> transferVariables) {
-        if (CollectionUtils.isNotEmpty(transferVariables)) {
+        if (CollectionUtils.isNotEmpty(transferVariables) && CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> constants = variables.stream()
                     .filter(ScenarioVariable::isConstantValid).collect(Collectors.toList());
 
@@ -251,23 +250,5 @@ public class ParameterConfig extends MsParameter {
                 }
             });
         }
-    }
-
-    public void margeParentVariables(List<ScenarioVariable> variables, MsTestElement parent) {
-        // 取出父级场景且父场景不是顶级场景
-        MsScenario scenario = getScenario(parent);
-        if (scenario == null || BooleanUtils.isFalse(scenario.getMixEnable()) || CollectionUtils.isEmpty(scenario.getVariables())) {
-            return;
-        }
-        this.margeVariables(variables, scenario.getVariables());
-    }
-
-    private MsScenario getScenario(MsTestElement parent) {
-        if (parent != null && parent instanceof MsScenario) {
-            return parent.getParent() != null ? (MsScenario) parent : null;
-        } else if (parent != null && parent.getParent() != null) {
-            getScenario(parent.getParent());
-        }
-        return null;
     }
 }
