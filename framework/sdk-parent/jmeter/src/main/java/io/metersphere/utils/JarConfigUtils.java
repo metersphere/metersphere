@@ -51,10 +51,10 @@ public class JarConfigUtils {
                                 //资源id目录存在，需要判断文件的时间戳与数据记录的时间戳是不是同一个  不是同一个的需要删除jar然后重新下载
                                 List<String> jarFiles = getFileNames(StringUtils.join(localPath, File.separator, item, File.separator, projectJarConfig.getId()));
                                 if (CollectionUtils.isNotEmpty(jarFiles)) {
-                                    jarFiles.forEach(jarfile -> {
+                                    jarFiles.forEach(jarFile -> {
                                         long updateTime = projectJarConfig.getUpdateTime();
-                                        if (!StringUtils.equals(StringUtils.substringBefore(jarfile, ".jar"), String.valueOf(updateTime))) {
-                                            deleteFile(StringUtils.join(localPath, File.separator, item, File.separator, refId, File.separator, jarfile));
+                                        if (!StringUtils.equals(StringUtils.substringBefore(jarFile, ".jar"), String.valueOf(updateTime))) {
+                                            deleteFile(StringUtils.join(localPath, File.separator, item, File.separator, refId, File.separator, jarFile));
                                             jarConfigs.add(projectJarConfig);
                                         }
                                     });
@@ -90,7 +90,7 @@ public class JarConfigUtils {
         File fa[] = f.listFiles();
         for (int i = 0; i < fa.length; i++) {
             File fs = fa[i];
-            if (fs.exists()) {
+            if (fs.exists() && !StringUtils.equals(fs.getName(), ".DS_Store")) {
                 fileNames.add(fs.getName());
             }
         }
