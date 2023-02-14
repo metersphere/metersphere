@@ -18,8 +18,12 @@ import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
+import io.metersphere.metadata.service.FileCenter;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.metadata.vo.FileRequest;
+import io.metersphere.metadata.vo.RemoteFileAttachInfo;
 import io.metersphere.request.BodyFile;
+import io.metersphere.utils.JsonUtils;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import jakarta.annotation.Resource;
@@ -151,9 +155,8 @@ public class ApiJMeterFileService {
             FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
             map.forEach((key, value) -> {
                 //历史数据
-                value.forEach(s -> {
-                    //获取文件内容;
-                    // 兼容历史数据
+                value.stream().filter(s -> s.isHasFile()).forEach(s -> {
+                    //获取文件内容 兼容历史数据
                     byte[] bytes = fileMetadataService.getContent(s.getId());
                     files.put(StringUtils.join(
                             key,
@@ -162,6 +165,31 @@ public class ApiJMeterFileService {
                             File.separator,
                             String.valueOf(s.getUpdateTime()), ".jar"), bytes);
                 });
+                // 获取文件服务器的数据
+                value.stream().filter(s -> !s.isHasFile()).forEach(s -> {
+                    //获取文件内容;
+                    try {
+                        FileRequest fileRequest = new FileRequest();
+                        if (StringUtils.isNotBlank(s.getAttachInfo())) {
+                            fileRequest.setFileAttachInfo(JsonUtils.parseObject(s.getAttachInfo(), RemoteFileAttachInfo.class));
+                        }
+                        fileRequest.setProjectId(key);
+                        fileRequest.setFileName(s.getName());
+                        fileRequest.setStorage(s.getStorage());
+                        LoggerUtil.info("开始下载服务器中的Jar包，文件名：" + s.getName());
+                        byte[] gitFiles = FileCenter.getRepository(s.getStorage()).getFile(fileRequest);
+                        files.put(StringUtils.join(
+                                key,
+                                File.separator,
+                                s.getId(),
+                                File.separator,
+                                String.valueOf(s.getUpdateTime()), ".jar"), gitFiles);
+                    } catch (Exception e) {
+                        LoggerUtil.error(e.getMessage(), e);
+                        LoggerUtil.error("Jar包下载失败，不存在Git仓库中");
+                    }
+                });
+
             });
         }
         return listBytesToZip(files);
