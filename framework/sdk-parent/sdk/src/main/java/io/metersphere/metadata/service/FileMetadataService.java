@@ -604,7 +604,7 @@ public class FileMetadataService {
             return new FileRequest();
         }
     }
-    
+
     public FileMetadata pullFromRepository(FileMetadata request) {
         FileMetadata returnModel = null;
         FileMetadataWithBLOBs baseMetadata = fileMetadataMapper.selectByPrimaryKey(request.getId());
@@ -655,4 +655,13 @@ public class FileMetadataService {
         return newMetadata;
     }
 
+    public List<FileMetadataWithBLOBs> getFileMetadataByIdList(List<String> fileMetadataIdList) {
+        if (CollectionUtils.isNotEmpty(fileMetadataIdList)) {
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(fileMetadataIdList);
+            return fileMetadataMapper.selectByExampleWithBLOBs(example);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }
