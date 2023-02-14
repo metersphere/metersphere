@@ -2,7 +2,7 @@
   <el-dialog :close-on-click-modal="false" :visible.sync="dialogVisible" width="50%"
              :title="title"
              :destroy-on-close="true">
-    <el-form ref="form" :model="form" label-width="auto" size="small" :rules="rules">
+    <el-form ref="form" :model="form" label-width="110px" size="small" :rules="rules">
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.name')" prop="name">
