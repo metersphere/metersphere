@@ -17,6 +17,7 @@
       :env-map="envMap"
       :project-list="projectList"
       @close="visible = false"
+      @saveRefresh="saveRefresh"
       @setProjectEnvMap="setProjectEnvMap"
       v-show="!radio || radio === ENV_TYPE.JSON"
       :btnStyle="btnStyle"
@@ -183,6 +184,9 @@ export default {
     },
     radioChange(val) {
       this.$emit('update:environmentType', val);
+    },
+    saveRefresh() {
+      this.$emit('saveRefresh');
     },
   },
 };
