@@ -291,9 +291,9 @@ public class TestCaseReviewService {
         editCaseRevieweFollow(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
+        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
 
-        TestCaseReview originReview = testCaseReviewMapper.selectByPrimaryKey(testCaseReview.getId());
         if (!StringUtils.equals(testCaseReview.getReviewPassRule(), originReview.getReviewPassRule())) {
             // 如果通过标准发生变化，则重新计算用例的状态
             testReviewTestCaseService.handlePassRuleChange(originReview.getReviewPassRule(), testCaseReview);
