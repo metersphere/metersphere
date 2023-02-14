@@ -140,6 +140,7 @@
                 @setProjectEnvMap="setProjectEnvMap"
                 @setEnvGroup="setEnvGroup"
                 @showPopover="showPopover"
+                @saveRefresh="setDomain"
                 :has-option-group="true"
                 ref="envPopover"
                 class="ms-message-right" />
