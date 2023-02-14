@@ -120,11 +120,11 @@ public class ApiFileUtil extends FileUtils {
             temporaryFileUtil = CommonBeanFactory.getBean(TemporaryFileUtil.class);
         }
         List<AttachmentBodyFile> fileList = new ArrayList<>();
-        formatFilePathForNode(tree, reportId, isLocal, fileList);
+        formatFilePath(tree, reportId, isLocal, fileList);
         return fileList;
     }
 
-    private static void formatFilePathForNode(HashTree tree, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
+    private static void formatFilePath(HashTree tree, String reportId, boolean isLocal, List<AttachmentBodyFile> fileList) {
         if (tree != null) {
             if (fileMetadataService == null) {
                 fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
@@ -143,7 +143,7 @@ public class ApiFileUtil extends FileUtils {
                     getAttachmentBodyFileByKeystoreConfig(key, fileList);
                 }
                 if (node != null) {
-                    formatFilePathForNode(node, reportId, isLocal, fileList);
+                    formatFilePath(node, reportId, isLocal, fileList);
                 }
             }
         }
@@ -214,9 +214,6 @@ public class ApiFileUtil extends FileUtils {
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_NAME.name(), fileMetadata.getName());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
-                    if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
-                        testElement.setProperty(JmxFileMetadataColumns.REF_FILE_ATTACH_INFO.name(), fileMetadata.getAttachInfo());
-                    }
                 } else {
                     path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName());
                 }
