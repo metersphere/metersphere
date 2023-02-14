@@ -1,8 +1,10 @@
 package io.metersphere.log.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
@@ -210,6 +212,29 @@ public class ReflexObjectUtil {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
                                 column.setDiffValue(ApiTestEnvironmentDiffUtil.diff(newValue, oldValue));
+                            }
+                        }
+                        // 不记录服务集成配置信息中密码字段
+                        else if (StringUtils.equals(module, OperLogModule.WORKSPACE_SERVICE_INTEGRATION)) {
+                            if (StringUtils.equals(column.getColumnName(), "configuration")) {
+                                if (column.getNewValue() != null && column.getOriginalValue() == null) {
+                                    HashMap<String, Object> newConf = JSON.parseObject((String) column.getNewValue(), new TypeReference<>() {});
+                                    newConf.put("password", "******");
+                                    column.setNewValue(JSON.toJSONString(newConf));
+                                } else if (column.getOriginalValue() != null && column.getNewValue() != null) {
+                                    HashMap<String, Object> newConf = JSON.parseObject((String) column.getNewValue(), new TypeReference<>() {});
+                                    HashMap<String, Object> oldConf = JSON.parseObject((String) column.getOriginalValue(), new TypeReference<>() {});
+                                    if (StringUtils.equals((String)newConf.get("password"), (String)oldConf.get("password"))) {
+                                        // 密码未修改，保持一致
+                                        oldConf.put("password", "******");
+                                        newConf.put("password", "******");
+                                    } else {
+                                        oldConf.put("password", "******");
+                                        newConf.put("password", "*********");
+                                    }
+                                    column.setOriginalValue(JSON.toJSONString(oldConf));
+                                    column.setNewValue(JSON.toJSONString(newConf));
+                                }
                             }
                         } else {
                             String newValue = Objects.toString(column.getNewValue(), "");
