@@ -15,6 +15,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.AttachmentBodyFile;
+import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
@@ -25,6 +26,7 @@ import io.metersphere.metadata.vo.RemoteFileAttachInfo;
 import io.metersphere.request.BodyFile;
 import io.metersphere.utils.JsonUtils;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.utils.TemporaryFileUtil;
 import io.metersphere.vo.BooleanPool;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -297,30 +299,56 @@ public class ApiJMeterFileService {
      * @return
      */
     public byte[] zipLocalFilesToByteArray(BodyFileRequest request) {
+
+        LogUtil.info("开始下载执行报告为[" + request.getReportId() + "]的文件。");
         Map<String, byte[]> files = new LinkedHashMap<>();
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
             //获取要下载的合法文件
-            List<BodyFile> bodyFiles = this.getLegalFiles(request);
-            HashTreeUtil.downFile(bodyFiles, files, fileMetadataService);
-            for (BodyFile bodyFile : bodyFiles) {
-                File file = new File(bodyFile.getName());
-                if (file.exists() && StringUtils.startsWith(file.getPath(), FileUtils.ROOT_DIR)) {
-                    byte[] fileByte = FileUtils.fileToByte(file);
-                    if (fileByte != null) {
-                        files.put(file.getAbsolutePath(), fileByte);
+            List<BodyFile> legalFiles = this.getLegalFiles(request);
+            if (CollectionUtils.isNotEmpty(legalFiles)) {
+                //区分本地文件和文件库文件
+                List<BodyFile> localFile = new ArrayList<>();
+                List<String> remoteFileIdList = new ArrayList<>();
+                legalFiles.forEach(file -> {
+                    if (StringUtils.isNotEmpty(file.getRefResourceId())) {
+                        remoteFileIdList.add(file.getRefResourceId());
+                    } else {
+                        localFile.add(file);
                     }
+                });
+
+                //下载本地文件
+                if (CollectionUtils.isNotEmpty(localFile)) {
+                    HashTreeUtil.downFile(localFile, files, fileMetadataService);
+                }
+                //下载文件库文件
+                if (CollectionUtils.isNotEmpty(remoteFileIdList)) {
+                    LogUtil.info("开始下载执行报告为[" + request.getReportId() + "]的文件库文件。");
+                    List<FileInfoDTO> gitFileList = fileMetadataService.downloadApiExecuteFilesByIds(remoteFileIdList);
+                    gitFileList.forEach(fileInfoDTO ->
+                            files.put(StringUtils.join(
+                                    fileInfoDTO.getProjectId(),
+                                    File.separator,
+                                    fileInfoDTO.getFileLastUpdateTime(),
+                                    File.separator,
+                                    fileInfoDTO.getFileName()
+                            ), fileInfoDTO.getFileByte()));
+                    LogUtil.info("下载到执行报告为[" + request.getReportId() + "]的文件库文件。共下载到【" + gitFileList.size() + "】个");
                 }
             }
         }
+
         Map<String, byte[]> zipFiles = new LinkedHashMap<>();
         for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-            //去除文件路径前的body路径
             String filePath = entry.getKey();
-            if (StringUtils.startsWith(filePath, FileUtils.BODY_FILE_DIR + "/")) {
+            if (StringUtils.startsWith(filePath, FileUtils.BODY_FILE_DIR + File.separator)) {
+                //如果路径是以bodyFileDir开头的旧文件，需要去除文件路径前的body路径，并放入默认文件夹中。这样可以直接在/node根目录解压，不用再区分是git文件还是local文件。
                 filePath = StringUtils.substring(filePath, FileUtils.BODY_FILE_DIR.length() + 1);
+                filePath = TemporaryFileUtil.DEFAULT_FILE_FOLDER + File.separator + filePath;
             }
             zipFiles.put(filePath, entry.getValue());
         }
+        LogUtil.info("下载执行报告为[" + request.getReportId() + "]的文件结束。");
         return listBytesToZip(zipFiles);
     }
 
