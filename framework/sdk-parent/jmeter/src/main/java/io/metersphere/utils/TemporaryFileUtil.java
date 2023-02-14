@@ -27,16 +27,20 @@ public class TemporaryFileUtil {
                 + File.separator;
     }
 
-    public String generateFileDir(String folder) {
+    public String generateFileDir(String folder, long updateTime) {
         if (StringUtils.isBlank(folder)) {
             folder = DEFAULT_FILE_FOLDER;
         }
-        return fileFolder + folder + File.separator;
+        if (updateTime == 0) {
+            return fileFolder + folder + File.separator;
+        } else {
+            return fileFolder + folder + File.separator + updateTime + File.separator;
+        }
+
     }
 
     public String generateFilePath(String folder, long updateTime, String fileName) {
-        String finalFileName = updateTime > 0 ? updateTime + "_" + fileName : fileName;
-        return generateFileDir(folder) + finalFileName;
+        return generateFileDir(folder, updateTime) + fileName;
     }
 
     public File getFile(String folder, long updateTime, String fileName) {
@@ -50,7 +54,7 @@ public class TemporaryFileUtil {
 
     public void saveFile(String folder, long updateTime, String fileName, byte[] fileBytes) {
         //删除过期文件
-        deleteOldFile(folder, fileName);
+        deleteOldFile(folder, updateTime, fileName);
         this.createFile(generateFilePath(folder, updateTime, fileName), fileBytes);
     }
 
@@ -58,27 +62,49 @@ public class TemporaryFileUtil {
         if (fileBytes != null && StringUtils.isNotBlank(folder) && updateTime > 0
                 && StringUtils.isNotBlank(fileName) && fileBytes.length > 0) {
             //删除过期文件
-            deleteOldFile(folder, fileName);
+            deleteOldFile(folder, updateTime, fileName);
             this.createFile(generateFilePath(folder, updateTime, fileName), fileBytes);
         }
     }
 
-    private void deleteOldFile(String folder, String deleteFileName) {
-        List<String> deleteFileList = new ArrayList<>();
-        File file = new File(generateFileDir(folder));
-        if (file.exists() && file.isDirectory()) {
-            String[] fileNameArr = file.list();
-            if (fileNameArr != null) {
-                for (String fileName : fileNameArr) {
-                    if (fileName.endsWith("_" + deleteFileName)) {
-                        deleteFileList.add(fileName);
+    //node也调用了该方法
+    public void deleteOldFile(String folder, long lastUpdateTime, String deleteFileName) {
+        String newFileFolderName = String.valueOf(lastUpdateTime);
+        List<File> deleteFileList = new ArrayList<>();
+        File file = new File(generateFileDir(folder, 0));
+        //当前目录下存放的是以时间戳命名的文件夹，文件夹里存放着具体的文件。所以要删除这个
+        if (file.isDirectory()) {
+            File[] checkFileFolders = file.listFiles();
+            if (checkFileFolders != null) {
+                for (File checkFileFolder : checkFileFolders) {
+                    if (checkFileFolder.isDirectory()) {
+                        File[] checkFiles = checkFileFolder.listFiles();
+                        if (checkFiles != null) {
+                            for (File checkFile : checkFiles) {
+                                if (StringUtils.equals(checkFile.getName(), deleteFileName)
+                                        && !StringUtils.equals(checkFileFolder.getName(), newFileFolderName)) {
+                                    //文件名称相同，但是所属的时间戳文件夹与本次不相同的文件，是过期文件。
+                                    deleteFileList.add(checkFile);
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-        deleteFileList.forEach(fileName -> this.deleteFile(generateFileDir(folder) + fileName));
+
+        deleteFileList.forEach(deleteFile -> {
+            if (deleteFile.exists()) {
+                deleteFile.delete();
+            }
+            File deleteFileFolder = deleteFile.getParentFile();
+            if (deleteFileFolder.isDirectory() && deleteFileFolder.listFiles().length == 0) {
+                deleteFileFolder.delete();
+            }
+        });
     }
 
+    //误删。 这段代码在node中会用到。
     public byte[] fileToByte(File tradeFile) {
         byte[] buffer = null;
         try (FileInputStream fis = new FileInputStream(tradeFile);
@@ -98,7 +124,7 @@ public class TemporaryFileUtil {
     private void createFile(String filePath, byte[] fileBytes) {
         File file = new File(filePath);
         if (file.exists()) {
-            this.deleteFile(filePath);
+            file.delete();
         }
         try {
             File dir = file.getParentFile();
@@ -118,13 +144,6 @@ public class TemporaryFileUtil {
             }
         } catch (IOException e) {
             LoggerUtil.error(e);
-        }
-    }
-
-    public void deleteFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
         }
     }
 }
