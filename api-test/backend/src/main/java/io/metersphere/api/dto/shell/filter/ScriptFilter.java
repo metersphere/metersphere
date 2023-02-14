@@ -3,10 +3,12 @@ package io.metersphere.api.dto.shell.filter;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.plugin.core.utils.LogUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class ScriptFilter {
@@ -17,12 +19,14 @@ public class ScriptFilter {
     private static void blackList(StringBuffer buffer, String script, String path) {
         try {
             InputStream in = ScriptFilter.class.getResourceAsStream(path);
-            List<String> bks = IOUtils.readLines(in);
-            bks.forEach(item -> {
-                if (script.contains(item) && script.indexOf(item) != -1) {
-                    buffer.append(item).append(",");
-                }
-            });
+            List<String> bks = IOUtils.readLines(in, Charset.defaultCharset());
+            if (CollectionUtils.isNotEmpty(bks)) {
+                bks.forEach(item -> {
+                    if (script.contains(item) && script.indexOf(item) != -1) {
+                        buffer.append(item).append(",");
+                    }
+                });
+            }
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
         }
