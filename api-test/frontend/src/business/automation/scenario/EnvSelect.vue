@@ -22,7 +22,7 @@
         </el-button>
         <template v-slot:empty>
           <!--这里只做没有可搜索内容时使用，否则如果没有符合搜索条件的，也会显示该项，与上面的btn重复显示 -->
-          <div v-if="isShowConfirmButton(pe.id) && pe.envs.length===0" class="empty-environment">
+          <div v-if="isShowConfirmButton(pe.id) && pe.envs.length === 0" class="empty-environment">
             <el-button
               class="ms-scenario-button"
               size="mini"
@@ -43,7 +43,7 @@
     </el-button>
 
     <!-- 环境配置 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose" />
+    <api-environment-config ref="environmentConfig" @saveRefresh="environmentConfigClose" />
   </div>
 </template>
 
@@ -215,7 +215,7 @@ export default {
       return true;
     },
     environmentConfigClose() {
-      // todo 关闭处理
+      this.$emit('saveRefresh');
     },
   },
 };
