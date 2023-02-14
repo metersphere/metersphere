@@ -680,4 +680,13 @@ public class FileMetadataService {
         return newMetadata;
     }
 
+    public List<FileMetadataWithBLOBs> getFileMetadataByIdList(List<String> fileMetadataIdList) {
+        if (CollectionUtils.isNotEmpty(fileMetadataIdList)) {
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(fileMetadataIdList);
+            return fileMetadataMapper.selectByExampleWithBLOBs(example);
+        } else {
+            return new ArrayList<>();
+        }
+    }
 }
