@@ -67,7 +67,6 @@
                           @select="select"
                           @row-click="edit"
                           v-loading="loading" height="325px">
-                  <el-table-column type="selection" width="38"/>
                   <el-table-column prop="num" label="ID" sortable width="60"/>
                   <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable
                                    show-overflow-tooltip/>
