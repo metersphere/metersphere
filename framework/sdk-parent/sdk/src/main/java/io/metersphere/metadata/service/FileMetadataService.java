@@ -307,6 +307,10 @@ public class FileMetadataService {
 
     public void update(FileMetadataWithBLOBs fileMetadata) {
         this.checkName(fileMetadata);
+        if (!this.isFileChanged(fileMetadata)) {
+            //文件未改变时不会触发保存逻辑
+            return;
+        }
         String beforeName = getBeforeName(fileMetadata);
         if (!StringUtils.equalsIgnoreCase(beforeName, fileMetadata.getName())
                 && StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
@@ -322,6 +326,27 @@ public class FileMetadataService {
             fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
         }
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
+    }
+
+    public boolean isFileChanged(FileMetadataWithBLOBs newFile) {
+        FileMetadataWithBLOBs oldFile = this.getFileMetadataById(newFile.getId());
+        if (oldFile != null) {
+            return !StringUtils.equals(newFile.getDescription(), oldFile.getDescription())
+                    || !StringUtils.equals(newFile.getAttachInfo(), oldFile.getAttachInfo())
+                    || !StringUtils.equals(newFile.getName(), oldFile.getName())
+                    || !StringUtils.equals(newFile.getType(), oldFile.getType())
+                    || !StringUtils.equals(newFile.getProjectId(), oldFile.getProjectId())
+                    || !StringUtils.equals(newFile.getStorage(), oldFile.getStorage())
+                    || !StringUtils.equals(newFile.getTags(), oldFile.getTags())
+                    || !StringUtils.equals(newFile.getModuleId(), oldFile.getModuleId())
+                    || !StringUtils.equals(newFile.getPath(), oldFile.getPath())
+                    || !StringUtils.equals(newFile.getResourceType(), oldFile.getResourceType())
+                    || !StringUtils.equals(newFile.getRefId(), oldFile.getRefId())
+                    || !StringUtils.equals(String.valueOf(newFile.getSize()), String.valueOf(oldFile.getSize()))
+                    || (newFile.getLatest() != oldFile.getLatest())
+                    || (newFile.getLoadJar() != oldFile.getLoadJar());
+        }
+        return true;
     }
 
     public FileMetadata reLoad(FileMetadataWithBLOBs fileMetadata, List<MultipartFile> files) {
@@ -604,7 +629,7 @@ public class FileMetadataService {
             return new FileRequest();
         }
     }
-    
+
     public FileMetadata pullFromRepository(FileMetadata request) {
         FileMetadata returnModel = null;
         FileMetadataWithBLOBs baseMetadata = fileMetadataMapper.selectByPrimaryKey(request.getId());
