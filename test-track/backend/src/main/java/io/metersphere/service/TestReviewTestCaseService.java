@@ -233,13 +233,14 @@ public class TestReviewTestCaseService {
         String reviewPassRule = testCaseReviewService.getTestReview(testCaseReviewTestCase.getReviewId())
                 .getReviewPassRule();
 
+        List<String> users = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
+        Set<String> reviewerSet = users.stream().collect(Collectors.toSet());
+
         comments = filterAgainComments(comments);
-        comments = distinctUserComment(comments);
+        comments = distinctUserComment(comments, reviewerSet);
         Map<String, String> userCommentMap = comments.stream()
                 .filter(item -> StringUtils.equalsAny(item.getStatus(), TestCaseReviewCommentStatus.Pass.name(), TestCaseReviewCommentStatus.UnPass.name()))
                 .collect(Collectors.toMap(TestCaseComment::getAuthor, TestCaseComment::getStatus));
-
-        List<String> users = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
 
         users = users.stream()
                 .distinct()
@@ -273,7 +274,11 @@ public class TestReviewTestCaseService {
         String originStatus = originReviewTestCase.getStatus();
         String status = originStatus;
 
-        comments = distinctUserComment(comments);
+        List<String> reviewers = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
+
+        Set<String> reviewerSet = reviewers.stream().collect(Collectors.toSet());
+
+        comments = distinctUserComment(comments, reviewerSet);
 
         List<TestCaseCommentDTO> passComments = comments.stream()
                 .filter(comment -> StringUtils.equals(comment.getStatus(), TestCaseReviewCommentStatus.Pass.name()))
@@ -283,7 +288,6 @@ public class TestReviewTestCaseService {
                 .filter(comment -> StringUtils.equals(comment.getStatus(), TestCaseReviewCommentStatus.UnPass.name()))
                 .collect(Collectors.toList());
 
-        List<String> users = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
 
         if (StringUtils.equals(TestCaseReviewPassRule.ALL.name(), reviewPassRule)) {
             // 全部通过
@@ -292,9 +296,9 @@ public class TestReviewTestCaseService {
                     .collect(Collectors.toSet());
 
             // 评审人是否都通过了
-            if (users.stream()
+            if (reviewers.stream()
                     .filter(user -> passUsers.contains(user))
-                    .collect(Collectors.toList()).size() == users.size()) {
+                    .collect(Collectors.toList()).size() == reviewers.size()) {
                 // 如果所有人都通过了，则通过
                 status = TestCaseReviewCommentStatus.Pass.name();
             } else {
@@ -346,11 +350,13 @@ public class TestReviewTestCaseService {
     /**
      * 只保留每个用户的最后一条有效评论
      * @param comments
+     * @param reviewerSet
      * @return
      */
-    private List<TestCaseCommentDTO> distinctUserComment(List<TestCaseCommentDTO> comments) {
+    private List<TestCaseCommentDTO> distinctUserComment(List<TestCaseCommentDTO> comments, Set<String> reviewerSet) {
         // 只保留每个用户的最后一条有效评论
         Set<String> userSet = new HashSet<>();
+
         comments = comments.stream().filter(item -> {
             if (StringUtils.isBlank(item.getStatus()) || // 过滤没有状态的评论
                 StringUtils.equalsAny(item.getStatus(), TestCaseReviewCommentStatus.RuleChange.name(),
@@ -358,8 +364,12 @@ public class TestReviewTestCaseService {
                 userSet.contains(item.getAuthor())) { // 保留最新的一条评论
                 return false;
             }
-            userSet.add(item.getAuthor());
-            return true;
+            // 必须是评审人
+            if (reviewerSet.contains(item.getAuthor())) {
+                userSet.add(item.getAuthor());
+                return true;
+            }
+            return false;
         }).collect(Collectors.toList());
         return comments;
     }
