@@ -429,7 +429,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             } else {
                 String url = this.getUrl();
                 if (StringUtils.isEmpty(url)) {
-                    MSException.throwException("请重新选择环境");
+                    MSException.throwException("当前步骤：" + this.getName() + " 环境为空，请重新选择环境");
                 }
                 String envPath = url;
                 sampler.setProperty("HTTPSampler.path", envPath, StandardCharsets.UTF_8.name());
