@@ -50,6 +50,8 @@ import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.modifiers.UserParameters;
+import org.apache.jmeter.protocol.http.control.Header;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;
 import org.apache.jmeter.protocol.jdbc.AbstractJDBCTestElement;
@@ -970,6 +972,44 @@ public class ElementUtil {
             if (node != null) {
                 coverArguments(node, process);
             }
+        }
+    }
+
+    public static void setHeader(HashTree tree, List<KeyValue> headers, String name) {
+        // 合并header
+        HeaderManager headerManager = new HeaderManager();
+        headerManager.setEnabled(true);
+        headerManager.setName(StringUtils.isNotEmpty(name) ? name + "HeaderManager" : "HeaderManager");
+        headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
+        headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        boolean isAdd = true;
+        for (Object key : tree.keySet()) {
+            if (key instanceof HeaderManager) {
+                headerManager = (HeaderManager) key;
+                isAdd = false;
+            }
+        }
+        //  header 也支持 mock 参数
+        List<KeyValue> keyValues = headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).collect(Collectors.toList());
+        for (KeyValue keyValue : keyValues) {
+            boolean hasHead = false;
+            //检查是否已经有重名的Head。如果Header重复会导致执行报错
+            if (headerManager.getHeaders() != null) {
+                for (int i = 0; i < headerManager.getHeaders().size(); i++) {
+                    Header header = headerManager.getHeader(i);
+                    String headName = header.getName();
+                    if (StringUtils.equals(headName, keyValue.getName()) && !StringUtils.equals(headName, "Cookie")) {
+                        hasHead = true;
+                        break;
+                    }
+                }
+            }
+            if (!hasHead) {
+                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
+            }
+        }
+        if (headerManager.getHeaders().size() > 0 && isAdd) {
+            tree.add(headerManager);
         }
     }
 }
