@@ -700,7 +700,7 @@ export default {
 :deep(.node-icon .svg-icon) {
   width: 1.2em;
   height: 1.2em;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .node-title {

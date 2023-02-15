@@ -373,8 +373,15 @@ export default {
       }
     },
     handleSelectAll(selection) {
+      if (this.condition.selectAll) {
+        return;
+      }
       _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
-      setUnSelectIds(this.data, this.condition, this.selectRows);
+      if (this.condition.selectAll) {
+        this.condition.unSelectIds = [];
+      } else {
+        setUnSelectIds(this.data, this.condition, this.selectRows);
+      }
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
@@ -422,7 +429,7 @@ export default {
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
-      this.$emit('callBackSelect');
+      this.$emit(data ? 'callBackSelectAll' : 'callBackSelect');
     },
     headerDragend(newWidth, oldWidth, column, event) {
       if (column) {

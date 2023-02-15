@@ -63,6 +63,8 @@ export default {
 i.el-icon-delete {
   margin-top: 10px;
   margin-left: 24px;
+  min-width: 200px;
+  display: flex;
 }
 
 .el-icon-delete:before {

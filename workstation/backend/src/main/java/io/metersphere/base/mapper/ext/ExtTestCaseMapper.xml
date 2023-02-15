@@ -352,7 +352,7 @@
                 or test_case.tags like CONCAT('%', #{request.name},'%')
                 or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
-            <if test="request.ids != null">
+            <if test="request.ids != null and request.ids.size() > 0">
                 and test_case.id in
                 <foreach collection="request.ids" item="id" separator="," open="(" close=")">
                     #{id}
