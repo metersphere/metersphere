@@ -34,8 +34,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.KeystoreConfig;
-import org.apache.jmeter.protocol.http.control.Header;
-import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
@@ -181,18 +179,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(httpSamplerTree, this.headers);
+            ElementUtil.setHeader(httpSamplerTree, this.headers, this.getName());
         }
         // 新版本符合条件 HTTP 请求头
         if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
             if (!this.isCustomizeReq() || this.isRefEnvironment) {
                 // 如果不是自定义请求,或者引用环境则添加环境请求头
-                setHeader(httpSamplerTree, httpConfig.getHeaders());
+                ElementUtil.setHeader(httpSamplerTree, httpConfig.getHeaders(), this.getName());
             }
         }
         // 场景头
         if (config != null && CollectionUtils.isNotEmpty(config.getHeaders())) {
-            setHeader(httpSamplerTree, config.getHeaders());
+            ElementUtil.setHeader(httpSamplerTree, config.getHeaders(), this.getName());
         }
         // 环境通用请求头
         Arguments arguments = ElementUtil.getConfigArguments(config, this.getName(), this.getProjectId(), null);
@@ -628,44 +626,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         }
                 );
         return arguments;
-    }
-
-    public void setHeader(HashTree tree, List<KeyValue> headers) {
-        // 合并header
-        HeaderManager headerManager = new HeaderManager();
-        headerManager.setEnabled(true);
-        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
-        headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
-        headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
-        boolean isAdd = true;
-        for (Object key : tree.keySet()) {
-            if (key instanceof HeaderManager) {
-                headerManager = (HeaderManager) key;
-                isAdd = false;
-            }
-        }
-        //  header 也支持 mock 参数
-        List<KeyValue> keyValues = headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).collect(Collectors.toList());
-        for (KeyValue keyValue : keyValues) {
-            boolean hasHead = false;
-            //检查是否已经有重名的Head。如果Header重复会导致执行报错
-            if (headerManager.getHeaders() != null) {
-                for (int i = 0; i < headerManager.getHeaders().size(); i++) {
-                    Header header = headerManager.getHeader(i);
-                    String headName = header.getName();
-                    if (StringUtils.equals(headName, keyValue.getName()) && !StringUtils.equals(headName, "Cookie")) {
-                        hasHead = true;
-                        break;
-                    }
-                }
-            }
-            if (!hasHead) {
-                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
-            }
-        }
-        if (headerManager.getHeaders().size() > 0 && isAdd) {
-            tree.add(headerManager);
-        }
     }
 
     private void addArguments(HashTree tree, String key, String value) {
