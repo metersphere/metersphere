@@ -12,7 +12,6 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserGroupInfoDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -25,15 +24,14 @@ import io.metersphere.reportstatistics.dto.request.EnterpriseTestReportRequest;
 import io.metersphere.reportstatistics.dto.request.emun.EnterpriseReportStatus;
 import io.metersphere.reportstatistics.dto.response.EnterpriseTestReportDTO;
 import io.metersphere.reportstatistics.dto.response.UserGroupResponse;
-import io.metersphere.reportstatistics.dto.table.TestCaseCountTableDataDTO;
-import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
-import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
 import io.metersphere.reportstatistics.job.SendReportJob;
+import io.metersphere.reportstatistics.utils.EmailPageInfoUtil;
 import io.metersphere.reportstatistics.utils.JSONUtil;
 import io.metersphere.reportstatistics.utils.ScheduleUtil;
 import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.BaseScheduleService;
 import io.metersphere.service.BaseUserService;
+import jakarta.annotation.Resource;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -43,7 +41,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
@@ -345,140 +342,99 @@ public class EnterpriseTestReportService {
         mailNoticeSender.sendExternalMail(context, noticeModel);
     }
 
-    private String genReportContent(EnterpriseTestReportWithBLOBs report, boolean isSchedule) throws Exception {
-        StringBuffer returnReportContentBuffer = new StringBuffer();
-        List<EnterpriseReportContentStep> stepList = JSONUtil.parseArray(report.getReportContent(), EnterpriseReportContentStep.class);
+    private String formatPreviewContent(String previewContent) {
+        previewContent = StringUtils.replace(previewContent, "class=\"hljs-center\"", "style=\"text-align: center\"");
+        previewContent = StringUtils.replace(previewContent, "class=\"hljs-right\"", "style=\"text-align: right\"");
+        previewContent = StringUtils.replace(previewContent, "class=\"hljs-left\"", "style=\"text-align: left\"");
+        return previewContent;
+    }
 
+    private boolean isReportStep(String stepType) {
+        return StringUtils.equalsIgnoreCase(stepType, EmailPageInfoUtil.STEP_TYPE_REPORT);
+    }
+
+    private boolean isRichTextStep(String stepType) {
+        return StringUtils.equalsIgnoreCase(stepType, EmailPageInfoUtil.STEP_TYPE_TXT);
+    }
+
+    private String genReportContent(EnterpriseTestReportWithBLOBs report, boolean isSchedule) {
+        StringBuilder reportContent = new StringBuilder();
         UserDTO user = baseUserService.getUserDTO(report.getCreateUser());
+        List<EnterpriseReportContentStep> stepList = JSONUtil.parseArray(report.getReportContent(), EnterpriseReportContentStep.class);
         Map<String, String> syncReportMap = this.getSyncReportMap(stepList, user, isSchedule);
-
         for (EnterpriseReportContentStep step : stepList) {
-            String title = "<div style=\"background-color: #783887;font-size: 16px;color: white;margin: 5px;width: 100%; line-height:30px\">\n" +
-                    "<span style=\"margin-left: 5px\">" + step.getName() + StringUtils.LF +
-                    "</span>\n" +
-                    "</div>";
-            returnReportContentBuffer.append(title);
-            if (StringUtils.equalsIgnoreCase(step.getType(), "txt")) {
-                String previweContent = step.getPreviewContext();
-                previweContent = StringUtils.replace(previweContent, "class=\"hljs-center\"", "style=\"text-align: center\"");
-                previweContent = StringUtils.replace(previweContent, "class=\"hljs-right\"", "style=\"text-align: right\"");
-                previweContent = StringUtils.replace(previweContent, "class=\"hljs-left\"", "style=\"text-align: left\"");
-                if (StringUtils.contains(previweContent, "<img src=\"/resource/md/get") && StringUtils.contains(previweContent, "\" alt=\"")) {
-                    String[] previewContentArr = StringUtils.splitByWholeSeparator(StringUtils.SPACE + previweContent, "<img src=\"/resource/md/get");
-                    if (previewContentArr.length > 1) {
-                        for (int i = 1; i < previewContentArr.length; i++) {
-                            String itemStr = previewContentArr[i];
-                            int containsIndex = StringUtils.indexOf(itemStr, "\" alt=\"");
-                            if (containsIndex > 0) {
-                                String fileNameStr = StringUtils.substring(itemStr, 0, containsIndex);
-                                String fileName = fileNameStr;
-                                if (StringUtils.startsWith(fileName, "?fileName=")) {
-                                    fileName = fileName.substring(10, fileName.length());
-                                }
-                                String encodedFileName = URLDecoder.decode(fileName, "UTF-8");
-                                String dataType = "data:image/jpeg;";
-                                if (StringUtils.endsWithIgnoreCase(encodedFileName, ".png")) {
-                                    dataType = "data:image/png;";
-                                }
-                                try {
-                                    String fileContent = "<img src=\"" + dataType + "base64," + this.getImageContext(encodedFileName) + "\"";
-                                    previweContent = StringUtils.replace(previweContent, "<img src=\"/resource/md/get" + fileNameStr + "\"", fileContent);
-                                } catch (Exception exception) {
-                                    LogUtil.error(exception);
-                                }
-
-                            }
-                        }
-                    }
+            String title = EmailPageInfoUtil.generateEmailStepTitle(step.getName());
+            reportContent.append(title);
+            if (isRichTextStep(step.getType())) {
+                String previweContent = this.formatPreviewContent(step.getPreviewContext());
+                //判断富文本内容中是否含有图片
+                if (StringUtils.contains(previweContent, EmailPageInfoUtil.IMG_DATA_PREFIX)
+                        && StringUtils.contains(previweContent, EmailPageInfoUtil.IMG_DATA_CONTAINS)) {
+                    previweContent = this.formatStepImageInfo(previweContent);
                 }
-                returnReportContentBuffer.append(previweContent);
-            } else if (StringUtils.equalsIgnoreCase(step.getType(), "report")) {
-
+                reportContent.append(previweContent);
+            } else if (isReportStep(step.getType())) {
                 if (isSchedule) {
-                    //定时任务触发的数据，需要检查图片是否需要重新生成
+                    //定时任务触发的数据，需要检查图片是否需要重新生成。如果生成不成功就不贴图
                     String imageFile = syncReportMap.get(step.getReportRecordId());
                     if (StringUtils.isNotEmpty(imageFile)) {
                         step.setRecordImageContent(imageFile);
+                    } else {
+                        step.setRecordImageContent(null);
                     }
                 }
 
-                String reportPic = "<img  style=\"width: 100%;\" src=\"" + step.getRecordImageContent() + "\" alt=\"" + step.getReportRecordId() + ".jpg\" rel=\"1\" />";
-                returnReportContentBuffer.append(reportPic);
+                if (StringUtils.isNotEmpty(step.getRecordImageContent())) {
+                    reportContent.append(EmailPageInfoUtil.generatePicInfo(step.getReportRecordId(), step.getRecordImageContent()));
+                }
+
                 if (step.getReportRecordData() != null && step.getReportRecordData().containsKey("showTable")) {
-                    StringBuffer tableBuffer = new StringBuffer();
-                    tableBuffer.append("<table cellspacing=\"0\" cellpadding=\"0\" style=\"width: 100%;border: 1px\">");
-                    try {
-                        String showTableJsonStr = JSON.toJSONString(step.getReportRecordData().get("showTable"));
-                        TestCaseCountTableDataDTO showTable = JSON.parseObject(showTableJsonStr, TestCaseCountTableDataDTO.class);
-                        tableBuffer.append("<tr style=\"font-size: 14px;font-weight: 700;color: #909399;text-align: left;\">");
-                        for (TestCaseCountTableItemDataDTO itemData : showTable.getHeads()) {
-                            String tableHeadValue = itemData.getValue();
-                            switch (tableHeadValue) {
-                                case "testCase":
-                                    tableHeadValue = Translator.get("test_case");
-                                    break;
-                                case "apiCase":
-                                    tableHeadValue = Translator.get("api_case");
-                                    break;
-                                case "scenarioCase":
-                                    tableHeadValue = Translator.get("scenario_case");
-                                    break;
-                                case "performanceCase":
-                                    tableHeadValue = Translator.get("performance_case");
-                                    break;
-                                case "creator":
-                                    tableHeadValue = Translator.get("create_user");
-                                    break;
-                                case "casetype":
-                                    tableHeadValue = Translator.get("test_case_type");
-                                    break;
-                                case "casestatus":
-                                    tableHeadValue = Translator.get("test_case_status");
-                                    break;
-                                case "caselevel":
-                                    tableHeadValue = Translator.get("test_case_priority");
-                                    break;
-                                case "Count":
-                                    tableHeadValue = Translator.get("count");
-                                    break;
-                            }
-
-                            tableBuffer.append("<th style=\"border: 1px solid #E8EBF3; padding: 6px 10px\">" + tableHeadValue + "</th>");
-                        }
-                        tableBuffer.append("</tr>");
-                        for (TestCaseCountTableRowDTO row : showTable.getData()) {
-                            tableBuffer.append("<tr style=\"font-size: 14px;font-weight: 700;color: #909399;text-align: left;\">");
-                            for (TestCaseCountTableItemDataDTO itemData : row.getTableDatas()) {
-                                tableBuffer.append("<td style=\"border: 1px solid #E8EBF3; padding: 6px 10px\">" + itemData.getValue() + "</td>");
-                            }
-                            tableBuffer.append("</tr>");
-
-                        }
-                    } catch (Exception e) {
-                        LogUtil.error("解析表格数据出错!", e);
-                    }
-                    tableBuffer.append("</table>");
-                    returnReportContentBuffer.append(tableBuffer);
+                    reportContent.append(EmailPageInfoUtil.generateTableInfo(step.getReportRecordData()));
                 }
             }
         }
 
-        return returnReportContentBuffer.toString();
+        return reportContent.toString();
+    }
+
+    private String formatStepImageInfo(String previewContent) {
+        String[] previewContentArr = StringUtils.splitByWholeSeparator(StringUtils.SPACE + previewContent, EmailPageInfoUtil.IMG_DATA_PREFIX);
+        if (previewContentArr.length > 1) {
+            for (int i = 1; i < previewContentArr.length; i++) {
+                String itemStr = previewContentArr[i];
+                int containsIndex = StringUtils.indexOf(itemStr, EmailPageInfoUtil.IMG_DATA_CONTAINS);
+                if (containsIndex > 0) {
+                    String fileNameStr = StringUtils.substring(itemStr, 0, containsIndex);
+                    String decodeFileName = StringUtils.startsWith(fileNameStr, "?fileName=") ? fileNameStr.substring(10) : fileNameStr;
+                    String encodedFileName = URLDecoder.decode(decodeFileName, StandardCharsets.UTF_8);
+                    String dataType = StringUtils.endsWithIgnoreCase(encodedFileName, ".png") ?
+                            EmailPageInfoUtil.IMG_DATA_TYPE_PNG : EmailPageInfoUtil.IMG_DATA_TYPE_JPG;
+                    try {
+                        String fileContent = "<img src=\"" + dataType + "base64," + this.getImageContext(encodedFileName) + "\"";
+                        previewContent = StringUtils.replace(previewContent, EmailPageInfoUtil.IMG_DATA_PREFIX + fileNameStr + "\"", fileContent);
+                    } catch (Exception exception) {
+                        LogUtil.error(exception);
+                    }
+
+                }
+            }
+        }
+        return previewContent;
     }
 
     private Map<String, String> getSyncReportMap(List<EnterpriseReportContentStep> stepList, User user, boolean isSchedule) {
         Map<String, String> returnMap = new HashMap<>();
         if (isSchedule) {
+            //定时任务触发的数据，需要检查图片是否需要重新生成
             String language = null;
             if (user != null) {
                 language = user.getLanguage();
             }
             List<ReportStatisticsWithBLOBs> bloBsList = new ArrayList<>();
             for (EnterpriseReportContentStep step : stepList) {
-                //定时任务触发的数据，需要检查图片是否需要重新生成
                 ReportStatisticsWithBLOBs reportStatisticsWithBLOBs = reportStatisticsService.selectById(step.getReportRecordId(), false);
                 if (reportStatisticsWithBLOBs != null) {
-                    boolean needSyncImage = reportStatisticsService.isReportNeedUpdate(reportStatisticsWithBLOBs);
+                    boolean needSyncImage = reportStatisticsService.reportHasUpdated(reportStatisticsWithBLOBs);
                     if (needSyncImage) {
                         bloBsList.add(reportStatisticsWithBLOBs);
                     }
