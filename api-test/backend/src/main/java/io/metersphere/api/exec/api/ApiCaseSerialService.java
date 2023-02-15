@@ -5,10 +5,6 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
-import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
-import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
@@ -22,17 +18,14 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ProjectJarConfig;
-import io.metersphere.dto.ResultDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
@@ -50,6 +43,7 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class ApiCaseSerialService {
     private final static String PROJECT_ID = "projectId";
+    public static final String NAME = "name";
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -143,33 +137,30 @@ public class ApiCaseSerialService {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(caseWithBLOBs.getName());
                 group.setName(runRequest.getReportId());
+                group.setHashTree(new LinkedList<>());
                 // 接口用例集成报告
                 if (StringUtils.isNotEmpty(runRequest.getTestPlanReportId())
                         && StringUtils.equals(runRequest.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                     group.setName(runRequest.getTestPlanReportId());
                 }
                 group.setProjectId(caseWithBLOBs.getProjectId());
-                MsTestElement testElement;
                 // 数据兼容处理
                 JSONObject element = JSONUtil.parseObject(caseWithBLOBs.getRequest());
                 ElementUtil.dataFormatting(element);
-                String data = element.toString();
+                parse(element, testId, envId, caseWithBLOBs.getProjectId());
+                String runData = element.toString();
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                    // 失败重试
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), true);
-                    data = StringUtils.isNotEmpty(retryData) ? retryData : data;
-                    // 格式化数据
-                    testElement = apiRetryOnFailureService.retryParse(data);
-                    MsTestElement msTestElement = parse(JSON.toJSONString(testElement.getHashTree().get(0)), testId, envId, caseWithBLOBs.getProjectId());
-                    testElement.setHashTree(new LinkedList<>() {{
-                        this.add(msTestElement);
-                    }});
-                } else {
-                    testElement = parse(data, testId, envId, caseWithBLOBs.getProjectId());
+                    try {
+                        // 失败重试
+                        String retryData = apiRetryOnFailureService.retry(runData, runRequest.getRetryNum(), true);
+                        if (StringUtils.isNotBlank(retryData)) {
+                            runData = retryData;
+                        }
+                    } catch (Exception e) {
+                        LoggerUtil.error("失败重试脚本生成失败 ", runRequest.getReportId(), e);
+                    }
                 }
-
-                group.setHashTree(new LinkedList<>());
-                group.getHashTree().add(testElement);
+                group.getHashTree().add(JSONUtil.parseObject(runData, MsTestElement.class));
                 testPlan.getHashTree().add(group);
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
                 LoggerUtil.info("用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
@@ -177,64 +168,23 @@ public class ApiCaseSerialService {
             }
         } catch (Exception ex) {
             RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            remakeReportService.remake(runRequest);
-            ResultDTO dto = new ResultDTO();
-            BeanUtils.copyBean(dto, runRequest);
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            remakeReportService.testEnded(runRequest, ex.getMessage());
             LoggerUtil.error("用例资源：" + testId + ", 生成执行脚本失败", runRequest.getReportId(), ex);
         }
         return null;
     }
 
-    private MsTestElement parse(String api, String planId, String envId, String projectId) {
+    private void parse(JSONObject element, String testId, String envId, String projectId) {
         try {
-            JSONObject element = JSONUtil.parseObject(api);
-            LinkedList<MsTestElement> list = new LinkedList<>();
-            if (element != null && StringUtils.isNotEmpty(element.optString(ElementConstants.HASH_TREE))) {
-                list.addAll(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
+            element.putOpt(NAME, testId);
+            if (StringUtils.isNotEmpty(envId)) {
+                element.putOpt(PropertyConstant.ENVIRONMENT, envId);
             }
-            if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.HTTP_SAMPLER)) {
-                MsHTTPSamplerProxy httpSamplerProxy = JSONUtil.parseObject(element.toString(), MsHTTPSamplerProxy.class);
-                httpSamplerProxy.setHashTree(list);
-                httpSamplerProxy.setName(planId);
-                if (StringUtils.isNotEmpty(envId)) {
-                    httpSamplerProxy.setUseEnvironment(envId);
-                }
-                return httpSamplerProxy;
-            }
-            if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.TCP_SAMPLER)) {
-                MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class);
-                if (StringUtils.isEmpty(msTCPSampler.getProjectId())) {
-                    msTCPSampler.setProjectId(projectId);
-                }
-                if (StringUtils.isNotEmpty(envId)) {
-                    msTCPSampler.setUseEnvironment(envId);
-                }
-                msTCPSampler.setHashTree(list);
-                msTCPSampler.setName(planId);
-                return msTCPSampler;
-            }
-            if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.DUBBO_SAMPLER)) {
-                MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class);
-                if (StringUtils.isNotEmpty(envId)) {
-                    dubboSampler.setUseEnvironment(envId);
-                }
-                dubboSampler.setHashTree(list);
-                dubboSampler.setName(planId);
-                return dubboSampler;
-            }
-            if (element.optString(PropertyConstant.TYPE).equals(ElementConstants.JDBC_SAMPLER)) {
-                MsJDBCSampler jDBCSampler = JSON.parseObject(api, MsJDBCSampler.class);
-                if (StringUtils.isNotEmpty(envId)) {
-                    jDBCSampler.setUseEnvironment(envId);
-                }
-                jDBCSampler.setHashTree(list);
-                jDBCSampler.setName(planId);
-                return jDBCSampler;
+            if (StringUtils.isBlank(element.optString(PROJECT_ID))) {
+                element.putOpt(PROJECT_ID, projectId);
             }
         } catch (Exception e) {
             LogUtil.error(e);
         }
-        return null;
     }
 }

@@ -31,7 +31,7 @@ public class RequestParamsUtil {
 
     public static void rollback(JmeterRunRequestDTO runRequest, Exception e) {
         RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-        remakeReportService.remake(runRequest);
+        remakeReportService.testEnded(runRequest, e.getMessage());
         ResultDTO dto = new ResultDTO();
         BeanUtils.copyBean(dto, runRequest);
         CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);

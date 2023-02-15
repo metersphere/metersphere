@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 public class GenerateHashTreeUtil {
-
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         if (StringUtils.isNotEmpty(scenarioDefinition)) {
             MsScenario scenario = JSON.parseObject(scenarioDefinition, MsScenario.class);
@@ -148,9 +147,15 @@ public class GenerateHashTreeUtil {
             String data = definition;
             // 失败重试
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), false);
-                data = StringUtils.isNotEmpty(retryData) ? retryData : data;
+                try {
+                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
+                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), false);
+                    if (StringUtils.isNotBlank(retryData)) {
+                        data = retryData;
+                    }
+                } catch (Exception e) {
+                    LoggerUtil.error("失败重试脚本生成失败 ", runRequest.getReportId(), e);
+                }
             }
 
             GenerateHashTreeUtil.parse(data, scenario);
@@ -169,7 +174,7 @@ public class GenerateHashTreeUtil {
 
             LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
         } catch (Exception ex) {
-            remakeException(runRequest);
+            remakeException(runRequest, ex);
             LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
             return null;
         }
@@ -178,9 +183,9 @@ public class GenerateHashTreeUtil {
         return jmeterHashTree;
     }
 
-    public static void remakeException(JmeterRunRequestDTO runRequest) {
+    public static void remakeException(JmeterRunRequestDTO runRequest, Exception e) {
         RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-        remakeReportService.remake(runRequest);
+        remakeReportService.testEnded(runRequest, e.getMessage());
         ResultDTO dto = new ResultDTO();
         BeanUtils.copyBean(dto, runRequest);
         CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
