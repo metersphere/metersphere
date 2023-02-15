@@ -215,7 +215,7 @@ public class ApiFileUtil extends FileUtils {
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
                 } else {
-                    path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName());
+                    path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileMetadataId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName());
                 }
 
                 testElement.setProperty(ElementConstants.FILENAME, path);
