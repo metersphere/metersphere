@@ -203,11 +203,11 @@ export default {
 <style scoped>
 
 :deep(.ms-main-container) {
-  height: calc(100vh - 80px - 53px);
+  height: calc(100vh - 93px);
 }
 
 :deep(.ms-aside-container ){
-  height: calc(100vh - 80px - 53px) !important;
+  height: calc(100vh - 93px) !important;
   margin-top: 1px;
 }
 
