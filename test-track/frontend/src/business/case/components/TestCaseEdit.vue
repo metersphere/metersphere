@@ -904,7 +904,7 @@ export default {
       this.loading = true;
       testCaseCommentList(this.caseId).then((res) => {
         this.loading = false;
-        this.comments = res.data;
+        this.comments = res.data.filter(comment => comment.description);
       });
     },
     showAll() {
