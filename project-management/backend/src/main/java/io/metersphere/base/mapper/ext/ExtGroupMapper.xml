@@ -8,6 +8,23 @@
         (SELECT COUNT(DISTINCT ug.user_id) FROM user_group ug JOIN user ON ug.user_id = user.id WHERE ug.group_id =
         temp.id AND ug.source_id = #{request.projectId}) AS memberSize
         FROM (
+        SELECT g.*, w.name AS scopeName FROM `group` g, workspace w
+        <where>
+            and g.scope_id = w.id
+            <if test="request.types != null and request.types.size() > 0">
+                AND g.type IN
+                <foreach collection="request.types" item="type" separator="," open="(" close=")">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="request.scopes != null and request.scopes.size() > 0">
+                AND g.scope_id IN
+                <foreach collection="request.scopes" item="scope" separator="," open="(" close=")">
+                    #{scope}
+                </foreach>
+            </if>
+        </where>
+        UNION DISTINCT
         SELECT g.*, 'global' AS scopeName FROM `group` g
         <where>
             g.scope_id = 'global'
