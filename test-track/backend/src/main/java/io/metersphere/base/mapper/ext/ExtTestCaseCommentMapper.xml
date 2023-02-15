@@ -12,6 +12,9 @@
         <if test="belongId != null and belongId != ''">
             and test_case_comment.belong_id = #{belongId}
         </if>
+        <if test="withStatus">
+            and test_case_comment.status is not null
+        </if>
         order by test_case_comment.create_time desc
     </select>
 </mapper>

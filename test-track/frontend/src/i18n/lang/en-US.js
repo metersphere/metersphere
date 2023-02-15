@@ -65,9 +65,6 @@ const message = {
   plan: {
     batch_delete_tip: "Do you want to continue deleting the test plan?",
   },
-  table: {
-    all_case_content: "All case"
-  },
   review: {
     result_distribution: "Result Distribution",
     review_pass_rule: 'Review Pass Criteria',
@@ -84,6 +81,7 @@ const message = {
     pass_review_confirm: "Are you sure to pass this review",
   },
   case: {
+    all_case_content: "All case",
     use_case_detail: "Use Case Details",
     associate_test_cases: "Associate Test Cases",
     dependencies: "Dependence",

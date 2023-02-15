@@ -123,6 +123,7 @@
           min-width="120px"/>
 
         <test-case-review-status-table-item
+          :filters="statusFilters"
           :field="item"
           :fields-width="fieldsWidth"/>
 
@@ -258,6 +259,12 @@ export default {
         {text: 'P1', value: 'P1'},
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
+      ],
+      statusFilters:  [
+        {text: this.$t('test_track.review.again'), value: 'Again'},
+        {text: this.$t('test_track.review.pass'), value: 'Pass'},
+        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.underway'), value: 'Underway'},
       ],
       methodFilters: [
         {text: this.$t('test_track.case.manual'), value: 'manual'},

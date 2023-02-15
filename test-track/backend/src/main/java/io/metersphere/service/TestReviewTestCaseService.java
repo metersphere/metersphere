@@ -205,7 +205,7 @@ public class TestReviewTestCaseService {
 
     public String updateReviewCaseStatusForEdit(TestCaseReviewTestCaseEditRequest testCaseReviewTestCase, String reviewPassRule) {
         List<TestCaseCommentDTO> comments =
-                testCaseCommentService.getCaseComments(testCaseReviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), testCaseReviewTestCase.getReviewId());
+                testCaseCommentService.getStatusCaseComments(testCaseReviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), testCaseReviewTestCase.getReviewId());
 
         comments = filterAgainComments(comments);
 
@@ -228,7 +228,7 @@ public class TestReviewTestCaseService {
         TestCaseReviewTestCase testCaseReviewTestCase = testCaseReviewTestCaseMapper.selectByPrimaryKey(id);
 
         List<TestCaseCommentDTO> comments =
-                testCaseCommentService.getCaseComments(testCaseReviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), testCaseReviewTestCase.getReviewId());
+                testCaseCommentService.getStatusCaseComments(testCaseReviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), testCaseReviewTestCase.getReviewId());
 
         String reviewPassRule = testCaseReviewService.getTestReview(testCaseReviewTestCase.getReviewId())
                 .getReviewPassRule();
@@ -675,7 +675,7 @@ public class TestReviewTestCaseService {
 
     public void updateReviewCaseStatusForRuleChange(String originPassRule, TestCaseReviewTestCase reviewTestCase, String reviewPassRule) {
         List<TestCaseCommentDTO> comments =
-                testCaseCommentService.getCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
+                testCaseCommentService.getStatusCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
 
         comments = filterAgainComments(comments);
 
@@ -702,7 +702,7 @@ public class TestReviewTestCaseService {
      */
     public void reCalcReviewCaseStatus(String reviewPassRule, TestCaseReviewTestCase reviewTestCase) {
         List<TestCaseCommentDTO> comments =
-                testCaseCommentService.getCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
+                testCaseCommentService.getStatusCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
 
         comments = filterAgainComments(comments);
 
@@ -720,13 +720,20 @@ public class TestReviewTestCaseService {
     public void reReviewByCaseId(String caseId) {
         List<TestCaseReviewTestCase> reviewTestCases = extTestCaseReviewTestCaseMapper.selectForReReview(caseId);
         for (TestCaseReviewTestCase reviewTestCase : reviewTestCases) {
-            updateTestReviewTestCaseStatus(reviewTestCase, TestCaseReviewCommentStatus.Again.name());
-            // 添加一条重新提审的评论
-            TestCaseReviewTestCaseEditRequest addCommentRequest = new TestCaseReviewTestCaseEditRequest();
-            BeanUtils.copyBean(addCommentRequest, reviewTestCase);
-            addCommentRequest.setStatus(TestCaseReviewCommentStatus.Again.name());
-            addCommentRequest.setComment(StringUtils.EMPTY);
-            testCaseCommentService.saveReviewCommentWithoutNotification(addCommentRequest);
+            List<TestCaseCommentDTO> comments =
+                    testCaseCommentService.getStatusCaseComments(reviewTestCase.getCaseId(), TestCaseCommentType.REVIEW.name(), reviewTestCase.getReviewId());
+
+            comments = filterAgainComments(comments);
+
+            if (CollectionUtils.isNotEmpty(comments)) {
+                updateTestReviewTestCaseStatus(reviewTestCase, TestCaseReviewCommentStatus.Again.name());
+                // 添加一条重新提审的评论
+                TestCaseReviewTestCaseEditRequest addCommentRequest = new TestCaseReviewTestCaseEditRequest();
+                BeanUtils.copyBean(addCommentRequest, reviewTestCase);
+                addCommentRequest.setStatus(TestCaseReviewCommentStatus.Again.name());
+                addCommentRequest.setComment(StringUtils.EMPTY);
+                testCaseCommentService.saveReviewCommentWithoutNotification(addCommentRequest);
+            }
         }
     }
 }
