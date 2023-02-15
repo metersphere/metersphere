@@ -4,7 +4,7 @@
 
     <div class="case-main-layout-left" style="float: left; display: inline-block">
       <!-- 表头统计内容  -->
-      <ms-table-count-bar :count-content="$t('table.all_case_content') + ' (' + page.total + ')'"></ms-table-count-bar>
+      <ms-table-count-bar :count-content="$t('case.all_case_content') + ' (' + page.total + ')'"></ms-table-count-bar>
     </div>
 
     <div class="case-main-layout-right" style="float: right; display: flex">

@@ -65,9 +65,6 @@ const message = {
   plan: {
     batch_delete_tip: "批量刪除測試計劃，是否繼續？",
   },
-  table: {
-    all_case_content: "全部用例"
-  },
   review: {
     result_distribution: "結果分布",
     review_pass_rule: '評審通過標準',
@@ -84,6 +81,7 @@ const message = {
     pass_review_confirm: "確定通過此評審嗎",
   },
   case: {
+    all_case_content: "全部用例",
     use_case_detail: "用例詳情",
     associate_test_cases: "關聯測試用例",
     dependencies: "依賴關繫",

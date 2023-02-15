@@ -1400,6 +1400,9 @@ export default {
       this.currentVersionName = this.findVersionNameByID(this.form.versionId)
     },
     async getVersionOptionList() {
+      if (!hasLicense()) {
+        return;
+      }
       let res = await getProjectVersions(getCurrentProjectID());
       this.versionOptions = res.data ?? [];
     },
