@@ -13,12 +13,12 @@ import io.metersphere.reportstatistics.dto.table.TestCaseCountTableItemDataDTO;
 import io.metersphere.reportstatistics.dto.table.TestCaseCountTableRowDTO;
 import io.metersphere.reportstatistics.utils.ChromeUtil;
 import io.metersphere.service.SystemParameterService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 /**
@@ -83,7 +83,7 @@ public class ReportStatisticsService {
 
         Map<String, Object> selectOption = JSON.parseObject(blob.getSelectOption(), Map.class);
         Map<String, Object> dataOption = JSON.parseObject(blob.getDataOption(), Map.class);
-        boolean isReportNeedUpdate = this.isReportNeedUpdate(blob);
+        boolean isReportNeedUpdate = this.reportHasUpdated(blob);
         if (isReportNeedUpdate) {
             TestCaseCountRequest countRequest = JSON.parseObject(blob.getSelectOption(), TestCaseCountRequest.class);
             Map<String, Object> returnDataOption = this.reloadData(countRequest, dataOption.get("chartType").toString());
@@ -298,7 +298,7 @@ public class ReportStatisticsService {
         return returnMap;
     }
 
-    public boolean isReportNeedUpdate(ReportStatisticsWithBLOBs model) {
+    public boolean reportHasUpdated(ReportStatisticsWithBLOBs model) {
         Map<String, Object> selectOption = JSON.parseObject(model.getSelectOption(), Map.class);
         return selectOption.containsKey("timeType") && StringUtils.equalsIgnoreCase("dynamicTime", String.valueOf(selectOption.get("timeType")));
     }
