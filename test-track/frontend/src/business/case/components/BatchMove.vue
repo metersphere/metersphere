@@ -77,12 +77,13 @@ export default {
     }
   },
   methods: {
-    open(isMoveBatch, caseTitle, treeNodes, selectNum, moduleOptions) {
+    open(isMoveBatch, caseTitle, treeNodes, selectNum, selectIds, moduleOptions) {
       this.isMoveBatch = isMoveBatch;
       this.moveCaseTitle = caseTitle;
       this.dialogVisible = true;
       this.treeNodes = treeNodes;
       this.selectNum = selectNum;
+      this.selectIds = selectIds;
       this.moduleOptions = moduleOptions;
     },
     save() {

@@ -1151,12 +1151,12 @@ export default {
     handleBatchMove() {
       this.isMoveBatch = true;
       let firstSelectRow = this.$refs.table.selectRows.values().next().value;
-      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.selectCounts, this.moduleOptions);
+      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.selectCounts, this.$refs.table.selectIds, this.moduleOptions);
     },
     handleBatchCopy() {
       this.isMoveBatch = false;
       let firstSelectRow = this.$refs.table.selectRows.values().next().value;
-      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.selectCounts, this.moduleOptions);
+      this.$refs.testBatchMove.open(this.isMoveBatch, firstSelectRow.name, this.treeNodes, this.selectCounts, this.$refs.table.selectIds, this.moduleOptions);
     },
     _handleDeleteVersion(testCase, deleteCurrentVersion) {
       // 删除指定版本

@@ -80,6 +80,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -1894,6 +1895,12 @@ public class TestCaseService {
             batchEditTag(request);
         } else {
             // 批量移动
+            if (request.getCondition().isSelectAll()) {
+                // 全选则重新设置MoveIds
+                List<TestCaseDTO> testCaseDTOS = listTestCase(request.getCondition());
+                List<String> ids = testCaseDTOS.stream().map(TestCaseDTO::getId).collect(Collectors.toList());
+                request.setIds(ids);
+            }
             TestCaseWithBLOBs batchEdit = new TestCaseWithBLOBs();
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
