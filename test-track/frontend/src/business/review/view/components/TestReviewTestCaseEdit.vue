@@ -78,8 +78,8 @@
 
         <comment-history
           default-type="REVIEW"
-          :case-id="testCase.caseId"
-          :review-id="testCase.reviewId"
+          :case-id="caseId"
+          :review-id="reviewId"
           @emptyChange="handleCommentEmptyChange"
           ref="comment"/>
 
@@ -174,7 +174,9 @@ export default {
       isCustomFiledActive: false,
       titleWith: 0,
       relationGraphOpen: false,
-      isCommentEmpty: true
+      isCommentEmpty: true,
+      caseId: null,
+      reviewId: null,
     };
   },
   props: {
@@ -261,12 +263,14 @@ export default {
       this.$emit("refreshTable");
     },
     refreshComment() {
-      this.$refs.comment.getComments();
+      if (this.$refs.comment) {
+        this.$refs.comment.getComments();
+      }
     },
     refreshTestCaseStatus(status) {
       this.testCase.reviewStatus = status;
       this.updateTestCases(this.testCase);
-      this.$refs.comment.getComments();
+      this.refreshComment();
       this.$refs.headerBar.getReviewerStatus();
     },
     updateTestCases(param) {
@@ -386,9 +390,12 @@ export default {
       if (this.$refs.otherInfo) {
         this.$refs.otherInfo.reset();
       }
-      if (this.$refs.comment) {
-        this.$refs.comment.getComments();
-      }
+
+      this.caseId = testCase.caseId;
+      this.reviewId = testCase.reviewId;
+      this.$nextTick(() => {
+        this.refreshComment();
+      });
     },
     getRelatedTest() {
       if (
