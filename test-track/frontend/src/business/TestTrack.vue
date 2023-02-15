@@ -248,5 +248,24 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
 .el-icon-warning:before, .el-icon-success:before {
   font-size: 17px;
 }
+
+/**
+ * el-icon-close
+ */
+i.el-tag__close.el-icon-close {
+  height: 0;
+}
+
+.el-select .el-tag__close.el-icon-close::before {
+  font-size: 26px;
+  position: relative;
+  top: -7px;
+  left: -6px;
+}
+
+.el-tag.el-tag--info .el-tag__close:hover {
+  color: #1F2329;
+  background-color: #909399;
+}
 </style>
 

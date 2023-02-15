@@ -24,7 +24,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <i class="delimiter">|</i>
-          <el-button size="mini" icon="el-icon-close" @click="close" style="float: right; margin: 5px 19px;"></el-button>
+          <el-button size="mini" icon="el-icon-close" @click="close" style="margin: 0 30px 0 20px"></el-button>
         </div>
       </el-col>
     </el-row>
@@ -57,12 +57,14 @@ export default {
 </script>
 
 <style scoped>
+.name-edit {
+  padding-left: 10px;
+}
 
 .head-bar {
   background: white;
   height: 45px;
   line-height: 45px;
-  padding: 0 10px;
   border: 1px solid #EBEEF5;
   box-shadow: 0 0 2px 0 rgba(31, 31, 31, 0.15), 0 1px 2px 0 rgba(31, 31, 31, 0.15);
 }
@@ -134,5 +136,14 @@ i.delimiter {
   position: relative;
   top: -2px;
   left: 15px;
+}
+
+.ms-export {
+  float: right;
+}
+
+:deep(.el-icon-close:before) {
+  position: relative;
+  top: 2px;
 }
 </style>

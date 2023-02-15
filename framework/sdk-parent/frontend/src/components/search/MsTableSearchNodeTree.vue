@@ -14,7 +14,6 @@
         @change="changeTreeTag"
         class="search-select"
         size="small"
-        collapse-tags
         multiple>
         <div class="search-div">
           <el-option
