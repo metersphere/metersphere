@@ -352,6 +352,7 @@ export default {
 .search-item {
   display: block;
   width: 100%;
+  margin-left: -15px;
 }
 
 .delete-icon {
@@ -370,6 +371,7 @@ export default {
   height: 26px;
   width: 112px;
   border-radius: 4px;
+  float: left;
 }
 
 :deep(span.el-select__tags-text) {
@@ -431,7 +433,7 @@ span.condition-num {
 :deep(button.el-button.el-button--default.el-button--mini svg) {
   position: relative;
   right: 7px;
-  top: 1px;
+  top: -1px;
   width: 14px;
   height: 14px;
 }

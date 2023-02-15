@@ -1,7 +1,7 @@
 <template>
   <div class="recycle" v-if="this.isXpack" @click="exe">
     <div style="padding: 9px 13px 9px 13px;" class="to-public">
-      <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 4px;left: 1px;margin-right: 9px;"/>
+      <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 2px;left: 1px;margin-right: 9px;"/>
       <span style="margin-right: 12px;">{{ $t('project.case_public') }}</span>
       <span style="color: #8F959E">{{ '(' + publicTotal + ')' }}</span>
     </div>
@@ -73,6 +73,7 @@ export default {
   width: auto;
   border-radius: 4px;
   display: flex;
+  overflow-x: hidden;
 }
 
 .to-public:hover {

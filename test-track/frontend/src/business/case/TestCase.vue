@@ -143,7 +143,6 @@
             :tree-nodes="treeNodes"
             :version-enable="versionEnable"
             @refreshTable="refresh"
-            @testCaseCopy="copyTestCase"
             @refresh="refresh"
             @refreshAll="refreshAll"
             @refreshPublic="refreshPublic"
