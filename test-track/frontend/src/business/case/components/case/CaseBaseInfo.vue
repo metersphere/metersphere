@@ -466,6 +466,8 @@ export default {
         this.treeNodes.forEach(node => {
           if (node.label === '未规划用例') {
             defaultNodeKey = node.id;
+            this.form.module = defaultNodeKey;
+            this.form.nodePath = node.path;
           }
         })
         return defaultNodeKey;

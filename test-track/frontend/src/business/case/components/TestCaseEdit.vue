@@ -1242,13 +1242,13 @@ export default {
               "," +
               this.$t("test_track.case.expected_results") +
               this.$t("test_track.length_less_than") +
-              "300"
+              "300", false
           );
           return false;
         }
       }
       if (param.name === "") {
-        this.$warning(this.$t("test_track.case.input_name"));
+        this.$warning(this.$t("test_track.case.input_name"), false);
         return false;
       }
       return true;
@@ -1307,7 +1307,7 @@ export default {
       let curTabId = useStore().curTabId;
       if (curTabId === this.tabId) {
         if (event.keyCode === 83 && event.ctrlKey && this.readOnly) {
-          this.$warning(this.$t("commons.no_operation_permission"));
+          this.$warning(this.$t("commons.no_operation_permission"), false);
           return false;
         }
         handleCtrlSEvent(event, this.saveCase);
@@ -1522,9 +1522,7 @@ export default {
           }
         }
         this.isValidate = true;
-        this.$warning(
-          this.currentValidateName + this.$t("commons.cannot_be_null")
-        );
+        this.$warning(this.currentValidateName + this.$t("commons.cannot_be_null"), false);
         this.currentValidateName = "";
         return false;
       }
