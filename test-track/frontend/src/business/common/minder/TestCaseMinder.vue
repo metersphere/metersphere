@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="case-main-layout-left" style="display: inline-block">
-      <ms-table-count-bar :count-content="$t('table.all_case_content') + '(' + caseNum + ')'"></ms-table-count-bar>
+      <ms-table-count-bar :count-content="$t('case.all_case_content') + '(' + caseNum + ')'"></ms-table-count-bar>
     </div>
 
     <div class="case-main-layout-right" style="float: right; display: flex">

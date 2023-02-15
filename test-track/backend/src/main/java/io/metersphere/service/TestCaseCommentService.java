@@ -85,7 +85,7 @@ public class TestCaseCommentService {
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId, String type) {
-        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, null));
+        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, null, false));
     }
 
     /**
@@ -100,7 +100,11 @@ public class TestCaseCommentService {
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId, String type, String belongId) {
-        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, belongId));
+        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, belongId, false));
+    }
+
+    public List<TestCaseCommentDTO> getStatusCaseComments(String caseId, String type, String belongId) {
+        return filterMarkComments(extTestCaseCommentMapper.getCaseComments(caseId, type, belongId, true));
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {

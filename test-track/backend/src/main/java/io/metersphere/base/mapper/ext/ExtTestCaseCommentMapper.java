@@ -12,5 +12,6 @@ public interface ExtTestCaseCommentMapper {
      * @param caseId
      * @return
      */
-    List<TestCaseCommentDTO> getCaseComments(@Param("caseId") String caseId, @Param("type") String type, @Param("belongId") String belongId);
+    List<TestCaseCommentDTO> getCaseComments(@Param("caseId") String caseId, @Param("type") String type,
+                                             @Param("belongId") String belongId,  @Param("withStatus") boolean withStatus);
 }
