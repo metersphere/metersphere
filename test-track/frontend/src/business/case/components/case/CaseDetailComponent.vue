@@ -116,6 +116,7 @@
             <test-case-step-item
               v-if="form.stepModel === 'STEP' || !form.stepModel"
               :form="form"
+              :editable="editable"
               :read-only="readOnly"
             />
           </div>
