@@ -41,7 +41,6 @@ export default {
   data() {
     return {
       comments: [],
-      type: '',
       loading: false,
     };
   },
@@ -52,17 +51,10 @@ export default {
   },
   computed: {
     isCommentEmpty() {
-      return !this.comments || this.comments.length == 0
+      return !this.comments || this.comments.length == 0;
     }
   },
   watch: {
-    caseId() {
-      this.type = this.defaultType;
-      this.getComments();
-    },
-    type() {
-      this.getComments();
-    },
     comments() {
       this.$emit('emptyChange', this.isCommentEmpty);
     }
@@ -71,8 +63,7 @@ export default {
     getComments() {
       if (this.caseId) {
         this.loading = true;
-        let type = this.type || '';
-        testCaseCommentListByTypeAndBelongId(this.caseId, type, this.reviewId)
+        testCaseCommentListByTypeAndBelongId(this.caseId, this.defaultType, this.reviewId)
           .then(res => {
             this.comments = res.data;
             this.loading = false;
