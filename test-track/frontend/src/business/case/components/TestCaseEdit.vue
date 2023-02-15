@@ -656,12 +656,6 @@ export default {
       },
       deep: true,
     },
-    caseId: {
-      handler(val) {
-        this.loadTestCase();
-      },
-      immediate: true
-    }
   },
   beforeDestroy() {
     this.removeListener();
