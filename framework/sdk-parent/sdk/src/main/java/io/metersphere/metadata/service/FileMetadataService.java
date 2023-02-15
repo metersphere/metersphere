@@ -325,6 +325,8 @@ public class FileMetadataService {
         if (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
             fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
         }
+        //latest字段只能在git/pull时更新
+        fileMetadata.setLatest(null);
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
     }
 
@@ -570,7 +572,7 @@ public class FileMetadataService {
         List<FileRequest> downloadFileRequest = new ArrayList<>();
         //检查是否存在已下载的文件
         fileMetadataWithBLOBList.forEach(fileMetadata -> {
-            File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getName());
+            File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getId(), fileMetadata.getUpdateTime(), fileMetadata.getName());
             if (file != null) {
                 LoggerUtil.info("文件【" + fileMetadata.getUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】已找到，无需下载");
                 FileInfoDTO fileInfoDTO = new FileInfoDTO(fileMetadata.getId(), fileMetadata.getName(), fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getStorage(), fileMetadata.getPath(), FileUtils.fileToByte(file));
@@ -583,7 +585,7 @@ public class FileMetadataService {
         List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(downloadFileRequest);
         //将文件存储到执行文件目录中，避免多次执行时触发多次下载
         if (CollectionUtils.isNotEmpty(repositoryFileDTOList)) {
-            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
+            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
             fileInfoDTOList.addAll(repositoryFileDTOList);
         }
         return fileInfoDTOList;
@@ -631,8 +633,8 @@ public class FileMetadataService {
     }
 
     public FileMetadata pullFromRepository(FileMetadata request) {
-        FileMetadata returnModel = null;
         FileMetadataWithBLOBs baseMetadata = fileMetadataMapper.selectByPrimaryKey(request.getId());
+        FileMetadata returnModel = baseMetadata;
         if (StringUtils.equals(baseMetadata.getStorage(), StorageConstants.GIT.name()) && StringUtils.isNotEmpty(baseMetadata.getAttachInfo())) {
             RemoteFileAttachInfo baseAttachInfo = JSON.parseObject(baseMetadata.getAttachInfo(), RemoteFileAttachInfo.class);
             FileModule fileModule = fileModuleService.get(baseMetadata.getModuleId());
@@ -646,10 +648,13 @@ public class FileMetadataService {
                     FileMetadataWithBLOBs newMetadata = this.genOtherVersionFileMetadata(baseMetadata, thisTime, gitFileAttachInfo);
                     fileMetadataMapper.insert(newMetadata);
 
-                    baseMetadata.setUpdateTime(thisTime);
-                    baseMetadata.setLatest(false);
-                    baseMetadata.setUpdateUser(SessionUtils.getUserId());
-                    fileMetadataMapper.updateByPrimaryKeySelective(baseMetadata);
+                    FileMetadataWithBLOBs updateOldData = new FileMetadataWithBLOBs();
+                    updateOldData.setLatest(Boolean.FALSE);
+                    FileMetadataExample example = new FileMetadataExample();
+                    example.createCriteria().andIdEqualTo(baseMetadata.getId());
+                    fileMetadataMapper.updateByExampleSelective(updateOldData, example);
+
+                    returnModel = newMetadata;
                 }
             }
         }

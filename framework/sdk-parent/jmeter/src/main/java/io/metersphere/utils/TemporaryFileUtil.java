@@ -27,24 +27,24 @@ public class TemporaryFileUtil {
                 + File.separator;
     }
 
-    public String generateFileDir(String folder, long updateTime) {
+    public String generateFileDir(String folder, String fileMetadataId, long updateTime) {
         if (StringUtils.isBlank(folder)) {
             folder = DEFAULT_FILE_FOLDER;
         }
-        if (updateTime == 0) {
+        if (StringUtils.isBlank(fileMetadataId)) {
             return fileFolder + folder + File.separator;
         } else {
-            return fileFolder + folder + File.separator + updateTime + File.separator;
+            String metadataIdFolder = fileFolder + folder + File.separator + fileMetadataId + File.separator;
+            return updateTime == 0 ? metadataIdFolder : metadataIdFolder + updateTime + File.separator;
         }
-
     }
 
-    public String generateFilePath(String folder, long updateTime, String fileName) {
-        return generateFileDir(folder, updateTime) + fileName;
+    public String generateFilePath(String folder, String fileMetadataId, long updateTime, String fileName) {
+        return generateFileDir(folder, fileMetadataId, updateTime) + fileName;
     }
 
-    public File getFile(String folder, long updateTime, String fileName) {
-        File file = new File(generateFilePath(folder, updateTime, fileName));
+    public File getFile(String folder, String fileMetadataId, long updateTime, String fileName) {
+        File file = new File(generateFilePath(folder, fileMetadataId, updateTime, fileName));
         if (file.exists()) {
             return file;
         } else {
@@ -52,26 +52,30 @@ public class TemporaryFileUtil {
         }
     }
 
-    public void saveFile(String folder, long updateTime, String fileName, byte[] fileBytes) {
+    public void saveFile(String folder, String fileMetadataId, long updateTime, String fileName, byte[] fileBytes) {
         //删除过期文件
-        deleteOldFile(folder, updateTime, fileName);
-        this.createFile(generateFilePath(folder, updateTime, fileName), fileBytes);
+        deleteOldFile(folder, fileMetadataId, updateTime, fileName);
+        this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName), fileBytes);
     }
 
-    public void saveFileByParamCheck(String folder, long updateTime, String fileName, byte[] fileBytes) {
+    public void saveFileByParamCheck(String folder, String fileMetadataId, long updateTime, String fileName, byte[] fileBytes) {
         if (fileBytes != null && StringUtils.isNotBlank(folder) && updateTime > 0
                 && StringUtils.isNotBlank(fileName) && fileBytes.length > 0) {
             //删除过期文件
-            deleteOldFile(folder, updateTime, fileName);
-            this.createFile(generateFilePath(folder, updateTime, fileName), fileBytes);
+            deleteOldFile(folder, fileMetadataId, updateTime, fileName);
+            this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName), fileBytes);
         }
     }
 
     //node也调用了该方法
-    public void deleteOldFile(String folder, long lastUpdateTime, String deleteFileName) {
+    public void deleteOldFile(String folder, String fileMetadataId, long lastUpdateTime, String deleteFileName) {
+        if (StringUtils.isEmpty(fileMetadataId)) {
+            //本地文件不涉及到判断。  原因：在ms上不会将本地文件放在执行文件中；在node上本地文件再更新会存到Minio里。
+            return;
+        }
         String newFileFolderName = String.valueOf(lastUpdateTime);
         List<File> deleteFileList = new ArrayList<>();
-        File file = new File(generateFileDir(folder, 0));
+        File file = new File(generateFileDir(folder, fileMetadataId, 0));
         //当前目录下存放的是以时间戳命名的文件夹，文件夹里存放着具体的文件。所以要删除这个
         if (file.isDirectory()) {
             File[] checkFileFolders = file.listFiles();
@@ -81,9 +85,8 @@ public class TemporaryFileUtil {
                         File[] checkFiles = checkFileFolder.listFiles();
                         if (checkFiles != null) {
                             for (File checkFile : checkFiles) {
-                                if (StringUtils.equals(checkFile.getName(), deleteFileName)
-                                        && !StringUtils.equals(checkFileFolder.getName(), newFileFolderName)) {
-                                    //文件名称相同，但是所属的时间戳文件夹与本次不相同的文件，是过期文件。
+                                if (!StringUtils.equals(checkFileFolder.getName(), newFileFolderName)) {
+                                    //MinIO文件名称可能会修改。所以这里只判断文件所处的时间戳文件夹是否对应
                                     deleteFileList.add(checkFile);
                                 }
                             }
