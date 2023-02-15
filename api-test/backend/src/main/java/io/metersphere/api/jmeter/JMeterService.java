@@ -174,8 +174,6 @@ public class JMeterService {
                 engine.start();
             } catch (Exception e) {
                 remakeReportService.testEnded(request, e.getMessage());
-                redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
-                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -208,9 +206,7 @@ public class JMeterService {
             apiPoolDebugService.run(request, resources);
         } catch (Exception e) {
             LoggerUtil.error(e);
-            remakeReportService.remake(request);
-            redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
-            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
+            remakeReportService.testEnded(request, e.getMessage());
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
             MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
         }
@@ -228,7 +224,7 @@ public class JMeterService {
             }
             if (config == null) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
-                remakeReportService.remake(request);
+                remakeReportService.testEnded(request, "未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
                 return;
             }
             request.setCorePoolSize(config.getCorePoolSize());
@@ -236,12 +232,12 @@ public class JMeterService {
             LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + config.getUrl() + " 节点执行", request.getReportId());
             ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                remakeReportService.remake(request);
+                remakeReportService.testEnded(request, result.getBody());
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败", request.getReportId());
                 LoggerUtil.info(result.getBody());
             }
         } catch (Exception e) {
-            remakeReportService.remake(request);
+            remakeReportService.testEnded(request, e.getMessage());
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
         }
     }

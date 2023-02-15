@@ -1,7 +1,6 @@
 package io.metersphere.service;
 
 import io.metersphere.api.dto.definition.request.controller.MsRetryLoopController;
-import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
@@ -45,8 +44,7 @@ public class ApiRetryOnFailureService {
 
     public MsTestElement retryParse(String data) {
         try {
-            MsRetryLoopController controller = JSON.parseObject(data, MsRetryLoopController.class);
-            return controller;
+            return JSONUtil.parseObject(data, MsRetryLoopController.class);
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -78,7 +76,7 @@ public class ApiRetryOnFailureService {
             loopController.setEnable(true);
             loopController.setResourceId(UUID.randomUUID().toString());
 
-            JSONObject whileObj = JSONUtil.parseObject(JSON.toJSONString(loopController));
+            JSONObject whileObj = JSONUtil.parseObject(JSONUtil.toJSONString(loopController));
             JSONArray hashTree = new JSONArray();
             hashTree.put(element);
 
