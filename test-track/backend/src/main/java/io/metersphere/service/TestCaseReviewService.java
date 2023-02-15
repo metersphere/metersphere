@@ -149,6 +149,10 @@ public class TestCaseReviewService {
         return list;
     }
 
+    /**
+     * 计算评审的通过率和用例总数
+     * @param list
+     */
     private void calcReviewRate(List<TestCaseReviewDTO> list) {
         List<String> reviewIds = list.stream()
                 .map(TestCaseReviewDTO::getId)
@@ -338,7 +342,7 @@ public class TestCaseReviewService {
             testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(id);
             testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
 
-            List<TestCaseReviewTestCase> testCaseReviewTestCases = testReviewTestCaseService.selectForReviewChange(id);
+            List<TestCaseReviewTestCase> testCaseReviewTestCases = testReviewTestCaseService.selectForReviewerChange(id);
 
             if (CollectionUtils.isNotEmpty(testCaseReviewTestCases)) {
                 testCaseReviewTestCases.forEach(review -> {
@@ -353,8 +357,11 @@ public class TestCaseReviewService {
             }
 
             for (TestCaseReviewTestCase  reviewTestCase : testCaseReviewTestCases) {
-                // 重新计算评审状态
-                testReviewTestCaseService.reCalcReviewCaseStatus(testCaseReview.getReviewPassRule(), reviewTestCase);
+                if (StringUtils.equalsAny(reviewTestCase.getStatus(),
+                        TestReviewCaseStatus.Pass.name(), TestReviewCaseStatus.UnPass.name(), TestReviewCaseStatus.Underway.name())) {
+                    // 重新计算评审状态
+                    testReviewTestCaseService.reCalcReviewCaseStatus(testCaseReview.getReviewPassRule(), reviewTestCase);
+                }
             }
         }
     }
