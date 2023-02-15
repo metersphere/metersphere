@@ -736,4 +736,8 @@ public class TestReviewTestCaseService {
             }
         }
     }
+
+    public List<TestCaseReviewTestCase> selectForReviewerChange(String reviewId) {
+        return extTestCaseReviewTestCaseMapper.selectForReviewerChange(reviewId);
+    }
 }
