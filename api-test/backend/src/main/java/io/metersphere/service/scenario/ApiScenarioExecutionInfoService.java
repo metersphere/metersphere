@@ -1,14 +1,14 @@
 package io.metersphere.service.scenario;
 
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioExample;
-import io.metersphere.base.domain.ScenarioExecutionInfo;
-import io.metersphere.base.domain.ScenarioExecutionInfoExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ScenarioExecutionInfoMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.ResultDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +43,15 @@ public class ApiScenarioExecutionInfoService {
             executionInfo.setExecuteType(executeType);
             executionInfo.setVersion(version);
             scenarioExecutionInfoMapper.insert(executionInfo);
+        }
+    }
+
+    @Lazy
+    public void insertScenarioInfo(ApiScenarioWithBLOBs apiScenario, ApiScenarioReport scenarioReport, ResultDTO dto) {
+        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            this.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiScenario.getVersionId());
+        } else {
+            this.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), apiScenario.getVersionId());
         }
     }
 

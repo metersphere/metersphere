@@ -17,6 +17,7 @@ public class ResultDTO {
     private String runType;
     private String console;
     private String runningDebugSampler;
+    private boolean isRemake;
     // 失败重试
     private boolean retryEnable;
     /**

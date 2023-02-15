@@ -1,9 +1,9 @@
 package io.metersphere.service.scenario;
 
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.request.RelationshipEdgeRequest;
 import io.metersphere.service.RelationshipEdgeService;
-import io.metersphere.util.ObjectUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,7 +57,7 @@ public class ApiAutomationRelationshipEdgeService {
         List<String> referenceRelationships = new ArrayList<>();
         if (scenarioWithBLOBs.getScenarioDefinition().contains("\"referenced\":\"REF\"")) {
             // 深度解析对比，防止是复制的关系
-            JSONObject element = ObjectUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
+            JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             // 历史数据处理
             this.relationships(element.getJSONArray("hashTree"), referenceRelationships);
         }
