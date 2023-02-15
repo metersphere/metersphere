@@ -487,7 +487,7 @@
     <update id="updateAllStatus">
         update api_scenario_report
         set status="STOPPED"
-        where status in ('Rerunning', 'Running', 'PENDING')
+        where status in ('Rerunning', 'Running')
     </update>
 
 </mapper>

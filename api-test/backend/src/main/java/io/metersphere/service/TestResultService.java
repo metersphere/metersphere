@@ -4,16 +4,19 @@ import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
 import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.RequestResult;
+import io.metersphere.dto.ResponseResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
@@ -23,12 +26,12 @@ import io.metersphere.service.scenario.ApiScenarioExecutionInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.service.scenario.ApiScenarioService;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -54,7 +57,9 @@ public class TestResultService {
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
-    BaseShareInfoService baseShareInfoService;
+    private BaseShareInfoService baseShareInfoService;
+    @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
 
     // 场景
     private static final List<String> scenarioRunModes = new ArrayList<>() {{
@@ -62,6 +67,12 @@ public class TestResultService {
         this.add(ApiRunMode.SCENARIO_PLAN.name());
         this.add(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         this.add(ApiRunMode.SCHEDULE_SCENARIO.name());
+        this.add(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
+    }};
+
+    private static final List<String> planRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.SCENARIO_PLAN.name());
+        this.add(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         this.add(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
     }};
 
@@ -77,6 +88,12 @@ public class TestResultService {
         this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
         this.add(ApiRunMode.JENKINS_API_PLAN.name());
         this.add(ApiRunMode.MANUAL_PLAN.name());
+    }};
+
+    private static final List<String> apiRunModes = new ArrayList<>() {{
+        this.add(ApiRunMode.DEFINITION.name());
+        this.add(ApiRunMode.API_PLAN.name());
+        this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
     }};
 
     /**
@@ -194,69 +211,75 @@ public class TestResultService {
         }
         if (scenarioRunModes.contains(dto.getRunMode())) {
             ApiScenarioReport scenarioReport = edit(dto);
-            if (scenarioReport != null) {
-                String environment = StringUtils.EMPTY;
-                //执行人
-                String userName = StringUtils.EMPTY;
-                //负责人
-                String principal = StringUtils.EMPTY;
+            if (scenarioReport == null) {
+                return;
+            }
 
-                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
-                if (apiScenario != null) {
-                    if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                        scenarioExecutionInfoService.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiScenario.getVersionId());
-                    } else {
-                        scenarioExecutionInfoService.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), apiScenario.getVersionId());
-                    }
-                    environment = apiScenarioReportService.getEnvironment(apiScenario);
-                    userName = apiAutomationService.getUser(apiScenario.getUserId());
-                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
-                } else {
-                    TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
-                    if (testPlanApiScenario != null) {
-                        apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
-                        if (apiScenario != null) {
-                            scenarioExecutionInfoService.insertExecutionInfo(testPlanApiScenario.getId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiScenario.getVersionId());
-                        }
+            String environment = StringUtils.EMPTY;
+            //执行人
+            String userName = StringUtils.EMPTY;
+            //负责人
+            String principal = StringUtils.EMPTY;
+
+            if (planRunModes.contains(dto.getRunMode())) {
+                TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                if (testPlanApiScenario != null) {
+                    ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+                    if (apiScenario != null) {
+                        scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
                     }
                 }
+            } else {
+                ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
+                environment = apiScenarioReportService.getEnvironment(apiScenario);
+                userName = apiAutomationService.getUser(apiScenario.getUserId());
+                principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+            }
 
-                //报告内容
-                ApiTestReportVariable reportTask = new ApiTestReportVariable();
-                reportTask.setStatus(scenarioReport.getStatus());
-                reportTask.setId(scenarioReport.getId());
-                reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-                reportTask.setName(scenarioReport.getName());
-                reportTask.setExecutor(userName);
-                reportTask.setUserId(scenarioReport.getUserId());
-                reportTask.setPrincipal(principal);
-                reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                reportTask.setEnvironment(environment);
-                reportTask.setProjectId(scenarioReport.getProjectId());
+            //报告内容
+            ApiTestReportVariable reportTask = new ApiTestReportVariable();
+            reportTask.setStatus(scenarioReport.getStatus());
+            reportTask.setId(scenarioReport.getId());
+            reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+            reportTask.setName(scenarioReport.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setUserId(scenarioReport.getUserId());
+            reportTask.setPrincipal(principal);
+            reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+            reportTask.setEnvironment(environment);
+            reportTask.setProjectId(scenarioReport.getProjectId());
 
-                if (reportTask != null) {
-                    if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
-                        sendTask(reportTask, dto.getTestId());
-                    }
+            if (reportTask != null) {
+                if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode())
+                        || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
+                    sendTask(reportTask, dto.getTestId());
                 }
             }
-        } else if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
-            ApiDefinitionExecResultWithBLOBs record = new ApiDefinitionExecResultWithBLOBs();
-            record.setId(dto.getReportId());
-            record.setStatus(ApiReportStatus.STOPPED.name());
+        } else if (apiRunModes.contains(dto.getRunMode()) && dto.isRemake()) {
+            // 只处理RUNNING中的执行报告
+            updateRunningResult(dto);
+        }
+    }
 
-            ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
-            example.createCriteria().andIdEqualTo(dto.getReportId()).andStatusEqualTo(ApiReportStatus.RUNNING.name());
-            apiDefinitionExecResultService.updateByExampleSelective(record, example);
+    private void updateRunningResult(ResultDTO dto) {
+        ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(dto.getReportId());
+        if (result != null && StringUtils.equals(ApiReportStatus.RUNNING.name(), result.getStatus())) {
+            result.setStatus(ApiReportStatus.PENDING.name());
+            RequestResult item = new RequestResult();
+            ResponseResult responseResult = new ResponseResult();
+            responseResult.setConsole(dto.getConsole());
+            item.setResponseResult(responseResult);
+            result.setContent(JSON.toJSONString(item));
 
+            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(result);
             if (StringUtils.isNotEmpty(dto.getTestId())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                 apiTestCase.setLastResultId(dto.getReportId());
                 apiTestCase.setId(dto.getTestId());
-                apiTestCase.setStatus(record.getStatus());
+                apiTestCase.setStatus(result.getStatus());
                 apiTestCaseService.updateByPrimaryKeySelective(apiTestCase);
             }
-
         }
     }
 

@@ -400,7 +400,7 @@
     <update id="updateAllStatus">
         update api_definition_exec_result
         set status="STOPPED"
-        where status in ('Rerunning', 'Running', 'PENDING')
+        where status in ('Rerunning', 'Running')
     </update>
 
 </mapper>
