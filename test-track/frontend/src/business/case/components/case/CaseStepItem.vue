@@ -142,6 +142,10 @@ export default {
     labelWidth: String,
     form: Object,
     readOnly: Boolean,
+    editable: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -172,6 +176,9 @@ export default {
       this.$EventBus.$emit("handleSaveCaseWithEvent", this.form);
     },
     onInputBlur() {
+      if (this.editable) {
+        return;
+      }
       clearTimeout(this.TIMER);
       this.TIMER = setTimeout(() => {
         this.$emit("saveCase");
