@@ -403,7 +403,7 @@
         api_definition a
         on
         api_test_case.api_definition_id = a.id
-        and a.status != 'Trash'
+        and (a.status != 'Trash' or a.status is null)
         <where>
             <if test="request.planId != null">
                 and test_plan_api_case.test_plan_id = #{request.planId}
@@ -417,7 +417,7 @@
         api_scenario
         on
         test_plan_api_scenario.api_scenario_id=api_scenario.id
-        and api_scenario.status != 'Trash'
+        and (api_scenario.status != 'Trash' or api_scenario.status is null)
         <where>
             <if test="request.planId != null">
                 and test_plan_api_scenario.test_plan_id = #{request.planId}
@@ -483,7 +483,7 @@
         select tptc.id, tptc.status
         from test_plan_test_case tptc
                  inner join test_case tc
-                            on tc.id = tptc.case_id and tc.status != 'Trash'
+                            on tc.id = tptc.case_id and tptc.is_del = 0
         where tptc.plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
