@@ -5,11 +5,11 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.remote.dto.LoadTestBatchRequest;
 import io.metersphere.remote.dto.LoadTestFileDTO;
 import io.metersphere.service.MicroService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,7 @@ public class LoadTestRemoteService {
             request.setIds(idList);
             try {
                 return microService.postForDataArray(SERVICE_NAME,
-                        "/performance/file/list/",
+                        "/performance/file/list",
                         request, LoadTestFileDTO.class);
             } catch (Exception e) {
                 LogUtil.error("调用 性能测试服务 失败", e);
