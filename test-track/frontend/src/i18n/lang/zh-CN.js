@@ -142,6 +142,7 @@ const message = {
     current_display_history_version: "当前展示历史版本",
     compare_with_the_latest_version: "与最新版本比较",
     view_the_latest_version: "查看最新版本",
+    version_id_cannot_be_empty: "版本号不能为空",
   },
   attachment: {
     preview: "预览",

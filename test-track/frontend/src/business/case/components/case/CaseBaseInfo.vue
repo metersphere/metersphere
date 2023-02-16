@@ -1,6 +1,6 @@
 <template>
   <div v-loading="isloading" class="case-base-info-form">
-    <el-form ref="caseFrom" :rules="rules" :model="form">
+    <el-form ref="caseFrom" :rules="headerRules" :model="form" class="case-padding">
       <div class="module-row case-wrap" v-if="!publicEnable">
         <div class="case-title-wrap">
           <div class="name title-wrap">
@@ -21,7 +21,7 @@
             :readonlyHoverEvent="!readOnly"
             :content-click-event="!readOnly"
             :model="form"
-            :rules="rules"
+            :rules="headerRules"
             ref="moduleRef"
           >
             <template v-slot:content="{ onClick, hoverEditable }">
@@ -65,7 +65,7 @@
             :readonlyHoverEvent="!readOnly"
             :content-click-event="!readOnly"
             :model="form"
-            :rules="rules"
+            :rules="headerRules"
           >
             <template v-slot:content="{ onClick, hoverEditable }">
               <div :class="hoverEditable ? 'selectHover' : ''">
@@ -100,7 +100,7 @@
       label-position="right"
       label-width="100px"
       size="small"
-      class="case-form"
+      class="case-form case-padding"
     >
       <custom-filed-form-row
         :form="customFieldForm"
@@ -111,7 +111,7 @@
         :editable="editable"
       />
     </el-form>
-    <el-form ref="baseCaseFrom" :rules="rules" :model="form">
+    <el-form ref="baseCaseFrom" :rules="rules" :model="form" class="case-padding">
       <div class="version-row case-wrap" v-if="versionEnable">
         <div class="case-title-wrap">
           <div class="name title-wrap">{{ $t("commons.version") }}</div>
@@ -381,10 +381,10 @@ export default {
             trigger: "blur",
           },
         ],
-        module: [
-          {
+        versionId:[
+        {
             required: true,
-            message: this.$t("test_track.case.input_module"),
+            message: this.$t("case.version_id_cannot_be_empty"),
             trigger: "change",
           },
         ],
@@ -421,6 +421,15 @@ export default {
           {
             required: true,
             message: this.$t("test_track.case.input_method"),
+            trigger: "change",
+          },
+        ],
+      },
+      headerRules: {
+        module: [
+          {
+            required: true,
+            message: this.$t("test_track.case.input_module"),
             trigger: "change",
           },
         ],
@@ -555,11 +564,11 @@ export default {
     },
     validateForm() {
       let isValidate = true;
-      this.$refs["caseFrom"].validate((valid) => {
-        if (!valid) {
-          isValidate = false;
-        }
-      });
+      // this.$refs["caseFrom"].validate((valid) => {
+      //   if (!valid) {
+      //     isValidate = false;
+      //   }
+      // });
       this.$refs["baseCaseFrom"].validate((valid) => {
         if (!valid) {
           isValidate = false;
@@ -657,7 +666,10 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
-
+.case-padding{
+  margin-left: px2rem(24);
+  margin-right: px2rem(24);
+}
 /* 关联需求下拉框 */
 .story-box {
   display: flex;
@@ -773,12 +785,10 @@ export default {
           margin-top: px2rem(24);
           margin-bottom: px2rem(8);
           .title-wrap {
-            height: 22px;
             font-family: "PingFang SC";
             font-style: normal;
             font-weight: 500;
             font-size: 14px;
-            line-height: 22px;
             color: #1f2329;
           }
         }
@@ -871,9 +881,9 @@ export default {
         min-height: px2rem(864);
         border-left: 1px solid rgba(31, 35, 41, 0.15);
         .case-wrap {
-          margin-left: px2rem(24);
+          /* margin-left: px2rem(24); */
           margin-top: px2rem(24);
-          margin-right: px2rem(24);
+          /* margin-right: px2rem(24); */
         }
         .case-title-wrap {
           display: flex;
