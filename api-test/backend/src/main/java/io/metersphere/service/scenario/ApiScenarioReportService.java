@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -262,7 +263,8 @@ public class ApiScenarioReportService {
             report = new ApiScenarioReportWithBLOBs();
             report.setId(reportId);
         }
-        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())) {
+        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())
+                || StringUtils.equals(report.getStatus(), ApiReportStatus.STOPPED.name())) {
             return report;
         }
         if (StringUtils.equals(runMode, CommonConstants.CASE)) {
