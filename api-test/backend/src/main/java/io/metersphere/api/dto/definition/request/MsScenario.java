@@ -110,7 +110,9 @@ public class MsScenario extends MsTestElement {
         }
         if (config != null && StringUtils.equals(this.getId(), config.getScenarioId())) {
             config.setTransferVariables(this.variables);
-            ElementUtil.setHeader(scenarioTree, this.headers, this.getName());
+            if (CollectionUtils.isNotEmpty(this.headers)) {
+                ElementUtil.setHeader(scenarioTree, this.headers, this.getName());
+            }
         }
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
             scenarioTree = MsCriticalSectionController.createHashTree(tree, this.getName(), this.isEnable());
