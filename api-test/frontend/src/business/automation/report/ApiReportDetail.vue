@@ -703,6 +703,9 @@ export default {
           }
         }
       }
+      if(this.content.scenarios && this.content.scenarios[0].requestResults){
+        this.content.scenarios[0].requestResults.push({responseResult: {}});
+      }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;
       let name = this.report.name;
