@@ -152,7 +152,10 @@ const message = {
     delete: "Delete",
     delete_confirm_tips: "Delete This Item ?",
     upload_success: "Upload success",
-    upload_error: "Upload error"
+    upload_error: "Upload error",
+    not_exits: "File not exits",
+    waiting_upload: "Waiting upload",
+    waiting_relate: "Waiting relate",
   }
 }
 export default {

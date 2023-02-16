@@ -143,7 +143,7 @@
           prop="tags"
           :field="item"
           :fields-width="fieldsWidth"
-          max-width="180px"
+          min-width="180"
           :show-overflow-tooltip="false"
           :label="$t('commons.tag')">
           <template v-slot:default="scope">

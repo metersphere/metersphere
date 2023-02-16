@@ -101,6 +101,7 @@
     <!-- 附件 -->
     <div class="atta-wrap">
       <case-attachment-component
+        :editable="true"
         :caseId="caseId"
         type="add"
         :isCopy="type === 'copy'"
@@ -276,11 +277,6 @@ export default {
       tableData: [],
       readOnly: false,
       isDelete: true,
-      cancelFileToken: [],
-      uploadFiles: [],
-      relateFiles: [],
-      unRelateFiles: [],
-      dumpFile: {},
       enableThirdPartTemplate: false,
     };
   },
@@ -332,7 +328,6 @@ export default {
       this.$refs.form.clearValidate();
     },
     open(data, type) {
-      this.uploadFiles = [];
       this.tabActiveName = "relateTestCase";
       this.showFollow = false;
       this.result.loading = true;
@@ -511,8 +506,8 @@ export default {
 
       param.withoutTestCaseIssue = this.isMinder;
       param.thirdPartPlatform = this.enableThirdPartTemplate;
-      if (this.relateFiles.length > 0) {
-        param.relateFileMetaIds = this.relateFiles;
+      if (this.$refs.attachmentComp.relateFiles.length > 0) {
+        param.relateFileMetaIds = this.$refs.attachmentComp.relateFiles;
       }
       return param;
     },
@@ -546,9 +541,8 @@ export default {
       let requestJson = JSON.stringify(param, function (key, value) {
         return key === "file" ? undefined : value;
       });
-
-      if (this.uploadFiles.length > 0) {
-        this.uploadFiles.forEach((f) => {
+      if (this.$refs.attachmentComp.uploadFiles.length > 0) {
+        this.$refs.attachmentComp.uploadFiles.forEach((f) => {
           formData.append("file", f);
         });
       }
@@ -567,293 +561,7 @@ export default {
           "Content-Type": undefined,
         },
       };
-    },
-    fileValidator(file) {
-      return file.size < 500 * 1024 * 1024;
-    },
-    beforeUpload(file) {
-      if (!this.fileValidator(file)) {
-        this.$error(this.$t("load_test.file_size_out_of_bounds") + file.name);
-        return false;
-      }
-
-      if (this.tableData.filter((f) => f.name === file.name).length > 0) {
-        this.$error(this.$t("load_test.delete_file") + ", name: " + file.name);
-        return false;
-      }
-    },
-    handleUpload(e) {
-      // 表格生成上传文件数据
-      let file = e.file;
-      let user = JSON.parse(localStorage.getItem(TokenKey));
-      this.tableData.push({
-        name: file.name,
-        size: byteToSize(file.size),
-        updateTime: new Date().getTime(),
-        progress: this.type === "add" || this.isCaseEdit ? 100 : 0,
-        status: this.type === "add" || this.isCaseEdit ? "toUpload" : 0,
-        creator: user.name,
-        type: getTypeByFileName(file.name),
-        isLocal: true,
-      });
-
-      if (this.type === "add" || this.isCaseEdit) {
-        // 新增上传
-        this.uploadFiles.push(file);
-        return false;
-      }
-      this.uploadFile(e, (param) => {
-        this.showProgress(e.file, param);
-      });
-    },
-    async uploadFile(param, progressCallback) {
-      let progress = 0;
-      let file = param.file;
-      let data = { belongId: this.issueId, belongType: "issue" };
-      let CancelToken = axios.CancelToken;
-      let self = this;
-      uploadIssueAttachment(
-        file,
-        data,
-        CancelToken,
-        self.cancelFileToken,
-        progressCallback
-      )
-        .then((response) => {
-          // 成功回调
-          progress = 100;
-          param.onSuccess(response);
-          progressCallback({ progress, status: "success" });
-          self.cancelFileToken.forEach((token, index, array) => {
-            if (token.name == file.name) {
-              array.splice(token, 1);
-            }
-          });
-        })
-        .catch(({ error }) => {
-          // 失败回调
-          progress = 100;
-          progressCallback({ progress, status: "error" });
-          self.cancelFileToken.forEach((token, index, array) => {
-            if (token.name == file.name) {
-              array.splice(token, 1);
-            }
-          });
-        });
-    },
-    showProgress(file, params) {
-      const { progress, status } = params;
-      const arr = [...this.tableData].map((item) => {
-        if (item.name === file.name) {
-          item.progress = progress;
-          item.status = status;
-        }
-        return item;
-      });
-      this.tableData = [...arr];
-    },
-    handleExceed(files, fileList) {
-      this.$error(this.$t("load_test.file_size_limit"));
-    },
-    handleSuccess(response, file, fileList) {
-      let readyFiles = fileList.filter((item) => item.status === "success");
-      if (readyFiles.length === fileList.length) {
-        this.getFileMetaData(this.issueId);
-      }
-    },
-    handleError(err, file, fileList) {
-      let readyFiles = fileList.filter((item) => item.status === "success");
-      if (readyFiles.length === fileList.length) {
-        this.getFileMetaData(this.issueId);
-      }
-    },
-    handleDelete(file, index) {
-      this.$alert(
-        (this.cancelFileToken.length > 0
-          ? this.$t("load_test.delete_file_when_uploading") + "<br/>"
-          : "") +
-          this.$t("load_test.delete_file_confirm") +
-          file.name +
-          "?",
-        "",
-        {
-          confirmButtonText: this.$t("commons.confirm"),
-          dangerouslyUseHTMLString: true,
-          callback: (action) => {
-            if (action === "confirm") {
-              this._handleDelete(file, index);
-            }
-          },
-        }
-      );
-    },
-    _handleDelete(file, index) {
-      // 中断所有正在上传的文件
-      if (this.cancelFileToken && this.cancelFileToken.length >= 1) {
-        this.cancelFileToken.forEach((cacelToken) => {
-          cacelToken.cancelFunc();
-        });
-      }
-      this.fileList.splice(index, 1);
-      this.tableData.splice(index, 1);
-      if (this.type === "add" || this.isCaseEdit) {
-        let delIndex = this.uploadFiles.findIndex(
-          (uploadFile) => uploadFile.name === file.name
-        );
-        this.uploadFiles.splice(delIndex, 1);
-      } else {
-        deleteIssueAttachment(file.id).then(() => {
-          this.$success(this.$t("commons.delete_success"));
-          this.getFileMetaData(this.issueId);
-        });
-      }
-    },
-    handleUnRelate(file, index) {
-      // 取消关联
-      this.$alert(
-        this.$t("load_test.unrelated_file_confirm") + file.name + "?",
-        "",
-        {
-          confirmButtonText: this.$t("commons.confirm"),
-          dangerouslyUseHTMLString: true,
-          callback: (action) => {
-            if (action === "confirm") {
-              let unRelateFileIndex = this.tableData.findIndex(
-                (f) => f.name === file.name
-              );
-              this.tableData.splice(unRelateFileIndex, 1);
-              if (file.status === "toRelate") {
-                // 待关联的记录, 直接移除
-                let unRelateId = this.relateFiles.findIndex(
-                  (f) => f === file.id
-                );
-                this.relateFiles.splice(unRelateId, 1);
-              } else {
-                // 已经关联的记录
-                this.unRelateFiles.push(file.id);
-                let data = {
-                  belongType: "issue",
-                  belongId: this.issueId,
-                  metadataRefIds: this.unRelateFiles,
-                };
-                this.result.loading = true;
-                unrelatedAttachment(data).then(() => {
-                  this.$success(this.$t("commons.unrelated_success"));
-                  this.result.loading = false;
-                  this.getFileMetaData(this.issueId);
-                });
-              }
-            }
-          },
-        }
-      );
-    },
-    handleDump(file) {
-      this.$refs.module.init();
-      this.dumpFile = file;
-    },
-    handleCancel(file, index) {
-      this.fileList.splice(index, 1);
-      let cancelToken = this.cancelFileToken.filter(
-        (f) => f.name === file.name
-      )[0];
-      cancelToken.cancelFunc();
-      let cancelFile = this.tableData.filter((f) => f.name === file.name)[0];
-      cancelFile.progress = 100;
-      cancelFile.status = "error";
-    },
-    associationFile() {
-      this.$refs.metadataList.open();
-    },
-    checkRows(rows) {
-      let repeatRecord = false;
-      for (let row of rows) {
-        let rowIndex = this.tableData.findIndex(
-          (item) => item.name === row.name
-        );
-        if (rowIndex >= 0) {
-          this.$error(
-            this.$t("load_test.exist_related_file") + ": " + row.name
-          );
-          repeatRecord = true;
-          break;
-        }
-      }
-      if (!repeatRecord) {
-        if (this.type === "add" || this.isCaseEdit) {
-          // 新增
-          rows.forEach((row) => {
-            this.relateFiles.push(row.id);
-            this.tableData.push({
-              id: row.id,
-              name: row.name,
-              size: byteToSize(row.size),
-              updateTime: row.createTime,
-              progress: 100,
-              status: "toRelate",
-              creator: row.createUser,
-              type: row.type,
-              isLocal: false,
-            });
-          });
-        } else {
-          // 编辑
-          let metadataRefIds = [];
-          rows.forEach((row) => metadataRefIds.push(row.id));
-          let data = {
-            belongType: "issue",
-            belongId: this.issueId,
-            metadataRefIds: metadataRefIds,
-          };
-          this.result.loading = true;
-          relatedAttachment(data).then(() => {
-            this.$success(this.$t("commons.relate_success"));
-            this.result.loading = false;
-            this.getFileMetaData(this.issueId);
-          });
-        }
-      }
-    },
-    setModuleId(moduleId) {
-      let data = {
-        id: getUUID(),
-        resourceId: getCurrentProjectID(),
-        moduleId: moduleId,
-        projectId: getCurrentProjectID(),
-        fileName: this.dumpFile.name,
-        attachmentId: this.dumpFile.id,
-      };
-      dumpAttachment(data).then(() => {
-        this.$success(this.$t("organization.integration.successful_operation"));
-      });
-    },
-    getFileMetaData(id) {
-      if (this.type === "edit") {
-        this.uploadFiles = [];
-        this.relateFiles = [];
-        this.unRelateFiles = [];
-      }
-      // 保存用例后传入用例id，刷新文件列表，可以预览和下载
-      this.fileList = [];
-      this.tableData = [];
-      if (id) {
-        let data = { belongType: "issue", belongId: id };
-        attachmentList(data).then((response) => {
-          let files = response.data;
-          if (!files) {
-            return;
-          }
-          // deep copy
-          this.fileList = JSON.parse(JSON.stringify(files));
-          this.tableData = JSON.parse(JSON.stringify(files));
-          this.tableData.map((f) => {
-            f.size = byteToSize(f.size);
-            f.status = "success";
-            f.progress = 100;
-          });
-        });
-      }
-    },
+    }
   },
 };
 </script>

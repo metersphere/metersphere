@@ -152,7 +152,10 @@ const message = {
     delete: "刪除",
     delete_confirm_tips: "是否刪除此項?",
     upload_success: "上傳成功",
-    upload_error: "上傳失敗"
+    upload_error: "上傳失敗",
+    not_exits: "該文件不存在",
+    waiting_upload: "等待上傳",
+    waiting_relate: "等待關聯",
   }
 }
 
