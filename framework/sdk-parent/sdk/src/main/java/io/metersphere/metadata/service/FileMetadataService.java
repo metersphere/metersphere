@@ -1,7 +1,6 @@
 package io.metersphere.metadata.service;
 
 import com.alibaba.nacos.common.utils.ByteUtils;
-import groovy.lang.Lazy;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.base.mapper.FileContentMapper;
@@ -11,10 +10,7 @@ import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.FileModuleTypeConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.i18n.Translator;
@@ -58,8 +54,6 @@ public class FileMetadataService {
     @Resource
     private FileAssociationMapper fileAssociationMapper;
 
-    @Lazy
-    @Resource
     private TemporaryFileUtil temporaryFileUtil;
 
     public List<FileMetadata> create(FileMetadataCreateRequest fileMetadata, List<MultipartFile> files) {
@@ -557,6 +551,7 @@ public class FileMetadataService {
     }
 
     public List<AttachmentBodyFile> filterDownloadFileList(List<AttachmentBodyFile> attachmentBodyFileList) {
+        this.checkTemporaryFileUtil();
         List<AttachmentBodyFile> downloadFileList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(attachmentBodyFileList)) {
             //检查是否存在已下载的文件
@@ -581,6 +576,7 @@ public class FileMetadataService {
      * @return
      */
     public List<FileInfoDTO> downloadApiExecuteFilesByIds(Collection<String> fileIdList) {
+        this.checkTemporaryFileUtil();
         List<FileInfoDTO> fileInfoDTOList = new ArrayList<>();
         if (CollectionUtils.isEmpty(fileIdList)) {
             return fileInfoDTOList;
@@ -611,8 +607,14 @@ public class FileMetadataService {
         return fileInfoDTOList;
     }
 
-    public void downloadByAttachmentBodyFileList(List<AttachmentBodyFile> downloadFileList) {
+    private void checkTemporaryFileUtil() {
+        if (temporaryFileUtil == null) {
+            temporaryFileUtil = CommonBeanFactory.getBean(TemporaryFileUtil.class);
+        }
+    }
 
+    public void downloadByAttachmentBodyFileList(List<AttachmentBodyFile> downloadFileList) {
+        this.checkTemporaryFileUtil();
         LogUtil.info(JSON.toJSONString(downloadFileList) + " 获取执行文件开始");
         List<FileRequest> downloadFileRequest = new ArrayList<>();
         downloadFileList.forEach(attachmentBodyFile -> {
