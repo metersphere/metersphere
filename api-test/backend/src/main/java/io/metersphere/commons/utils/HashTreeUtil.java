@@ -9,7 +9,6 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.constants.ElementConstants;
-import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -243,22 +242,15 @@ public class HashTreeUtil {
         if (runRequest.getPool().isPool() || runRequest.getPool().isK8s()) {
             return;
         }
-        List<AttachmentBodyFile> downloadFileList = ApiFileUtil.getExecuteFile(runRequest.getHashTree(), runRequest.getReportId(), true);
-
-        Map<String, String> repositoryFileMap = new HashMap<>();
-        for (AttachmentBodyFile bodyFile : downloadFileList) {
-            if (!StringUtils.equals(bodyFile.getFileStorage(), StorageConstants.LOCAL.name())
-                    && StringUtils.isNotBlank(bodyFile.getFileMetadataId())) {
-                repositoryFileMap.put(bodyFile.getFileMetadataId(), bodyFile.getName());
-            }
-        }
-
-        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + repositoryFileMap.size() + "]个文件,开始下载......");
+        List<AttachmentBodyFile> executeFileList = ApiFileUtil.getExecuteFile(runRequest.getHashTree(), runRequest.getReportId(), true);
+        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]共需要[" + executeFileList.size() + "]个文件。");
         FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
         if (fileMetadataService != null) {
-            fileMetadataService.downloadApiExecuteFilesByIds(repositoryFileMap.keySet());
+            List<AttachmentBodyFile> downloadFileList = fileMetadataService.filterDownloadFileList(executeFileList);
+            LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + downloadFileList.size() + "]个文件。开始下载。。。");
+            fileMetadataService.downloadByAttachmentBodyFileList(downloadFileList);
         }
-        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + repositoryFileMap.size() + "]个文件,下载结束。");
+        LoggerUtil.info("本次执行[" + runRequest.getReportId() + "]需要下载[" + executeFileList.size() + "]个文件,下载结束。");
     }
 
     public static void downFile(
