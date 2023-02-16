@@ -142,26 +142,22 @@ export default {
     margin-top: px2rem(24);
     margin-bottom: px2rem(8);
     .title-wrap {
-      height: 22px;
       font-family: "PingFang SC";
       font-style: normal;
       font-weight: 500;
       font-size: 14px;
-      line-height: 22px;
       color: #1f2329;
     }
   }
   .case-wrap {
-    margin-left: px2rem(24);
+    /* margin-left: px2rem(24); */
     margin-top: px2rem(24);
   }
   .case-title-wrap {
     display: flex;
     .title-wrap {
       font-weight: 500;
-      height: 22px;
       font-size: 14px;
-      line-height: 22px;
       color: #1f2329;
     }
     margin-bottom: px2rem(8);

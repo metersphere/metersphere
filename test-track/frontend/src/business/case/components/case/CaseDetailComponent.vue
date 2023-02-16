@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-on:keydown.enter.prevent>
     <!-- 基于form组件进行表单验证 -->
     <el-form ref="caseDetailForm" :rules="rules" :model="form">
       <!-- case name -->
