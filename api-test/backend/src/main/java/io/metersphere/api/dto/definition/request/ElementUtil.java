@@ -847,6 +847,11 @@ public class ElementUtil {
         } else {
             testElement.setProperty("scriptLanguage", vo.getScriptLanguage());
             testElement.setProperty(ElementConstants.SCRIPT, vo.getScript());
+            if ("groovy".equalsIgnoreCase(vo.getScriptLanguage())) {
+                // groovy脚本开启脚本缓存，提高压测性能
+                testElement.setProperty("cacheKey", "true");
+            }
+
         }
     }
 
