@@ -327,7 +327,7 @@ export default {
         return;
       }
       if (!this.caseId || this.isCopy) {
-        this.$warning(this.$t("api_test.automation.save_case_info"));
+        this.$warning(this.$t("api_test.automation.save_case_info"), false);
         return;
       }
       this.$refs.issueRelate.open();
