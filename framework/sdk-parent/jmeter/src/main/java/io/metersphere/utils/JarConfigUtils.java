@@ -35,13 +35,16 @@ public class JarConfigUtils {
                                 .stream()
                                 .map(ProjectJarConfig::getId)
                                 .collect(Collectors.toList()).contains(nodeFile)).collect(Collectors.toList());
-                expiredJar.forEach(jar
-                        -> deleteDir(StringUtils.join(
-                        localPath,
-                        File.separator,
-                        item,
-                        File.separator,
-                        jar)));
+                if (CollectionUtils.isNotEmpty(expiredJar)) {
+                    expiredJar.forEach(jar
+                            -> deleteDir(StringUtils.join(
+                            localPath,
+                            File.separator,
+                            item,
+                            File.separator,
+                            jar)));
+                    jarConfigsMap.put(item, new ArrayList<>());
+                }
                 projectJarConfigs.forEach(projectJarConfig -> {
                     if (CollectionUtils.isNotEmpty(nodeFiles)) {
                         nodeFiles.forEach(refId -> {
@@ -59,15 +62,18 @@ public class JarConfigUtils {
                                         }
                                     });
                                 } else {
+                                    //本地完全没有jar包  需要下载
                                     jarConfigs.add(projectJarConfig);
                                 }
                             }
                         });
                     } else {
-                        //本地没有文件，需要从服务器下载
+                        //项目级别的目录都不存在，需要从服务器下载
                         jarConfigs.add(projectJarConfig);
                     }
-                    jarConfigsMap.put(item, jarConfigs);
+                    if (CollectionUtils.isNotEmpty(jarConfigs)) {
+                        jarConfigsMap.put(item, jarConfigs);
+                    }
                 });
             }
         });

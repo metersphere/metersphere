@@ -63,8 +63,8 @@ public class NewDriverManager {
 
                 FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
                 map.forEach((key, value) -> {
+                    loaderProjectIds.add(key);
                     if (CollectionUtils.isNotEmpty(value)) {
-                        loaderProjectIds.add(key);
                         //历史数据
                         value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
                             //获取文件内容
