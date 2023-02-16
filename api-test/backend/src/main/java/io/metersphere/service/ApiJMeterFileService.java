@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import groovy.lang.Lazy;
 import io.metersphere.api.dto.BodyFileRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -62,6 +63,9 @@ public class ApiJMeterFileService {
     private PluginMapper pluginMapper;
     @Resource
     private RedisTemplateService redisTemplateService;
+    @Lazy
+    @Resource
+    private TemporaryFileUtil temporaryFileUtil;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -326,13 +330,12 @@ public class ApiJMeterFileService {
                     LogUtil.info("开始下载执行报告为[" + request.getReportId() + "]的文件库文件。");
                     List<FileInfoDTO> gitFileList = fileMetadataService.downloadApiExecuteFilesByIds(remoteFileIdList);
                     gitFileList.forEach(fileInfoDTO ->
-                            files.put(StringUtils.join(
-                                    fileInfoDTO.getProjectId(),
-                                    File.separator,
-                                    fileInfoDTO.getFileLastUpdateTime(),
-                                    File.separator,
-                                    fileInfoDTO.getFileName()
-                            ), fileInfoDTO.getFileByte()));
+                            files.put(
+                                    StringUtils.join(
+                                            temporaryFileUtil.generateRelativeDir(fileInfoDTO.getProjectId(), fileInfoDTO.getId(), fileInfoDTO.getFileLastUpdateTime()),
+                                            File.separator,
+                                            fileInfoDTO.getFileName()
+                                    ), fileInfoDTO.getFileByte()));
                     LogUtil.info("下载到执行报告为[" + request.getReportId() + "]的文件库文件。共下载到【" + gitFileList.size() + "】个");
                 }
             }

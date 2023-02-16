@@ -1,6 +1,7 @@
 package io.metersphere.metadata.service;
 
 import com.alibaba.nacos.common.utils.ByteUtils;
+import groovy.lang.Lazy;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.base.mapper.FileContentMapper;
@@ -10,7 +11,11 @@ import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.FileModuleTypeConstants;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -53,6 +58,8 @@ public class FileMetadataService {
     @Resource
     private FileAssociationMapper fileAssociationMapper;
 
+    @Lazy
+    @Resource
     private TemporaryFileUtil temporaryFileUtil;
 
     public List<FileMetadata> create(FileMetadataCreateRequest fileMetadata, List<MultipartFile> files) {
@@ -549,18 +556,31 @@ public class FileMetadataService {
         return fileMetadataList.stream().map(FileMetadata::getId).collect(Collectors.toList());
     }
 
+    public List<AttachmentBodyFile> filterDownloadFileList(List<AttachmentBodyFile> attachmentBodyFileList) {
+        List<AttachmentBodyFile> downloadFileList = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(attachmentBodyFileList)) {
+            //检查是否存在已下载的文件
+            attachmentBodyFileList.forEach(fileMetadata -> {
+                if (!StringUtils.equals(fileMetadata.getFileStorage(), StorageConstants.LOCAL.name())) {
+                    File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getFileMetadataId(), fileMetadata.getFileUpdateTime(), fileMetadata.getName());
+                    if (file == null) {
+                        downloadFileList.add(fileMetadata);
+                        LoggerUtil.info("文件【" + fileMetadata.getFileUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】未找到，需要下载");
+                    }
+                }
+            });
+        }
+        return downloadFileList;
+    }
+
     /**
-     * 接口测试执行时下载附件的方法。
+     * 提供给Node下载附件时的方法。
      * 该方法会优先判断是否存在已下载好的文件，避免多次执行造成多次下载的情况
      *
-     * @param fileIdList
+     * @param fileIdList 要下载的文件ID集合
      * @return
      */
     public List<FileInfoDTO> downloadApiExecuteFilesByIds(Collection<String> fileIdList) {
-        if (temporaryFileUtil == null) {
-            temporaryFileUtil = CommonBeanFactory.getBean(TemporaryFileUtil.class);
-        }
-
         List<FileInfoDTO> fileInfoDTOList = new ArrayList<>();
         if (CollectionUtils.isEmpty(fileIdList)) {
             return fileInfoDTOList;
@@ -591,6 +611,23 @@ public class FileMetadataService {
         return fileInfoDTOList;
     }
 
+    public void downloadByAttachmentBodyFileList(List<AttachmentBodyFile> downloadFileList) {
+
+        LogUtil.info(JSON.toJSONString(downloadFileList) + " 获取执行文件开始");
+        List<FileRequest> downloadFileRequest = new ArrayList<>();
+        downloadFileList.forEach(attachmentBodyFile -> {
+            FileRequest request = this.genFileRequest(attachmentBodyFile);
+            downloadFileRequest.add(request);
+        });
+
+        List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(downloadFileRequest);
+        //将文件存储到执行文件目录中，避免多次执行时触发多次下载
+        if (CollectionUtils.isNotEmpty(repositoryFileDTOList)) {
+            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
+        }
+        LogUtil.info(JSON.toJSONString(downloadFileList) + " 获取执行文件结束");
+    }
+
     public List<FileInfoDTO> downloadFileByIds(Collection<String> fileIdList) {
         if (CollectionUtils.isEmpty(fileIdList)) {
             return new ArrayList<>(0);
@@ -608,6 +645,27 @@ public class FileMetadataService {
         List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(requestList);
         LogUtil.info(JSON.toJSONString(fileIdList) + " 获取文件结束。");
         return repositoryFileDTOList;
+    }
+
+    private FileRequest genFileRequest(AttachmentBodyFile attachmentBodyFile) {
+        if (attachmentBodyFile != null) {
+            FileRequest request = new FileRequest(attachmentBodyFile.getProjectId(), attachmentBodyFile.getName(), null);
+            request.setResourceId(attachmentBodyFile.getFileMetadataId());
+            request.setPath(attachmentBodyFile.getFilePath());
+            request.setStorage(attachmentBodyFile.getFileStorage());
+            request.setUpdateTime(attachmentBodyFile.getFileUpdateTime());
+            if (StringUtils.equals(attachmentBodyFile.getFileStorage(), StorageConstants.GIT.name())) {
+                try {
+                    RemoteFileAttachInfo gitFileInfo = JSON.parseObject(attachmentBodyFile.getFileAttachInfoJson(), RemoteFileAttachInfo.class);
+                    request.setFileAttachInfo(gitFileInfo);
+                } catch (Exception e) {
+                    LogUtil.error("解析Git附加信息【" + attachmentBodyFile.getFileAttachInfoJson() + "】失败!", e);
+                }
+            }
+            return request;
+        } else {
+            return new FileRequest();
+        }
     }
 
     private FileRequest genFileRequest(FileMetadataWithBLOBs fileMetadata) {
