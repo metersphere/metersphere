@@ -6,11 +6,7 @@
       </div>
       <div class="detail">
         <div class="filename">
-          <div
-            :class="
-              fileItem.diffStatus == 2 ? ['content', 'line-through'] : 'content'
-            "
-          >
+          <div :class="fileItem.diffStatus == 2 ? ['content', 'line-through'] : 'content'">
             {{ fileItem.name }}
           </div>
           <case-diff-status
@@ -31,11 +27,10 @@
           <div class="split">/</div>
           <div class="size">{{ fileItem.size }}</div>
         </div>
-        <div class="error-msg" v-else-if="isError">上传失败</div>
-        <div class="error-msg" v-else-if="isExpired">
-          该文件不存在
-        </div>
-        <div class="wait-upload" v-else-if="isToUpload">等待上传</div>
+        <div class="error-msg" v-else-if="isError">{{$t("attachment.upload_error")}}</div>
+        <div class="error-msg" v-else-if="isExpired">{{$t("attachment.not_exits")}}</div>
+        <div class="wait-upload" v-else-if="isToUpload">{{$t("attachment.waiting_upload")}}</div>
+        <div class="wait-upload" v-else-if="isToRelate">{{$t("attachment.waiting_relate")}}</div>
       </div>
       <div class="options">
         <!-- 预览 -->
