@@ -1,11 +1,13 @@
 <template>
   <div class="content-body-wrap">
-
     <!-- 非创建状态下 展示 -->
     <div class="tab-pane-wrap" v-if="!editable">
       <el-tabs v-model="caseActiveName" @tab-click="tabClick">
         <el-tab-pane :label="$t('case.use_case_detail')" name="detail">
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
                 <case-detail-component
@@ -26,8 +28,14 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
-        <el-tab-pane :label="$t('case.associate_test_cases')" name="associateTestCases">
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+        <el-tab-pane
+          :label="$t('case.associate_test_cases')"
+          name="associateTestCases"
+        >
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
                 <case-test-relate
@@ -44,7 +52,10 @@
           :label="$t('test_track.case.relate_issue')"
           name="associatedDefects"
         >
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
                 <case-issue-relate
@@ -54,13 +65,23 @@
                   :read-only="readOnly && !isTestPlan"
                   :plan-case-id="planId ? this.form.id : null"
                   :case-id="caseId"
-                  ref="issue"/>
+                  ref="issue"
+                />
               </div>
             </el-scrollbar>
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('case.dependencies')" name="dependencies">
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+          <template v-slot:label>
+            <tab-pane-count
+              :title="$t('commons.relationship.name')"
+              :count="relationshipCount"
+            />
+          </template>
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
                 <case-relationship-viewer
@@ -77,7 +98,10 @@
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('case.comment')" name="comment">
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
                 <case-comment-viewer
@@ -91,10 +115,16 @@
         </el-tab-pane>
         <!-- 变更记录 -->
         <el-tab-pane :label="$t('case.change_record')" name="changeRecord">
-          <div class="tab-container" :class="{'comment-edit-tab-container' : isCommentEdit}">
+          <div
+            class="tab-container"
+            :class="{ 'comment-edit-tab-container': isCommentEdit }"
+          >
             <el-scrollbar>
               <div class="content-container">
-                <case-change-history  :case-id="caseId" ref="caseChangeHistoryRef"></case-change-history>
+                <case-change-history
+                  :case-id="caseId"
+                  ref="caseChangeHistoryRef"
+                ></case-change-history>
               </div>
             </el-scrollbar>
           </div>
@@ -128,7 +158,6 @@
         ></case-detail-component>
       </div>
     </el-scrollbar>
-
   </div>
 </template>
 
@@ -144,6 +173,7 @@ import CaseCommentComponent from "./CaseCommentComponent";
 import CaseCommentViewer from "./CaseCommentViewer";
 import { getRelationshipCountCase } from "@/api/testCase";
 import { testCaseCommentList } from "@/api/test-case-comment";
+import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
 export default {
   name: "CaseEditInfoComponent",
   components: {
@@ -156,6 +186,7 @@ export default {
     CaseCommentViewer,
     CaseRelationshipViewer,
     CaseTestRelate,
+    TabPaneCount,
   },
   props: [
     "richTextDefaultOpen",
@@ -201,7 +232,7 @@ export default {
       relateFiles: [],
       unRelateFiles: [],
       dumpFile: {},
-      commentState: 'READY'
+      commentState: "READY",
     };
   },
   computed: {
@@ -209,8 +240,8 @@ export default {
       return true;
     },
     isCommentEdit() {
-      return this.commentState == 'EDIT';
-    }
+      return this.commentState == "EDIT";
+    },
   },
   watch: {
     caseId() {
@@ -267,7 +298,7 @@ export default {
         this.$nextTick(() => {
           this.getRelatedTest();
         });
-      } else if(tab.name === "changeRecord"){
+      } else if (tab.name === "changeRecord") {
         this.$refs.caseChangeHistoryRef.openHit();
       }
     },
