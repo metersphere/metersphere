@@ -20,6 +20,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectApplicationRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +28,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -82,7 +82,7 @@ public class ProjectApplicationService {
                 config.setCleanApiReport(cleanUp);
             } else if (StringUtils.equals(type, ProjectApplicationType.CLEAN_LOAD_REPORT.name())) {
                 config.setCleanLoadReport(cleanUp);
-            } else if(StringUtils.equals(type, ProjectApplicationType.CLEAN_UI_REPORT.name())){
+            } else if (StringUtils.equals(type, ProjectApplicationType.CLEAN_UI_REPORT.name())) {
                 config.setCleanUiReport(cleanUp);
             }
             // 根据这三个状态判断定时清理任务是否开启
@@ -178,12 +178,12 @@ public class ProjectApplicationService {
 
     private void closeMockTcp(int tcpPort) {
         if (tcpPort != 0) {
-            microService.getForData(MicroServiceName.API_TEST, "/mock/config/close/tcp/" + tcpPort);
+            microService.getForData(MicroServiceName.API_TEST, "/mock-config/close/tcp/" + tcpPort);
         }
     }
 
     private void createTcp(Integer mockPort) {
-        microService.getForData(MicroServiceName.API_TEST, "/mock/config/open/tcp/" + mockPort);
+        microService.getForData(MicroServiceName.API_TEST, "/mock-config/open/tcp/" + mockPort);
     }
 
     private void reloadMockTcp(Project project, int oldPort) {
@@ -428,6 +428,7 @@ public class ProjectApplicationService {
     private void doHandleTestCaseCustomNum(String projectId) {
         microService.getForData(MicroServiceName.TEST_TRACK, "/test/case/update/custom/num/" + projectId);
     }
+
     public void deleteRelateProjectConfig(String projectId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
