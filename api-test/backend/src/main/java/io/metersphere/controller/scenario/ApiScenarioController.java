@@ -328,11 +328,11 @@ public class ApiScenarioController {
             List<TaskRequestDTO> reportIds = new ArrayList<>();
             TaskRequestDTO taskRequest = new TaskRequestDTO();
             taskRequest.setReportId(reportId);
-            taskRequest.setType(ElementConstants.SCENARIO);
+            taskRequest.setType(ElementConstants.SCENARIO_UPPER);
             reportIds.add(taskRequest);
 
             WebSocketUtil.onClose(reportId);
-            apiTaskService.stop(reportIds);
+            apiTaskService.apiStop(reportIds);
         }
     }
 
