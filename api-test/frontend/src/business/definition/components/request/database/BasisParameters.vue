@@ -341,6 +341,7 @@ export default {
         this.environments = response.data;
         let targetDataSourceName = undefined;
         let currentEnvironment = undefined;
+        let hasEnvironment = false;
         this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
@@ -348,6 +349,7 @@ export default {
             currentEnvironment = environment;
           }
           if (environment.id === this.request.environmentId) {
+            hasEnvironment = true;
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
@@ -357,6 +359,21 @@ export default {
             }
           }
         });
+        if (!hasEnvironment) {
+         this.request.environmentId = store.useEnvironment;
+         this.environments.forEach((environment) => {
+           if (environment.id === store.useEnvironment) {
+             currentEnvironment = environment;
+           }
+           if (environment.config && environment.config.databaseConfigs) {
+             environment.config.databaseConfigs.forEach((item) => {
+               if (item.id === this.request.dataSourceId) {
+                 targetDataSourceName = item.name;
+               }
+             });
+           }
+         });
+        }
         this.initDataSource(environmentId, currentEnvironment, targetDataSourceName);
       });
     },
