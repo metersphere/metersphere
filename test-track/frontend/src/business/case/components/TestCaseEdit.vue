@@ -882,9 +882,10 @@ export default {
           this.saveCase();
         } else {
           this.saveCase(function (t) {
-            let tab = {};
-            tab.name = "add";
-            t.$emit("addTab", tab);
+            if(t){
+              t.$router.push({path: "/track/case/create",});
+              location.reload();
+            }
           });
         }
       } else if (e === "ADD_AND_PUBLIC") {
@@ -1124,6 +1125,8 @@ export default {
             }
             if (callback) {
               callback(this);
+
+              return;
             }
             // 保存用例后刷新附件
 
