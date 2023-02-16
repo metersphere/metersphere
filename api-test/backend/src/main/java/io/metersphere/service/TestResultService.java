@@ -217,7 +217,7 @@ public class TestResultService {
 
             String environment = StringUtils.EMPTY;
             //执行人
-            String userName = StringUtils.EMPTY;
+            String userName = apiAutomationService.getUser(scenarioReport.getUserId());
             //负责人
             String principal = StringUtils.EMPTY;
 
@@ -227,14 +227,21 @@ public class TestResultService {
                     ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
                     if (apiScenario != null) {
                         scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
+                        environment = apiScenarioReportService.getEnvironment(apiScenario);
+                        principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                     }
                 }
             } else {
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
-                scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
-                environment = apiScenarioReportService.getEnvironment(apiScenario);
-                userName = apiAutomationService.getUser(apiScenario.getUserId());
-                principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+                //集合报告查不出场景。场景的执行次数统计是在margeReport函数中进行的。所以这里要进行一个判断。
+                if (apiScenario != null) {
+                    scenarioExecutionInfoService.insertScenarioInfo(apiScenario, scenarioReport, dto);
+                    environment = apiScenarioReportService.getEnvironment(apiScenario);
+                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
+                } else {
+                    //负责人取当前负责人
+                    principal = apiAutomationService.getUser(scenarioReport.getUserId());
+                }
             }
 
             //报告内容
