@@ -941,9 +941,7 @@ export default {
   display: flex;
   .title-wrap {
     font-weight: 500;
-    height: 22px;
     font-size: 14px;
-    line-height: 22px;
     color: #1f2329;
   }
   margin-bottom: px2rem(8);
