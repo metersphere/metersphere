@@ -1,7 +1,6 @@
 package io.metersphere.metadata.service;
 
 import com.alibaba.nacos.common.utils.ByteUtils;
-import groovy.lang.Lazy;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.base.mapper.FileContentMapper;
@@ -58,9 +57,12 @@ public class FileMetadataService {
     @Resource
     private FileAssociationMapper fileAssociationMapper;
 
-    @Lazy
-    @Resource
     private TemporaryFileUtil temporaryFileUtil;
+
+    public FileMetadataService() {
+        super();
+        temporaryFileUtil = new TemporaryFileUtil(TemporaryFileUtil.MS_FILE_FOLDER);
+    }
 
     public List<FileMetadata> create(FileMetadataCreateRequest fileMetadata, List<MultipartFile> files) {
         List<FileMetadata> result = new ArrayList<>();
@@ -612,7 +614,6 @@ public class FileMetadataService {
     }
 
     public void downloadByAttachmentBodyFileList(List<AttachmentBodyFile> downloadFileList) {
-
         LogUtil.info(JSON.toJSONString(downloadFileList) + " 获取执行文件开始");
         List<FileRequest> downloadFileRequest = new ArrayList<>();
         downloadFileList.forEach(attachmentBodyFile -> {
