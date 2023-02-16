@@ -142,6 +142,16 @@ const message = {
     current_display_history_version: "Current display history version",
     compare_with_the_latest_version: "Compare with the latest version",
     view_the_latest_version: "View the latest version",
+  },
+  attachment: {
+    preview: "Preview",
+    download: "Download",
+    dump: "Dump",
+    unRelate: "Unlink",
+    delete: "Delete",
+    delete_confirm_tips: "Delete This Item ?",
+    upload_success: "Upload success",
+    upload_error: "Upload error"
   }
 }
 export default {

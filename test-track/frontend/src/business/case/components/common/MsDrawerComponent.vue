@@ -256,8 +256,8 @@ export default {
 }
 
 .file-drawer .table-data .ms-table {
-  height: px2rem(519) !important;
-  max-height: px2rem(519) !important;
+  height: px2rem(420) !important;
+  max-height: px2rem(430) !important;
 }
 .empty-file {
   height: 100%;

@@ -299,10 +299,10 @@ export function byteToSize(bytes) {
     return "0 B";
   }
   let k = 1024,
-    sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
+    sizeUnits = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"],
     i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return (bytes / Math.pow(k, i)).toPrecision(3) + " " + sizes[i];
+  return Math.round(bytes / Math.pow(1024, i)).toFixed(1) + " " + sizeUnits[i];
 }
 
 export function sizeToByte(size) {

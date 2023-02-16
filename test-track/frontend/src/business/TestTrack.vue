@@ -208,6 +208,12 @@ button.el-button.el-button--default.el-button--small.el-button--primary {
   color: #FFFFFF!important;
 }
 
+button.el-button.el-button--default.el-button--small.el-button--primary:hover {
+  color: #FFFFFF!important;
+  background: rgb(147, 96, 159);
+  border-color: rgb(147, 96, 159);
+}
+
 button.el-button.el-button--default.el-button--small.el-button--danger {
   color: #FFFFFF;
 }
