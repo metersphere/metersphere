@@ -144,7 +144,9 @@ public class MsScenario extends MsTestElement {
 
         if (config != null && StringUtils.equals(this.getId(), config.getScenarioId())) {
             config.setTransferVariables(this.variables);
-            setHeader(scenarioTree, this.headers);
+            if (CollectionUtils.isNotEmpty(this.headers)) {
+                setHeader(scenarioTree, this.headers);
+            }
         }
 
         if (config != null && !config.getExcludeScenarioIds().contains(this.getId())) {
