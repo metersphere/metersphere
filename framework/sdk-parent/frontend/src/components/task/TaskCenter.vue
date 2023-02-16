@@ -278,7 +278,9 @@ export default {
     onClose(e) {
     },
     listenScreenChange() {
-      this.size = document.body.clientWidth;
+      if(this.size != 600) {
+        this.size = document.body.clientWidth;
+      }
     },
     showTaskCenter() {
       this.getTaskRunning();
