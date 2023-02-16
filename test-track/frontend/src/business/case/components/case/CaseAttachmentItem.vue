@@ -40,7 +40,9 @@
       <div class="options">
         <!-- 预览 -->
         <div class="into opt-item" v-if="enablePreview" @click="handlePreview">
-          <img src="/assets/module/figma/icon_visible_outlined.svg" alt=""/>
+          <el-tooltip class="item" effect="dark" :content="$t('attachment.preview')" placement="top-start">
+            <img src="/assets/module/figma/icon_visible_outlined_disable.svg"/>
+          </el-tooltip>
         </div>
         <!-- 下载 -->
         <div
@@ -48,20 +50,27 @@
           v-if="enableDownload"
           @click="handleDownload"
         >
-          <img src="/assets/module/figma/icon_bottom-align_outlined.svg" alt="" />
+          <el-tooltip class="item" effect="dark" :content="$t('attachment.download')" placement="top-start">
+            <img src="/assets/module/figma/icon_bottom-align_outlined_disable.svg" alt="" />
+          </el-tooltip>
         </div>
         <!-- 转储 -->
         <div class="retry opt-item" v-if="enableRetry" @click="handleRetry">
-          <!-- <img src="/assets/figma/icon_refresh_outlined" alt="" /> -->
-          <img src="/assets/module/figma/icon_into-item_outlined.svg" alt="" />
+          <el-tooltip class="item" effect="dark" :content="$t('attachment.dump')" placement="top-start">
+            <img src="/assets/module/figma/icon_into-item_outlined_disable.svg" alt="" />
+          </el-tooltip>
         </div>
         <!-- 取消关联 -->
         <div class="unLink opt-item" v-if="enableUnLink" @click="handleUnLink">
-          <img src="/assets/module/figma/icon_unlink_outlined.svg" alt="" />
+          <el-tooltip class="item" effect="dark" :content="$t('attachment.unRelate')" placement="top-start">
+            <img src="/assets/module/figma/icon_unlink_outlined_disable.svg" alt="" />
+          </el-tooltip>
         </div>
         <!-- 删除 -->
         <div class="delete opt-item" v-if="enableDelete" @click="handleDelete">
-          <img src="/assets/module/figma/icon_delete-trash_outlined.svg" alt="" />
+          <el-tooltip class="item" effect="dark" :content="$t('attachment.delete')" placement="top-start">
+            <img src="/assets/module/figma/icon_delete-trash_outlined_disable.svg" alt="" />
+          </el-tooltip>
         </div>
       </div>
     </div>
@@ -158,7 +167,13 @@ export default {
   },
   computed: {
     uploadSize() {
-      return byteToSize(sizeToByte(this.fileItem.size) *  this.fileItem.progress / 100)
+      if (this.fileItem.progress === 0) {
+        return '0 B'
+      }
+      if (this.fileItem.progress === 100) {
+        return this.fileItem.size;
+      }
+      return byteToSize(sizeToByte(this.fileItem.size) *  this.fileItem.progress / 100);
     },
     enableUnLink() {
       return (
@@ -262,9 +277,11 @@ export default {
           src = "icon_file-text_colorful";
           break;
         case "xlsx":
+        case "xls":
           src = "icon_file-excel_colorful";
           break;
-        case "word":
+        case "docx":
+        case "doc":
           src = "icon_file-word_colorful";
           break;
         case "pdf":
@@ -274,6 +291,7 @@ export default {
           src = "icon_file-xmind_colorful";
           break;
         case "ppt":
+        case "pptx":
           src = "icon_file-ppt_colorful";
           break;
         case "sketch":
@@ -291,19 +309,28 @@ export default {
         case "sql":
           src = "icon_file-sql_colorful";
           break;
-
         // 视频资源
         case "mp4":
         case "flv":
         case "mp3":
-          src = "icon_file-vedio_colorful";
+          src = "icon_file-video_colorful";
           break;
         case "zip":
+          src = "icon_file-zip_colorful";
+          break;
         case "jar":
+          src = "icon_file-jar_colorful";
+          break;
         case "jtl":
+          src = "icon_file-jtl_colorful"
+          break;
         case "gz":
-        case "tar":
+          src = "icon_file-gz_colorful"
+          break;
         case "jmx":
+          src = "icon_file-jmx_colorful";
+          break;
+        case "tar":
           src = "icon_file-all-zip_colorful";
           break;
         default:
@@ -329,6 +356,7 @@ export default {
     border-color: #f54a45 !important;
   }
   .atta-container {
+    cursor: pointer;
     width: px2rem(480);
     height: px2rem(58);
     display: flex;
@@ -338,7 +366,7 @@ export default {
     border-radius: 4px;
     .icon {
       margin-top: px2rem(11.5);
-      margin-left: px2rem(18.67);
+      margin-left: px2rem(12.67);
       width: px2rem(37);
       margin-right: px2rem(14.67);
       img {
@@ -365,6 +393,7 @@ export default {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          max-width: px2rem(280);
         }
       }
       .wait-upload {
@@ -410,8 +439,14 @@ export default {
       justify-content: flex-end;
       align-items: center;
       img {
-        width: 13.33px;
-        height: 13.33px;
+        width: 15.33px;
+        height: 15.33px;
+      }
+      img:hover {
+        background-color: rgba(31, 35, 41, 0.1);
+        border-radius: 4px;
+        width: 18px;
+        height: 18px;
       }
 
       .opt-item {

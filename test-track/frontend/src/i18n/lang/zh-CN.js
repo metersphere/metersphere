@@ -142,8 +142,17 @@ const message = {
     current_display_history_version: "当前展示历史版本",
     compare_with_the_latest_version: "与最新版本比较",
     view_the_latest_version: "查看最新版本",
-
   },
+  attachment: {
+    preview: "预览",
+    download: "下载",
+    dump: "转存",
+    unRelate: "取消关联",
+    delete: "删除",
+    delete_confirm_tips: "是否删除此项?",
+    upload_success: "上传成功",
+    upload_error: "上传失败"
+  }
 };
 
 export default {

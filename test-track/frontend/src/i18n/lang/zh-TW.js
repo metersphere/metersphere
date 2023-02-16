@@ -142,6 +142,16 @@ const message = {
     current_display_history_version: "當前展示歷史版本",
     compare_with_the_latest_version: "與最新版本比較",
     view_the_latest_version: "查看最新版本",
+  },
+  attachment: {
+    preview: "預覽",
+    download: "下載",
+    dump: "轉存",
+    unRelate: "取消關聯",
+    delete: "刪除",
+    delete_confirm_tips: "是否刪除此項?",
+    upload_success: "上傳成功",
+    upload_error: "上傳失敗"
   }
 }
 

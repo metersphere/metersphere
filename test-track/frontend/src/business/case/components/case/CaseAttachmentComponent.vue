@@ -3,7 +3,7 @@
     <el-popover
       ref="popover"
       placement="right"
-      trigger="click"
+      trigger="hover"
       popper-class="attachment-popover"
       :visible-arrow="false"
     >
@@ -25,8 +25,8 @@
             margin-top: 8px;
             line-height: 32px;
             text-align: center;
-            magin-left: 1px;
-            magin-right: 1px;
+            margin-left: 1px;
+            margin-right: 1px;
           "
         >
           <div class="title" style="letter-spacing: -0.1px; color: #1f2329">
@@ -89,7 +89,7 @@
         </div>
       </div>
     </el-popover>
-    <el-button v-popover:popover icon="el-icon-plus" size="small">{{
+    <el-button v-popover:popover icon="el-icon-plus" size="small" class="add-attachment">{{
       $t("case.add_attachment")
     }}</el-button>
     <div class="opt-tip">{{ $t("case.file_size_limit") }}</div>
@@ -224,7 +224,6 @@ export default {
         type: getTypeByFileName(file.name),
         isLocal: true,
       });
-
       if (this.editable) {
         // 新增上传
         this.uploadFiles.push(file);
@@ -249,27 +248,29 @@ export default {
         self.cancelFileToken,
         progressCallback
       )
-        .then((response) => {
-          // 成功回调
-          progress = 100;
-          param.onSuccess(response);
-          progressCallback({ progress, status: "success" });
-          self.cancelFileToken.forEach((token, index, array) => {
-            if (token.name === file.name) {
-              array.splice(token, 1);
-            }
-          });
-        })
-        .catch(({ error }) => {
-          // 失败回调
-          progress = 100;
-          progressCallback({ progress, status: "error" });
-          self.cancelFileToken.forEach((token, index, array) => {
-            if (token.name === file.name) {
-              array.splice(token, 1);
-            }
-          });
+      .then((response) => {
+        // 成功回调
+        progress = 100;
+        param.onSuccess(response);
+        progressCallback({ progress, status: "success" });
+        this.$success(this.$t('attachment.upload_success'), false)
+        self.cancelFileToken.forEach((token, index, array) => {
+          if (token.name === file.name) {
+            array.splice(token, 1);
+          }
         });
+      })
+      .catch(({ error }) => {
+        // 失败回调
+        progress = 100;
+        progressCallback({ progress, status: "error" });
+        this.$success(this.$t('attachment.upload_error'), false)
+        self.cancelFileToken.forEach((token, index, array) => {
+          if (token.name === file.name) {
+            array.splice(token, 1);
+          }
+        });
+      });
     },
     showProgress(file, params) {
       const { progress, status } = params;
@@ -283,7 +284,7 @@ export default {
       this.tableData = [...arr];
     },
     handleExceed(files, fileList) {
-      this.$error(this.$t("load_test.file_size_limit"));
+      this.$error(this.$t("load_test.file_size_limit"), false);
     },
     handleSuccess(response, file, fileList) {
       let readyFiles = fileList.filter((item) => item.status === "ready");
@@ -366,7 +367,7 @@ export default {
                   metadataRefIds: this.unRelateFiles,
                 };
                 unrelatedAttachment(data).then(() => {
-                  this.$success(this.$t("commons.unrelated_success"));
+                  this.$success(this.$t("commons.unrelated_success"), false);
                   this.result.loading = false;
                   this.getFileMetaData(this.issueId);
                 });
@@ -508,5 +509,10 @@ export default {
   font-size: 14px;
   letter-spacing: -0.1px;
   color: #1f2329;
+}
+
+.add-attachment:focus {
+  border-color: #DCDFE6;
+  background-color: whitesmoke;
 }
 </style>

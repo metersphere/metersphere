@@ -35,6 +35,8 @@
           :condition="condition"
           :hidePopover="true"
           @refresh="getProjectFiles"
+          @callBackSelect="callBackSelect"
+          @callBackSelectAll="callBackSelectAll"
           ref="table"
         >
           <ms-table-column
@@ -121,8 +123,8 @@
         </div>
         <div class="options">
           <div class="options-btn">
-            <div class="check-row" v-if="selectRows">
-              <div class="label">{{$t('case.selected')}} {{ selectRowsCount }} {{$t('case.strip')}}</div>
+            <div class="check-row" v-if="selectCounts > 0">
+              <div class="label">{{$t('case.selected')}} {{ selectCounts }} {{$t('case.strip')}}</div>
               <div class="clear" @click="clearSelect">{{$t('case.clear')}}</div>
             </div>
             <div class="cancel">
@@ -134,7 +136,7 @@
               <el-button
                 size="small"
                 v-prevent-re-click
-                :type="selectRows ? 'primary' : 'info'"
+                :type="selectCounts > 0 ? 'primary' : 'info'"
                 @click="submit"
                 @keydown.enter.native.prevent
               >
@@ -144,111 +146,6 @@
           </div>
         </div>
       </div>
-      <!-- <el-card v-loading="result" class="table-card">
-        <template v-slot:header>
-          <ms-table-header
-            title=""
-            :condition.sync="condition"
-            @search="getProjectFiles"
-            :show-create="false"
-            :show-thumbnail="false"
-            @change="change"
-          >
-          </ms-table-header>
-        </template>
-        <ms-table
-          v-loading="data.loading"
-          class="basic-config"
-          :screen-height="height"
-          :data="metadataArr"
-          :condition="condition"
-          :hidePopover="true"
-          @refresh="getProjectFiles"
-          ref="table"
-        >
-          <ms-table-column
-            prop="name"
-            show-overflow-tooltip
-            :width="100"
-            :label="$t('load_test.file_name')"
-          >
-          </ms-table-column>
-          <ms-table-column
-            sortable
-            prop="type"
-            :filters="typeFilters"
-            :label="$t('load_test.file_type')"
-          >
-          </ms-table-column>
-
-          <ms-table-column prop="description" :label="$t('group.description')">
-          </ms-table-column>
-
-          <ms-table-column
-            prop="tags"
-            min-width="60px"
-            :show-overflow-tooltip="false"
-            :label="$t('commons.tag')"
-          >
-            <template v-slot:default="scope">
-              <el-tooltip class="item" effect="dark" placement="top">
-                <div
-                  v-html="getTagToolTips(scope.row.tags)"
-                  slot="content"
-                ></div>
-                <div class="oneLine">
-                  <ms-tag
-                    v-for="(itemName, index) in scope.row.tags"
-                    :key="index"
-                    :show-tooltip="
-                      scope.row.tags.length === 1 && itemName.length * 12 <= 20
-                    "
-                    :content="itemName"
-                    type="success"
-                    effect="plain"
-                    class="ms-tags"
-                  />
-                </div>
-              </el-tooltip>
-              <span />
-            </template>
-          </ms-table-column>
-
-          <ms-table-column
-            sortable
-            prop="createUser"
-            :label="$t('commons.create_user')"
-          >
-          </ms-table-column>
-          <ms-table-column
-            sortable
-            prop="updateUser"
-            :label="$t('ui.update_user')"
-          >
-          </ms-table-column>
-
-          <ms-table-column
-            sortable
-            :label="$t('commons.update_time')"
-            prop="updateTime"
-          >
-            <template v-slot="scope">
-              <span>{{ scope.row.updateTime | datetimeFormat }}</span>
-            </template>
-          </ms-table-column>
-        </ms-table>
-
-        <home-pagination
-          :change="getProjectFiles"
-          :current-page.sync="currentPage"
-          :page-size.sync="pageSize"
-          :total="total"
-          layout="total, prev, pager, next, sizes, jumper"
-          style="margin-top: 19px"
-        />
-      </el-card>
-
-      <ms-dialog-footer @cancel="visible = false" @confirm="submit" /> -->
     </div>
     <div class="empty-file">
       <div class="info-wrap" style="text-align: center; margin-top: 226px">
@@ -326,42 +223,31 @@ export default {
       typeFilters: [],
       showView: "list",
       visible: false,
+      isCheckRow: false,
+      selectCounts: 0
     };
   },
   created() {
     this.getTypes();
     this.getProjectFiles();
   },
-  computed: {
-    selectRows() {
-      return (
-        this.$refs.table &&
-        this.$refs.table.selectRows &&
-        this.$refs.table.selectRows.size > 0
-      );
-    },
-    selectRowsCount() {
-      if (
-        this.$refs.table &&
-        this.$refs.table.selectRows &&
-        this.$refs.table.selectRows.size > 0
-      ) {
-        return this.$refs.table.selectRows.size;
-      }
-      return 0;
-    },
-  },
   methods: {
+    callBackSelect(selection) {
+      this.selectCounts = this.$refs.table.selectDataCounts;
+    },
+    callBackSelectAll(selection) {
+      this.selectCounts = this.$refs.table.selectDataCounts;
+    },
     clearSelect() {
       this.$refs.table.clearSelection();
+      this.selectCounts = 0;
     },
     submit() {
-      if (this.$refs.table.selectRows && this.$refs.table.selectRows.size > 0) {
-        this.$emit("checkRows", this.$refs.table.selectRows);
-        this.visible = false;
-      } else {
-        this.$warning("请选择一条数据");
+      if (this.selectCounts === 0) {
+        return;
       }
+      this.$emit("checkRows", this.$refs.table.selectRows);
+      this.visible = false;
     },
     changeList(pageSize, currentPage) {
       this.currentPage = currentPage;
@@ -376,8 +262,10 @@ export default {
     },
     close() {
       this.visible = false;
+      this.clearSelect();
     },
     open() {
+      this.getProjectFiles();
       this.visible = true;
     },
     myFile() {
