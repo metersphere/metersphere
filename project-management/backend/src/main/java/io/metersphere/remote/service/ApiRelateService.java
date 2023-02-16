@@ -11,11 +11,11 @@ import io.metersphere.remote.dto.ApiDefinitionRequest;
 import io.metersphere.remote.dto.ApiScenarioRequest;
 import io.metersphere.request.ApiTestCaseRequest;
 import io.metersphere.service.MicroService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class ApiRelateService {
             request.setIds(apiIds);
             try {
                 return microService.postForDataArray(MicroServiceName.API_TEST,
-                        "/api/definition/select/by/id/",
+                        "/api/definition/select/by/id",
                         request, ApiDefinition.class);
             } catch (Exception e) {
                 LogUtil.error("调用 接口测试服务失败", e);
@@ -47,7 +47,7 @@ public class ApiRelateService {
             request.setIds(apiTestCaseIds);
             try {
                 return microService.postForDataArray(MicroServiceName.API_TEST,
-                        "/api/testcase/select/by/id/",
+                        "/api/testcase/select/by/id",
                         request, ApiTestCase.class);
             } catch (Exception e) {
                 LogUtil.error("调用 接口测试服务失败", e);
@@ -63,7 +63,7 @@ public class ApiRelateService {
             request.setIds(scenarioIdList);
             try {
                 return microService.postForDataArray(MicroServiceName.API_TEST,
-                        "/api/automation/select/by/id/",
+                        "/api/automation/select/by/id",
                         request, ApiScenario.class);
             } catch (Exception e) {
                 LogUtil.error("调用 接口测试服务失败", e);
