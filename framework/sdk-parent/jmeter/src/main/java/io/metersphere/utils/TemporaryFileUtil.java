@@ -27,20 +27,40 @@ public class TemporaryFileUtil {
                 + File.separator;
     }
 
-    public String generateFileDir(String folder, String fileMetadataId, long updateTime) {
+    public String generateLocalFileDir() {
+        return fileFolder + DEFAULT_FILE_FOLDER + File.separator;
+    }
+
+    //生成执行文件的相对路径
+    public String generateRelativeDir(String folder, String fileMetadataId, long updateTime) {
         if (StringUtils.isBlank(folder)) {
             folder = DEFAULT_FILE_FOLDER;
         }
         if (StringUtils.isBlank(fileMetadataId)) {
-            return fileFolder + folder + File.separator;
+            return folder + File.separator;
         } else {
-            String metadataIdFolder = fileFolder + folder + File.separator + fileMetadataId + File.separator;
+            String metadataIdFolder = folder + File.separator + fileMetadataId + File.separator;
             return updateTime == 0 ? metadataIdFolder : metadataIdFolder + updateTime + File.separator;
         }
     }
 
+    //生成执行文件的绝对路径
+    public String generateFileDir(String folder, String fileMetadataId, long updateTime) {
+        return fileFolder + generateRelativeDir(folder, fileMetadataId, updateTime);
+    }
+
     public String generateFilePath(String folder, String fileMetadataId, long updateTime, String fileName) {
         return generateFileDir(folder, fileMetadataId, updateTime) + fileName;
+    }
+
+    public String generateLocalFilePath(String filePath) {
+        return generateLocalFileDir() + filePath;
+    }
+
+    //node使用 判断local文件
+    public File getLocalFile(String filePath) {
+        File file = new File(this.generateLocalFilePath(filePath));
+        return file.exists() ? file : null;
     }
 
     public File getFile(String folder, String fileMetadataId, long updateTime, String fileName) {
