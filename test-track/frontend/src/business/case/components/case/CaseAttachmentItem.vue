@@ -163,7 +163,7 @@ export default {
   computed: {
     uploadSize() {
       if (this.fileItem.progress === 0) {
-        return '0 B'
+        return '0B'
       }
       if (this.fileItem.progress === 100) {
         return this.fileItem.size;
@@ -363,7 +363,7 @@ export default {
       margin-top: px2rem(11.5);
       margin-left: px2rem(12.67);
       width: px2rem(37);
-      margin-right: px2rem(14.67);
+      margin-right: px2rem(8);
       img {
         width: 100%;
         /* height: 100%; */
@@ -405,7 +405,7 @@ export default {
       }
       .file-info-row {
         display: flex;
-        font-size: 12px;
+        font-size: px2rem(12);
         line-height: px2rem(20);
         height: px2rem(20);
         color: #8f959e;
@@ -445,7 +445,7 @@ export default {
       }
 
       .opt-item {
-        margin-right: 20px;
+        margin-right: px2rem(14);
         cursor: pointer;
       }
       .download {
