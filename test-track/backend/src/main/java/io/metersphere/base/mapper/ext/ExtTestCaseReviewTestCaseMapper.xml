@@ -17,7 +17,7 @@
     <select id="selectForReReview" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
         select id, case_id, status, review_id
         from test_case_review_test_case
-        where case_id = #{caseId} and is_del = 0 (status = 'Pass' or status = 'UnPass' or status = 'Underway');
+        where case_id = #{caseId} and is_del = 0 and (status = 'Pass' or status = 'UnPass' or status = 'Underway');
     </select>
     <select id="selectForReviewerChange" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
         select id, case_id, status, review_id
