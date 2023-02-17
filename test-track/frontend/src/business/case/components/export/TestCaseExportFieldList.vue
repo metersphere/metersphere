@@ -9,7 +9,7 @@
           v-model="item.enable"
           :disabled="item.disabled"
           @change="change">
-          {{ item.name }}
+          {{ item.name | ellipsis}}
         </el-checkbox>
       </el-col>
     </span>
@@ -38,6 +38,17 @@ export default {
     change(value) {
       this.$emit('enableChange', value);
     }
+  },
+  filters: {
+    ellipsis(value) {
+      if (!value) {
+        return '';
+      }
+      if (value.length > 5) {
+        return value.slice(0, 4) + '...';
+      }
+      return value;
+    },
   }
 }
 </script>
