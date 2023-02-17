@@ -164,6 +164,11 @@ public class TestCaseController {
         return testCaseService.getTestCase(testCaseId);
     }
 
+    @GetMapping("/get/version/{refId}/{versionId}")
+    public TestCaseDTO getTestCaseByVersion(@PathVariable String refId, @PathVariable String versionId) {
+        return testCaseService.getTestCaseByVersion(refId, versionId);
+    }
+
     @GetMapping("/get/step/{testCaseId}")
     public TestCaseWithBLOBs getTestCaseStep(@PathVariable String testCaseId) {
         return testCaseService.getTestCaseStep(testCaseId);

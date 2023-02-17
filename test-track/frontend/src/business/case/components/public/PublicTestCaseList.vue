@@ -449,7 +449,7 @@ export default {
       this.selectCounts = this.$refs.table.selectDataCounts;
     },
     handleEdit(testCase, type) {
-      openCaseEdit(testCase.id, type, this);
+      openCaseEdit({caseId: testCase.id, projectId: testCase.projectId, type}, this);
     },
     handleEditShow(testCase, column) {
       this.$refs.publicTestCaseShow.open(testCase.id);
