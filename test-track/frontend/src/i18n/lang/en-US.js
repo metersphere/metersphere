@@ -143,6 +143,7 @@ const message = {
     compare_with_the_latest_version: "Compare with the latest version",
     view_the_latest_version: "View the latest version",
     version_id_cannot_be_empty: "Version id cannot be empty",
+    enter_comments_and_click_send: "Enter comments and click Send",
   },
   attachment: {
     preview: "Preview",
