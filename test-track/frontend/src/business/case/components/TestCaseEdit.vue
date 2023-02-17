@@ -21,19 +21,24 @@
             <div>
               <!--  版本历史 v-xpack -->
               <mx-version-history
+                v-xpack
+                v-if="versionEnable"
                 ref="versionHistory"
-                :version-data="versionData"
                 :current-id="currentTestCaseInfo.id"
                 :is-read="readOnly"
+                :current-version-id="form.versionId"
                 @confirmOtherInfo="confirmOtherInfo"
-                :current-project-id="currentProjectId"
+                :current-project-id="projectId"
                 :has-latest="hasLatest"
                 @setLatest="setLatest"
                 @compare="compare"
                 @compareBranch="compareBranch"
                 @checkout="checkout"
-                @create="create"
+                @create="createVersion"
                 @del="del"
+                @setIsLastedVersion="setIsLastedVersion"
+                @setCurrentVersionName="setCurrentVersionName"
+                @setLatestVersionId="setLatestVersionId"
               >
                 <div class="version-box case-version" slot="versionLabel">
                   <div class="version-icon">
@@ -242,7 +247,7 @@
           <div class="save-create-row">
             <el-button
               size="small"
-              @click="handleCommand('ADD_AND_CREATE')"
+              @click="handleCommand(2)"
               v-if="showAddBtn"
               :disabled="readOnly">
               {{ $t("case.saveAndCreate") }}
@@ -252,7 +257,7 @@
           <div
           class="save-add-pub-row"
           v-if="showPublic"
-          @click="handleCommand('ADD_AND_PUBLIC')">
+          @click="handleCommand(3)">
           <el-button size="small" :disabled="readOnly">
             {{ $t("test_track.case.save_add_public") }}
           </el-button>
@@ -261,7 +266,7 @@
           <div
             class="save-btn-row"
             v-if="showAddBtn">
-            <el-button size="small" @click="handleCommand" :disabled="readOnly" type="primary">
+            <el-button size="small" @click="handleCommand(1)" :disabled="readOnly" type="primary">
               {{ $t("commons.save") }}
             </el-button>
           </div>
@@ -306,7 +311,6 @@ import {
 } from "metersphere-frontend/src/utils/permission";
 import {
   getUUID,
-  getNodePath,
   listenGoBack,
   removeGoBackListener,
   handleCtrlSEvent,
@@ -350,7 +354,7 @@ import {
   hasTestCaseOtherInfo,
   testCaseEditFollows,
   testCaseGetByVersionId,
-  testCaseDeleteToGc, getTestCaseNodesByCaseFilter,
+  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId,
 } from "@/api/testCase";
 
 import {
@@ -359,16 +363,12 @@ import {
 } from "@/business/utils/sdk-utils";
 import { testCaseCommentList } from "@/api/test-case-comment";
 import {
-  getDefaultVersion,
   setLatestVersionById,
 } from "metersphere-frontend/src/api/version";
 import CaseEditInfoComponent from "./case/CaseEditInfoComponent";
 import CaseBaseInfo from "./case/CaseBaseInfo";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import MxVersionHistory from "./common/CaseVersionHistory"
-import {
-  getProjectVersions,
-} from "metersphere-frontend/src/api/version";
 import {buildTree} from "metersphere-frontend/src/model/NodeTree";
 import {versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
@@ -538,19 +538,20 @@ export default {
       oldData: null,
       newData: null,
       selectedOtherInfo: null,
-      currentProjectId: "",
       casePublic: false,
       isClickAttachmentTab: false,
       latestVersionId: "",
       hasLatest: false,
       treeNodes: [],
       currentTestCaseInfo: {},
-      versionOptions: [],
       currentVersionName: "",
       versionEnable: false,
       // 是否为最新版本
       isLastedVersion: true,
-      caseId: ""
+      // 1 表示是直接保存
+      // 2 表示式保存并创建
+      // 3 表示
+      saveType: 1
     };
   },
   props: {
@@ -570,7 +571,8 @@ export default {
   },
   computed: {
     projectId() {
-      return getCurrentProjectID();
+      let pId = this.$route.params.projectId;
+      return pId ? pId : getCurrentProjectID();
     },
     moduleOptions() {
       return useStore().testCaseModuleOptions;
@@ -594,14 +596,9 @@ export default {
         !hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
       );
     },
-    // caseId: {
-    //   get: function(){
-    //     return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
-    //   },
-    //   set: function(val){
-    //     this.$route.params.caseId = val;
-    //   }
-    // },
+    caseId() {
+      return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
+    },
     editType() {
       return this.$route.query.type;
     },
@@ -635,14 +632,6 @@ export default {
           change = change + 1;
           useStore().testCaseMap.set(this.form.id, change);
         }
-        if(val.versionId && !this.currentVersionName){
-          this.fetchVersionName();
-        }
-
-        if(!this.editable && val.versionId){
-          // 检测是否为最新版本
-          this.checkIsLatestVersion(val.versionId);
-        }
       },
       deep: true,
     },
@@ -665,8 +654,6 @@ export default {
     );
   },
   mounted() {
-    this.caseId = !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;
-
     this.getSelectOptions();
 
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
@@ -685,8 +672,6 @@ export default {
       useStore().testCaseMap.set(this.form.id, 0);
     }
 
-    //获取版本信息
-    this.getVersionOptionList();
   },
   activated() {
     this.loadTestCase();
@@ -697,7 +682,7 @@ export default {
   methods: {
     checkoutLatest(){
       //切换最新版本
-      this.checkout({id: this.latestVersionId})
+      this.checkoutByVersionId(this.latestVersionId);
     },
     //与最新版本比较
     diffWithLatest(){
@@ -709,25 +694,16 @@ export default {
       }
       this.compareBranchWithVersionId(this.latestVersionId, this.currentTestCaseInfo.versionId);
     },
-    async checkIsLatestVersion(id){
-      let allCaseVersions = await getTestCaseVersions(this.currentTestCaseInfo.id);
-      if (allCaseVersions.data) {
-        this.isLastedVersion = allCaseVersions.data.length === 1;
-        return true;
-      }
-      if(!this.versionOptions || this.versionOptions.length <= 0){
-        this.isLastedVersion = true;
-        return true;
-      }
-      let version =  this.versionOptions.filter(v => v.id == id);
-      if(!version || version.length <= 0){
-        this.isLastedVersion = true;
-        return true;
-      }
-      this.isLastedVersion = version[0].latest;
-      return version[0].latest;
+    setLatestVersionId(versionId) {
+      this.latestVersionId = versionId;
+    },
+    setIsLastedVersion(isLastedVersion) {
+      this.isLastedVersion = isLastedVersion;
     },
     loadTestCase() {
+      // 校验路径中的
+      this.checkCurrentProject();
+
       let initFuc = this.initEdit;
       this.loading = true;
       getTestTemplate().then((template) => {
@@ -776,9 +752,6 @@ export default {
       } else {
         this.isXpack = false;
       }
-      if (hasLicense()) {
-        this.getDefaultVersion();
-      }
 
       //浏览器拉伸时窗口编辑窗口自适应
       this.$nextTick(() => {
@@ -788,11 +761,11 @@ export default {
 
       this.checkVersionEnable();
     },
-    editPublicCase() {
-      openCaseEdit(this.caseId, "", this)
+    editPublicCase(type) {
+      openCaseEdit({caseId: this.caseId, projectId: this.projectId, type},  this)
     },
     copyPublicCase() {
-      openCaseEdit(this.caseId, "copy", this)
+      this.editPublicCase('copy');
     },
     closePublicCase() {
       this.$emit("close");
@@ -877,23 +850,11 @@ export default {
       this.saveCase();
     },
     handleCommand(e) {
-      if (e === "ADD_AND_CREATE") {
-        if (!this.validateForm()) {
-          this.saveCase();
-        } else {
-          this.saveCase(function (t) {
-            if(t){
-              t.$router.push({path: "/track/case/create",});
-              location.reload();
-            }
-          });
-        }
-      } else if (e === "ADD_AND_PUBLIC") {
+      this.saveType = e;
+      if (e === 3) {
         this.casePublic = true;
-        this.saveCase();
-      } else {
-        this.saveCase();
       }
+      this.saveCase();
     },
     openComment() {
       this.$refs.testCaseComment.open();
@@ -912,7 +873,6 @@ export default {
       if (!this.customizeVisible) {
         this.selectedTreeNode = undefined;
       }
-      //this.reload();
     },
     reload() {
       this.isStepTableAlive = false;
@@ -970,6 +930,13 @@ export default {
         callback();
       }
     },
+    checkCurrentProject() {
+      // 如果不是当前项目，先切项目
+      if (getCurrentProjectID() !== this.projectId) {
+        setCurrentProjectID(this.projectId);
+        location.reload();
+      }
+    },
     getTestCase() {
       if (!this.caseId) {
         return;
@@ -993,11 +960,7 @@ export default {
           });
           this.form.id = null;
         } else {
-          // 如果不是当前项目，先切项目
-          if (this.projectId !== testCase.projectId) {
-            setCurrentProjectID(testCase.projectId);
-            location.reload();
-          }
+          this.checkCurrentProject(testCase.projectId);
         }
         this.currentTestCaseInfo = testCase;
         this.setFormData(testCase);
@@ -1078,9 +1041,9 @@ export default {
       removeGoBackListener(this.close);
       this.dialogFormVisible = false;
     },
-    saveCase(callback) {
+    saveCase() {
       if (this.validateForm()) {
-        this._saveCase(callback);
+        this._saveCase();
       } else {
         if (this.$refs.versionHistory) {
           this.$refs.versionHistory.loading = false;
@@ -1090,7 +1053,7 @@ export default {
         }
       }
     },
-    _saveCase(callback) {
+    _saveCase() {
       let param = this.buildParam();
       if (this.validate(param)) {
         let option = this.getOption(param);
@@ -1113,37 +1076,31 @@ export default {
               this.$emit("caseEdit", param);
             } else {
               param.id = response.data.id;
-              this.$emit("caseCreate", param);
               this.close();
+              if (this.saveType === 2) {
+                // 保存并创建
+                location.reload();
+              } else {
+                this.routerToEdit(response.data.id);
+              }
             }
-            this.form.id = response.data.id;
-            this.currentTestCaseInfo.id = response.data.id;
-            this.form.refId = response.data.refId;
-            this.currentTestCaseInfo.refId = response.data.refId;
-            if (this.currentTestCaseInfo.isCopy) {
-              this.currentTestCaseInfo.isCopy = null;
-            }
-            if (callback) {
-              callback(this);
-
-              return;
-            }
-            // 保存用例后刷新附件
-
-            //更新版本
-            if (hasLicense()) {
-              this.getDefaultVersion();
-            }
-
-            this.$router.push({path: "/track/case/edit/" + this.form.id})
           })
           .catch(() => {
             this.loading = false;
           });
       }
     },
+    routerToEdit(id) {
+      this.$router.push({path: '/track/' + this.projectId + '/case/edit/' + id});
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    },
     buildParam() {
       let param = {};
+      if (this.isAdd) {
+        this.form.id = null;
+      }
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
@@ -1347,35 +1304,6 @@ export default {
         });
       }
     },
-    getDefaultVersion() {
-      getDefaultVersion(this.projectId).then((response) => {
-        this.latestVersionId = response.data;
-        this.getVersionHistory();
-      });
-    },
-    getVersionHistory() {
-      getTestCaseVersions(this.caseId).then((response) => {
-        if (response.data.length > 0) {
-          for (let i = 0; i < response.data.length; i++) {
-            this.currentProjectId = response.data[i].projectId;
-          }
-        } else {
-          this.currentProjectId = getCurrentProjectID();
-        }
-        this.versionData = response.data;
-        let latestVersionData = response.data.filter(
-          (v) => v.versionId === this.latestVersionId
-        );
-        if (latestVersionData.length > 0) {
-          this.hasLatest = false;
-        } else {
-          this.hasLatest = true;
-        }
-        if (this.$refs.versionHistory) {
-          this.$refs.versionHistory.loading = false;
-        }
-      });
-    },
     setSpecialPropForCompare: function (that) {
       that.newData.tags = JSON.parse(that.newData.tags || "{}");
       that.newData.steps = JSON.parse(that.newData.steps || "{}");
@@ -1384,32 +1312,8 @@ export default {
       that.newData.readOnly = true;
       that.oldData.readOnly = true;
     },
-    async fetchVersionName(){
-      if(this.form.versionName){
-        this.currentVersionName = this.form.versionName;
-        return;
-      }
-      if(this.currentVersionName){
-        return;
-      }
-      //查询版本名称
-      await this.getVersionOptionList();
-      this.currentVersionName = this.findVersionNameByID(this.form.versionId)
-    },
-    async getVersionOptionList() {
-      if (!hasLicense()) {
-        return;
-      }
-      let res = await getProjectVersions(getCurrentProjectID());
-      this.versionOptions = res.data ?? [];
-    },
-    findVersionNameByID(versionId){
-      let versionName = "";
-      let version = this.versionOptions.filter(v => v.id === versionId);
-      if(Array.isArray(version) && version.length > 0){
-        return version[0].name;
-      }
-      return versionName;
+    setCurrentVersionName(versionName) {
+      this.currentVersionName = versionName;
     },
     compareBranchWithVersionId(originId, targetId){
        // 打开对比
@@ -1418,26 +1322,6 @@ export default {
     },
     compareBranch(t1, t2) {
        this.compareBranchWithVersionId(t1.id, t2.id);
-      // let t1Case = await testCaseGetByVersionId(t1.id, this.currentTestCaseInfo.id);
-      // let t2Case = await testCaseGetByVersionId(t2.id, this.currentTestCaseInfo.id);
-
-      // let p1 = getTestCase(t1Case.data.id);
-      // let p2 = getTestCase(t2Case.data.id);
-      // let that = this;
-      // Promise.all([p1, p2]).then((r) => {
-      //   if (r[0] && r[1]) {
-      //     that.newData = r[0].data;
-      //     that.oldData = r[1].data;
-      //     that.newData.createTime = t1.createTime;
-      //     that.oldData.createTime = t2.createTime;
-      //     that.newData.versionName = t1.name;
-      //     that.oldData.versionName = t2.name;
-      //     that.newData.userName = t1Case.data.createName;
-      //     that.oldData.userName = t2Case.data.createName;
-      //     this.setSpecialPropForCompare(that);
-      //     that.dialogVisible = true;
-      //   }
-      // });
     },
     compare(row) {
       testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId).then(
@@ -1471,24 +1355,14 @@ export default {
         }
       );
     },
-    checkout(row) {
-      this.getVersionHistory();
-      this.$refs.versionHistory.loading = true;
-      let testCase = this.versionData.filter((v) => v.versionId === row.id)[0];
-
-      if (testCase) {
-        getTestCase(testCase.id).then((response) => {
-          let testCase = response.data;
-          this.currentTestCaseInfo = testCase;
-          this.form = testCase;
-          this.caseId = testCase.id;
-          //版本切换展示
-          this.currentVersionName = this.findVersionNameByID(this.form.versionId)
-          this.checkIsLatestVersion(this.form.versionId);
-          this.$emit("checkout", testCase);
-          this.$refs.versionHistory.loading = false;
+    checkoutByVersionId(versionId) {
+      getTestCaseByVersionId(this.form.refId, versionId)
+        .then((response) => {
+          this.routerToEdit(response.data.id);
         });
-      }
+    },
+    checkout(testCase) {
+      this.routerToEdit(testCase.id);
     },
     validateForm() {
       let isValidate = true;
@@ -1528,7 +1402,7 @@ export default {
       }
       return isValidate;
     },
-    async create(row) {
+    async createVersion(row) {
       if (this.validateForm()) {
         // 创建新版本
         this.form.versionId = row.id;
@@ -1541,11 +1415,9 @@ export default {
             if (this.$refs.versionHistory) {
               this.$refs.versionHistory.loading = false;
             }
+            this.checkoutByVersionId(row.id);
           });
         }
-        setTimeout(() => {
-          this.checkout(row);
-        }, 3000);
       } else {
         this.$refs.versionHistory.loading = false;
       }
@@ -1562,8 +1434,7 @@ export default {
             if (action === "confirm") {
               deleteTestCaseVersion(row.id, this.form.refId).then(() => {
                 this.$success(this.$t("commons.delete_success"));
-                this.getVersionHistory();
-                this.$emit("refresh");
+                this.$refs.versionHistory.getVersionOptionList();
               });
             } else {
               that.$refs.versionHistory.loading = false;
@@ -1572,16 +1443,16 @@ export default {
         }
       );
     },
-    setLatest(row) {
+    setLatest(version) {
       let param = {
         projectId: getCurrentProjectID(),
         type: "TEST_CASE",
-        versionId: row.id,
+        versionId: version.id,
         resourceId: this.caseId,
       };
       setLatestVersionById(param).then(() => {
         this.$success(this.$t("commons.modify_success"));
-        this.checkout(row);
+        this.checkoutByVersionId(version.id);
       });
     },
     hasOtherInfo() {
@@ -1600,7 +1471,7 @@ export default {
       this.saveCase();
     },
     copyRow() {
-      openCaseEdit(this.testCase.id, "copy", this);
+      openCaseEdit({caseId: this.testCase.id, projectId: this.testCase.projectId, type: 'copy'},  this);
     },
     deleteRow() {
       getTestCaseVersions(this.testCase.id)

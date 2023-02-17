@@ -12,7 +12,7 @@ export default {
       component: () => import('@/business/home/TrackHome'),
     },
     {
-      path: 'case/create',
+      path: ':projectId/case/create',
       name: 'testCaseCreate',
       component: () => import('@/business/case/components/TestCaseEdit'),
     },
@@ -27,7 +27,7 @@ export default {
       component: () => import('@/business/case/TestCase'),
     },
     {
-      path: 'case/edit/:caseId',
+      path: ':projectId/case/edit/:caseId',
       name: 'testCaseEdit',
       component: () => import('@/business/case/components/TestCaseEdit'),
     },

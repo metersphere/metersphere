@@ -22,6 +22,10 @@ export function getTestCase(id) {
   return get(BASE_URL + `get/${id}`);
 }
 
+export function getTestCaseByVersionId(refId, versionId) {
+  return get(BASE_URL + `get/version/${refId}/${versionId}`);
+}
+
 export function hasTestCaseOtherInfo(id) {
   return get(BASE_URL + `hasOtherInfo/${id}`);
 }
