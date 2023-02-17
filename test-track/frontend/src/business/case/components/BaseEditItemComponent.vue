@@ -205,6 +205,13 @@ export default {
       });
     },
     getTranslateOption(item) {
+      if (Array.isArray(item)) {
+        let arr = [];
+        item.forEach((v) => {
+          arr.push(v.system ? this.$t(v.text) : v.text);
+        });
+        return arr.join(" ");
+      }
       return item.system ? this.$t(item.text) : item.text;
     },
     getCustomText() {
@@ -216,15 +223,34 @@ export default {
       ) {
         options = this.memberOptions;
       }
-      if (options.length > 0) {
-        let option = options.find((item) => {
-          if (this.contentObject.content.value) {
-            return item.value == this.contentObject.content.value;
-          }
-          return item.value == this.contentObject.content.defaultValue;
-        });
-        if (option) {
-          return this.getTranslateOption(option);
+      if (options && options.length > 0) {
+        let tempValue = this.contentObject.content.value && this.contentObject.content.value.length > 0
+          ? this.contentObject.content.value
+          : this.contentObject.content.defaultValue;
+        if(!tempValue || Array.isArray(tempValue) && tempValue.length <= 0){
+          return this.$t("case.none");
+        }
+        if (Array.isArray(tempValue) && tempValue.length > 0) {
+          let arr = [];
+          tempValue.forEach((v) => {
+            let temp = options.find((o) => {
+                return o.value == v;
+              });
+            if(temp){
+              if(Array.isArray(temp)){
+                arr.push(...temp);
+              }
+              else{
+                arr.push(temp);
+              }
+            }
+          });
+          return this.getTranslateOption(arr);
+        } else {
+          let temp = options.find((o) => {
+                return o.value == tempValue;
+              });
+          return this.getTranslateOption(temp);
         }
       }
 
@@ -237,7 +263,11 @@ export default {
           ? this.$t("case.none")
           : this.contentObject.content.defaultValue;
       }
-      return "";
+
+      return this.contentObject.content.defaultValue === "" ||
+        this.contentObject.content.defaultValue == null
+        ? this.$t("case.none")
+        : this.contentObject.content.defaultValue;
     },
     getStoryPlatform() {
       let demandOptions = this.contentObject.content.demandOptions || [];
@@ -246,7 +276,7 @@ export default {
           return item.value === this.contentObject.content.demandId;
         });
         if (demand) {
-          return demand.platform;
+          return this.handleDemandOptionPlatform(demand);
         }
       }
       return "";
@@ -261,8 +291,30 @@ export default {
           if (demand.value === "other") {
             return this.$t("test_track.case.other");
           }
-          return demand.label;
+          return this.handleDemandOptionLabel(demand);
         }
+      }
+      return "";
+    },
+    handleDemandOptionPlatform(data) {
+      if (data.platform) {
+        return data.platform;
+      }
+      if (data.label) {
+        let arr = data.label.split(": ");
+        if (arr && arr.length > 1) {
+          return arr[0];
+        }
+      }
+      return "";
+    },
+    handleDemandOptionLabel(data) {
+      if (data.label) {
+        let arr = data.label.split(": ");
+        if (arr && arr.length > 1) {
+          return arr[1];
+        }
+        return data.label;
       }
       return "";
     },

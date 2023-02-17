@@ -143,6 +143,7 @@ const message = {
     compare_with_the_latest_version: "与最新版本比较",
     view_the_latest_version: "查看最新版本",
     version_id_cannot_be_empty: "版本号不能为空",
+    enter_comments_and_click_send: "输入评论,点击发送",
   },
   attachment: {
     preview: "预览",

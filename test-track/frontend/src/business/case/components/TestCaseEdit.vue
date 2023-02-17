@@ -1661,6 +1661,14 @@ export default {
           margin-left: px2rem(8);
           margin-right: px2rem(8);
           cursor: pointer;
+          max-width: 800px;
+          /* 文本不会换行显示 */
+          white-space: nowrap;
+          /* 超出盒子部分隐藏 */
+          overflow: hidden;
+          /* 文本超出的部分打点显示 */
+          text-overflow: ellipsis;
+
         }
         .case-name-hover:hover {
           cursor: pointer;
