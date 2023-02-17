@@ -288,7 +288,8 @@ export function getIssuePartTemplateWithProject(callback, reject) {
               template.customFields.push(...pluginFields);
               if (callback)
                 callback(template, currentProject);
-            });
+            })
+            .catch(() => {reject(r)});
         }
       });
   });

@@ -23,6 +23,7 @@
 
 import MsBorderPieChart from "metersphere-frontend/src/components/MsBorderPieChart";
 import {getMyCreatedCaseGroupContMap} from "@/api/workstation";
+import {getCurrentProject} from "@/api/project";
 
 
 export default{
@@ -74,7 +75,7 @@ export default{
     },
     toCreatCase(){
       let caseData = this.$router.resolve({
-        path: '/track/case/create',
+        path: '/track/' + getCurrentProject() + '/case/create',
       });
       window.open(caseData.href, '_blank');
     },
