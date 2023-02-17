@@ -34,9 +34,13 @@ public class FileUtils {
     public static final String ATTACHMENT_DIR = "/opt/metersphere/data/attachment";
     public static final String ATTACHMENT_TMP_DIR = "/opt/metersphere/data/attachment/tmp";
 
-    public static void validateFileName(String fileName) {
-        if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
-            MSException.throwException(Translator.get("invalid_parameter"));
+    public static void validateFileName(String... fileNames) {
+        if (fileNames != null) {
+            for (String fileName : fileNames) {
+                if (StringUtils.isNotEmpty(fileName) && StringUtils.contains(fileName, "." + File.separator)) {
+                    MSException.throwException(Translator.get("invalid_parameter"));
+                }
+            }
         }
     }
 

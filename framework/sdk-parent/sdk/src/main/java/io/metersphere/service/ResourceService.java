@@ -5,6 +5,7 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
 import io.metersphere.request.MdUploadRequest;
+import jakarta.annotation.Resource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -43,10 +43,8 @@ public class ResourceService {
     }
 
     public ResponseEntity<FileSystemResource> getUiResultImage(String name, String reportId) {
-        if (name.contains("/")) {
-            MSException.throwException(Translator.get("invalid_parameter"));
-        }
-        return getImage(FileUtils.UI_IMAGE_DIR + "/" + reportId +  "/" + name);
+        FileUtils.validateFileName(name, reportId);
+        return getImage(FileUtils.UI_IMAGE_DIR + File.separator + reportId + File.separator + name);
     }
 
     public ResponseEntity<FileSystemResource> getImage(String path) {
