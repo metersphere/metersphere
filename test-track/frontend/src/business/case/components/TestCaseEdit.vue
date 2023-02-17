@@ -246,19 +246,22 @@
           <!-- 保存并新建 -->
           <div class="save-create-row">
             <el-button
-              size="small"
-              @click="handleCommand(2)"
               v-if="showAddBtn"
-              :disabled="readOnly">
+              v-prevent-re-click
+              size="small"
+              :disabled="readOnly || loading"
+              @click="handleCommand(2)">
               {{ $t("case.saveAndCreate") }}
             </el-button>
           </div>
           <!-- 保存并添加到公共用例库 -->
           <div
-          class="save-add-pub-row"
-          v-if="showPublic"
-          @click="handleCommand(3)">
-          <el-button size="small" :disabled="readOnly">
+            v-if="showPublic"
+            class="save-add-pub-row">
+          <el-button size="small"
+                     v-prevent-re-click
+                     :disabled="readOnly || loading"
+                     @click="handleCommand(3)">
             {{ $t("test_track.case.save_add_public") }}
           </el-button>
         </div>
@@ -266,7 +269,12 @@
           <div
             class="save-btn-row"
             v-if="showAddBtn">
-            <el-button size="small" @click="handleCommand(1)" :disabled="readOnly" type="primary">
+            <el-button
+              v-prevent-re-click
+              size="small"
+              type="primary"
+              :disabled="readOnly || loading"
+              @click="handleCommand(1)">
               {{ $t("commons.save") }}
             </el-button>
           </div>
