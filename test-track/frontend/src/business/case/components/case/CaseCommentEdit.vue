@@ -15,6 +15,7 @@
           class="remark-item"
           :data="tempFormData"
           :default-open="richTextDefaultOpen"
+          :placeholder="$t('case.enter_comments_and_click_send')"
           prop="richText"
         />
         <div class="options">
