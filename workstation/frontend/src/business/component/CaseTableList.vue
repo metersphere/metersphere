@@ -654,13 +654,18 @@ export default {
       this.initTableData();
     },
     handleEdit(testCase, column) {
-      let caseResolve = this.$router.resolve({
-        path: '/track/case/edit',
-        query: {
-          caseId: testCase.id,
-        },
+      let query = {
+        caseId: testCase.id,
+        projectId: testCase.projectId
+      };
+      let path = '/track/' + query.projectId + '/case/edit/' + query.caseId;
+      delete query.projectId;
+      delete query.caseId;
+      let TestCaseData = this.$router.resolve({
+        path,
+        query,
       });
-      window.open(caseResolve.href, '_blank');
+      window.open(TestCaseData.href, '_blank');
     },
     refresh() {
       this.$refs.table.clear();

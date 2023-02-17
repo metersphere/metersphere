@@ -95,6 +95,8 @@ export default {
           this.pathName = '/track/review/all';
         } else if (to.params && to.params.planId) {
           this.pathName = '/track/plan/all';
+        } if (to.path.indexOf("/track/case") >= 0) {
+          this.pathName = '/track/case/all';
         } else {
           this.pathName = to.path;
         }

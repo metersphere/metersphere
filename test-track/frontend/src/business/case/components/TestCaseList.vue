@@ -849,7 +849,7 @@ export default {
       this.$refs.table.resetHeader();
     },
     handleEdit(testCase, type) {
-      openCaseEdit({caseId: testCase.id, projectId: testCase.projectId, type}, this);
+      openCaseEdit({caseId: testCase.id, type}, this);
     },
     getCase(id) {
       this.$refs.testCasePreview.open();
