@@ -8,6 +8,8 @@ import lombok.Data;
 public class FileInfoDTO {
     private String id;
     private String fileName;
+
+    private String type;
     private String projectId;
     private long fileLastUpdateTime;
     private String storage;

@@ -49,8 +49,16 @@ public class TemporaryFileUtil {
         return fileFolder + generateRelativeDir(folder, fileMetadataId, updateTime);
     }
 
-    public String generateFilePath(String folder, String fileMetadataId, long updateTime, String fileName) {
-        return generateFileDir(folder, fileMetadataId, updateTime) + fileName;
+    private String getFileName(String fileName, String fileSuffix) {
+        if (StringUtils.endsWithIgnoreCase(fileName, "." + fileSuffix)) {
+            return fileName;
+        } else {
+            return StringUtils.join(fileName, ".", fileSuffix);
+        }
+    }
+
+    public String generateFilePath(String folder, String fileMetadataId, long updateTime, String fileName, String fileSuffix) {
+        return generateFileDir(folder, fileMetadataId, updateTime) + getFileName(fileName, fileSuffix);
     }
 
     public String generateLocalFilePath(String filePath) {
@@ -63,8 +71,8 @@ public class TemporaryFileUtil {
         return file.exists() ? file : null;
     }
 
-    public File getFile(String folder, String fileMetadataId, long updateTime, String fileName) {
-        File file = new File(generateFilePath(folder, fileMetadataId, updateTime, fileName));
+    public File getFile(String folder, String fileMetadataId, long updateTime, String fileName, String fileSuffix) {
+        File file = new File(generateFilePath(folder, fileMetadataId, updateTime, fileName, fileSuffix));
         if (file.exists()) {
             return file;
         } else {
@@ -72,18 +80,18 @@ public class TemporaryFileUtil {
         }
     }
 
-    public void saveFile(String folder, String fileMetadataId, long updateTime, String fileName, byte[] fileBytes) {
+    public void saveFile(String folder, String fileMetadataId, long updateTime, String fileName, String fileSuffix, byte[] fileBytes) {
         //删除过期文件
         deleteOldFile(folder, fileMetadataId, updateTime, fileName);
-        this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName), fileBytes);
+        this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName, fileSuffix), fileBytes);
     }
 
-    public void saveFileByParamCheck(String folder, String fileMetadataId, long updateTime, String fileName, byte[] fileBytes) {
+    public void saveFileByParamCheck(String folder, String fileMetadataId, long updateTime, String fileName, String fileSuffix, byte[] fileBytes) {
         if (fileBytes != null && StringUtils.isNotBlank(folder) && updateTime > 0
                 && StringUtils.isNotBlank(fileName) && fileBytes.length > 0) {
             //删除过期文件
             deleteOldFile(folder, fileMetadataId, updateTime, fileName);
-            this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName), fileBytes);
+            this.createFile(generateFilePath(folder, fileMetadataId, updateTime, fileName, fileSuffix), fileBytes);
         }
     }
 

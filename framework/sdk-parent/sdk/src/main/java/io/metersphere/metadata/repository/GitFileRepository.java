@@ -101,6 +101,7 @@ public class GitFileRepository implements FileRepository {
                         FileInfoDTO repositoryFileDTO = new FileInfoDTO(
                                 fileRequest.getResourceId(),
                                 MetadataUtils.getFileNameByRemotePath(gitFileInfo.getFilePath()),
+                                fileRequest.getType(),
                                 fileRequest.getProjectId(),
                                 fileRequest.getUpdateTime(),
                                 StorageConstants.GIT.name(),
