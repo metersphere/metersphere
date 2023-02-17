@@ -567,8 +567,6 @@ public class ApiScenarioReportStructureService {
         if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs) && CollectionUtils.isNotEmpty(reportResults)) {
             ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
             List<StepTreeDTO> stepList = JSON.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
-            //判断是否含有全局前后置脚本，如果有的话需要将脚本内容添加到stepDTO中
-            reportResults = this.filterProcessResult(reportResults);
 
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equals(e.getStatus(), ApiReportStatus.ERROR.name())).collect(Collectors.toList()).size());
