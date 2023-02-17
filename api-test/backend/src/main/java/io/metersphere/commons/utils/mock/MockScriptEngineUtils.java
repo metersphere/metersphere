@@ -8,8 +8,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.jmeter.MsClassLoader;
-import io.metersphere.jmeter.MsDynamicClassLoader;
+import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.metadata.service.FileMetadataService;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
@@ -78,7 +77,9 @@ public class MockScriptEngineUtils {
             }
 
             if (engine != null) {
-                MsDynamicClassLoader loader = MsClassLoader.loadJar(getJarPaths(projectId));
+                ClassLoader loader = ProjectClassLoader.getClassLoader(new ArrayList<>() {{
+                    this.add(projectId);
+                }});
                 Thread.currentThread().setContextClassLoader(loader);
                 engine.eval(preScript);
             }
