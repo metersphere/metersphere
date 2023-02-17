@@ -224,6 +224,7 @@ public class JMeterBase {
                     String evnStr = result.getResponseDataAsString();
                     environmentList.add(evnStr);
                 } else {
+                    //检查是否有关系到最终执行结果的全局前后置脚本。
                     boolean resultNotFilterOut = ListenerUtil.checkResultIsNotFilterOut(requestResult);
                     if (resultNotFilterOut) {
                         if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
@@ -231,6 +232,11 @@ public class JMeterBase {
                         } else {
                             requestResults.add(requestResult);
                         }
+                    } else {
+                        //全局前后置脚本的执行结果不影响场景执行结果，默认它们都是执行成功的
+                        requestResult.setError(0);
+                        requestResult.setSuccess(true);
+                        requestResults.add(requestResult);
                     }
                 }
             });
