@@ -8,6 +8,7 @@ import lombok.Setter;
 public class AttachmentBodyFile {
     private String id;
     private String name;
+    private String fileType;
     // 调试附件处理
     private String refResourceId;
 

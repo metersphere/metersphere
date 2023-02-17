@@ -564,7 +564,7 @@ public class FileMetadataService {
             //检查是否存在已下载的文件
             attachmentBodyFileList.forEach(fileMetadata -> {
                 if (!StringUtils.equals(fileMetadata.getFileStorage(), StorageConstants.LOCAL.name())) {
-                    File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getFileMetadataId(), fileMetadata.getFileUpdateTime(), fileMetadata.getName());
+                    File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getFileMetadataId(), fileMetadata.getFileUpdateTime(), fileMetadata.getName(), fileMetadata.getFileType());
                     if (file == null) {
                         downloadFileList.add(fileMetadata);
                         LoggerUtil.info("文件【" + fileMetadata.getFileUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】未找到，需要下载");
@@ -594,10 +594,10 @@ public class FileMetadataService {
         List<FileRequest> downloadFileRequest = new ArrayList<>();
         //检查是否存在已下载的文件
         fileMetadataWithBLOBList.forEach(fileMetadata -> {
-            File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getId(), fileMetadata.getUpdateTime(), fileMetadata.getName());
+            File file = temporaryFileUtil.getFile(fileMetadata.getProjectId(), fileMetadata.getId(), fileMetadata.getUpdateTime(), fileMetadata.getName(), fileMetadata.getType());
             if (file != null) {
                 LoggerUtil.info("文件【" + fileMetadata.getUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】已找到，无需下载");
-                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileMetadata.getId(), fileMetadata.getName(), fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getStorage(), fileMetadata.getPath(), FileUtils.fileToByte(file));
+                FileInfoDTO fileInfoDTO = new FileInfoDTO(fileMetadata.getId(), fileMetadata.getName(), fileMetadata.getType(), fileMetadata.getProjectId(), fileMetadata.getUpdateTime(), fileMetadata.getStorage(), fileMetadata.getPath(), FileUtils.fileToByte(file));
                 fileInfoDTOList.add(fileInfoDTO);
             } else {
                 LoggerUtil.info("文件【" + fileMetadata.getUpdateTime() + "_" + fileMetadata.getName() + "】在执行目录【" + fileMetadata.getProjectId() + "】未找到，需要下载");
@@ -607,7 +607,7 @@ public class FileMetadataService {
         List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(downloadFileRequest);
         //将文件存储到执行文件目录中，避免多次执行时触发多次下载
         if (CollectionUtils.isNotEmpty(repositoryFileDTOList)) {
-            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
+            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getType(), repositoryFile.getFileByte()));
             fileInfoDTOList.addAll(repositoryFileDTOList);
         }
         return fileInfoDTOList;
@@ -624,7 +624,7 @@ public class FileMetadataService {
         List<FileInfoDTO> repositoryFileDTOList = fileManagerService.downloadFileBatch(downloadFileRequest);
         //将文件存储到执行文件目录中，避免多次执行时触发多次下载
         if (CollectionUtils.isNotEmpty(repositoryFileDTOList)) {
-            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getFileByte()));
+            repositoryFileDTOList.forEach(repositoryFile -> temporaryFileUtil.saveFileByParamCheck(repositoryFile.getProjectId(), repositoryFile.getId(), repositoryFile.getFileLastUpdateTime(), repositoryFile.getFileName(), repositoryFile.getType(), repositoryFile.getFileByte()));
         }
         LogUtil.info(JSON.toJSONString(downloadFileList) + " 获取执行文件结束");
     }
@@ -654,6 +654,7 @@ public class FileMetadataService {
             request.setResourceId(attachmentBodyFile.getFileMetadataId());
             request.setPath(attachmentBodyFile.getFilePath());
             request.setStorage(attachmentBodyFile.getFileStorage());
+            request.setType(attachmentBodyFile.getFileType());
             request.setUpdateTime(attachmentBodyFile.getFileUpdateTime());
             if (StringUtils.equals(attachmentBodyFile.getFileStorage(), StorageConstants.GIT.name())) {
                 try {
