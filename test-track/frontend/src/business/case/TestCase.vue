@@ -178,8 +178,6 @@
           :currentTestCaseInfo="item.testCaseInfo"
           :version-enable="versionEnable"
           @refresh="refreshAll"
-          @caseEdit="handleCaseCreateOrEdit($event, 'edit')"
-          @caseCreate="handleCaseCreateOrEdit($event, 'add')"
           @checkout="checkout($event, item)"
           :is-public="item.isPublic"
           :read-only="testCaseReadOnly"
@@ -234,7 +232,7 @@ import {versionEnableByProjectId} from "@/api/project";
 import TestCasePublicNodeTree from "@/business/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/module/TestCaseTrashNodeTree";
 import PublicTestCaseList from "@/business/case/components/public/PublicTestCaseList";
-import {openCaseEdit} from "@/business/case/test-case";
+import {openCaseCreate, openCaseEdit} from "@/business/case/test-case";
 
 const store = useStore();
 export default {
@@ -377,8 +375,9 @@ export default {
   methods: {
     hasPermission,
     handleCreateCase(){
-      let TestCaseData = this.$router.resolve({path: "/track/case/create",});
-      window.open(TestCaseData.href, "_blank");
+      openCaseCreate({
+        projectId: this.projectId
+      }, this);
     },
     closeTab(){
       this.handleTabClose();

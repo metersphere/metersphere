@@ -1,4 +1,4 @@
-import {getAdvSearchCustomField, OPERATORS} from "@/business/utils/sdk-utils";
+import {getAdvSearchCustomField, getCurrentProjectID, OPERATORS} from "@/business/utils/sdk-utils";
 import i18n from "@/i18n";
 
 export function initTestCaseConditionComponents(condition, customFields, trashEnable) {
@@ -48,18 +48,51 @@ export function initTestCaseConditionComponents(condition, customFields, trashEn
   return conditionComponents;
 }
 
-
-export function openCaseEdit(caseId, type, v) {
-  if (!caseId) {
+/**
+ * 跳转到用例编辑页面
+ * @param query
+ * {
+ *   projectId: 项目ID
+ *   caseId: 用例ID
+ *   type: 特殊跳转，copy 表示复制操作
+ * }
+ */
+export function openCaseEdit(query, v) {
+  if (!query.caseId) {
     return;
   }
-  let query = {};
-  if (type) {
-    query.type = type;
+  if (!query.type) {
+    delete query.type;
   }
+  if (!query.projectId) {
+    query.projectId = getCurrentProjectID();
+  }
+  let path = '/track/' + query.projectId + '/case/edit/' + query.caseId;
+  delete query.projectId;
+  delete query.caseId;
   let TestCaseData = v.$router.resolve({
-    path: "/track/case/edit/" + caseId,
+    path,
     query,
   });
-  window.open(TestCaseData.href, "_blank");
+  window.open(TestCaseData.href, '_blank');
+}
+
+/**
+ * 跳转到用例创建页面
+ * @param query
+ * {
+ *   projectId: 项目ID
+ * }
+ */
+export function openCaseCreate(query, v) {
+  if (!query.projectId) {
+    query.projectId = getCurrentProjectID();
+  }
+  let path = '/track/' + query.projectId + '/case/create';
+  delete query.projectId;
+  let TestCaseData = v.$router.resolve({
+    path,
+    query,
+  });
+  window.open(TestCaseData.href, '_blank');
 }

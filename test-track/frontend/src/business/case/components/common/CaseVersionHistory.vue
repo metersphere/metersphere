@@ -13,7 +13,7 @@
           <div class="label">{{ $t("project.version.name") }}</div>
         </div>
         <div class="history-container">
-          <div class="item-row" v-for="item in versionOptions" :key="item.id">
+          <div class="item-row" v-for="item in versionOptions" :key="item.id" @click="checkout(item)">
             <div class="left-detail-row">
               <div class="version-info-row">
                 <div
@@ -29,57 +29,45 @@
                   {{ $t("case.last_version") }}
                 </div>
               </div>
-              <div class="version-detail">
+              <div class="version-detail" v-if="item.createName">
                 <div class="creator">
-                  {{ item.createUserName }} {{ $t("commons.create") }}
+                  {{ item.createName }} {{ $t("commons.create") }}
                 </div>
               </div>
             </div>
             <div class="right-opt-row">
               <div
                 class="updated opt-row"
-                @click="setLatest(item)"
-                v-if="
-                  hasLatest &&
-                  item.isCheckout &&
-                  !(isRead || item.id === dataLatestId)
-                "
+                @click.stop="setLatest(item)"
+                v-if="caseVersionMap.has(item.id)
+                  && !(isRead || item.id === dataLatestId)"
               >
                 {{ $t("case.set_new") }}
               </div>
               <div
-                class="checkout opt-row"
-                @click="checkout(item)"
-                v-if="item.isCheckout && !item.isCurrent"
-              >
-                {{ $t("project.version.checkout") }}
-              </div>
-              <div
                 class="create opt-row"
-                v-if="!item.isCheckout && item.status === 'open' && !isRead"
-                @click="create(item)"
+                v-if="!caseVersionMap.has(item.id)
+                  && !isRead"
+                @click.stop="create(item)"
               >
                 {{ $t("commons.create") }}
               </div>
               <div
                 class="delete opt-row"
-                @click="del(item)"
-                v-if="item.isCheckout && !(item.isCurrent || isRead)"
+                @click.stop="del(item)"
+                v-if="caseVersionMap.has(item.id)
+                  && !(item.id === currentVersionId)
+                  && !isRead"
               >
                 {{ $t("commons.delete") }}
               </div>
-              <!-- <div
-                @click="compare(item)"
-                v-if="item.isCheckout && !item.isCurrent"
-              >
-                {{ $t("project.version.compare") }}
-              </div> -->
             </div>
           </div>
         </div>
-        <div class="compare-row" @click.stop="compareDialogVisible = true">
+        <div class="compare-row" :disabled="!versionCompareOptions || versionCompareOptions.length < 2"
+             @click.stop="compareDialogVisible = true">
           <div class="icon">
-            <img src="/assets/module/figma/icon_contrast_outlined.svg" alt="" />
+            <img src="/assets/module/figma/icon_contrast_outlined.svg" alt=""/>
           </div>
           <div class="label">{{ $t("case.version_comparison") }}</div>
         </div>
@@ -104,7 +92,7 @@
         <div class="version-left-box">
           <el-select v-model="versionLeftId" size="small">
             <el-option
-              v-for="item in versionLeftOptions"
+              v-for="item in versionCompareOptions"
               :key="item.id"
               :label="item.name"
               :value="item.id"
@@ -115,24 +103,25 @@
         <div class="version-right-box">
           <el-select v-model="versionRightId" size="small">
             <el-option
-              v-for="item in versionRightOptions"
+              v-for="item in versionCompareOptions"
               :key="item.id"
               :label="item.name"
               :value="item.id"
             ></el-option
-          ></el-select>
+            >
+          </el-select>
         </div>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeCompareVersionDialog" size="small">{{
-          $t("commons.cancel")
-        }}</el-button>
+            $t("commons.cancel")
+          }}</el-button>
         <el-button
           :type="enableCompare ? 'primary' : 'info'"
           :disabled="!enableCompare"
           @click="compareBranch"
           size="small"
-          >{{ $t("commons.confirm") }}</el-button
+        >{{ $t("commons.confirm") }}</el-button
         >
       </span>
     </el-dialog>
@@ -140,20 +129,20 @@
 </template>
 
 <script>
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
-import { hasLicense } from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   getProjectMembers,
   getProjectVersions,
   isProjectVersionEnable,
 } from "metersphere-frontend/src/api/version";
-import { getTestCaseVersions } from "@/api/testCase";
+import {getTestCaseVersions} from "@/api/testCase";
 
 export default {
   name: "CaseVersionHistory",
   props: {
-    versionData: Array,
     currentId: String,
+    currentVersionId: String,
     testUsers: Array,
     useExternalUsers: Boolean,
     isTestCaseVersion: {
@@ -180,6 +169,7 @@ export default {
       loading: false,
       versionEnable: false,
       versionOptions: [],
+      versionCompareOptions: [],
       userData: {},
       currentVersion: {},
       dataLatestId: "",
@@ -187,17 +177,13 @@ export default {
       // 版本对比相关
       versionLeftId: "",
       versionRightId: "",
+      // 当前用例的所有版本
+      caseVersionMap: new Map()
     };
   },
   computed: {
     enableCompare() {
       return this.versionLeftId && this.versionRightId;
-    },
-    versionLeftOptions() {
-      return this.versionOptions;
-    },
-    versionRightOptions() {
-      return this.versionOptions;
     },
   },
   beforeDestroy() {
@@ -214,7 +200,7 @@ export default {
       this.versionRightId = "";
     },
     findVersionById(id) {
-      let version = this.versionOptions.filter((v) => v.id === id);
+      let version = this.versionCompareOptions.filter((v) => v.id === id);
       return Array.isArray(version) ? version[0] : version || {};
     },
     compareBranch() {
@@ -225,27 +211,23 @@ export default {
       );
       this.clearSelectData();
     },
-    async getVersionOptionList(callback) {
-      // getProjectVersions(this.currentProjectId).then((response) => {
-      //   this.versionOptions = response.data.filter((v) => v.status === "open");
-      //   if (callback) {
-      //     callback(this.versionOptions);
-      //   }
-      // });
-      let response = await getProjectVersions(this.currentProjectId);
-      let versions = response.data || [];
-      let getAllVersions = await getTestCaseVersions(this.currentId);
-      let allVersionCases = getAllVersions.data || [];
-      let tempMap = new Map();
-      allVersionCases.forEach((c) => {
-        tempMap.set(c.versionId, c);
-      });
-      this.versionOptions = versions.filter((v) => {
-        return tempMap.get(v.id);
-      });
-      if (callback) {
-        callback(this.versionOptions);
+    async getVersionOptionList() {
+      if (!this.currentProjectId) {
+        return;
       }
+      let response = await getProjectVersions(this.currentProjectId);
+      let versions = response.data.filter((v) => v.status === "open") || [];
+      this.versionOptions = versions;
+
+      response = await getTestCaseVersions(this.currentId);
+      let allVersionCases = response.data || [];
+      this.caseVersionMap = new Map();
+      allVersionCases.forEach((c) => this.caseVersionMap.set(c.versionId, c));
+
+      // 版本对比的的选项，排除该用例没有的版本
+      this.versionCompareOptions = this.versionOptions.filter((v) => this.caseVersionMap.has(v.id));
+
+      this.handleVersionOptions();
     },
     updateUserDataByExternal() {
       if (this.testUsers && this.testUsers.length > 0) {
@@ -270,8 +252,12 @@ export default {
       this.$emit("compare", row);
     },
     checkout(row) {
+      let versionCase = this.caseVersionMap.get(row.id);
+      if (!versionCase) {
+        return;
+      }
       this.loading = true;
-      this.$emit("checkout", row);
+      this.$emit("checkout", versionCase);
     },
     create(row) {
       this.loading = true;
@@ -286,49 +272,54 @@ export default {
       this.$emit("setLatest", row);
     },
     handleVersionOptions() {
-      let versionData = this.versionData;
-      if (versionData.length === 0) {
-        this.currentVersion =
-          this.versionOptions.filter(
-            (v) => v.status === "open" && v.latest
-          )[0] || {};
-        this.loading = false;
-        return;
-      }
-      let latestData = versionData.filter((v) => v.latest === true);
-      if (latestData && latestData.length > 0) {
-        this.dataLatestId = latestData[0].versionId;
-      }
-      this.versionOptions.forEach((version) => {
-        let vs = versionData.filter((v) => v.versionId === version.id);
-        version.isCheckout = vs.length > 0; // 已存在可以切换，不存在则创建
-        if (version.isCheckout) {
-          version.createUser =
-            vs[0].createUser || vs[0].userId || vs[0].creator;
-        } else {
-          version.createUser = null;
+      let latestData = {};
+      this.versionOptions.forEach(v => {
+
+        // 获取当前版本
+        if (v.id === this.currentVersionId) {
+          v.isCurrent = true;
+          this.currentVersion = v;
+          this.$emit('setCurrentVersionName', this.currentVersion.name);
         }
-        let lastItem = versionData.filter((v) => v.id === this.currentId)[0];
-        if (lastItem) {
-          version.isCurrent = lastItem.versionId === version.id;
-          if (version.isCurrent) {
-            this.currentVersion = version;
+
+        let versionCase = this.caseVersionMap.get(v.id);
+
+        if (versionCase) {
+          // 设置版本的创建人
+          v.createName = versionCase.createName;
+
+          // 获取最新版本
+          if (versionCase.latest) {
+            latestData = v;
+            this.dataLatestId = v.id;
+            this.$emit('setLatestVersionId', this.dataLatestId);
           }
         }
       });
+
+      if (!this.currentVersionId) {
+        // 新建的时候没有versionId , 获取最新的版本作为默认的versionId
+        this.currentVersion = latestData;
+      }
+
+      this.$emit('setIsLastedVersion', this.currentVersionId === this.dataLatestId);
+
       this.loading = false;
     },
   },
   watch: {
-    versionData() {
+    currentId() {
       if (!hasLicense()) {
         return;
       }
-      isProjectVersionEnable(this.currentProjectId).then((response) => {
-        this.versionEnable = response.data;
-      });
-      this.getUserOptions();
-      this.getVersionOptionList(this.handleVersionOptions);
+      isProjectVersionEnable(this.currentProjectId)
+        .then((response) => {
+          this.versionEnable = response.data;
+          if (this.versionEnable) {
+            this.getUserOptions();
+            this.getVersionOptionList();
+          }
+        });
     },
     testUsers() {
       this.updateUserDataByExternal();
@@ -339,16 +330,20 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+
 :deep(.el-popover) {
   width: 392px !important;
 }
+
 .version-history-wrap {
   width: 392px;
   height: 271px;
+
   .label-row {
     height: 32px;
     line-height: 32px;
     margin-top: 8px;
+
     .label {
       font-weight: 500;
       color: #1f2329;
@@ -362,9 +357,11 @@ export default {
   .history-container {
     height: 182px;
     overflow: scroll;
+
     .item-row:hover {
       background: rgba(31, 35, 41, 0.1);
     }
+
     .item-row {
       cursor: pointer;
       margin-top: 8px;
@@ -372,12 +369,15 @@ export default {
       display: flex;
       padding: 0 11px;
       justify-content: space-between;
+
       .left-detail-row {
         display: flex;
         flex-direction: column;
         justify-content: center;
+
         .version-info-row {
           display: flex;
+
           .version-label {
             height: 22px;
             font-weight: 500;
@@ -410,11 +410,13 @@ export default {
 
       .right-opt-row {
         display: flex;
+        align-items: center;
         justify-content: flex-end;
-        align-items: flex-start;
+
         .opt-row:not(:first-child) {
           margin-left: 16px;
         }
+
         .opt-row {
           margin-top: 4px;
           height: 22px;
@@ -424,11 +426,13 @@ export default {
           color: #646a73;
           cursor: pointer;
         }
+
         .opt-row:hover {
           background: rgba(120, 56, 135, 0.1);
           border-radius: 4px;
           cursor: pointer;
         }
+
         .updated {
         }
 
@@ -440,9 +444,11 @@ export default {
       }
     }
   }
+
   .active {
     color: #783887;
   }
+
   .compare-row {
     cursor: pointer;
     display: flex;
@@ -452,6 +458,7 @@ export default {
     margin-top: 3px;
     border-top: 1px solid rgba(31, 35, 41, 0.15);
     align-items: center;
+
     .icon {
       margin-left: 11.67px;
       margin-right: 4.6px;
@@ -473,11 +480,14 @@ export default {
 
 .compare-wrap {
   display: flex;
+
   :deep(.el-select--small) {
     width: 100%;
   }
+
   .version-left-box {
     width: 254px;
+
     el-select {
     }
   }
@@ -491,9 +501,11 @@ export default {
 
   .version-right-box {
     width: 254px;
+
     el-select {
     }
   }
+
   margin-top: 24px;
   margin-bottom: 24px;
 }
