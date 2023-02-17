@@ -78,7 +78,7 @@ export default {
       }
     },
     openTestCase() {
-      openCaseEdit({caseId: this.testCase.caseId, projectId: this.testCase.projectId}, this);
+      openCaseEdit({caseId: this.testCase.caseId}, this);
     },
     close() {
       this.$emit('close');

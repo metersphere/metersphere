@@ -328,14 +328,9 @@
 </template>
 
 <script>
-import { getTestCaseVersions } from "@/api/testCase";
 import {
-  getDefaultVersion,
-  getProjectMembers,
   getProjectVersions,
-  isProjectVersionEnable,
 } from "metersphere-frontend/src/api/version";
-import { getVersionFilters } from "@/business/utils/sdk-utils";
 import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
@@ -346,7 +341,6 @@ import BaseEditItemComponent from "../BaseEditItemComponent";
 import { issueDemandList } from "@/api/issue";
 import {
   getCurrentProjectID,
-  getCurrentUser,
 } from "metersphere-frontend/src/utils/token";
 export default {
   name: "CaseBaseInfo",
