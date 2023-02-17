@@ -674,9 +674,18 @@ export default {
 
   },
   activated() {
-    this.loadTestCase();
+    if (localStorage.getItem('trackProjectChange')) {
+      // 如果在编辑页切换项目，则跳转到用例列表
+      this.$router.push('/track/case/all');
+    } else {
+      this.loadTestCase();
+    }
   },
   created(){
+    this.$EventBus.$on('projectChange', () => {
+      this.projectChange = true;
+      localStorage.setItem('trackProjectChange', 'true');
+    });
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
   },
   methods: {
@@ -701,7 +710,7 @@ export default {
       this.isLastedVersion = isLastedVersion;
     },
     loadTestCase() {
-      // 校验路径中的
+      // 校验路径中的项目ID
       this.checkCurrentProject();
 
       let initFuc = this.initEdit;
