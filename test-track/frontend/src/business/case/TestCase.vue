@@ -1,7 +1,7 @@
 <template>
   <ms-container v-if="renderComponent" v-loading="loading">
     <!-- operate-button  -->
-    <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode && !editable" style="margin-bottom: 16px">
+    <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode" style="margin-bottom: 16px">
       <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" type="primary">
         <svg-icon icon-class="icon_add_outlined_white"/>
         {{$t('test_track.case.create_case')}}
@@ -46,7 +46,7 @@
       <span class="back-content">{{showPublicNode? $t('project.case_public') : $t('commons.trash')}}</span>
     </div>
 
-    <div style="display: flex; height: calc(100vh - 130px)" v-if="!editable" class = "test-case-aside-layout">
+    <div style="display: flex; height: calc(100vh - 130px)" class = "test-case-aside-layout">
       <!-- case-aside-container  -->
       <ms-aside-container v-show="isAsideHidden" :min-width="'0'" :enable-aside-hidden.sync="enableAsideHidden">
         <test-case-node-tree
@@ -161,7 +161,6 @@
             :trash-enable="true"
             :current-version="currentTrashVersion"
             :version-enable="versionEnable"
-            @testCaseCopy="copyTestCase"
             @refresh="refreshTrashNode"
             @refreshAll="refreshAll"
             @setCondition="setTrashCondition"
@@ -171,29 +170,6 @@
         </el-card>
       </ms-main-container>
     </div>
-    <!-- since v2.6 创建用例流程变更 -->
-    <ms-container v-if="editable" class = "edit-layout">
-      <div v-for="item in tabs" :key="item.name">
-        <test-case-edit
-          :currentTestCaseInfo="item.testCaseInfo"
-          :version-enable="versionEnable"
-          @refresh="refreshAll"
-          @checkout="checkout($event, item)"
-          :is-public="item.isPublic"
-          :read-only="testCaseReadOnly"
-          :tree-nodes="treeNodes"
-          :select-node="selectNode"
-          :select-condition="item.isPublic ? publicCondition : condition"
-          :public-enable="item.isPublic"
-          :case-type="type"
-          @addTab="addTab"
-          @closeTab="closeTab"
-          :editable="item.edit"
-          ref="testCaseEdit"
-        >
-        </test-case-edit>
-      </div>
-    </ms-container>
 
     <!--  dialog  -->
     <!-- export case -->
@@ -206,7 +182,6 @@
 <script>
 import TestCaseExportToExcel from "@/business/case/components/export/TestCaseExportToExcel";
 import TestCaseCommonImportNew from "@/business/case/components/import/TestCaseCommonImportNew";
-import TestCaseEdit from "./components/TestCaseEdit";
 import TestCaseList from "./components/TestCaseList";
 import SelectMenu from "../common/SelectMenu";
 import MsContainer from "metersphere-frontend/src/components/new-ui/MsContainer";
@@ -215,7 +190,6 @@ import MsMainContainer from "metersphere-frontend/src/components/new-ui/MsMainCo
 import MsMainButtonGroup from "metersphere-frontend/src/components/new-ui/MsMainButtonGroup";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
-import {getUUID} from "metersphere-frontend/src/utils";
 import TestCaseNodeTree from "@/business/module/TestCaseNodeTree";
 import MsTabButton from "metersphere-frontend/src/components/new-ui/MsTabButton";
 import TestCaseMinder from "../common/minder/TestCaseMinder";
@@ -226,20 +200,19 @@ import {PROJECT_ID} from "metersphere-frontend/src/utils/constants";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {useStore} from "@/store";
 import {testCaseNodePublicCount, testCaseNodeTrashCount} from "@/api/test-case-node";
-import {getTestCase} from "@/api/testCase";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import {versionEnableByProjectId} from "@/api/project";
 import TestCasePublicNodeTree from "@/business/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/module/TestCaseTrashNodeTree";
 import PublicTestCaseList from "@/business/case/components/public/PublicTestCaseList";
-import {openCaseCreate, openCaseEdit} from "@/business/case/test-case";
+import {openCaseCreate} from "@/business/case/test-case";
 
 const store = useStore();
 export default {
   name: "TestCase",
   components: {
     PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
-    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, TestCaseEdit, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
+    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
     MsMainButtonGroup, TestCaseExportToExcel, TestCaseCommonImportNew
   },
   comments: {},
@@ -257,7 +230,6 @@ export default {
       publicCondition: {},
       activeName: 'default',
       currentActiveName: '',
-      tabs: [],
       renderComponent: true,
       loading: false,
       type: '',
@@ -367,10 +339,7 @@ export default {
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
-    },
-    editable() {
-      return this.tabs.length > 0;
-    },
+    }
   },
   methods: {
     hasPermission,
@@ -378,46 +347,6 @@ export default {
       openCaseCreate({
         projectId: this.projectId
       }, this);
-    },
-    closeTab(){
-      this.handleTabClose();
-    },
-    handleCommand(e) {
-      switch (e) {
-        case "ADD":
-          this.addTab({name: 'add'});
-          break;
-      }
-    },
-    addTab(tab) {
-      this.showPublic = false
-      if (tab.name === 'edit' || tab.name === 'show') {
-        let label = this.$t('test_track.case.create');
-        let name = getUUID().substring(0, 8);
-        if (this.activeName === 'public') {
-          this.currentActiveName = 'public'
-        } else {
-          this.currentActiveName = 'default'
-        }
-        this.activeName = name;
-        label = tab.testCaseInfo.name;
-        this.tabs = [];
-        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo, isPublic: tab.isPublic});
-      }
-
-      if (tab.name === 'public') {
-        this.publicEnable = false;
-        this.$nextTick(() => {
-          this.publicEnable = true;
-        })
-      } else if (tab.name === 'trash') {
-        this.trashEnable = false;
-        this.$nextTick(() => {
-          this.trashEnable = true;
-        })
-      }
-
-      this.setCurTabId(tab, 'testCaseEdit');
     },
     handleImportCommand(e) {
       switch (e) {
@@ -453,16 +382,6 @@ export default {
         .then(response => {
           this.publicTotal = response.data;
         });
-    },
-    setCurTabId(tab, ref) {
-      this.$nextTick(() => {
-        if (this.$refs && this.$refs[ref]) {
-          let index = tab.index ? Number.parseInt(tab.index) : this.tabs.length;
-          let cutEditTab = this.$refs[ref][index - 1];
-          let curTabId = cutEditTab ? cutEditTab.tabId : null;
-          useStore().curTabId = curTabId;
-        }
-      });
     },
     updateActiveDom(activeDom) {
       openMinderConfirm(this, activeDom);
@@ -509,98 +428,6 @@ export default {
         return false;
       }
       return true;
-    },
-    addTabShow(tab) {
-      if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
-        return;
-      }
-      if (tab.name === 'show') {
-        this.showPublic = true
-        let label = this.$t('test_track.case.create');
-        let name = getUUID().substring(0, 8);
-        this.activeName = name;
-        this.currentActiveName = 'public'
-        label = tab.testCaseInfo.name;
-        this.tabs.push({ edit: false, label: label, name: name, testCaseInfo: tab.testCaseInfo});
-      }
-      this.setCurTabId(this, tab, 'testCaseEditShow');
-    },
-    handleTabClose() {
-      let message = "";
-      this.tabs.forEach(t => {
-        if (t && store.testCaseMap.has(t.testCaseInfo.id) && store.testCaseMap.get(t.testCaseInfo.id) > 1) {
-          message += t.testCaseInfo.name + "，";
-        }
-        if (t.label === this.$t('test_track.case.create')) {
-          message += this.$t('test_track.case.create') + "，";
-        }
-        if (t.testCaseInfo.isCopy) {
-          message += t.testCaseInfo.name + "，";
-        }
-      })
-      if (message !== "") {
-        this.$alert(this.$t('commons.track') + " [ " + message.substr(0, message.length - 1) + " ] " + this.$t('commons.confirm_info'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              store.testCaseMap.clear();
-              this.tabs = [];
-              this.activeName = "default";
-              this.refresh();
-            }
-          }
-        });
-      } else {
-        this.tabs = [];
-        this.activeName = "default";
-        this.refresh();
-      }
-    },
-    closeConfirm(targetName) {
-      if (targetName === 'trash') {
-        this.activeName = 'default';
-        this.trashEnable = false;
-      } else {
-        this.closeTabWithSave(targetName);
-      }
-    },
-    closeTabWithSave(targetName) {
-      let t = this.tabs.filter(tab => tab.name === targetName);
-      let message = "";
-      if (t && store.testCaseMap.has(t[0].testCaseInfo.id) && store.testCaseMap.get(t[0].testCaseInfo.id) > 0) {
-        message += t[0].testCaseInfo.name;
-      }
-      if (t[0].label === this.$t('test_track.case.create')) {
-        message += this.$t('test_track.case.create');
-      }
-      if (t[0].testCaseInfo.isCopy) {
-        message += t[0].testCaseInfo.name;
-      }
-      if (message !== "") {
-        this.$alert(this.$t('commons.track') + " [ " + message + " ] " + this.$t('commons.confirm_info'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              store.testCaseMap.delete(t[0].testCaseInfo.id);
-              this.removeTab(targetName);
-            }
-          }
-        });
-      } else {
-        store.testCaseMap.delete(t[0].testCaseInfo.id);
-        this.removeTab(targetName);
-      }
-    },
-    removeTab(targetName) {
-      this.tabs = this.tabs.filter(tab => tab.name !== targetName);
-      if (this.tabs.length > 0) {
-        this.activeName = this.tabs[this.tabs.length - 1].name;
-      } else {
-        this.activeName = "default";
-      }
     },
     handleExportCheck() {
       if (this.$refs.testCaseList.checkSelected()) {
@@ -673,25 +500,13 @@ export default {
         this.$refs.nodeTree.list();
       }
     },
-    setTable(data) {
-      if (data) {
-        for (let index in this.tabs) {
-          let tab = this.tabs[index];
-          if (tab.name === this.activeName) {
-            tab.label = data.name;
-            break;
-          }
-        }
-      }
-    },
-    refreshAll(data) {
+    refreshAll() {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
       if(this.$refs.nodeTree){
         this.$refs.nodeTree.list();
       }
-      this.setTable(data);
     },
     importRefresh() {
       this.refreshAll();
@@ -761,23 +576,6 @@ export default {
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
-    },
-    changeTrashVersion(currentVersion) {
-      this.currentTrashVersion = currentVersion || null;
-    },
-    checkout(testCase, item) {
-      Object.assign(item.testCaseInfo, testCase)
-      //子组件先变更 copy 状态，再执行初始化操作
-      for (let i = 0; i < this.$refs.testCaseEdit.length; i++) {
-        this.$refs.testCaseEdit[i].initEdit(item.testCaseInfo, () => {
-          this.$nextTick(() => {
-            let vh = this.$refs.testCaseEdit[i].$refs.versionHistory;
-            vh.getVersionOptionList(vh.handleVersionOptions);
-            vh.show = false;
-            vh.loading = false;
-          });
-        });
-      }
     },
     checkoutPublic(testCase, item) {
       Object.assign(item.testCaseInfo, testCase)

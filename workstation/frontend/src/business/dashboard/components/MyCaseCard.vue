@@ -75,7 +75,7 @@ export default{
     },
     toCreatCase(){
       let caseData = this.$router.resolve({
-        path: '/track/' + getCurrentProject() + '/case/create',
+        path: '/track/case/create',
       });
       window.open(caseData.href, '_blank');
     },

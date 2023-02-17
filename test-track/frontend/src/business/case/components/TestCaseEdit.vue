@@ -362,7 +362,7 @@ import {
   hasTestCaseOtherInfo,
   testCaseEditFollows,
   testCaseGetByVersionId,
-  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId,
+  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId, getSimpleTestCase,
 } from "@/api/testCase";
 
 import {
@@ -682,17 +682,11 @@ export default {
 
   },
   activated() {
-    if (localStorage.getItem('trackProjectChange')) {
-      // 如果在编辑页切换项目，则跳转到用例列表
-      this.$router.push('/track/case/all');
-    } else {
-      this.loadTestCase();
-    }
+    this.loadTestCase();
   },
   created(){
     this.$EventBus.$on('projectChange', () => {
-      this.projectChange = true;
-      localStorage.setItem('trackProjectChange', 'true');
+      this.$router.push('/track/case/all');
     });
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
   },
@@ -779,7 +773,7 @@ export default {
       this.checkVersionEnable();
     },
     editPublicCase(type) {
-      openCaseEdit({caseId: this.caseId, projectId: this.projectId, type},  this)
+      openCaseEdit({caseId: this.caseId, type},  this)
     },
     copyPublicCase() {
       this.editPublicCase('copy');
@@ -805,10 +799,7 @@ export default {
       if (this.editable || !this.form.id || this.isPublicShow) {
         return;
       }
-      let TestCaseData = this.$router.resolve({
-        path: "/track/case/edit/" + this.form.id
-      });
-      window.open(TestCaseData.href, "_blank");
+      openCaseEdit({caseId: this.form.id}, this);
     },
     handleSaveCaseWithEvent(formData) {
       this.saveCase();
@@ -948,10 +939,23 @@ export default {
       }
     },
     checkCurrentProject() {
-      // 如果不是当前项目，先切项目
-      if (getCurrentProjectID() !== this.projectId) {
-        setCurrentProjectID(this.projectId);
-        location.reload();
+      if (this.projectId) {
+        // 创建时会带 projectId，校验是否是当前项目
+        if (getCurrentProjectID() !== this.projectId) {
+          setCurrentProjectID(this.projectId);
+          location.reload();
+        }
+      } else {
+        if (this.caseId) {
+          getSimpleTestCase(this.caseId).then((response) => {
+            let testCase = response.data;
+            if (getCurrentProjectID() !== testCase.projectId) {
+              // 如果不是当前项目，先切项目
+              setCurrentProjectID(testCase.projectId);
+              location.reload();
+            }
+          })
+        }
       }
     },
     getTestCase() {
@@ -976,8 +980,6 @@ export default {
             item.isEdit = false;
           });
           this.form.id = null;
-        } else {
-          this.checkCurrentProject(testCase.projectId);
         }
         this.currentTestCaseInfo = testCase;
         this.setFormData(testCase);
@@ -1108,7 +1110,7 @@ export default {
       }
     },
     routerToEdit(id) {
-      this.$router.push({path: '/track/' + this.projectId + '/case/edit/' + id});
+      this.$router.push({path: '/track/case/edit/' + id});
       setTimeout(() => {
         window.location.reload();
       }, 300);
@@ -1488,7 +1490,7 @@ export default {
       this.saveCase();
     },
     copyRow() {
-      openCaseEdit({caseId: this.testCase.id, projectId: this.testCase.projectId, type: 'copy'},  this);
+      openCaseEdit({caseId: this.testCase.id, type: 'copy'},  this);
     },
     deleteRow() {
       getTestCaseVersions(this.testCase.id)
