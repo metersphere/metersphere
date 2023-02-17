@@ -204,6 +204,7 @@ public class ApiFileUtil extends FileUtils {
                 attachmentBodyFile.setFileUpdateTime(fileMetadata.getUpdateTime());
                 attachmentBodyFile.setProjectId(fileMetadata.getProjectId());
                 attachmentBodyFile.setFilePath(path);
+                attachmentBodyFile.setFileType(fileMetadata.getType());
                 if (StringUtils.isNotBlank(fileMetadata.getAttachInfo())) {
                     attachmentBodyFile.setFileAttachInfoJson(fileMetadata.getAttachInfo());
                 }
@@ -212,10 +213,11 @@ public class ApiFileUtil extends FileUtils {
                 if (!isLocal) {
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_STORAGE.name(), fileMetadata.getStorage());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_NAME.name(), fileMetadata.getName());
+                    testElement.setProperty(JmxFileMetadataColumns.REF_FILE_TYPE.name(), fileMetadata.getType());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_UPDATE_TIME.name(), fileMetadata.getUpdateTime());
                     testElement.setProperty(JmxFileMetadataColumns.REF_FILE_PROJECT_ID.name(), fileMetadata.getProjectId());
                 } else {
-                    path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileMetadataId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName());
+                    path = temporaryFileUtil.generateFilePath(attachmentBodyFile.getProjectId(), attachmentBodyFile.getFileMetadataId(), attachmentBodyFile.getFileUpdateTime(), attachmentBodyFile.getName(), attachmentBodyFile.getFileType());
                 }
 
                 testElement.setProperty(ElementConstants.FILENAME, path);
