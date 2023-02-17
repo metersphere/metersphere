@@ -76,7 +76,7 @@ public class ApiRelateService {
         if (CollectionUtils.isNotEmpty(requestList)) {
             try {
                 microService.postForData(MicroServiceName.API_TEST,
-                        "/api/definition/update/file/",
+                        "/api/definition/update/file",
                         requestList);
             } catch (Exception e) {
                 LogUtil.error(e);
