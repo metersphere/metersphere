@@ -227,7 +227,7 @@ export default {
     operatorWidth: {
       type: String,
       default() {
-        return "130px";
+        return "150px";
       }
     },
     // 操作列的宽度
