@@ -64,11 +64,8 @@ export function openCaseEdit(query, v) {
   if (!query.type) {
     delete query.type;
   }
-  if (!query.projectId) {
-    query.projectId = getCurrentProjectID();
-  }
-  let path = '/track/' + query.projectId + '/case/edit/' + query.caseId;
   delete query.projectId;
+  let path = '/track/case/edit/' + query.caseId;
   delete query.caseId;
   let TestCaseData = v.$router.resolve({
     path,
@@ -88,8 +85,7 @@ export function openCaseCreate(query, v) {
   if (!query.projectId) {
     query.projectId = getCurrentProjectID();
   }
-  let path = '/track/' + query.projectId + '/case/create';
-  delete query.projectId;
+  let path = '/track/case/create';
   let TestCaseData = v.$router.resolve({
     path,
     query,

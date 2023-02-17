@@ -3150,4 +3150,8 @@ public class TestCaseService {
             return new ArrayList<>(0);
         }
     }
+
+    public TestCaseWithBLOBs getSimpleCase(String testCaseId) {
+        return testCaseMapper.selectByPrimaryKey(testCaseId);
+    }
 }
