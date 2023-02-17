@@ -110,7 +110,7 @@ export default {
 
 <style scoped>
 .text-btn {
-  width: 28px;
+  width: auto;
   height: 22px;
   font-family: 'PingFang SC';
   font-style: normal;
@@ -123,7 +123,7 @@ export default {
   order: 1;
   flex-grow: 0;
   padding: 0;
-  margin: 0 16px 0 0;
+  margin: 0 10px 0 0;
 }
 
 .active {
