@@ -143,6 +143,7 @@ const message = {
     compare_with_the_latest_version: "與最新版本比較",
     view_the_latest_version: "查看最新版本",
     version_id_cannot_be_empty: "版本號不能為空",
+    enter_comments_and_click_send: "輸入評論,點擊發送",
   },
   attachment: {
     preview: "預覽",

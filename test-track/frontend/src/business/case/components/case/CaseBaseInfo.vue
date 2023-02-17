@@ -227,11 +227,11 @@
                   >
                     <template slot-scope="{ data }">
                       <div class="story-box">
-                        <div class="story-platform">{{ data.platform }}</div>
+                        <div class="story-platform">{{ handleDemandOptionPlatform(data) }}</div>
                         <div class="story-label" v-if="data.value === 'other'">
                           {{ $t("test_track.case.other") }}
                         </div>
-                        <div class="story-label" v-else>{{ data.label }}</div>
+                        <div class="story-label" v-else>{{ handleDemandOptionLabel(data) }}</div>
                       </div>
                     </template>
                   </el-cascader>
@@ -490,6 +490,28 @@ export default {
     this.getVersionOptions();
   },
   methods: {
+    handleDemandOptionPlatform(data){
+      if(data.platform){
+        return data.platform
+      }
+      if(data.label){
+        let arr = data.label.split(": ")
+        if(arr && arr.length > 1){
+          return arr[0];
+        }
+      }
+      return "";
+    },
+    handleDemandOptionLabel(data){
+      if(data.label){
+        let arr = data.label.split(": ")
+        if(arr && arr.length > 1){
+          return arr[1];
+        }
+        return data.label;
+      }
+      return "";
+    },
     validateAllForm(callback) {
       callback(
         this.editable ? true : this.validateForm() && this.validateCustomForm()
