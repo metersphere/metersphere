@@ -6,18 +6,22 @@ import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
-import io.metersphere.plan.dto.*;
+import io.metersphere.plan.dto.ApiModuleDTO;
+import io.metersphere.plan.dto.BatchRunDefinitionRequest;
+import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.api.ApiTestCaseRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.utils.DiscoveryUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +51,11 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
             try {
-                report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+                if (MapUtils.isEmpty(report.getProjectEnvMap())) {
+                    report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+                } else {
+                    report.getProjectEnvMap().putAll(getPlanProjectEnvMap(idList));
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
             }

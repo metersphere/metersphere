@@ -12,12 +12,13 @@ import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.utils.DiscoveryUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,11 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
             try {
-                report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+                if (MapUtils.isEmpty(report.getProjectEnvMap())) {
+                    report.setProjectEnvMap(getPlanProjectEnvMap(idList));
+                } else {
+                    report.getProjectEnvMap().putAll(getPlanProjectEnvMap(idList));
+                }
             } catch (Exception e) {
                 LogUtil.error(e);
             }
@@ -115,7 +120,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
     }
 
     public RunModeConfigDTO setScenarioEnv(String planId, RunModeConfigDTO runModeConfig) {
-       return microService.postForData(serviceName, BASE_UEL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
+        return microService.postForData(serviceName, BASE_UEL + "/set/env/" + planId, runModeConfig, RunModeConfigDTO.class);
     }
 
     public void relevanceByTestIds(List<String> scenarioIds, String planId) {

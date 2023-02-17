@@ -49,8 +49,10 @@ import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
-import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.xpack.track.dto.IssuesDao;
+import jakarta.annotation.Resource;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -67,9 +69,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -1584,6 +1583,7 @@ public class TestPlanService {
 
     /**
      * 合并ui场景的环境信息
+     *
      * @param planId
      * @param scenarioEnv
      * @return
