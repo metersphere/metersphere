@@ -1773,6 +1773,9 @@ export default {
           margin-left: px2rem(8);
           margin-right: px2rem(8);
           cursor: pointer;
+          max-width: px2rem(888);
+          text-overflow: ellipsis;
+          overflow-x: hidden;
         }
         .case-name-hover:hover {
           cursor: pointer;

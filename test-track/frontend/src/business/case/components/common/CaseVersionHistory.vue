@@ -1,7 +1,7 @@
 <template>
   <div class="version-history-box">
     <el-popover
-      placement="bottom-end"
+      placement="bottom-start"
       width="392"
       height="271"
       trigger="click"
@@ -13,7 +13,7 @@
           <div class="label">{{ $t("project.version.name") }}</div>
         </div>
         <div class="history-container">
-          <div class="item-row" v-for="item in versionOptions" :key="item.id">
+          <div class="item-row" v-for="item in projectVersionOptions" :key="item.id">
             <div class="left-detail-row">
               <div class="version-info-row">
                 <div
@@ -179,14 +179,14 @@ export default {
     return {
       loading: false,
       versionEnable: false,
-      versionOptions: [],
+      caseVersionOptions: [],        //用例版本比对选择
+      projectVersionOptions: [],    //项目下所有版本
       userData: {},
       currentVersion: {},
       dataLatestId: "",
       compareDialogVisible: false,
-      // 版本对比相关
-      versionLeftId: "",
-      versionRightId: "",
+      versionLeftId: "",     // 版本对比左侧ID
+      versionRightId: "",    // 版本对比右侧ID
     };
   },
   computed: {
@@ -194,10 +194,10 @@ export default {
       return this.versionLeftId && this.versionRightId;
     },
     versionLeftOptions() {
-      return this.versionOptions;
+      return this.caseVersionOptions;
     },
     versionRightOptions() {
-      return this.versionOptions;
+      return this.caseVersionOptions;
     },
   },
   beforeDestroy() {
@@ -214,7 +214,7 @@ export default {
       this.versionRightId = "";
     },
     findVersionById(id) {
-      let version = this.versionOptions.filter((v) => v.id === id);
+      let version = this.caseVersionOptions.filter((v) => v.id === id);
       return Array.isArray(version) ? version[0] : version || {};
     },
     compareBranch() {
@@ -226,25 +226,23 @@ export default {
       this.clearSelectData();
     },
     async getVersionOptionList(callback) {
-      // getProjectVersions(this.currentProjectId).then((response) => {
-      //   this.versionOptions = response.data.filter((v) => v.status === "open");
-      //   if (callback) {
-      //     callback(this.versionOptions);
-      //   }
-      // });
+      // 项目下所有版本
       let response = await getProjectVersions(this.currentProjectId);
       let versions = response.data || [];
+      this.projectVersionOptions = versions;
+
+      // 用例所有版本
       let getAllVersions = await getTestCaseVersions(this.currentId);
       let allVersionCases = getAllVersions.data || [];
       let tempMap = new Map();
       allVersionCases.forEach((c) => {
         tempMap.set(c.versionId, c);
       });
-      this.versionOptions = versions.filter((v) => {
+      this.caseVersionOptions = versions.filter((v) => {
         return tempMap.get(v.id);
       });
       if (callback) {
-        callback(this.versionOptions);
+        callback(this.projectVersionOptions);
       }
     },
     updateUserDataByExternal() {
@@ -289,7 +287,7 @@ export default {
       let versionData = this.versionData;
       if (versionData.length === 0) {
         this.currentVersion =
-          this.versionOptions.filter(
+          this.projectVersionOptions.filter(
             (v) => v.status === "open" && v.latest
           )[0] || {};
         this.loading = false;
@@ -299,7 +297,7 @@ export default {
       if (latestData && latestData.length > 0) {
         this.dataLatestId = latestData[0].versionId;
       }
-      this.versionOptions.forEach((version) => {
+      this.projectVersionOptions.forEach((version) => {
         let vs = versionData.filter((v) => v.versionId === version.id);
         version.isCheckout = vs.length > 0; // 已存在可以切换，不存在则创建
         if (version.isCheckout) {
@@ -500,7 +498,7 @@ export default {
 </style>
 <style>
 .version-popover {
-  left: 215px !important;
+  /*left: 215px !important;*/
   padding: 0px !important;
   height: 271px !important;
 }
