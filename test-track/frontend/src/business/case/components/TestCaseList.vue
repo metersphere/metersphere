@@ -25,7 +25,7 @@
     <!-- table -->
     <ms-table
       v-loading="loading"
-      operator-width="170px"
+      operator-width="180px"
       row-key="id"
       :data="page.data"
       :condition="condition"
@@ -424,7 +424,7 @@ export default {
       ],
       trashButtons: [
         {
-          name: this.$t('commons.reduction'),
+          name: this.$t('commons.recover'),
           handleClick: this.batchReduction,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_REDUCTION']
         }, {
@@ -457,7 +457,7 @@ export default {
       ],
       trashOperators: [
         {
-          tip: this.$t('commons.reduction'),
+          tip: this.$t('commons.recover'),
           isTextButton: true,
           exec: this.reduction,
           permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
@@ -877,7 +877,7 @@ export default {
       this.handleEdit(testCase, 'copy');
     },
     handleDelete(testCase) {
-      let title = this.$t('test_track.case.case_delete_confirm') + ": " + testCase.name + "?";
+      let title = this.$t('test_track.case.case_delete_completely_confirm') + ": " + testCase.name + "?";
       this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.delete"),
@@ -898,7 +898,7 @@ export default {
         .then(() => {
           this.$emit('refresh');
           this.initTableData();
-          this.$success(this.$t('commons.save_success'), false);
+          this.$success(this.$t('commons.recover_success'), false);
         });
     },
     handleDeleteToGc(testCase) {
@@ -909,7 +909,7 @@ export default {
             this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
           } else {
             let title = this.$t('test_track.case.case_delete_confirm') + ": " + testCase.name + "?";
-            this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+            this.$confirm(this.$t('test_track.case.batch_delete_soft_tip'), title, {
                 cancelButtonText: this.$t("commons.cancel"),
                 confirmButtonText: this.$t("commons.delete"),
                 customClass: 'custom-confirm-delete',
@@ -930,11 +930,11 @@ export default {
           this.$emit('refresh');
           this.initTableData();
           this.clearTableSelect();
-          this.$success(this.$t('commons.save_success'), false);
+          this.$success(this.$t('commons.recover_success'), false);
         });
     },
     handleDeleteBatch() {
-      let title = this.$t('test_track.case.batch_delete_confirm', [this.$refs.table.selectIds.length]);
+      let title = this.$t('test_track.case.batch_delete_completely_confirm', [this.$refs.table.selectIds.length]);
       this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.delete"),
@@ -967,7 +967,7 @@ export default {
     },
     handleDeleteBatchToGc() {
       let title = this.$t('test_track.case.batch_delete_confirm', [this.selectCounts]);
-      this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+      this.$confirm(this.$t('test_track.case.batch_delete_soft_tip'), title, {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.delete"),
           customClass: 'custom-confirm-delete',
