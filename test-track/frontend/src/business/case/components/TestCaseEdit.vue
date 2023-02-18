@@ -383,6 +383,7 @@ import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
 
+const store = useStore();
 export default {
   name: "TestCaseEdit",
   components: {
@@ -583,10 +584,10 @@ export default {
       return pId ? pId : getCurrentProjectID();
     },
     moduleOptions() {
-      return useStore().testCaseModuleOptions;
+      return store.testCaseModuleOptions;
     },
     isCustomNum() {
-      return useStore().currentProjectIsCustomNum;
+      return store.currentProjectIsCustomNum;
     },
     richTextDefaultOpen() {
       return this.type === "edit" ? "preview" : "edit";
@@ -635,20 +636,20 @@ export default {
     },
     form: {
       handler(val) {
-        if (val && useStore().testCaseMap && this.form.id) {
-          let change = useStore().testCaseMap.get(this.form.id);
+        if (val && store.testCaseMap && this.form.id) {
+          let change = store.testCaseMap.get(this.form.id);
           change = change + 1;
-          useStore().testCaseMap.set(this.form.id, change);
+          store.testCaseMap.set(this.form.id, change);
         }
       },
       deep: true,
     },
     customFieldForm: {
       handler(val) {
-        if (val && useStore().testCaseMap && this.form.id) {
-          let change = useStore().testCaseMap.get(this.form.id);
+        if (val && store.testCaseMap && this.form.id) {
+          let change = store.testCaseMap.get(this.form.id);
           change = change + 1;
-          useStore().testCaseMap.set(this.form.id, change);
+          store.testCaseMap.set(this.form.id, change);
         }
       },
       deep: true,
@@ -673,11 +674,11 @@ export default {
       });
     }, 1000);
 
-    if (!(useStore().testCaseMap instanceof Map)) {
-      useStore().testCaseMap = new Map();
+    if (!(store.testCaseMap instanceof Map)) {
+      store.testCaseMap = new Map();
     }
     if (this.form.id) {
-      useStore().testCaseMap.set(this.form.id, 0);
+      store.testCaseMap.set(this.form.id, 0);
     }
 
   },
@@ -719,9 +720,19 @@ export default {
       this.loading = true;
       getTestTemplate().then((template) => {
         this.testCaseTemplate = template;
-        useStore().testCaseTemplate = this.testCaseTemplate;
+        store.testCaseTemplate = this.testCaseTemplate;
         initFuc();
       });
+
+      getProjectApplicationConfig('CASE_CUSTOM_NUM')
+        .then(result => {
+          let data = result.data;
+          if (data && data.typeValue === 'true') {
+            store.currentProjectIsCustomNum = true;
+          } else {
+            store.currentProjectIsCustomNum = false;
+          }
+        });
 
       this.addListener(); //  添加 ctrl s 监听
       if (!this.projectList || this.projectList.length === 0) {
@@ -846,7 +857,7 @@ export default {
         this.form.remark = "";
       }
       if (this.form.id) {
-        useStore().testCaseMap.set(this.form.id, 0);
+        store.testCaseMap.set(this.form.id, 0);
       }
     },
     addPublic() {
@@ -887,7 +898,7 @@ export default {
       this.$nextTick(() => {
         this.isStepTableAlive = true;
         if (this.form.id) {
-          useStore().testCaseMap.set(this.form.id, 0);
+          store.testCaseMap.set(this.form.id, 0);
         }
       });
     },
@@ -1089,7 +1100,7 @@ export default {
             this.$success(this.$t("commons.save_success"), false);
             this.operationType = "edit";
             this.$emit("refreshTestCase");
-            useStore().testCaseMap.set(this.form.id, 0);
+            store.testCaseMap.set(this.form.id, 0);
             this.$emit("refresh", response.data);
             if (this.form.id) {
               this.$emit("caseEdit", param);
@@ -1280,7 +1291,7 @@ export default {
       document.removeEventListener("keydown", this.createCtrlSHandle);
     },
     createCtrlSHandle(event) {
-      let curTabId = useStore().curTabId;
+      let curTabId = store.curTabId;
       if (curTabId === this.tabId) {
         if (event.keyCode === 83 && event.ctrlKey && this.readOnly) {
           this.$warning(this.$t("commons.no_operation_permission"), false);
