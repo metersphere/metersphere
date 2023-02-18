@@ -463,6 +463,7 @@ export default {
         stepModel: "STEP",
         customNum: "",
         followPeople: "",
+        versionId: ""
       },
       maintainerOptions: [],
       workspaceId: "",
@@ -989,6 +990,10 @@ export default {
         this.$nextTick(() => {
           this.showInputTag = true;
         });
+
+        if (this.isCopy) {
+          this.form.id = null;
+        }
         this.loading = false;
       });
     },
@@ -1271,6 +1276,7 @@ export default {
         },
       ];
       this.form.customNum = "";
+      this.form.versionId = "";
       this.form.tags = [];
     },
     addListener() {

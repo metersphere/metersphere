@@ -112,7 +112,7 @@
       />
     </el-form>
     <el-form ref="baseCaseFrom" :rules="rules" :model="form" class="case-padding">
-      <div class="version-row case-wrap" v-if="versionEnable">
+      <div class="version-row case-wrap" v-if="versionEnable && !this.form.id">
         <div class="case-title-wrap">
           <div class="name title-wrap">{{ $t("commons.version") }}</div>
           <div class="required required-item"></div>
@@ -379,7 +379,7 @@ export default {
         {
             required: true,
             message: this.$t("case.version_id_cannot_be_empty"),
-            trigger: "change",
+            trigger: "blur",
           },
         ],
         customNum: [
