@@ -83,6 +83,10 @@ export default {
       return name.substring(0, 2).toUpperCase();
     },
     openEdit() {
+      if (getCurrentUser().id !== this.comment.author) {
+        this.$warning(this.$t("test_track.comment.cannot_edit"), false);
+        return;
+      }
       this.state = "EDIT";
     },
     cancel(data) {
