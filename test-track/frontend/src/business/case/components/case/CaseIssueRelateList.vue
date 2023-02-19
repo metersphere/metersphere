@@ -132,6 +132,7 @@ import HomePagination from "@/business/home/components/pagination/HomePagination
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {
+  getPlatformOption,
   getRelateIssues,
   isThirdPartEnable,
   testCaseIssueRelate,
@@ -145,6 +146,7 @@ import { TEST_CASE_RELEVANCE_ISSUE_LIST } from "@/business/utils/sdk-utils";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import MsDrawerComponent from "../common/MsDrawerComponent";
 import MsTableAdvSearch from "metersphere-frontend/src/components/new-ui/MsTableAdvSearch";
+import {setIssuePlatformComponent} from "@/business/issue/issue";
 
 export default {
   name: "CaseIssueRelateList",
@@ -202,6 +204,10 @@ export default {
       this.getIssues();
       this.visible = true;
       this.$refs.relevanceDialog.open();
+      getPlatformOption()
+        .then((r) => {
+          setIssuePlatformComponent(r.data, this.page.condition.components);
+        });
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
