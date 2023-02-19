@@ -15,7 +15,6 @@ import io.metersphere.platform.domain.GetOptionRequest;
 import io.metersphere.platform.domain.PlatformRequest;
 import io.metersphere.platform.domain.SelectOption;
 
-import io.metersphere.platform.impl.JiraPlatform;
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
 import io.metersphere.request.PlatformOptionRequest;
