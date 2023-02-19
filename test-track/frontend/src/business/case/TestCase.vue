@@ -345,7 +345,8 @@ export default {
     hasPermission,
     handleCreateCase(){
       openCaseCreate({
-        projectId: this.projectId
+        projectId: this.projectId,
+        createNodeId: this.selectNode.data && this.selectNode.data.id !== 'root' ? this.selectNode.data.id : ""
       }, this);
     },
     handleImportCommand(e) {
