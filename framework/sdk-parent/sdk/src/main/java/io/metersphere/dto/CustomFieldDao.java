@@ -20,4 +20,8 @@ public class CustomFieldDao extends CustomField {
     private String originGlobalId;
 
     private String key;
+
+    private Boolean inputSearch;
+
+    private String optionMethod;
 }

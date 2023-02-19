@@ -11,7 +11,10 @@
               :data="item"
               :form="form"
               :default-open="defaultOpen"
-              :disabled="isPublic"/>
+              :disabled="isPublic"
+              @inputSearch="handleInputSearch"
+              ref="customFiled"
+            />
           </el-form-item>
         </el-col>
         <div v-else>
@@ -21,7 +24,12 @@
               :prop="item.name"
               :default-open="defaultOpen"
               :label-width="formLabelWidth">
-               <custom-filed-component :data="item" :form="form" prop="defaultValue"/>
+               <custom-filed-component
+                 :data="item"
+                 :form="form"
+                 prop="defaultValue"
+                 @inputSearch="handleInputSearch"
+                 ref="customFiled"/>
             </el-form-item>
           </el-col>
         </div>
@@ -81,6 +89,16 @@ export default {
         }
       }
       return customFields;
+    }
+  },
+  methods: {
+    handleInputSearch(data, query) {
+      this.$emit('inputSearch', data, query);
+    },
+    stopLoading() {
+      this.$refs.customFiled.forEach(item => {
+        item.stopLoading();
+      });
     },
   }
 }
