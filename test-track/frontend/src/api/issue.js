@@ -298,3 +298,7 @@ export function getIssuePartTemplateWithProject(callback, reject) {
 export function getPlatformOption() {
   return get(BASE_URL + 'platform/option');
 }
+
+export function getPlatformFormOption(param) {
+  return post(BASE_URL + 'platform/form/option', param);
+}

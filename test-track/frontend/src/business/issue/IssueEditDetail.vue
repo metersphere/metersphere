@@ -42,7 +42,10 @@
             :form="customFieldForm"
             :default-open="richTextDefaultOpen"
             :form-label-width="formLabelWidth"
-            :issue-template="issueTemplate"/>
+            :issue-template="issueTemplate"
+            @inputSearch="handleInputSearch"
+            ref="customFieldItem"
+          />
         </el-form>
 
         <el-row v-if="platformTransitions">
@@ -204,7 +207,7 @@ import {
   saveFollow,
   getFollow,
   getComments,
-  getTapdUser, getPlatformTransitions
+  getTapdUser, getPlatformTransitions, getPlatformFormOption
 } from "@/api/issue";
 import {
   uploadIssueAttachment,
@@ -727,6 +730,17 @@ export default {
       if (readyFiles.length === fileList.length) {
         this.getFileMetaData(this.issueId);
       }
+    },
+    handleInputSearch(data, query) {
+      getPlatformFormOption({
+        optionMethod: data.optionMethod,
+        workspaceId: getCurrentWorkspaceId(),
+        platform: this.issueTemplate.platform,
+        query
+      }).then((r) => {
+        data.options = r.data;
+        this.$refs.customFieldItem.stopLoading();
+      });
     },
     handleDelete(file, index) {
       this.$alert((this.cancelFileToken.length > 0 ? this.$t('load_test.delete_file_when_uploading') + '<br/>' : "") + this.$t('load_test.delete_file_confirm') + file.name + "?", '', {
