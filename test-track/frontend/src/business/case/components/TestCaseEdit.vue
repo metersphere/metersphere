@@ -307,6 +307,7 @@
 </template>
 
 <script>
+import {getProjectVersions} from "metersphere-frontend/src/api/version";
 import { TokenKey } from "metersphere-frontend/src/utils/constants";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {
@@ -691,8 +692,21 @@ export default {
       this.$router.push('/track/case/all');
     });
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
+    this.setInitialVal();
   },
   methods: {
+    setInitialVal() {
+      if (this.isAdd) {
+        getProjectVersions(getCurrentProjectID()).then(
+          (r) => {
+            let latestVersion = r.data.filter(version => version.latest);
+            if (latestVersion && latestVersion.length === 1 && this.editable) {
+              this.initLatestVersionId = latestVersion[0].id;
+            }
+          }
+        );
+      }
+    },
     checkoutLatest(){
       //切换最新版本
       this.checkoutByVersionId(this.latestVersionId);
@@ -937,6 +951,7 @@ export default {
         this.form.method = "manual";
         this.form.maintainer = user.id;
         this.form.tags = [];
+        this.form.versionId = this.initLatestVersionId;
         this.getSelectOptions();
         this.customFieldForm = parseCustomField(
           this.form,
@@ -986,7 +1001,7 @@ export default {
           //复制的时候只复制当前版本
           testCase.id = getUUID();
           testCase.refId = null;
-          testCase.versionId = null;
+          testCase.versionId = this.initLatestVersionId;
 
           this.testCaseTemplate.customFields.forEach((item) => {
             item.isEdit = false;
