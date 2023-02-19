@@ -1,11 +1,17 @@
 <template>
   <span>
      <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
+                :loading="loading"
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
                 @change="handleChange"
+                @clear="handleClear"
                 clearable
-                filterable v-model="data[prop]" :placeholder="$t('commons.default')">
+                filterable
+                v-model="data[prop]"
+                :filter-method="data.inputSearch ? handleSelectInput : null"
+                :remote="data.inputSearch"
+                :placeholder="$t('commons.default')">
       <el-option
         v-for="(item,index) in data.options ? data.options : []"
         :key="index"
@@ -86,7 +92,9 @@
                @change="handleChange"
                clearable
                :disabled="disabled"
-               filterable v-model="data[prop]" :placeholder="$t('commons.default')">
+               filterable
+               v-model="data[prop]"
+               :placeholder="$t('commons.default')">
        <el-option
          v-for="(item) in memberOptions"
          :key="item.id"
@@ -145,6 +153,8 @@ export default {
   data() {
     return {
       memberOptions: [],
+      originOptions: null,
+      loading: false
     };
   },
   mounted() {
@@ -196,6 +206,26 @@ export default {
       }
       this.$emit('change', this.data.name);
       this.$forceUpdate();
+    },
+    handleSelectInput(val) {
+      this.loading = true;
+      if (!this.originOptions) {
+        this.originOptions = this.data.options;
+      }
+      if (!val) {
+        // 置空搜索时，恢复回原始选项
+        this.data.options = this.originOptions;
+      }
+      this.$emit('inputSearch', this.data, val);
+    },
+    handleClear() {
+      if (this.originOptions && this.data.inputSearch) {
+        // 置空搜索时，恢复回原始选项
+        this.data.options = this.originOptions;
+      }
+    },
+    stopLoading() {
+      this.loading = false;
     },
     setFormData() {
       if (this.form && this.data && this.data[this.prop]) {
