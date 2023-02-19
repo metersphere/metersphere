@@ -185,6 +185,7 @@ import {
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsReviewTableItem from "@/business/issue/MsReviewTableItem";
+import {setIssuePlatformComponent} from "@/business/issue/issue";
 
 export default {
   name: "IssueList",
@@ -311,6 +312,7 @@ export default {
     getPlatformOption()
       .then((r) => {
         this.platformOptions = r.data;
+        setIssuePlatformComponent(this.platformOptions, this.page.condition.components);
       });
 
     this.hasLicense = hasLicense();
