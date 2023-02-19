@@ -28,7 +28,7 @@
                 <svg-icon v-if="data.id !== 'root' && !hideNodeOperator" icon-class="icon_drag_outlined"/>
               </span>
 
-              <span v-if="data.isEdit" @click.stop @click.stop style="width: 92%">
+              <span v-if="data.isEdit" @click.stop style="width: 92%">
                 <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
                           class="name-input" size="mini" ref="nameInput" :draggable="true"/>
               </span>

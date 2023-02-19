@@ -328,9 +328,7 @@
 </template>
 
 <script>
-import {
-  getProjectVersions,
-} from "metersphere-frontend/src/api/version";
+import {getProjectVersions} from "metersphere-frontend/src/api/version";
 import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
@@ -466,13 +464,17 @@ export default {
     defaultModuleKey() {
       if (this.editable) {
         let defaultNodeKey = '';
-        this.treeNodes.forEach(node => {
-          if (node.label === '未规划用例') {
-            defaultNodeKey = node.id;
-            this.form.module = defaultNodeKey;
-            this.form.nodePath = node.path;
-          }
-        })
+        if (this.$route.query.createNodeId) {
+          defaultNodeKey = this.$route.query.createNodeId;
+        } else {
+          this.treeNodes.forEach(node => {
+            if (node.label === '未规划用例') {
+              defaultNodeKey = node.id;
+              this.form.module = defaultNodeKey;
+              this.form.nodePath = node.path;
+            }
+          })
+        }
         return defaultNodeKey;
       } else {
         return this.form.module
@@ -482,6 +484,11 @@ export default {
   mounted() {
     this.getDemandOptions();
     this.getVersionOptions();
+    if (this.$route.query.createNodeId) {
+      this.form.module = this.$route.query.createNodeId;
+      let node = this.findTreeNode(this.treeNodes);
+      this.form.nodePath = node.path;
+    }
   },
   methods: {
     handleDemandOptionPlatform(data){
