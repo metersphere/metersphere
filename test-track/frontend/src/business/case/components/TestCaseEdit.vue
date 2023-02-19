@@ -1517,7 +1517,7 @@ export default {
             this.$refs.apiDeleteConfirm.open(this.testCase, this.$t('test_track.case.delete_confirm'));
           } else {
             let title = this.$t('test_track.case.case_delete_confirm') + ": " + this.testCase.name + "?";
-            this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+            this.$confirm(this.$t('test_track.case.batch_delete_soft_tip'), title, {
                 cancelButtonText: this.$t("commons.cancel"),
                 confirmButtonText: this.$t("commons.delete"),
                 customClass: 'custom-confirm-delete',
