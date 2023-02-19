@@ -17,6 +17,7 @@ import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.platform.domain.SelectOption;
+import io.metersphere.request.PlatformOptionRequest;
 import io.metersphere.request.issues.IssueExportRequest;
 import io.metersphere.request.issues.IssueImportRequest;
 import io.metersphere.request.issues.PlatformIssueTypeRequest;
@@ -218,6 +219,11 @@ public class IssuesController {
     @GetMapping("/platform/option")
     public List<SelectOption> getPlatformOptions() {
         return platformPluginService.getPlatformOptions();
+    }
+
+    @PostMapping("/platform/form/option")
+    public List<SelectOption> getPlatformOptions(@RequestBody PlatformOptionRequest request) {
+        return platformPluginService.getFormOption(request);
     }
 
     @PostMapping("/check/third/project")
