@@ -18,6 +18,8 @@
             v-model="form.title"
             autocomplete="off"
             class="top-input-class"
+            maxlength="300"
+            show-word-limit
           >
           </el-input>
         </el-form-item>
@@ -129,11 +131,6 @@ import {
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
-import {
-  byteToSize,
-  getTypeByFileName,
-  getUUID,
-} from "metersphere-frontend/src/utils";
 import {
   getCurrentProjectID,
   getCurrentUser,
