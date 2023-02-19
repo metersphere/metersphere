@@ -11,11 +11,14 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ServiceIntegration;
 import io.metersphere.commons.constants.PluginScenario;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.platform.domain.GetOptionRequest;
 import io.metersphere.platform.domain.PlatformRequest;
 import io.metersphere.platform.domain.SelectOption;
 
+import io.metersphere.platform.impl.JiraPlatform;
 import io.metersphere.platform.loader.PlatformPluginManager;
 import io.metersphere.request.IntegrationRequest;
+import io.metersphere.request.PlatformOptionRequest;
 import io.metersphere.utils.PluginManagerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -147,5 +151,18 @@ public class PlatformPluginService {
                 )
                 .distinct()
                 .collect(Collectors.toList());
+    }
+
+    public List<SelectOption> getFormOption(PlatformOptionRequest request) {
+        Platform platform = getPlatform(request.getPlatform(), request.getWorkspaceId());
+        GetOptionRequest getOptionRequest = new GetOptionRequest();
+        getOptionRequest.setOptionMethod(request.getOptionMethod());
+        getOptionRequest.setProjectConfig(request.getProjectConfig());
+        getOptionRequest.setQuery(request.getQuery());
+        try {
+            return platform.getFormOptions(getOptionRequest);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }
