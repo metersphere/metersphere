@@ -38,6 +38,8 @@
             :form-label-width="formLabelWidth"
             :issue-template="issueTemplate"
             class="custom-case-form"
+            @inputSearch="handleInputSearch"
+            ref="customFieldItem"
           />
         </el-form>
         <!-- 未开启第三方 -->
@@ -146,7 +148,7 @@ import {
   getFollow,
   getComments,
   getTapdUser,
-  getPlatformTransitions,
+  getPlatformTransitions, getPlatformFormOption,
 } from "@/api/issue";
 import {
   uploadIssueAttachment,
@@ -445,6 +447,17 @@ export default {
           this.getFileMetaData(data.id);
         }
         // this.getComments();
+      });
+    },
+    handleInputSearch(data, query) {
+      getPlatformFormOption({
+        optionMethod: data.optionMethod,
+        workspaceId: getCurrentWorkspaceId(),
+        platform: this.issueTemplate.platform,
+        query
+      }).then((r) => {
+        data.options = r.data;
+        this.$refs.customFieldItem.stopLoading();
       });
     },
     save(reset) {
