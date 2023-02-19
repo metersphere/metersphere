@@ -21,6 +21,8 @@
               :form="form"
               :default-open="defaultOpen"
               :disabled="isPublic"
+              @inputSearch="handleInputSearch"
+              ref="customFiled"
             />
           </el-form-item>
         </div>
@@ -38,6 +40,8 @@
               :data="item"
               :form="form"
               prop="defaultValue"
+              @inputSearch="handleInputSearch"
+              ref="customFiled"
             />
           </el-form-item>
         </div>
@@ -102,6 +106,16 @@ export default {
       default() {
         return "preview";
       },
+    },
+  },
+  methods: {
+    handleInputSearch(data, query) {
+      this.$emit('inputSearch', data, query);
+    },
+    stopLoading() {
+      this.$refs.customFiled.forEach(item => {
+        item.stopLoading();
+      });
     },
   },
   computed: {
