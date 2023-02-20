@@ -92,7 +92,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
             if (CollectionUtils.isEmpty(list)) {
                 setComment(priorityIndex, Translator.get("options").concat("（P0、P1、P2、P3）"));
             } else {
-                setComment(priorityIndex, Translator.get("options").concat(JSON.toJSONString(list)));
+                setComment(priorityIndex, Translator.get("options").concat(JSON.toJSONString(list)).concat(Translator.get("cannot_ignore_case")));
             }
 
             list.clear();
@@ -100,7 +100,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                 list = caseLevelAndStatusValueMap.get("caseStatus");
             }
             if (CollectionUtils.isNotEmpty(list)) {
-                setComment(statusIndex, Translator.get("options").concat(JSON.toJSONString(list)));
+                setComment(statusIndex, Translator.get("options").concat(JSON.toJSONString(list)).concat(Translator.get("cannot_ignore_case")));
             }
         }
 
