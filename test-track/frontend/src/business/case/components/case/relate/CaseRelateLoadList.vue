@@ -31,6 +31,7 @@
           :total="total"
           :showSelectAll="false"
           :screenHeight="screenHeight"
+          :refresh-by-search.sync="refreshBySearch"
           @selectCountChange="selectCountChange"
           @refresh="initTable"
           ref="table"
@@ -133,6 +134,7 @@ export default {
       pageSize: 10,
       total: 0,
       versionFilters: [],
+      refreshBySearch: false
     };
   },
   props: {
@@ -169,6 +171,7 @@ export default {
       this.$emit("selectCountChange", data);
     },
     initTable(projectId) {
+      this.refreshBySearch = true;
       this.condition.status = "";
       if (projectId != null && typeof projectId === "string") {
         this.condition.projectId = projectId;
