@@ -184,7 +184,7 @@ export default {
     handleDelete(item) {
       operationConfirm(
         this,
-        this.$t("test_track.case.delete_confirm") + "依赖吗 ？",
+        this.$t("case.dependency_remove_confirm"),
         () => {
           this.$emit("deleteRelationship", item.sourceId, item.targetId);
         }
