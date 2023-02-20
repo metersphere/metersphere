@@ -252,7 +252,8 @@ public class FileMetadataService {
             request.setUpdateTime(fileMetadata.getUpdateTime());
             bytes = fileManagerService.downloadFile(request);
         }
-        return bytes;
+
+        return Objects.requireNonNullElseGet(bytes, () -> new byte[0]);
     }
 
     public ResponseEntity<byte[]> getFile(String fileId) {
