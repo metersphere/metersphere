@@ -5,7 +5,7 @@
     @clearSelect="clearSelection"
     ref="relevanceDialog"
   >
-    <div slot="header" v-if="page.data.length > 0">
+    <div slot="header" v-if="page.data.length > 0 || page.condition.name !== undefined">
       <div class="header-search-row">
         <div class="simple-row">
           <ms-new-ui-search
