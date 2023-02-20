@@ -1,50 +1,6 @@
 <template>
   <div v-loading="isloading" class="case-base-info-form">
     <el-form ref="caseFrom" :rules="headerRules" :model="form" class="case-padding">
-      <div class="module-row case-wrap" v-if="!publicEnable">
-        <div class="case-title-wrap">
-          <div class="name title-wrap">
-            {{ $t("test_track.case.module") }}
-          </div>
-          <div class="required required-item"></div>
-        </div>
-
-        <div class="side-content">
-          <base-edit-item-component
-            :editable="editable"
-            :auto-save="!readOnly"
-            trigger="hover"
-            :contentObject="{
-              content: getModuleLabel(),
-              contentType: 'SELECT',
-            }"
-            :readonlyHoverEvent="!readOnly"
-            :content-click-event="!readOnly"
-            :model="form"
-            :rules="headerRules"
-            ref="moduleRef"
-          >
-            <template v-slot:content="{ onClick, hoverEditable }">
-              <div :class="hoverEditable ? 'selectHover' : ''">
-                <el-form-item prop="module">
-                  <ms-select-tree
-                    :disabled="readOnly"
-                    :data="treeNodes"
-                    :defaultKey="defaultModuleKey"
-                    :obj="moduleObj"
-                    @getValue="(id, data) => setModule(id, data)"
-                    clearable
-                    checkStrictly
-                    size="small"
-                    @selectClick="onClick"
-                    @clean="onClick"
-                  />
-                </el-form-item>
-              </div>
-            </template>
-          </base-edit-item-component>
-        </div>
-      </div>
 
       <div class="module-row case-wrap" v-if="publicEnable">
         <div class="case-title-wrap">
@@ -90,6 +46,52 @@
           </base-edit-item-component>
         </div>
       </div>
+
+      <div class="module-row case-wrap">
+        <div class="case-title-wrap">
+          <div class="name title-wrap">
+            {{ $t("test_track.case.module") }}
+          </div>
+          <div class="required required-item"></div>
+        </div>
+
+        <div class="side-content">
+          <base-edit-item-component
+            :editable="editable"
+            :auto-save="!readOnly"
+            trigger="hover"
+            :contentObject="{
+              content: getModuleLabel(),
+              contentType: 'SELECT',
+            }"
+            :readonlyHoverEvent="!readOnly"
+            :content-click-event="!readOnly"
+            :model="form"
+            :rules="headerRules"
+            ref="moduleRef"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="module">
+                  <ms-select-tree
+                    :disabled="readOnly"
+                    :data="treeNodes"
+                    :defaultKey="defaultModuleKey"
+                    :obj="moduleObj"
+                    @getValue="(id, data) => setModule(id, data)"
+                    clearable
+                    checkStrictly
+                    size="small"
+                    @selectClick="onClick"
+                    @clean="onClick"
+                  />
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
+        </div>
+      </div>
+
     </el-form>
     <!-- 自定义字段 -->
     <el-form
