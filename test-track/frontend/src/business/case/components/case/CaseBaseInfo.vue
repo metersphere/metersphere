@@ -233,7 +233,7 @@
                         <div class="story-label" v-if="data.value === 'other'">
                           {{ $t("test_track.case.other") }}
                         </div>
-                        <div class="story-label" v-else>{{ handleDemandOptionLabel(data) }}</div>
+                        <div class="story-label text-ellipsis" v-else>{{ handleDemandOptionLabel(data) }}</div>
                       </div>
                     </template>
                   </el-cascader>
@@ -253,7 +253,7 @@
         </div>
       </div>
       <!-- 选择了关联需求后展示，并且必填 -->
-      <div class="story-name-row case-wrap" v-if="form.demandId">
+      <div class="story-name-row case-wrap" v-if="form.demandId === 'other'">
         <div class="case-title-wrap">
           <div class="name title-wrap">
             {{ $t("test_track.case.demand_name_id") }}
@@ -339,9 +339,6 @@ import CustomFiledFormRow from "./CaseCustomFiledFormRow";
 import { useStore } from "@/store";
 import BaseEditItemComponent from "../BaseEditItemComponent";
 import { issueDemandList } from "@/api/issue";
-import {
-  getCurrentProjectID,
-} from "metersphere-frontend/src/utils/token";
 export default {
   name: "CaseBaseInfo",
   components: {
@@ -359,6 +356,13 @@ export default {
         this.form.demandId = null;
       }
     },
+    'form.demandId'() {
+      this.buildDemandOptions();
+    },
+    projectId() {
+      this.getDemandOptions();
+      this.getVersionOptions();
+    }
   },
   data() {
     return {
@@ -438,6 +442,7 @@ export default {
       demandLabel: "",
       demandOptions: [],
       versionFilters: [],
+      demandList: [],
     };
   },
   props: {
@@ -455,11 +460,9 @@ export default {
     testCaseTemplate: Object,
     defaultOpen: String,
     versionEnable: Boolean,
+    projectId: String,
   },
   computed: {
-    projectId() {
-      return getCurrentProjectID();
-    },
     isCustomNum() {
       return useStore().currentProjectIsCustomNum;
     },
@@ -515,16 +518,13 @@ export default {
       }
       return "";
     },
-    validateAllForm(callback) {
-      callback(
-        this.editable ? true : this.validateForm() && this.validateCustomForm()
-      );
-    },
     getVersionOptions() {
       if (hasLicense()) {
-        getProjectVersions(getCurrentProjectID()).then(
-          (r) => (this.versionFilters = r.data)
-        );
+        if (this.projectId) {
+          getProjectVersions(this.projectId).then(
+            (r) => (this.versionFilters = r.data)
+          );
+        }
       }
     },
     changeVersion(data) {
@@ -589,11 +589,6 @@ export default {
     },
     validateForm() {
       let isValidate = true;
-      // this.$refs["caseFrom"].validate((valid) => {
-      //   if (!valid) {
-      //     isValidate = false;
-      //   }
-      // });
       this.$refs["baseCaseFrom"].validate((valid) => {
         if (!valid) {
           isValidate = false;
@@ -626,17 +621,24 @@ export default {
     getDemandOptions() {
       this.result = { loading: true };
       this.demandLabel = "";
-      issueDemandList(this.projectId)
-        .then((r) => {
-          this.demandOptions = [];
-          if (r.data && r.data.length > 0) {
-            this.buildDemandCascaderOptions(r.data, this.demandOptions, []);
-          }
-          this.addOtherOption();
-        })
-        .catch(() => {
-          this.addOtherOption();
-        });
+      if (this.projectId) {
+        issueDemandList(this.projectId)
+          .then((r) => {
+            this.demandOptions = [];
+            this.demandList = r.data;
+            this.buildDemandOptions();
+          })
+          .catch(() => {
+            this.addOtherOption();
+          });
+      }
+    },
+    buildDemandOptions() {
+      this.demandOptions = [];
+      if (this.demandList.length > 0) {
+        this.addOtherOption();
+        this.buildDemandCascaderOptions(this.demandList, this.demandOptions, []);
+      }
     },
     addOtherOption() {
       this.demandOptions.unshift({
@@ -714,6 +716,7 @@ export default {
   .story-label {
     line-height: 22px;
     color: #1f2329;
+    max-width: 300px;
   }
 }
 .selectHover {
