@@ -21,28 +21,6 @@
       />
     </div>
   </ms-drawer-component>
-
-  <!-- <ms-edit-dialog
-    width="60%"
-    :visible.sync="visible"
-    @confirm="confirm"
-    :title="$t('test_track.issue.create_issue')"
-    append-to-body
-    ref="msEditDialog"
-  >
-    <template>
-      <issue-edit-detail
-        :plan-case-id="planCaseId"
-        :is-minder="isMinder"
-        :plan-id="planId"
-        :case-id="caseId"
-        :is-case-edit="true"
-        @refresh="refresh"
-        @close="handleClose"
-        ref="issueEditDetail"
-      />
-    </template>
-  </ms-edit-dialog> -->
 </template>
 <script>
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
