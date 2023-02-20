@@ -83,12 +83,20 @@
             prop="platformStatus"
           >
             <template v-slot="scope">
-             <span v-if="scope.row.platform === 'Tapd'">
-              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
-             </span>
-             <span v-else>
-              {{ scope.row.platformStatus ? scope.row.platformStatus : "--" }}
-             </span>
+              <span v-if="item.id === 'platformStatus'">
+                <span v-if="scope.row.platform === 'Tapd'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+                <span v-else-if="scope.row.platform ==='Local'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+                <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                  {{ platformStatusMap.get(scope.row.platformStatus) }}
+                </span>
+                <span v-else>
+                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+                </span>
+              </span>
             </template>
           </ms-table-column>
 
@@ -186,7 +194,7 @@ import {
   getIssuePartTemplateWithProject,
   getIssuesByCaseId,
   issueStatusChange,
-  getIssuesByCaseIdWithSearch,
+  getIssuesByCaseIdWithSearch, getPlatformStatus,
 } from "@/api/issue";
 import {
   getCustomFieldValue,
@@ -287,6 +295,20 @@ export default {
       }
       if (this.$refs.table) {
         this.$refs.table.reloadTable();
+      }
+    });
+  },
+  activated() {
+    getPlatformStatus({
+      projectId: getCurrentProjectID(),
+      workspaceId: getCurrentWorkspaceId()
+    }).then((r) => {
+      this.platformStatus = r.data;
+      this.platformStatusMap = new Map();
+      if (this.platformStatus) {
+        this.platformStatus.forEach(item => {
+          this.platformStatusMap.set(item.value, item.label);
+        });
       }
     });
   },

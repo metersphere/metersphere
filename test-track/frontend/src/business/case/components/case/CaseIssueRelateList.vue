@@ -66,12 +66,18 @@
           prop="platformStatus"
         >
           <template v-slot="scope">
-           <span v-if="scope.row.platform === 'Tapd'">
-              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
-           </span>
+            <span v-if="scope.row.platform === 'Tapd'">
+                {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+              </span>
+            <span v-else-if="scope.row.platform ==='Local'">
+                {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+              </span>
+            <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                {{ platformStatusMap.get(scope.row.platformStatus) }}
+              </span>
             <span v-else>
-              {{ scope.row.platformStatus ? scope.row.platformStatus : "--" }}
-            </span>
+                {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+              </span>
           </template>
         </ms-table-column>
 
@@ -137,16 +143,16 @@ import HomePagination from "@/business/home/components/pagination/HomePagination
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {
-  getPlatformOption,
+  getPlatformOption, getPlatformStatus,
   getRelateIssues,
   isThirdPartEnable,
   testCaseIssueRelate,
 } from "@/api/issue";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import { ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
+import { ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import { getPageInfo } from "metersphere-frontend/src/utils/tableUtils";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import { getCurrentProjectID, getCurrentWorkspaceId } from "metersphere-frontend/src/utils/token";
 import { TEST_CASE_RELEVANCE_ISSUE_LIST } from "@/business/utils/sdk-utils";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import MsDrawerComponent from "../common/MsDrawerComponent";
@@ -176,6 +182,8 @@ export default {
       isThirdPart: false,
       selectCounts: null,
       screenHeight: 'calc(100vh - 185px)',
+      platformStatus: [],
+      platformStatusMap: new Map(),
     };
   },
   computed: {
@@ -216,6 +224,18 @@ export default {
         .then((r) => {
           setIssuePlatformComponent(r.data, this.page.condition.components);
         });
+      getPlatformStatus({
+        projectId: getCurrentProjectID(),
+        workspaceId: getCurrentWorkspaceId()
+      }).then((r) => {
+        this.platformStatus = r.data;
+        this.platformStatusMap = new Map();
+        if (this.platformStatus) {
+          this.platformStatus.forEach(item => {
+            this.platformStatusMap.set(item.value, item.label);
+          });
+        }
+      });
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
