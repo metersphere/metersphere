@@ -223,6 +223,10 @@ public class TestResultService {
 
             if (planRunModes.contains(dto.getRunMode())) {
                 TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(scenarioReport.getScenarioId());
+                if (testPlanApiScenario == null) {
+                    //测试计划-场景列表中，批量/单独执行场景时，关联ID记录在testID中
+                    testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
+                }
                 if (testPlanApiScenario != null) {
                     ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
                     if (apiScenario != null) {
