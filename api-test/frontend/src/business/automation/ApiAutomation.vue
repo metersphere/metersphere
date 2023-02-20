@@ -491,6 +491,7 @@ export default {
       }
     },
     deleteResourceIds(array) {
+      //删除无用属性
       if (array instanceof Array && array.length > 0) {
         array.forEach((item) => {
           if (item.currentScenarioId && item.currentScenarioId.length > 0) {
@@ -498,6 +499,12 @@ export default {
           }
           if (item.resourceId) {
             delete item.resourceId;
+          }
+          if (item.showExtend) {
+            delete item.showExtend;
+          }
+          if (item.isCopy) {
+            delete item.isCopy;
           }
           if (item.method) {
             delete item.method;
@@ -508,11 +515,27 @@ export default {
           if (item.ctimeout >= 0) {
             delete item.ctimeout;
           }
-          if (item.rest && item.rest.length === 0) {
+          if (item.rest && item.rest.length <= 1) {
             delete item.rest;
           }
-          if (item.arguments && item.arguments.length === 0) {
+          if (item.headers && item.headers.length <= 1) {
+            delete item.headers;
+          }
+          if (item.arguments && item.arguments.length <= 1) {
             delete item.arguments;
+          }
+          if (item.arguments && item.arguments.length > 0) {
+            item.arguments.forEach((arg) => {
+              if (!arg.isEdit || arg.isEdit) {
+                delete arg.isEdit;
+              }
+            });
+          }
+          if (item.parameters && item.parameters.length <= 1) {
+            delete item.parameters;
+          }
+          if (item.customizeReq || !item.customizeReq) {
+            delete item.customizeReq;
           }
           if (item.id) {
             delete item.id;
