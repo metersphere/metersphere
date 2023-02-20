@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface ExtTestPlanScenarioCaseMapper {
     List<TestPlanApiScenarioInfoDTO> selectLegalDataByTestPlanId(String planId);
+
+    List<TestPlanApiScenarioInfoDTO> selectLegalUiDataByTestPlanId(String planId);
  }

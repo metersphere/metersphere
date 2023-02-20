@@ -17,11 +17,14 @@ public class TestPlanReportRunInfoDTO {
     private String runMode;
     // <测试计划场景关联表ID, <项目ID，环境ID>>
     private Map<String, Map<String, List<String>>> scenarioRunInfo;
+    // <测试计划场景关联表ID, <项目ID，环境ID>>
+    private Map<String, Map<String, List<String>>> uiScenarioRunInfo;
     // <测试计划用例关联表ID, <项目ID，环境ID>>
     private Map<String, Map<String, String>> apiCaseRunInfo;
 
     public TestPlanReportRunInfoDTO() {
         scenarioRunInfo = new HashMap<>();
+        uiScenarioRunInfo = new HashMap<>();
         apiCaseRunInfo = new HashMap<>();
     }
 
@@ -38,6 +41,26 @@ public class TestPlanReportRunInfoDTO {
             }
         } else {
             scenarioRunInfo.put(scenarioResourceId, new HashMap<>() {{
+                this.put(projectId, new ArrayList<>() {{
+                    this.add(environmentId);
+                }});
+            }});
+        }
+    }
+    
+    public void putUiScenarioRunInfo(String scenarioResourceId, String projectId, String environmentId) {
+        if (uiScenarioRunInfo.containsKey(scenarioResourceId)) {
+            if (uiScenarioRunInfo.get(scenarioResourceId).containsKey(projectId)) {
+                if (!uiScenarioRunInfo.get(scenarioResourceId).get(projectId).contains(environmentId)) {
+                    uiScenarioRunInfo.get(scenarioResourceId).get(projectId).add(environmentId);
+                }
+            } else {
+                uiScenarioRunInfo.get(scenarioResourceId).put(projectId, new ArrayList<>() {{
+                    this.add(environmentId);
+                }});
+            }
+        } else {
+            uiScenarioRunInfo.put(scenarioResourceId, new HashMap<>() {{
                 this.put(projectId, new ArrayList<>() {{
                     this.add(environmentId);
                 }});

@@ -160,6 +160,7 @@ export default {
       reportId: "",
       infoDb: false,
       selectRows: new Set(),
+      map: new Map(),
       projectEnvMap: new Map(),
       projectList: [],
       customNum: false,
@@ -272,12 +273,12 @@ export default {
     },
     initProjectIds() {
       this.projectIds.clear();
-      // this.map.clear();
+      this.map.clear();
       this.selectRows.forEach((row) => {
         getUiScenarioEnvByProjectId(row.id).then((res) => {
           let data = res.data;
           data.projectIds.forEach((d) => this.projectIds.add(d));
-          // this.map.set(row.id, data.projectIds);
+          this.map.set(row.id, data.projectIds);
         });
       });
     },
