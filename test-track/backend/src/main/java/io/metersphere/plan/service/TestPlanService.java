@@ -1602,6 +1602,8 @@ public class TestPlanService {
                             environmentIds.add(eId);
                         }
                     });
+                } else {
+                    scenarioEnv.put(entry.getKey(), entry.getValue());
                 }
             });
         }
