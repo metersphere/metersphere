@@ -245,7 +245,6 @@ export default {
     },
     save() {
       this.$refs.environmentEdit.save();
-      this.$emit('saveRefresh');
     },
     close() {
       this.$emit('close');
@@ -266,6 +265,7 @@ export default {
     },
     refresh() {
       this.getEnvironments();
+      this.$emit('saveRefresh');
     },
   }
 }
