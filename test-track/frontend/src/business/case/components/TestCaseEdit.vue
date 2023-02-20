@@ -877,11 +877,11 @@ export default {
     },
     addPublic() {
       this.casePublic = true;
-      this.saveCase();
+      this.saveCase(true);
     },
     removePublic() {
       this.casePublic = false;
-      this.saveCase();
+      this.saveCase(true);
     },
     handleCommand(e) {
       this.saveType = e;
@@ -1091,9 +1091,9 @@ export default {
       removeGoBackListener(this.close);
       this.dialogFormVisible = false;
     },
-    saveCase() {
+    saveCase(isAddPublic) {
       if (this.validateForm()) {
-        this._saveCase();
+        this._saveCase(isAddPublic);
       } else {
         if (this.$refs.versionHistory) {
           this.$refs.versionHistory.loading = false;
@@ -1103,7 +1103,7 @@ export default {
         }
       }
     },
-    _saveCase() {
+    _saveCase(isAddPublic) {
       let param = this.buildParam();
       if (this.validate(param)) {
         let option = this.getOption(param);
@@ -1117,7 +1117,11 @@ export default {
               this.$refs.otherInfo.getFileMetaData(response.data.id);
             }
             this.loading = false;
-            this.$success(this.$t("commons.save_success"), false);
+            if (isAddPublic) {
+              this.$success(this.casePublic ? this.$t("commons.add_success") : this.$t("commons.cancel_add_success"), false);
+            } else {
+              this.$success(this.$t("commons.save_success"), false);
+            }
             this.operationType = "edit";
             this.$emit("refreshTestCase");
             store.testCaseMap.set(this.form.id, 0);
