@@ -164,14 +164,14 @@
         <div class="side-content">
           <base-edit-item-component
             :editable="editable"
-            :auto-save="!readOnly"
+            :auto-save="editable"
             trigger="hover"
             :contentObject="{
               content: form.customNum,
               contentType: 'INPUT',
             }"
-            :readonlyHoverEvent="!readOnly"
-            :content-click-event="!readOnly"
+            :readonlyHoverEvent="editable"
+            :content-click-event="editable"
             :model="form"
             :rules="rules"
           >
