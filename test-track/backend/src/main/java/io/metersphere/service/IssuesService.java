@@ -1900,4 +1900,21 @@ public class IssuesService {
         syncAllIssuesRequest.setHandleSyncFunc(issueSyncRequest.getHandleSyncFunc());
         platform.syncAllIssues(syncAllIssuesRequest);
     }
+
+    public List<String> getTapdIssueCurrentOwner(String id) {
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+        if (issuesWithBLOBs == null) {
+            return null;
+        }
+        IssuesRequest issuesRequest = new IssuesRequest();
+        Project project = baseProjectService.getProjectById(issuesWithBLOBs.getProjectId());
+        issuesRequest.setWorkspaceId(project.getWorkspaceId());
+        issuesRequest.setProjectId(issuesWithBLOBs.getProjectId());
+        TapdPlatform tapdPlatform = (TapdPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Tapd.name(), issuesRequest);
+        List<String> tapdUsers = new ArrayList<>();
+        if (tapdPlatform != null) {
+            tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
+        }
+        return tapdUsers;
+    }
 }

@@ -151,6 +151,11 @@ public class IssuesController {
         return issuesService.getTapdProjectUsers(request);
     }
 
+    @GetMapping("/tapd/current_owner/{id}")
+    public List<String> getTapdIssueCurrentOwner(@PathVariable String id) {
+        return issuesService.getTapdIssueCurrentOwner(id);
+    }
+
     @GetMapping("/sync/{projectId}")
     public boolean syncThirdPartyIssues(@PathVariable String projectId) {
         return issuesService.syncThirdPartyIssues(projectId);

@@ -60,6 +60,10 @@ export function getTapdUser(param) {
   return post(BASE_URL + "tapd/user", param);
 }
 
+export function getTapdCurrentOwner(id) {
+  return get(BASE_URL + "tapd/current_owner/" + id);
+}
+
 export function getDashboardIssues(page) {
   return post('issues/dashboard/list/' + page.currentPage + '/' + page.pageSize, page.condition)
     .then((response) => {
