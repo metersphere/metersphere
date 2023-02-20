@@ -14,4 +14,18 @@
           AND tpas.test_plan_id = #{0}
         ORDER BY tpas.`order` DESC;
     </select>
+
+    <select id="selectLegalUiDataByTestPlanId" resultType="io.metersphere.plan.dto.TestPlanApiScenarioInfoDTO">
+        SELECT tpas.id,
+               tpas.ui_scenario_id,
+               tpas.environment,
+               tpas.environment_type,
+               tpas.environment_group_id,
+               apis.project_id
+        FROM test_plan_ui_scenario tpas
+                 INNER JOIN ui_scenario apis ON tpas.ui_scenario_id = apis.id
+        WHERE (apis.`status` IS NULL OR apis.`status` != 'Trash')
+          AND tpas.test_plan_id = #{0}
+        ORDER BY tpas.`order` DESC;
+    </select>
 </mapper>
