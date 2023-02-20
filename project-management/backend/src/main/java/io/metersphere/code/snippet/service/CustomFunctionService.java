@@ -1,23 +1,31 @@
 package io.metersphere.code.snippet.service;
 
 
-import io.metersphere.base.domain.CustomFunction;
-import io.metersphere.base.domain.CustomFunctionExample;
-import io.metersphere.base.domain.CustomFunctionWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.CustomFunctionMapper;
+import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFunctionMapper;
 import io.metersphere.code.snippet.listener.MsDebugListener;
+import io.metersphere.code.snippet.util.FixedCapacityUtils;
+import io.metersphere.code.snippet.util.ProjectFileUtils;
 import io.metersphere.commons.constants.MicroServiceName;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.BackendListenerConstants;
+import io.metersphere.dto.FileInfoDTO;
 import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.jmeter.LocalRunner;
+import io.metersphere.jmeter.ProjectClassLoader;
+import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.CustomFunctionRequest;
 import io.metersphere.service.MicroService;
-import io.metersphere.code.snippet.util.FixedCapacityUtils;
+import io.metersphere.utils.JarConfigUtils;
+import io.metersphere.utils.LocalPathUtil;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.save.SaveService;
@@ -27,12 +35,15 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author lyh
@@ -127,8 +138,76 @@ public class CustomFunctionService {
         return customFunctionMapper.selectByPrimaryKey(id);
     }
 
+    public static Map<String, List<ProjectJarConfig>> getJars() {
+        String currentProjectId = SessionUtils.getCurrentProjectId();
+        FileMetadataExample fileMetadata = new FileMetadataExample();
+        fileMetadata.createCriteria().andProjectIdEqualTo(currentProjectId).andLoadJarEqualTo(true);
+        FileMetadataMapper fileMetadataMapper = CommonBeanFactory.getBean(FileMetadataMapper.class);
+        List<FileMetadataWithBLOBs> files = fileMetadataMapper.selectByExampleWithBLOBs(fileMetadata);
+
+        Map<String, List<ProjectJarConfig>> jarConfigMap = files.stream()
+                .collect(Collectors.groupingBy(FileMetadata::getProjectId, Collectors.mapping(
+                        item -> {
+                            ProjectJarConfig configs = new ProjectJarConfig();
+                            configs.setId(item.getId());
+                            configs.setName(item.getName());
+                            configs.setStorage(item.getStorage());
+                            //历史数据(存在数据库)
+                            if (StringUtils.isEmpty(item.getStorage()) && StringUtils.isEmpty(item.getResourceType())) {
+                                configs.setHasFile(true);
+                            } else {
+                                configs.setHasFile(false);
+                            }
+                            configs.setUpdateTime(item.getUpdateTime());
+                            if (StringUtils.isNotEmpty(item.getStorage()) && StringUtils.equals(item.getStorage(), StorageConstants.GIT.name())) {
+                                configs.setAttachInfo(item.getAttachInfo());
+                            }
+                            return configs;
+                        }, Collectors.toList())));
+        List<String> projectIds = new ArrayList<>();
+        projectIds.add(currentProjectId);
+
+        //获取需要下载的jar的map
+        Map<String, List<ProjectJarConfig>> map = JarConfigUtils.getJarConfigs(projectIds, jarConfigMap);
+        if (MapUtils.isNotEmpty(map)) {
+            //获取文件内容
+            List<String> loaderProjectIds = new ArrayList<>();
+            FileMetadataService fileMetadataService = CommonBeanFactory.getBean(FileMetadataService.class);
+            map.forEach((key, value) -> {
+                loaderProjectIds.add(key);
+                if (CollectionUtils.isNotEmpty(value)) {
+                    //历史数据
+                    value.stream().distinct().filter(s -> s.isHasFile()).forEach(s -> {
+                        //获取文件内容
+                        byte[] bytes = new byte[0];
+                        // 兼容历史数据
+                        bytes = fileMetadataService.getContent(s.getId());
+                        FileUtils.createFile(StringUtils.join(LocalPathUtil.JAR_PATH,
+                                File.separator,
+                                key,
+                                File.separator,
+                                s.getId(),
+                                File.separator,
+                                String.valueOf(s.getUpdateTime()), ".jar"), bytes);
+                    });
+                    List<String> jarIds = value.stream().distinct().filter(s -> !s.isHasFile()).map(ProjectJarConfig::getId).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(jarIds)) {
+                        // 下载MinIOjar包
+                        List<FileInfoDTO> fileInfoDTOS = fileMetadataService.downloadFileByIds(jarIds);
+                        ProjectFileUtils.createFiles(fileInfoDTOS, key, value);
+                    }
+                }
+            });
+            // 初始化类加载器
+            ProjectClassLoader.initClassLoader(loaderProjectIds);
+        }
+        return jarConfigMap;
+    }
+
     public MsExecResponseDTO run(String reportId, Object request) {
         HashTree hashTree = null;
+        //下载项目执行代码片段的jar包
+        getJars();
         String jmx = microService.postForData(MicroServiceName.API_TEST, "/api/definition/get-hash-tree", request, String.class);
         try {
             Object scriptWrapper = SaveService.loadElement(new ByteArrayInputStream(jmx.getBytes(StandardCharsets.UTF_8)));
