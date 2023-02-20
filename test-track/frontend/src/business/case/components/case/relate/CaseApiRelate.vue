@@ -7,7 +7,6 @@
   >
     <template v-slot:aside>
       <ms-api-module
-        :show-case-num="false"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"

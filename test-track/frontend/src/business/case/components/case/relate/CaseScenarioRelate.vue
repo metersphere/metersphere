@@ -7,7 +7,6 @@
   >
     <template v-slot:aside>
       <ms-api-scenario-module
-        :show-case-num="false"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
@@ -90,11 +89,9 @@ export default {
     setProject(projectId) {
       this.projectId = projectId;
     },
-
     refresh(data) {
       this.$refs.apiCaseList.initTable(data);
     },
-
     nodeChange(node, nodeIds, pNodes) {
       this.selectNodeIds = nodeIds;
     },

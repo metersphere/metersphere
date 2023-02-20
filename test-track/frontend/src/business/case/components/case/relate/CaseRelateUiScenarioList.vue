@@ -1,7 +1,7 @@
 <template>
   <div>
     <case-side-dialog-content
-      :tableCount="total"
+      :total-count="total"
       :label="$t('case.all_scenes')"
     >
       <template
@@ -170,6 +170,7 @@ export default {
   },
   created: function () {
     this.getVersionOptions();
+    this.initTable();
   },
   watch: {
     selectNodeIds() {
