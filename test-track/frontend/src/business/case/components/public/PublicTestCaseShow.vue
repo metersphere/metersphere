@@ -8,8 +8,14 @@
     class="case-desc-drawer-layout"
   >
     <div style="height: 100%; overflow: auto">
-      <test-case-edit :is-public-show="true" :public-case-id.sync="publicCaseId" @close="close" @previousCase="previous" @nextCase="next"
-                      :is-first-public.sync="isFirstPublic" :is-last-public.sync="isLastPublic"/>
+      <test-case-edit :is-public-show="true"
+                      :public-case-id.sync="publicCaseId"
+                      :is-first-public.sync="isFirstPublic"
+                      :is-last-public.sync="isLastPublic"
+                      @close="close"
+                      @previousCase="previous"
+                      @nextCase="next"
+                      ref="testCaseEdit"/>
     </div>
   </el-drawer>
 </template>
@@ -62,6 +68,10 @@ export default {
     open(caseId) {
       this.visible = true;
       this.publicCaseId = caseId;
+      // 公共用例库走这里
+      this.$nextTick(() => {
+        this.$refs.testCaseEdit.loadTestCase();
+      });
     },
     close() {
       this.visible = false;
