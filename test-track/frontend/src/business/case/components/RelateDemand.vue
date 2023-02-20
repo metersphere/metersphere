@@ -19,11 +19,11 @@
                        clearable filterable :filter-method="filterDemand" style="width: 100%;">
             <template slot-scope="{ data }">
               <div class="story-box">
-                <div class="story-platform">{{ data.platform }}</div>
+                <div class="story-platform">{{ handleDemandOptionPlatform(data) }}</div>
                 <div class="story-label" v-if="data.value === 'other'">
                   {{ $t("test_track.case.other") }}
                 </div>
-                <div class="story-label" v-else>{{ data.label }}</div>
+                <div class="story-label text-ellipsis" v-else>{{ handleDemandOptionLabel(data) }}</div>
               </div>
             </template>
           </el-cascader>
@@ -120,6 +120,28 @@ export default {
             this.result = {loading: false};
           })
       }
+    },
+    handleDemandOptionPlatform(data){
+      if(data.platform){
+        return data.platform
+      }
+      if(data.label){
+        let arr = data.label.split(": ")
+        if(arr && arr.length > 1){
+          return arr[0];
+        }
+      }
+      return "";
+    },
+    handleDemandOptionLabel(data){
+      if(data.label){
+        let arr = data.label.split(": ")
+        if(arr && arr.length > 1){
+          return arr[1];
+        }
+        return data.label;
+      }
+      return "";
     },
     buildDemandCascaderOptions(data, options, pathArray) {
       data.forEach(item => {
@@ -236,5 +258,6 @@ export default {
 .story-label {
   line-height: 22px;
   color: #1f2329;
+  max-width: 300px;
 }
 </style>
