@@ -13,7 +13,7 @@
             maxlength="60"
             show-word-limit />
           <span v-else>
-            <el-link v-if="isSingleScenario" type="primary" class="report-name" @click="redirect">
+            <el-link v-if="!isShare && isSingleScenario" type="primary" class="report-name" @click="redirect">
               {{ report.name }}
             </el-link>
             <span v-else>
@@ -142,6 +142,7 @@ export default {
     isPlan: Boolean,
     poolName: String,
     mode: String,
+    isShare: Boolean,
   },
   computed: {
     showProjectEnv() {
