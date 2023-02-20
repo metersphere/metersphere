@@ -1194,7 +1194,7 @@
         <if test="request.refId != null">
             and ${versionTable}.ref_id = #{request.refId}
         </if>
-        <if test="request.versionId == null and request.refId == null">
+        <if test="request.versionId == null and request.refId == null and request.casePublic != true">
             AND ${versionTable}.latest = 1
         </if>
     </sql>

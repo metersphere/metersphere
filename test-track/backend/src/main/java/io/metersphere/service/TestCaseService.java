@@ -415,6 +415,7 @@ public class TestCaseService {
         customFieldTestCaseService.editFields(testCase.getId(), testCase.getEditFields());
         customFieldTestCaseService.addFields(testCase.getId(), testCase.getAddFields());
 
+        // latest 字段 createNewVersionOrNot 已经设置过了，不更新
         testCase.setLatest(null);
 
         testCaseMapper.updateByPrimaryKeySelective(testCase);
@@ -476,10 +477,15 @@ public class TestCaseService {
         if (StringUtils.isBlank(testCase.getVersionId())) {
             return;
         }
-        testCase.setLatest(false);
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdEqualTo(testCase.getId())
                 .andVersionIdEqualTo(testCase.getVersionId());
+
+        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(testCase.getProjectId());
+        if (StringUtils.equalsIgnoreCase(testCase.getVersionId(), defaultVersion)) {
+            testCase.setLatest(false);
+        }
+
         if (testCaseMapper.updateByExampleSelective(testCase, example) == 0) {
             // 插入新版本的数据
             TestCaseWithBLOBs oldTestCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -494,7 +500,7 @@ public class TestCaseService {
             dealWithOtherInfoOfNewVersion(testCase, oldTestCase.getId());
             testCaseMapper.insertSelective(testCase);
         }
-        String defaultVersion = baseProjectVersionMapper.getDefaultVersion(testCase.getProjectId());
+
         if (StringUtils.equalsIgnoreCase(testCase.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(testCase.getRefId());
         }

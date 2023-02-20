@@ -3,7 +3,7 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/s
 
 const BASE_URL = "/project_application/";
 
-export function getProjectApplicationConfig(type) {
-  let projectId = getCurrentProjectID();
+export function getProjectApplicationConfig(type, projectId) {
+  projectId = projectId ? projectId : getCurrentProjectID();
   return get(BASE_URL + `get/${projectId}/${type}`);
 }
