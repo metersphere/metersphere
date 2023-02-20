@@ -20,6 +20,7 @@
     >
       <template v-slot:header>
         <ms-search-bar
+          style="margin-bottom: 15px"
           :show-operator="false"
           :condition="condition"
           :commands="null"
@@ -212,7 +213,7 @@ export default {
 
 <style scoped>
 .node-tree {
-  margin-top: 15px;
+  margin-top: 15px!important;
   margin-bottom: 15px;
 }
 

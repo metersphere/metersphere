@@ -68,6 +68,9 @@ export default {
   margin-right: px2rem(10);
   margin-bottom: px2rem(17);
 }
+.select-menu {
+  margin-bottom: px2rem(18);
+}
 .select-menu :deep(.el-input__inner) {
   border: none;
   padding-left: 0px !important;
@@ -75,10 +78,10 @@ export default {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: px2rem(100);
+  width: px2rem(80);
 }
 .select-menu :deep(.el-select--small) {
-  width: px2rem(82) !important;
+  width: px2rem(80) !important;
 }
 .select-menu :deep(.el-input__suffix-inner .el-select__caret::before) {
   color: #646a73;
@@ -86,7 +89,6 @@ export default {
 
 .span-name {
   display: inline-block;
-  max-width: 300px;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
