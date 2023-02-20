@@ -402,7 +402,7 @@
         )
     </select>
 
-    <select id="selectByPlanIds" resultType="io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO">
+    <select id="selectByPlanScenarioIds" resultType="io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO">
         SELECT tpas.id,
                tpas.api_scenario_id,
                tpas.environment,
@@ -416,5 +416,6 @@
         <foreach collection="planScenarioIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        ORDER BY FIND_IN_SET(tpas.id, ${order})
     </select>
 </mapper>
