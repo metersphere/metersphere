@@ -255,6 +255,13 @@ export default {
       return total;
     },
     options() {
+      let picData = [
+        { value: this.content.success > 0 ? this.content.success : '-', name: 'Success' },
+        { value: this.content.error > 0 ? this.content.error : '-', name: 'Error' },
+        { value: this.content.errorCode > 0 ? this.content.errorCode : '-', name: 'FakeError' },
+        { value: this.content.unExecute > 0 ? this.content.unExecute : '-', name: 'Pending' },
+      ];
+
       return {
         color: ['#67C23A', '#F56C6C', '#F6972A', '#9C9B9A'],
         tooltip: {
@@ -286,6 +293,7 @@ export default {
         ],
         series: [
           {
+            minAngle: 3,
             type: 'pie',
             radius: ['80%', '90%'],
             avoidLabelOverlap: false,
@@ -301,12 +309,7 @@ export default {
             labelLine: {
               show: false,
             },
-            data: [
-              { value: this.content.success, name: 'Success' },
-              { value: this.content.error, name: 'Error' },
-              { value: this.content.errorCode, name: 'FakeError' },
-              { value: this.content.unExecute, name: 'Pending' },
-            ],
+            data: picData,
           },
         ],
       };
