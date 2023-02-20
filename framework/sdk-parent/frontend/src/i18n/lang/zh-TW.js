@@ -79,6 +79,8 @@ const message = {
     save_as: '另存為',
     update: '更新',
     save_success: '保存成功',
+    add_success: '添加成功',
+    cancel_add_success: '取消添加成功',
     recover_success: '恢復成功',
     send_success: '發送成功',
     delete_success: '刪除成功',

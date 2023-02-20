@@ -79,6 +79,8 @@ const message = {
     save_as: '另存为',
     update: '更新',
     save_success: '保存成功',
+    add_success: '添加成功',
+    cancel_add_success: '取消添加成功',
     recover_success: '恢复成功',
     warning_module_add: "模块树深度最大为8层",
     send_success: '发送成功',
