@@ -524,7 +524,7 @@ export default {
     },
     handleCopyPublic(testCase) {
       this.$refs.table.selectIds.push(testCase.id);
-      this.$refs.testBatchMove.open(false, testCase.name, this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+      this.$refs.testBatchMove.open(false, testCase.name, this.treeNodes, 1, this.$refs.table.selectIds, this.moduleOptions);
     },
     refresh() {
       this.$refs.table.clear();
@@ -556,7 +556,7 @@ export default {
     },
     handleBatchCopy() {
       let firstSelectRow = this.$refs.table.selectRows.values().next().value;
-      this.$refs.testBatchMove.open(false, firstSelectRow.name, this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
+      this.$refs.testBatchMove.open(false, firstSelectRow.name, this.treeNodes, this.$refs.table.selectIds.length, this.$refs.table.selectIds, this.moduleOptions);
     },
     copyPublic(param) {
       param.condition = this.condition;
