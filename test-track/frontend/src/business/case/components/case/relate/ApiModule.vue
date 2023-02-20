@@ -1,8 +1,8 @@
 <template>
     <div v-loading="loading">
-  
+
       <slot name="header"></slot>
-  
+
       <ms-node-tree
         v-if="refreshDataOver"
         v-loading="loading"
@@ -24,7 +24,7 @@
         :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
         @nodeSelectEvent="nodeChange"
         ref="nodeTree">
-  
+
         <template v-slot:header>
           <api-module-header
             :show-operator="showOperator"
@@ -42,13 +42,13 @@
             @refresh="refresh"
             @debug="debug"/>
         </template>
-  
+
       </ms-node-tree>
-  
+
     </div>
-  
+
   </template>
-  
+
   <script>
   import {OPTIONS} from "metersphere-frontend/src/model/JsonData";
   import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
@@ -56,7 +56,7 @@
   import {buildTree} from "metersphere-frontend/src//model/NodeTree";
   import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
   import {getModuleByUrl, getUserDefaultApiType} from "metersphere-frontend/src/api/environment";
-  
+
   export default {
     name: 'MsApiModule',
     components: {
@@ -130,7 +130,7 @@
     mounted() {
       this.initProtocol();
     },
-  
+
     watch: {
       'condition.filterText'() {
         this.filter();
@@ -236,6 +236,7 @@
             });
             this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
+            this.$emit("nodeSelectEvent", null, []);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
             }
@@ -243,16 +244,16 @@
         });
       },
       edit(param) {
-  
+
       },
       add(param) {
-  
+
       },
       remove(nodeIds) {
-  
+
       },
       drag(param, list) {
-  
+
       },
       nodeChange(node, nodeIds, pNodes) {
         this.currentModule = node.data;
@@ -291,7 +292,7 @@
               buildTree(node, {path: ''});
             });
             this.data = treeData;
-  
+
             this.$nextTick(() => {
               if (this.$refs.nodeTree) {
                 this.$refs.nodeTree.filter(this.condition.filterText);
@@ -347,8 +348,7 @@
     }
   }
   </script>
-  
+
   <style scoped>
-  
+
   </style>
-  
