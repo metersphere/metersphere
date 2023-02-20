@@ -449,7 +449,7 @@ export default {
               updateTime: row.createTime,
               progress: 100,
               status: "toRelate",
-              creator: row.createUser,
+              creator: getCurrentUser().id,
               type: row.type,
               isLocal: false,
             });

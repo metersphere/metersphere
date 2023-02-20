@@ -246,11 +246,11 @@ public class AttachmentService {
                         file.setIsRelatedDeleted(Boolean.FALSE);
                         file.setName(fileMetadata.getName());
                         file.setSize(fileMetadata.getSize());
-                        List<User> users = userMap.get(fileMetadata.getCreateUser());
+                        List<User> users = userMap.get(file.getCreator());
                         if (CollectionUtils.isNotEmpty(users)) {
                             file.setCreator(users.get(0).getName());
                         } else {
-                            file.setCreator(fileMetadata.getCreateUser());
+                            file.setCreator(file.getCreator());
                         }
                         file.setCreateTime(fileMetadata.getCreateTime());
                     } else {
@@ -294,7 +294,7 @@ public class AttachmentService {
                 FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
                 BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
                 fileAttachmentMetadata.setId(record.getAttachmentId());
-                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                fileAttachmentMetadata.setCreator(SessionUtils.getUserId());
                 fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
                 fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
                 // 缺陷类型的附件, 关联时需单独同步第三方平台
