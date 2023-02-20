@@ -144,6 +144,8 @@ const message = {
     view_the_latest_version: "View the latest version",
     version_id_cannot_be_empty: "Version id cannot be empty",
     enter_comments_and_click_send: "Enter comments and click Send",
+    cancel_relate_case_tips_title: "Confirm cancel?",
+    cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?"
   },
   attachment: {
     preview: "Preview",

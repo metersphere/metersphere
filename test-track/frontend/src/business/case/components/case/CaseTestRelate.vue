@@ -126,6 +126,7 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import TestCaseApiRelate from "@/business/case/components/case/relate/CaseApiRelate";
 import { deleteRelateTest, getRelateTest } from "@/api/testCase";
+import { operationConfirm } from "@/business/utils/sdk-utils";
 import TestCaseScenarioRelate from "@/business/case/components/case/relate/CaseScenarioRelate";
 import TestCaseUiScenarioRelate from "@/business/case/components/case/relate/CaseUiScenarioRelate";
 import TestCaseLoadRelate from "@/business/case/components/case/relate/CaseLoadRelate";
@@ -201,9 +202,15 @@ export default {
       }
     },
     remove(row) {
-      deleteRelateTest(row.testCaseId, row.testId).then(() => {
-        this.$success(this.$t("commons.save_success"), false);
-        this.initTable();
+      this.$confirm(this.$t('case.cancel_relate_case_tips_content'), this.$t('case.cancel_relate_case_tips_title'), {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        deleteRelateTest(row.testCaseId, row.testId).then(() => {
+          this.$success(this.$t("commons.save_success"), false);
+          this.initTable();
+        });
       });
     },
     initTable() {

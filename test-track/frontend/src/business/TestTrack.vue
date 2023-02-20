@@ -109,7 +109,7 @@ input.el-input__inner {
   border-radius: 4px;
 }
 
-.custom-confirm-delete .el-message-box__btns .el-button--small {
+.el-message-box__btns .el-button--small {
   min-width: 80px;
 }
 
