@@ -263,7 +263,7 @@ public class TestResultService {
                     sendTask(reportTask, dto.getTestId());
                 }
             }
-        } else if (apiRunModes.contains(dto.getRunMode()) && dto.isRemake()) {
+        } else if (apiRunModes.contains(dto.getRunMode())) {
             // 只处理RUNNING中的执行报告
             updateRunningResult(dto);
         }
