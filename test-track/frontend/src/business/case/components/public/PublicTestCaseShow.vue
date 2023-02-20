@@ -64,6 +64,13 @@ export default {
       return false;
     }
   },
+  watch: {
+    publicCaseId() {
+      if (this.publicCaseId) {
+        this.$refs.testCaseEdit.loadTestCase();
+      }
+    }
+  },
   methods: {
     open(caseId) {
       this.visible = true;
