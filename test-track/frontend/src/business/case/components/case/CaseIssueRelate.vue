@@ -83,7 +83,12 @@
             prop="platformStatus"
           >
             <template v-slot="scope">
+             <span v-if="scope.row.platform === 'Tapd'">
+              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+             </span>
+             <span v-else>
               {{ scope.row.platformStatus ? scope.row.platformStatus : "--" }}
+             </span>
             </template>
           </ms-table-column>
 
@@ -173,7 +178,7 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import { ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
+import { ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
 import IssueRelateList from "./CaseIssueRelateList";
 import {
   closeIssue,
@@ -239,6 +244,9 @@ export default {
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
+    },
+    tapdIssueStatusMap() {
+      return TAPD_ISSUE_STATUS_MAP;
     },
     notInIds() {
       return this.page.data ? this.page.data.map((i) => i.id) : [];
