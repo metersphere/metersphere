@@ -144,6 +144,8 @@ const message = {
     view_the_latest_version: "查看最新版本",
     version_id_cannot_be_empty: "版本号不能为空",
     enter_comments_and_click_send: "输入评论,点击发送",
+    cancel_relate_case_tips_title: "确定取消关联关系吗?",
+    cancel_relate_case_tips_content: "取消关联会影响测试计划相关统计, 确定取消吗?"
   },
   attachment: {
     preview: "预览",

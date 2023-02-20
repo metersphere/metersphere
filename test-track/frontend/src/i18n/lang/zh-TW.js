@@ -144,6 +144,8 @@ const message = {
     view_the_latest_version: "查看最新版本",
     version_id_cannot_be_empty: "版本號不能為空",
     enter_comments_and_click_send: "輸入評論,點擊發送",
+    cancel_relate_case_tips_title: "確定取消關聯關係嗎?",
+    cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?"
   },
   attachment: {
     preview: "預覽",
