@@ -243,6 +243,19 @@
       <!-- 底部操作按钮 -->
       <div class="edit-footer-container" v-if="editable">
         <template>
+          <!-- 保存 -->
+          <div
+            class="save-btn-row"
+            v-if="showAddBtn">
+            <el-button
+              v-prevent-re-click
+              size="small"
+              type="primary"
+              :disabled="readOnly || loading"
+              @click="handleCommand(1)">
+              {{ $t("commons.save") }}
+            </el-button>
+          </div>
           <!-- 保存并新建 -->
           <div class="save-create-row">
             <el-button
@@ -258,24 +271,11 @@
           <div
             v-if="showPublic"
             class="save-add-pub-row">
-          <el-button size="small"
-                     v-prevent-re-click
-                     :disabled="readOnly || loading"
-                     @click="handleCommand(3)">
-            {{ $t("test_track.case.save_add_public") }}
-          </el-button>
-        </div>
-          <!-- 保存 -->
-          <div
-            class="save-btn-row"
-            v-if="showAddBtn">
-            <el-button
-              v-prevent-re-click
-              size="small"
-              type="primary"
-              :disabled="readOnly || loading"
-              @click="handleCommand(1)">
-              {{ $t("commons.save") }}
+            <el-button size="small"
+                       v-prevent-re-click
+                       :disabled="readOnly || loading"
+                       @click="handleCommand(3)">
+              {{ $t("test_track.case.save_add_public") }}
             </el-button>
           </div>
         </template>
@@ -824,7 +824,17 @@ export default {
       }
     },
     back() {
-      this.$router.push('/track/case/all');
+      if (this.editable) {
+        this.$confirm(this.$t('case.back_tips'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$router.push('/track/case/all');
+        });
+      } else {
+        this.$router.push('/track/case/all');
+      }
     },
     openNewTab() {
       if (this.editable || !this.form.id || this.isPublicShow) {
@@ -2126,7 +2136,7 @@ export default {
       font-size: 14px;
       line-height: 22px;
       text-align: center;
-      justify-content: flex-end;
+      justify-content: flex-start;
       // 底部按钮激活样式
       .opt-active-primary {
         background: #783887;
@@ -2146,18 +2156,18 @@ export default {
       }
 
       .save-btn-row {
-        margin: 0 24px 0 12px;
-        el-button {
-        }
-      }
-
-      .save-add-pub-row {
-        margin-left: px2rem(12);
+        margin: 0 0 0 px2rem(24);
         el-button {
         }
       }
 
       .save-create-row {
+        margin-left: px2rem(12);
+        el-button {
+        }
+      }
+
+      .save-add-pub-row {
         margin-left: px2rem(12);
         el-button {
         }

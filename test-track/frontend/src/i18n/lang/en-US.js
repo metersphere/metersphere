@@ -131,7 +131,7 @@ const message = {
     please_enter_expected_results: "Please enter expected results",
     please_enter_comments: "Please enter comments",
     disassociate: "Disassociate",
-    saveAndCreate: "Save and New",
+    saveAndCreate: "Save and Add",
     last_version: "Last version",
     set_new: "Set new",
     version_comparison: "Version comparison",
@@ -145,7 +145,8 @@ const message = {
     version_id_cannot_be_empty: "Version id cannot be empty",
     enter_comments_and_click_send: "Enter comments and click Send",
     cancel_relate_case_tips_title: "Confirm cancel?",
-    cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?"
+    cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?",
+    back_tips: "TestCase is not saved, Are you sure to quit?"
   },
   attachment: {
     preview: "Preview",
