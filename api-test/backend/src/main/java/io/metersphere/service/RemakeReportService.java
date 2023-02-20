@@ -23,7 +23,6 @@ public class RemakeReportService {
             BeanUtils.copyBean(dto, request);
             dto.setQueueId(request.getQueueId());
             dto.setTestId(request.getTestId());
-            dto.setRemake(true);
             LoggerUtil.info("进入异常结果处理：" + dto.getRunMode() + " 整体处理完成", dto.getReportId());
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
