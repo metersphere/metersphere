@@ -1,6 +1,6 @@
 <template>
   <div>
-    <case-side-dialog-content :tableCount="total" :label="$t('case.all_case')">
+    <case-side-dialog-content :total-count="total" :label="$t('case.all_case')">
       <template v-slot:simpleSearch>
         <!-- 简单搜索框 -->
         <ms-new-ui-search :condition.sync="condition" @search="initTable" />
