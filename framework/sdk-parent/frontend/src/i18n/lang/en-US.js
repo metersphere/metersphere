@@ -80,6 +80,8 @@ const message = {
     save_as: 'Save as',
     update: 'Update',
     save_success: 'Saved successfully',
+    add_success: 'Add successfully',
+    cancel_add_success: 'Cancel successfully',
     recover_success: 'Recover successfully',
     warning_module_add: "Tree modules are up to 8 levels deep",
     send_success: 'Send successfully',
