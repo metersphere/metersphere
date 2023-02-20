@@ -1018,6 +1018,9 @@ public class IssuesService {
                         .collect(Collectors.toSet());
 
                 List<PlatformAttachment> syncAttachments = attachmentMap.get(issueId);
+                if (CollectionUtils.isEmpty(syncAttachments)) {
+                    continue;
+                }
                 for (PlatformAttachment syncAttachment : syncAttachments) {
                     String fileName = syncAttachment.getFileName();
                     String fileKey = syncAttachment.getFileKey();
