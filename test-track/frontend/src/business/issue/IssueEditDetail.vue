@@ -207,7 +207,7 @@ import {
   saveFollow,
   getFollow,
   getComments,
-  getTapdUser, getPlatformTransitions, getPlatformFormOption
+  getTapdUser, getPlatformTransitions, getPlatformFormOption, getTapdCurrentOwner
 } from "@/api/issue";
 import {
   uploadIssueAttachment,
@@ -401,6 +401,13 @@ export default {
         });
       });
     },
+    getTapdCurrentOwner() {
+      getTapdCurrentOwner(this.form.id).then(res => {
+        if (res && res.data && res.data[0]) {
+          this.form.tapdUsers = res.data[0].split(';');
+        }
+      })
+    },
     getDataInfoAsync(data) {
       if (data && data.id) {
         getFollow(data.id).then((response) => {
@@ -450,6 +457,7 @@ export default {
       }
       if (platform === 'Tapd') {
         this.hasTapdId = true;
+        this.getTapdCurrentOwner();
         getTapdUser(data)
           .then((response) => {
             this.tapdUsers = response.data;
