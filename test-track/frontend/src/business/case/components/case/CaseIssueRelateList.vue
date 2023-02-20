@@ -66,7 +66,12 @@
           prop="platformStatus"
         >
           <template v-slot="scope">
-            {{ scope.row.platformStatus ? scope.row.platformStatus : "--" }}
+           <span v-if="scope.row.platform === 'Tapd'">
+              {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+           </span>
+            <span v-else>
+              {{ scope.row.platformStatus ? scope.row.platformStatus : "--" }}
+            </span>
           </template>
         </ms-table-column>
 
@@ -138,7 +143,7 @@ import {
   testCaseIssueRelate,
 } from "@/api/issue";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import { ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
+import { ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import { getPageInfo } from "metersphere-frontend/src/utils/tableUtils";
 import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
@@ -176,6 +181,9 @@ export default {
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
+    },
+    tapdIssueStatusMap() {
+      return TAPD_ISSUE_STATUS_MAP;
     },
     projectId() {
       return getCurrentProjectID();
