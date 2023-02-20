@@ -15,6 +15,7 @@
               :project-env-map="projectEnvMap"
               :mode="mode"
               :pool-name="poolName"
+              :is-share="isShare"
               @reportExport="handleExport"
               @reportSave="handleSave" />
 
