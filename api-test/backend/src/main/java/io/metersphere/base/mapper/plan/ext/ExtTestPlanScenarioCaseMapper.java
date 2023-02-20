@@ -22,19 +22,19 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<String> getNotRelevanceCaseIds(String planId, List<String> relevanceProjectIds);
 
-    List<String> selectIds(@Param("request")TestPlanScenarioRequest request);
+    List<String> selectIds(@Param("request") TestPlanScenarioRequest request);
 
-    List<TestPlanApiScenario> selectByIds(@Param("ids")String ids ,@Param("order")String order );
+    List<TestPlanApiScenario> selectByIds(@Param("ids") String ids, @Param("order") String order);
 
     List<TestPlanApiScenarioInfoDTO> selectLegalDataByTestPlanId(String planId);
 
-    List<TestPlanApiScenarioInfoDTO> selectByPlanIds(List<String> planScenarioIds);
+    List<TestPlanApiScenarioInfoDTO> selectByPlanScenarioIds(@Param("planScenarioIds") List<String> planScenarioIds, @Param("order") String order);
 
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
     List<TestPlanFailureScenarioDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
-    List<TestPlanFailureScenarioDTO> getFailureListByIds(@Param("ids") Collection<String> ids,@Param("status") String status);
+    List<TestPlanFailureScenarioDTO> getFailureListByIds(@Param("ids") Collection<String> ids, @Param("status") String status);
 
     List<Integer> getUnderwaySteps(@Param("ids") List<String> underwayIds);
 
@@ -49,5 +49,6 @@ public interface ExtTestPlanScenarioCaseMapper {
     Long getLastOrder(@Param("planId") String planId, @Param("baseOrder") Long baseOrder);
 
     List<String> selectNameByIdIn(List<String> ids);
+
     String selectProjectId(String testPlanId);
 }
