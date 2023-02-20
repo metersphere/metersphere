@@ -226,7 +226,7 @@
               :is-form-alive="isFormAlive"
               :isloading="loading"
               :read-only="readOnly"
-              :public-enable="publicEnable"
+              :public-enable="isPublicShow"
               :show-input-tag="showInputTag"
               :tree-nodes="treeNodes"
               :project-list="projectList"
