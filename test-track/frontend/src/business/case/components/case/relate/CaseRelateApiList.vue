@@ -1,6 +1,6 @@
 <template>
   <div>
-    <case-side-dialog-content :tableCount="total" :label="$t('case.all_api')">
+    <case-side-dialog-content :total-count="total" :label="$t('case.all_api')">
       <template
         v-slot:simpleSearch
         v-if="
