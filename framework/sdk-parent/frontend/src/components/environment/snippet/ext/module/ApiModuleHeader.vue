@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row>
+    <el-row class="search-row">
       <el-col :span="8">
         <el-select class="protocol-select" size="small" v-model="condition.protocol">
           <el-option
@@ -231,5 +231,9 @@ export default {
 .filter-input {
   width: 174px;
   padding-left: 3px;
+}
+
+.search-row {
+  margin-bottom: 12px;
 }
 </style>
