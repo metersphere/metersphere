@@ -548,6 +548,7 @@ export default {
     tapd_status_verified: "已验证",
     tapd_status_closed: "已关闭",
     tapd_status_resolved: "已解决",
+    tapd_status_suspended: "挂起",
     please_choose_platform_status: "请选择平台状态",
     import_type: "导入模式",
     import_file_limit_tips: "只能上传XLS/XLSX文件, 且不超过100M",

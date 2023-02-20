@@ -545,6 +545,7 @@ export default {
     tapd_status_verified: "Authenticated",
     tapd_status_closed: "Closed",
     tapd_status_resolved: "Resolved",
+    tapd_status_suspended: "Suspended",
     please_choose_platform_status: "Please select platform status",
     import_type: "Import type",
     import_file_limit_tips: "Only XLS/XLSX files can be uploaded, and the size is not larger than 100 MB",
