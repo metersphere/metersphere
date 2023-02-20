@@ -29,6 +29,7 @@ import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -41,7 +42,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -362,12 +362,20 @@ public class TestPlanReportService {
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
             List<TestPlanUiScenario> testPlanUiScenarioList = planTestPlanUiScenarioCaseService.list(planId);
-            for (TestPlanUiScenario dto : testPlanUiScenarioList) {
-                uiScenarioIdMap.put(dto.getId(), dto.getUiScenarioId());
+            if (CollectionUtils.isNotEmpty(testPlanUiScenarioList)) {
+                for (TestPlanUiScenario dto : testPlanUiScenarioList) {
+                    uiScenarioIdMap.put(dto.getId(), dto.getUiScenarioId());
+                }
+                List<TestPlanApiScenarioInfoDTO> testPlanUiScenarioInfoList = extTestPlanScenarioCaseMapper.selectLegalUiDataByTestPlanId(planId);
+                TestPlanReportRunInfoDTO uiRunInfoDTO = this.parseTestPlanUiRunInfo(runModeConfigDTO, testPlanUiScenarioInfoList);
+                if (runInfoDTO != null) {
+                    runInfoDTO.setUiScenarioRunInfo(uiRunInfoDTO.getUiScenarioRunInfo());
+                } else {
+                    runInfoDTO = uiRunInfoDTO;
+                }
             }
             saveRequest.setUiScenarioIsExecuting(!uiScenarioIdMap.isEmpty());
             saveRequest.setUiScenarioIdMap(uiScenarioIdMap);
-
             returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
         }
 
@@ -391,6 +399,46 @@ public class TestPlanReportService {
         return returnDTO;
     }
 
+    private TestPlanReportRunInfoDTO parseTestPlanUiRunInfo(RunModeConfigDTO config, List<TestPlanApiScenarioInfoDTO> scenarios) {
+        TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
+        final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
+        runInfoDTO.setRunMode(config.getMode());
+
+        if (StringUtils.equals(GROUP, config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
+            Map<String, String> groupMap = baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId());
+            if (MapUtils.isNotEmpty(groupMap)) {
+                runEnvMap.putAll(groupMap);
+            }
+            runInfoDTO.setEnvGroupId(config.getEnvironmentGroupId());
+        }
+        // 场景环境处理
+        scenarios.forEach(item -> {
+            Map<String, String> envMap = null;
+            if (StringUtils.equalsIgnoreCase(GROUP, item.getEnvironmentType())
+                    && StringUtils.isNotEmpty(item.getEnvironmentGroupId())) {
+                envMap = baseEnvGroupProjectService.getEnvMap(item.getEnvironmentGroupId());
+            } else {
+                if (MapUtils.isNotEmpty(runEnvMap) && runEnvMap.containsKey(item.getProjectId())) {
+                    runInfoDTO.putUiScenarioRunInfo(item.getId(), item.getProjectId(), runEnvMap.get(item.getProjectId()));
+                } else if (StringUtils.isNotEmpty(item.getEnvironment())) {
+                    try {
+                        envMap = JSON.parseObject(item.getEnvironment(), Map.class);
+                    } catch (Exception e) {
+                        LogUtil.error("解析场景环境失败!", e);
+                    }
+                }
+            }
+            if (MapUtils.isNotEmpty(envMap)) {
+                for (Map.Entry<String, String> entry : envMap.entrySet()) {
+                    String projectId = entry.getKey();
+                    String envIdStr = entry.getValue();
+                    runInfoDTO.putUiScenarioRunInfo(item.getId(), projectId, envIdStr);
+                }
+            }
+        });
+
+        return runInfoDTO;
+    }
 
     /**
      * saveRequest.reportId               报告ID(外部传入）
@@ -1193,9 +1241,12 @@ public class TestPlanReportService {
             if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
                 TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanScenarioCaseService.generateEnvironmentInfo(testPlanReport);
                 BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
-            } else if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
+            }
+            if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
                 TestPlanEnvInfoDTO testPlanEnvInfo = planTestPlanUiScenarioCaseService.generateEnvironmentInfo(testPlanReport);
+                Map<String, List<String>> projectMap = testPlanReportDTO.getProjectEnvMap();
                 BeanUtils.copyBean(testPlanReportDTO, testPlanEnvInfo);
+                testPlanReportDTO.setProjectEnvMap(planTestPlanUiScenarioCaseService.mergeProjectEnvMap(testPlanEnvInfo.getProjectEnvMap(), projectMap));
             }
         } catch (Exception e) {
             LogUtil.error(e);
