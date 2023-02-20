@@ -131,7 +131,7 @@ const message = {
     please_enter_expected_results: "請輸入預期結果",
     please_enter_comments: "請輸入備注",
     disassociate: "取消關联",
-    saveAndCreate: "保存並新建",
+    saveAndCreate: "保存並添加",
     last_version: "最新版本",
     set_new: "置新",
     version_comparison: "版本對比",
@@ -145,7 +145,8 @@ const message = {
     version_id_cannot_be_empty: "版本號不能為空",
     enter_comments_and_click_send: "輸入評論,點擊發送",
     cancel_relate_case_tips_title: "確定取消關聯關係嗎?",
-    cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?"
+    cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?",
+    back_tips: "你填寫的信息未保存, 確定退出嗎?"
   },
   attachment: {
     preview: "預覽",
