@@ -126,7 +126,8 @@ export const TAPD_ISSUE_STATUS_MAP = {
   'rejected': i18n.t('test_track.issue.tapd_status_rejected'),
   'verified': i18n.t('test_track.issue.tapd_status_verified'),
   'closed':i18n.t('test_track.issue.tapd_status_closed'),
-  'resolved':i18n.t('test_track.issue.tapd_status_resolved')
+  'resolved':i18n.t('test_track.issue.tapd_status_resolved'),
+  'suspended': i18n.t('test_track.issue.tapd_status_suspended'),
 }
 
 export function API_SCENARIO_FILTERS () {
