@@ -562,7 +562,8 @@ export default {
       // 1 表示是直接保存
       // 2 表示式保存并创建
       // 3 表示
-      saveType: 1
+      saveType: 1,
+      projectId: null
     };
   },
   props: {
@@ -578,10 +579,10 @@ export default {
       type: Boolean,
       default: false
     },
-    publicCaseId: String
+    publicCaseId: String,
   },
   computed: {
-    projectId() {
+    routeProjectId() {
       let pId = this.$route.params.projectId;
       return pId ? pId : getCurrentProjectID();
     },
@@ -682,9 +683,9 @@ export default {
     if (this.form.id) {
       store.testCaseMap.set(this.form.id, 0);
     }
-
   },
   activated() {
+    // 用例跳转编辑走这里
     this.loadTestCase();
   },
   created(){
@@ -727,19 +728,21 @@ export default {
     setIsLastedVersion(isLastedVersion) {
       this.isLastedVersion = isLastedVersion;
     },
-    loadTestCase() {
-      // 校验路径中的项目ID
-      this.checkCurrentProject();
+    async loadTestCase() {
 
       let initFuc = this.initEdit;
       this.loading = true;
-      getTestTemplate().then((template) => {
+
+      // 校验路径中的项目ID
+      await this.checkCurrentProject();
+
+      getTestTemplate(this.projectId).then((template) => {
         this.testCaseTemplate = template;
         store.testCaseTemplate = this.testCaseTemplate;
         initFuc();
       });
 
-      getProjectApplicationConfig('CASE_CUSTOM_NUM')
+      getProjectApplicationConfig('CASE_CUSTOM_NUM', this.projectId)
         .then(result => {
           let data = result.data;
           if (data && data.typeValue === 'true') {
@@ -776,7 +779,8 @@ export default {
           }
         }
       });
-      getProjectApplicationConfig("CASE_PUBLIC").then((res) => {
+
+      getProjectApplicationConfig("CASE_PUBLIC", this.projectId).then((res) => {
         let data = res.data;
         if (data && data.typeValue === "true") {
           this.isPublic = true;
@@ -784,6 +788,7 @@ export default {
           this.isPublic = false;
         }
       });
+
       if (hasLicense()) {
         this.isXpack = true;
       } else {
@@ -965,23 +970,32 @@ export default {
         callback();
       }
     },
-    checkCurrentProject() {
-      if (this.projectId) {
-        // 创建时会带 projectId，校验是否是当前项目
-        if (getCurrentProjectID() !== this.projectId) {
-          setCurrentProjectID(this.projectId);
-          location.reload();
-        }
+    async checkCurrentProject() {
+      if (this.isPublicShow) {
+        // 如果是用例库查看用例
+        await getSimpleTestCase(this.caseId).then((response) => {
+          let testCase = response.data;
+          this.projectId = testCase.projectId;
+        });
       } else {
-        if (this.caseId) {
-          getSimpleTestCase(this.caseId).then((response) => {
-            let testCase = response.data;
-            if (getCurrentProjectID() !== testCase.projectId) {
-              // 如果不是当前项目，先切项目
-              setCurrentProjectID(testCase.projectId);
-              location.reload();
-            }
-          })
+        this.projectId = this.routeProjectId;
+        if (this.routeProjectId) {
+          // 创建时会带 projectId，校验是否是当前项目
+          if (getCurrentProjectID() !== this.projectId) {
+            setCurrentProjectID(this.projectId);
+            location.reload();
+          }
+        } else {
+          if (this.caseId) {
+            await getSimpleTestCase(this.caseId).then((response) => {
+              let testCase = response.data;
+              if (getCurrentProjectID() !== testCase.projectId) {
+                // 如果不是当前项目，先切项目
+                setCurrentProjectID(testCase.projectId);
+                location.reload();
+              }
+            })
+          }
         }
       }
     },
@@ -1500,7 +1514,7 @@ export default {
     },
     setLatest(version) {
       let param = {
-        projectId: getCurrentProjectID(),
+        projectId: this.projectId,
         type: "TEST_CASE",
         versionId: version.id,
         resourceId: this.caseId,
