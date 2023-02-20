@@ -195,7 +195,9 @@ public class ApiScenarioExecuteService {
             // 测试计划执行数据查询
             List<TestPlanApiScenarioInfoDTO> testPlanApiScenarioList;
             if (CollectionUtils.isNotEmpty(request.getPlanScenarioIds())) {
-                testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByPlanIds(request.getPlanScenarioIds());
+                testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByPlanScenarioIds(request.getPlanScenarioIds(),
+                        "\"" + StringUtils.join(request.getPlanScenarioIds(), ",") + "\"");
+
             } else {
                 testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(request.getTestPlanId());
             }
