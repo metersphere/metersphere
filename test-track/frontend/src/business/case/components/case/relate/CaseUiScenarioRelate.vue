@@ -7,7 +7,6 @@
   >
     <template v-slot:aside>
       <ui-scenario-module
-        :show-case-num="false"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
