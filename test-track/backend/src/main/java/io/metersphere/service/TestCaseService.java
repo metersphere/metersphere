@@ -261,19 +261,28 @@ public class TestCaseService {
     }
 
     public void addDemandHyperLink(EditTestCaseRequest request, String type) {
+        IssuesRequest updateRequest = getIssuesRequest(request);
+        Project project = baseProjectService.getProjectById(request.getProjectId());
+        if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
+            doAddDemandHyperLink(request, type, updateRequest, project);
+        }
+    }
+
+    private void doAddDemandHyperLink(EditTestCaseRequest request, String type, IssuesRequest updateRequest, Project project) {
+        updateRequest.setWorkspaceId(project.getWorkspaceId());
+        List<IssuesPlatform> platformList = getAddPlatforms(updateRequest);
+        platformList.forEach(platform -> {
+            platform.updateDemandHyperLink(request, project, type);
+        });
+    }
+
+    private IssuesRequest getIssuesRequest(EditTestCaseRequest request) {
         IssuesRequest updateRequest = new IssuesRequest();
         updateRequest.setId(request.getId());
         updateRequest.setResourceId(request.getDemandId());
         updateRequest.setProjectId(request.getProjectId());
         updateRequest.setTestCaseId(request.getId());
-        Project project = baseProjectService.getProjectById(request.getProjectId());
-        if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
-            updateRequest.setWorkspaceId(project.getWorkspaceId());
-            List<IssuesPlatform> platformList = getAddPlatforms(updateRequest);
-            platformList.forEach(platform -> {
-                platform.updateDemandHyperLink(request, project, type);
-            });
-        }
+        return updateRequest;
     }
 
     public void addDemandHyperLinkBatch(List<String> testcaseIds, String projectId) {
@@ -456,6 +465,10 @@ public class TestCaseService {
         if (!StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
             return;
         }
+        doUpdateThirdPartyIssuesLink(testCase, project);
+    }
+
+    private void doUpdateThirdPartyIssuesLink(EditTestCaseRequest testCase, Project project) {
         IssuesRequest issuesRequest = new IssuesRequest();
         if (!issuesService.isThirdPartTemplate(project)) {
             issuesRequest.setDefaultCustomFields(issuesService.getDefaultCustomFields(testCase.getProjectId()));
@@ -3121,8 +3134,26 @@ public class TestCaseService {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         List<TestCase> testCaseList = testCaseMapper.selectByExample(example);
+        Project project = null;
+        if (CollectionUtils.isNotEmpty(testCaseList)) {
+            project = baseProjectService.getProjectById(testCaseList.get(0).getProjectId());
+        }
 
         for (TestCase tc : testCaseList) {
+
+            if (project != null && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
+                EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
+                BeanUtils.copyBean(editTestCaseRequest, tc);
+                try {
+                    doUpdateThirdPartyIssuesLink(editTestCaseRequest, project);
+                    // 同步用例与需求的关联关系
+                    IssuesRequest updateRequest = getIssuesRequest(editTestCaseRequest);
+                    doAddDemandHyperLink(editTestCaseRequest, "edit", updateRequest, project);
+                } catch (Exception e) {
+                    LogUtil.error(e);
+                }
+            }
+
             tc.setDemandId(demandId);
             tc.setDemandName(demandName);
             mapper.updateByPrimaryKey(tc);
