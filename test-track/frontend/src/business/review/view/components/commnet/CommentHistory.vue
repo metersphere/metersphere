@@ -57,6 +57,9 @@ export default {
   watch: {
     comments() {
       this.$emit('emptyChange', this.isCommentEmpty);
+    },
+    caseId() {
+      this.getComments();
     }
   },
   methods: {
