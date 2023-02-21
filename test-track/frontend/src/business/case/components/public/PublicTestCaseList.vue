@@ -146,7 +146,6 @@
             <ms-single-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 80"
                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
-            <span/>
           </template>
         </ms-table-column>
 
