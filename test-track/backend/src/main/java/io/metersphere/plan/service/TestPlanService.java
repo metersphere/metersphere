@@ -889,24 +889,40 @@ public class TestPlanService {
         if (MapUtils.isNotEmpty(reportInfoDTO.getApiTestCaseDataMap())) {
             //执行接口案例任务
             LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
-            apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, testPlanId, runModeConfig);
+            try {
+                apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, testPlanId, runModeConfig);
+            } catch (Exception e) {
+                LoggerUtil.info("测试报告" + planReportId + "本次执行测试计划接口用例失败！ ", e);
+            }
         }
         if (MapUtils.isNotEmpty(reportInfoDTO.getPlanScenarioIdMap())) {
             //执行场景执行任务
             LoggerUtil.info("开始执行测试计划场景用例 " + planReportId);
-            scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
+            try {
+                scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
+            } catch (Exception e) {
+                LoggerUtil.info("测试报告" + planReportId + "本次执行测试计划场景用例失败！ ", e);
+            }
         }
 
         if (MapUtils.isNotEmpty(reportInfoDTO.getPerformanceIdMap())) {
             //执行性能测试任务
             LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
-            loadCaseReportMap = perfExecService.executeLoadCase(planReportId, runModeConfig, transformationPerfTriggerMode(triggerMode), reportInfoDTO.getPerformanceIdMap());
+            try {
+                loadCaseReportMap = perfExecService.executeLoadCase(planReportId, runModeConfig, transformationPerfTriggerMode(triggerMode), reportInfoDTO.getPerformanceIdMap());
+            } catch (Exception e) {
+                LoggerUtil.info("测试报告" + planReportId + "本次执行测试计划性能用例失败！ ", e);
+            }
         }
 
         if (reportInfoDTO.getUiScenarioIdMap() != null) {
             //执行UI场景执行任务
             LoggerUtil.info("开始执行测试计划 UI 场景用例 " + planReportId);
-            uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
+            try {
+                uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
+            } catch (Exception e) {
+                LoggerUtil.info("测试报告" + planReportId + "本次执行测试计划 UI 用例失败！ ", e);
+            }
         }
 
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
