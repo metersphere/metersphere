@@ -26,6 +26,10 @@ export function getSimpleTestCase(id) {
   return get(BASE_URL + `get/simple/${id}`);
 }
 
+export function getEditSimpleTestCase(id) {
+  return get(BASE_URL + `get/edit/simple/${id}`);
+}
+
 export function getTestCaseByVersionId(refId, versionId) {
   return get(BASE_URL + `get/version/${refId}/${versionId}`);
 }

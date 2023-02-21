@@ -47,7 +47,8 @@
         </div>
       </div>
 
-      <div class="module-row case-wrap">
+      <!--  用例库展示项目，不展示模块    -->
+      <div class="module-row case-wrap" v-else>
         <div class="case-title-wrap">
           <div class="name title-wrap">
             {{ $t("test_track.case.module") }}
