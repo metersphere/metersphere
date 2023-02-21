@@ -277,7 +277,7 @@ public class MsScenario extends MsTestElement {
                 String environmentGroupId = scenario.getEnvironmentGroupId();
                 if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
                     this.environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
-                } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                } else if (StringUtils.isNotEmpty(environmentJson) && StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
                     this.environmentMap = JSON.parseObject(environmentJson, Map.class);
                 }
             } else {
