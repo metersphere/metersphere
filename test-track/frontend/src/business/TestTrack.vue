@@ -189,6 +189,7 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
   flex: none;
   order: 2;
   flex-grow: 0;
+  width: 100%;
 }
 
 /**
