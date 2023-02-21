@@ -2,7 +2,7 @@
   <div>
     <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
                :visible.sync="visible" class="environment-dialog" width="80%"
-               @close="close" append-to-body destroy-on-close ref="environmentConfig">
+               @close="close" append-to-body destroy-on-close ref="environmentConfig" top="2vh">
       <el-container v-loading="result">
         <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                        :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"

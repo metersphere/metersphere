@@ -204,7 +204,7 @@ export default {
       pageSize: 10,
       total: 0,
       loading: false,
-      screenHeight: '400px',
+      screenHeight: '460px',
       batchButtons: [
         {
           name: this.$t('api_test.definition.request.batch_delete'),
