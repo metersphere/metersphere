@@ -138,6 +138,7 @@ export default {
       margin-left: 12.58px;
       align-items: center;
       height: 100%;
+      cursor: pointer;
       .dep-icon {
         margin-right: 4.58px;
         width: 14px;
