@@ -1501,12 +1501,7 @@ export default {
           this.$refs.selectPropDialog.open(row.id);
         } else {
           this.createVersionId = row.id;
-          this.saveCase(() => {
-            if (this.$refs.versionHistory) {
-              this.$refs.versionHistory.loading = false;
-            }
-            this.checkoutByVersionId(row.id);
-          });
+          this.saveCase();
         }
       } else {
         this.$refs.versionHistory.loading = false;
