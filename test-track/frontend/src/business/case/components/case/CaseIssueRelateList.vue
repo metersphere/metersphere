@@ -44,64 +44,84 @@
         class="relate-issue-table"
         ref="table"
       >
-        <ms-table-column
-          :label="$t('test_track.issue.id')"
-          prop="id"
-          v-if="false"
-        >
-        </ms-table-column>
-        <ms-table-column :label="$t('test_track.issue.id')" prop="num">
-        </ms-table-column>
+        <span v-for="item in fields" :key="item.key">
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.issue.id')"
+            prop="id"
+            v-if="false"
+          >
+          </ms-table-column>
+          <ms-table-column
+            :field="item"
+            :label="'ID'"
+            prop="num"
+            :sortable="true">
+          </ms-table-column>
 
-        <ms-table-column
-          :label="$t('test_track.issue.title')"
-          prop="title"
-          min-width="200px"
-        >
-        </ms-table-column>
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.issue.title')"
+            prop="title"
+            :sortable="true"
+          >
+          </ms-table-column>
 
-        <ms-table-column
-          :label="$t('test_track.issue.platform_status')"
-          v-if="isThirdPart"
-          prop="platformStatus"
-        >
-          <template v-slot="scope">
-            <span v-if="scope.row.platform === 'Tapd'">
-                {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+          <!-- 自定义状态字段  -->
+          <span v-for="field in issueTemplate.customFields" :key="field.id">
+            <ms-table-column
+              :field="item"
+              :label="field.name"
+              :prop="field.name"
+              v-if="field.name === '状态'"
+            >
+              <template v-slot="scope">
+                <span>
+                    {{ getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
+                </span>
+              </template>
+            </ms-table-column>
+          </span>
+
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.issue.platform_status')"
+            v-if="isThirdPart"
+            prop="platformStatus"
+          >
+            <template v-slot="scope">
+              <span v-if="scope.row.platform === 'Tapd'">
+                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                </span>
+              <span v-else-if="scope.row.platform ==='Local'">
+                  {{ '--' }}
+                </span>
+              <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                  {{ platformStatusMap.get(scope.row.platformStatus) }}
               </span>
-            <span v-else-if="scope.row.platform ==='Local'">
-                {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
-              </span>
-            <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
-                {{ platformStatusMap.get(scope.row.platformStatus) }}
-              </span>
-            <span v-else>
-                {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
-              </span>
-          </template>
-        </ms-table-column>
+              <span v-else>
+                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+                </span>
+            </template>
+          </ms-table-column>
 
-        <ms-table-column
-          v-else
-          :label="$t('test_track.issue.status')"
-          prop="status"
-        >
-          <template v-slot="scope">
-            <span>{{
-              issueStatusMap[scope.row.status]
-                ? issueStatusMap[scope.row.status]
-                : scope.row.status
-            }}</span>
-          </template>
-        </ms-table-column>
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.issue.platform')"
+            prop="platform"
+          >
+          </ms-table-column>
 
-        <ms-table-column
-          :label="$t('test_track.issue.platform')"
-          prop="platform"
-        >
-        </ms-table-column>
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.review.creator')"
+            prop="creatorName"
+          >
+          </ms-table-column>
 
-        <issue-description-table-item />
+          <issue-description-table-item :field="item" />
+        </span>
+
       </ms-table>
 
       <!-- <ms-table-pagination
@@ -137,12 +157,14 @@
 }
 </style>
 <script>
+import { LOCAL } from "metersphere-frontend/src/utils/constants";
 import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 import MsEditDialog from "metersphere-frontend/src/components/MsEditDialog";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {
+  getIssuePartTemplateWithProject,
   getPlatformOption, getPlatformStatus,
   getRelateIssues,
   isThirdPartEnable,
@@ -158,6 +180,7 @@ import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import MsDrawerComponent from "../common/MsDrawerComponent";
 import MsTableAdvSearch from "metersphere-frontend/src/components/new-ui/MsTableAdvSearch";
 import {setIssuePlatformComponent} from "@/business/issue/issue";
+import {getCustomFieldValue, getTableHeaderWithCustomFields} from "metersphere-frontend/src/utils/tableUtils";
 
 export default {
   name: "CaseIssueRelateList",
@@ -179,6 +202,8 @@ export default {
         components: TEST_CASE_RELEVANCE_ISSUE_LIST,
       }),
       visible: false,
+      issueTemplate: {},
+      fields: [],
       isThirdPart: false,
       selectCounts: null,
       screenHeight: 'calc(100vh - 185px)',
@@ -203,11 +228,35 @@ export default {
     notInIds: Array,
   },
   created() {
-    isThirdPartEnable((data) => {
-      this.isThirdPart = data;
-    });
+    this.getIssueTemplate();
   },
   methods: {
+    getIssueTemplate() {
+      getIssuePartTemplateWithProject((template, project) => {
+        this.currentProject = project;
+        this.issueTemplate = template;
+        if (this.issueTemplate.platform === LOCAL) {
+          this.isThirdPart = false;
+        } else {
+          this.isThirdPart = true;
+        }
+        this.fields = getTableHeaderWithCustomFields("ISSUE_LIST", this.issueTemplate.customFields);
+        if (!this.isThirdPart) {
+          for (let i = 0; i < this.fields.length; i++) {
+            if (this.fields[i].id === "platformStatus") {
+              this.fields.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (this.$refs.table) {
+          this.$refs.table.reloadTable();
+        }
+      });
+    },
+    getCustomFieldValue(row, field) {
+      return getCustomFieldValue(row, field, this.members);
+    },
     clearSelection() {
       if (this.$refs.table) {
         this.$refs.table.clearSelectRows();
@@ -217,6 +266,7 @@ export default {
       this.$refs.relevanceDialog.selectCounts = data;
     },
     open() {
+      this.getIssueTemplate();
       this.getIssues();
       this.visible = true;
       this.$refs.relevanceDialog.open();

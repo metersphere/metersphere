@@ -88,7 +88,7 @@
                   {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
                 </span>
                 <span v-else-if="scope.row.platform ==='Local'">
-                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                  {{ '--' }}
                 </span>
                 <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
                   {{ platformStatusMap.get(scope.row.platformStatus) }}
@@ -97,21 +97,6 @@
                   {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
                 </span>
               </span>
-            </template>
-          </ms-table-column>
-
-          <ms-table-column
-            v-else
-            :field="item"
-            :label="$t('test_track.issue.status')"
-            prop="status"
-          >
-            <template v-slot="scope">
-              <span>{{
-                issueStatusMap[scope.row.status]
-                  ? issueStatusMap[scope.row.status]
-                  : scope.row.status
-              }}</span>
             </template>
           </ms-table-column>
 
@@ -154,6 +139,13 @@
             :field="item"
             :label="$t('test_track.issue.platform')"
             prop="platform"
+          >
+          </ms-table-column>
+
+          <ms-table-column
+            :field="item"
+            :label="$t('test_track.review.creator')"
+            prop="creatorName"
           >
           </ms-table-column>
 
@@ -217,7 +209,7 @@ export default {
     MsTableColumn,
     MsTable,
     TestPlanIssueEdit,
-    MsNewUiSearch,
+    MsNewUiSearch
   },
   data() {
     return {
@@ -239,6 +231,8 @@ export default {
       status: [],
       issueRelateVisible: false,
       condition: {},
+      platformStatus: [],
+      platformStatusMap: new Map(),
     };
   },
   props: {

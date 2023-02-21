@@ -432,6 +432,13 @@ public class IssuesService {
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         issueRequest.setRefType(refType);
         List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
+        Map<String, User> userMap = getUserMap(issues);
+        issues.forEach(issue -> {
+            User user = userMap.get(issue.getCreator());
+            if (user != null) {
+                issue.setCreatorName(user.getName());
+            }
+        });
         handleCustomFieldStatus(issues);
         return DistinctKeyUtil.distinctByKey(issues, IssuesDao::getId);
     }
@@ -1199,7 +1206,16 @@ public class IssuesService {
     }
 
     public List<IssuesDao> relateList(IssuesRequest request) {
-        return extIssuesMapper.getIssues(request);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(request);
+        Map<String, User> userMap = getUserMap(issues);
+        issues.forEach(issue -> {
+            User user = userMap.get(issue.getCreator());
+            if (user != null) {
+                issue.setCreatorName(user.getName());
+            }
+        });
+        handleCustomFieldStatus(issues);
+        return issues;
     }
 
     public void userAuth(AuthUserIssueRequest authUserIssueRequest) {

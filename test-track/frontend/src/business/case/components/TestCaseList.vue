@@ -212,7 +212,6 @@
             </span>
           </template>
         </ms-table-column>
-
       </span>
 
     </ms-table>
