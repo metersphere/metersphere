@@ -4,7 +4,7 @@ export function setIssuePlatformComponent(platformOptions, components) {
       item.options = [
         {label: "Tapd", value: "Tapd"},
         {label: "Local", value: "Local"},
-        {label: "AzureDevops", value: "Azure Devops"}
+        {label: "Azure Devops", value: "AzureDevops"}
       ];
       platformOptions.forEach(option => {
         item.options.push({label: option.text, value: option.value});

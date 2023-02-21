@@ -10,7 +10,7 @@
       :condition.sync="page.condition"
       @search="getIssues"/>
     <ms-table
-      v-loading="page.result.status"
+      v-loading="page.loading"
       :data="page.data"
       :condition="page.condition"
       :total="page.total"
@@ -77,7 +77,7 @@
 import MsEditDialog from "metersphere-frontend/src/components/MsEditDialog";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
-import {getRelateIssues, isThirdPartEnable, testCaseIssueRelate} from "@/api/issue";
+import {getPlatformOption, getRelateIssues, isThirdPartEnable, testCaseIssueRelate} from "@/api/issue";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
@@ -85,6 +85,7 @@ import {getPageInfo} from "metersphere-frontend/src/utils/tableUtils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {TEST_CASE_RELEVANCE_ISSUE_LIST} from "@/business/utils/sdk-utils";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
+import {setIssuePlatformComponent} from "@/business/issue/issue";
 
 export default {
   name: "IssueRelateList",
@@ -120,11 +121,17 @@ export default {
     open() {
       this.getIssues();
       this.visible = true;
+
+      getPlatformOption()
+        .then((r) => {
+          setIssuePlatformComponent(r.data, this.page.condition.components);
+        });
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
       this.page.condition.notInIds = this.notInIds;
-      getRelateIssues(this.page, this.page.result);
+      this.page.loading = true;
+      getRelateIssues(this.page);
     },
     getCaseResourceId() {
       return this.planCaseId ? this.planCaseId : this.caseId;

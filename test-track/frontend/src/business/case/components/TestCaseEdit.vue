@@ -278,20 +278,6 @@
         </template>
       </div>
     </div>
-    <!-- <el-dialog
-    :fullscreen="true"
-    :visible.sync="dialogVisible"
-    :destroy-on-close="true"
-    width="100%"
-  >
-    <test-case-version-diff
-      v-if="dialogVisible"
-      :old-data="oldData"
-      :new-data="newData"
-      :tree-nodes="treeNodes"
-    ></test-case-version-diff>
-  </el-dialog>
-   -->
   <!-- since v2.7 -->
   <case-diff-side-viewer ref="caseDiffViewerRef" ></case-diff-side-viewer>
    <version-create-other-info-select
