@@ -8,10 +8,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ExecutionExecuteTypeEnum;
 import io.metersphere.commons.utils.*;
@@ -20,6 +17,7 @@ import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.MicroService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.beanutils.BeanMap;
@@ -64,6 +62,8 @@ public class ApiDefinitionExecResultService {
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private MicroService microService;
 
     /**
      * API/CASE 重试结果保留一条
@@ -103,6 +103,15 @@ public class ApiDefinitionExecResultService {
                         if (apiTestCase != null) {
                             apiTestCase.setLastResultId(dto.getReportId());
                             apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+                            try {
+                                HttpHeaderUtils.runAsUser(result.getUserId());
+                                microService.getForData(MicroServiceName.TEST_TRACK,
+                                        String.format("/test/plan/case/update/case/status/%s/%s/%s/%s",
+                                                testPlanApiCase.getApiCaseId(), apiTestCase.getName(), testPlanApiCase.getTestPlanId(), "testcase"));
+                                HttpHeaderUtils.clearUser();
+                            } catch (Exception e) {
+                                LogUtil.error("auto update test plan api case error.", e);
+                            }
                         }
                     }
                     // 发送通知
@@ -335,6 +344,17 @@ public class ApiDefinitionExecResultService {
                             if (apiTestCase != null) {
                                 apiTestCase.setLastResultId(dto.getReportId());
                                 apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+
+                                try {
+                                    HttpHeaderUtils.runAsUser(reportResult.getUserId());
+                                    microService.getForData(MicroServiceName.TEST_TRACK,
+                                            String.format("/test/plan/case/update/case/status/%s/%s/%s/%s",
+                                                    apiTestCase.getId(), apiTestCase.getName(), apiCase.getTestPlanId(), "testcase"));
+                                    HttpHeaderUtils.clearUser();
+                                } catch (Exception e) {
+                                    LogUtil.error("auto update test plan api case error.", e);
+                                }
+
                             }
                         }
                     } else {
