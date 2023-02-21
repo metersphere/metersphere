@@ -54,53 +54,6 @@
           </el-form-item>
         </div>
       </div>
-      <!-- origin -->
-      <!-- <el-row>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.remark">{{
-              $t("commons.remark")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.relateTest">{{
-              $t("test_track.case.relate_test")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.relateDemand">{{
-              $t("test_track.related_requirements")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.relateIssue">{{
-              $t("test_track.case.relate_issue")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.dependency">{{
-              $t("commons.relationship.name")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-        <el-col :span="6">
-          <el-form-item>
-            <el-checkbox v-model="form.archive">{{
-              $t("test_track.case.attachment")
-            }}</el-checkbox>
-          </el-form-item>
-        </el-col>
-      </el-row> -->
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button @click="visible = false">{{ $t("commons.cancel") }}</el-button>
@@ -124,12 +77,14 @@ export default {
         relateIssue: false,
         archive: false,
         dependency: false,
+        versionId: null
       },
     };
   },
   methods: {
-    open() {
+    open(versionId) {
       this.visible = true;
+      this.form.versionId = versionId;
     },
     close() {
       this.visible = false;
