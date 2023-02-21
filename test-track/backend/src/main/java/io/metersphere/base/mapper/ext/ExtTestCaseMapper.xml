@@ -794,7 +794,7 @@
     </sql>
 
     <select id="countPriority" resultType="io.metersphere.dto.TrackCountResult">
-        SELECT test_case.priority as groupField, count(DISTINCT ref_id) AS countNumber
+        SELECT test_case.priority as groupField, count(id) AS countNumber
         FROM test_case
         WHERE project_id = #{projectId}
           AND test_case.status != 'Trash'
