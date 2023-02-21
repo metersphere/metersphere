@@ -229,8 +229,8 @@ import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCase
 import BatchMove from "@/business/case/components/BatchMove";
 import TestCasePreview from "@/business/case/components/TestCasePreview";
 import {
-  deletePublicTestCaseVersion, editTestCaseOrder, getTestCase,
-  getTestCaseStep, getTestCaseVersions, testCaseBatchDeleteToGc, testCasePublicBatchCopy,
+  deletePublicTestCaseVersion, editTestCaseOrder, getEditSimpleTestCase,
+  getTestCaseStep, getTestCaseVersions, testCasePublicBatchCopy,
   testCasePublicBatchDeleteToGc, testCasePublicList,
 } from "@/api/testCase";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
@@ -448,7 +448,12 @@ export default {
       this.selectCounts = this.$refs.table.selectDataCounts;
     },
     handleEdit(testCase, type) {
-      openCaseEdit({caseId: testCase.id, type}, this);
+      // 这个接口会校验权限
+      getEditSimpleTestCase(testCase.id)
+        .then(() => {
+          openCaseEdit({caseId: testCase.id, type}, this);
+        })
+        .catch(() => {});
     },
     handleEditShow(testCase, column) {
       this.$refs.publicTestCaseShow.open(testCase.id);

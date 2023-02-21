@@ -66,7 +66,7 @@ export default {
   },
   watch: {
     publicCaseId() {
-      if (this.publicCaseId) {
+      if (this.publicCaseId && this.$refs.testCaseEdit) {
         this.$refs.testCaseEdit.loadTestCase();
       }
     }
