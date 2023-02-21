@@ -232,11 +232,6 @@ public class JMeterBase {
                         } else {
                             requestResults.add(requestResult);
                         }
-                    } else {
-                        //全局前后置脚本的执行结果不影响场景执行结果，默认它们都是执行成功的
-                        requestResult.setError(0);
-                        requestResult.setSuccess(true);
-                        requestResults.add(requestResult);
                     }
                 }
             });
