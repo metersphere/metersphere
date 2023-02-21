@@ -41,6 +41,7 @@ import io.metersphere.service.plan.remote.TestPlanService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +53,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -351,12 +351,11 @@ public class TestPlanScenarioCaseService {
                         map.put(s, envMap.get(s));
                     }
                 }
-                String envJsonStr = JSON.toJSONString(map);
-                if (!StringUtils.equals(envJsonStr, testPlanApiScenario.getEnvironment())) {
-                    testPlanApiScenario.setEnvironmentType(EnvironmentType.JSON.toString());
-                    testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
-                    mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
-                }
+                
+                testPlanApiScenario.setEnvironmentType(runModeConfig.getEnvironmentType());
+                testPlanApiScenario.setEnvironmentGroupId(runModeConfig.getEnvironmentGroupId());
+                testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
+                mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
             }
             sqlSession.flushStatements();
             if (sqlSession != null && sqlSessionFactory != null) {
