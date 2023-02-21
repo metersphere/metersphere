@@ -50,6 +50,7 @@
       @filter="search"
       @callBackSelect="callBackSelect"
       @callBackSelectAll="callBackSelectAll"
+      @clearTableSelect="clearTableSelect"
       ref="table">
 
       <ms-table-column

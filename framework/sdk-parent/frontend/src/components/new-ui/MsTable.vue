@@ -373,7 +373,11 @@ export default {
       }
     },
     handleSelectAll(selection) {
-      if (this.condition.selectAll) {
+      if (this.condition.selectAll && selection && selection.length > 0) {
+        this.isSelectDataAll(true)
+        return;
+      } else if (this.condition.selectAll && selection && selection.length === 0){
+        this.$emit("clearTableSelect");
         return;
       }
       _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
