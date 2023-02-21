@@ -10,7 +10,9 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
+import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
@@ -24,6 +26,7 @@ import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
+import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.DiscoveryUtil;
@@ -105,6 +108,10 @@ public class TestPlanReportService {
     private PlanTestPlanScenarioCaseService planTestPlanScenarioCaseService;
     @Resource
     private BaseUserService baseUserService;
+    @Resource
+    private BaseEnvironmentService apiTestEnvironmentService;
+    @Resource
+    private BaseProjectService baseProjectService;
 
     private final String GROUP = "GROUP";
 
@@ -264,6 +271,8 @@ public class TestPlanReportService {
             List<TestPlanApiScenarioInfoDTO> scenarios) {
 
         TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
+        runInfoDTO.setRequestEnvMap(config.getEnvMap());
+
         final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
         runInfoDTO.setRunMode(config.getMode());
 
@@ -1129,7 +1138,8 @@ public class TestPlanReportService {
         }
         TestPlanSimpleReportDTO testPlanReportDTO = new TestPlanSimpleReportDTO();
         BeanUtils.copyBean(testPlanReportDTO, testPlanReportContent);
-        this.generateEnvironmentInfo(testPlanReportDTO, reportId);
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
+        this.initTestPlanReportEnv(testPlanReportDTO, testPlanReport);
 
         testPlanReportDTO.setFunctionResult(
                 getReportContentResultObject(testPlanReportContent.getFunctionResult(), TestPlanFunctionResultReportDTO.class)
@@ -1204,7 +1214,6 @@ public class TestPlanReportService {
         );
 
         testPlanReportDTO.setId(reportId);
-        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
         testPlanReportDTO.setName(testPlanReport.getName());
         TestPlanService testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
         TestPlanExtReportDTO extReport = null;
@@ -1250,6 +1259,46 @@ public class TestPlanReportService {
             }
         } catch (Exception e) {
             LogUtil.error(e);
+        }
+    }
+
+    public void initTestPlanReportEnv(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReport testPlanReport) {
+        TestPlanReportRunInfoDTO runInfoDTO = null;
+        if (StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
+            try {
+                runInfoDTO = JSON.parseObject(testPlanReport.getRunInfo(), TestPlanReportRunInfoDTO.class);
+            } catch (Exception e) {
+                LogUtil.error("解析测试计划报告记录的运行环境信息[" + testPlanReport.getRunInfo() + "]时出错!", e);
+            }
+
+        }
+        if (runInfoDTO != null) {
+            if (StringUtils.isNotEmpty(runInfoDTO.getEnvGroupId())) {
+                EnvironmentGroup environmentGroup = apiTestEnvironmentService.selectById(runInfoDTO.getEnvGroupId());
+                if (StringUtils.isNotEmpty(environmentGroup.getName())) {
+                    testPlanReportDTO.setEnvGroupName(environmentGroup.getName());
+                }
+            } else {
+                if (MapUtils.isNotEmpty(runInfoDTO.getRequestEnvMap())) {
+                    Map<String, List<String>> projectEnvMap = new HashMap<>();
+                    for (Map.Entry<String, String> entry : runInfoDTO.getRequestEnvMap().entrySet()) {
+                        String projectId = entry.getKey();
+                        String envId = entry.getValue();
+                        Project project = baseProjectService.getProjectById(projectId);
+                        String projectName = project == null ? null : project.getName();
+                        String envNames = apiTestEnvironmentService.selectNameById(envId);
+                        if (StringUtils.isNotEmpty(projectName) && StringUtils.isNotEmpty(envNames)) {
+                            projectEnvMap.put(projectName, new ArrayList<>() {{
+                                this.add(envNames);
+                            }});
+                        }
+                    }
+                    if (MapUtils.isNotEmpty(projectEnvMap)) {
+                        testPlanReportDTO.setProjectEnvMap(projectEnvMap);
+                    }
+                }
+            }
+            testPlanReportDTO.setRunMode(StringUtils.equalsIgnoreCase(runInfoDTO.getRunMode(), "serial") ? Translator.get("serial") : Translator.get("parallel"));
         }
     }
 

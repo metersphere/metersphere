@@ -5,11 +5,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.ScheduleDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
@@ -26,15 +28,15 @@ import io.metersphere.plan.request.function.TestCaseRelevanceRequest;
 import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.TestPlanRerunService;
 import io.metersphere.plan.service.TestPlanService;
-import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.BaseScheduleService;
+import io.metersphere.service.BaseUserService;
 import io.metersphere.service.wapper.CheckPermissionService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +55,7 @@ public class TestPlanController {
     @Resource
     private BaseScheduleService baseScheduleService;
     @Resource
-    private PlanApiAutomationService planApiAutomationService;
+    private BaseUserService baseUserService;
     @Resource
     private TestPlanRerunService testPlanRerunService;
 
@@ -240,6 +242,9 @@ public class TestPlanController {
 
     @PostMapping("/run")
     public String run(@RequestBody TestPlanRunRequest testplanRunRequest) {
+        if (baseUserService.getUserDTO(testplanRunRequest.getUserId()) == null) {
+            MSException.throwException(Translator.get("user_not_exist"));
+        }
         return testPlanService.runPlan(testplanRunRequest);
     }
 
