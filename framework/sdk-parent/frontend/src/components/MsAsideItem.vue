@@ -11,18 +11,21 @@
       </slot>
     </div>
     <slot name="content">
-      <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar"
-           @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
-        <el-tooltip :content="item.name">
-          <input class="item-input"
-                 :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}"
-                 v-model="item.name" :placeholder="$t('commons.input_content')"/>
-        </el-tooltip>
-        <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
-          <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon" v-permission="operator.permissions"
+      <div style="height: 700px;overflow-y: auto">
+        <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar"
+             @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
+          <el-tooltip :content="item.name">
+            <input class="item-input"
+                   :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}"
+                   v-model="item.name" :placeholder="$t('commons.input_content')"/>
+          </el-tooltip>
+          <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
+          <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon"
+             v-permission="operator.permissions"
              @click.stop="operator.func(item, index)">
           </i>
       </span>
+        </div>
       </div>
     </slot>
   </el-aside>
