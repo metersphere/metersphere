@@ -5,7 +5,7 @@
     @clearSelect="clearSelection"
     ref="relevanceDialog"
   >
-    <div slot="header" v-if="page.data.length > 0 || page.condition.name !== undefined">
+    <div slot="header">
       <div class="header-search-row">
         <div class="simple-row">
           <ms-new-ui-search
@@ -32,7 +32,7 @@
       <ms-table
         v-if="page.data.length > 0"
         :screen-height="screenHeight"
-        v-loading="page.result.status"
+        v-loading="page.loading"
         :data="page.data"
         :condition="page.condition"
         :total="page.total"
@@ -124,12 +124,6 @@
 
       </ms-table>
 
-      <!-- <ms-table-pagination
-        :change="getIssues"
-        :current-page.sync="page.currentPage"
-        :page-size.sync="page.pageSize"
-        :total="page.total"
-      /> -->
     </div>
     <div slot="pagination" v-if="page.data.length > 0">
       <home-pagination
@@ -141,14 +135,6 @@
       />
     </div>
   </ms-drawer-component>
-  <!-- <ms-edit-dialog
-    :append-to-body="true"
-    :visible.sync="visible"
-    :title="$t('test_track.case.relate_issue')"
-    @confirm="save"
-    ref="relevanceDialog"
-  >
-  </ms-edit-dialog> -->
 </template>
 <style scoped>
 .search-input {
@@ -290,7 +276,8 @@ export default {
     getIssues() {
       this.page.condition.projectId = this.projectId;
       this.page.condition.notInIds = this.notInIds;
-      getRelateIssues(this.page, this.page.result);
+      this.page.loading = true;
+      getRelateIssues(this.page);
     },
     getCaseResourceId() {
       return this.planCaseId ? this.planCaseId : this.caseId;

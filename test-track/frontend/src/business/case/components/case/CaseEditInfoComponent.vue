@@ -172,7 +172,6 @@ import CaseIssueRelate from "./CaseIssueRelate";
 import CaseCommentComponent from "./CaseCommentComponent";
 import CaseCommentViewer from "./CaseCommentViewer";
 import { getRelationshipCountCase } from "@/api/testCase";
-import { testCaseCommentList } from "@/api/test-case-comment";
 import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
 export default {
   name: "CaseEditInfoComponent",
