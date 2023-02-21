@@ -1216,7 +1216,9 @@ export default {
       }
       param.name = param.name.trim();
       if (this.form.tags instanceof Array) {
-        this.form.tags = JSON.stringify(this.form.tags);
+        param.tags = JSON.stringify(this.form.tags);
+      } else {
+        param.tags = this.form.tags
       }
       //当 testId 为其他信息的时候必须删除该字段避免后端反序列化报错
       if ("other" != this.form.selected) {
@@ -1224,7 +1226,6 @@ export default {
       } else {
         delete param.selected;
       }
-      param.tags = this.form.tags;
       param.casePublic = this.casePublic;
       param.type = "functional";
       buildCustomFields(this.form, param, this.testCaseTemplate);
