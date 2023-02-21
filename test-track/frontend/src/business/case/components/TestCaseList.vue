@@ -169,7 +169,6 @@
           :label="$t('project.version.name')"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="versionFilters"
           min-width="100px"
           prop="versionId">
            <template v-slot:default="scope">
@@ -360,7 +359,6 @@ export default {
         filters: {},
         custom: false,
       },
-      versionFilters: [],
       graphData: {},
       batchButtons: [],
       simpleButtons: [
@@ -546,7 +544,6 @@ export default {
         this.$emit('testCaseEdit', testCase);
       });
     }
-    this.getVersionOptions();
   },
   watch: {
     '$route'(to) {
@@ -562,7 +559,6 @@ export default {
         }
         this.initTableData();
         this.condition.ids = null;
-        this.getVersionOptions();
       }
     },
     selectNodeIds() {
@@ -1200,12 +1196,6 @@ export default {
           this.$refs.testBatchMove.close();
           this.refresh();
         });
-    },
-    getVersionOptions() {
-      if (hasLicense()) {
-        getVersionFilters(getCurrentProjectID())
-          .then(r =>  this.versionFilters = r.data);
-      }
     },
     checkVersionEnable() {
       if (!this.projectId) {
