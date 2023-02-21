@@ -1,8 +1,9 @@
 <template>
   <div @click="exe" class="recycle">
-    <el-row>
-      <el-col :span="21"><i class="el-icon-delete"> {{ $t('commons.trash') }}</i></el-col>
-    </el-row>
+    <div style="padding: 9px 24px;" class="to-public">
+      <svg-icon icon-class="icon_delete-trash_filled" style="width: 1.3em;height: 1.3em;"/>
+      <span style="position: relative;top: -2px;left: 7px;">{{ $t('commons.trash') }}</span>
+    </div>
   </div>
 </template>
 
