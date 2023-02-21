@@ -9,6 +9,7 @@
           :read-only="true"
           :modes="modes"
           :data.sync="responseResult.body"
+          height="250px"
           ref="codeEdit" />
       </el-tab-pane>
 
