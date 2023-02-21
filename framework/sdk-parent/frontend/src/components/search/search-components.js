@@ -755,12 +755,7 @@ export const PLATFORM = {
   operator: {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
-  options: [
-    {label: "Tapd", value: "Tapd"},
-    {label: "Jira", value: "Jira"},
-    {label: "Zentao", value: "Zentao"},
-    {label: "Local", value: "Local"},
-  ],
+  options: [],
   props: {
     multiple: true
   }

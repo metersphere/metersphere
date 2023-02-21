@@ -167,6 +167,7 @@ export function getRelateIssues(page) {
     .then((response) => {
       getPageDate(response, page);
       buildIssues(page);
+      page.loading = false;
     });
 }
 
