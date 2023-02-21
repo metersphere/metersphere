@@ -113,7 +113,6 @@ import ReviewComment from "@/business/review/commom/ReviewComment";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
 import {
   buildTestCaseOldFields,
-  getTemplate,
   parseCustomField,
 } from "metersphere-frontend/src/utils/custom_field";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
@@ -300,6 +299,7 @@ export default {
         return;
       }
       this.index++;
+      this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
     },
     isLastData() {
@@ -317,6 +317,7 @@ export default {
         return;
       }
       this.index--;
+      this.caseId = this.testCases[this.index].caseId;
       this.getTestCase(this.testCases[this.index].id);
     },
     getTestCase(id) {
