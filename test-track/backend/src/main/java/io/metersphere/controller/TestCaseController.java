@@ -179,6 +179,11 @@ public class TestCaseController {
         return testCaseService.getSimpleCase(testCaseId);
     }
 
+    @GetMapping("/get/edit/simple/{testCaseId}")
+    public TestCaseWithBLOBs getSimpleCaseForEdit(@PathVariable String testCaseId) {
+        return testCaseService.getSimpleCaseForEdit(testCaseId);
+    }
+
     @GetMapping("/project/{testCaseId}")
     public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
         trackCheckPermissionService.checkTestCaseOwner(testCaseId);
