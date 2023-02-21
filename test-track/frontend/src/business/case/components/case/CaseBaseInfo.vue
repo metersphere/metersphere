@@ -335,7 +335,7 @@ import {getProjectVersions} from "metersphere-frontend/src/api/version";
 import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
-import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
+import MsInputTag from "metersphere-frontend/src/components/new-ui/MsInputTag";
 import CustomFiledFormRow from "./CaseCustomFiledFormRow";
 import { useStore } from "@/store";
 import BaseEditItemComponent from "../BaseEditItemComponent";
