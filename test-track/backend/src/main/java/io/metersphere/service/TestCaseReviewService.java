@@ -166,38 +166,43 @@ public class TestCaseReviewService {
             if (CollectionUtils.isNotEmpty(caseList)) {
                 Map<String, List<TestCaseReviewTestCase>> statusMap = caseList.stream()
                         .collect(Collectors.groupingBy(TestCaseReviewTestCase::getStatus));
-
-                List<TestReviewCaseStatus> statusList = Arrays.stream(TestReviewCaseStatus.values())
-                        .sorted(Comparator.comparing(TestReviewCaseStatus::getOrder))
-                        .collect(Collectors.toList());
-
-                List<CountMapDTO> statusCountList = new ArrayList<>();
-
-                int passCount = 0;
-                int total = 0;
-                for (TestReviewCaseStatus status : statusList) {
-                    List<TestCaseReviewTestCase> statusCases = statusMap.get(status.name());
-                    if (CollectionUtils.isEmpty(statusCases)) {
-                        continue;
-                    }
-                    CountMapDTO countMapDTO = new CountMapDTO();
-                    countMapDTO.setKey(status.name());
-                    countMapDTO.setValue(statusCases.size());
-                    statusCountList.add(countMapDTO);
-                    total += statusCases.size();
-                    if (StringUtils.equals(status.name(), TestReviewCaseStatus.Pass.name())) {
-                        passCount = statusCases.size();
-                    }
-                }
-                item.setStatusCountItems(statusCountList);
-
-                item.setPassRate(MathUtils.getPercentWithDecimal(total == 0 ? 0 : passCount * 1.0 / total));
-                item.setCaseCount(total);
+                Map<String, Integer> statusSizeMap = new HashMap<>();
+                statusMap.forEach((k, v) -> statusSizeMap.put(k, v.size()));
+                doCalcReviewRate(item, statusSizeMap);
             } else {
                 item.setPassRate(0d);
                 item.setCaseCount(0);
             }
         });
+    }
+
+    private void doCalcReviewRate(TestCaseReviewDTO review, Map<String, Integer> statusSizeMap) {
+        List<TestReviewCaseStatus> statusList = Arrays.stream(TestReviewCaseStatus.values())
+                .sorted(Comparator.comparing(TestReviewCaseStatus::getOrder))
+                .collect(Collectors.toList());
+
+        List<CountMapDTO> statusCountList = new ArrayList<>();
+
+        int passCount = 0;
+        int total = 0;
+        for (TestReviewCaseStatus status : statusList) {
+            Integer count = statusSizeMap.get(status.name());
+            if (count == null) {
+                continue;
+            }
+            CountMapDTO countMapDTO = new CountMapDTO();
+            countMapDTO.setKey(status.name());
+            countMapDTO.setValue(count);
+            statusCountList.add(countMapDTO);
+            total += count;
+            if (StringUtils.equals(status.name(), TestReviewCaseStatus.Pass.name())) {
+                passCount = count;
+            }
+        }
+        review.setStatusCountItems(statusCountList);
+
+        review.setPassRate(MathUtils.getPercentWithDecimal(total == 0 ? 0 : passCount * 1.0 / total));
+        review.setCaseCount(total);
     }
 
     public List<Project> getProjectByReviewId(TestCaseReview request) {
@@ -613,21 +618,13 @@ public class TestCaseReviewService {
                     testReview.setCreator(u.getName());
                 }
 
+                Map<String, Integer> statusSizeMap = new HashMap<>();
+
                 countMapDTOS.forEach(item -> {
-                    testReview.setTotal(testReview.getTotal() + item.getValue());
-                    if (!StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name()) && !StringUtils.equals(item.getKey(), TestReviewCaseStatus.Again.name()) ) {
-                        testReview.setReviewed(testReview.getReviewed() + item.getValue());
-                    }
-                    if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Pass.name())) {
-                        testReview.setPass(testReview.getPass() + item.getValue());
-                    }
-                    if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Prepare.name())) {
-                        testReview.setPrepare(testReview.getPrepare() + item.getValue());
-                    }
-                    if (StringUtils.equals(item.getKey(), TestReviewCaseStatus.Again.name())) {
-                        testReview.setAgain(testReview.getAgain() + item.getValue());
-                    }
+                    statusSizeMap.put(item.getKey(), item.getValue());
                 });
+
+                doCalcReviewRate(testReview, statusSizeMap);
             });
         }
         return testReviews;

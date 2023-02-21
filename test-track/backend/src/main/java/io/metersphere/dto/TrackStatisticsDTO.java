@@ -153,12 +153,12 @@ public class TrackStatisticsDTO {
 
     public void countStatus(List<TrackCountResult> statusResults) {
         for (TrackCountResult countResult : statusResults) {
-            if(TestReviewCaseStatus.Prepare.name().equals(countResult.getGroupField())){
-                this.prepareCount += countResult.getCountNumber();
-            }else if(TestReviewCaseStatus.Pass.name().equals(countResult.getGroupField())){
+            if(TestReviewCaseStatus.Pass.name().equals(countResult.getGroupField())){
                 this.passCount += countResult.getCountNumber();
-            }else if(TestReviewCaseStatus.UnPass.name().equals(countResult.getGroupField())){
+            } else if(TestReviewCaseStatus.UnPass.name().equals(countResult.getGroupField())){
                 this.unPassCount += countResult.getCountNumber();
+            } else {
+                this.prepareCount += countResult.getCountNumber();
             }
         }
     }
