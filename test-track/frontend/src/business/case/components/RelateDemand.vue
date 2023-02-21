@@ -248,7 +248,7 @@ export default {
   color: #783887;
   padding: 1px 6px;
   gap: 4px;
-  width: 49px;
+  min-width: 49px;
   height: 24px;
   background: rgba(120, 56, 135, 0.2);
   border-radius: 2px;
