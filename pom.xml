@@ -80,6 +80,7 @@
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
         <jgit.version>6.3.0.202209071007-r</jgit.version>
+        <jakarta.activation.version>2.0.1</jakarta.activation.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v16.10.0</node.version>
