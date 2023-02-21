@@ -1412,7 +1412,7 @@
         inner join project p on p.id = test_case.project_id
         <include refid="queryWhereCondition"/>
         and p.workspace_id = #{request.workspaceId}
-        group by tcn.id, test_case.project_id;
+        group by tcn.id;
     </select>
 
     <update id="updateNoModuleTrashNodeToDefault">

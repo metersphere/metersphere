@@ -150,7 +150,7 @@
           <div
             class="edit-public-row head-opt"
             v-if="isPublicShow"
-            @click="editPublicCase"
+            @click="editPublicCase()"
           >
             <div class="icon-row">
               <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
@@ -191,7 +191,7 @@
         </div>
       </div>
       <!-- 正文 -->
-      <div class="edit-content-container" :class="{'editable-edit-content-container' : editable}">
+      <div v-loading="loading" class="edit-content-container" :class="{'editable-edit-content-container' : editable}">
         <case-edit-info-component
           :editable="editable"
           :richTextDefaultOpen="richTextDefaultOpen"
@@ -360,7 +360,7 @@ import {
   hasTestCaseOtherInfo,
   testCaseEditFollows,
   testCaseGetByVersionId,
-  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId, getSimpleTestCase,
+  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId, getEditSimpleTestCase, getSimpleTestCase,
 } from "@/api/testCase";
 
 import {
@@ -376,7 +376,7 @@ import CaseBaseInfo from "./case/CaseBaseInfo";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import MxVersionHistory from "./common/CaseVersionHistory"
 import {buildTree} from "metersphere-frontend/src/model/NodeTree";
-import {versionEnableByProjectId} from "@/api/project";
+import {getProject, versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
@@ -581,8 +581,7 @@ export default {
   },
   computed: {
     routeProjectId() {
-      let pId = this.$route.params.projectId;
-      return pId ? pId : getCurrentProjectID();
+      return this.$route.params.projectId;
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
@@ -688,6 +687,7 @@ export default {
   },
   created(){
     this.$EventBus.$on('projectChange', () => {
+      localStorage.setItem('projectChangeFlag', 'true');
       this.$router.push('/track/case/all');
     });
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
@@ -728,6 +728,11 @@ export default {
     },
     async loadTestCase() {
 
+      if (localStorage.getItem('projectChangeFlag')) {
+        localStorage.removeItem('projectChangeFlag');
+        return;
+      }
+
       let initFuc = this.initEdit;
       this.loading = true;
 
@@ -758,15 +763,18 @@ export default {
         });
       }
 
-      getTestCaseNodesByCaseFilter(this.projectId, {})
-        .then(r => {
-          this.treeNodes = r.data;
-          this.treeNodes.forEach(node => {
-            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
-            buildTree(node, {path: ''});
-            this.setNodeModule();
+      if (!this.isPublicShow) {
+        // 公共用例库不展示模块，这里调用接口会有权限校验
+        getTestCaseNodesByCaseFilter(this.projectId, {})
+          .then(r => {
+            this.treeNodes = r.data;
+            this.treeNodes.forEach(node => {
+              node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+              buildTree(node, {path: ''});
+              this.setNodeModule();
+            });
           });
-        });
+      }
 
       getTestCaseFollow(this.caseId).then((response) => {
         this.form.follows = response.data;
@@ -802,7 +810,12 @@ export default {
       this.checkVersionEnable();
     },
     editPublicCase(type) {
-      openCaseEdit({caseId: this.caseId, type},  this)
+      // 这个接口会校验权限
+      getEditSimpleTestCase(this.caseId)
+        .then(() => {
+          openCaseEdit({caseId: this.caseId, type},  this);
+        })
+        .catch(() => {});
     },
     copyPublicCase() {
       this.editPublicCase('copy');
@@ -980,7 +993,7 @@ export default {
     },
     async checkCurrentProject() {
       if (this.isPublicShow) {
-        // 如果是用例库查看用例
+        // 用例库查看用例
         await getSimpleTestCase(this.caseId).then((response) => {
           let testCase = response.data;
           this.projectId = testCase.projectId;
@@ -993,17 +1006,22 @@ export default {
             setCurrentProjectID(this.projectId);
             location.reload();
           }
-        } else {
-          if (this.caseId) {
-            await getSimpleTestCase(this.caseId).then((response) => {
-              let testCase = response.data;
-              if (getCurrentProjectID() !== testCase.projectId) {
-                // 如果不是当前项目，先切项目
-                setCurrentProjectID(testCase.projectId);
-                location.reload();
-              }
-            })
-          }
+        } else if (this.caseId) {
+          // 接口会校验是否有改用例的编辑权限
+          await getEditSimpleTestCase(this.caseId).then((response) => {
+            let testCase = response.data;
+            if (getCurrentProjectID() !== testCase.projectId) {
+              // 如果不是当前项目，先切项目
+              setCurrentProjectID(testCase.projectId);
+              location.reload();
+            } else {
+              this.projectId = testCase.projectId;
+            }
+          })
+          .catch(() => {
+            // 没有权限则跳转到根路径
+            this.$router.push("/");
+          });
         }
       }
     },
