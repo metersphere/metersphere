@@ -314,13 +314,11 @@ export default {
       this.form = {
         title: "",
         description: "",
-        creator: null,
+        creator: getCurrentUserId(),
         remark: null,
         tapdUsers: [],
         platformStatus: null,
       };
-      this.customFieldForm = null;
-      this.issueTemplate = {};
       if (this.$refs.testCaseIssueList) {
         this.$refs.testCaseIssueList.tableData = [];
       }

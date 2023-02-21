@@ -24,7 +24,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <i class="delimiter">|</i>
-          <el-button size="mini" icon="el-icon-close" @click="close" style="margin: 0 30px 0 20px"></el-button>
+          <el-button size="mini" icon="el-icon-close" @click="close" class="close-btn" style="margin: 0 24px 0 20px"></el-button>
         </div>
       </el-col>
     </el-row>
@@ -145,5 +145,9 @@ i.delimiter {
 :deep(.el-icon-close:before) {
   position: relative;
   top: 2px;
+}
+
+.close-btn {
+  background-color: transparent!important;
 }
 </style>

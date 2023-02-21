@@ -8,10 +8,7 @@
           <div class="back" @click="back" v-if="!isPublicShow">
             <img src="/assets/module/figma/icon_arrow-left_outlined.svg" alt="" />
           </div>
-          <div
-            @click.stop="openNewTab"
-            :class="editable ? 'case-name' : ['case-name-hover', 'case-name']"
-          >
+          <div :class="'case-name'">
             {{ !editable ? form.name : $t('test_track.case.create_case') }}
           </div>
           <div class="case-edit" v-if="!editable">
@@ -1742,7 +1739,8 @@ export default {
           overflow: hidden;
           /* 文本超出的部分打点显示 */
           text-overflow: ellipsis;
-
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
         }
         .case-name-hover:hover {
           cursor: pointer;
@@ -1766,11 +1764,12 @@ export default {
             color: #646a73;
             align-items: center;
             margin-left: px2rem(8);
+            padding: 0 0.5rem;
 
             .version-icon {
-              width: 14.17px;
-              height: 12.6px;
-              margin-right: px2rem(4.95);
+              width: 20.17px;
+              height: 15.6px;
+              margin-right: px2rem(5);
 
               img {
                 width: 100%;
@@ -1781,11 +1780,13 @@ export default {
             .version-title {
               height: px2rem(22);
               line-height: px2rem(22);
+              margin-top: px2rem(2);
             }
             .version-suffix {
               height: px2rem(22);
               line-height: px2rem(22);
               margin-left: px2rem(5);
+              margin-top: px2rem(1);
             }
           }
         }
@@ -1858,6 +1859,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
+          padding: 0 0.5rem 0 0;
         }
 
         .next-public-row.head-opt {
@@ -1869,6 +1871,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
+          padding: 0 0 0 0.5rem;
         }
 
         .follow-row.head-opt {
@@ -1879,7 +1882,8 @@ export default {
 
           .label-row {
           }
-          margin-right: px2rem(20.67);
+          margin-right: px2rem(10);
+          padding: 0 0.5rem;
         }
 
         .edit-public-row.head-opt {
@@ -1891,6 +1895,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
+          padding: 0 0.5rem;
         }
 
         .copy-public-row.head-opt {
@@ -1902,6 +1907,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
+          padding: 0 0.5rem;
         }
 
         .add-public-row.head-opt {
@@ -1912,7 +1918,8 @@ export default {
 
           .label-row {
           }
-          margin-right: px2rem(22.33);
+          margin-right: px2rem(11);
+          padding: 0 0.5rem;
         }
 
         .more-row.head-opt {
@@ -1924,6 +1931,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(24);
+          padding: 0 0.5rem;
         }
       }
     }
