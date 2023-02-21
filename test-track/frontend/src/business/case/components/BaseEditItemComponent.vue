@@ -440,7 +440,7 @@ export default {
       align-items: center;
       padding: 1px 6px;
       gap: 4px;
-      width: 45px;
+      min-width: 45px;
       height: 24px;
       line-height: 24px;
       text-align: center;
