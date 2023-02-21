@@ -15,6 +15,8 @@ public class TestPlanReportRunInfoDTO {
     private String envGroupId;
 
     private String runMode;
+    private Map<String, String> requestEnvMap;
+
     // <测试计划场景关联表ID, <项目ID，环境ID>>
     private Map<String, Map<String, List<String>>> scenarioRunInfo;
     // <测试计划场景关联表ID, <项目ID，环境ID>>
@@ -47,7 +49,7 @@ public class TestPlanReportRunInfoDTO {
             }});
         }
     }
-    
+
     public void putUiScenarioRunInfo(String scenarioResourceId, String projectId, String environmentId) {
         if (uiScenarioRunInfo.containsKey(scenarioResourceId)) {
             if (uiScenarioRunInfo.get(scenarioResourceId).containsKey(projectId)) {
