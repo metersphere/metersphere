@@ -224,6 +224,10 @@
                     <artifactId>mail</artifactId>
                     <groupId>javax.mail</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>javax.activation</artifactId>
+                    <groupId>com.sun.activation</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -322,6 +326,12 @@
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jakarta.activation</artifactId>
+                    <groupId>com.sun.activation</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- 基础包 -->
@@ -369,6 +379,12 @@
             <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-schema-validator</artifactId>
             <version>${json-schema-validator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mailapi</artifactId>
+                    <groupId>com.sun.mail</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
