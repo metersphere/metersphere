@@ -13,10 +13,10 @@ export const CASE_DASHBOARD_CHART_COLOR = [
 ];
 
 export const RELEVANCE_CASE_DASHBOARD_CHART_COLOR = [
-  '#AA4FBF', '#FFD131', '#14E1C6'
+  '#AA4FBF', '#FFD131', '#10CECE', '#4E83FD'
 ];
 
 export const DEFAULT_DASHBOARD_CHART_COLOR = [
   '#AA4FBF', '#FFD131', '#10CECE', '#4E83FD',
-  '#935AF6', '#50CEFB', '#FFA53D', '#62D256',
-  ];
+  '#935AF6', '#50CEFB', '#FFA53D', '#62D256'
+];
