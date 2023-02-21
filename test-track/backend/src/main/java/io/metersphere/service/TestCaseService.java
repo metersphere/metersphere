@@ -293,7 +293,7 @@ public class TestCaseService {
         // AzureDevops 才处理
         if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
             testcaseIds.forEach(id -> {
-                TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testcaseIds.get(0));
+                TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(id);
                 if (testCaseWithBLOBs != null) {
                     EditTestCaseRequest request = new EditTestCaseRequest();
                     BeanUtils.copyBean(request, testCaseWithBLOBs);
