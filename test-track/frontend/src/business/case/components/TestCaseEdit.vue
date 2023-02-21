@@ -563,7 +563,8 @@ export default {
       // 2 表示式保存并创建
       // 3 表示
       saveType: 1,
-      projectId: null
+      projectId: null,
+      createVersionId: null
     };
   },
   props: {
@@ -1152,6 +1153,11 @@ export default {
             this.$emit("refresh", response.data);
             if (this.form.id) {
               this.$emit("caseEdit", param);
+              if (this.createVersionId) {
+                // 如果是创建版本，创建完跳转到对应的版本
+                this.createVersionId = null;
+                this.routerToEdit(response.data.id);
+              }
             } else {
               param.id = response.data.id;
               this.close();
@@ -1162,9 +1168,11 @@ export default {
                 this.routerToEdit(response.data.id);
               }
             }
+            this.createVersionId = null;
           })
           .catch(() => {
             this.loading = false;
+            this.createVersionId = null;
           });
       }
     },
@@ -1217,6 +1225,9 @@ export default {
         if (this.$refs.otherInfo.getUnRelateFiles() && this.$refs.otherInfo.getUnRelateFiles().length > 0) {
           param.unRelateFileMetaIds = this.$refs.otherInfo.getUnRelateFiles();
         }
+      }
+      if (this.createVersionId) {
+        param.versionId = this.createVersionId;
       }
       return param;
     },
@@ -1484,12 +1495,12 @@ export default {
     async createVersion(row) {
       if (this.validateForm()) {
         // 创建新版本
-        this.form.versionId = row.id;
         let hasOtherInfo = await this.hasOtherInfo();
         if (hasOtherInfo) {
           this.$refs.versionHistory.loading = false;
-          this.$refs.selectPropDialog.open();
+          this.$refs.selectPropDialog.open(row.id);
         } else {
+          this.createVersionId = row.id;
           this.saveCase(() => {
             if (this.$refs.versionHistory) {
               this.$refs.versionHistory.loading = false;
@@ -1547,6 +1558,7 @@ export default {
     },
     confirmOtherInfo(selectedOtherInfo) {
       this.selectedOtherInfo = selectedOtherInfo;
+      this.createVersionId = selectedOtherInfo.versionId;
       this.saveCase();
     },
     copyRow() {

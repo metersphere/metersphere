@@ -39,8 +39,7 @@
               <div
                 class="updated opt-row"
                 @click.stop="setLatest(item)"
-                v-if="caseVersionMap.has(item.id)
-                  && !(isRead || item.id === dataLatestId)"
+                v-if="showSetNew(item)"
               >
                 {{ $t("case.set_new") }}
               </div>
@@ -172,7 +171,8 @@ export default {
       versionCompareOptions: [],
       userData: {},
       currentVersion: {},
-      dataLatestId: "",
+      dataLatestId: null,
+      latestVersionId: null,
       compareDialogVisible: false,
       // 版本对比相关
       versionLeftId: "",
@@ -271,9 +271,22 @@ export default {
       this.loading = true;
       this.$emit("setLatest", row);
     },
+    showSetNew(item) {
+      let hasVersionCase = this.caseVersionMap.has(item.id);
+      let latestVersionCondition = this.caseVersionMap.has(this.latestVersionId) ? item.id === this.latestVersionId : true;
+      let isNotDataLatestVersionCase = item.id === this.dataLatestId;
+      return hasVersionCase // 有当前版本的用例
+          && latestVersionCondition  // 有最新版本的用例，则非最新版本的其他版本不显示置新
+          && !this.isRead // 不是只读
+          && !isNotDataLatestVersionCase // 已经是最新版本，不显示置新
+    },
     handleVersionOptions() {
       let latestData = {};
       this.versionOptions.forEach(v => {
+        if (v.latest) {
+          // 获取最新版本
+          this.latestVersionId = v.id;
+        }
 
         // 获取当前版本
         if (v.id === this.currentVersionId) {
@@ -288,7 +301,7 @@ export default {
           // 设置版本的创建人
           v.createName = versionCase.createName;
 
-          // 获取最新版本
+          // 获取当前用例最新版本
           if (versionCase.latest) {
             latestData = v;
             this.dataLatestId = v.id;
