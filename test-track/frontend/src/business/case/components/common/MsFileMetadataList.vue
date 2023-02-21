@@ -14,7 +14,7 @@
         {{ $t("case.associated_files") }}
       </div>
     </template>
-    <div class="file-box" v-if="metadataArr.length > 0">
+    <div class="file-box">
       <div class="header both-padding">
         <ms-table-header
           title=""
@@ -147,19 +147,6 @@
         </div>
       </div>
     </div>
-    <div class="empty-file">
-      <div class="info-wrap" style="text-align: center; margin-top: 226px">
-        <div class="image">
-          <img
-            style="height: 100px; width: 100px; margin-bottom: 8px"
-            src="/assets/module/figma/icon_none.svg"
-          />
-          <div class="label" style="color: #646a73">
-            {{ $t("case.empty_file") }}
-          </div>
-        </div>
-      </div>
-    </div>
   </el-drawer>
 </template>
 
@@ -262,6 +249,7 @@ export default {
     },
     close() {
       this.visible = false;
+      this.condition.name = "";
       this.clearSelect();
     },
     open() {
