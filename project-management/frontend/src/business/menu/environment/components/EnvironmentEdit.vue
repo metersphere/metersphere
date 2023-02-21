@@ -498,6 +498,9 @@ export default {
         });
         param.config.commonConfig.hosts = validHosts;
       }
+      param.config.commonConfig.variables.forEach(variable => {
+        delete variable.hidden;
+      })
       param.config = JSON.stringify(param.config);
       return param;
     },

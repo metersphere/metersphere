@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="'测试结果'" width="60%"
+  <el-dialog :close-on-click-modal="false" :title="'测试结果'" width="60%" height="300px"
              :visible.sync="visible" class="api-import" @close="close">
     <div v-loading="loading">
       <micro-app v-if="showReport" route-name="ApiReportView"
@@ -12,6 +12,7 @@
 <script>
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import {apiDefinitionPlanReportGetByCaseId} from "@/api/remote/api/api-definition-report";
+import {getApiReportDetail} from "@/api/remote/api/api-definition-report";
 
 export default {
   name: "TestPlanApiCaseResult",
@@ -46,11 +47,25 @@ export default {
             });
       });
     },
+    getReport(reportId) {
+      getApiReportDetail(reportId).then((response) => {
+        this.response = {};
+          if (!response.data ||(response.data.status && response.data.status.toUpperCase() === 'RUNNING') ) {
+            setTimeout(this.getReport(reportId), 1000);
+          } else {
+            this.loading = false;
+            this.showReport = true;
+            this.response = JSON.parse(response.data.content);
+          }
+      })
+
+    },
     open(reportId) {
       this.visible = true;
       this.showReport = false;
+      this.loading = true;
       this.$nextTick(() => {
-        this.showReport = true;
+        this.getReport(reportId);
         this.reportId = reportId;
       });
     }

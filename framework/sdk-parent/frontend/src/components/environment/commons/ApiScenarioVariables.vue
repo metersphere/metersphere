@@ -306,6 +306,7 @@ export default {
       if (isNeedCreate) {
         this.items.push(new KeyValue({ enable: true, id: getUUID(), type: 'CONSTANT', scope: 'api' }));
       }
+      this.currentPage = Math.ceil(this.items.length / this.pageSize);
       this.$emit('change', this.items);
       // TODO 检查key重复
     },
@@ -391,9 +392,9 @@ export default {
     },
     filter(scope) {
       let datas = [];
-      this.variables.forEach((item) => {
+      this.items.forEach((item) => {
         if (this.selectVariable && this.selectVariable != '' && item.name) {
-          if (item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1) {
+          if (item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) === -1) {
             item.hidden = true;
           } else {
             item.hidden = undefined;
@@ -401,9 +402,19 @@ export default {
         } else {
           item.hidden = undefined;
         }
-        datas.push(item);
+        if (!item.hidden) {
+          datas.push(item);
+        }
       });
-      this.variables = datas;
+      this.total = datas.length;
+      // 如果是第一页，则截取0到pageSize（每页显示多少条数据）即可
+      if (this.currentPage == 1) {
+        this.variables = datas.slice(0, this.pageSize);
+        return;
+      }
+      let start = (this.currentPage - 1) * this.pageSize;
+      let end = this.currentPage * this.pageSize;
+      this.variables = datas.slice(start, end);
     },
     filterScope(value, row) {
       if (value == 'ui') {
@@ -467,6 +478,7 @@ export default {
           }
         });
       }
+      this.currentPage = Math.ceil(this.items.length / this.pageSize);
     },
     onChange() {
       this.sortParameters();
@@ -508,15 +520,16 @@ export default {
         importData.id = getUUID();
         importData.enable = true;
         importData.showMore = false;
-        let sameNameIndex = this.variables.findIndex((d) => d.name === importData.name);
+        let sameNameIndex = this.items.findIndex((d) => d.name === importData.name);
         if (sameNameIndex !== -1) {
           if (modeId === 'fullCoverage') {
-            this.variables.splice(sameNameIndex, 1, importData);
+            this.items.splice(sameNameIndex, 1, importData);
           }
         } else {
-          this.variables.splice(this.variables.length - 1, 0, importData);
+          this.items.splice(this.items.length - 1, 0, importData);
         }
       });
+      this.currentPage = Math.ceil(this.items.length / this.pageSize);
     },
     handleExportCommand(command) {
       this.exportJSON();
@@ -528,6 +541,7 @@ export default {
     } else {
       //历史数据默认是 api 应用场景
       _.forEach(this.items, (item) => {
+        delete item.hidden;
         if (!item.scope) {
           this.$set(item, 'scope', 'api');
         }
