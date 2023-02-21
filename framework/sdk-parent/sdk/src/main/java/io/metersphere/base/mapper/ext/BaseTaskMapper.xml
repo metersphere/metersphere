@@ -40,7 +40,7 @@
             AND t.user_id = #{request.executor}
         </if>
         AND (t.integrated_report_id IS NULL OR t.integrated_report_id = 'null')
-        ORDER BY t.create_time DESC
+        ORDER BY t.create_time,t.end_time DESC
     </select>
 
     <select id="getScenarioTasks" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
@@ -70,7 +70,7 @@
         <if test="request.executor != null and request.executor != ''">
             AND t.user_id = #{request.executor}
         </if>
-       ORDER BY t.create_time DESC
+       ORDER BY t.create_time,t.end_time DESC
     </select>
 
     <select id="getPerfTasks" resultType="io.metersphere.task.dto.TaskCenterDTO"  parameterType="java.lang.String">

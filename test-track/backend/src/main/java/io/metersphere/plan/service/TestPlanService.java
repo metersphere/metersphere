@@ -1332,6 +1332,7 @@ public class TestPlanService {
                 config = JSON.parseMap(reportConfig);
             }
             TestPlanExecuteReportDTO testPlanExecuteReportDTO = testPlanReportService.genTestPlanExecuteReportDTOByTestPlanReportContent(testPlanReportContentWithBLOBs);
+
             TestPlanSimpleReportDTO report = null;
             boolean apiBaseInfoChanged = false;
             if (StringUtils.isEmpty(testPlanReportContentWithBLOBs.getApiBaseCount())) {
