@@ -34,7 +34,7 @@
     <div class="bar-item click-item"
          @click="handleNext">
       <span>
-        {{ $t('commons.next_page') }}
+        {{ $t("case.previous_public_case") }}
       </span>
       <i class="el-icon-arrow-right"/>
     </div>
@@ -43,7 +43,7 @@
          @click="handlePre">
       <i class="el-icon-arrow-left"/>
       <span>
-        {{ $t('commons.pre_page') }}
+        {{ $t('case.next_public_case') }}
       </span>
     </div>
 
