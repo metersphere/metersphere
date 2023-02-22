@@ -147,7 +147,11 @@ const message = {
     cancel_relate_case_tips_title: "Confirm cancel?",
     cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?",
     back_tips: "TestCase is not saved, Are you sure to quit?",
-    dependency_remove_confirm: "Is dependency release confirmed?"
+    dependency_remove_confirm: "Is dependency release confirmed?",
+    public: {
+      remove: 'Whether to remove the use case ',
+      batch_remove_confirm: "Confirm remove {0} item use case?",
+    }
   },
   attachment: {
     preview: "Preview",
