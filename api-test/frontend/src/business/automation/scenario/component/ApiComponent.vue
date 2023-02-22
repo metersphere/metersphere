@@ -450,7 +450,7 @@ export default {
                 selectEnvId = store.scenarioEnvMap.get(this.currentScenario.id + '_' + this.request.projectId);
                 this.environmentMap = this.envMap;
               }
-              if (!selectEnvId) {
+              if (!selectEnvId && !this.environmentGroupId) {
                 this.$warning(this.$t('api_test.automation.env_message'));
                 return false;
               }
@@ -483,6 +483,7 @@ export default {
             headers: this.currentScenario.headers,
             enableCookieShare: this.enableCookieShare,
             environmentId: selectEnvId,
+            environmentGroupId: this.environmentGroupId,
             hashTree: [this.request],
           };
           // 合并自身依赖场景变量
