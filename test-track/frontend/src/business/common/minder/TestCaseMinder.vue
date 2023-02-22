@@ -144,7 +144,7 @@ export default {
   watch: {
     selectNode() {
       if (this.$refs.minder) {
-        this.caseNum = this.selectNode.caseNum;
+        this.caseNum = this.selectNode.data.caseNum;
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
     },
@@ -160,7 +160,11 @@ export default {
   },
   mounted() {
     this.setIsChange(false);
-    this.caseNum = this.treeNodes[0].caseNum;
+    let moduleNum = 0;
+    this.treeNodes.forEach(node => {
+      moduleNum += node.caseNum;
+    })
+    this.caseNum = moduleNum;
     if (this.selectNode && this.selectNode.data) {
       if (this.$refs.minder) {
         let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
