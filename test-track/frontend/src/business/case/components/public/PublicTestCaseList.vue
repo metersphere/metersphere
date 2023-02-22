@@ -447,11 +447,11 @@ export default {
     callBackSelectAll(selection) {
       this.selectCounts = this.$refs.table.selectDataCounts;
     },
-    handleEdit(testCase, type) {
+    handleEdit(testCase) {
       // 这个接口会校验权限
       getEditSimpleTestCase(testCase.id)
         .then(() => {
-          openCaseEdit({caseId: testCase.id, type}, this);
+          openCaseEdit({caseId: testCase.id}, this);
         })
         .catch(() => {});
     },
