@@ -170,6 +170,7 @@ export default {
     },
     handleChange(file, fileList) {
       this.$refs.caseUpload.clearFiles();
+      this.showContinueBtn = false;
     },
     handleExceed(files, fileList) {
       this.$warning(this.$t('test_track.case.import.upload_limit_count'), false);
