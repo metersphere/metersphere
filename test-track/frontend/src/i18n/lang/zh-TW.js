@@ -147,7 +147,11 @@ const message = {
     cancel_relate_case_tips_title: "確定取消關聯關係嗎?",
     cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?",
     back_tips: "你填寫的信息未保存, 確定退出嗎?",
-    dependency_remove_confirm: "確定解除依賴嗎?"
+    dependency_remove_confirm: "確定解除依賴嗎?",
+    public: {
+      remove: '是否移除用例',
+      batch_remove_confirm: "確定移除{0}項用例?",
+    }
   },
   attachment: {
     preview: "預覽",
