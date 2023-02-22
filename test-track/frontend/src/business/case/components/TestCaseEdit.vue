@@ -79,7 +79,7 @@
           </div>
           <div
             class="follow-row head-opt"
-            v-if="!showFollow"
+            v-if="!showFollow && !isPublicShow"
             @click="saveFollow"
           >
             <div class="icon-row">
@@ -89,7 +89,7 @@
           </div>
           <div
             class="follow-row head-opt"
-            v-if="showFollow"
+            v-if="showFollow && !isPublicShow"
             @click="saveFollow"
           >
             <div class="icon-row">
@@ -150,7 +150,7 @@
           <div
             class="edit-public-row head-opt"
             v-if="isPublicShow"
-            @click="editPublicCase()"
+            @click="editPublicCase"
           >
             <div class="icon-row">
               <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
@@ -567,7 +567,7 @@ export default {
   },
   computed: {
     routeProjectId() {
-      return this.$route.params.projectId;
+      return this.$route.query.projectId;
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
@@ -795,16 +795,17 @@ export default {
 
       this.checkVersionEnable();
     },
-    editPublicCase(type) {
+    editPublicCase() {
       // 这个接口会校验权限
       getEditSimpleTestCase(this.caseId)
         .then(() => {
-          openCaseEdit({caseId: this.caseId, type},  this);
+          openCaseEdit({caseId: this.caseId},  this);
         })
         .catch(() => {});
     },
     copyPublicCase() {
-      this.editPublicCase('copy');
+      // 这里复制使用当前项目，不使用 projectId ，可能没有权限
+      openCaseEdit({caseId: this.caseId, type: 'copy', projectId: getCurrentProjectID()},  this);
     },
     closePublicCase() {
       this.$emit("close");
@@ -986,11 +987,26 @@ export default {
         });
       } else {
         this.projectId = this.routeProjectId;
-        if (this.routeProjectId) {
-          // 创建时会带 projectId，校验是否是当前项目
-          if (getCurrentProjectID() !== this.projectId) {
-            setCurrentProjectID(this.projectId);
-            location.reload();
+        // 创建和复制
+        if (this.isCopy || this.isAdd) {
+          // 带了 routeProjectId 校验是否是当前项目
+          if (this.routeProjectId) {
+            if (getCurrentProjectID() !== this.projectId) {
+              setCurrentProjectID(this.projectId);
+              location.reload();
+              return;
+            }
+          } else {
+            // 没带 routeProjectId 则使用当前项目
+            this.projectId = getCurrentProjectID();
+          }
+          if (this.caseId) {
+            // copy
+            await getSimpleTestCase(this.caseId).then((response) => {
+              let testCase = response.data;
+              // 重置用例的项目ID
+              testCase.projectId = this.projectId;
+            });
           }
         } else if (this.caseId) {
           // 接口会校验是否有改用例的编辑权限
@@ -1559,7 +1575,7 @@ export default {
       this.saveCase();
     },
     copyRow() {
-      openCaseEdit({caseId: this.testCase.id, type: 'copy'},  this);
+      openCaseEdit({caseId: this.testCase.id, type: 'copy', projectId: this.projectId},  this);
     },
     deleteRow() {
       getTestCaseVersions(this.testCase.id)

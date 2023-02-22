@@ -844,8 +844,8 @@ export default {
     reloadTable() {
       this.$refs.table.resetHeader();
     },
-    handleEdit(testCase, type) {
-      openCaseEdit({caseId: testCase.id, type}, this);
+    handleEdit(testCase) {
+      openCaseEdit({caseId: testCase.id}, this);
     },
     getCase(id) {
       this.$refs.testCasePreview.open();
@@ -870,7 +870,7 @@ export default {
         });
     },
     handleCopy(testCase) {
-      this.handleEdit(testCase, 'copy');
+      openCaseEdit({caseId: testCase.id, type: 'copy', projectId: this.projectId}, this);
     },
     handleDelete(testCase) {
       let title = this.$t('test_track.case.case_delete_completely_confirm') + ": " + testCase.name + "?";
