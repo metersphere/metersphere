@@ -339,7 +339,10 @@ export default {
           if (callback && callback instanceof Function) {
             callback();
           }
-        });
+        })
+        .catch(() => {
+          this.result.loading = false;
+         });
     },
     buildSaveParam(root, parent, preNode, nextNode) {
       let data = root.data;
