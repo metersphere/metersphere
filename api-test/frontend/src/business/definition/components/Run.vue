@@ -152,6 +152,9 @@ export default {
       if (this.runData[0].useEnvironment) {
         reqObj.environmentId = this.runData[0].useEnvironment;
       }
+      if (this.runData[0]) {
+        reqObj.environmentGroupId = this.runData[0].environmentGroupId;
+      }
       reqObj.reportId = this.reportId;
       if (!this.debug) {
         reqObj.syncResult = true;
