@@ -159,7 +159,7 @@
           </base-edit-item-component>
         </div>
       </div>
-      <div class="id-row case-wrap" v-if="isCustomNum">
+      <div class="id-row case-wrap">
         <div class="case-title-wrap">
           <div class="name title-wrap">ID</div>
           <div class="required required-item"></div>
