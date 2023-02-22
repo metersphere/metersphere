@@ -7,9 +7,12 @@ import io.metersphere.commons.constants.FileAssociationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.AttachmentType;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.utils.MetadataUtils;
 import io.metersphere.platform.domain.SyncIssuesAttachmentRequest;
@@ -576,6 +579,83 @@ public class AttachmentService {
         int s = filename.lastIndexOf(".") + 1;
         String type = filename.substring(s);
         return type.toUpperCase();
+    }
+
+    /**
+     * 上传文件的操作记录
+     *
+     * @param sourceId
+     * @param type
+     * @return
+     */
+    public String getLogDetails(String sourceId, String type, String fileName, Boolean isDelete) {
+        String projectId = null;
+        String createUser = null;
+        if (StringUtils.isBlank(sourceId) || StringUtils.isBlank(type) || StringUtils.isBlank(fileName)) {
+            return null;
+        }
+        if (AttachmentType.ISSUE.type().equals(type)) {
+            IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(sourceId);
+            if (issues == null) {
+                return null;
+            }
+            projectId = issues.getProjectId();
+            createUser = issues.getCreator();
+        } else if (AttachmentType.TEST_CASE.type().equals(type)) {
+            TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(sourceId);
+            if (testCase == null) {
+                return null;
+            }
+            projectId = testCase.getProjectId();
+            createUser = testCase.getCreateUser();
+        }
+        AttachmentRequest attachmentRequest = new AttachmentRequest();
+        attachmentRequest.setBelongId(sourceId);
+        attachmentRequest.setBelongType(type);
+        List<FileAttachmentMetadata> originFiles = listMetadata(attachmentRequest);
+        List<String> fileNames = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(originFiles)) {
+            fileNames = originFiles.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+        }
+        String after;
+        String before;
+
+        if (fileNames.contains(fileName)) {
+            after = String.join(",", fileNames);
+            fileNames.remove(fileName);
+            before = String.join(",", fileNames);
+        } else {
+            after = String.join(",", fileNames);
+            fileNames.add(fileName);
+            before = String.join(",", fileNames);
+        }
+
+        List<DetailColumn> columns = new ArrayList<>();
+        if (isDelete) {
+            DetailColumn column = new DetailColumn("附件", "files", after, before);
+            columns.add(column);
+        } else {
+            DetailColumn column = new DetailColumn("附件", "files", before, after);
+            columns.add(column);
+        }
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(sourceId), projectId, createUser, columns);
+        return JSON.toJSONString(details);
+    }
+
+    public String getLogDetails(String attachmentId, String attachmentType) {
+        FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(attachmentId);
+        if (fileAttachmentMetadata == null) {
+            return null;
+        }
+        String fileName = fileAttachmentMetadata.getName();
+        AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+        example.createCriteria().andAttachmentIdEqualTo(attachmentId).andRelationTypeEqualTo(attachmentType);
+        List<AttachmentModuleRelation> attachmentModuleRelations = attachmentModuleRelationMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(attachmentModuleRelations)) {
+            return null;
+        }
+        String relationId = attachmentModuleRelations.get(0).getRelationId();
+        return this.getLogDetails(relationId, attachmentType, fileName, true);
     }
 
 }
