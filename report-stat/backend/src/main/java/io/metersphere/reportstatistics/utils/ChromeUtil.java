@@ -47,10 +47,6 @@ public class ChromeUtil {
         try {
             driver = new RemoteWebDriver(new URL(seleniumUrl), options);
         } catch (Exception e) {
-            if (driver != null) {
-                driver.quit();
-                driver = null;
-            }
             LogUtil.error(e);
         }
         return driver;
@@ -66,6 +62,7 @@ public class ChromeUtil {
             for (Map.Entry<String, String> urlEntry : request.getUrlMap().entrySet()) {
                 String id = urlEntry.getKey();
                 String url = urlEntry.getValue();
+                String files = null;
                 try {
                     driver.get(url);
                     driver.manage().window().fullscreen();
@@ -77,20 +74,14 @@ public class ChromeUtil {
                             " imageUrl = chartsCanvas && chartsCanvas.toDataURL('image/png');" +
                             "return imageUrl;" +
                             "}";
-                    String files = ((JavascriptExecutor) driver).executeScript(js).toString();
-                    if (StringUtils.isNotEmpty(files)) {
-                        returnMap.put(id, files);
-                    }
+                    files = ((JavascriptExecutor) driver).executeScript(js).toString();
                     Thread.sleep(1 * 1000);
                 } catch (Exception e) {
                     LogUtil.error("使用selenium获取图片报错!", e);
                 }
-
+                returnMap.put(id, files);
             }
-
-            if (driver != null) {
-                driver.quit();
-            }
+            driver.quit();
         }
         return returnMap;
     }

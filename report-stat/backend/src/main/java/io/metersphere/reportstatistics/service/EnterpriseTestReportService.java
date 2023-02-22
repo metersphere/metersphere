@@ -374,8 +374,8 @@ public class EnterpriseTestReportService {
                 }
                 reportContent.append(previweContent);
             } else if (isReportStep(step.getType())) {
-                if (isSchedule) {
-                    //定时任务触发的数据，需要检查图片是否需要重新生成。如果生成不成功就不贴图
+                if (isSchedule && syncReportMap.containsKey(step.getReportRecordId())) {
+                    //定时任务触发的数据，需要检查图片是否需要重新生成。如果生成失败，syncReportMap里有对应的步骤id，但是没有图片数据
                     String imageFile = syncReportMap.get(step.getReportRecordId());
                     if (StringUtils.isNotEmpty(imageFile)) {
                         step.setRecordImageContent(imageFile);

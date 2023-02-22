@@ -4,35 +4,50 @@
       <div v-if="!reportDetail.nameIsEdit" style="line-height: 30px">
         <span style="margin-left: 5px">{{ reportDetail.name }}</span>
         <i class="el-icon-edit" @click="editAttachDataName(true)"></i>
-        <i class="el-icon-delete" @click="deleteDetail" style="float: right;margin-top: 6px; margin-right: 10px"></i>
+        <i
+          class="el-icon-delete"
+          @click="deleteDetail"
+          style="float: right; margin-top: 6px; margin-right: 10px"
+        ></i>
       </div>
-      <el-input v-else v-model="reportDetail.name" @blur="editAttachDataName(false)"></el-input>
+      <el-input
+        v-else
+        v-model="reportDetail.name"
+        @blur="editAttachDataName(false)"
+      ></el-input>
     </div>
     <div class="ms-row">
-      <report-chart :report-id="reportDetail.id" :chart-width="pieOption.width" :read-only="true"
-                    :need-full-screen="false" :chart-type="chartType"
-                    ref="analysisChart" :load-option="loadOption" :pie-option="pieOption"/>
+      <report-chart
+        :report-id="reportDetail.id"
+        :chart-width="pieOption.width"
+        :read-only="true"
+        :need-full-screen="false"
+        :chart-type="chartType"
+        ref="analysisChart"
+        :load-option="loadOption"
+        :pie-option="pieOption"
+      />
     </div>
     <div class="ms-row">
-      <report-table :full-screen="false" :group-name="options.xaxis" :show-columns="options.yaxis"
-                    :tableData="tableData"/>
+      <report-table
+        :full-screen="false"
+        :group-name="options.xaxis"
+        :show-columns="options.yaxis"
+        :tableData="tableData"
+      />
     </div>
   </div>
-
 </template>
 
 <script>
-
-
 import ReportChart from "@/business/enterprisereport/components/chart/ReportChart";
 import ReportTable from "@/business/enterprisereport/components/chart/ReportTable";
 
 export default {
   name: "ReportPic",
-  components: {ReportChart, ReportTable},
+  components: { ReportChart, ReportTable },
   data() {
     return {
-
       chartType: "bar",
       loading: false,
       options: {},
@@ -42,7 +57,7 @@ export default {
         yAxis: {},
         label: {},
         tooltip: {},
-        series: []
+        series: [],
       },
       pieOption: {
         legend: {},
@@ -61,7 +76,7 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
     },
   },
   created() {
@@ -80,9 +95,9 @@ export default {
       let selectTableData = this.reportDetail.reportRecordData.tableData;
       let selectOption = this.reportDetail.reportRecordData.selectOption;
       if (this.reportDetail.reportRecordData.chartType) {
-        if (this.reportDetail.reportRecordData.chartType === "\"bar\"") {
+        if (this.reportDetail.reportRecordData.chartType === '"bar"') {
           this.chartType = "bar";
-        } else if (this.reportDetail.reportRecordData.chartType === "\"pie\"") {
+        } else if (this.reportDetail.reportRecordData.chartType === '"pie"') {
           this.chartType = "pie";
         } else {
           this.chartType = this.reportDetail.reportRecordData.chartType;
@@ -91,16 +106,26 @@ export default {
       if (selectOption) {
         this.options = selectOption;
         if (this.options.xaxis) {
-          if (this.options.xaxis === 'creator') {
-            this.options.xaxis = this.$t('commons.report_statistics.report_filter.select_options.creator');
-          } else if (this.options.xaxis === 'maintainer') {
-            this.options.xaxis = this.$t('commons.report_statistics.report_filter.select_options.maintainer');
-          } else if (this.options.xaxis === 'casetype') {
-            this.options.xaxis = this.$t('commons.report_statistics.report_filter.select_options.case_type');
-          } else if (this.options.xaxis === 'casestatus') {
-            this.options.xaxis = this.$t('commons.report_statistics.report_filter.select_options.case_status');
-          } else if (this.options.xaxis === 'caselevel') {
-            this.options.xaxis = this.$t('commons.report_statistics.report_filter.select_options.case_level');
+          if (this.options.xaxis === "creator") {
+            this.options.xaxis = this.$t(
+              "commons.report_statistics.report_filter.select_options.creator"
+            );
+          } else if (this.options.xaxis === "maintainer") {
+            this.options.xaxis = this.$t(
+              "commons.report_statistics.report_filter.select_options.maintainer"
+            );
+          } else if (this.options.xaxis === "casetype") {
+            this.options.xaxis = this.$t(
+              "commons.report_statistics.report_filter.select_options.case_type"
+            );
+          } else if (this.options.xaxis === "casestatus") {
+            this.options.xaxis = this.$t(
+              "commons.report_statistics.report_filter.select_options.case_status"
+            );
+          } else if (this.options.xaxis === "caselevel") {
+            this.options.xaxis = this.$t(
+              "commons.report_statistics.report_filter.select_options.case_level"
+            );
           }
         }
       }
@@ -113,9 +138,9 @@ export default {
         this.loadOption.xaxis = barData.xaxis;
         this.loadOption.series = barData.series;
         this.loadOption.grid = {
-          bottom: '75px',//距离下边距
+          bottom: "75px", //距离下边距
         };
-        this.loadOption.series.forEach(item => {
+        this.loadOption.series.forEach((item) => {
           item.type = "bar";
         });
       }
@@ -125,13 +150,13 @@ export default {
         this.pieOption.series = pieData.series;
         this.pieOption.title = pieData.title;
         this.pieOption.grid = {
-          bottom: '75px',//距离下边距
+          bottom: "75px", //距离下边距
         };
         if (pieData.width) {
           this.pieOption.width = pieData.width;
           this.chartWidth = pieData.width;
         }
-        this.pieOption.series.forEach(item => {
+        this.pieOption.series.forEach((item) => {
           item.type = "pie";
         });
       }
@@ -147,39 +172,50 @@ export default {
       if (!formatData) {
         return;
       }
-      if (typeof (formatData.legend) === 'string') {
+      if (typeof formatData.legend === "string") {
         formatData.legend = JSON.parse(formatData.legend);
       }
-      if (typeof (formatData.xaxis) === 'string') {
+      if (typeof formatData.xaxis === "string") {
         formatData.xaxis = JSON.parse(formatData.xaxis);
       }
-      if (typeof (formatData.series) === 'string') {
+      if (typeof formatData.series === "string") {
         formatData.series = JSON.parse(formatData.series);
       }
-      if (typeof (formatData.title) === 'string') {
+      if (typeof formatData.title === "string") {
         formatData.title = JSON.parse(formatData.title);
       }
     },
     initData() {
-      this.reportDetail.recordImageContent = this.$refs.analysisChart.getImages("png");
+      this.reportDetail.recordImageContent =
+        this.$refs.analysisChart.getImages("png");
     },
     getGroupNameStr(groupName) {
-      if (groupName === 'creator') {
-        return this.$t('commons.report_statistics.report_filter.select_options.creator');
-      } else if (groupName === 'maintainer') {
-        return this.$t('commons.report_statistics.report_filter.select_options.maintainer');
-      } else if (groupName === 'casetype') {
-        return this.$t('commons.report_statistics.report_filter.select_options.case_type');
-      } else if (groupName === 'casestatus') {
-        return this.$t('commons.report_statistics.report_filter.select_options.case_status');
-      } else if (groupName === 'caselevel') {
-        return this.$t('commons.report_statistics.report_filter.select_options.case_level');
+      if (groupName === "creator") {
+        return this.$t(
+          "commons.report_statistics.report_filter.select_options.creator"
+        );
+      } else if (groupName === "maintainer") {
+        return this.$t(
+          "commons.report_statistics.report_filter.select_options.maintainer"
+        );
+      } else if (groupName === "casetype") {
+        return this.$t(
+          "commons.report_statistics.report_filter.select_options.case_type"
+        );
+      } else if (groupName === "casestatus") {
+        return this.$t(
+          "commons.report_statistics.report_filter.select_options.case_status"
+        );
+      } else if (groupName === "caselevel") {
+        return this.$t(
+          "commons.report_statistics.report_filter.select_options.case_level"
+        );
       } else {
         return "";
       }
     },
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
