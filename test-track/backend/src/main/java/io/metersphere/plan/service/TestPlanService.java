@@ -840,7 +840,7 @@ public class TestPlanService {
 
         //环境参数为空时，依据测试计划保存的环境执行
         if (((StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && StringUtils.isBlank(runModeConfig.getEnvironmentGroupId()))
-                || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap())))
+                || (!StringUtils.equals("GROUP", runModeConfig.getEnvironmentType()) && MapUtils.isEmpty(runModeConfig.getEnvMap()) && MapUtils.isEmpty(runModeConfig.getTestPlanDefaultEnvMap())))
                 && !StringUtils.equals(executionWay, ExecutionWay.RUN.name())) {
             TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
             if (StringUtils.isNotEmpty(testPlanWithBLOBs.getRunModeConfig())) {
@@ -853,6 +853,7 @@ public class TestPlanService {
                         Map<String, String> envMap = testPlanRunRequest.getEnvMap();
                         String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
                         runModeConfig = getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanId);
+                        runModeConfig.setTestPlanDefaultEnvMap(testPlanRunRequest.getTestPlanDefaultEnvMap());
                         if (!testPlanRunRequest.isRunWithinResourcePool()) {
                             runModeConfig.setResourcePoolId(null);
                         }
@@ -1637,6 +1638,7 @@ public class TestPlanService {
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
         String testPlanId = testplanRunRequest.getTestPlanId();
         RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
+        runModeConfig.setTestPlanDefaultEnvMap(testplanRunRequest.getTestPlanDefaultEnvMap());
 
         String apiRunConfig = JSON.toJSONString(runModeConfig);
         return this.run(testPlanId, testplanRunRequest.getProjectId(),
