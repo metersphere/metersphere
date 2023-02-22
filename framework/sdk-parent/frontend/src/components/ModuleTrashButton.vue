@@ -1,8 +1,8 @@
 <template>
   <div @click="exe" class="recycle">
-    <div style="padding: 9px 24px;" class="to-public">
+    <div class="to-public">
       <svg-icon icon-class="icon_delete-trash_filled" style="width: 1.3em;height: 1.3em;"/>
-      <span style="position: relative;top: -2px;left: 7px;">{{ $t('commons.trash') }}</span>
+      <span style="position: relative;top: -0.5px;left: 11px;">{{ $t('commons.trash') }}</span>
     </div>
   </div>
 </template>
@@ -71,5 +71,11 @@ i.el-icon-delete {
 .el-icon-delete:before {
   margin-right: 4px;
   font-size: 14px;
+}
+
+.to-public {
+  display: flex;
+  padding: 9px 24px;
+  min-width: 200px;
 }
 </style>
