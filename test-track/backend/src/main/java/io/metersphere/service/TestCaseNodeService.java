@@ -96,6 +96,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
                     + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
+        this.checkTestCaseNodeExist(node);
     }
 
     private void checkTestCaseNodeExist(TestCaseNode node) {
