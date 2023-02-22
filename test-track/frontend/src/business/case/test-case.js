@@ -64,7 +64,11 @@ export function openCaseEdit(query, v) {
   if (!query.type) {
     delete query.type;
   }
-  delete query.projectId;
+  if (query.type !== 'copy') {
+    // 编辑不带项目id，会检查用例的权限
+    // 复制需要带项目id，复制到当前项目，包括用例库的复制
+    delete query.projectId;
+  }
   let path = '/track/case/edit/' + query.caseId;
   delete query.caseId;
   let TestCaseData = v.$router.resolve({
