@@ -205,6 +205,9 @@ export default {
       });
     },
     getTranslateOption(item) {
+      if (!item) {
+        return '';
+      }
       if (Array.isArray(item)) {
         let arr = [];
         item.forEach((v) => {
