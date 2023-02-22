@@ -573,7 +573,10 @@ export default {
           return node;
         } else {
           if (node.children && node.children.length > 0) {
-            return this.findTreeNode(node.children);
+            let findNode = this.findTreeNode(node.children);
+            if (findNode != null) {
+              return findNode;
+            }
           }
         }
       }
