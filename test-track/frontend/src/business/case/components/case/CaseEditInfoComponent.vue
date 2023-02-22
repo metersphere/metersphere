@@ -98,6 +98,12 @@
           </div>
         </el-tab-pane>
         <el-tab-pane :label="$t('case.comment')" name="comment">
+          <span slot="label">
+            {{ $t('case.comment') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments && comments.length > 0">
+              <div class="el-step__icon-inner">{{ comments.length }}</div>
+            </div>
+          </span>
           <div
             class="tab-container"
             :class="{ 'comment-edit-tab-container': isCommentEdit }"
@@ -425,8 +431,8 @@ export default {
 .ms-header {
   background: #783887;
   color: white;
-  height: 18px;
-  width: 18px;
+  height: 24px;
+  width: 24px;
   font-size: xx-small;
   border-radius: 50%;
 }
