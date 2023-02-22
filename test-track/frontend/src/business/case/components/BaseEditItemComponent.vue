@@ -74,7 +74,9 @@
         >
           <div class="story-box">
             <div class="platform">{{ getStoryPlatform() }}</div>
-            <div class="story-label">{{ getStoryLabel() }}</div>
+            <el-tooltip :content="getStoryLabel()" placement="top" effect="dark">
+              <div class="story-label text-ellipsis">{{ getStoryLabel() }}</div>
+            </el-tooltip>
           </div>
         </div>
         <div
@@ -460,6 +462,12 @@ export default {
       font-size: 14px;
       line-height: 22px;
       color: #1f2329;
+    }
+    .text-ellipsis {
+      text-overflow: ellipsis;
+      overflow-x: hidden;
+      white-space: nowrap;
+      max-width: 190px;
     }
   }
 }
