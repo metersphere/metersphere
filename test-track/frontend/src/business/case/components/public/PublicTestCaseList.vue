@@ -478,8 +478,8 @@ export default {
             // 删除提供列表删除和全部版本删除
             this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
           } else {
-            let title = this.$t('test_track.case.case_delete_confirm') + ": " + testCase.name + "?";
-            this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+            let title = this.$t('case.public.remove') + ": " + testCase.name + "?";
+            this.$confirm(title, '', {
                 cancelButtonText: this.$t("commons.cancel"),
                 confirmButtonText: this.$t("commons.delete"),
                 customClass: 'custom-confirm-delete',
@@ -556,8 +556,8 @@ export default {
       this.$emit('refreshAll');
     },
     handleDeleteBatchToPublic() {
-      let title = this.$t('test_track.case.batch_delete_confirm', [this.$refs.table.selectIds.length]);
-      this.$confirm(this.$t('test_track.case.batch_delete_tip'), title, {
+      let title = this.$t('case.public.batch_remove_confirm', [this.$refs.table.selectIds.length]);
+      this.$confirm(title, '', {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.delete"),
           customClass: 'custom-confirm-delete',
