@@ -88,6 +88,7 @@ public class MsHashTreeService {
     private static final String FOLLOW_REDIRECTS = "followRedirects";
     private static final String AUTO_REDIRECTS = "autoRedirects";
     private static final String ALIAS = "alias";
+    private static final String INDEX = "index";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -145,6 +146,7 @@ public class MsHashTreeService {
             if (apiTestCase != null) {
                 if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                     JSONObject refElement = JSONUtil.parseObject(apiTestCase.getRequest());
+                    refElement.remove(INDEX);
                     ElementUtil.dataFormatting(refElement);
                     JSONArray array = refElement.optJSONArray(HASH_TREE);
                     ElementUtil.copyBean(element, refElement);
