@@ -4,7 +4,7 @@
       <img :src="url" :alt="$t('test_track.case.img_loading_fail')" style="width: 100%;height: 100%;"
            v-if="file.type === 'JPG' || file.type === 'JPEG' || file.type === 'PNG'">
       <div v-if="file.type === 'PDF'">
-        <test-case-pdf :file-id="file.id"/>
+        <test-case-pdf-view-base-js :pdf-url="'/attachment/preview/' + this.file.id + '/' + this.file.isLocal"/>
       </div>
     </div>
   </el-dialog>
@@ -12,12 +12,12 @@
 
 <script>
 
-import TestCasePdf from "@/business/case/components/TestCasePdf";
+import TestCasePdfViewBaseJs from "@/business/case/components/TestCasePdfViewBaseJs";
 import {generateModuleUrl} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseFiles",
-  components: {TestCasePdf},
+  components: {TestCasePdfViewBaseJs},
   props: {},
   data() {
     return {
