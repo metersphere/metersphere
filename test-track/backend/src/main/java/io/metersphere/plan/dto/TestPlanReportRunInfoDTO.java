@@ -15,7 +15,7 @@ public class TestPlanReportRunInfoDTO {
     private String envGroupId;
 
     private String runMode;
-    private Map<String, String> requestEnvMap;
+    private Map<String, List<String>> requestEnvMap;
 
     // <测试计划场景关联表ID, <项目ID，环境ID>>
     private Map<String, Map<String, List<String>>> scenarioRunInfo;

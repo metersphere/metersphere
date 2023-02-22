@@ -18,6 +18,7 @@
           :has-option-group="true"
           :group-id="runConfig.environmentGroupId"
           @setProjectEnvMap="setProjectEnvMap"
+          @setDefaultEnv="setDefaultEnv"
           @setEnvGroup="setEnvGroup"
           ref="envSelectPopover"
           class="mode-row"
@@ -249,6 +250,7 @@ export default {
       testType: null,
       resourcePools: [],
       projectEnvListMap: {},
+      defaultEnvMap: {},
       runConfig: {
         mode: "serial",
         reportType: "iddReport",
@@ -261,6 +263,7 @@ export default {
         retryEnable: false,
         retryNum: 1,
         browser: "CHROME",
+        testPlanDefaultEnvMap: {},
       },
       projectList: [],
       projectIds: new Set(),
@@ -309,9 +312,11 @@ export default {
   },
   methods: {
     open(testType, runModeConfig) {
+      this.defaultEnvMap = {};
       if (runModeConfig) {
         this.runConfig = JSON.parse(runModeConfig);
         this.runConfig.envMap = new Map();
+        this.runConfig.testPlanDefaultEnvMap = {};
         this.runConfig.onSampleError =
           this.runConfig.onSampleError === "true" ||
           this.runConfig.onSampleError === true;
@@ -368,6 +373,7 @@ export default {
       this.$emit("close");
     },
     handleRunBatch() {
+      this.runConfig.testPlanDefaultEnvMap = this.defaultEnvMap;
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },
@@ -375,6 +381,14 @@ export default {
       getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
       });
+    },
+    setDefaultEnv(projectId, envId) {
+      let ids = this.defaultEnvMap[projectId];
+      if (!ids) {
+        ids = [];
+      }
+      ids.push(envId);
+      this.defaultEnvMap[projectId] = ids;
     },
     setProjectEnvMap(projectEnvMap) {
       this.runConfig.envMap = projectEnvMap;

@@ -271,7 +271,18 @@ public class TestPlanReportService {
             List<TestPlanApiScenarioInfoDTO> scenarios) {
 
         TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
-        runInfoDTO.setRequestEnvMap(config.getEnvMap());
+        if (MapUtils.isNotEmpty(config.getEnvMap())) {
+            //判断记录选择的环境还是默认环境
+            Map<String, List<String>> requestEnvMap = new HashMap<>();
+            for (Map.Entry<String, String> entry : config.getEnvMap().entrySet()) {
+                requestEnvMap.put(entry.getKey(), new ArrayList<>() {{
+                    this.add(entry.getValue());
+                }});
+            }
+            runInfoDTO.setRequestEnvMap(requestEnvMap);
+        } else {
+            runInfoDTO.setRequestEnvMap(config.getTestPlanDefaultEnvMap());
+        }
 
         final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
         runInfoDTO.setRunMode(config.getMode());
@@ -1281,16 +1292,18 @@ public class TestPlanReportService {
             } else {
                 if (MapUtils.isNotEmpty(runInfoDTO.getRequestEnvMap())) {
                     Map<String, List<String>> projectEnvMap = new HashMap<>();
-                    for (Map.Entry<String, String> entry : runInfoDTO.getRequestEnvMap().entrySet()) {
+                    for (Map.Entry<String, List<String>> entry : runInfoDTO.getRequestEnvMap().entrySet()) {
                         String projectId = entry.getKey();
-                        String envId = entry.getValue();
+                        List<String> envIdList = entry.getValue();
                         Project project = baseProjectService.getProjectById(projectId);
                         String projectName = project == null ? null : project.getName();
-                        String envNames = apiTestEnvironmentService.selectNameById(envId);
-                        if (StringUtils.isNotEmpty(projectName) && StringUtils.isNotEmpty(envNames)) {
-                            projectEnvMap.put(projectName, new ArrayList<>() {{
-                                this.add(envNames);
-                            }});
+                        if (StringUtils.isNotEmpty(projectName)) {
+                            List<String> envNameList = new ArrayList<>();
+                            for (String envId : envIdList) {
+                                String envName = apiTestEnvironmentService.selectNameById(envId);
+                                envNameList.add(envName);
+                            }
+                            projectEnvMap.put(projectName, envNameList);
                         }
                     }
                     if (MapUtils.isNotEmpty(projectEnvMap)) {
