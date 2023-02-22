@@ -606,9 +606,6 @@ export default {
     isCopy() {
       return this.editType == 'copy';
     },
-    publicEnable() {
-      return this.editType == 'public';
-    },
     showPublic() {
       return this.isPublic && this.isXpack;
     },
@@ -1049,6 +1046,7 @@ export default {
             item.isEdit = false;
           });
           this.form.id = null;
+          testCase.casePublic = false;
         }
         this.currentTestCaseInfo = testCase;
         this.setFormData(testCase);
@@ -1208,14 +1206,8 @@ export default {
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
       param.copyCaseId = this.caseId;
-      if (!this.publicEnable) {
-        if (this.projectId) {
-          param.projectId = this.projectId;
-        }
-      }
-      if (this.publicEnable) {
-        this.casePublic = true;
-      }
+      param.projectId = this.projectId;
+
       param.name = param.name.trim();
       if (this.form.tags instanceof Array) {
         param.tags = JSON.stringify(this.form.tags);
