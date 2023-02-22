@@ -75,11 +75,10 @@
         <org-json.version>20220924</org-json.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
         <nacos.version>1.4.4</nacos.version>
-        <minio.version>8.4.5</minio.version>
+        <minio.version>8.5.2</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.4</commons-fileupload.version>
-        <jgit.version>6.3.0.202209071007-r</jgit.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v16.10.0</node.version>
