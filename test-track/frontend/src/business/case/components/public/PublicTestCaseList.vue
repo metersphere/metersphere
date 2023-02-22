@@ -143,9 +143,20 @@
           :label="$t('commons.tag')"
           min-width="80">
           <template v-slot:default="scope">
-            <ms-single-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 80"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <el-tooltip class="item" effect="dark" placement="top">
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+                <div class="oneLine">
+                  <ms-single-tag
+                    v-for="(itemName, index) in parseColumnTag(scope.row.tags)"
+                    :key="index"
+                    type="success"
+                    effect="plain"
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                    :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
+                </div>
+              </el-tooltip>
+              <span/>
           </template>
         </ms-table-column>
 
@@ -240,7 +251,7 @@ import {useStore} from "@/store";
 import {getProjectMemberUserFilter} from "@/api/user";
 import TypeTableItem from "@/business/common/tableItems/planview/TypeTableItem";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
-import {openCaseEdit} from "@/business/case/test-case";
+import {getTagToolTips, openCaseEdit, parseColumnTag} from "@/business/case/test-case";
 import PublicTestCaseShow from "@/business/case/components/public/PublicTestCaseShow"
 
 
@@ -502,6 +513,12 @@ export default {
             this.$emit("refreshPublic");
           })
       }
+    },
+    getTagToolTips(tags) {
+      return getTagToolTips(tags);
+    },
+    parseColumnTag(tags) {
+      return parseColumnTag(tags);
     },
     isOwner(testCase) {
       return testCase.maintainer === this.currentUser || testCase.createUser === this.currentUser;

@@ -312,7 +312,7 @@ import {
   getCustomFieldValueForTrack,
   getProjectMemberOption
 } from "@/business/utils/sdk-utils";
-import {initTestCaseConditionComponents, openCaseEdit} from "@/business/case/test-case";
+import {getTagToolTips, initTestCaseConditionComponents, openCaseEdit, parseColumnTag} from "@/business/case/test-case";
 
 
 export default {
@@ -628,25 +628,10 @@ export default {
       });
     },
     getTagToolTips(tags) {
-      try {
-        let showTips = '';
-        tags.forEach((item) => {
-          showTips += item + ',';
-        });
-        return showTips.substr(0, showTips.length - 1);
-      } catch (e) {
-        return '';
-      }
+      return getTagToolTips(tags);
     },
     parseColumnTag(tags) {
-      if (tags.length > 1) {
-        let parseTags = [];
-        parseTags.push(tags[0]);
-        parseTags.push("+" + (tags.length - 1));
-        return parseTags;
-      } else {
-        return tags;
-      }
+      return parseColumnTag(tags);
     },
     initConditionComponents() {
       this.condition.components = initTestCaseConditionComponents(this.condition, this.testCaseTemplate.customFields, this.trashEnable);

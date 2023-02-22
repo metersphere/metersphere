@@ -96,3 +96,27 @@ export function openCaseCreate(query, v) {
   });
   window.open(TestCaseData.href, '_blank');
 }
+
+export function getTagToolTips(tags) {
+  try {
+    let showTips = '';
+    tags.forEach((item) => {
+      showTips += item + ',';
+    });
+    return showTips.substr(0, showTips.length - 1);
+  } catch (e) {
+    return '';
+  }
+}
+
+
+export function parseColumnTag(tags) {
+  if (tags.length > 1) {
+    let parseTags = [];
+    parseTags.push(tags[0]);
+    parseTags.push("+" + (tags.length - 1));
+    return parseTags;
+  } else {
+    return tags;
+  }
+}
