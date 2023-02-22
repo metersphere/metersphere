@@ -38,6 +38,7 @@
         <mybatis-starter.version>3.0.1</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
+        <commons-io.version>2.11.0</commons-io.version>
         <commons-text.version>1.10.0</commons-text.version>
         <xstream.version>1.4.20</xstream.version>
         <xmlbeans.version>3.1.0</xmlbeans.version>
