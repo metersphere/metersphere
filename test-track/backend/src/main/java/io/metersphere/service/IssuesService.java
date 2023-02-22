@@ -1018,7 +1018,7 @@ public class IssuesService {
         if (MapUtils.isNotEmpty(attachmentMap)) {
             for (String issueId : attachmentMap.keySet()) {
                 // 查询我们平台的附件
-                Set<String> jiraAttachmentSet = new HashSet<>();
+                Set<String> platformAttachmentSet = new HashSet<>();
                 List<FileAttachmentMetadata> allMsAttachments = getIssueFileAttachmentMetadata(issueId);
                 Set<String> attachmentsNameSet = allMsAttachments.stream()
                         .map(FileAttachmentMetadata::getName)
@@ -1031,14 +1031,14 @@ public class IssuesService {
                 for (PlatformAttachment syncAttachment : syncAttachments) {
                     String fileName = syncAttachment.getFileName();
                     String fileKey = syncAttachment.getFileKey();
+                    platformAttachmentSet.add(fileName);
                     if (!attachmentsNameSet.contains(fileName)) {
-                        jiraAttachmentSet.add(fileName);
                         saveAttachmentModuleRelation(platform, issueId, fileName, fileKey, batchAttachmentModuleRelationMapper);
                     }
                 }
 
                 // 删除Jira中不存在的附件
-                deleteSyncAttachment(batchAttachmentModuleRelationMapper, jiraAttachmentSet, allMsAttachments);
+                deleteSyncAttachment(batchAttachmentModuleRelationMapper, platformAttachmentSet, allMsAttachments);
             }
         }
     }
@@ -1081,13 +1081,13 @@ public class IssuesService {
     }
 
     private void deleteSyncAttachment(AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper,
-                                      Set<String> jiraAttachmentSet,
+                                      Set<String> platformAttachmentSet,
                                       List<FileAttachmentMetadata> allMsAttachments) {
        try {
            // 删除Jira中不存在的附件
            if (CollectionUtils.isNotEmpty(allMsAttachments)) {
                List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
-                       .filter(msAttachment -> !jiraAttachmentSet.contains(msAttachment.getName()))
+                       .filter(msAttachment -> !platformAttachmentSet.contains(msAttachment.getName()))
                        .collect(Collectors.toList());
                deleteMsAttachments.forEach(fileAttachmentMetadata -> {
                    List<String> ids = List.of(fileAttachmentMetadata.getId());
