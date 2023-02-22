@@ -26,6 +26,9 @@ public class RunModeConfigDTO {
      * 运行环境
      */
     private Map<String, String> envMap;
+
+    //测试计划整体执行时的默认环境
+    private Map<String, List<String>> testPlanDefaultEnvMap;
     private String environmentType;
     private String environmentGroupId;
     //ui 测试

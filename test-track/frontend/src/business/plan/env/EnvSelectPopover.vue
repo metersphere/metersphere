@@ -264,6 +264,7 @@ export default {
     },
     initDefaultEnv() {
       this.selectedEnvName = new Map();
+      let defaultEnv = new Map();
       this.evnList = [];
       this.projectIds.forEach((d) => {
         let item = {
@@ -307,7 +308,8 @@ export default {
                 } else {
                   this.selectedEnvName.get(d).push(filter[0].name);
                 }
-                this.chooseEnv(filter[0].id);
+
+                this.$emit("setDefaultEnv", d, filter[0].id);
               });
             }
           }

@@ -1,10 +1,13 @@
 <template>
   <el-card class="table-card" v-loading="cardLoading">
     <template v-slot:header>
-      <ms-table-header :create-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :condition.sync="condition"
-                       @search="search" @create="testPlanCreate"
-                       :create-tip="$t('test_track.plan.create_plan')"/>
-
+      <ms-table-header
+        :create-permission="['PROJECT_TRACK_PLAN:READ+CREATE']"
+        :condition.sync="condition"
+        @search="search"
+        @create="testPlanCreate"
+        :create-tip="$t('test_track.plan.create_plan')"
+      />
     </template>
 
     <ms-table
@@ -25,24 +28,25 @@
       @order="initTableData"
       ref="testPlanLitTable"
       @filter="search"
-      @handleRowClick="intoPlan">
-
+      @handleRowClick="intoPlan"
+    >
       <span v-for="item in fields" :key="item.key">
-
         <ms-table-column
           prop="name"
           :field="item"
           :fields-width="fieldsWidth"
           sortable
           :label="$t('commons.name')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="principalName"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.plan_principal')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="createUser"
@@ -50,7 +54,8 @@
           :filters="userFilter"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="status"
@@ -60,37 +65,49 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="120px"
-          :label="$t('test_track.plan.plan_status')">
-            <template v-slot:default="scope">
+          :label="$t('test_track.plan.plan_status')"
+        >
+          <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
               <el-dropdown class="test-case-status" @command="statusChange">
                 <span class="el-dropdown-link">
-                  <plan-status-table-item :value="scope.row.status"/>
+                  <plan-status-table-item :value="scope.row.status" />
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!hasEditPermission" :command="{item: scope.row, status: 'Prepare'}">
-                    {{ $t('test_track.plan.plan_status_prepare') }}
+                  <el-dropdown-item
+                    :disabled="!hasEditPermission"
+                    :command="{ item: scope.row, status: 'Prepare' }"
+                  >
+                    {{ $t("test_track.plan.plan_status_prepare") }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{item: scope.row, status: 'Underway'}">
-                    {{ $t('test_track.plan.plan_status_running') }}
+                  <el-dropdown-item
+                    :disabled="!hasEditPermission"
+                    :command="{ item: scope.row, status: 'Underway' }"
+                  >
+                    {{ $t("test_track.plan.plan_status_running") }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{item: scope.row, status: 'Finished'}">
-                    {{ $t('test_track.plan.plan_status_finished') }}
+                  <el-dropdown-item
+                    :disabled="!hasEditPermission"
+                    :command="{ item: scope.row, status: 'Finished' }"
+                  >
+                    {{ $t("test_track.plan.plan_status_finished") }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{item: scope.row, status: 'Completed'}">
-                    {{ $t('test_track.plan.plan_status_completed') }}
+                  <el-dropdown-item
+                    :disabled="!hasEditPermission"
+                    :command="{ item: scope.row, status: 'Completed' }"
+                  >
+                    {{ $t("test_track.plan.plan_status_completed") }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!hasEditPermission"
-                                    :command="{item: scope.row, status: 'Archived'}">
-                    {{ $t('test_track.plan.plan_status_archived') }}
+                  <el-dropdown-item
+                    :disabled="!hasEditPermission"
+                    :command="{ item: scope.row, status: 'Archived' }"
+                  >
+                    {{ $t("test_track.plan.plan_status_archived") }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </span>
-            </template>
+          </template>
         </ms-table-column>
         <ms-table-column
           prop="scheduleStatus"
@@ -99,15 +116,15 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="200px"
-          :label="$t('commons.trigger_mode.schedule')">
-           <template v-slot="scope">
+          :label="$t('commons.trigger_mode.schedule')"
+        >
+          <template v-slot="scope">
             <span v-if="scope.row.scheduleStatus === 'OPEN'">
               <el-tooltip placement="bottom-start" effect="light">
                 <div slot="content">
-                  {{ $t('home.table.run_rule') }}: {{
-                    scope.row.scheduleCorn
-                  }}<br/>
-                  {{ $t('test_track.plan.next_run_time') }}：<span>{{
+                  {{ $t("home.table.run_rule") }}: {{ scope.row.scheduleCorn
+                  }}<br />
+                  {{ $t("test_track.plan.next_run_time") }}：<span>{{
                     scope.row.scheduleExecuteTime | datetimeFormat
                   }}</span>
                 </div>
@@ -116,7 +133,8 @@
                   v-model="scope.row.scheduleOpen"
                   inactive-color="#DCDFE6"
                   @change="scheduleChange(scope.row)"
-                  :disabled="!hasSchedulePermission">
+                  :disabled="!hasSchedulePermission"
+                >
                 </el-switch>
               </el-tooltip>
             </span>
@@ -126,13 +144,17 @@
                 v-model="scope.row.scheduleOpen"
                 inactive-color="#DCDFE6"
                 @change="scheduleChange(scope.row)"
-                :disabled="!hasSchedulePermission">
-                </el-switch>
+                :disabled="!hasSchedulePermission"
+              >
+              </el-switch>
             </span>
             <span v-else>
-             <el-link @click.stop="scheduleTask(scope.row)" :disabled="!hasSchedulePermission" style="color:#783887;">{{
-                 $t('schedule.not_set')
-               }}</el-link>
+              <el-link
+                @click.stop="scheduleTask(scope.row)"
+                :disabled="!hasSchedulePermission"
+                style="color: #783887"
+                >{{ $t("schedule.not_set") }}</el-link
+              >
             </span>
           </template>
         </ms-table-column>
@@ -142,7 +164,8 @@
           :fields-width="fieldsWidth"
           sortable
           :label="$t('test_track.plan.follow_people')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="stage"
@@ -152,9 +175,13 @@
           sortable
           :filters="stageFilters"
           :label="$t('test_track.plan.plan_stage')"
-          min-width="120px">
+          min-width="120px"
+        >
           <template v-slot:default="scope">
-            <plan-stage-table-item :option="stageOption" :stage="scope.row.stage"/>
+            <plan-stage-table-item
+              :option="stageOption"
+              :stage="scope.row.stage"
+            />
           </template>
         </ms-table-column>
         <ms-table-column
@@ -162,9 +189,12 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.home.test_rate')"
-          min-width="120px">
+          min-width="120px"
+        >
           <template v-slot:default="scope">
-            <el-progress :percentage="scope.row.testRate ? scope.row.testRate : 0"></el-progress>
+            <el-progress
+              :percentage="scope.row.testRate ? scope.row.testRate : 0"
+            ></el-progress>
           </template>
         </ms-table-column>
         <ms-table-column
@@ -172,54 +202,59 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.plan_project')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
 
-        <ms-tags-column
-          :field="item"
-          :fields-width="fieldsWidth"/>
+        <ms-tags-column :field="item" :fields-width="fieldsWidth" />
 
         <ms-table-column
           prop="testPlanTestCaseCount"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.test_plan_test_case_count')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="testPlanApiCaseCount"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.test_plan_api_case_count')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="testPlanApiScenarioCount"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.test_plan_api_scenario_count')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="testPlanUiScenarioCount"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.test_plan_ui_scenario_count')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="testPlanLoadCaseCount"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.test_plan_load_case_count')"
-          min-width="200px">
+          min-width="200px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="passRate"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.pass_rate')"
-          min-width="120px">
+          min-width="120px"
+        >
         </ms-table-column>
         <ms-table-column
           prop="plannedStartTime"
@@ -227,7 +262,8 @@
           :fields-width="fieldsWidth"
           sortable
           :label="$t('test_track.plan.planned_start_time')"
-          min-width="200px">
+          min-width="200px"
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.plannedStartTime | datetimeFormat }}</span>
           </template>
@@ -238,7 +274,8 @@
           :fields-width="fieldsWidth"
           sortable
           :label="$t('test_track.plan.planned_end_time')"
-          min-width="160px">
+          min-width="160px"
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.plannedEndTime | datetimeFormat }}</span>
           </template>
@@ -249,7 +286,8 @@
           :fields-width="fieldsWidth"
           sortable
           :label="$t('test_track.plan.actual_start_time')"
-          min-width="200px">
+          min-width="200px"
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.actualStartTime | datetimeFormat }}</span>
           </template>
@@ -260,88 +298,166 @@
           :fields-width="fieldsWidth"
           sortable
           :label="$t('test_track.plan.actual_end_time')"
-          min-width="200px">
+          min-width="200px"
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.actualEndTime | datetimeFormat }}</span>
           </template>
         </ms-table-column>
       </span>
       <template v-slot:opt-before="scope">
-        <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play"
-                                  :class="[scope.row.status==='Archived'?'disable-run':'run-button']"
-                                  :disabled="scope.row.status === 'Archived'"
-                                  @exec="handleRun(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
+        <ms-table-operator-button
+          :tip="$t('api_test.run')"
+          icon="el-icon-video-play"
+          :class="[
+            scope.row.status === 'Archived' ? 'disable-run' : 'run-button',
+          ]"
+          :disabled="scope.row.status === 'Archived'"
+          @exec="handleRun(scope.row)"
+          v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
         />
-        <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit"
-                                  @exec="handleEdit(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                                  :disabled="scope.row.status === 'Archived'"
-                                  style="margin-right: 10px"/>
+        <ms-table-operator-button
+          :tip="$t('commons.edit')"
+          icon="el-icon-edit"
+          @exec="handleEdit(scope.row)"
+          v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
+          :disabled="scope.row.status === 'Archived'"
+          style="margin-right: 10px"
+        />
       </template>
       <template v-slot:opt-behind="scope">
-        <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!scope.row.showFollow">
-          <i class="el-icon-star-off"
-             style="color: #783987; font-size: 25px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 5px; position: relative"
-             @click="saveFollow(scope.row)"></i>
+        <el-tooltip
+          :content="$t('commons.follow')"
+          placement="bottom"
+          effect="dark"
+          v-if="!scope.row.showFollow"
+        >
+          <i
+            class="el-icon-star-off"
+            style="
+              color: #783987;
+              font-size: 25px;
+              cursor: pointer;
+              padding-left: 5px;
+              width: 28px;
+              height: 28px;
+              top: 5px;
+              position: relative;
+            "
+            @click="saveFollow(scope.row)"
+          ></i>
         </el-tooltip>
-        <el-tooltip :content="$t('commons.cancel')" placement="bottom" effect="dark" v-if="scope.row.showFollow">
-          <i class="el-icon-star-on"
-             style="color: #783987; font-size: 30px; cursor: pointer;padding-left: 5px;width: 28px;height: 28px; top: 6px; position: relative"
-             @click="saveFollow(scope.row)"></i>
+        <el-tooltip
+          :content="$t('commons.cancel')"
+          placement="bottom"
+          effect="dark"
+          v-if="scope.row.showFollow"
+        >
+          <i
+            class="el-icon-star-on"
+            style="
+              color: #783987;
+              font-size: 30px;
+              cursor: pointer;
+              padding-left: 5px;
+              width: 28px;
+              height: 28px;
+              top: 6px;
+              position: relative;
+            "
+            @click="saveFollow(scope.row)"
+          ></i>
         </el-tooltip>
-        <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn"
-                     v-permission="['PROJECT_TRACK_PLAN:READ+DELETE','PROJECT_TRACK_PLAN:READ+SCHEDULE']">
+        <el-dropdown
+          @command="handleCommand($event, scope.row)"
+          class="scenario-ext-btn"
+          v-permission="[
+            'PROJECT_TRACK_PLAN:READ+DELETE',
+            'PROJECT_TRACK_PLAN:READ+SCHEDULE',
+          ]"
+        >
           <el-link type="primary" :underline="false">
             <el-icon class="el-icon-more"></el-icon>
           </el-link>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']">
-              {{ $t('commons.delete') }}
+            <el-dropdown-item
+              command="delete"
+              v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
+            >
+              {{ $t("commons.delete") }}
             </el-dropdown-item>
-            <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-                              :disabled="scope.row.status === 'Archived'">
-              {{ $t('commons.trigger_mode.schedule') }}
+            <el-dropdown-item
+              command="schedule_task"
+              v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
+              :disabled="scope.row.status === 'Archived'"
+            >
+              {{ $t("commons.trigger_mode.schedule") }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </template>
-
     </ms-table>
-    <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                         :total="total"/>
-    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"
-                       :with-tip="enableDeleteTip">
-      {{ $t('test_track.plan.plan_delete_tip') }}
+    <ms-table-pagination
+      :change="initTableData"
+      :current-page.sync="currentPage"
+      :page-size.sync="pageSize"
+      :total="total"
+    />
+    <ms-delete-confirm
+      :title="$t('test_track.plan.plan_delete')"
+      @delete="_handleDelete"
+      ref="deleteConfirm"
+      :with-tip="enableDeleteTip"
+    >
+      {{ $t("test_track.plan.plan_delete_tip") }}
     </ms-delete-confirm>
-    <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData" :plan-case-ids="[]"
-                                    :type="'plan'" :have-u-i-case="haveUICase"/>
-    <ms-test-plan-schedule-batch-switch ref="scheduleBatchSwitch" @refresh="refresh"/>
-    <ms-test-plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'"
-                            :plan-id="currentPlanId" :show-save="true" :have-u-i-case="haveUICase" :have-other-exec-case="haveOtherExecCase"/>
-    <test-plan-report-review ref="testCaseReportView"/>
-    <ms-task-center ref="taskCenter" :show-menu="false"/>
+    <ms-test-plan-schedule-maintain
+      ref="scheduleMaintain"
+      @refreshTable="initTableData"
+      :plan-case-ids="[]"
+      :type="'plan'"
+      :have-u-i-case="haveUICase"
+    />
+    <ms-test-plan-schedule-batch-switch
+      ref="scheduleBatchSwitch"
+      @refresh="refresh"
+    />
+    <ms-test-plan-run-mode-with-env
+      @handleRunBatch="_handleRun"
+      ref="runMode"
+      :plan-case-ids="[]"
+      :type="'plan'"
+      :plan-id="currentPlanId"
+      :show-save="true"
+      :have-u-i-case="haveUICase"
+      :have-other-exec-case="haveOtherExecCase"
+    />
+    <test-plan-report-review ref="testCaseReportView" />
+    <ms-task-center ref="taskCenter" :show-menu="false" />
     <el-dialog
       :visible.sync="showExecute"
       destroy-on-close
       :title="$t('load_test.runtime_config')"
       width="550px"
-      @close="closeExecute">
+      @close="closeExecute"
+    >
       <div>
         <el-radio-group v-model="batchExecuteType">
           <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
           <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
         </el-radio-group>
       </div>
-      <br/>
+      <br />
       <span>注：运行模式仅对测试计划间有效</span>
       <template v-slot:footer>
-        <ms-dialog-footer @cancel="closeExecute" @confirm="handleRunBatch"/>
+        <ms-dialog-footer @cancel="closeExecute" @confirm="handleRunBatch" />
       </template>
     </el-dialog>
   </el-card>
 </template>
 
 <script>
-import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
+import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
@@ -349,7 +465,7 @@ import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
 import MsDeleteConfirm from "metersphere-frontend/src/components/MsDeleteConfirm";
-import {TEST_PLAN_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import { TEST_PLAN_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
 import {
   _filter,
   _sort,
@@ -357,31 +473,49 @@ import {
   getCustomTableHeader,
   getCustomTableWidth,
   getLastTableSortField,
-  saveLastTableSortField
+  saveLastTableSortField,
 } from "metersphere-frontend/src/utils/tableUtils";
 import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/plan/components/ScheduleMaintain";
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId} from "metersphere-frontend/src/utils/token";
-import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
-import {operationConfirm} from "metersphere-frontend/src/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+} from "metersphere-frontend/src/utils/token";
+import {
+  hasLicense,
+  hasPermission,
+} from "metersphere-frontend/src/utils/permission";
+import { operationConfirm } from "metersphere-frontend/src/utils";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {
-  getPlanStageOption, testPlanCopy, testPlanDelete, testPlanEdit,
+  getPlanStageOption,
+  testPlanCopy,
+  testPlanDelete,
+  testPlanEdit,
   testPlanEditFollows,
-  testPlanEditRunConfig, testPlanGetEnableScheduleCount, testPlanGetFollow, testPlanGetPrincipal, testPlanHaveExecCase,
-  testPlanHaveUiCase, testPlanList, testPlanRun, testPlanRunBatch,
-  testPlanRunSave, testPlanUpdateScheduleEnable, batchDeletePlan
+  testPlanEditRunConfig,
+  testPlanGetEnableScheduleCount,
+  testPlanGetFollow,
+  testPlanGetPrincipal,
+  testPlanHaveExecCase,
+  testPlanHaveUiCase,
+  testPlanList,
+  testPlanRun,
+  testPlanRunBatch,
+  testPlanRunSave,
+  testPlanUpdateScheduleEnable,
+  batchDeletePlan,
 } from "@/api/remote/plan/test-plan";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTestPlanScheduleBatchSwitch from "@/business/plan/components/ScheduleBatchSwitch";
 import MsTagsColumn from "metersphere-frontend/src/components/table/MsTagsColumn";
-import {getProjectMemberUserFilter} from "@/api/user";
+import { getProjectMemberUserFilter } from "@/api/user";
 import TestPlanReportReview from "@/business/report/components/TestPlanReportReview";
-
 
 export default {
   name: "TestPlanList",
@@ -395,12 +529,16 @@ export default {
     PlanStageTableItem,
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
-    MsTableOperator, MsTableOperatorButton,
-    MsDialogFooter, MsTableHeader,
-    MsTablePagination, MsTestPlanRunModeWithEnv, MsTaskCenter,
+    MsTableOperator,
+    MsTableOperatorButton,
+    MsDialogFooter,
+    MsTableHeader,
+    MsTablePagination,
+    MsTestPlanRunModeWithEnv,
+    MsTaskCenter,
     MsTableColumn,
     MsTable,
-    MsTestPlanScheduleBatchSwitch
+    MsTestPlanScheduleBatchSwitch,
   },
   data() {
     return {
@@ -412,7 +550,7 @@ export default {
       deletePath: "/test/plan/delete",
       cardLoading: false,
       condition: {
-        components: TEST_PLAN_CONFIGS
+        components: TEST_PLAN_CONFIGS,
       },
       currentPage: 1,
       pageSize: 10,
@@ -420,25 +558,43 @@ export default {
       hasSchedulePermission: false,
       total: 0,
       tableData: [],
-      fields: getCustomTableHeader('TEST_PLAN_LIST'),
-      fieldsWidth: getCustomTableWidth('TEST_PLAN_LIST'),
-      screenHeight: 'calc(100vh - 160px)',
+      fields: getCustomTableHeader("TEST_PLAN_LIST"),
+      fieldsWidth: getCustomTableWidth("TEST_PLAN_LIST"),
+      screenHeight: "calc(100vh - 160px)",
       statusFilters: [
-        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        {text: this.$t('test_track.plan.plan_status_finished'), value: 'Finished'},
-        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-        {text: this.$t('test_track.plan.plan_status_archived'), value: 'Archived'}
+        {
+          text: this.$t("test_track.plan.plan_status_prepare"),
+          value: "Prepare",
+        },
+        {
+          text: this.$t("test_track.plan.plan_status_running"),
+          value: "Underway",
+        },
+        {
+          text: this.$t("test_track.plan.plan_status_finished"),
+          value: "Finished",
+        },
+        {
+          text: this.$t("test_track.plan.plan_status_completed"),
+          value: "Completed",
+        },
+        {
+          text: this.$t("test_track.plan.plan_status_archived"),
+          value: "Archived",
+        },
       ],
       stageFilters: [
-        {text: this.$t('test_track.plan.smoke_test'), value: 'smoke'},
-        {text: this.$t('test_track.plan.system_test'), value: 'system'},
-        {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
+        { text: this.$t("test_track.plan.smoke_test"), value: "smoke" },
+        { text: this.$t("test_track.plan.system_test"), value: "system" },
+        {
+          text: this.$t("test_track.plan.regression_test"),
+          value: "regression",
+        },
       ],
       scheduleFilters: [
-        {text: this.$t('test_track.plan.schedule_enabled'), value: 'OPEN'},
-        {text: this.$t('test_track.issue.status_closed'), value: 'SHUT'},
-        {text: this.$t('schedule.not_set'), value: 'NOTSET'}
+        { text: this.$t("test_track.plan.schedule_enabled"), value: "OPEN" },
+        { text: this.$t("test_track.issue.status_closed"), value: "SHUT" },
+        { text: this.$t("schedule.not_set"), value: "NOTSET" },
       ],
       currentPlanId: "",
       stageOption: [],
@@ -447,33 +603,33 @@ export default {
       userFilter: [],
       publicButtons: [
         {
-          name: this.$t('test_track.plan.test_plan_batch_switch'),
+          name: this.$t("test_track.plan.test_plan_batch_switch"),
           handleClick: this.handleBatchSwitch,
-          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
+          permissions: ["PROJECT_TRACK_PLAN:READ+SCHEDULE"],
         },
         {
-          name: this.$t('api_test.automation.batch_execute'),
+          name: this.$t("api_test.automation.batch_execute"),
           handleClick: this.handleBatchExecute,
-          permissions: ['PROJECT_TRACK_PLAN:READ+SCHEDULE']
+          permissions: ["PROJECT_TRACK_PLAN:READ+SCHEDULE"],
         },
         {
-          name: this.$t('commons.delete_batch'),
+          name: this.$t("commons.delete_batch"),
           handleClick: this.handleBatchDelete,
-          permissions: ['PROJECT_TRACK_PLAN:READ+BATCH_DELETE']
-        }
+          permissions: ["PROJECT_TRACK_PLAN:READ+BATCH_DELETE"],
+        },
       ],
       simpleOperators: [
         {
-          tip: this.$t('commons.copy'),
+          tip: this.$t("commons.copy"),
           icon: "el-icon-copy-document",
           exec: this.handleCopy,
-          permissions: ['PROJECT_TRACK_PLAN:READ+COPY']
+          permissions: ["PROJECT_TRACK_PLAN:READ+COPY"],
         },
         {
-          tip: this.$t('test_track.plan_view.view_report'),
+          tip: this.$t("test_track.plan_view.view_report"),
           icon: "el-icon-s-data",
           exec: this.openReport,
-          permissions: ['PROJECT_TRACK_PLAN:READ+EDIT']
+          permissions: ["PROJECT_TRACK_PLAN:READ+EDIT"],
         },
       ],
       batchExecuteType: "serial",
@@ -484,11 +640,11 @@ export default {
     };
   },
   watch: {
-    '$route'(to, from) {
+    $route(to, from) {
       if (to.path.indexOf("/track/plan/all") >= 0) {
         this.initTableData();
       }
-    }
+    },
   },
   created() {
     this.projectId = this.$route.params.projectId;
@@ -497,10 +653,12 @@ export default {
     if (!this.projectId) {
       this.projectId = getCurrentProjectID();
     }
-    this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
-    this.hasSchedulePermission = hasPermission('PROJECT_TRACK_PLAN:READ+SCHEDULE');
+    this.hasEditPermission = hasPermission("PROJECT_TRACK_PLAN:READ+EDIT");
+    this.hasSchedulePermission = hasPermission(
+      "PROJECT_TRACK_PLAN:READ+SCHEDULE"
+    );
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-    getPlanStageOption().then(r => {
+    getPlanStageOption().then((r) => {
       this.stageOption = r.data;
       this.setAdvSearchStageOption();
       if (this.stageOption.length > 0) {
@@ -509,7 +667,7 @@ export default {
           if (stage.system !== null && stage.system) {
             stage.text = this.$t(stage.text);
           }
-        })
+        });
       }
     });
     getProjectMemberUserFilter((data) => {
@@ -519,7 +677,7 @@ export default {
   },
   methods: {
     setAdvSearchStageOption() {
-      let comp = this.condition.components.find(c => c.key === 'stage');
+      let comp = this.condition.components.find((c) => c.key === "stage");
       if (comp) {
         comp.options = this.stageOption;
       }
@@ -551,77 +709,77 @@ export default {
       }
       this.condition.projectId = getCurrentProjectID();
       this.cardLoading = true;
-      testPlanList({pageNum: this.currentPage, pageSize: this.pageSize}, this.condition)
-        .then(response => {
-          this.cardLoading = false;
-          let data = response.data;
-          this.total = data.itemCount;
-          data.listObject.forEach(item => {
-            if (item.tags) {
-              item.tags = JSON.parse(item.tags);
-              if (item.tags.length === 0) {
-                item.tags = null;
-              }
+      testPlanList(
+        { pageNum: this.currentPage, pageSize: this.pageSize },
+        this.condition
+      ).then((response) => {
+        this.cardLoading = false;
+        let data = response.data;
+        this.total = data.itemCount;
+        data.listObject.forEach((item) => {
+          if (item.tags) {
+            item.tags = JSON.parse(item.tags);
+            if (item.tags.length === 0) {
+              item.tags = null;
             }
-            item.passRate = item.passRate + '%';
-            testPlanGetPrincipal(item.id)
-              .then(res => {
-                let data = res.data;
-                let principal = "";
-                let principalIds = data.map(d => d.id);
-                if (data) {
-                  data.forEach(d => {
-                    if (principal !== "") {
-                      principal = principal + "、" + d.name;
-                    } else {
-                      principal = principal + d.name;
-                    }
-                  })
+          }
+          item.passRate = item.passRate + "%";
+          testPlanGetPrincipal(item.id).then((res) => {
+            let data = res.data;
+            let principal = "";
+            let principalIds = data.map((d) => d.id);
+            if (data) {
+              data.forEach((d) => {
+                if (principal !== "") {
+                  principal = principal + "、" + d.name;
+                } else {
+                  principal = principal + d.name;
                 }
-                this.$set(item, "principalName", principal);
-                // 编辑时初始化id
-                this.$set(item, "principals", principalIds);
               });
-            //关注人
-            testPlanGetFollow(item.id)
-              .then(res => {
-                let data = res.data;
-                let follow = "";
-                let followIds = data.map(d => d.id);
-                let showFollow = false;
-                if (data) {
-                  data.forEach(d => {
-                    if (follow !== "") {
-                      follow = follow + "、" + d.name;
-                    } else {
-                      follow = follow + d.name;
-                    }
-                    if (this.currentUser().id === d.id) {
-                      showFollow = true;
-                    }
-                  })
-                }
-                this.$set(item, "follow", follow);
-                // 编辑时初始化id
-                this.$set(item, "follows", followIds);
-                this.$set(item, "showFollow", showFollow);
-              })
+            }
+            this.$set(item, "principalName", principal);
+            // 编辑时初始化id
+            this.$set(item, "principals", principalIds);
           });
-          this.tableData = data.listObject;
+          //关注人
+          testPlanGetFollow(item.id).then((res) => {
+            let data = res.data;
+            let follow = "";
+            let followIds = data.map((d) => d.id);
+            let showFollow = false;
+            if (data) {
+              data.forEach((d) => {
+                if (follow !== "") {
+                  follow = follow + "、" + d.name;
+                } else {
+                  follow = follow + d.name;
+                }
+                if (this.currentUser().id === d.id) {
+                  showFollow = true;
+                }
+              });
+            }
+            this.$set(item, "follow", follow);
+            // 编辑时初始化id
+            this.$set(item, "follows", followIds);
+            this.$set(item, "showFollow", showFollow);
+          });
         });
+        this.tableData = data.listObject;
+      });
     },
     copyData(status) {
       return JSON.parse(JSON.stringify(this.dataMap.get(status)));
     },
     testPlanCreate() {
       if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
+        this.$warning(this.$t("commons.check_project_tip"));
         return;
       }
-      this.$emit('openTestPlanEditDialog');
+      this.$emit("openTestPlanEditDialog");
     },
     handleEdit(testPlan) {
-      this.$emit('testPlanEdit', testPlan);
+      this.$emit("testPlanEdit", testPlan);
     },
     refresh() {
       this.$refs.testPlanLitTable.clear();
@@ -629,48 +787,67 @@ export default {
       this.initTableData();
     },
     handleBatchDelete() {
-      this.$confirm(this.$t('plan.batch_delete_tip').toString(), this.$t('commons.delete_batch').toString(), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning',
-      }).then(() => {
-        let ids = [], param = {};
-        param.projectId = getCurrentProjectID();
-        if (this.condition.selectAll) {
-          param.unSelectIds = this.condition.unSelectIds;
-          param.selectAll = true;
-          param.queryTestPlanRequest = this.condition;
-        } else {
-          this.$refs.testPlanLitTable.selectRows.forEach((item) => {
-            ids.push(item.id)
-          });
+      this.$confirm(
+        this.$t("plan.batch_delete_tip").toString(),
+        this.$t("commons.delete_batch").toString(),
+        {
+          confirmButtonText: this.$t("commons.confirm"),
+          cancelButtonText: this.$t("commons.cancel"),
+          type: "warning",
         }
-        param.ids = ids;
-        this.cardLoading = batchDeletePlan(param).then(() => {
-          this.refresh();
-          this.$success(this.$t('commons.delete_success'));
+      )
+        .then(() => {
+          let ids = [],
+            param = {};
+          param.projectId = getCurrentProjectID();
+          if (this.condition.selectAll) {
+            param.unSelectIds = this.condition.unSelectIds;
+            param.selectAll = true;
+            param.queryTestPlanRequest = this.condition;
+          } else {
+            this.$refs.testPlanLitTable.selectRows.forEach((item) => {
+              ids.push(item.id);
+            });
+          }
+          param.ids = ids;
+          this.cardLoading = batchDeletePlan(param).then(() => {
+            this.refresh();
+            this.$success(this.$t("commons.delete_success"));
+          });
+        })
+        .catch(() => {
+          this.$info(this.$t("commons.delete_cancel"));
         });
-      }).catch(() => {
-        this.$info(this.$t('commons.delete_cancel'));
-      });
     },
     handleBatchSwitch() {
       let param = [];
       let size = 0;
       if (this.condition.selectAll) {
-        testPlanGetEnableScheduleCount(this.condition)
-          .then(response => {
-            size = response.data;
-            this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
-          });
+        testPlanGetEnableScheduleCount(this.condition).then((response) => {
+          size = response.data;
+          this.$refs.scheduleBatchSwitch.open(
+            param,
+            size,
+            this.condition.selectAll,
+            this.condition
+          );
+        });
       } else {
         this.$refs.testPlanLitTable.selectRows.forEach((item) => {
-          if (item.scheduleStatus !== null && item.scheduleStatus !== 'NOTSET') {
+          if (
+            item.scheduleStatus !== null &&
+            item.scheduleStatus !== "NOTSET"
+          ) {
             param.push(item.scheduleId);
             size++;
           }
         });
-        this.$refs.scheduleBatchSwitch.open(param, size, this.condition.selectAll, this.condition);
+        this.$refs.scheduleBatchSwitch.open(
+          param,
+          size,
+          this.condition.selectAll,
+          this.condition
+        );
       }
     },
     handleBatchExecute() {
@@ -679,14 +856,14 @@ export default {
     handleRunBatch() {
       this.showExecute = false;
       let mode = this.batchExecuteType;
-      let param = {mode};
+      let param = { mode };
       const ids = [];
       if (this.condition.selectAll) {
         param.isAll = true;
-        param.queryTestPlanRequest = this.condition
+        param.queryTestPlanRequest = this.condition;
       } else {
         this.$refs.testPlanLitTable.selectRows.forEach((item) => {
-          ids.push(item.id)
+          ids.push(item.id);
         });
       }
       param.testPlanId = this.currentPlanId;
@@ -694,17 +871,16 @@ export default {
       param.userId = getCurrentUserId();
       param.requestOriginator = "TEST_PLAN";
       param.testPlanIds = ids;
-      testPlanRunBatch(param)
-        .then(() => {
-          this.$refs.taskCenter.open();
-          this.$success(this.$t('commons.run_success'));
-        });
+      testPlanRunBatch(param).then(() => {
+        this.$refs.taskCenter.open();
+        this.$success(this.$t("commons.run_success"));
+      });
     },
     closeExecute() {
       this.showExecute = false;
     },
     statusChange(data) {
-      if (!hasPermission('PROJECT_TRACK_PLAN:READ+EDIT')) {
+      if (!hasPermission("PROJECT_TRACK_PLAN:READ+EDIT")) {
         return;
       }
       let oldStatus = data.item.status;
@@ -712,67 +888,71 @@ export default {
       let param = {};
       param.id = data.item.id;
       param.status = newStatus;
-      testPlanEdit(param)
-        .then(() => {
-          for (let i = 0; i < this.tableData.length; i++) {
-            if (this.tableData[i].id == param.id) { //  手动修改当前状态后，前端结束时间先用当前时间，等刷新后变成后台数据（相等）
-              if (oldStatus !== "Completed" && newStatus === "Completed") {
-                this.tableData[i].actualEndTime = Date.now();
-              } //  非完成->已完成，结束时间=null
-              else if (oldStatus !== "Underway" && newStatus === "Underway") {
-                this.tableData[i].actualStartTime = Date.now();
-                this.tableData[i].actualEndTime = "";
-              } //  非进行中->进行中，结束时间=null
-              else if (oldStatus !== "Prepare" && newStatus === "Prepare") {
-                this.tableData[i].actualStartTime = this.tableData[i].actualEndTime = "";
-              } //  非未开始->未开始，结束时间=null
-              this.tableData[i].status = newStatus;
-              break;
-            }
+      testPlanEdit(param).then(() => {
+        for (let i = 0; i < this.tableData.length; i++) {
+          if (this.tableData[i].id == param.id) {
+            //  手动修改当前状态后，前端结束时间先用当前时间，等刷新后变成后台数据（相等）
+            if (oldStatus !== "Completed" && newStatus === "Completed") {
+              this.tableData[i].actualEndTime = Date.now();
+            } //  非完成->已完成，结束时间=null
+            else if (oldStatus !== "Underway" && newStatus === "Underway") {
+              this.tableData[i].actualStartTime = Date.now();
+              this.tableData[i].actualEndTime = "";
+            } //  非进行中->进行中，结束时间=null
+            else if (oldStatus !== "Prepare" && newStatus === "Prepare") {
+              this.tableData[i].actualStartTime = this.tableData[
+                i
+              ].actualEndTime = "";
+            } //  非未开始->未开始，结束时间=null
+            this.tableData[i].status = newStatus;
+            break;
           }
-        });
+        }
+      });
     },
     scheduleChange(row) {
       let param = {};
-      let message = this.$t('api_test.home_page.running_task_list.confirm.close_title');
+      let message = this.$t(
+        "api_test.home_page.running_task_list.confirm.close_title"
+      );
       param.taskID = row.scheduleId;
       param.enable = row.scheduleOpen;
       if (row.scheduleOpen) {
-        message = this.$t('api_test.home_page.running_task_list.confirm.open_title');
+        message = this.$t(
+          "api_test.home_page.running_task_list.confirm.open_title"
+        );
       }
 
       operationConfirm(this, message, () => {
         this.cardLoading = true;
-        testPlanUpdateScheduleEnable(param)
-          .then(response => {
-            this.cardLoading = false;
-            if (row.scheduleOpen) {
-              row.scheduleStatus = 'OPEN'
-              row.scheduleCorn = response.data.value;
-              row.scheduleExecuteTime = response.data.scheduleExecuteTime;
-            } else {
-              row.scheduleStatus = 'SHUT'
-            }
-            this.$success(this.$t('commons.save_success'));
-          });
+        testPlanUpdateScheduleEnable(param).then((response) => {
+          this.cardLoading = false;
+          if (row.scheduleOpen) {
+            row.scheduleStatus = "OPEN";
+            row.scheduleCorn = response.data.value;
+            row.scheduleExecuteTime = response.data.scheduleExecuteTime;
+          } else {
+            row.scheduleStatus = "SHUT";
+          }
+          this.$success(this.$t("commons.save_success"));
+        });
       }).catch(() => {
         row.scheduleOpen = !row.scheduleOpen;
       });
     },
     handleDelete(testPlan) {
-      this.enableDeleteTip = testPlan.status === 'Underway' ? true : false;
+      this.enableDeleteTip = testPlan.status === "Underway" ? true : false;
       this.$refs.deleteConfirm.open(testPlan);
     },
     _handleDelete(testPlan) {
-      testPlanDelete(testPlan.id)
-        .then(() => {
-          this.initTableData();
-          this.$success(this.$t('commons.delete_success'));
-        });
+      testPlanDelete(testPlan.id).then(() => {
+        this.initTableData();
+        this.$success(this.$t("commons.delete_success"));
+      });
     },
     intoPlan(row, column, event) {
-      if (column.label !== this.$t('commons.operating')) {
-        this.$router.push('/track/plan/view/' + row.id);
+      if (column.label !== this.$t("commons.operating")) {
+        this.$router.push("/track/plan/view/" + row.id);
       }
     },
     filter(filters) {
@@ -794,8 +974,7 @@ export default {
     async scheduleTask(row) {
       row.redirectFrom = "testPlan";
       this.currentPlanId = row.id;
-      this.haveUIScenario()
-      .then(() => {
+      this.haveUIScenario().then(() => {
         this.$refs.scheduleMaintain.open(row);
       });
     },
@@ -804,7 +983,7 @@ export default {
     },
     handleCommand(cmd, row) {
       switch (cmd) {
-        case  "delete":
+        case "delete":
           this.handleDelete(row);
           break;
         case "schedule_task":
@@ -814,29 +993,27 @@ export default {
     },
     handleCopy(row) {
       this.cardLoading = true;
-      testPlanCopy(row.id)
-        .then(() => {
-          this.cardLoading = false;
-          this.initTableData();
-        });
+      testPlanCopy(row.id).then(() => {
+        this.cardLoading = false;
+        this.initTableData();
+      });
     },
     handleRun(row) {
       this.currentPlanId = row.id;
-      this.haveUIScenario()
-        .then(() => {
-          testPlanHaveExecCase(row.id)
-            .then(async res => {
-              this.haveOtherExecCase = res.data;
-              //因为ui没有资源池，这里必须分离两个变量
-              if (this.haveOtherExecCase || this.haveUICase) {
-                this.$refs.runMode.open('API', row.runModeConfig);
-              } else {
-                this.$router.push('/track/plan/view/' + row.id);
-              }
-            });
+      this.haveUIScenario().then(() => {
+        testPlanHaveExecCase(row.id).then(async (res) => {
+          this.haveOtherExecCase = res.data;
+          //因为ui没有资源池，这里必须分离两个变量
+          if (this.haveOtherExecCase || this.haveUICase) {
+            this.$refs.runMode.open("API", row.runModeConfig);
+          } else {
+            this.$router.push("/track/plan/view/" + row.id);
+          }
         });
+      });
     },
     _handleRun(config) {
+      let defaultPlanEnvMap = config.testPlanDefaultEnvMap;
       let {
         mode,
         reportType,
@@ -850,48 +1027,52 @@ export default {
         headlessEnabled,
         retryEnable,
         retryNum,
-        triggerMode
+        triggerMode,
       } = config;
-      let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
+      let param = {
+        mode,
+        reportType,
+        onSampleError,
+        runWithinResourcePool,
+        resourcePoolId,
+        envMap,
+      };
       param.testPlanId = this.currentPlanId;
       param.projectId = getCurrentProjectID();
       param.userId = getCurrentUserId();
-      param.triggerMode = 'MANUAL';
+      param.triggerMode = "MANUAL";
       param.environmentType = environmentType;
       param.environmentGroupId = environmentGroupId;
+      param.testPlanDefaultEnvMap = defaultPlanEnvMap;
       param.requestOriginator = "TEST_PLAN";
       param.retryEnable = config.retryEnable;
       param.retryNum = config.retryNum;
       param.browser = config.browser;
       param.headlessEnabled = config.headlessEnabled;
       if (config.executionWay === "runAndSave") {
-        param.executionWay = "RUN_SAVE"
+        param.executionWay = "RUN_SAVE";
         this.$refs.taskCenter.open();
         this.cardLoading = true;
-        testPlanRunSave(param)
-          .then(() => {
-            this.cardLoading = false;
-            this.$success(this.$t('commons.run_success'));
-          });
-
+        testPlanRunSave(param).then(() => {
+          this.cardLoading = false;
+          this.$success(this.$t("commons.run_success"));
+        });
       } else if (config.executionWay === "save") {
-        param.executionWay = "SAVE"
+        param.executionWay = "SAVE";
         this.cardLoading = true;
-        testPlanEditRunConfig(param)
-          .then(() => {
-            this.cardLoading = false;
-            this.initTableData();
-            this.$success(this.$t('commons.save_success'));
-          });
+        testPlanEditRunConfig(param).then(() => {
+          this.cardLoading = false;
+          this.initTableData();
+          this.$success(this.$t("commons.save_success"));
+        });
       } else {
-        param.executionWay = "RUN"
+        param.executionWay = "RUN";
         this.$refs.taskCenter.open();
         this.cardLoading = true;
-        testPlanRun(param)
-          .then(() => {
-            this.cardLoading = false;
-            this.$success(this.$t('commons.run_success'));
-          });
+        testPlanRun(param).then(() => {
+          this.cardLoading = false;
+          this.$success(this.$t("commons.run_success"));
+        });
       }
     },
     saveFollow(row) {
@@ -899,14 +1080,13 @@ export default {
         row.showFollow = false;
         for (let i = 0; i < row.follows.length; i++) {
           if (row.follows[i] === this.currentUser().id) {
-            row.follows.splice(i, 1)
+            row.follows.splice(i, 1);
             break;
           }
         }
-        testPlanEditFollows(row.id, row.follows)
-          .then(() => {
-            this.$success(this.$t('commons.cancel_follow_success'));
-          });
+        testPlanEditFollows(row.id, row.follows).then(() => {
+          this.$success(this.$t("commons.cancel_follow_success"));
+        });
         return;
       }
       if (!row.showFollow) {
@@ -915,33 +1095,29 @@ export default {
           row.follows = [];
         }
         row.follows.push(this.currentUser().id);
-        testPlanEditFollows(row.id, row.follows)
-          .then(() => {
-            this.$success(this.$t('commons.follow_success'));
-          });
+        testPlanEditFollows(row.id, row.follows).then(() => {
+          this.$success(this.$t("commons.follow_success"));
+        });
         return;
       }
-
     },
     haveUIScenario() {
       if (hasLicense()) {
         return new Promise((resolve) => {
-          testPlanHaveUiCase(this.currentPlanId)
-            .then((r) => {
-              this.haveUICase = r.data;
-              resolve()
-            });
+          testPlanHaveUiCase(this.currentPlanId).then((r) => {
+            this.haveUICase = r.data;
+            resolve();
+          });
         });
       } else {
-        return new Promise(resolve => resolve());
+        return new Promise((resolve) => resolve());
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .table-page {
   padding-top: 20px;
   margin-right: -9px;
@@ -954,8 +1130,8 @@ export default {
 
 .schedule-btn :deep(.el-button) {
   margin-left: 10px;
-  color: #85888E;
-  border-color: #85888E;
+  color: #85888e;
+  border-color: #85888e;
   border-width: thin;
 }
 
