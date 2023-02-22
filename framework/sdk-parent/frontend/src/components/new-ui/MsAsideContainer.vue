@@ -7,8 +7,8 @@
               // 'height': calHeight,
              }">
     <div v-if="!enableAsideHidden" class="hiddenBottom" :style="{'top': hiddenBottomTop ? hiddenBottomTop : 0}" @click="asideHidden = !asideHidden">
-      <i v-if="!asideHidden" class="el-icon-d-arrow-left"/>
-      <i v-if="asideHidden" class="el-icon-d-arrow-right"/>
+      <img v-if="!asideHidden" src="/assets/module/figma/icon_up-left_outlined.svg" />
+      <img v-if="asideHidden" src="/assets/module/figma/icon_down-right_outlined.svg" />
     </div>
     <div style="overflow-x: hidden; padding: 24px 24px 0px 24px;" class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
       <slot></slot>
@@ -121,7 +121,7 @@ export default {
   /*top: 0;*/
   line-height: 50px;
   border-radius: 0px 4px 4px 0px;
-  background-color: #acb7c1;
+  background-color: rgba(31, 35, 41, 0.1);;
   display: inline-block;
   position: absolute;
   cursor: pointer;
@@ -138,14 +138,15 @@ export default {
 }
 
 .hiddenBottom:hover {
-  background-color: #783887;
+  background-color: rgba(31, 35, 41, 0.1);;
   opacity: 0.8;
   width: 16px;
 }
 
-.hiddenBottom:hover i {
-  margin-left: 0;
-  color: white;
+img {
+  width: 15px;
+  height: 15px;
+  position: relative;
+  top: -3px;
 }
-
 </style>
