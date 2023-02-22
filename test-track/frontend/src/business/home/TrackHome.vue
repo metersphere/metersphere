@@ -22,7 +22,7 @@
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #ffffff">
+            <el-col style="background-color: #ffffff">
               <ms-failure-test-case-list
                 :select-function-case="true"
                 @redirectPage="redirectPage"
@@ -31,13 +31,13 @@
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #ffffff">
+            <el-col style="background-color: #ffffff">
               <review-list />
             </el-col>
           </el-row>
 
           <el-row style="margin-top: 16px">
-            <el-col style="height: 369px; background-color: #ffffff">
+            <el-col style="background-color: #ffffff">
               <ms-running-task-list
                 :call-from="'track_home'"
                 @redirectPage="redirectPage"
