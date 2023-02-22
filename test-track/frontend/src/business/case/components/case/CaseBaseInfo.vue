@@ -629,18 +629,21 @@ export default {
         issueDemandList(this.projectId)
           .then((r) => {
             this.demandOptions = [];
-            this.demandList = r.data;
+            if (r.data) {
+              this.demandList = r.data;
+            }
             this.buildDemandOptions();
           })
-          .catch(() => {
+          .catch((r) => {
+            this.demandOptions = [];
             this.addOtherOption();
           });
       }
     },
     buildDemandOptions() {
       this.demandOptions = [];
+      this.addOtherOption();
       if (this.demandList.length > 0) {
-        this.addOtherOption();
         this.buildDemandCascaderOptions(this.demandList, this.demandOptions, []);
       }
     },
