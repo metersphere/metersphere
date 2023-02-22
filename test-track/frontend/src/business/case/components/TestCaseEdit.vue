@@ -346,7 +346,12 @@ import {
   hasTestCaseOtherInfo,
   testCaseEditFollows,
   testCaseGetByVersionId,
-  testCaseDeleteToGc, getTestCaseNodesByCaseFilter, getTestCaseByVersionId, getEditSimpleTestCase, getSimpleTestCase,
+  testCaseDeleteToGc,
+  getTestCaseNodesByCaseFilter,
+  getTestCaseByVersionId,
+  getEditSimpleTestCase,
+  getSimpleTestCase,
+  testCaseBatchEdit,
 } from "@/api/testCase";
 
 import {
@@ -889,12 +894,28 @@ export default {
       }
     },
     addPublic() {
-      this.casePublic = true;
-      this.saveCase(true);
+      getProjectApplicationConfig('CASE_PUBLIC')
+        .then(res => {
+          let data = res.data;
+          if (data && data.typeValue === 'true') {
+            this.casePublic = true;
+            this.saveCase(true);
+          } else {
+            this.$warning(this.$t('test_track.case.public_warning'), false);
+          }
+        });
     },
     removePublic() {
-      this.casePublic = false;
-      this.saveCase(true);
+      getProjectApplicationConfig('CASE_PUBLIC')
+        .then(res => {
+          let data = res.data;
+          if (data && data.typeValue === 'true') {
+            this.casePublic = false;
+            this.saveCase(true);
+          } else {
+            this.$warning(this.$t('test_track.case.public_warning'), false);
+          }
+        });
     },
     handleCommand(e) {
       this.saveType = e;
