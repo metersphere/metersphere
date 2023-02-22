@@ -93,8 +93,8 @@ export default {
       this.formData.richText = data;
       this.state = "PREVIEW";
     },
-    submit(data) {
-      this.editComment();
+    submit(description) {
+      this.editComment(description);
     },
     deleteComment() {
       if (getCurrentUser().id !== this.comment.author) {
@@ -111,14 +111,15 @@ export default {
         this.$emit("refresh");
       });
     },
-    editComment() {
+    editComment(description) {
       this.$post(this.apiUrl + "/comment/edit", {
         id: this.comment.id,
-        description: this.comment.description,
+        description,
       }).then(() => {
         this.originDesc = this.comment.description;
         this.visible = false;
         this.$success(this.$t("commons.modify_success"), false);
+        this.state = "PREVIEW";
         this.$emit("refresh");
       });
     },
