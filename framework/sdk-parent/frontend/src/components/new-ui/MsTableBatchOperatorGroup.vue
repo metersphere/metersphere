@@ -120,7 +120,6 @@ export default {
 
 :deep(.showBtnGroup button.el-button.el-button--default.el-button--small) {
   box-sizing: border-box;
-  width: 80px;
   height: 32px;
   left: 0px;
   top: 0px;
@@ -158,7 +157,7 @@ export default {
   align-self: center;
   flex-grow: 0;
   position: relative;
-  top: -6px;
+  top: -5.5px;
   left: 11px;
   padding: 0px;
 }
@@ -220,10 +219,11 @@ export default {
 
 .more-operate-menu {
   width: 164px!important;
+  margin-left: 10px;
 }
 
 .more-operate-menu-children {
-  margin-left: 40px;
+  margin-left: 16px;
   margin-bottom: -12px;
   width: 135px!important;
 }
@@ -277,6 +277,15 @@ export default {
 
 .is-delete:hover {
   background: rgba(245, 74, 69, 0.2)!important;
+}
+
+:deep(.el-icon-arrow-right) {
+  margin-left: 30px;
+}
+
+:deep(.el-icon-arrow-right:before) {
+  font-size: 15px;
+  color: #8F959E;
 }
 </style>
 

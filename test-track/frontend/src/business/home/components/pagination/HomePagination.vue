@@ -74,7 +74,6 @@ export default {
   background-color: #FFFFFF;
   color: #1F2329;
   border: 1px solid #BBBFC4;
-  width: 28px;
   height: 28px;
   box-sizing: border-box;
   border-radius: 4px;
