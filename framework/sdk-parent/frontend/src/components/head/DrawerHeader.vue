@@ -13,7 +13,7 @@
       </el-col>
       <el-col :span="4">
         <div class="ms-export">
-          <el-dropdown style="padding-left: 50px">
+          <el-dropdown style="padding-left: 30px">
             <span class="el-dropdown-link">
               <i class="el-icon-download"/>
               {{ $t('commons.export') }}
