@@ -4,7 +4,7 @@
       <img :src="url" :alt="$t('test_track.case.img_loading_fail')" style="width: 100%;height: 100%;"
            v-if="file.type === 'JPG' || file.type === 'JPEG' || file.type === 'PNG'">
       <div v-if="file.type === 'PDF'">
-        <test-case-pdf-view-base-js :pdf-url="'/attachment/preview/' + this.file.id + '/' + this.file.isLocal"/>
+        <test-case-pdf-view-base-js :pdf-url="url"/>
       </div>
     </div>
   </el-dialog>
@@ -34,6 +34,9 @@ export default {
       this.file = file;
       this.dialogVisible = true;
       this.url = generateModuleUrl('/attachment/preview/' + this.file.id + '/' + this.file.isLocal);
+    },
+    setModulePrefix(url) {
+      return generateModuleUrl(url);
     },
     close() {
       this.file = {
