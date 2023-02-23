@@ -2,7 +2,7 @@
   <el-drawer
     :visible.sync="visible"
     append-to-body
-    size="70%"
+    :size="calcWidth"
     :close-on-click-modal="false"
     class="case-desc-drawer-layout"
   >
@@ -15,7 +15,7 @@
           <h3>{{$t('test_track.case.prerequisite')}}</h3>
           <span>{{data.prerequisite}}</span>
         </div>
-        <step-change-item :label-width="formLabelWidth" :form="data"/>
+        <step-change-item :label-width="stepForLabelWidth" :form="data"/>
         <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="data" :content="data.stepDescription"/>
         <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="data" :content="data.expectedResult"/>
         <ms-case-desc-text-item v-if="data.stepModel === 'STEP' || !data.stepModel" :data="data"/>
@@ -38,11 +38,28 @@ export default {
     StepChangeItem,
     TestCaseStepItem,
   },
-  props: ['loading'],
+  props: {
+    width: {
+      type: Number,
+      default: 1280,
+    },
+  },
+  computed: {
+    calcWidth() {
+      if (!isNaN(this.width)) {
+        //计算rem
+        let remW = (this.width / 1440) * 100;
+        let standW = (1280 / 1440) * 100;
+        return remW > standW ? standW : remW + "%";
+      }
+      return this.width;
+    },
+  },
   data() {
     return {
       result: {},
       formLabelWidth: "100px",
+      stepForLabelWidth: "150px",
       visible: false,
       data: {}
     }

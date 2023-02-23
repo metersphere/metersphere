@@ -192,6 +192,9 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
   width: 100%;
 }
 
+.el-message-box__headerbtn .el-message-box__close {
+  font-size: 20px!important;
+}
 /**
  * el-button
  */
@@ -247,6 +250,10 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
 
 .el-dialog__footer {
   padding: 0px;
+}
+
+i.el-dialog__close.el-icon.el-icon-close:before {
+  font-size: 20px!important;
 }
 
 /**

@@ -6,7 +6,7 @@
   <el-table v-else
     :data="data.steps" header-cell-class-name="case-desc-table-header-cell"
     style="width: 100%" class="case-desc-table">
-    <el-table-column type="index" :label="$t('test_track.home.serial_number')" />
+    <el-table-column type="index" width="60px" :label="$t('test_track.home.serial_number')" />
     <el-table-column prop="desc" :label="$t('test_track.case.step_desc')"/>
     <el-table-column prop="result" :label="$t('test_track.case.expected_results')"/>
   </el-table>
