@@ -145,6 +145,9 @@ export default {
       } else {
         reqObj.name = this.runData[0].path;
       }
+      if (this.runData[0]) {
+        reqObj.environmentGroupId = this.runData[0].environmentGroupId;
+      }
       reqObj.reportId = this.reportId;
       let url = "/api/definition/run/debug";
       if (!this.debug) {

@@ -167,7 +167,7 @@
 </template>
 
 <script>
-import {getUUID, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 import {getUrl} from "@/business/components/api/automation/scenario/component/urlhelper";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -508,7 +508,7 @@ export default {
                 selectEnvId = this.$store.state.scenarioEnvMap.get((this.currentScenario.id + "_" + this.request.projectId));
                 this.environmentMap = this.envMap;
               }
-              if (!selectEnvId) {
+              if (!selectEnvId && !this.environmentGroupId ) {
                 this.$warning(this.$t('api_test.automation.env_message'));
                 return false;
               }
@@ -535,7 +535,8 @@ export default {
           let debugData = {
             id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
             variables: variables, referenced: 'Created', headers: this.currentScenario.headers,
-            enableCookieShare: this.enableCookieShare, environmentId: selectEnvId, hashTree: [this.request],
+            enableCookieShare: this.enableCookieShare, environmentId: selectEnvId,
+            environmentGroupId: this.environmentGroupId, hashTree: [this.request],
           };
           // 合并自身依赖场景变量
           if (this.currentScenarioData && this.currentScenarioData.variableEnable && this.currentScenarioData.variables) {
