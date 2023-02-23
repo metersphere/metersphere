@@ -148,6 +148,8 @@ public class ApiDefinitionService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private EnvironmentGroupProjectService environmentGroupProjectService;
 
     @Lazy
     @Resource
@@ -1264,6 +1266,9 @@ public class ApiDefinitionService {
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if(request.getConfig() == null ) {
             request.setConfig(new RunModeConfigDTO());
+        }
+        if (StringUtils.isNotBlank(request.getEnvironmentGroupId())) {
+            request.setEnvironmentMap(environmentGroupProjectService.getEnvMap(request.getEnvironmentGroupId()));
         }
         // 验证是否本地执行
         jMeterService.verifyPool(request.getProjectId(), request.getConfig());
