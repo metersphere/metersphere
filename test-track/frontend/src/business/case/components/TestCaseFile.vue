@@ -35,9 +35,6 @@ export default {
       this.dialogVisible = true;
       this.url = generateModuleUrl('/attachment/preview/' + this.file.id + '/' + this.file.isLocal);
     },
-    setModulePrefix(url) {
-      return generateModuleUrl(url);
-    },
     close() {
       this.file = {
         id: '',
