@@ -321,10 +321,9 @@ public class ApiScenarioExecuteService {
                 }
                 //对报告的envMap做过滤，过滤多余的key
                 Map<String, String> diffEnvMap = new HashMap<>();
-                Map<String, String> envMap = runModeConfig.getEnvMap();
                 planEnvMap.forEach((k, v) -> {
-                    if (envMap != null && envMap.get(k) != null) {
-                        diffEnvMap.put(k, envMap.get(k));
+                    if (StringUtils.equals(planApiScenario.getProjectId(), k)) {
+                        diffEnvMap.put(k, v);
                     }
                 });
                 runModeConfig.setEnvMap(diffEnvMap);
