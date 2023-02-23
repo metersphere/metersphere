@@ -4,7 +4,7 @@
 <template>
   <div class="dependencies-container">
     <!-- 图标展示 -->
-    <div class="dep-header-wrap" v-xpack>
+    <div class="dep-header-wrap">
       <div class="header-row" @click="openGraph">
         <div class="dep-icon">
           <img
@@ -51,7 +51,6 @@
     </div>
 
     <relationship-graph-drawer
-      v-xpack
       v-permission
       :graph-data="graphData"
       @closeRelationGraph="closeRelationGraph"
