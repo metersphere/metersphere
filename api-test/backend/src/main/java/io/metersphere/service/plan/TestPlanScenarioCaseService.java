@@ -351,11 +351,16 @@ public class TestPlanScenarioCaseService {
                         map.put(s, envMap.get(s));
                     }
                 }
-                
-                testPlanApiScenario.setEnvironmentType(runModeConfig.getEnvironmentType());
-                testPlanApiScenario.setEnvironmentGroupId(runModeConfig.getEnvironmentGroupId());
-                testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
-                mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+
+                String envJsonStr = JSON.toJSONString(map);
+                if (!StringUtils.equals(envJsonStr, testPlanApiScenario.getEnvironment())
+                        || !StringUtils.equals(runModeConfig.getEnvironmentType(), testPlanApiScenario.getEnvironmentType())
+                        || !StringUtils.equals(runModeConfig.getEnvironmentGroupId(), testPlanApiScenario.getEnvironmentGroupId())) {
+                    testPlanApiScenario.setEnvironmentType(runModeConfig.getEnvironmentType());
+                    testPlanApiScenario.setEnvironmentGroupId(runModeConfig.getEnvironmentGroupId());
+                    testPlanApiScenario.setEnvironment(envJsonStr);
+                    mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+                }
             }
             sqlSession.flushStatements();
             if (sqlSession != null && sqlSessionFactory != null) {
