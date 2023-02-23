@@ -130,24 +130,32 @@ export default {
         if (this.isShare) {
           //持久化的报告分享
           this.result = getShareTestPlanReportContent(this.shareId, this.reportId, (data) => {
-            this.report = data;
-            this.report.config = this.getDefaultConfig(this.report);
+            if(data != null){
+              this.report = data;
+              this.report.config = this.getDefaultConfig(this.report);
+            }
           });
         } else {
           this.result = getTestPlanReportContent(this.reportId, (data) => {
-            this.report = data;
-            this.report.config = this.getDefaultConfig(this.report);
+            if(data != null){
+              this.report = data;
+              this.report.config = this.getDefaultConfig(this.report);
+            }
           });
         }
       } else if (this.isShare) {
         this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
-          this.report = data;
-          this.report.config = this.getDefaultConfig(this.report);
+          if(data != null){
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report);
+          }
         });
       } else {
         this.result = getTestPlanReport(this.planId, (data) => {
-          this.report = data;
-          this.report.config = this.getDefaultConfig(this.report);
+          if(data != null){
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report);
+          }
         });
       }
     },
