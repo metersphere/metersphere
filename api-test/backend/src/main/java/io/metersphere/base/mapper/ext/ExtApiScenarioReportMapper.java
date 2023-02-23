@@ -25,7 +25,7 @@ public interface ExtApiScenarioReportMapper {
 
     long countByProjectIdAndCreateAndByScheduleInThisWeek(@Param("projectId") String projectId, @Param("executeType") String executeType, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
-    List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(@Param("projectId") String projectId, @Param("version") String version);
+    List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(@Param("projectId") String projectId, @Param("executeType") String executeType, @Param("version") String version);
 
     List<ApiScenarioReport> selectLastReportByIds(@Param("scenarioIdList") List<String> ids);
 
