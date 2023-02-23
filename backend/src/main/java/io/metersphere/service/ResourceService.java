@@ -57,9 +57,7 @@ public class ResourceService {
     }
 
     public ResponseEntity<FileSystemResource> getUiResultImage(String name, String reportId) {
-        if (name.contains("/")) {
-            MSException.throwException(Translator.get("invalid_parameter"));
-        }
+        FileUtils.validateFileName(name,reportId);
         return getImage(FileUtils.UI_IMAGE_DIR + "/" + reportId +  "/" + name);
     }
 

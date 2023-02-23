@@ -493,25 +493,31 @@ public class TestPlanReportService {
                 this.initTestPlanReportBaseCount(testPlanReport,content);
                 testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
             }
+            this.executeTestPlanInQueue(testPlanReportId);
+            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+        }
+        //发送通知
+        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+        return testPlanReport;
+    }
 
-            TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
-            testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
-            List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
-            String runMode = null;
-            String resourceId = null;
-            if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
-                runMode = planExecutionQueues.get(0).getRunMode();
-                resourceId = planExecutionQueues.get(0).getResourceId();
-                testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
-            }
-            if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
-                TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
-                queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
-                queueExample.setOrderByClause("`num` ASC");
-                List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
-                if (CollectionUtils.isEmpty(planExecutionQueueList)) {
-                    return testPlanReport;
-                }
+    private void executeTestPlanInQueue(String testPlanReportId){
+        TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
+        testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+        List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
+        String runMode = null;
+        String resourceId = null;
+        if (CollectionUtils.isNotEmpty(planExecutionQueues)) {
+            runMode = planExecutionQueues.get(0).getRunMode();
+            resourceId = planExecutionQueues.get(0).getResourceId();
+            testPlanExecutionQueueMapper.deleteByExample(testPlanExecutionQueueExample);
+        }
+        if (runMode != null && StringUtils.equalsIgnoreCase(runMode, RunModeConstants.SERIAL.name()) && resourceId != null) {
+            TestPlanExecutionQueueExample queueExample = new TestPlanExecutionQueueExample();
+            queueExample.createCriteria().andReportIdIsNotNull().andResourceIdEqualTo(resourceId);
+            queueExample.setOrderByClause("`num` ASC");
+            List<TestPlanExecutionQueue> planExecutionQueueList = testPlanExecutionQueueMapper.selectByExample(queueExample);
+            if (CollectionUtils.isNotEmpty(planExecutionQueueList)) {
                 TestPlanExecutionQueue testPlanExecutionQueue = planExecutionQueueList.get(0);
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanExecutionQueue.getTestPlanId());
                 JSONObject jsonObject = JSONObject.parseObject(testPlan.getRunModeConfig());
@@ -520,11 +526,7 @@ public class TestPlanReportService {
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 testPlanService.runPlan(runRequest);
             }
-            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
         }
-        //发送通知
-        testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
-        return testPlanReport;
     }
 
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {

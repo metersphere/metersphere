@@ -254,9 +254,11 @@ public class FileUtils {
         }
     }
 
-    public static void validateFileName(String fileName){
-        if(StringUtils.isNotBlank(fileName) && fileName.contains(File.separator)){
-            MSException.throwException(Translator.get("file_name_error"));
+    public static void validateFileName(String ... fileNames){
+        for (String fileName : fileNames) {
+            if(StringUtils.isNotBlank(fileName) && fileName.contains(File.separator)){
+                MSException.throwException(Translator.get("file_name_error"));
+            }
         }
     }
 
