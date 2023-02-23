@@ -159,7 +159,7 @@
           </base-edit-item-component>
         </div>
       </div>
-      <div class="id-row case-wrap">
+      <div class="id-row case-wrap" v-if="!editable || isCustomNum">
         <div class="case-title-wrap">
           <div class="name title-wrap">ID</div>
           <div class="required required-item"></div>
@@ -167,14 +167,14 @@
         <div class="side-content">
           <base-edit-item-component
             :editable="editable"
-            :auto-save="editable"
+            :auto-save="isCustomNum"
             trigger="hover"
             :contentObject="{
-              content: form.customNum,
+              content: isCustomNum ? form.customNum : form.num,
               contentType: 'INPUT',
             }"
-            :readonlyHoverEvent="editable"
-            :content-click-event="editable"
+            :readonlyHoverEvent="isCustomNum"
+            :content-click-event="isCustomNum"
             :model="form"
             :rules="rules"
           >

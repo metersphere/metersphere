@@ -13,7 +13,7 @@
       </el-col>
       <el-col :span="4">
         <div class="ms-export">
-          <el-dropdown style="padding-left: 30px">
+          <el-dropdown style="padding-left: 3rem">
             <span class="el-dropdown-link">
               <i class="el-icon-download"/>
               {{ $t('commons.export') }}
@@ -24,7 +24,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <i class="delimiter">|</i>
-          <el-button size="mini" icon="el-icon-close" @click="close" class="close-btn" style="margin: 0 24px 0 20px"></el-button>
+          <el-button size="mini" icon="el-icon-close" @click="close" class="close-btn" style="float: right; margin: 0.3rem 1.2rem 0 0"></el-button>
         </div>
       </el-col>
     </el-row>
@@ -140,6 +140,7 @@ i.delimiter {
 
 .ms-export {
   float: right;
+  width: 100%;
 }
 
 :deep(.el-icon-close:before) {

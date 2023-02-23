@@ -609,6 +609,11 @@ export default {
   cursor: pointer!important;
 }
 
+/* focus行背景色 */
+.ms-table :deep(.el-table__body) tr.current-row > td {
+  background-color: #FFFFFF!important;
+}
+
 /* 选中某行时的背景色*/
 .ms-table :deep(.el-table__body tr.hignlight-row > td) {
   background-color: rgba(120, 56, 135, 0.1)!important;
@@ -620,7 +625,7 @@ export default {
 }
 
 .disable-hover :deep(tr:hover>td) {
-  background-color: #ffffff !important;
+  background-color: #FFFFFF!important;
 }
 
 .row-click {
@@ -666,6 +671,7 @@ export default {
   display: inline-block;
   width: 50px;
   border-top: 1px solid rgba(31, 35, 41, 0.15);
+  border-bottom: 1px solid rgba(31, 35, 41, 0.15);
 }
 
 :deep(.ms-select-all-fixed th.el-table-column--selection.is-leaf.ms-table-header-cell.el-table__cell .el-checkbox) {
@@ -681,6 +687,9 @@ export default {
   width: 35px;
 }
 
+:deep(.el-table th.is-leaf) {
+  border-bottom: 1px solid rgba(31, 35, 41, 0.15);
+}
 
 :deep(.ms-select-all-fixed th:nth-child(2) .table-select-icon) {
   position: absolute;
