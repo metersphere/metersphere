@@ -65,6 +65,12 @@ public class MsHashTreeService {
     public static final String ACTIVE = "active";
     public static final String ENV_MAP = "environmentMap";
 
+    private static final String CONNECT_TIMEOUT = "connectTimeout";
+    private static final String RESPONSE_TIMEOUT = "responseTimeout";
+    private static final String FOLLOW_REDIRECTS = "followRedirects";
+    private static final String AUTO_REDIRECTS = "autoRedirects";
+    private static final String ALIAS = "alias";
+
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
         if (CollectionUtils.isEmpty(hashTree)) {
@@ -197,6 +203,11 @@ public class MsHashTreeService {
                     element.put(AUTH_MANAGER, refElement.get(AUTH_MANAGER));
                     element.put(ARGUMENTS, refElement.get(ARGUMENTS));
                     element.put(PROJECT_ID, apiTestCase.getProjectId());
+                    element.put(CONNECT_TIMEOUT, refElement.get(CONNECT_TIMEOUT));
+                    element.put(RESPONSE_TIMEOUT, refElement.get(RESPONSE_TIMEOUT));
+                    element.put(FOLLOW_REDIRECTS, refElement.get(FOLLOW_REDIRECTS));
+                    element.put(AUTO_REDIRECTS, refElement.get(AUTO_REDIRECTS));
+                    element.put(ALIAS, refElement.get(ALIAS));
                     if (array != null) {
                         JSONArray sourceHashTree = element.getJSONArray(HASH_TREE);
                         Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
