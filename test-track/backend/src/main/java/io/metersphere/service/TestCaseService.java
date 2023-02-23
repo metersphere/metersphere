@@ -1187,12 +1187,9 @@ public class TestCaseService {
         String projectId = request.getProjectId();
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        Project project = baseProjectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         CustomFieldTestCaseMapper customFieldTestCaseMapper = sqlSession.getMapper(CustomFieldTestCaseMapper.class);
 
-        ProjectConfig config = baseProjectApplicationService.getSpecificTypeValue(project.getId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
-        boolean customNum = config.getCaseCustomNum();
         try {
             Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
 
@@ -1219,7 +1216,9 @@ public class TestCaseService {
                     }
                     testCase.setNodeId(nodePathMap.get(testCase.getNodePath()));
                     testCase.setNum(num);
-                    if (customNum && StringUtils.isBlank(testCase.getCustomNum())) {
+                    if (StringUtils.isBlank(testCase.getCustomNum())) {
+                        // 如果开启了自定义ID，这里不为空，且之前的步骤会校验
+                        // 没有开启则默认设置成 num
                         testCase.setCustomNum(String.valueOf(num));
                     }
                     num++;
