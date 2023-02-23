@@ -683,7 +683,7 @@ export default {
   },
   methods: {
     setInitialVal() {
-      if (this.isAdd) {
+      if (this.isAdd && hasLicense()) {
         getProjectVersions(getCurrentProjectID()).then(
           (r) => {
             let latestVersion = r.data.filter(version => version.latest);
