@@ -130,11 +130,6 @@ public class TestPlanTestCaseController {
         testPlanTestCaseService.deleteTestCaseBath(request);
     }
 
-    @GetMapping("/update/case/status/{testId}/{testName}/{planId}/{testType}")
-    public void updateCaseStatus(@PathVariable String testId, @PathVariable String testName,@PathVariable String planId,@PathVariable String testType) {
-        testPlanTestCaseService.updateTestCaseStates(testId, testName, planId, testType);
-    }
-
     @PostMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanTestCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
