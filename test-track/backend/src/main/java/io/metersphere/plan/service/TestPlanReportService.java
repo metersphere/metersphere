@@ -742,7 +742,9 @@ public class TestPlanReportService {
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 runRequest.setTestPlanId(testPlan.getId());
                 try {
-                    HttpHeaderUtils.runAsUser("admin");
+                    if (SessionUtils.getUser() == null) {
+                        HttpHeaderUtils.runAsUser("admin");
+                    }
                     //如果运行测试计划的过程中出现异常，则整个事务会回滚。 删除队列的事务也不会提交，也不会执行后面的测试计划
                     testPlanService.runPlan(runRequest);
                 } catch (Exception e) {
@@ -1125,7 +1127,9 @@ public class TestPlanReportService {
     }
 
     public TestPlanSimpleReportDTO getShareDbReport(ShareInfo shareInfo, String reportId) {
-        HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
+        if (SessionUtils.getUser() == null) {
+            HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
+        }
         try {
             return getReport(reportId);
         } finally {

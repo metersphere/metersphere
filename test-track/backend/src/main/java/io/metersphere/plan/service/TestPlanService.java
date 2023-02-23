@@ -1482,7 +1482,9 @@ public class TestPlanService {
     }
 
     public TestPlanSimpleReportDTO getShareReport(ShareInfo shareInfo, String planId) {
-        HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
+        if (SessionUtils.getUser() == null) {
+            HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
+        }
         try {
             return getReport(planId, null);
         } finally {
