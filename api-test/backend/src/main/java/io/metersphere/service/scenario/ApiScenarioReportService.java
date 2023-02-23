@@ -34,6 +34,7 @@ import io.metersphere.service.BaseShareInfoService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.SystemParameterService;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -42,8 +43,6 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.annotation.Resource;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -714,8 +713,8 @@ public class ApiScenarioReportService {
         }
     }
 
-    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId, String version) {
-        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId, version);
+    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId, String executeType, String version) {
+        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId, executeType, version);
     }
 
     public List<ApiScenarioReport> selectLastReportByIds(List<String> ids) {
