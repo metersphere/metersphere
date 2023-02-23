@@ -567,6 +567,8 @@ public class ApiScenarioReportStructureService {
         if (CollectionUtils.isNotEmpty(reportStructureWithBLOBs) && CollectionUtils.isNotEmpty(reportResults)) {
             ApiScenarioReportStructureWithBLOBs scenarioReportStructure = reportStructureWithBLOBs.get(0);
             List<StepTreeDTO> stepList = JSON.parseArray(new String(scenarioReportStructure.getResourceTree(), StandardCharsets.UTF_8), StepTreeDTO.class);
+            //过滤掉前后置脚本。否则会影响到下面几行的统计数据。
+            reportResults = this.filterProcessResult(reportResults);
 
             reportDTO.setTotal(reportResults.size());
             reportDTO.setError(reportResults.stream().filter(e -> StringUtils.equals(e.getStatus(), ApiReportStatus.ERROR.name())).collect(Collectors.toList()).size());
