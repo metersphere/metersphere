@@ -206,14 +206,14 @@ export default {
   flex-grow: 0;
 }
 
-.el-form-item__label {
+:deep(.el-form-item__label) {
   line-height: 36px;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #1F2329;
+  color: #1F2329!important;
   flex: none;
   order: 0;
   flex-grow: 0;

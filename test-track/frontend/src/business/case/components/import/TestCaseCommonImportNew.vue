@@ -377,6 +377,10 @@ export default {
 .case-upload-progress :deep(.el-progress-bar__inner){
   background-color: #AA4FBF;;
 }
+
+:deep(.el-icon-close:before) {
+  font-size: 20px;
+}
 </style>
 
 <style>
