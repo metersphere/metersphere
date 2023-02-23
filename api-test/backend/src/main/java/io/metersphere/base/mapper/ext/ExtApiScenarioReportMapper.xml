@@ -388,6 +388,7 @@
         FROM scenario_execution_info
         WHERE trigger_mode = 'SCHEDULE'
           AND project_id = #{projectId}
+          AND execute_type = #{executeType}
         <if test="version != null">
             AND version = #{version}
         </if>

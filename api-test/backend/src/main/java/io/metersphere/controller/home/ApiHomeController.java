@@ -26,11 +26,11 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.task.service.TaskService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -196,7 +196,7 @@ public class ApiHomeController {
         long executedTimes = apiAutomationService.countExecuteTimesByProjectID(projectId, ReportTriggerMode.SCHEDULE.name(), ExecutionExecuteTypeEnum.BASIC.name(), versionId);
         apiCountResult.setExecutedTimes(executedTimes);
         //统计 失败 成功 以及总数
-        List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId, versionId);
+        List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId, ExecutionExecuteTypeEnum.BASIC.name(), versionId);
         apiCountResult.countScheduleExecute(allExecuteResult);
         if (executedTimes != 0) {
             float passRateNumber = (float) apiCountResult.getPassCount() * 100 / executedTimes;
