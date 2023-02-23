@@ -45,7 +45,7 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 2.  以 root 用户执行如下命令一键安装 MeterSphere。
 
 ```sh
-curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/quick_start.sh | bash
+curl -sSL https://resource.fit2cloud.com/metersphere/metersphere/releases/latest/download/quick_start.sh | bash
 ```
 
 在线文档和教学视频：
