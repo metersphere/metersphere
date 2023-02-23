@@ -50,6 +50,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         } else {
             request.setFollowRedirects(true);
         }
+        request.setResponseTimeout("60000");
+        request.setConnectTimeout("60000");
         return request;
     }
 
