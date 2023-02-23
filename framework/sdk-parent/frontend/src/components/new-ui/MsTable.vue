@@ -94,7 +94,7 @@
 
       <template #empty>
         <div style="width: 100%;height: 300px;display: flex;flex-direction: column;justify-content: start;align-items: center">
-          <img :src="refreshBySearch ? '/assets/module/figma/icon_search_none.svg' : '/assets/module/figma/icon_none.svg'" style="height: 100px;width: 100px;margin-bottom: 8px"/>
+          <img :src="refreshBySearch ? '/assets/module/figma/icon_search_none.svg' : '/assets/module/figma/icon_none.svg'" style="height: 100px;width: 100px;margin-bottom: 0.6rem; margin-top: 3rem"/>
           <span class="addition-info-title">{{ refreshBySearch ? $t("home.dashboard.public.no_search_data") : $t("home.dashboard.public.no_data") }}</span>
         </div>
       </template>

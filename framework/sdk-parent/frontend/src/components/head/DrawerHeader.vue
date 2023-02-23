@@ -91,7 +91,7 @@ button.el-button.el-button--default.el-button--mini {
 }
 
 :deep(.el-icon-close:before) {
-  font-size: 19px;
+  font-size: 20px;
 }
 
 span.el-dropdown-link.el-dropdown-selfdefine {
@@ -141,11 +141,6 @@ i.delimiter {
 .ms-export {
   float: right;
   width: 100%;
-}
-
-:deep(.el-icon-close:before) {
-  position: relative;
-  top: 2px;
 }
 
 .close-btn {

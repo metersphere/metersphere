@@ -1,6 +1,6 @@
 <template>
   <el-table-column v-if="isShow" width="1" :resizable="false" fixed="left" align="center">
-    <el-popover slot="header" placement="bottom" trigger="hover" style="margin-right: 0px;" popper-class="select-popover">
+    <el-popover slot="header" placement="bottom" trigger="hover" style="margin-right: 0px;" popper-class="select-popover" :open-delay="0" :close-delay="0">
       <el-button type="text" @click.native.stop="click('selectPageAll')">
           <span>
             {{ $t('api_test.batch_menus.select_current_page') }}

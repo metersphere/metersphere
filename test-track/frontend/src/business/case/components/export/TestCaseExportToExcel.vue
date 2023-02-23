@@ -118,4 +118,8 @@ export default {
   height: 32px;
   border-radius: 4px;
 }
+
+:deep(.el-icon-close:before) {
+  font-size: 20px;
+}
 </style>
