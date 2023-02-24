@@ -63,7 +63,7 @@
           </div>
         </div>
         <div class="compare-row"
-             :class="{'compare-btn-disable': !compareBtnEnable}"
+             :class="{'compare-btn-disable': compareDisable}"
              @click.stop="openCompare">
           <div class="icon">
             <img src="/assets/module/figma/icon_contrast_outlined.svg" alt=""/>
@@ -196,7 +196,7 @@ export default {
     enableCompare() {
       return this.versionLeftId && this.versionRightId;
     },
-    compareBtnEnable() {
+    compareDisable() {
       return this.versionCompareOptions || this.versionCompareOptions.length < 2;
     }
   },
@@ -209,7 +209,7 @@ export default {
       this.clearSelectData();
     },
     openCompare() {
-      if (!this.compareBtnEnable) {
+      if (this.compareDisable) {
         return;
       }
       this.setDefaultCompareOptions();
@@ -548,9 +548,9 @@ export default {
       }
     }
 
+    color: #646a73;
     .label {
       font-size: 14px;
-      color: #646a73;
     }
   }
 }
