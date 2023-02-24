@@ -3,7 +3,6 @@
     <el-popover
       placement="bottom-end"
       width="392"
-      height="271"
       trigger="click"
       popper-class="version-popover"
       v-loading="loading"
@@ -13,16 +12,16 @@
           <div class="label">{{ $t("project.version.name") }}</div>
         </div>
         <div class="history-container">
-          <div class="item-row" v-for="item in versionOptions" :key="item.id" @click="checkout(item)">
+          <div class="item-row"
+               v-for="item in versionOptions"
+               :key="item.id"
+               :class="{'not-create-item' : !caseVersionMap.has(item.id)}"
+               @click="checkout(item)">
             <div class="left-detail-row">
               <div class="version-info-row">
                 <div
-                  :class="
-                    item.id == dataLatestId
-                      ? ['version-label', 'active']
-                      : ['version-label']
-                  "
-                >
+                  class="version-label"
+                  :class="{'active': item.id == currentVersionId}">
                   {{ item.name }}
                 </div>
                 <div class="version-lasted" v-if="item.id == dataLatestId">
@@ -63,8 +62,9 @@
             </div>
           </div>
         </div>
-        <div class="compare-row" :disabled="!versionCompareOptions || versionCompareOptions.length < 2"
-             @click.stop="compareDialogVisible = true">
+        <div class="compare-row"
+             :class="{'compare-btn-disable': !compareBtnEnable}"
+             @click.stop="openCompare">
           <div class="icon">
             <img src="/assets/module/figma/icon_contrast_outlined.svg" alt=""/>
           </div>
@@ -89,25 +89,34 @@
     >
       <div class="compare-wrap">
         <div class="version-left-box">
-          <el-select v-model="versionLeftId" size="small">
+          <el-select v-model="versionLeftId" size="small" clearable>
             <el-option
-              v-for="item in versionCompareOptions"
+              v-for="item in versionLeftCompareOptions"
               :key="item.id"
               :label="item.name"
               :value="item.id"
-            ></el-option>
+            >
+              <span>{{ item.name }}</span>
+              <span class="compare-version-lasted" v-if="item.id == dataLatestId">
+                {{ $t("case.last_version") }}
+              </span>
+            </el-option>
           </el-select>
         </div>
         <div class="desc">{{ $t("case.compare") }}</div>
         <div class="version-right-box">
-          <el-select v-model="versionRightId" size="small">
+          <el-select v-model="versionRightId" size="small" clearable>
             <el-option
-              v-for="item in versionCompareOptions"
+              v-for="item in versionRightCompareOptions"
               :key="item.id"
               :label="item.name"
               :value="item.id"
-            ></el-option
             >
+              <span>{{ item.name }}</span>
+              <span class="compare-version-lasted" v-if="item.id == dataLatestId">
+                {{ $t("case.last_version") }}
+              </span>
+            </el-option>
           </el-select>
         </div>
       </div>
@@ -169,14 +178,16 @@ export default {
       versionEnable: false,
       versionOptions: [],
       versionCompareOptions: [],
+      versionLeftCompareOptions: [],
+      versionRightCompareOptions: [],
       userData: {},
       currentVersion: {},
       dataLatestId: null,
       latestVersionId: null,
       compareDialogVisible: false,
       // 版本对比相关
-      versionLeftId: "",
-      versionRightId: "",
+      versionLeftId: '',
+      versionRightId: '',
       // 当前用例的所有版本
       caseVersionMap: new Map()
     };
@@ -185,6 +196,9 @@ export default {
     enableCompare() {
       return this.versionLeftId && this.versionRightId;
     },
+    compareBtnEnable() {
+      return this.versionCompareOptions || this.versionCompareOptions.length < 2;
+    }
   },
   beforeDestroy() {
     this.clearSelectData();
@@ -194,10 +208,18 @@ export default {
       this.compareDialogVisible = false;
       this.clearSelectData();
     },
+    openCompare() {
+      if (!this.compareBtnEnable) {
+        return;
+      }
+      this.setDefaultCompareOptions();
+      this.versionLeftId = this.currentVersionId;
+      this.compareDialogVisible = true;
+    },
     clearSelectData() {
       //清空表单数据
-      this.versionLeftId = "";
-      this.versionRightId = "";
+      this.versionLeftId = '';
+      this.versionRightId = '';
     },
     findVersionById(id) {
       let version = this.versionCompareOptions.filter((v) => v.id === id);
@@ -205,7 +227,7 @@ export default {
     },
     compareBranch() {
       this.$emit(
-        "compareBranch",
+        'compareBranch',
         this.findVersionById(this.versionLeftId),
         this.findVersionById(this.versionRightId)
       );
@@ -319,8 +341,27 @@ export default {
 
       this.loading = false;
     },
+    setDefaultCompareOptions() {
+      this.versionLeftCompareOptions = this.versionCompareOptions;
+      this.versionRightCompareOptions = this.versionCompareOptions;
+    },
   },
   watch: {
+    versionLeftId() {
+      // 左边选中，右边过滤该版本，避免比较相同版本
+      if (this.versionLeftId) {
+        this.versionRightCompareOptions = this.versionCompareOptions.filter(v => v.id != this.versionLeftId);
+      } else {
+        this.versionRightCompareOptions = this.versionCompareOptions;
+      }
+    },
+    versionRightId() {
+      if (this.versionRightId) {
+        this.versionLeftCompareOptions = this.versionCompareOptions.filter(v => v.id != this.versionRightId);
+      } else {
+        this.versionLeftCompareOptions = this.versionCompareOptions;
+      }
+    },
     currentId() {
       if (!hasLicense()) {
         return;
@@ -348,9 +389,28 @@ export default {
   width: 392px !important;
 }
 
+.compare-version-lasted {
+  display: inline-block;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  color: #783887;
+  padding: 1px 6px;
+  margin-left: 5px;
+  gap: 4px;
+  min-width: 49px;
+  height: 20px;
+  background: rgba(120, 56, 135, 0.2);
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.compare-btn-disable {
+  color: #BBBFC4 !important;
+}
+
 .version-history-wrap {
   width: 392px;
-  height: 271px;
 
   .label-row {
     height: 32px;
@@ -368,7 +428,6 @@ export default {
   }
 
   .history-container {
-    height: 182px;
     overflow: scroll;
 
     .item-row:hover {
@@ -431,7 +490,6 @@ export default {
         }
 
         .opt-row {
-          margin-top: 4px;
           height: 22px;
           line-height: 22px;
           font-size: 14px;
@@ -444,6 +502,9 @@ export default {
           background: rgba(120, 56, 135, 0.1);
           border-radius: 4px;
           cursor: pointer;
+          padding-left: 3px;
+          padding-right: 3px;
+          color: #783887;
         }
 
         .updated {
@@ -456,10 +517,15 @@ export default {
         }
       }
     }
+
+    .not-create-item {
+      height: 32px;
+    }
   }
 
   .active {
-    color: #783887;
+    color: #783887 !important;
+    font-weight: 550 !important;
   }
 
   .compare-row {
@@ -467,8 +533,6 @@ export default {
     display: flex;
     height: 32px;
     line-height: 32px;
-    margin-bottom: 8px;
-    margin-top: 3px;
     border-top: 1px solid rgba(31, 35, 41, 0.15);
     align-items: center;
 
@@ -507,7 +571,7 @@ export default {
 
   .desc {
     color: #1f2329;
-    margin: 0 5px;
+    margin: 0 8px;
     height: 32px;
     line-height: 32px;
   }
@@ -527,6 +591,5 @@ export default {
 .version-popover {
   left: 215px !important;
   padding: 0px !important;
-  height: 271px !important;
 }
 </style>

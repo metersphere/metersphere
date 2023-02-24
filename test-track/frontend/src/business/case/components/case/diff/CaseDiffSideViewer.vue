@@ -3,7 +3,7 @@
     <el-drawer
       :close-on-click-modal="false"
       :visible.sync="visible"
-      :size="widthCacl"
+      :size="widthCalc"
       @close="close"
       destroy-on-close
       :full-screen="isFullScreen"
@@ -52,7 +52,7 @@ export default {
     },
   },
   computed: {
-    widthCacl() {
+    widthCalc() {
       if (!isNaN(this.width)) {
         //计算rem
         let remW = (this.width / 1440) * 100;

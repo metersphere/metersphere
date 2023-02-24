@@ -466,11 +466,13 @@ export default {
         map.set(v, v);
       });
 
-      this.versionOptions.forEach((v) => {
+      // 新版本在右边
+      for (let i = this.versionOptions.length - 1; i >= 0; i--) {
+        let v = this.versionOptions[i];
         if (map.get(v.id)) {
           this.versionList.push(v);
         }
-      });
+      }
     },
     async fetchAllCaseVersion() {
       //首先获取所有版本，再去构造版本展示的数组
