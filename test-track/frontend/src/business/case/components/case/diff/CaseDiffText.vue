@@ -1,4 +1,4 @@
-<!-- 
+<!--
     文本类型对比
  -->
 <template>
@@ -133,6 +133,7 @@ export default {
 
     .content-wrap {
       margin-left: 2px;
+      color: #1F2329;
       .text {
       }
     }
