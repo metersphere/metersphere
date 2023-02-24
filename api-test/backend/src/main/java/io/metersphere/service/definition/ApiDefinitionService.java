@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
+import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
@@ -1369,7 +1370,8 @@ public class ApiDefinitionService {
         configObj.put(ARGUMENTS, request.getArguments());
         // 设置 BaseAuth 参数
         if (request.getAuthManager() != null && StringUtils.isNotBlank(request.getAuthManager().getUsername()) && StringUtils.isNotBlank(request.getAuthManager().getPassword())) {
-            configObj.put("authManager", request.getAuthManager());
+            MsAuthManager authManager = request.getAuthManager();
+            configObj.put("authManager", JSONUtil.parseObject(JSONUtil.toJSONString(authManager)));
         }
         return configObj.toString();
     }
