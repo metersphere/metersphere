@@ -85,6 +85,7 @@
         <npm.version>8.12.1</npm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
+        <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
     </properties>
 
     <modules>
