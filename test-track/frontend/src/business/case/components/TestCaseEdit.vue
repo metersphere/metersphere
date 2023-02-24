@@ -533,7 +533,6 @@ export default {
       },
       tabId: getUUID(),
       versionData: [],
-      dialogVisible: false,
       oldData: null,
       newData: null,
       selectedOtherInfo: null,
@@ -1438,7 +1437,6 @@ export default {
     },
     compareBranchWithVersionId(originId, targetId){
        // 打开对比
-       this.dialogVisible = true;
        this.$refs.caseDiffViewerRef.open(originId, targetId, this.currentTestCaseInfo.id)
     },
     compareBranch(t1, t2) {
@@ -1470,7 +1468,6 @@ export default {
                 (v) => v.id === that.oldData.id
               )[0].createName;
               this.setSpecialPropForCompare(that);
-              that.dialogVisible = true;
             }
           });
         }
