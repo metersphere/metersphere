@@ -82,7 +82,7 @@ export function getWsAndPj(userId) {
 }
 
 export function getUserKeys() {
-  return get('/user/key/info/')
+  return get('/user/key/info')
 }
 
 export function deleteUserKey(id) {
