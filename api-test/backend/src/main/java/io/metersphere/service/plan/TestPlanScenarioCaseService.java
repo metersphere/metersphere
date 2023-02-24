@@ -28,6 +28,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -91,6 +92,8 @@ public class TestPlanScenarioCaseService {
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
     @Resource
     private BaseEnvironmentService apiTestEnvironmentService;
+    @Resource
+    private BaseEnvGroupProjectService environmentGroupProjectService;
     @Resource
     private ExtApiScenarioModuleMapper extApiScenarioModuleMapper;
     @Lazy
@@ -314,9 +317,6 @@ public class TestPlanScenarioCaseService {
             testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
             testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
         }
-        if (CollectionUtils.isEmpty(planScenarioIds)) {
-            return;
-        }
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanApiScenarioMapper mapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
@@ -369,9 +369,14 @@ public class TestPlanScenarioCaseService {
         }
 
         if (StringUtils.equals(environmentType, EnvironmentType.GROUP.toString())) {
+            Map<String, String> envMap = new HashMap<>();
+            if (StringUtils.isNotBlank(environmentGroupId)) {
+                envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+            }
             for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
                 testPlanApiScenario.setEnvironmentType(EnvironmentType.GROUP.toString());
                 testPlanApiScenario.setEnvironmentGroupId(environmentGroupId);
+                testPlanApiScenario.setEnvironment(JSON.toJSONString(envMap));
                 mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
             }
             sqlSession.flushStatements();

@@ -1613,20 +1613,18 @@ public class TestPlanService {
         if (MapUtils.isEmpty(scenarioEnv)) {
             return uiScenarioEnv;
         }
-        if (MapUtils.isNotEmpty(uiScenarioEnv)) {
-            uiScenarioEnv.entrySet().forEach(entry -> {
-                if (scenarioEnv.containsKey(entry.getKey())) {
-                    List<String> environmentIds = scenarioEnv.get(entry.getKey());
-                    entry.getValue().forEach(eId -> {
-                        if (!environmentIds.contains(eId)) {
-                            environmentIds.add(eId);
-                        }
-                    });
-                } else {
-                    scenarioEnv.put(entry.getKey(), entry.getValue());
-                }
-            });
-        }
+        uiScenarioEnv.forEach((key, value) -> {
+            if (scenarioEnv.containsKey(key)) {
+                List<String> environmentIds = scenarioEnv.get(key);
+                value.forEach(eId -> {
+                    if (!environmentIds.contains(eId)) {
+                        environmentIds.add(eId);
+                    }
+                });
+            } else {
+                scenarioEnv.put(key, value);
+            }
+        });
         return scenarioEnv;
     }
 
