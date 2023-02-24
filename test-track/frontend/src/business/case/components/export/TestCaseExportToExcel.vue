@@ -64,8 +64,9 @@ export default {
       if (this.$refs.testCaseExportFieldSelectTable) {
         param = this.$refs.testCaseExportFieldSelectTable.getExportParam();
       }
-      param.exportAll = this.exportAll
+      param.exportAll = this.exportAll;
       this.$emit('exportTestCase', this.exportType, param);
+      this.close();
     }
   }
 }
