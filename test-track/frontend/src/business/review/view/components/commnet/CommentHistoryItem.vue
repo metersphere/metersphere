@@ -144,7 +144,7 @@ export default {
 .main {
   overflow-y: scroll;
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   margin-top: 10px;
 }
 

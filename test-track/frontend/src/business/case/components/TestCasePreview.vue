@@ -11,12 +11,12 @@
     </template>
     <div style="height: 100%; overflow: auto">
       <el-form :model="data" class="case-desc-form">
-        <div class="prerequisite-item-layout">
+        <div class="prerequisite-item-layout" style="margin-top: 24px; margin-bottom: 20px">
           <h3>{{$t('test_track.case.prerequisite')}}</h3>
           <span>{{data.prerequisite}}</span>
         </div>
-        <step-change-item :label-width="stepForLabelWidth" :form="data"/>
-        <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="data" :content="data.stepDescription"/>
+        <step-change-item :label-width="formLabelWidth" :form="data"/>
+        <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="data" :content="data.stepDescription" style="margin-bottom: 20px"/>
         <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="data" :content="data.expectedResult"/>
         <ms-case-desc-text-item v-if="data.stepModel === 'STEP' || !data.stepModel" :data="data"/>
       </el-form>
@@ -99,7 +99,7 @@ export default {
 }
 
 .prerequisite-item-layout {
-  padding: 24px;
+  padding: 0px 24px 0 24px;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
@@ -113,7 +113,7 @@ export default {
 
 .prerequisite-item-layout h3{
   font-weight: bold;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-size: 14px;
 }
 
