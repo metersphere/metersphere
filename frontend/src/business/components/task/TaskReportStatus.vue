@@ -10,7 +10,7 @@
       {{ showStatus(status) }}
     </el-tag>
     <el-tag size="mini" type="danger" style="background-color: #F6972A; color: #FFFFFF"
-            v-else-if="getStatus(status) === 'fake_error'">
+            v-else-if="getStatus(status) === 'fake_error'|| getStatus(status)==='errorreportresult'">
       FakeError
     </el-tag>
     <el-tag v-else size="mini" type="info">
