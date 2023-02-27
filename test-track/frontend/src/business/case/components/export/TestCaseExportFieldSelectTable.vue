@@ -4,7 +4,7 @@
     <ms-table :data="tableData" ref="table" :enable-selection="false" style="margin-top: 8px">
       <el-table-column
         prop="fieldType"
-        width="150"
+        width="120"
         :label="$t('custom_field.field_type')">
         <template v-slot:default="scope">
           <el-checkbox v-model="scope.row.isSelectAll" :indeterminate="scope.row.isIndeterminate" @change="fieldRowChange(scope.row)">{{scope.row.fieldType}}</el-checkbox>

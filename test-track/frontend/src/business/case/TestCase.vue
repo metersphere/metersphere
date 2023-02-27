@@ -16,7 +16,7 @@
             <span class="export-model">{{$t('test_track.case.import.import_by_excel')}}</span>
             <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips1')}}</span>
           </el-dropdown-item>
-          <el-dropdown-item style="margin-top: 10px" command="xmind">
+          <el-dropdown-item style="margin-top: 10px" command="xmind" divided>
             <span class="export-model">{{$t('test_track.case.import.import_by_xmind')}}</span>
             <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
           </el-dropdown-item>
@@ -32,7 +32,7 @@
             <span class="export-model">{{$t('test_track.case.export.export_to_excel')}}</span>
             <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips')}}</span>
           </el-dropdown-item>
-          <el-dropdown-item style="margin-top: 10px" command="xmind">
+          <el-dropdown-item style="margin-top: 10px" command="xmind" divided>
             <span class="export-model">{{$t('test_track.case.export.export_to_xmind')}}</span>
             <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
           </el-dropdown-item>
