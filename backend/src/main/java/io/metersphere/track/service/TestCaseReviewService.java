@@ -399,13 +399,19 @@ public class TestCaseReviewService {
                 testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
                 testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
                 return;
-            } else if (StringUtils.equals(status, TestReviewCaseStatus.UnPass.name())) {
-                testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
-                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-                return;
             }
         }
-        testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
+
+        int unPassSize = statusList.stream()
+                .filter(s -> StringUtils.equals(TestReviewCaseStatus.UnPass.name(), s))
+                .collect(Collectors.toList()).size();
+
+        if (unPassSize > 0) {
+            testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
+        } else {
+            testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
+        }
+
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
