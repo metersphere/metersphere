@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.alibaba.nacos.common.utils.StringUtils;
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldIssues;
 import io.metersphere.base.domain.CustomFieldIssuesExample;
@@ -94,12 +95,15 @@ public class CustomFieldIssuesService extends CustomFieldResourceService {
                 continue;
             }
             List<String> fieldIds = resourceFieldMap.get(resourceId);
-            for (CustomFieldResourceDTO CustomFieldResourceDTO : list) {
-                CustomFieldResourceDTO.setResourceId(resourceId);
-                if (CollectionUtils.isEmpty(fieldIds) || !fieldIds.contains(CustomFieldResourceDTO.getFieldId())) {
-                    addList.add(CustomFieldResourceDTO);
+            for (CustomFieldResourceDTO customFieldResourceDTO : list) {
+                customFieldResourceDTO.setResourceId(resourceId);
+                if (StringUtils.isNotBlank(customFieldResourceDTO.getOptionLabel())) {
+                    customFieldResourceDTO.setTextValue("optionLabel:" + customFieldResourceDTO.getOptionLabel());
+                }
+                if (CollectionUtils.isEmpty(fieldIds) || !fieldIds.contains(customFieldResourceDTO.getFieldId())) {
+                    addList.add(customFieldResourceDTO);
                 } else {
-                    updateList.add(CustomFieldResourceDTO);
+                    updateList.add(customFieldResourceDTO);
                 }
             }
         }
