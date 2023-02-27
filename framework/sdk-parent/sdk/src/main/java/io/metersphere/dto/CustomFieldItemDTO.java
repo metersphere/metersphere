@@ -10,4 +10,5 @@ public class CustomFieldItemDTO {
     private String type;
     private String key;
     private String customData;
+    private String optionLabel;
 }
