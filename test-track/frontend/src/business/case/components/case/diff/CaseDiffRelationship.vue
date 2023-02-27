@@ -1,5 +1,5 @@
 
-<!-- 
+<!--
     依赖关系 容器
  -->
  <template>
@@ -42,7 +42,7 @@
           ref="postRelationshipList"
         ></case-relationship-list>
       </div>
-  
+
       <mx-relationship-graph-drawer
         v-xpack
         v-permission
@@ -52,13 +52,13 @@
       />
     </div>
   </template>
-  
-  <script>
+
+<script>
   import MxRelationshipGraphDrawer from "metersphere-frontend/src/components/graph/RelationshipGraphDrawer";
   import RelationshipList from "@/business/common/RelationshipList";
   import { getRelationshipGraph } from "@/api/graph";
   import CaseRelationshipList from "./CaseDiffRelationshipList";
-  
+
   export default {
     name: "CaseDiffRelationship",
     components: {
@@ -104,8 +104,8 @@
     },
   };
   </script>
-  
-  <style scoped>
+
+<style scoped>
   .left-icon {
     width: 4%;
     display: inline-block;
@@ -116,7 +116,6 @@
   <style scoped lang="scss">
   @import "@/business/style/index.scss";
   .dependencies-container {
-    overflow: hidden;
     .dep-header-wrap {
       margin-top: 24px;
       width: 98px;
@@ -141,11 +140,11 @@
             height: 100%;
           }
         }
-  
+
         .dep-label {
         }
       }
-  
+
       .dep-pre-wrap {
         max-height: px2rem(269);
       }
@@ -155,4 +154,4 @@
     }
   }
   </style>
-  
+

@@ -133,17 +133,14 @@
                   <!-- 添加附件 -->
                   <!-- tip -->
                   <div class="opt-btn">
-                    <div class="attachment-preview">
+                    <div class="attachment-preview" v-if="showAttachment">
                       <case-attachment-viewer
                         :tableData="attachmentDiffData"
                         :isCopy="false"
                         :readOnly="true"
                         :is-delete="false"
-                        v-if="
-                          attachmentDiffData && attachmentDiffData.lenght > 0
-                        "
                       ></case-attachment-viewer>
-                      <div v-else>{{ $t("case.none") }}</div>
+                      <div v-if="!showAttachment">{{ $t("case.none") }}</div>
                     </div>
                   </div>
                 </div>
@@ -324,6 +321,7 @@ export default {
       contentDiffData: {},
       customDiffData: {},
       attachmentDiffData: [],
+      showAttachment: false,
       baseInfoDiffData: {},
       tagDiffData: {},
       originCase: {},
@@ -447,11 +445,11 @@ export default {
       this.fillCustomValue();
       this.diffCustomData();
 
-      this.diffAttachment();
-      this.diffTestRelate();
-      this.diffComments();
-      this.diffRelationship();
-      this.diffIssues();
+      await this.diffAttachment();
+      await this.diffTestRelate();
+      await this.diffComments();
+      await this.diffRelationship();
+      await this.diffIssues();
       // 初始化
       this.initContent();
     },
@@ -521,6 +519,9 @@ export default {
         origin,
         target
       );
+      if (this.attachmentDiffData && this.attachmentDiffData.length > 0) {
+        this.showAttachment = true
+      }
     },
     async fetchTestRelate(id) {
       let res = await getRelateTest(id);
@@ -911,15 +912,20 @@ export default {
 .content-body-wrap {
   // 1024 减去左右padding 各24 和 1px右边框
   width: px2rem(1024);
-  height: 1044px;
+  height: 100%;
   display: flex;
+
   .tab-pane-wrap {
     width: px2rem(896);
     height: 100%;
-    overflow-y: scroll;
     border-right: 1px solid rgba(31, 35, 41, 0.15);
+
     :deep(.el-tabs__item) {
       padding-left: px2rem(24);
+    }
+
+    :deep(.el-tabs__content) {
+      overflow: auto;
     }
   }
   .base-info-wrap {
@@ -934,6 +940,7 @@ export default {
   .content-conatiner {
     padding-left: px2rem(24);
     padding-right: px2rem(24);
+    height: calc(100vh - 130px);
   }
 }
 .case-content-wrap {

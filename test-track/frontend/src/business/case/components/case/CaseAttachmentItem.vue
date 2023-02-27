@@ -405,10 +405,13 @@ export default {
       }
       .file-info-row {
         display: flex;
-        font-size: px2rem(12);
         line-height: px2rem(20);
         height: px2rem(20);
         color: #8f959e;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+
         .size {
         }
 
