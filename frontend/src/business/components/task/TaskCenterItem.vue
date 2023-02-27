@@ -115,8 +115,7 @@ export default {
         if (status === "pending" || status === 'stopped') {
           return 0;
         }
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
-          'pending' || status === 'fake_error') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status === 'pending' || status === 'fake_error' || status === 'errorreportresult') {
           return 100;
         }
       }
