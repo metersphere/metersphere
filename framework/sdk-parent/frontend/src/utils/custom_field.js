@@ -1,6 +1,7 @@
 import i18n from "../i18n";
 import {getCurrentProjectID, getCurrentUser} from "../utils/token";
 import { SYSTEM_FIELD_NAME_MAP } from "../utils/table-constants";
+import {OPTION_LABEL_PREFIX} from "../utils/tableUtils";
 
 function setDefaultValue(item, value) {
   item.defaultValue = value;
@@ -83,6 +84,15 @@ export function parseCustomField(data, template, rules, oldFields) {
               setDefaultValue(item, customField.textValue);
             } else {
               setDefaultValue(item, customField.value);
+            }
+            if (customField.textValue && customField.textValue.startsWith(OPTION_LABEL_PREFIX))  {
+              // 处理 jira 的 sprint 字段，没有选项，则添加对应选项
+              if (item.options && item.options.filter(i => i.value === customField.value).length < 1) {
+                item.options.push({
+                  'text': customField.textValue.substring(OPTION_LABEL_PREFIX.length),
+                  'value': customField.value
+                });
+              }
             }
             item.isEdit = true;
           } catch (e) {
