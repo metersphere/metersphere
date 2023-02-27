@@ -709,7 +709,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             paths.optJSONObject(apiDefinition.getPath()).put(apiDefinition.getMethod().toLowerCase(), methodDetail);
         }
         result.setPaths(JSONUtil.parseObjectNode(paths.toString()));
-        components.put("schemas", schemas.get(0));
+        if (CollectionUtils.isNotEmpty(schemas)) {
+            components.put("schemas", schemas.get(0));
+        }
         result.setComponents(JSONUtil.parseObjectNode(components.toString()));
         return result;
     }
