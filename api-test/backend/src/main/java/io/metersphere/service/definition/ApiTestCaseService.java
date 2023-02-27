@@ -55,7 +55,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.Resource;
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -609,15 +608,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseWithBLOBs> selectCasesBydApiIds(List<String> apiIds) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
-        return apiTestCaseMapper.selectByExampleWithBLOBs(example);
-    }
-
-    public List<ApiTestCase> selectSimpleCasesBydApiIds(List<String> apiIds) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
-        return apiTestCaseMapper.selectByExample(example);
+        return extApiTestCaseMapper.unTrashCaseListByIds(apiIds);
     }
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
