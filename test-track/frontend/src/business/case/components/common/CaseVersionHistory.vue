@@ -197,7 +197,7 @@ export default {
       return this.versionLeftId && this.versionRightId;
     },
     compareDisable() {
-      return this.versionCompareOptions || this.versionCompareOptions.length < 2;
+      return !this.versionCompareOptions || this.versionCompareOptions.length < 2;
     }
   },
   beforeDestroy() {

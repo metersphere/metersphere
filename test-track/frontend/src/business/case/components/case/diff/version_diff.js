@@ -277,6 +277,12 @@ class DiffUtil {
   static diffArray(arr1, arr2) {
     let resArr = [];
     //矫正参数
+    if (typeof arr1 === 'string') {
+      arr1 = JSON.parse(arr1);
+    }
+    if (typeof arr2 === 'string') {
+      arr2 = JSON.parse(arr2);
+    }
     if (!Array.isArray(arr1)) {
       arr1 = [];
     }
