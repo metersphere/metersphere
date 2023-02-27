@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="this.$t('test_track.case.select_catalog')"
+  <el-dialog :title="$t('test_track.case.dump_module')"
              :visible.sync="dialogVisible"
              :before-close="close"
              :destroy-on-close="true" width="600px"
@@ -79,7 +79,7 @@ export default {
       this.dialogVisible = true;
       this.loading = true;
       this.result = getFileModules(getCurrentProjectID()).then(response => {
-        if (response.data != undefined && response.data != null) {
+        if (response.data !== undefined && response.data != null) {
           this.treeNodes = response.data;
           this.treeNodes.forEach(node => {
             node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name

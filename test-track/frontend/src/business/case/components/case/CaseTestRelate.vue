@@ -281,7 +281,20 @@ export default {
   .table-wrap {
   }
 }
+
 .disable-row {
   cursor: not-allowed;
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: rgba(31, 35, 41, 0.1)!important;
+}
+
+.el-dropdown-menu__item {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1F2329!important;
 }
 </style>
