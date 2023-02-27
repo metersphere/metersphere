@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
+import io.metersphere.commons.constants.ApiTestConstants;
 import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.TestCaseConstants;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.collections.CollectionUtils;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -62,29 +64,18 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId) {
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         ApiScenarioRequest request = new ApiScenarioRequest();
+        return getApiScenarioModuleDTOS(projectId, nodes, request);
+    }
+
+    private List<ApiScenarioModuleDTO> getApiScenarioModuleDTOS(String projectId, List<ApiScenarioModuleDTO> nodes, ApiScenarioRequest request) {
         request.setProjectId(projectId);
-        List<String> list = new ArrayList<>();
-        list.add(ApiTestDataStatus.PREPARE.getValue());
-        list.add(ApiTestDataStatus.UNDERWAY.getValue());
-        list.add(ApiTestDataStatus.COMPLETED.getValue());
         Map<String, List<String>> filters = new LinkedHashMap<>();
-        filters.put("status", list);
+        filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
         request.setFilters(filters);
-        List<String> allModuleIdList = new ArrayList<>();
-        for (ApiScenarioModuleDTO node : nodes) {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            for (String moduleId : moduleIds) {
-                if (!allModuleIdList.contains(moduleId)) {
-                    allModuleIdList.add(moduleId);
-                }
-            }
-        }
-        request.setModuleIds(allModuleIdList);
+
         List<Map<String, Object>> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
         Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        nodes.forEach(node -> {
+        for (ApiScenarioModuleDTO node : nodes) {
             List<String> moduleIds = new ArrayList<>();
             moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
             moduleIds.add(node.getId());
@@ -95,47 +86,13 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                 }
             }
             node.setCaseNum(countNum);
-        });
+        }
         return getNodeTrees(nodes);
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
-        request.setProjectId(projectId);
-        List<String> list = new ArrayList<>();
-        list.add(ApiTestDataStatus.PREPARE.getValue());
-        list.add(ApiTestDataStatus.UNDERWAY.getValue());
-        list.add(ApiTestDataStatus.COMPLETED.getValue());
-        Map<String, List<String>> filters = new LinkedHashMap<>();
-        filters.put("status", list);
-        request.setFilters(filters);
-        List<String> allModuleIdList = new ArrayList<>();
-        for (ApiScenarioModuleDTO node : nodes) {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            for (String moduleId : moduleIds) {
-                if (!allModuleIdList.contains(moduleId)) {
-                    allModuleIdList.add(moduleId);
-                }
-            }
-        }
-        request.setModuleIds(allModuleIdList);
-        List<Map<String, Object>> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
-        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        nodes.forEach(node -> {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            int countNum = 0;
-            for (String moduleId : moduleIds) {
-                if (moduleCountMap.containsKey(moduleId)) {
-                    countNum += moduleCountMap.get(moduleId).intValue();
-                }
-            }
-            node.setCaseNum(countNum);
-        });
-        return getNodeTrees(nodes);
+        return getApiScenarioModuleDTOS(projectId, nodes, request);
     }
 
     public List<ApiScenarioModuleDTO> getTrashNodeTreeByProjectId(String projectId) {

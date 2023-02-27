@@ -10,10 +10,7 @@ import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
-import io.metersphere.commons.constants.PropertyConstant;
-import io.metersphere.commons.constants.RequestTypeConstants;
-import io.metersphere.commons.constants.TestCaseConstants;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
@@ -37,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -113,7 +111,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (CollectionUtils.isNotEmpty(apiModules) && MapUtils.isNotEmpty(trashApiMap)) {
             apiModules.forEach(node -> {
                 List<String> moduleIds = new ArrayList<>();
-                moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+                this.nodeList(apiModules, node.getId(), moduleIds);
                 moduleIds.add(node.getId());
                 int countNum = 0;
                 for (String moduleId : moduleIds) {
@@ -153,83 +151,29 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
-        List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
-        request.setProjectId(projectId);
-        request.setProtocol(protocol);
-        List<String> list = new ArrayList<>();
-        list.add(ApiTestDataStatus.PREPARE.getValue());
-        list.add(ApiTestDataStatus.UNDERWAY.getValue());
-        list.add(ApiTestDataStatus.COMPLETED.getValue());
-        Map<String, List<String>> filters = new LinkedHashMap<>();
-        filters.put("status", list);
-        request.setFilters(filters);
-
-        //优化： 所有统计SQL一次查询出来
-        List<String> allModuleIdList = new ArrayList<>();
-        for (ApiModuleDTO node : apiModules) {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            for (String moduleId : moduleIds) {
-                if (!allModuleIdList.contains(moduleId)) {
-                    allModuleIdList.add(moduleId);
-                }
-            }
-        }
-        request.setModuleIds(allModuleIdList);
-        if (StringUtils.isNotBlank(versionId)) {
-            request.setVersionId(versionId);
-        }
-        List<Map<String, Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
-        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        apiModules.forEach(node -> {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            int countNum = 0;
-            for (String moduleId : moduleIds) {
-                if (moduleCountMap.containsKey(moduleId)) {
-                    countNum += moduleCountMap.get(moduleId).intValue();
-                }
-            }
-            node.setCaseNum(countNum);
-        });
-        return getNodeTrees(apiModules);
+        return getNodeTreeByCondition(projectId, protocol, versionId, request);
     }
 
     public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
+        LogUtil.info("当前API模块节点：", apiModules.size());
+
         request.setProjectId(projectId);
         request.setProtocol(protocol);
-        List<String> list = new ArrayList<>();
-        list.add(ApiTestDataStatus.PREPARE.getValue());
-        list.add(ApiTestDataStatus.UNDERWAY.getValue());
-        list.add(ApiTestDataStatus.COMPLETED.getValue());
         Map<String, List<String>> filters = new LinkedHashMap<>();
-        filters.put("status", list);
+        filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
         request.setFilters(filters);
 
-        //优化： 所有统计SQL一次查询出来
-        List<String> allModuleIdList = new ArrayList<>();
-        for (ApiModuleDTO node : apiModules) {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            for (String moduleId : moduleIds) {
-                if (!allModuleIdList.contains(moduleId)) {
-                    allModuleIdList.add(moduleId);
-                }
-            }
-        }
-        request.setModuleIds(allModuleIdList);
         if (StringUtils.isNotBlank(versionId)) {
             request.setVersionId(versionId);
         }
+
         List<Map<String, Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
         Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        apiModules.forEach(node -> {
+        // 获取所有模块数ID
+        for (ApiModuleDTO node : apiModules) {
             List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+            this.nodeList(apiModules, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             int countNum = 0;
             for (String moduleId : moduleIds) {
@@ -238,7 +182,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 }
             }
             node.setCaseNum(countNum);
-        });
+        }
         return getNodeTrees(apiModules);
     }
 
@@ -260,7 +204,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return returnMap;
     }
 
-    public static List<String> nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
+    public static void nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
         for (ApiModuleDTO node : apiNodes) {
             //遍历出父id等于参数的id，add进子节点集合
             if (StringUtils.equals(node.getParentId(), pid)) {
@@ -269,7 +213,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 nodeList(apiNodes, node.getId(), list);
             }
         }
-        return list;
     }
 
     public String addNode(ApiModule node) {
