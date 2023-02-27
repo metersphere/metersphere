@@ -477,7 +477,6 @@
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
         <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
         select tptc.id, tptc.status
