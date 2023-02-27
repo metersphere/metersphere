@@ -521,6 +521,8 @@ export function saveCustomTableWidth(key, fieldKey, colWith) {
   localStorage.setItem(key + '_WITH', JSON.stringify(fields));
 }
 
+export const OPTION_LABEL_PREFIX = "optionLabel:";
+
 /**
  * 获取列表的自定义字段的显示值
  * @param row
@@ -533,6 +535,12 @@ export function getCustomFieldValue(row, field, members) {
     for (let i = 0; i < row.fields.length; i++) {
       let item = row.fields[i];
       if (item.id === field.id) {
+        if (item.textValue && item.textValue.startsWith(OPTION_LABEL_PREFIX))  {
+          // 处理 jira 的 sprint 字段
+          if (field.options && field.options.filter(i => i.value === item.value).length < 1) {
+            return item.textValue.substring(OPTION_LABEL_PREFIX.length);
+          }
+        }
         if (!item.value) return '';
         if (field.type === 'member') {
           for (let j = 0; j < members.length; j++) {
@@ -700,7 +708,7 @@ export function parseCustomFilesForItem(data) {
   if (data.value) {
     data.value = JSON.parse(data.value);
   }
-  if (data.textValue) {
+  if (data.textValue && !data.textValue.startsWith(OPTION_LABEL_PREFIX)) {
     data.value = data.textValue;
   }
 }
