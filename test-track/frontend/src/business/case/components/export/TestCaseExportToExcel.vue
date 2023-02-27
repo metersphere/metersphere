@@ -4,6 +4,7 @@
              :title="$t('test_track.case.export.export_to_excel')"
              :visible.sync="dialogVisible"
              width="40%"
+             custom-class="export-dialog"
              @close="close">
     <span class="select-row">{{!exportAll ? $t('test_track.batch_operate_select_row_count', [size]) : $t('test_track.select_all_row')}}</span>
     <test-case-export-field-select-table
@@ -121,5 +122,11 @@ export default {
 
 :deep(.el-icon-close:before) {
   font-size: 20px;
+}
+</style>
+
+<style>
+.export-dialog {
+  min-width: 420px!important;
 }
 </style>

@@ -59,6 +59,7 @@ input.el-input__inner {
  */
 .el-message-box__header {
   padding: 20px 24px 0 24px;
+  min-height: 24px;
 }
 
 .el-message-box__title {

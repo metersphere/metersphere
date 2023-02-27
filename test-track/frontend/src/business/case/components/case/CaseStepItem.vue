@@ -364,7 +364,7 @@ i.el-icon-more:hover {
 }
 .case-step-item-popover .sub-opt-row {
   display: flex;
-  width: 118px;
+  width: 100%;
   height: 32px;
   margin-top: 4px;
   margin-bottom: 4px;
@@ -392,20 +392,32 @@ i.el-icon-more:hover {
   height: 1px;
   background-color: rgba(31, 35, 41, 0.15);
 }
+
+.case-step-item-popover .copy-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);;
+}
+
 .case-step-item-popover .copy-row .icon {
   color: #646a73;
 }
 .case-step-item-popover .copy-row .title {
   color: #1f2329;
 }
+
+.case-step-item-popover .delete-row:hover {
+  background-color: rgba(31, 35, 41, 0.1)!important;
+}
+
 .case-step-item-popover .delete-row .icon {
   color: #f54a45;
 }
 .case-step-item-popover .delete-row .title {
   color: #f54a45;
 }
+
 .case-step-item-popover .delete-row {
-  background-color: transparent!important;
+  background-color: transparent;
+  padding: 0;
 }
 .opt-readonly {
   pointer-events: none;
