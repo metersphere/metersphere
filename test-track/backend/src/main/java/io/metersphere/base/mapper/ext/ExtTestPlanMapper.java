@@ -53,4 +53,6 @@ public interface ExtTestPlanMapper {
     Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds") Set<String> planIds);
 
     List<TestPlanDTO> planListAll(@Param("request") QueryTestPlanRequest params);
+
+    Boolean checkSyncTestCaseExecResultByTestPlanId(String testPlanId);
 }

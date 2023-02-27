@@ -53,7 +53,6 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -61,6 +60,8 @@ import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.dto.request.IssuesUpdateRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import io.metersphere.xpack.track.service.XpackIssueService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -75,8 +76,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -797,7 +796,7 @@ public class IssuesService {
         List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
 
         List<String> caseIds = testCaseIssues.stream().map(x ->
-                x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
+                        x.getRefType().equals(IssueRefType.PLAN_FUNCTIONAL.name()) ? x.getRefId() : x.getResourceId())
                 .collect(Collectors.toList());
 
         List<TestCaseDTO> notInTrashCase = testCaseService.getTestCaseByIds(caseIds);
@@ -1083,25 +1082,25 @@ public class IssuesService {
     private void deleteSyncAttachment(AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper,
                                       Set<String> platformAttachmentSet,
                                       List<FileAttachmentMetadata> allMsAttachments) {
-       try {
-           // 删除Jira中不存在的附件
-           if (CollectionUtils.isNotEmpty(allMsAttachments)) {
-               List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
-                       .filter(msAttachment -> !platformAttachmentSet.contains(msAttachment.getName()))
-                       .collect(Collectors.toList());
-               deleteMsAttachments.forEach(fileAttachmentMetadata -> {
-                   List<String> ids = List.of(fileAttachmentMetadata.getId());
-                   AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
-                   example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
-                   // 删除MS附件及关联数据
-                   attachmentService.deleteAttachmentByIds(ids);
-                   attachmentService.deleteFileAttachmentByIds(ids);
-                   batchAttachmentModuleRelationMapper.deleteByExample(example);
-               });
-           }
-       } catch (Exception e) {
-           LogUtil.error(e);
-       }
+        try {
+            // 删除Jira中不存在的附件
+            if (CollectionUtils.isNotEmpty(allMsAttachments)) {
+                List<FileAttachmentMetadata> deleteMsAttachments = allMsAttachments.stream()
+                        .filter(msAttachment -> !platformAttachmentSet.contains(msAttachment.getName()))
+                        .collect(Collectors.toList());
+                deleteMsAttachments.forEach(fileAttachmentMetadata -> {
+                    List<String> ids = List.of(fileAttachmentMetadata.getId());
+                    AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
+                    example.createCriteria().andAttachmentIdIn(ids).andRelationTypeEqualTo(AttachmentType.ISSUE.type());
+                    // 删除MS附件及关联数据
+                    attachmentService.deleteAttachmentByIds(ids);
+                    attachmentService.deleteFileAttachmentByIds(ids);
+                    batchAttachmentModuleRelationMapper.deleteByExample(example);
+                });
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     private void saveAttachmentModuleRelation(Platform platform, String issueId,
@@ -1225,14 +1224,34 @@ public class IssuesService {
         abstractPlatform.userAuth(authUserIssueRequest);
     }
 
+
+    public void calculateReportByIssueList(List<IssuesDao> issueList, TestPlanSimpleReportDTO report) {
+        if (CollectionUtils.isNotEmpty(issueList)) {
+            List<PlanReportIssueDTO> planReportIssueDTOList = new ArrayList<>();
+            issueList.forEach(issue -> {
+                PlanReportIssueDTO issueDTO = new PlanReportIssueDTO();
+                issueDTO.setId(issue.getId());
+                issueDTO.setStatus(issue.getStatus());
+                issueDTO.setPlatform(issue.getPlatform());
+                issueDTO.setPlatformStatus(issue.getPlatformStatus());
+                planReportIssueDTOList.add(issueDTO);
+            });
+            this.calculatePlanReport(planReportIssueDTOList, report);
+        }
+    }
+
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
-        List<PlanReportIssueDTO> planReportIssueDTOS = extIssuesMapper.selectForPlanReport(planId);
-        planReportIssueDTOS = DistinctKeyUtil.distinctByKey(planReportIssueDTOS, PlanReportIssueDTO::getId);
+        List<PlanReportIssueDTO> planReportIssueDTOList = extIssuesMapper.selectForPlanReport(planId);
+        this.calculatePlanReport(planReportIssueDTOList, report);
+    }
+
+    public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanSimpleReportDTO report) {
+        planReportIssueDTOList = DistinctKeyUtil.distinctByKey(planReportIssueDTOList, PlanReportIssueDTO::getId);
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
-        planReportIssueDTOS.forEach(item -> {
+        planReportIssueDTOList.forEach(item -> {
             String status;
             // 本地缺陷
             if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())

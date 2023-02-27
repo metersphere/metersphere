@@ -28,4 +28,14 @@
           AND tpas.test_plan_id = #{0}
         ORDER BY tpas.`order` DESC;
     </select>
+
+    <select id="selectExecResult" resultType="io.metersphere.plan.dto.CaseExecResult">
+        SELECT t.api_scenario_id AS id, a.name AS caseName,t.last_result AS execResult
+        FROM test_plan_api_scenario t
+        INNER JOIN api_scenario a ON t.api_scenario_id = a.id
+        WHERE t.test_plan_id = #{testPlanId} AND  t.api_scenario_id in
+        <foreach collection="scenarioCaseIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

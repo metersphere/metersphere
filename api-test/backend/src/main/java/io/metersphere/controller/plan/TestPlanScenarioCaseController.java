@@ -4,11 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseRelevanceRequest;
 import io.metersphere.api.dto.RelevanceScenarioRequest;
-import io.metersphere.api.dto.plan.TestPlanScenarioCaseBatchRequest;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.plan.*;
-import io.metersphere.service.scenario.ApiScenarioService;
-import io.metersphere.service.plan.TestPlanScenarioCaseService;
 import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -21,9 +18,11 @@ import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.plan.TestPlanScenarioCaseService;
+import io.metersphere.service.scenario.ApiScenarioService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,22 +42,22 @@ public class TestPlanScenarioCaseController {
     }
 
     @GetMapping("/list/failure/{planId}")
-    public List<TestPlanFailureScenarioDTO> getFailureList(@PathVariable String planId) {
+    public List<TestPlanScenarioDTO> getFailureList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/error-report/{planId}")
-    public List<TestPlanFailureScenarioDTO> getErrorReportList(@PathVariable String planId) {
+    public List<TestPlanScenarioDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/pending/{planId}")
-    public List<TestPlanFailureScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
+    public List<TestPlanScenarioDTO> getUnExecuteCases(@PathVariable String planId) {
         return testPlanScenarioCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{planId}")
-    public List<TestPlanFailureScenarioDTO> getAllList(@PathVariable String planId) {
+    public List<TestPlanScenarioDTO> getAllList(@PathVariable String planId) {
         return testPlanScenarioCaseService.getAllCases(planId);
     }
 
@@ -185,8 +184,8 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.buildApiReport(request);
     }
 
-    @PostMapping("/plan/execute/report")
-    public ApiPlanReportDTO buildExecuteApiReport(@RequestBody ApiPlanReportRequest request) {
+    @PostMapping("/select/result/by/reportId")
+    public ApiReportResultDTO selectReportResultById(@RequestBody ApiPlanReportRequest request) {
         return testPlanScenarioCaseService.buildExecuteApiReport(request);
     }
 
@@ -195,9 +194,9 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.isExecuting(planId);
     }
 
-    @PostMapping("/failure/list")
-    public List<TestPlanFailureScenarioDTO> getFailureListByIds(@RequestBody Set<String> planApiCaseIds) {
-        return testPlanScenarioCaseService.getFailureListByIds(planApiCaseIds);
+    @PostMapping("/all/list")
+    public List<TestPlanScenarioDTO> getListByIds(@RequestBody Set<String> planApiCaseIds) {
+        return testPlanScenarioCaseService.getListByIds(planApiCaseIds);
     }
 
     @PostMapping("/env/generate")
@@ -221,7 +220,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/build/response")
-    public List<TestPlanFailureScenarioDTO> buildResponse(@RequestBody List<TestPlanFailureScenarioDTO> cases) {
+    public List<TestPlanScenarioDTO> buildResponse(@RequestBody List<TestPlanScenarioDTO> cases) {
         testPlanScenarioCaseService.buildScenarioResponse(cases);
         return cases;
     }

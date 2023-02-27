@@ -3,8 +3,8 @@ package io.metersphere.controller.plan;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
@@ -19,10 +19,10 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.plan.TestPlanApiCaseService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,22 +41,22 @@ public class TestPlanApiCaseController {
     }
 
     @GetMapping("/list/failure/{planId}")
-    public List<TestPlanFailureApiDTO> getFailureList(@PathVariable String planId) {
+    public List<TestPlanApiDTO> getFailureList(@PathVariable String planId) {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/errorReport/{planId}")
-    public List<TestPlanFailureApiDTO> getErrorReportList(@PathVariable String planId) {
+    public List<TestPlanApiDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/unExecute/{planId}")
-    public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String planId) {
+    public List<TestPlanApiDTO> getUnExecuteCases(@PathVariable String planId) {
         return testPlanApiCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{planId}")
-    public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
+    public List<TestPlanApiDTO> getAllList(@PathVariable String planId) {
         return testPlanApiCaseService.getAllCases(planId);
     }
 
@@ -170,7 +170,7 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping("/failure/list")
-    public List<TestPlanFailureApiDTO> getFailureListByIds(@RequestBody Set<String> planApiCaseIds) {
+    public List<TestPlanApiDTO> getFailureListByIds(@RequestBody Set<String> planApiCaseIds) {
         return testPlanApiCaseService.getFailureListByIds(planApiCaseIds);
     }
 
@@ -190,7 +190,7 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping("/build/response")
-    public List<TestPlanFailureApiDTO> buildResponse(@RequestBody List<TestPlanFailureApiDTO> cases) {
+    public List<TestPlanApiDTO> buildResponse(@RequestBody List<TestPlanApiDTO> cases) {
         testPlanApiCaseService.buildApiResponse(cases);
         return cases;
     }

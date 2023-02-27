@@ -15,4 +15,6 @@ public interface ExtApiScenarioReportResultMapper {
     List<String> selectDistinctStatusByReportId(String reportId);
 
     int deleteByProjectId(String projectId);
+
+    List<ApiScenarioReportResultWithBLOBs> selectIdAndStatusByReportIdList(@Param("ids") List<String> scenarioReportIdList);
 }

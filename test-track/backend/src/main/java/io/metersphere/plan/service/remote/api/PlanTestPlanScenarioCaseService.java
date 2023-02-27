@@ -52,6 +52,23 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         }
     }
 
+    public void calculateReportByScenario(List<TestPlanScenarioDTO> testPlanScenarioDTOList, TestPlanSimpleReportDTO report) {
+        try {
+            List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
+            testPlanScenarioDTOList.forEach(item -> {
+                PlanReportCaseDTO dto = new PlanReportCaseDTO();
+                dto.setId(item.getId());
+                dto.setStatus(item.getLastResult());
+                dto.setReportId(item.getReportId());
+                dto.setCaseId(item.getCaseId());
+                planReportCaseDTOList.add(dto);
+            });
+            calculatePlanReport(report, planReportCaseDTOList);
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+    }
+
     public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = planApiScenarioReportService.selectForPlanReport(reportIds);
@@ -69,10 +86,8 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         TestPlanStatusCalculator.addToReportCommonStatusResultList(statusResultMap, statusResult);
 
         TestPlanScenarioStepCountSimpleDTO stepCountResult = getStepCount(planReportCaseDTOS);
-
         TestPlanScenarioStepCountDTO stepCount = stepCountResult.getStepCount();
         int underwayStepsCounts = stepCountResult.getUnderwayStepsCounts();
-
         List<TestCaseReportStatusResultDTO> stepResult = getStepResult(stepCount, underwayStepsCounts);
         apiResult.setApiScenarioData(statusResult);
         apiResult.setApiScenarioStepData(stepResult);
@@ -156,16 +171,16 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         return microService.postForData(serviceName, BASE_UEL + "/plan/report", request, ApiPlanReportDTO.class);
     }
 
-    public ApiPlanReportDTO getApiExecuteReport(ApiPlanReportRequest request) {
-        return microService.postForData(serviceName, BASE_UEL + "/plan/execute/report", request, ApiPlanReportDTO.class);
+    public ApiReportResultDTO getApiExecuteReport(ApiPlanReportRequest request) {
+        return microService.postForData(serviceName, BASE_UEL + "/select/result/by/reportId", request, ApiReportResultDTO.class);
     }
 
     public Boolean isCaseExecuting(String planId) {
         return microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId, Boolean.class);
     }
 
-    public List<TestPlanFailureScenarioDTO> getFailureListByIds(Set<String> ids) {
-        return microService.postForDataArray(serviceName, BASE_UEL + "/failure/list", ids, TestPlanFailureScenarioDTO.class);
+    public List<TestPlanScenarioDTO> getFailureListByIds(Set<String> ids) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/all/list", ids, TestPlanScenarioDTO.class);
     }
 
     public TestPlanEnvInfoDTO generateEnvironmentInfo(TestPlanReport testPlanReport) {
@@ -180,11 +195,11 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId, projectIds, ApiScenarioModuleDTO.class);
     }
 
-    public List<TestPlanFailureScenarioDTO> buildResponse(List<TestPlanFailureScenarioDTO> scenarioCases) {
+    public List<TestPlanScenarioDTO> buildResponse(List<TestPlanScenarioDTO> scenarioCases) {
         if (CollectionUtils.isEmpty(scenarioCases)) {
             return null;
         }
-        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanFailureScenarioDTO.class);
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanScenarioDTO.class);
     }
 
     public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {

@@ -38,4 +38,13 @@
         FROM api_scenario_report_result
         WHERE report_id = #{0}
     </select>
+
+
+    <select id="selectIdAndStatusByReportIdList" resultType="io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs">
+        SELECT t.id,t.status,t.base_info FROM api_scenario_report_result t
+        where t.report_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

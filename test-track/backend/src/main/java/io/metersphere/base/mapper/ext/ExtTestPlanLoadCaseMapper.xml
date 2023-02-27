@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper">
+    <select id="selectExecResult" resultType="io.metersphere.plan.dto.CaseExecResult">
+        SELECT t.load_case_id AS id,l.name AS caseName,t.status AS execResult
+        FROM test_plan_load_case t
+        INNER JOIN load_test l ON t.load_case_id = l.id
+        WHERE t.test_plan_id = #{testPlanId} AND  t.load_case_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

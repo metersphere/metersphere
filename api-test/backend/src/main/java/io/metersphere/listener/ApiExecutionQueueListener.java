@@ -1,7 +1,7 @@
 package io.metersphere.listener;
 
-import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.service.ApiExecutionQueueService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

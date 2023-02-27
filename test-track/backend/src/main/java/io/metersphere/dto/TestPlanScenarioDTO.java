@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TestPlanFailureScenarioDTO extends ApiScenarioDTO {
+public class TestPlanScenarioDTO extends ApiScenarioDTO {
     private APIScenarioReportResult response;
 }

@@ -1,20 +1,72 @@
 <template>
   <ms-container>
-    <ms-main-container class="report-content" :class="isShare || isTemplate? 'full-screen-container' : 'with-header-container'" id = "planReportContainer">
+    <ms-main-container
+      class="report-content"
+      :class="
+        isShare || isTemplate
+          ? 'full-screen-container'
+          : 'with-header-container'
+      "
+      id="planReportContainer"
+    >
       <el-card v-loading="loading">
-        <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
-                                  v-if="!isTemplate && !isShare"/>
-        <test-plan-overview-report v-if="overviewEnable" :report="report" :run-mode="runMode" :resource-pool="resourcePool"/>
-        <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare"
-                                  :report="report" :plan-id="planId"/>
-        <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
-                                     :is-template="isTemplate" :plan-id="planId" :report="report"/>
-        <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
-                              :is-template="isTemplate" :report="report" :plan-id="planId"/>
-        <test-plan-ui-report v-if="uiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
-                             :is-template="isTemplate" :report="report" :plan-id="planId"/>
-        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare"
-                               :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-report-buttons
+          :is-db="isDb"
+          :plan-id="planId"
+          :is-share="isShare"
+          :report="report"
+          v-if="!isTemplate && !isShare"
+        />
+        <test-plan-overview-report
+          v-if="overviewEnable"
+          :report="report"
+          :run-mode="runMode"
+          :resource-pool="resourcePool"
+        />
+        <test-plan-summary-report
+          v-if="summaryEnable"
+          :is-db="isDb"
+          :is-template="isTemplate"
+          :is-share="isShare"
+          :report="report"
+          :plan-id="planId"
+        />
+        <test-plan-functional-report
+          v-if="functionalEnable"
+          :is-db="isDb"
+          :share-id="shareId"
+          :is-share="isShare"
+          :is-template="isTemplate"
+          :plan-id="planId"
+          :report="report"
+        />
+        <test-plan-api-report
+          v-if="apiEnable"
+          :is-db="isDb"
+          :share-id="shareId"
+          :is-share="isShare"
+          :is-template="isTemplate"
+          :report="report"
+          :plan-id="planId"
+        />
+        <test-plan-ui-report
+          v-if="uiEnable"
+          :is-db="isDb"
+          :share-id="shareId"
+          :is-share="isShare"
+          :is-template="isTemplate"
+          :report="report"
+          :plan-id="planId"
+        />
+        <test-plan-load-report
+          v-if="loadEnable"
+          :is-db="isDb"
+          :share-id="shareId"
+          :is-share="isShare"
+          :is-template="isTemplate"
+          :report="report"
+          :plan-id="planId"
+        />
       </el-card>
     </ms-main-container>
     <test-plan-report-navigation-bar
@@ -25,18 +77,19 @@
       :load-enable="loadEnable"
       :ui-enable="uiEnable"
       :overview-enable="overviewEnable"
-      :is-template="isTemplate"/>
+      :is-template="isTemplate"
+    />
   </ms-container>
 </template>
 
 <script>
 import TestPlanFunctionalReport from "@/business/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {
+  getShareTestPlanExtReport,
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
   getTestPlanReportContent,
-  getTestPlanExtReport, getShareTestPlanExtReport
 } from "@/api/remote/plan/test-plan";
 import TestPlanApiReport from "@/business/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanUiReport from "@/business/plan/view/comonents/report/detail/TestPlanUiReport";
@@ -71,15 +124,15 @@ export default {
     isDb: Boolean,
     shareId: String,
     reportId: String,
-    needMoveBar: Boolean
+    needMoveBar: Boolean,
   },
   data() {
     return {
       report: {},
-      runMode: '',
-      resourcePool: '',
+      runMode: "",
+      resourcePool: "",
       loading: false,
-      shareUrl: ''
+      shareUrl: "",
     };
   },
   watch: {
@@ -100,40 +153,66 @@ export default {
   },
   computed: {
     overviewEnable() {
-      let disable = this.report.config
-        && this.report.config.overview && this.report.config.overview.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.overview &&
+        this.report.config.overview.enable === false;
       return !disable;
     },
     summaryEnable() {
-      let disable = this.report.config && this.report.config.summary
-        && this.report.config.summary.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.summary &&
+        this.report.config.summary.enable === false;
       return !disable;
     },
     functionalEnable() {
-      let disable = this.report.config && this.report.config.functional.enable === false;
-      return !disable && this.report.functionResult
-        && this.report.functionResult.caseData && this.report.functionResult.caseData.length > 0;
+      let disable =
+        this.report.config && this.report.config.functional.enable === false;
+      return (
+        !disable &&
+        this.report.functionResult &&
+        this.report.functionResult.caseData &&
+        this.report.functionResult.caseData.length > 0
+      );
     },
     apiEnable() {
-      let disable = this.report.config && this.report.config.api.enable === false;
-      return !disable && ((this.report.apiResult &&
-        (
-          (this.report.apiResult.apiCaseData && this.report.apiResult.apiCaseData.length > 0)
-          || (this.report.apiResult.apiScenarioData && this.report.apiResult.apiScenarioData.length > 0)
-        )) || (this.report.apiAllCases && this.report.apiAllCases.length > 0) || (this.report.scenarioAllCases && this.report.scenarioAllCases.length > 0));
-
+      let disable =
+        this.report.config && this.report.config.api.enable === false;
+      return (
+        !disable &&
+        ((this.report.apiResult &&
+          ((this.report.apiResult.apiCaseData &&
+            this.report.apiResult.apiCaseData.length > 0) ||
+            (this.report.apiResult.apiScenarioData &&
+              this.report.apiResult.apiScenarioData.length > 0))) ||
+          (this.report.apiAllCases && this.report.apiAllCases.length > 0) ||
+          (this.report.scenarioAllCases &&
+            this.report.scenarioAllCases.length > 0))
+      );
     },
     loadEnable() {
-      let disable = this.report.config && this.report.config.load.enable === false;
-      return !disable && this.report.loadResult && this.report.loadResult.caseData && this.report.loadResult.caseData.length > 0
-        || (this.report.loadAllCases && this.report.loadAllCases.length > 0);
+      let disable =
+        this.report.config && this.report.config.load.enable === false;
+      return (
+        (!disable &&
+          this.report.loadResult &&
+          this.report.loadResult.caseData &&
+          this.report.loadResult.caseData.length > 0) ||
+        (this.report.loadAllCases && this.report.loadAllCases.length > 0)
+      );
     },
     uiEnable() {
-      let disable = this.report.config && this.report.config.ui.enable === false;
-      return !disable && this.report.uiResult
-        && this.report.uiResult.uiScenarioStepData && this.report.uiResult.uiScenarioStepData.length > 0
-        ||  (this.report.uiAllCases && this.report.uiAllCases.length > 0);
-    }
+      let disable =
+        this.report.config && this.report.config.ui.enable === false;
+      return (
+        (!disable &&
+          this.report.uiResult &&
+          this.report.uiResult.uiScenarioStepData &&
+          this.report.uiResult.uiScenarioStepData.length > 0) ||
+        (this.report.uiAllCases && this.report.uiAllCases.length > 0)
+      );
+    },
   },
   methods: {
     getReport() {
@@ -149,54 +228,49 @@ export default {
         if (this.isShare) {
           //持久化的报告分享
           this.loading = true;
-          getShareTestPlanReportContent(this.shareId, this.reportId)
-            .then((r) => {
+          getShareTestPlanReportContent(this.shareId, this.reportId).then(
+            (r) => {
               this.loading = false;
               this.report = r.data;
               this.runMode = r.data.runMode;
               this.resourcePool = r.data.resourcePool;
               this.report.config = this.getDefaultConfig(this.report);
-            });
+            }
+          );
         } else {
           this.loading = true;
-          getTestPlanReportContent(this.reportId)
-            .then((r) => {
-              this.loading = false;
-              this.report = r.data;
-              this.report.config = this.getDefaultConfig(this.report);
-            });
+          getTestPlanReportContent(this.reportId).then((r) => {
+            this.loading = false;
+            this.report = r.data;
+            this.report.config = this.getDefaultConfig(this.report);
+          });
         }
       } else if (this.isShare) {
         this.loading = true;
         if (this.shareId && this.planId) {
-          getShareTestPlanReport(this.shareId, this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.report = r.data;
-              this.report.config = this.getDefaultConfig(this.report);
-            });
+          getShareTestPlanReport(this.shareId, this.planId).then((r) => {
+            this.loading = false;
+            this.report = r.data;
+            this.report.config = this.getDefaultConfig(this.report);
+          });
         }
       } else {
         this.loading = true;
         if (this.planId) {
-          getTestPlanReport(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.report = r.data;
-              this.report.config = this.getDefaultConfig(this.report);
-            });
+          getTestPlanReport(this.planId).then((r) => {
+            this.loading = false;
+            this.report = r.data;
+            this.report.config = this.getDefaultConfig(this.report);
+          });
         }
       }
       if (!this.isTemplate) {
         if (this.isShare) {
-          getShareTestPlanExtReport(this.shareId, this.planId, this.reportId).then((response) => {
-            if (response.data) {
-              this.runMode = response.data.runMode;
-              this.resourcePool = response.data.resourcePool;
-            }
-          });
-        } else {
-          getTestPlanExtReport(this.planId, this.reportId).then((response) => {
+          getShareTestPlanExtReport(
+            this.shareId,
+            this.planId,
+            this.reportId
+          ).then((response) => {
             if (response.data) {
               this.runMode = response.data.runMode;
               this.resourcePool = response.data.resourcePool;
@@ -216,107 +290,110 @@ export default {
       let config = {
         overview: {
           enable: true,
-          name: this.$t('test_track.report.overview')
+          name: this.$t("test_track.report.overview"),
         },
         summary: {
           enable: true,
-          name: this.$t('test_track.report.report_summary')
+          name: this.$t("test_track.report.report_summary"),
         },
         functional: {
           enable: true,
-          name: this.$t('test_track.report.analysis_functional'),
+          name: this.$t("test_track.report.analysis_functional"),
           children: {
             result: {
               enable: true,
-              name: this.$t('test_track.report.test_result'),
+              name: this.$t("test_track.report.test_result"),
             },
             issue: {
               enable: true,
-              name: this.$t('test_track.report.issue_list'),
+              name: this.$t("test_track.report.issue_list"),
             },
             all: {
               enable: true,
-              name: this.$t('test_track.report.all_case'),
+              name: this.$t("test_track.report.all_case"),
             },
             failure: {
               enable: true,
-              name: this.$t('test_track.report.fail_case'),
+              name: this.$t("test_track.report.fail_case"),
             },
             blocking: {
               enable: true,
-              name: this.$t('test_track.plan_view.blocking') + this.$t('commons.track'),
+              name:
+                this.$t("test_track.plan_view.blocking") +
+                this.$t("commons.track"),
             },
             skip: {
               enable: true,
-              name: this.$t('test_track.plan_view.skip') + this.$t('commons.track'),
+              name:
+                this.$t("test_track.plan_view.skip") + this.$t("commons.track"),
             },
-          }
+          },
         },
         api: {
           enable: true,
-          name: this.$t('test_track.report.analysis_api'),
+          name: this.$t("test_track.report.analysis_api"),
           children: {
             result: {
               enable: true,
-              name: this.$t('test_track.report.test_result'),
+              name: this.$t("test_track.report.test_result"),
             },
             failure: {
               enable: true,
-              name: this.$t('test_track.report.fail_case'),
+              name: this.$t("test_track.report.fail_case"),
             },
             errorReport: {
               enable: true,
-              name: this.$t('error_report_library.option.name'),
+              name: this.$t("error_report_library.option.name"),
             },
             unExecute: {
               enable: true,
-              name: this.$t('api_test.home_page.detail_card.unexecute'),
+              name: this.$t("api_test.home_page.detail_card.unexecute"),
             },
             all: {
               enable: true,
-              name: this.$t('test_track.report.all_case'),
-            }
-          }
+              name: this.$t("test_track.report.all_case"),
+            },
+          },
         },
         load: {
           enable: true,
-          name: this.$t('test_track.report.analysis_load'),
+          name: this.$t("test_track.report.analysis_load"),
           children: {
             result: {
               enable: true,
-              name: this.$t('test_track.report.test_result'),
+              name: this.$t("test_track.report.test_result"),
             },
             failure: {
               enable: true,
-              name: this.$t('test_track.report.fail_case'),
+              name: this.$t("test_track.report.fail_case"),
             },
             all: {
               enable: true,
-              name: this.$t('test_track.report.all_case'),
-            }
-          }
+              name: this.$t("test_track.report.all_case"),
+            },
+          },
         },
         ui: {
           enable: true,
-          name: this.$t('test_track.report.analysis_ui'),
+          name: this.$t("test_track.report.analysis_ui"),
           children: {
             result: {
               enable: true,
-              name: this.$t('test_track.report.test_result'),
+              name: this.$t("test_track.report.test_result"),
             },
             failure: {
               enable: true,
-              name: this.$t('test_track.report.fail_case'),
+              name: this.$t("test_track.report.fail_case"),
             },
             unExecute: {
               enable: true,
-              name: this.$t('api_test.home_page.detail_card.unexecute'),
+              name: this.$t("api_test.home_page.detail_card.unexecute"),
             },
             all: {
               enable: true,
-              name: this.$t('test_track.report.all_case'),
-            }
-          }
+              name: this.$t("test_track.report.all_case"),
+            },
+          },
         },
       };
       if (dbConfig) {
@@ -333,13 +410,12 @@ export default {
           }
         }
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .with-header-container {
   height: calc(100vh - 60px);
 }

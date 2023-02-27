@@ -62,6 +62,26 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
         }
     }
 
+
+    public void calculateReportByApiCase(List<TestPlanApiDTO> testPlanApiDTOList, TestPlanSimpleReportDTO report) {
+        try {
+            if (CollectionUtils.isNotEmpty(testPlanApiDTOList)) {
+                List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
+                testPlanApiDTOList.forEach(item -> {
+                    PlanReportCaseDTO dto = new PlanReportCaseDTO();
+                    dto.setId(item.getId());
+                    dto.setStatus(item.getExecResult());
+                    dto.setReportId(item.getReportId());
+                    dto.setCaseId(item.getCaseId());
+                    planReportCaseDTOList.add(dto);
+                });
+                calculatePlanReport(report, planReportCaseDTOList);
+            }
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+    }
+
     public void calculatePlanReport(List<String> apiReportIds, TestPlanSimpleReportDTO report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = planApiDefinitionExecResultService.selectForPlanReport(apiReportIds);
@@ -153,8 +173,8 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
         return (Boolean) microService.getForData(serviceName, BASE_UEL + "/is/executing/" + planId);
     }
 
-    public List<TestPlanFailureApiDTO> getFailureListByIds(Set<String> ids) {
-        return microService.postForDataArray(serviceName, BASE_UEL + "/failure/list", ids, TestPlanFailureApiDTO.class);
+    public List<TestPlanApiDTO> getFailureListByIds(Set<String> ids) {
+        return microService.postForDataArray(serviceName, BASE_UEL + "/failure/list", ids, TestPlanApiDTO.class);
     }
 
     public Boolean hasFailCase(String planId, List<String> apiCaseIds) {
@@ -165,11 +185,11 @@ public class PlanTestPlanApiCaseService extends ApiTestService {
         return microService.postForDataArray(serviceName, BASE_UEL + "/list/module/" + planId + "/" + protocol, projectIds, ApiModuleDTO.class);
     }
 
-    public List<TestPlanFailureApiDTO> buildResponse(List<TestPlanFailureApiDTO> apiAllCases) {
+    public List<TestPlanApiDTO> buildResponse(List<TestPlanApiDTO> apiAllCases) {
         if (CollectionUtils.isEmpty(apiAllCases)) {
             return null;
         }
-        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", apiAllCases, TestPlanFailureApiDTO.class);
+        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", apiAllCases, TestPlanApiDTO.class);
     }
 
     public Object relevanceList(int pageNum, int pageSize, ApiTestCaseRequest request) {

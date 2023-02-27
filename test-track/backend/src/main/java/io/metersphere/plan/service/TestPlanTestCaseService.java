@@ -10,18 +10,16 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ProjectApplicationType;
-
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.TestCaseCommentType;
-import io.metersphere.dto.ProjectConfig;
-import io.metersphere.dto.PlanReportCaseDTO;
+import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
-import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.function.*;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanApiTestCaseService;
@@ -33,20 +31,20 @@ import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.member.QueryMemberRequest;
-import io.metersphere.service.*;
-import io.metersphere.dto.*;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.request.testreview.SaveCommentRequest;
+import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.version.service.ProjectVersionService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,6 +88,8 @@ public class TestPlanTestCaseService {
     private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
     @Resource
     private CustomFieldTestCaseService customFieldTestCaseService;
+    @Resource
+    private TestCaseSyncStatusService testCaseSyncStatusService;
 
     private static final String CUSTOM_NUM = "custom_num";
     private static final String NUM = "num";
@@ -139,10 +139,10 @@ public class TestPlanTestCaseService {
     public QueryTestPlanCaseRequest setCustomNumOrderParam(QueryTestPlanCaseRequest request) {
         List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         // CUSTOM_NUM ORDER
-        boolean customOrderFlag =  orders.stream().anyMatch(order -> StringUtils.equals(order.getName(), CUSTOM_NUM));
+        boolean customOrderFlag = orders.stream().anyMatch(order -> StringUtils.equals(order.getName(), CUSTOM_NUM));
         if (customOrderFlag) {
             // 判断当前项目时候开启自定义字段的配置
-            boolean customNumEnable =  baseProjectApplicationService.checkCustomNumByProjectId(request.getProjectId());
+            boolean customNumEnable = baseProjectApplicationService.checkCustomNumByProjectId(request.getProjectId());
             orders.forEach(order -> {
                 if (StringUtils.equals(order.getName(), CUSTOM_NUM)) {
                     if (customNumEnable) {
@@ -520,22 +520,54 @@ public class TestPlanTestCaseService {
         return null;
     }
 
+
     public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanTestCaseMapper.selectForPlanReport(planId);
-            TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
-            List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
-            Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
-
-            TestPlanStatusCalculator.buildStatusResultMap(planReportCaseDTOS, statusResultMap, report, TestPlanTestCaseStatus.Pass.name());
-            TestPlanStatusCalculator.addToReportCommonStatusResultList(statusResultMap, statusResult);
-
-            TestPlanStatusCalculator.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Blocking.name());
-            TestPlanStatusCalculator.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Skip.name());
-            functionResult.setCaseData(statusResult);
+            this.calculatePlanReport(planReportCaseDTOS, report);
         } catch (MSException e) {
             LogUtil.error(e);
         }
+    }
+
+    public void calculateReportByTestCaseList(String operator, TestPlan testPlan, boolean isTestPlanExecuteOver, List<TestPlanCaseDTO> testPlanCaseList, TestPlanSimpleReportDTO report) {
+        try {
+            if (ObjectUtils.anyNotNull(testPlan, report) && CollectionUtils.isNotEmpty(testPlanCaseList)) {
+                List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
+                testPlanCaseList.forEach(testPlanCaseDTO -> {
+                    PlanReportCaseDTO planReportCaseDTO = new PlanReportCaseDTO();
+                    planReportCaseDTO.setId(testPlanCaseDTO.getId());
+                    planReportCaseDTO.setStatus(testPlanCaseDTO.getStatus());
+                    planReportCaseDTO.setCaseId(testPlanCaseDTO.getCaseId());
+                    planReportCaseDTOList.add(planReportCaseDTO);
+                });
+
+                if (testPlan.getAutomaticStatusUpdate()) {
+                    if (isTestPlanExecuteOver) {
+                        testCaseSyncStatusService.syncStatusByTestPlanExecuteOver(operator, testPlan.getName(), planReportCaseDTOList, report.getApiAllCases(), report.getScenarioAllCases(), report.getLoadAllCases(), report.getUiAllCases());
+                    } else {
+                        testCaseSyncStatusService.getTestCaseStatusByTestPlanExecuteOver(planReportCaseDTOList, report.getApiAllCases(), report.getScenarioAllCases(), report.getLoadAllCases(), report.getUiAllCases());
+                    }
+
+                }
+                this.calculatePlanReport(planReportCaseDTOList, report);
+            }
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
+    }
+
+    private void calculatePlanReport(List<PlanReportCaseDTO> planReportCaseDTOList, TestPlanSimpleReportDTO report) {
+        TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        TestPlanStatusCalculator.buildStatusResultMap(planReportCaseDTOList, statusResultMap, report, TestPlanTestCaseStatus.Pass.name());
+        TestPlanStatusCalculator.addToReportCommonStatusResultList(statusResultMap, statusResult);
+
+        TestPlanStatusCalculator.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Blocking.name());
+        TestPlanStatusCalculator.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Skip.name());
+        functionResult.setCaseData(statusResult);
     }
 
     public List<TestPlanCaseDTO> getAllCasesByStatusList(String planId, List<String> statusList) {

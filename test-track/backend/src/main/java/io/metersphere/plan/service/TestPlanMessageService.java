@@ -15,6 +15,7 @@ import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseShareInfoService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SystemParameterService;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +24,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,11 +102,11 @@ public class TestPlanMessageService {
             // 已结束：超过了计划结束时间（如有） 或 测试进度=100% 且 通过率非100%
             Long plannedEndTime = testPlan.getPlannedEndTime();
             long currentTime = System.currentTimeMillis();
-            if(Objects.nonNull(plannedEndTime) && currentTime >= plannedEndTime){
+            if (Objects.nonNull(plannedEndTime) && currentTime >= plannedEndTime) {
                 return TestPlanStatus.Finished.name();
             }
 
-            if(testRate >= FULL_MARKS && passRate < FULL_MARKS){
+            if (testRate >= FULL_MARKS && passRate < FULL_MARKS) {
                 return TestPlanStatus.Finished.name();
             }
 
@@ -281,7 +281,7 @@ public class TestPlanMessageService {
             result.put("functionAllCount", (long) functionAllCases.size());
         }
 
-        List<TestPlanFailureApiDTO> apiAllCases = report.getApiAllCases();
+        List<TestPlanApiDTO> apiAllCases = report.getApiAllCases();
         if (CollectionUtils.isNotEmpty(apiAllCases)) {
             Map<String, Long> apiCountMap = apiAllCases.stream()
                     .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getExecResult()) ? "default" : plan.getExecResult().toLowerCase(), Collectors.counting()));
@@ -312,7 +312,7 @@ public class TestPlanMessageService {
             result.put("apiCaseAllCount", (long) apiAllCases.size());
         }
 
-        List<TestPlanFailureScenarioDTO> scenarioAllCases = report.getScenarioAllCases();
+        List<TestPlanScenarioDTO> scenarioAllCases = report.getScenarioAllCases();
         if (CollectionUtils.isNotEmpty(scenarioAllCases)) {
             Map<String, Long> scenarioCountMap = scenarioAllCases.stream()
                     .collect(Collectors.groupingBy(plan -> StringUtils.isEmpty(plan.getLastResult()) ? "unexecute" : plan.getLastResult().toLowerCase(), Collectors.counting()));

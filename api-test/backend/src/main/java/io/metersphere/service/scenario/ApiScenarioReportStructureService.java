@@ -614,7 +614,7 @@ public class ApiScenarioReportStructureService {
         return reportDTO;
     }
 
-    private List<ApiScenarioReportResultWithBLOBs> filterProcessResult(List<ApiScenarioReportResultWithBLOBs> reportResults) {
+    public List<ApiScenarioReportResultWithBLOBs> filterProcessResult(List<ApiScenarioReportResultWithBLOBs> reportResults) {
         List<ApiScenarioReportResultWithBLOBs> withOutProcessList = new ArrayList<>();
         for (ApiScenarioReportResultWithBLOBs item : reportResults) {
             if (item.getBaseInfo() != null) {

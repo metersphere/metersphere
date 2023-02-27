@@ -17,13 +17,12 @@ import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.utils.DiscoveryUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import jakarta.annotation.Resource;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +47,23 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
 
     public UiPlanReportDTO getUiReport(ApiPlanReportRequest request) {
         return microService.postForData(serviceName, BASE_URL + "/plan/report", request, UiPlanReportDTO.class);
+    }
+
+    public void calculateReportByUiScenarios(List<TestPlanUiScenarioDTO> uiScenarioDTOList, TestPlanSimpleReportDTO report) {
+        try {
+            List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
+            uiScenarioDTOList.forEach(item -> {
+                PlanReportCaseDTO dto = new PlanReportCaseDTO();
+                dto.setId(item.getId());
+                dto.setStatus(item.getStatus());
+                dto.setReportId(item.getReportId());
+                dto.setCaseId(item.getId());
+                planReportCaseDTOList.add(dto);
+            });
+            calculatePlanReport(report, planReportCaseDTOList);
+        } catch (MSException e) {
+            LogUtil.error(e);
+        }
     }
 
     public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {

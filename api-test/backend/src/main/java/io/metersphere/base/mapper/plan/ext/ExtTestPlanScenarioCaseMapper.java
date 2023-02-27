@@ -1,7 +1,7 @@
 package io.metersphere.base.mapper.plan.ext;
 
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
+import io.metersphere.api.dto.automation.TestPlanScenarioDTO;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.plan.TestPlanApiScenarioInfoDTO;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -32,9 +32,9 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
-    List<TestPlanFailureScenarioDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
+    List<TestPlanScenarioDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
-    List<TestPlanFailureScenarioDTO> getFailureListByIds(@Param("ids") Collection<String> ids, @Param("status") String status);
+    List<TestPlanScenarioDTO> getFailureListByIds(@Param("ids") Collection<String> ids, @Param("status") String status);
 
     List<Integer> getUnderwaySteps(@Param("ids") List<String> underwayIds);
 

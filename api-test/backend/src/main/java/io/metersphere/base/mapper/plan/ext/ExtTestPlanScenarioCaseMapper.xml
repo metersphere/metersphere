@@ -299,7 +299,7 @@
             != 'Trash'
             )
     </select>
-    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO">
+    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanScenarioDTO">
         select
         t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
         c.status,c.step_total, c.step_total, c.project_id,
@@ -323,9 +323,9 @@
         ORDER BY t.order DESC
     </select>
 
-    <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO">
+    <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanScenarioDTO">
         select
-        t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
+        t.id, t.last_result, t.report_id, c.id AS caseId,c.user_id, c.module_path, c.name, c.level,c.create_user,c.principal,
         c.status,c.step_total, c.step_total, c.project_id,
         c.num, c.custom_num
         from

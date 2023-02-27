@@ -899,4 +899,15 @@ public class ApiScenarioReportService {
     public List<PlanReportCaseDTO> selectForPlanReport(List<String> reportIds) {
         return extApiScenarioReportMapper.selectForPlanReport(reportIds);
     }
+
+    public Map<String, String> selectResultByIdList(List<String> reportIdList) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(reportIdList)) {
+            List<ApiScenarioReport> apiDefinitionExecResultList = extApiScenarioReportMapper.selectStatusByIds(reportIdList);
+            if (CollectionUtils.isNotEmpty(apiDefinitionExecResultList)) {
+                returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getStatus, (k1, k2) -> k1));
+            }
+        }
+        return returnMap;
+    }
 }

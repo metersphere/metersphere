@@ -644,4 +644,27 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
     </sql>
+
+
+    <select id="selectByAutomationCaseIdAndTestPlanId" resultType="io.metersphere.base.domain.TestPlanTestCase">
+        SELECT id,case_id FROM test_plan_test_case
+          WHERE plan_id = #{test_plan_id}
+            AND case_id IN (
+                SELECT test_case_id FROM test_case_test WHERE test_id = #{automationCaseId}
+            );
+    </select>
+
+    <update id="updateExecResultByTestPlanCaseIdList">
+        UPDATE test_plan_test_case SET status = #{execResult}
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </update>
+
+    <update id="updateExecResultByTestCaseIdAndTestPlanId">
+        UPDATE test_plan_test_case SET status = #{execResult}
+        WHERE case_id = #{testCaseId} AND plan_id = #{testPlanId}
+    </update>
+
 </mapper>

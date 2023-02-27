@@ -213,10 +213,7 @@ public class ApiExecutionQueueService {
         if (isError) {
             ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
             example.createCriteria().andQueueIdEqualTo(dto.getQueueId());
-
-            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                testPlanReportTestEnded(dto.getTestPlanReportId());
-            }
+            checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
             // 更新未执行的报告状态
             List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
             List<String> reportIds = details.stream().map(ApiExecutionQueueDetail::getReportId).collect(Collectors.toList());
@@ -272,9 +269,23 @@ public class ApiExecutionQueueService {
         return queue;
     }
 
-    public void testPlanReportTestEnded(String testPlanReportId) {
-        // 检查测试计划中其他队列是否结束
-        kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+    private void testPlanCaseTestEnd(String testId, String runMode) {
+        //不是整体测试计划执行的用例，发送testID给测试跟踪模块，用于做单接口执行后续操作处理
+        if (StringUtils.isNotEmpty(testId) && StringUtils.equalsAnyIgnoreCase(runMode,
+                ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+                ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testId, UUID.randomUUID().toString());
+        }
+    }
+
+    public void checkTestPlanCaseTestEnd(String testId, String runMode, String testPlanReportId) {
+        if (StringUtils.isEmpty(testPlanReportId)) {
+            //不是整体测试计划执行的用例，发送testID给测试跟踪模块，用于做单接口执行后续操作处理
+            this.testPlanCaseTestEnd(testId, runMode);
+        } else {
+            // 由测试计划检查测试计划中其他队列是否结束
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+        }
     }
 
     public void queueNext(ResultDTO dto) {
@@ -443,7 +454,7 @@ public class ApiExecutionQueueService {
                 // 更新测试计划报告
                 if (StringUtils.isNotEmpty(item.getReportId())) {
                     LoggerUtil.info("Handling test plan reports that are not in the execution queue：【" + item.getReportId() + "】");
-                    testPlanReportTestEnded(item.getReportId());
+                    checkTestPlanCaseTestEnd(null, null, item.getReportId());
                 }
             });
         }
@@ -452,7 +463,7 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(testPlanReports)) {
             testPlanReports.forEach(reportId -> {
                 LoggerUtil.info("Compensation Test Plan Report：【" + reportId + "】");
-                testPlanReportTestEnded(reportId);
+                checkTestPlanCaseTestEnd(null, null, reportId);
             });
         }
         // 清除异常队列/一般是服务突然停止产生
@@ -473,7 +484,7 @@ public class ApiExecutionQueueService {
                 ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(detail.getQueueId());
                 // 更新测试计划报告
                 if (queue != null && StringUtils.isNotEmpty(queue.getReportId())) {
-                    testPlanReportTestEnded(queue.getReportId());
+                    checkTestPlanCaseTestEnd(null, null, queue.getReportId());
                 }
             }
         });
@@ -499,7 +510,7 @@ public class ApiExecutionQueueService {
             ApiExecutionQueue queue = queueMapper.selectByPrimaryKey(queueId);
             // 更新测试计划报告
             if (queue != null && StringUtils.isNotEmpty(queue.getReportId())) {
-                testPlanReportTestEnded(queue.getReportId());
+                checkTestPlanCaseTestEnd(null, null, queue.getReportId());
                 queueMapper.deleteByPrimaryKey(queueId);
             }
         }
