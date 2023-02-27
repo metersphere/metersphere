@@ -18,5 +18,6 @@ import java.io.Serializable;
 public class CustomFieldResourceDTO extends CustomFieldTestCase implements Serializable {
     private String name;
     private String type;
+    private String optionLabel;
     private static final long serialVersionUID = 1L;
 }
