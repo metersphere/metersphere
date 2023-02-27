@@ -1101,6 +1101,7 @@ export default {
       let arr = Array.from(this.selectRows);
       let ids = arr.map((row) => row.id);
       let param = {};
+      Object.assign(param, this.condition);
       if (form.type === 'tags') {
         param.type = form.type;
         param.appendTag = form.appendTag;
@@ -1112,7 +1113,6 @@ export default {
       param.projectId = this.projectId;
       param.selectAllDate = this.selectAll;
       param.unSelectIds = this.unSelection;
-      param = Object.assign(param, this.condition);
       editApiCaseByParam(param).then(() => {
         this.$success(this.$t('commons.save_success'));
         this.initTable();
