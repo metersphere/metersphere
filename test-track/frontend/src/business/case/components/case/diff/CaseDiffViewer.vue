@@ -881,7 +881,7 @@ export default {
 }
 
 .delete-row {
-  padding: 0px 4px;
+  padding: 0 4px;
   width: 32px;
   height: 16px;
   background: rgba(245, 74, 69, 0.2);
