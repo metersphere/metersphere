@@ -366,7 +366,7 @@
             != 'Trash'
             )
     </select>
-    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
+    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanApiDTO">
         select
         t.id,
         c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
@@ -388,7 +388,7 @@
         where t.test_plan_id = #{planId} ORDER BY t.order DESC
     </select>
 
-    <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
+    <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanApiDTO">
         select
         t.id,
         c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
@@ -543,16 +543,5 @@
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
-    </select>
-
-    <select id="selectByPlanCaseIds" resultType="io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO">
-        SELECT a.project_id, t.*
-        FROM test_plan_api_case t
-                 INNER JOIN api_test_case a ON t.api_case_id = a.id
-        WHERE  t.id in
-        <foreach collection="planCaseIds" item="id" separator="," open="(" close=")">
-            #{id}
-        </foreach>
-        ORDER BY t.order DESC
     </select>
 </mapper>

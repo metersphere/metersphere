@@ -14,6 +14,7 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plan.exec.queue.DBTestQueue;
 import io.metersphere.request.RunTestPlanRequest;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,15 +66,22 @@ public class PerfQueueService {
         List<String> testPlanReportIds = queues.stream().map(ApiExecutionQueue::getReportId).collect(Collectors.toList());
         for (String testPlanReportId : testPlanReportIds) {
             LoggerUtil.info("处理测试计划报告状态", loadTestReport.getId());
-            testPlanReportTestEnded(testPlanReportId);
+            checkTestPlanLoadCaseExecOver(null, testPlanReportId);
         }
 
         for (ApiExecutionQueueDetail detail : details) {
             // 更新测试计划关联数据状态
-            TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseWithBLOBs();
-            loadCase.setId(loadTestReport.getTestId());
-            loadCase.setStatus(TestPlanLoadCaseStatus.success.name());
-            testPlanLoadCaseMapper.updateByPrimaryKeySelective(loadCase);
+            TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+            example.createCriteria().andIdEqualTo(loadTestReport.getTestId());
+            if (testPlanLoadCaseMapper.countByExample(example) > 0) {
+                TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseWithBLOBs();
+                loadCase.setId(loadTestReport.getTestId());
+                loadCase.setStatus(TestPlanLoadCaseStatus.success.name());
+                testPlanLoadCaseMapper.updateByPrimaryKeySelective(loadCase);
+                if (CollectionUtils.isNotEmpty(testPlanReportIds)) {
+                    checkTestPlanLoadCaseExecOver(loadCase.getId(), null);
+                }
+            }
 
             // 检查队列是否已空
             ApiExecutionQueueDetailExample queueDetailExample = new ApiExecutionQueueDetailExample();
@@ -116,9 +123,15 @@ public class PerfQueueService {
         }
     }
 
-    public void testPlanReportTestEnded(String testPlanReportId) {
-        // 检查测试计划中其他队列是否结束
-        kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+    public void checkTestPlanLoadCaseExecOver(String testId, String testPlanReportId) {
+        if (StringUtils.isNotBlank(testPlanReportId)) {
+            // 整体执行测试计划报告时触发的
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+        } else {
+            // 测试计划内调试时触发的
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testId, UUID.randomUUID().toString());
+        }
+
     }
 
     public DBTestQueue handleQueue(String id, String testId) {

@@ -115,10 +115,8 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 apiExecutionQueueService.queueNext(dto);
             }
             // 更新测试计划报告
-            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
-                apiExecutionQueueService.testPlanReportTestEnded(dto.getTestPlanReportId());
-            }
+            LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId());
+            apiExecutionQueueService.checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
             LoggerUtil.info("TEST-END处理结果集完成", dto.getReportId());
 
             JvmUtil.memoryInfo();

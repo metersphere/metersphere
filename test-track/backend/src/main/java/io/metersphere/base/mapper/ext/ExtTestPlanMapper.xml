@@ -422,4 +422,8 @@
         set actual_end_time = null
         where id = #{0}
     </update>
+
+    <select id="checkSyncTestCaseExecResultByTestPlanId" resultType="java.lang.Boolean">
+        SELECT automatic_status_update FROM test_plan WHERE id = #{0}
+    </select>
 </mapper>

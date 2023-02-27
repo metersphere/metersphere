@@ -22,6 +22,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -33,7 +34,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -488,5 +488,16 @@ public class ApiDefinitionExecResultService {
 
     public ApiDefinitionExecResultWithBLOBs getLastResult(String testId) {
         return extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
+    }
+
+    public Map<String, String> selectResultByIdList(List<String> reportIdList) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(reportIdList)) {
+            List<ApiDefinitionExecResult> apiDefinitionExecResultList = extApiDefinitionExecResultMapper.selectStatusByIdList(reportIdList);
+            if (CollectionUtils.isNotEmpty(apiDefinitionExecResultList)) {
+                returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, ApiDefinitionExecResult::getStatus, (k1, k2) -> k1));
+            }
+        }
+        return returnMap;
     }
 }

@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TestPlanFailureApiDTO extends TestPlanApiCaseDTO {
+public class TestPlanApiDTO extends TestPlanApiCaseDTO {
     private String response;
     private String reportId;
 }

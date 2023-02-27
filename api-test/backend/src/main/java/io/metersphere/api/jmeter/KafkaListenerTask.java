@@ -91,10 +91,8 @@ public class KafkaListenerTask implements Runnable {
                     // 全局并发队列
                     PoolExecBlockingQueueUtil.offer(testResult.getReportId());
                     // 更新测试计划报告
-                    if (StringUtils.isNotEmpty(testResult.getTestPlanReportId())) {
-                        LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId(), testResult.getReportId());
-                        apiExecutionQueueService.testPlanReportTestEnded(testResult.getTestPlanReportId());
-                    }
+                    LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId(), testResult.getReportId());
+                    apiExecutionQueueService.checkTestPlanCaseTestEnd(testResult.getTestId(), testResult.getRunMode(), testResult.getTestPlanReportId());
                 });
             }
         } catch (Exception e) {

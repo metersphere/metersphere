@@ -14,9 +14,9 @@ import io.metersphere.dto.TestPlanRerunParametersDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.plan.dto.ExecutionModeDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
-import io.metersphere.plan.dto.TestPlanExtReportDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.AddTestPlanRequest;
 import io.metersphere.plan.request.BatchOperateRequest;
@@ -61,7 +61,7 @@ public class TestPlanController {
 
     @GetMapping("/auto-check/{testPlanId}")
     public void autoCheck(@PathVariable String testPlanId) {
-        testPlanService.checkStatus(testPlanId);
+        testPlanService.checkTestPlanStatus(testPlanId);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
@@ -148,7 +148,7 @@ public class TestPlanController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
-        testPlanService.checkStatus(planId);
+        testPlanService.checkTestPlanStatus(planId);
     }
 
     @PostMapping("/edit/report/config")
@@ -387,12 +387,12 @@ public class TestPlanController {
     }
 
     @GetMapping("/ext/report/{reportId}")
-    public TestPlanExtReportDTO getExtReport(@PathVariable String reportId) throws JsonProcessingException {
-        return testPlanService.getExtInfoByReportId(reportId);
+    public ExecutionModeDTO getExtReport(@PathVariable String reportId) throws JsonProcessingException {
+        return new ExecutionModeDTO();
     }
 
     @GetMapping("/ext/plan/{planId}")
-    public TestPlanExtReportDTO getExtPlan(@PathVariable String planId) throws JsonProcessingException {
-        return testPlanService.getExtInfoByPlanId(planId);
+    public ExecutionModeDTO getExtPlan(@PathVariable String planId) throws JsonProcessingException {
+        return new ExecutionModeDTO();
     }
 }

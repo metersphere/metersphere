@@ -1,8 +1,8 @@
 package io.metersphere.base.mapper.plan.ext;
 
 import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
@@ -39,9 +39,9 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<Map> selectForPlanReport(String planId);
 
-    List<TestPlanFailureApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
+    List<TestPlanApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
-    List<TestPlanFailureApiDTO> getFailureListByIds(@Param("ids") Collection<String> caseIdList, @Param("status") String status);
+    List<TestPlanApiDTO> getFailureListByIds(@Param("ids") Collection<String> caseIdList, @Param("status") String status);
 
     List<String> selectPlanIds();
 

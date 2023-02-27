@@ -1,6 +1,6 @@
 package io.metersphere.controller.plan;
 
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
+import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import jakarta.annotation.Resource;
@@ -21,25 +21,25 @@ public class ShareTestPlanApiCaseController {
     TestPlanApiCaseService testPlanApiCaseService;
 
     @GetMapping("/list/failure/{shareId}/{planId}")
-    public List<TestPlanFailureApiDTO> getApiFailureList(@PathVariable String shareId, @PathVariable String planId) {
+    public List<TestPlanApiDTO> getApiFailureList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId);
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/errorReport/{shareId}/{planId}")
-    public List<TestPlanFailureApiDTO> getErrorReportApiCaseList(@PathVariable String shareId, @PathVariable String planId) {
+    public List<TestPlanApiDTO> getErrorReportApiCaseList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId);
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/unExecute/{shareId}/{planId}")
-    public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String shareId, @PathVariable String planId) {
+    public List<TestPlanApiDTO> getUnExecuteCases(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId);
         return testPlanApiCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{shareId}/{planId}")
-    public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
+    public List<TestPlanApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId);
         return testPlanApiCaseService.getAllCases(planId);
     }

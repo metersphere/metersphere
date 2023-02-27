@@ -15,11 +15,11 @@ import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.utils.DiscoveryUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +40,23 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             calculatePlanReport(report, planReportCaseDTOS);
+        }
+    }
+
+    public void calculateReportByLoadCaseList(List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList, TestPlanSimpleReportDTO report) {
+        try {
+            List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
+            testPlanLoadCaseDTOList.forEach(item -> {
+                PlanReportCaseDTO dto = new PlanReportCaseDTO();
+                dto.setId(item.getId());
+                dto.setStatus(item.getStatus());
+                dto.setReportId(item.getReportId());
+                dto.setCaseId(item.getId());
+                planReportCaseDTOList.add(dto);
+            });
+            calculatePlanReport(report, planReportCaseDTOList);
+        } catch (MSException e) {
+            LogUtil.error(e);
         }
     }
 

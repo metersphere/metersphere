@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.TestPlanCaseDTO;
-import io.metersphere.plan.dto.TestPlanExtReportDTO;
+import io.metersphere.plan.dto.ExecutionModeDTO;
 import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.plan.service.TestPlanService;
@@ -12,10 +12,10 @@ import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.xpack.track.dto.IssuesDao;
-import org.springframework.web.bind.annotation.*;
-
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.*;
+
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -67,24 +67,27 @@ public class ShareController {
     }
 
     @GetMapping("test/plan/ext/report/{shareId}/{reportId}")
-    public TestPlanExtReportDTO getExtReport(@PathVariable String shareId, @PathVariable String reportId) throws JsonProcessingException {
+    public ExecutionModeDTO getExtReport(@PathVariable String shareId, @PathVariable String reportId) throws JsonProcessingException {
         shareInfoService.validate(shareId, reportId);
         if (SessionUtils.getUser() == null) {
             HttpHeaderUtils.runAsUser("admin");
         }
-        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByReportId(reportId);
+        //          testPlanService.getExtInfoByPlanId 这个方法逻辑有问题。分不清楚干嘛用的。方法删了，调用地方先注释了。
+        //        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByReportId(reportId);
+        ExecutionModeDTO reportExtInfo = new ExecutionModeDTO();
         HttpHeaderUtils.clearUser();
         return reportExtInfo;
     }
 
     @GetMapping("test/plan/ext/plan/{shareId}/{planId}")
-    public TestPlanExtReportDTO getExtPlan(@PathVariable String shareId, @PathVariable String planId) throws JsonProcessingException {
+    public ExecutionModeDTO getExtPlan(@PathVariable String shareId, @PathVariable String planId) throws JsonProcessingException {
         shareInfoService.validate(shareId, planId);
         if (SessionUtils.getUser() == null) {
             HttpHeaderUtils.runAsUser("admin");
         }
-        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByPlanId(planId);
+        //          testPlanService.getExtInfoByPlanId 这个方法逻辑有问题。分不清楚干嘛用的。方法删了，调用地方先注释了。
+        //        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByPlanId(planId);
         HttpHeaderUtils.clearUser();
-        return reportExtInfo;
+        return new ExecutionModeDTO();
     }
 }

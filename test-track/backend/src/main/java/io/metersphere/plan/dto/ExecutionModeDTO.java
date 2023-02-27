@@ -3,7 +3,7 @@ package io.metersphere.plan.dto;
 import lombok.Data;
 
 @Data
-public class TestPlanExtReportDTO {
+public class ExecutionModeDTO {
 
     /**
      * 运行模式

@@ -7,8 +7,8 @@ import io.metersphere.api.dto.ApiCaseRelevanceRequest;
 import io.metersphere.api.dto.ApiReportEnvConfigDTO;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.QueryReferenceRequest;
+import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
-import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
@@ -39,6 +39,7 @@ import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.plan.remote.TestPlanService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -49,7 +50,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -392,20 +392,20 @@ public class TestPlanApiCaseService {
     }
 
 
-    public List<TestPlanFailureApiDTO> getFailureCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.ERROR.name());
+    public List<TestPlanApiDTO> getFailureCases(String planId) {
+        List<TestPlanApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.ERROR.name());
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureApiDTO> getAllCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, null);
+    public List<TestPlanApiDTO> getAllCases(String planId) {
+        List<TestPlanApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, null);
         return buildCases(apiTestCases);
     }
 
-    public void buildApiResponse(List<TestPlanFailureApiDTO> cases) {
+    public void buildApiResponse(List<TestPlanApiDTO> cases) {
         if (!org.apache.commons.collections.CollectionUtils.isEmpty(cases)) {
             List<String> reportIds = new ArrayList<>();
-            for (TestPlanFailureApiDTO apiCase : cases) {
+            for (TestPlanApiDTO apiCase : cases) {
                 if (StringUtils.isEmpty(apiCase.getReportId())) {
                     ApiDefinitionExecResultWithBLOBs result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(apiCase.getId(), "API_PLAN");
                     if (result != null && StringUtils.isNotBlank(result.getContent())) {
@@ -464,7 +464,7 @@ public class TestPlanApiCaseService {
         }
     }
 
-    public List<TestPlanFailureApiDTO> buildCases(List<TestPlanFailureApiDTO> apiTestCases) {
+    public List<TestPlanApiDTO> buildCases(List<TestPlanApiDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
@@ -479,9 +479,9 @@ public class TestPlanApiCaseService {
      *
      * @param apiTestCases
      */
-    private void buildPrincipal(List<TestPlanFailureApiDTO> apiTestCases) {
+    private void buildPrincipal(List<TestPlanApiDTO> apiTestCases) {
         List<String> apiIds = apiTestCases.stream()
-                .map(TestPlanFailureApiDTO::getApiDefinitionId)
+                .map(TestPlanApiDTO::getApiDefinitionId)
                 .collect(Collectors.toList());
 
         Map<String, String> userIdMap = apiDefinitionService.selectByIds(apiIds)
@@ -503,13 +503,13 @@ public class TestPlanApiCaseService {
         ServiceUtils.updateOrderField(request, TestPlanApiCase.class, testPlanApiCaseMapper::selectByPrimaryKey, extTestPlanApiCaseMapper::getPreOrder, extTestPlanApiCaseMapper::getLastOrder, testPlanApiCaseMapper::updateByPrimaryKeySelective);
     }
 
-    public List<TestPlanFailureApiDTO> getErrorReportCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.FAKE_ERROR.name());
+    public List<TestPlanApiDTO> getErrorReportCases(String planId) {
+        List<TestPlanApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.FAKE_ERROR.name());
         return buildCases(apiTestCases);
     }
 
-    public List<TestPlanFailureApiDTO> getUnExecuteCases(String planId) {
-        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.PENDING.name());
+    public List<TestPlanApiDTO> getUnExecuteCases(String planId) {
+        List<TestPlanApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId, ApiReportStatus.PENDING.name());
         return buildCases(apiTestCases);
     }
 
@@ -717,7 +717,7 @@ public class TestPlanApiCaseService {
         return !testPlanApiCaseList.stream().map(TestPlanApiCaseInfoDTO::getApiCaseId).collect(Collectors.toList()).isEmpty();
     }
 
-    public List<TestPlanFailureApiDTO> getFailureListByIds(Set<String> planApiCaseIds) {
+    public List<TestPlanApiDTO> getFailureListByIds(Set<String> planApiCaseIds) {
         return extTestPlanApiCaseMapper.getFailureListByIds(planApiCaseIds, null);
     }
 

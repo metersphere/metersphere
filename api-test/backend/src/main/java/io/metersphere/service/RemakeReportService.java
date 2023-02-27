@@ -35,13 +35,11 @@ public class RemakeReportService {
                 CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
             }
             // 更新测试计划报告
-            if (StringUtils.isNotEmpty(dto.getTestPlanReportId())) {
-                LoggerUtil.info("Check Processing Test Plan report status：" + dto.getQueueId() + "，" + dto.getTestId(), dto.getReportId());
-                CommonBeanFactory.getBean(ApiExecutionQueueService.class).testPlanReportTestEnded(dto.getTestPlanReportId());
-            }
+            LoggerUtil.info("Check Processing Test Plan report status.queueId：" + dto.getQueueId() + "，runMode:" + dto.getRunMode() + "，testId:" + dto.getTestId(), dto.getReportId());
+            CommonBeanFactory.getBean(ApiExecutionQueueService.class).checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
         } catch (Exception e) {
             LoggerUtil.error("回退报告异常", request.getReportId(), e);
-        }finally {
+        } finally {
             redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
             redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
         }

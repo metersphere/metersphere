@@ -1,11 +1,11 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.dto.PlanReportCaseDTO;
+import io.metersphere.base.domain.TestPlanTestCase;
+import io.metersphere.dto.*;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
-import io.metersphere.request.BaseQueryRequest;
-import io.metersphere.dto.*;
 import io.metersphere.plan.request.function.TestPlanFuncCaseConditions;
+import io.metersphere.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -70,4 +70,10 @@ public interface ExtTestPlanTestCaseMapper {
     String selectCaseId(String id);
 
     List<String> getCaseIdsByIds(@Param("ids") List<String> ids);
+
+    void updateExecResultByTestPlanCaseIdList(@Param("ids") List<String> testPlanCaseIdList, @Param("execResult") String execResult);
+
+    void updateExecResultByTestCaseIdAndTestPlanId(@Param("testCaseId") String testCaseId, @Param("testPlanId") String testPlanId, @Param("execResult") String execResult);
+
+    List<TestPlanTestCase> selectByAutomationCaseIdAndTestPlanId(@Param("automationCaseId") String automationCaseId, @Param("test_plan_id") String testPlanId);
 }
