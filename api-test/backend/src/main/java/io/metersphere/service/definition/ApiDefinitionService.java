@@ -2325,7 +2325,7 @@ public class ApiDefinitionService {
     private void copyCaseByVersion(List<String> chooseApiIdList, Map<String, String> sourceApiIdRefIdMap, Map<String, ApiDefinition> refIdMap, SqlSession batchSqlSession) {
         long timeStamp = System.currentTimeMillis();
         List<ApiTestCaseWithBLOBs> sourceApiCaseList = apiTestCaseService.selectCasesBydApiIds(new ArrayList<>(sourceApiIdRefIdMap.keySet()));
-        List<ApiTestCase> caseInChooseApi = apiTestCaseService.selectSimpleCasesBydApiIds(chooseApiIdList);
+        List<ApiTestCaseWithBLOBs> caseInChooseApi = apiTestCaseService.selectCasesBydApiIds(chooseApiIdList);
         Map<String, Map<String, ApiTestCase>> apiIdOldCaseMap = new HashMap<>();
         caseInChooseApi.forEach(item -> {
             String caseName = StringUtils.trim(item.getName());
