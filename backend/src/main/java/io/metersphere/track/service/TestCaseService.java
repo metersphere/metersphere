@@ -2015,6 +2015,9 @@ public class TestCaseService {
                 item.setProjectId(request.getProjectId());
                 if (item.getIsEdit()) {
                     TestCaseWithBLOBs dbCase = testCaseMap.get(item.getId());
+                    if (dbCase == null) {
+                        continue;
+                    }
                     if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                         item.setCustomFields(dbCase.getCustomFields());
                     }
