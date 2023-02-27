@@ -609,15 +609,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseWithBLOBs> selectCasesBydApiIds(List<String> apiIds) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
-        return apiTestCaseMapper.selectByExampleWithBLOBs(example);
-    }
-
-    public List<ApiTestCase> selectSimpleCasesBydApiIds(List<String> apiIds) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andApiDefinitionIdIn(apiIds).andStatusNotEqualTo("Trash");
-        return apiTestCaseMapper.selectByExample(example);
+        return extApiTestCaseMapper.unTrashCaseListByIds(apiIds);
     }
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
