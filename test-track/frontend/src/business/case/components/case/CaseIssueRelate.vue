@@ -400,11 +400,11 @@ export default {
   color: #783887;
 }
 .relate-box {
-  padding: px2rem(24) 0 0 0;
+  padding: 1.3rem 0 0 0;
   .relate-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: px2rem(16);
+    margin-bottom: 1.3rem;
     .menu-left-row {
       width: 98px;
       height: 32px;
@@ -420,5 +420,17 @@ export default {
       width: 240px;
     }
   }
+}
+
+.el-dropdown-menu__item:hover {
+  background-color: rgba(31, 35, 41, 0.1)!important;
+}
+
+.el-dropdown-menu__item {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: #1F2329!important;
 }
 </style>

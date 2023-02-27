@@ -1,7 +1,7 @@
 <template>
   <div class="prerequisite-item-layout" v-if="data.stepModel === 'TEXT'">
     <h3>{{title}}</h3>
-    <span>{{content}}</span>
+    <span>{{filterText(content)}}</span>
   </div>
   <el-table v-else
     :data="data.steps" header-cell-class-name="case-desc-table-header-cell"
@@ -19,6 +19,15 @@ export default {
     data: Object,
     title: String,
     content: String
+  },
+  methods: {
+    filterText(val) {
+      if (val.trim() === '' || val.trim().length === 0) {
+        return this.$t('case.none');
+      } else {
+        return val;
+      }
+    }
   }
 }
 </script>

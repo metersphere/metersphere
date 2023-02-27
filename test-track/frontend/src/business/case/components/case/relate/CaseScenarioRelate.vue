@@ -3,6 +3,7 @@
     @clearSelect="clearSelect"
     @setProject="setProject"
     @save="saveCaseRelevance"
+    :dialog-title="$t('api_test.home_page.failed_case_list.table_value.case_type.scene')"
     ref="baseRelevance"
   >
     <template v-slot:aside>

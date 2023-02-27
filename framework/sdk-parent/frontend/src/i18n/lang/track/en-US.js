@@ -161,6 +161,7 @@ export default {
     upload_tip: "file size limit[0-500MB]",
     add_attachment: "Add",
     attachment: "Attachment",
+    dump_module: "Please select dump directory",
     upload_time: "Upload Time",
     total: "Total Case",
     node_id: "Node ID",

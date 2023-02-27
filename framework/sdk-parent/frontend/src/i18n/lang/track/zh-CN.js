@@ -152,6 +152,7 @@ export default {
     upload_tip: "文件大小限制[0-500MB]",
     add_attachment: "添加",
     attachment: "附件",
+    dump_module: "请选择转存目录",
     upload_time: "上传时间",
     total: "用例总数",
     node_id: "节点ID",
