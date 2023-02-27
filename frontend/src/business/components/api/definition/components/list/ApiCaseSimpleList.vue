@@ -1003,12 +1003,12 @@ export default {
       let arr = Array.from(this.selectRows);
       let ids = arr.map(row => row.id);
       let param = {};
+      param = Object.assign(param, this.condition);
       param[form.type] = form.value;
       param.ids = ids;
       param.projectId = this.projectId;
       param.selectAllDate = this.selectAll;
       param.unSelectIds = this.unSelection;
-      param = Object.assign(param, this.condition);
       this.$post('/api/testcase/batch/editByParam', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.initTable();

@@ -589,6 +589,7 @@ export default {
     batchEdit(form) {
       let param = {};
       if (form) {
+        param = Object.assign(param, this.condition);
         param[form.type] = form.value;
         param.ids = [this.testCaseId];
         param.projectId = this.projectId;
@@ -598,7 +599,6 @@ export default {
         }
         param.selectAllDate = this.isSelectAllDate;
         param.unSelectIds = this.unSelection;
-        param = Object.assign(param, this.condition);
       }
       this.$post('/api/testcase/batch/editByParam', param, () => {
         if (!form.show) {

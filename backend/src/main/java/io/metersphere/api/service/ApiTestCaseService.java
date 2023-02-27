@@ -718,6 +718,9 @@ public class ApiTestCaseService {
         if (request.isSelectAll()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId(), request.getCombine());
         }
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
         if (StringUtils.isNotEmpty(request.getPriority())) {
