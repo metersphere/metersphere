@@ -17,10 +17,8 @@
         "
       >
         <!-- 本地上传 -->
-        <div
-          class="local-row"
+        <div class="local-row opt-row"
           style="
-            display: flex;
             height: 32px;
             margin-top: 8px;
             line-height: 32px;
@@ -43,7 +41,7 @@
               :on-error="handleError"
               :disabled="readOnly || isCopy"
             >
-              <div class="icon" style="display: inline-flex; line-height: 34px">
+              <div class="icon" style="display: inline-flex; line-height: 34px" @click="uploadLocalFile">
                 <div style="margin-right: 10px">
                   <i class="el-icon-upload2" style="color: #646a73"></i>
                 </div>
@@ -58,11 +56,11 @@
           </div>
         </div>
         <!-- 关联文件 -->
-        <div
-          class="ref-row"
+        <div class="ref-row opt-row"
           @click="associationFile"
           style="
             display: flex;
+            justify-content: center;
             height: 32px;
             margin-bottom: 8px;
             line-height: 32px;
@@ -185,7 +183,11 @@ export default {
     this.getFileMetaData();
   },
   methods: {
+    uploadLocalFile() {
+      this.$refs['popover'].doClose();
+    },
     associationFile() {
+      this.$refs['popover'].doClose();
       if (this.readOnly || this.isCopy) {
         return;
       }
@@ -321,8 +323,8 @@ export default {
     _handleDelete(file, index) {
       // 中断所有正在上传的文件
       if (this.cancelFileToken && this.cancelFileToken.length >= 1) {
-        this.cancelFileToken.forEach((cacelToken) => {
-          cacelToken.cancelFunc();
+        this.cancelFileToken.forEach((cancelToken) => {
+          cancelToken.cancelFunc();
         });
       }
       this.fileList.splice(index, 1);
@@ -514,5 +516,13 @@ export default {
 .add-attachment:focus {
   border-color: #DCDFE6;
   background-color: whitesmoke;
+}
+
+.attachment-popover .opt-row{
+  width: 100%!important;
+}
+
+.attachment-popover .opt-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);;
 }
 </style>
