@@ -55,6 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -632,6 +633,9 @@ public class ApiTestCaseService {
 
         if (StringUtils.equals("tags", request.getType())) {
             this.batchEditTags(request, ids);
+            return;
+        }
+        if (CollectionUtils.isEmpty(ids)) {
             return;
         }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
