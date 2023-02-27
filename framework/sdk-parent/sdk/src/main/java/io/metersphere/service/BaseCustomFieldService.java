@@ -78,6 +78,7 @@ public class BaseCustomFieldService {
         } else {
             resource.setValue(JSON.toJSONString(dto.getValue()));
         }
+        resource.setOptionLabel(dto.getOptionLabel());
         return resource;
     }
 
