@@ -19,7 +19,7 @@ jobs:
         uses: actions-cool/issues-helper@v2
         with:
           actions: 'remove-labels'
-          labels: '状态:待反馈'
+          labels: '状态:待用户反馈'
 
   add-label-if-not-author:
     runs-on: ubuntu-latest
@@ -29,7 +29,7 @@ jobs:
         uses: actions-cool/issues-helper@v2
         with:
           actions: 'add-labels'
-          labels: '状态:待反馈'
+          labels: '状态:待用户反馈'
 
       - name: Remove require handle label
         uses: actions-cool/issues-helper@v2
