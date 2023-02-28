@@ -846,7 +846,7 @@ public class TestCaseService {
         });
     }
 
-    public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
+    public void setPublicListRequestParam(QueryTestCaseRequest request) {
         this.initRequest(request, true);
         setDefaultOrder(request);
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
@@ -856,7 +856,20 @@ public class TestCaseService {
             MSException.throwException("workspaceId could not be null!");
         }
         request.setProjectId(null);
+        // 保留: 后续若需要根据列表版本筛选的话, version_id => version_name
+        List<String> versionIds = request.getFilters().get("version_id");
+        if (CollectionUtils.isNotEmpty(versionIds)) {
+            ProjectVersionExample versionExample = new ProjectVersionExample();
+            versionExample.createCriteria().andIdIn(versionIds);
+            List<ProjectVersion> versions = projectVersionMapper.selectByExample(versionExample);
+            List<String> versionNames = versions.stream().map(ProjectVersion::getName).distinct().collect(Collectors.toList());
+            request.getFilters().put("version_name", versionNames);
+            request.getFilters().put("version_id", Collections.emptyList());
+        }
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
+    }
+
+    public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
         List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
         ServiceUtils.buildProjectInfo(returnList);
         buildUserInfo(returnList);

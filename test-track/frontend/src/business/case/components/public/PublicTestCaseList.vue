@@ -161,7 +161,6 @@
         </ms-table-column>
 
         <ms-table-column
-          :filters="versionFilters"
           v-if="versionEnable"
           :label="$t('project.version.name')"
           :field="item"
@@ -427,7 +426,8 @@ export default {
     },
     getData() {
       if (this.projectId) {
-        this.condition.projectId = this.projectId;
+        // 公共用例暂不支持所属项目过滤
+        // this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
         this.condition.casePublic = true;
         this.condition.workspaceId = getCurrentWorkspaceId();
@@ -595,7 +595,8 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getVersionFilters(getCurrentProjectID())
+        // 暂时去掉列表版本筛选, 保留但是查询逻辑待后续需求来更正
+        getVersionFilters(getCurrentWorkspaceId())
           .then(r =>  this.versionFilters = r.data);
       }
     },

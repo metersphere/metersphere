@@ -300,9 +300,9 @@
         </if>
         from test_case
         inner join project on test_case.project_id = project.id and workspace_id = #{request.workspaceId}
+        inner join project_version ON test_case.version_id = project_version.id
         <include refid="queryPublicCaseWhere"></include>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
-
     </select>
 
     <select id="getPublicProjectIdByWorkSpaceId" resultType="java.lang.String">
@@ -519,7 +519,6 @@
                 </foreach>
             </if>
             and test_case.case_public = TRUE
-            <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
             </if>
@@ -563,6 +562,10 @@
                         </when>
                         <when test="key=='version_id'">
                             and test_case.version_id in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'version_name'">
+                            and project_version.name in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='maintainer'">
@@ -1170,14 +1173,13 @@
         ORDER BY update_time DESC limit 1;
     </select>
     <select id="countByWorkSpaceId" resultType="java.lang.Integer">
-        select count(distinct ref_id)
+        select count(ref_id)
         from test_case
         where project_id in (select id
                              from project
                              where workspace_id = #{workSpaceId})
           and case_public = true
           and test_case.status != 'Trash'
-          and test_case.latest = 1
     </select>
 
     <select id="trashCount" resultType="java.lang.Long">
@@ -1410,6 +1412,7 @@
         from test_case
         left join test_case_node tcn on test_case.node_id = tcn.id
         inner join project p on p.id = test_case.project_id
+        inner join project_version ON test_case.version_id = project_version.id
         <include refid="queryWhereCondition"/>
         and p.workspace_id = #{request.workspaceId}
         group by tcn.id;
