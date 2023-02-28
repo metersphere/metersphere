@@ -321,9 +321,8 @@ export default {
       this.currentModule = node.data;
       this.currentNode = node;
 
-      this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
-      // 只在TAB页切换时才刷新树
-      // this.nohupReloadTree(node.data.id);
+      // 刷新模块树
+      this.nohupReloadTree(node.data.id);
     },
     nohupReloadTree(selectNodeId) {
       if (this.projectId) {
