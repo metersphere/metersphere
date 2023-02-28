@@ -174,7 +174,7 @@ public class ShareController {
     @GetMapping("/api/scenario/report/get/{shareId}/{reportId}")
     public APIScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validateExpired(shareId); // 测试计划，和接口都会用这个
-        return apiScenarioReportService.get(reportId,true);
+        return apiScenarioReportService.get(reportId,false);
     }
 
     @GetMapping("/performance/report/{shareId}/{reportId}")
