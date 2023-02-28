@@ -19,6 +19,7 @@ const message = {
       case_type: "Case Type",
       test_plan: "Test Plan",
       failure_times: "Failure times",
+      minder_paste_tip: "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!"
     },
     rate: {
       case_review: "Review rate",

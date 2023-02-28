@@ -19,6 +19,7 @@ const message = {
       case_type: "用例類型",
       test_plan: "所屬測試計劃",
       failure_times: "失敗次數",
+      minder_paste_tip: "粘貼的節點中有未加載用例的模塊，目前不支持復製未加載的用例！"
     },
     rate: {
       case_review: "評審率",
