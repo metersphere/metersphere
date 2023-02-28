@@ -9,7 +9,7 @@
     <template v-slot:title>
       {{$t('test_track.case.case_desc')}}
     </template>
-    <div v-loading="loading" style="height: 100%; overflow: auto">
+    <div style="height: 100%; overflow: auto">
       <el-form :model="data" class="case-desc-form">
         <div class="prerequisite-item-layout">
           <h3>{{$t('test_track.case.prerequisite')}}</h3>
