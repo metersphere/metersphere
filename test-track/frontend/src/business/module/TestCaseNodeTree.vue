@@ -152,6 +152,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    routeModuleId() {
+      return this.$route.query.moduleId;
+    }
   },
   methods: {
     addTestCase() {
@@ -208,7 +211,13 @@ export default {
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
             }
-            this.setCurrentKey();
+            if (this.routeModuleId) {
+              if (this.$refs.nodeTree) {
+                this.$refs.nodeTree.setCurrentKeyById(this.routeModuleId);
+              }
+            } else {
+              this.setCurrentKey();
+            }
           });
       }
     },
