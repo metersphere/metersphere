@@ -627,6 +627,14 @@ export default {
         })
       }
     },
+    setCurrentKeyById(id) {
+      if (id) {
+        this.$nextTick(() => {
+          this.handleNodeSelect(this.$refs.tree.getNode(id));
+          this.$refs.tree.setCurrentKey(id);
+        })
+      }
+    },
     justSetCurrentKey(id) {
       if (id) {
         this.$nextTick(() => {

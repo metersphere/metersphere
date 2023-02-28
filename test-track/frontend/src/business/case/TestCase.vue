@@ -66,6 +66,7 @@
           @importRefresh="importRefresh"
           @importChangeConfirm="importChangeConfirm"
           @createCase="handleCaseSimpleCreate($event, 'add')"
+          @nodeSelectEvent="handleCaseNodeSelect"
           ref="nodeTree"/>
       </ms-aside-container>
 
@@ -206,6 +207,7 @@ import TestCasePublicNodeTree from "@/business/module/TestCasePublicNodeTree";
 import TestCaseTrashNodeTree from "@/business/module/TestCaseTrashNodeTree";
 import PublicTestCaseList from "@/business/case/components/public/PublicTestCaseList";
 import {openCaseCreate} from "@/business/case/test-case";
+import merge from 'webpack-merge';
 
 const store = useStore();
 export default {
@@ -316,6 +318,9 @@ export default {
       if (this.$store.state.temWorkspaceId) {
         this.$refs.isChangeConfirm.open(null, this.$store.state.temWorkspaceId);
       }
+    },
+    routeModuleId() {
+      return this.$route.query.moduleId;
     }
   },
   computed: {
@@ -453,6 +458,13 @@ export default {
     trashNodeChange(node, nodeIds, pNodes) {
       if (this.$refs.testCaseTrashList) {
         this.$refs.testCaseTrashList.initTableData(nodeIds);
+      }
+    },
+    handleCaseNodeSelect(node, nodeIds, pNodes) {
+      if (node.data.id !== this.routeModuleId) {
+        this.$router.push({
+          query: merge(this.$route.query, {'moduleId': node.data.id})
+        });
       }
     },
     increase(id) {
