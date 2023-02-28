@@ -93,6 +93,8 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCaseWithBLOBs> unTrashCaseListByIds(@Param("ids") List<String> ids);
 
+    List<ApiTestCaseWithBLOBs> unTrashCaseListByApiIds(@Param("ids") List<String> apiIds);
+
     List<ApiCountChartResult> countByRequest(ApiCountRequest request);
 
     List<ApiTestCaseDTO> relevanceApiList(@Param("request") ApiTestCaseRequest request);
