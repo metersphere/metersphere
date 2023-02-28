@@ -45,7 +45,7 @@ import {
   getChildNodeId,
   handleAfterSave,
   handleExpandToLevel,
-  handleMinderIssueDelete, handlePasteAfter, handleSaveError,
+  handleMinderIssueDelete, handlePasteAfter, handlePasteTip, handleSaveError,
   handleTestCaseAdd,
   handTestCaeEdit,
   isCaseNodeData,
@@ -225,6 +225,7 @@ name: "TestCaseMinder",
         }
 
         if ('paste' === even.commandName) {
+          handlePasteTip(window.minder.getSelectedNode());
           handlePasteAfter(window.minder.getSelectedNode());
         }
 
