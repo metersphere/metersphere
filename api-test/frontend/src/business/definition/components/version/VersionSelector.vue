@@ -9,9 +9,11 @@
     <el-row>
       <div v-loading="loading">
         <el-row>
+          {{ $t('commons.copy') }}
           <el-select v-model="versionId" size="small" :placeholder="$t('project.version.please_input_version')">
             <el-option v-for="v in versionData" :key="v.id" :label="v.name" :value="v.id" />
           </el-select>
+          {{ $t('commons.version_data') }}
         </el-row>
         <el-row style="margin: 0">
           <p style="color: #939496">{{ $t('api_definition.copy_data_from_other_version_tips') }}</p>

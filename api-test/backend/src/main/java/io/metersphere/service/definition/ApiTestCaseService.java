@@ -609,7 +609,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseWithBLOBs> selectCasesBydApiIds(List<String> apiIds) {
-        return extApiTestCaseMapper.unTrashCaseListByIds(apiIds);
+        return extApiTestCaseMapper.unTrashCaseListByApiIds(apiIds);
     }
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
