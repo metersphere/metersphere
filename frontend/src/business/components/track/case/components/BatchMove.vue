@@ -30,9 +30,12 @@
       </el-tree>
     </div>
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="close"
-        @confirm="save"/>
+      <div class="dialog-footer" v-loading="result.loading">
+        <el-button @click="close">{{ $t('ui.close_dialog') }}</el-button>
+        <el-button v-prevent-re-click type="primary" @click="save" :disabled="disabled" @keydown.enter.native.prevent>
+          {{ $t('commons.confirm') }}
+        </el-button>
+      </div>
     </template>
   </el-dialog>
   </div>
@@ -56,7 +59,11 @@
         moduleOptions: [],
         filterText: "",
         result: {},
+        disabled: false
       }
+    },
+    mounted() {
+      this.disabled = false;
     },
     props: {
       publicEnable: {
@@ -75,6 +82,9 @@
         this.treeNodes = treeNodes;
         this.selectIds = selectIds;
         this.moduleOptions = moduleOptions;
+      },
+      disableButton(){
+        this.disabled = !this.disabled;
       },
       save() {
         if (!this.currentKey) {
