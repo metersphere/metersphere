@@ -4,6 +4,7 @@ package io.metersphere.service;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.ProjectVersionMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -62,6 +63,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     ProjectMapper projectMapper;
+    @Resource
+    ProjectVersionMapper projectVersionMapper;
     @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
     @Resource
@@ -277,6 +280,16 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setWorkspaceId(workspaceId);
         request.setProjectId(null);
         request.setNodeIds(null);
+        // 保留: 后续若需要根据列表版本筛选的话, version_id => version_name
+        List<String> versionIds = request.getFilters().get("version_id");
+        if (!CollectionUtils.isEmpty(versionIds)) {
+            ProjectVersionExample versionExample = new ProjectVersionExample();
+            versionExample.createCriteria().andIdIn(versionIds);
+            List<ProjectVersion> versions = projectVersionMapper.selectByExample(versionExample);
+            List<String> versionNames = versions.stream().map(ProjectVersion::getName).distinct().collect(Collectors.toList());
+            request.getFilters().put("version_name", versionNames);
+            request.getFilters().put("version_id", Collections.emptyList());
+        }
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countModules = extTestCaseMapper.getWorkspaceCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
