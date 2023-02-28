@@ -284,7 +284,7 @@ export default {
     getProjectName(id) {
       if (id !== getCurrentProjectID()) {
         const project = this.projectList.find(p => p.id === id);
-        return project ? project.name : "";
+        return project ? project.name + ' > ' : '';
       }
 
     },
