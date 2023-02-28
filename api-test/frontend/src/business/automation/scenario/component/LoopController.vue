@@ -73,12 +73,12 @@
       </template>
       <div v-if="controller.loopType === 'LOOP_COUNT'" draggable v-loading="loading">
         <el-row>
-          <el-col :span="8">
+          <el-col :span="9">
             <span class="ms-span ms-radio">{{ $t('loop.loops') }}</span>
-            <el-input size="small" v-model="controller.countController.loops" style="width: 200px" />
+            <el-input size="small" v-model="controller.countController.loops" style="width: auto"/>
             <span class="ms-span ms-radio">次</span>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="9">
             <span class="ms-span ms-radio">{{ $t('loop.interval') }}</span>
             <el-input-number
               v-model="controller.countController.interval"
@@ -90,15 +90,14 @@
               size="small" />
             <span class="ms-span ms-radio">ms</span>
           </el-col>
-          <el-col :span="8">
-            <span class="ms-span ms-radio">{{ $t('loop.proceed') }}</span>
-            <el-tooltip class="item" effect="dark" :content="$t('api_test.automation.loop_content')" placement="top"
-              >>
+          <el-col :span="6">
               <el-switch
+                :inactive-text="$t('loop.proceed')"
                 :disabled="controller.disabled"
                 v-model="controller.countController.proceed"
+                class="ms-span ms-radio"
+                style="margin-top: 6px"
                 @change="switchChange" />
-            </el-tooltip>
           </el-col>
         </el-row>
       </div>
@@ -485,7 +484,8 @@ export default {
 
 <style scoped>
 .ms-span {
-  margin: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .ms-radio {
@@ -494,7 +494,12 @@ export default {
   font-size: 13px;
   font-weight: normal;
 }
-
+:deep(.el-switch__label *){
+  color: #606266;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+  font-size: 13px;
+  font-weight: normal;
+}
 .icon.is-active {
   transform: rotate(90deg);
 }
