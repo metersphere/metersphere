@@ -691,6 +691,11 @@ export default {
   border-bottom: 1px solid rgba(31, 35, 41, 0.15);
 }
 
+:deep(.el-table th > .cell) {
+  word-break: keep-all !important;
+  white-space: nowrap !important;
+}
+
 :deep(.ms-select-all-fixed th:nth-child(2) .table-select-icon) {
   position: absolute;
   display: inline-block;
