@@ -54,7 +54,6 @@ import {
   editScenarioModule,
   getModuleByProjectId,
   getModuleByRelevanceProjectId,
-  getModuleByTrash,
   posScenarioModule,
   postModuleByProjectId,
   postModuleByTrash,
@@ -172,13 +171,11 @@ export default {
   created() {
     this.$EventBus.$on('scenarioConditionBus', (param) => {
       this.param = param;
-      this.list();
     });
   },
   beforeDestroy() {
     this.$EventBus.$off('scenarioConditionBus', (param) => {
       this.param = param;
-      this.list();
     });
   },
   methods: {
@@ -291,7 +288,7 @@ export default {
       } else {
         this.$emit('nodeSelectEvent', node, nodeIds, pNodes);
       }
-      this.nohupReloadTree(node.data.id);
+     // this.nohupReloadTree(node.data.id);
     },
     //后台更新节点数据
     nohupReloadTree(selectNodeId) {

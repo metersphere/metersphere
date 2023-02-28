@@ -179,13 +179,11 @@ export default {
   created(){
     this.$EventBus.$on("apiConditionBus", (param)=>{
       this.param = param;
-      this.list();
     })
   },
   beforeDestroy() {
     this.$EventBus.$off("apiConditionBus", (param)=>{
       this.param = param;
-      this.list();
     })
   },
   methods: {
@@ -333,7 +331,7 @@ export default {
       } else {
         this.$emit('nodeSelectEvent', node, nodeIds, pNodes);
       }
-      this.nohupReloadTree(node.data.id);
+      // this.nohupReloadTree(node.data.id);
     },
     nohupReloadTree(selectNodeId) {
       if (this.isRelevanceModel) {

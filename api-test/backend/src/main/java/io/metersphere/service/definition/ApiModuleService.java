@@ -154,7 +154,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
         request.setFilters(filters);
-
+        request.setModuleIds(new ArrayList<>());
         if (StringUtils.isNotBlank(versionId)) {
             request.setVersionId(versionId);
         }

@@ -7,7 +7,6 @@ const install = function (Vue) {
   install.installed = true;
   // 遍历并注册全局组件
   components.map((component) => {
-    console.log(component.name);
     Vue.component(component.name, component);
   });
 };
