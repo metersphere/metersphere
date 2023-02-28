@@ -1,6 +1,6 @@
 import i18n from "@/i18n/i18n";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "../../../../../common/js/utils";
-import {success, warning} from "../../../../../common/js/message";
+import {success, warning, info} from "../../../../../common/js/message";
 import {deleteIssueRelate} from "@/network/Issue";
 import {minderPageInfoMap} from "@/network/testCase";
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
@@ -530,7 +530,6 @@ export function handleAfterSave(rootNode) {
   rootNode.data.originId = null;
   rootNode.data.changed = false;
   rootNode.data.contextChanged = false;
-  rootNode.data.isExtraNode = false;
   if (isModuleNode(rootNode)) {
     rootNode.data.type = 'node';
   } else if (isCaseNodeData(rootNode.data)) {
@@ -548,7 +547,6 @@ export function handleSaveError(rootNode) {
     rootNode.data.id = rootNode.data.originId;
   }
   rootNode.data.originId = null;
-  rootNode.data.isExtraNode = false;
   if (rootNode.children) {
     for (let i = 0; i < rootNode.children.length; i++) {
       handleSaveError(rootNode.children[i]);
@@ -593,6 +591,31 @@ export function getSelectedNode() {
 export function getSelectedNodeData() {
   let node = getSelectedNode();
   return node ? node.data : {};
+}
+
+export function handlePasteTip(rootNode) {
+  if (hasUnloadedNode(rootNode)) {
+    info('粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！');
+  }
+}
+
+/**
+ * 判断节点下面是否有没有加载过用例的模块节点
+ * @param rootNode
+ * @returns {boolean}
+ */
+export function hasUnloadedNode(rootNode) {
+  if (isModuleNode(rootNode) && !rootNode.data.loaded) {
+    return true;
+  }
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      if (hasUnloadedNode(rootNode.children[i])) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export function addIssueHotBox(vueObj) {
