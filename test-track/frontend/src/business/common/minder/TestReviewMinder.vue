@@ -173,7 +173,9 @@ export default {
       saveCases.push(testCase);
     },
     setIsChange(isChanged) {
-      useStore().setIsTestCaseMinderChanged = isChanged;
+      useStore().$patch({
+        isTestCaseMinderChanged: isChanged
+      });
     }
   }
 }

@@ -207,7 +207,7 @@ export default {
       }
     },
     updateActiveDom(activeDom) {
-      openMinderConfirm(this, activeDom);
+      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_PLAN:READ+RUN');
     },
     changeConfirm(isSave) {
       saveMinderConfirm(this, isSave);
