@@ -233,7 +233,9 @@ export default {
       this.$success('关联成功');
     },
     setIsChange(isChanged) {
-      useStore().isTestCaseMinderChanged = isChanged;
+      useStore().$patch({
+        isTestCaseMinderChanged: isChanged
+      });
     },
   }
 }

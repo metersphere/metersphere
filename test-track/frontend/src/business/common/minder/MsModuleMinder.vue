@@ -274,7 +274,7 @@ export default {
       if (isSave) {
         this.save(window.minder.exportJson());
       } else {
-        useStore().setIsTestCaseMinderChanged = false;
+        useStore().isTestCaseMinderChanged = false;
         this._handleNodeSelect(this.tmpNode);
       }
     },

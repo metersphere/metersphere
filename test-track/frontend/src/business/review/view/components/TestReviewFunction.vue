@@ -148,7 +148,7 @@ export default {
       this.$refs.testReviewRelevance.openTestReviewRelevanceDialog();
     },
     updateActiveDom(activeDom) {
-      openMinderConfirm(this, activeDom);
+      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_REVIEW:READ+EDIT');
     },
     changeConfirm(isSave) {
       saveMinderConfirm(this, isSave);

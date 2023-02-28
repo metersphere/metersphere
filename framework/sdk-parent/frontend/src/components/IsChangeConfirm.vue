@@ -9,8 +9,16 @@
     @close="handleClose">
     {{tip}}
     <template v-slot:footer>
-      <el-button type="primary" @click="save" size="small" @keydown.enter.native.prevent>{{$t('commons.save')}}</el-button>
-      <el-button @click="cancel" size="small">{{$t('commons.not_save')}}</el-button>
+      <el-button type="primary"
+                 @click="save"
+                 size="small"
+                 @keydown.enter.native.prevent>
+        {{$t('commons.save')}}
+      </el-button>
+      <el-button @click="cancel"
+                 size="small">
+        {{$t('commons.not_save')}}
+      </el-button>
     </template>
   </ms-edit-dialog>
 </template>
@@ -57,7 +65,6 @@ export default {
       this.visible = false;
     },
     handleClose() {
-      this.$store.commit('setTemWorkspaceId', null);
     }
   }
 
