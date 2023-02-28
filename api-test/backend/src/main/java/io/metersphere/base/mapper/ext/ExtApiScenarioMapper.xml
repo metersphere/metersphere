@@ -175,16 +175,17 @@
             </include>
         </if>
     </sql>
-    <select id="listModule" resultType="java.lang.Integer">
-        select count(api_scenario.id) from api_scenario
-        left join project on api_scenario.project_id = project.id
-        <include refid="queryWhereCondition"/>
-    </select>
 
-    <select id="listModuleByCollection" resultType="java.util.Map">
-        select api_scenario_module_id AS moduleId,count(id) AS countNum from api_scenario
-        <include refid="queryWhereCondition"/>
-        GROUP BY api_scenario_module_id
+    <select id="listModuleByCollection" resultType="io.metersphere.api.dto.automation.ApiScenarioModuleDTO">
+        SELECT
+            m.id,
+            count(*) AS caseNum
+        FROM
+            api_scenario
+        LEFT JOIN api_scenario_module m ON api_scenario.api_scenario_module_id = m.id
+            <include refid="queryWhereCondition"/>
+        GROUP BY
+            m.id
     </select>
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
@@ -421,12 +422,6 @@
         </if>
     </sql>
 
-    <select id="selectByTagId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        select *
-        from api_scenario
-        where tags like CONCAT('%', #{id}, '%')
-    </select>
-
     <select id="selectIds" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
         select api_scenario.*, project_version.name as version_name, project.version_enable
         from api_scenario
@@ -444,13 +439,6 @@
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
-    </select>
-
-    <select id="selectByNoReferenceId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        select *
-        from api_scenario
-        where id not in
-              (SELECT api_scenario_id FROM api_scenario_reference_id)
     </select>
 
     <select id="selectByIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
@@ -530,17 +518,6 @@
             #{v}
         </foreach>
     </update>
-    <update id="updateCustomNumByProjectId">
-        update api_scenario
-        set custom_num = num
-        where (custom_num is null or custom_num = '')
-          and project_id = #{projectId}
-    </update>
-    <update id="setScenarioEnvGroupIdNull">
-        update api_scenario
-        set environment_group_id = null
-        where environment_group_id = #{environmentGroupId}
-    </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">
         SELECT COUNT(DISTINCT ref_id) AS countNumber
@@ -583,14 +560,6 @@
         GROUP BY groupField
     </select>
 
-    <select id="selectIdsNotExistsInPlan" resultType="java.lang.String">
-        select c.id
-        from api_scenario c
-        where c.project_id = #{projectId}
-          and c.id not in (select pc.api_scenario_id
-                           from test_plan_api_scenario pc
-                           where pc.test_plan_id = #{planId})
-    </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiScenario">
         SELECT *
         FROM api_scenario
@@ -604,26 +573,6 @@
         left join project on api_scenario.project_id = project.id
         <include refid="queryWhereCondition"/>
     </select>
-    <select id="selectIdsByProjectId" resultType="java.lang.String">
-        select id
-        from api_scenario
-        WHERE project_id = #{0}
-          AND status != 'Trash'
-    </select>
-
-    <select id="listReview" resultMap="BaseResultMap">
-        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
-        api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
-        api_scenario.status, api_scenario.principal, api_scenario.step_total,
-        api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
-        api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name
-        from api_scenario
-        left join project on api_scenario.project_id = project.id
-        left join user on api_scenario.user_id = user.id
-        <include refid="queryWhereConditionReview"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
-    </select>
 
     <select id="selectTrash" resultType="java.lang.Integer">
         select count(DISTINCT ref_id)
@@ -633,38 +582,6 @@
           and latest IS TRUE
     </select>
 
-    <select id="selectNameById" resultType="java.lang.String">
-        select name
-        from api_scenario
-        WHERE id = #{0}
-    </select>
-
-    <select id="selectIdsByExecuteTimeIsNull" resultType="java.lang.String">
-        select id
-        from api_scenario
-        WHERE execute_times is null
-           OR execute_times = 0
-    </select>
-
-    <select id="selectNameByIdIn" resultType="java.lang.String">
-        select name
-        from api_scenario
-        WHERE id IN
-        <foreach collection="ids" item="v" separator="," open="(" close=")">
-            #{v}
-        </foreach>
-    </select>
-
-    <select id="countExecuteTimesByProjectID" resultType="java.lang.Long">
-        SELECT SUM(execute_times)
-        FROM api_scenario
-        WHERE project_id = #{0}
-          and latest = 1
-    </select>
-    <select id="selectProjectIds" resultType="java.lang.String">
-        select DISTINCT project_id
-        from api_scenario;
-    </select>
     <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
         select id
         from api_scenario
@@ -872,15 +789,6 @@
           AND version_id != #{versionId}
     </update>
 
-    <select id="selectRefIdsForVersionChange" resultType="java.lang.String">
-        SELECT DISTINCT ref_id
-        FROM api_scenario
-        WHERE ref_id NOT IN (SELECT DISTINCT ref_id
-                             FROM api_scenario
-                             WHERE version_id = #{versionId}
-                               AND project_id = #{projectId})
-          AND project_id = #{projectId}
-    </select>
     <select id="listWithRefIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         select id, project_id, version_id, scenario_definition, ref_id from api_scenario where ref_id in (
         select distinct ref_id from api_scenario where id in
@@ -889,11 +797,7 @@
         </foreach>
         )
     </select>
-    <select id="selectByStatusIsNotTrash" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-        SELECT *
-        FROM api_scenario
-        WHERE `status` != 'Trash' AND project_id IN (SELECT id FROM project);
-    </select>
+
     <select id="selectRepeatByBLOBs" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         SELECT * from api_scenario
         where name in

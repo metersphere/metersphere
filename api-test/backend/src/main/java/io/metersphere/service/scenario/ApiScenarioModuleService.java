@@ -72,22 +72,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
         request.setFilters(filters);
+        request.setModuleIds(new ArrayList<>());
+        List<ApiScenarioModuleDTO> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
+        return getNodeTrees(nodes, getCountMap(moduleCountList));
 
-        List<Map<String, Object>> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
-        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        for (ApiScenarioModuleDTO node : nodes) {
-            List<String> moduleIds = new ArrayList<>();
-            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            int countNum = 0;
-            for (String moduleId : moduleIds) {
-                if (moduleCountMap.containsKey(moduleId)) {
-                    countNum += moduleCountMap.get(moduleId).intValue();
-                }
-            }
-            node.setCaseNum(countNum);
-        }
-        return getNodeTrees(nodes);
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId, ApiScenarioRequest request) {
@@ -111,10 +99,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         //回收站数据初始化：被删除了的数据挂在默认模块上
         initTrashDataModule(projectId);
         //通过回收站里的接口模块进行反显
-        if (request.getFilters() != null && request.getFilters().get("status") != null) {
+        if (request.getFilters() != null && request.getFilters().get(ApiTestConstants.STATUS) != null) {
             List<String> statusList = new ArrayList<>();
             statusList.add(ApiTestDataStatus.TRASH.getValue());
-            request.getFilters().put("status", statusList);
+            request.getFilters().put(ApiTestConstants.STATUS, statusList);
             request.setModuleIds(null);
         }
         Map<String, List<ApiScenario>> trashApiMap = apiAutomationService.selectApiBaseInfoGroupByModuleId(projectId,
@@ -164,23 +152,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         if (defaultModule != null) {
             apiAutomationService.updateNoModuleToDefaultModule(projectId, ApiTestDataStatus.TRASH.getValue(), defaultModule.getId());
         }
-    }
-
-    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
-        Map<String, Integer> returnMap = new HashMap<>();
-        for (Map<String, Object> map : moduleCountList) {
-            Object moduleIdObj = map.get("moduleId");
-            Object countNumObj = map.get("countNum");
-            if (moduleIdObj != null && countNumObj != null) {
-                String moduleId = String.valueOf(moduleIdObj);
-                try {
-                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
-                    returnMap.put(moduleId, countNumInteger);
-                } catch (Exception e) {
-                }
-            }
-        }
-        return returnMap;
     }
 
     public static List<String> nodeList(List<ApiScenarioModuleDTO> nodes, String pid, List<String> list) {

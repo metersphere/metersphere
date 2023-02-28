@@ -3,6 +3,7 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.api.dto.ApiCountChartResult;
 import io.metersphere.api.dto.ApiCountRequest;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenario;
@@ -14,17 +15,10 @@ import io.metersphere.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface ExtApiScenarioMapper {
     List<ApiScenarioDTO> list(@Param("request") ApiScenarioRequest request);
-
-    int listModule(@Param("request") ApiScenarioRequest request);
-
-    List<ApiScenarioDTO> listReview(@Param("request") ApiScenarioRequest request);
-
-    List<ApiScenarioWithBLOBs> selectByTagId(@Param("id") String id);
 
     List<ApiScenarioDTO> selectIds(@Param("ids") List<String> ids);
 
@@ -44,35 +38,17 @@ public interface ExtApiScenarioMapper {
 
     List<ApiDataCountResult> countRunResultByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    List<String> selectIdsNotExistsInPlan(String projectId, String planId);
-
     ApiScenario getNextNum(@Param("projectId") String projectId);
 
     List<String> selectIdsByQuery(@Param("request") BaseQueryRequest request);
-
-    List<String> selectIdsByProjectId(String projectId);
-
-    void updateCustomNumByProjectId(@Param("projectId") String projectId);
 
     List<ApiScenarioWithBLOBs> listWithIds(@Param("ids") List<String> ids);
 
     List<ApiScenarioWithBLOBs> listWithRefIds(@Param("ids") List<String> ids);
 
-    List<Map<String, Object>> listModuleByCollection(@Param("request") ApiScenarioRequest request);
-
-    String selectNameById(String id);
-
-    List<String> selectNameByIdIn(@Param("ids") List<String> id);
-
-    List<ApiScenarioWithBLOBs> selectByNoReferenceId();
+    List<ApiScenarioModuleDTO> listModuleByCollection(@Param("request") ApiScenarioRequest request);
 
     void checkOriginalStatusByIds(@Param("ids") List<String> ids);
-
-    List<String> selectIdsByExecuteTimeIsNull();
-
-    long countExecuteTimesByProjectID(String projectId);
-
-    List<String> selectProjectIds();
 
     List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
 
@@ -82,8 +58,6 @@ public interface ExtApiScenarioMapper {
 
     List<RelationshipGraphData.Node> getTestCaseForGraph(@Param("ids") Set<String> ids);
 
-    void setScenarioEnvGroupIdNull(@Param("environmentGroupId") String environmentGroupId);
-
     ApiScenarioDTO selectById(@Param("id") String id);
 
     void clearLatestVersion(String refId);
@@ -91,10 +65,6 @@ public interface ExtApiScenarioMapper {
     void addLatestVersion(String refId);
 
     void updateVersionModule(@Param("refId") String refId, @Param("versionId") String versionId, @Param("moduleId") String moduleId, @Param("modulePath") String modulePath);
-
-    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
-
-    List<ApiScenarioWithBLOBs> selectByStatusIsNotTrash();
 
     List<ApiScenarioWithBLOBs> selectRepeatByBLOBs(@Param("names") List<String> names, @Param("projectId") String projectId);
 

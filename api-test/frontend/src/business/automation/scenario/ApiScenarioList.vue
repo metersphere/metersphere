@@ -761,7 +761,7 @@ export default {
     selectNodeIds() {
       this.currentPage = 1;
       this.$refs.scenarioTable.clear();
-      this.selectProjectId ? this.search(this.selectProjectId) : this.search();
+      this.selectProjectId ? this.nodeChange(this.selectProjectId) : this.nodeChange();
     },
     trashEnable() {
       if (this.trashEnable) {
@@ -831,8 +831,11 @@ export default {
         });
       }
     },
-    search(projectId) {
+    search(projectId){
       this.$EventBus.$emit('scenarioConditionBus', this.condition);
+      this.nodeChange(projectId);
+    },
+    nodeChange(projectId) {
       if (this.needRefreshModule()) {
         this.$emit('refreshTree');
       }
