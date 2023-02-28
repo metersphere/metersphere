@@ -785,7 +785,7 @@ public class ElementUtil {
     }
 
     public static String getDataSourceName(String name) {
-        return StringUtils.join(name, "-", UUID.randomUUID().toString());
+        return StringUtils.isBlank(name) ? "default-pool" : name;
     }
 
     /**
