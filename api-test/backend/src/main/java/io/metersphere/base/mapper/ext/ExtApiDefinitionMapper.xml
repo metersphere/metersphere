@@ -1153,7 +1153,9 @@
         <include refid="Same_Where_Clause"/>
         and status != 'TRASH'
         and project_id = #{projectId}
-        and module_id = #{moduleId}
+        <if test="moduleId != null">
+            and module_id = #{moduleId}
+        </if>
     </select>
     <select id="selectRepeatByProtocol" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition

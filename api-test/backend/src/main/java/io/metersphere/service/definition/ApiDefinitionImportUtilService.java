@@ -285,8 +285,10 @@ public class ApiDefinitionImportUtilService {
         Boolean fullCoverageApi = getFullCoverageApi(request);
         String projectId = request.getProjectId();
         //系统内重复的数据
+        if (StringUtils.isBlank(request.getModuleId())) {
+            request.setModuleId(null);
+        }
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, request.getModuleId());
-
         //这个是名称加请求方式加路径加模块为key的map 就是为了去重
         Map<String, ApiDefinitionWithBLOBs> optionMap = new HashMap<>();
         //这个是系统内重复的数据
