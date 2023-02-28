@@ -82,6 +82,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    isShare: {
+      type: Boolean,
+      default: false,
+    },
     isTemplate: Boolean,
     exportFlag: {
       type: Boolean,
@@ -135,6 +139,9 @@ export default {
       $event.target.blur();
     },
     clickResource() {
+      if (this.isUi && this.isShare) {
+        return;
+      }
       //跳转修改只修改场景报告跳转逻辑。 UI部分的不清楚具体跳转细节，所以维持原来的代码逻辑。
       let workspaceId = getCurrentWorkspaceId();
       this.$get("/project/api/project/get/" + this.scenarioId, res => {
