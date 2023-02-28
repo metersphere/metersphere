@@ -1,39 +1,25 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.definition.ApiComputeResult;
-import io.metersphere.api.dto.definition.ApiDefinitionRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface ExtApiDefinitionMapper {
-    List<ApiSwaggerUrlDTO> selectScheduleList(@Param("projectId") String projectId);
-
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
-
-    List<ApiDefinitionWithBLOBs> apiList(@Param("request") ApiDefinitionRequest request);
 
     List<ApiDefinitionResult> weekList(@Param("request") ApiDefinitionRequest request, @Param("startTimestamp") long startTimestamp);
 
     List<ApiScenario> scenarioList(@Param("apiDefinitionId") String apiDefinitionId);
 
-    int moduleCount(@Param("request") ApiDefinitionRequest request);
-
-    //List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
-
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     List<ApiComputeResult> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
-
-    //    int removeToGc(@Param("ids") List<String> ids);
 
     int removeToGcByExample(ApiDefinitionExampleWithOperation example);
 
@@ -59,13 +45,9 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionResult> listByIds(@Param("ids") List<String> ids);
 
-    List<Map<String, Object>> moduleCountByCollection(@Param("request") ApiDefinitionRequest request);
-
-    ApiDefinition selectUrlAndMethodById(String id);
+    List<ApiModuleDTO> moduleCountByCollection(@Param("request") ApiDefinitionRequest request);
 
     int checkOriginalStatusByIds(@Param("ids") List<String> ids);
-
-    List<String> selectProjectIds();
 
     List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
 
@@ -87,19 +69,13 @@ public interface ExtApiDefinitionMapper {
 
     void updateVersionModule(@Param("refId") String refId, @Param("versionId") String versionId, @Param("moduleId") String moduleId, @Param("modulePath") String modulePath);
 
-    List<String> selectRefIdsForVersionChange(@Param("versionId") String versionId, @Param("projectId") String projectId);
-
     String selectNameById(String testId);
-
-    int toBeUpdateApi(@Param("ids") List<String> ids, @Param("toBeUpdate") Boolean toBeUpdate);
 
     List<ApiDefinitionWithBLOBs> selectRepeatByBLOBs(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId);
 
     List<ApiDefinitionWithBLOBs> selectRepeatByBLOBsSameUrl(@Param("blobs") List<ApiDefinitionWithBLOBs> blobs, @Param("projectId") String projectId, @Param("moduleId") String moduleId);
 
     List<ApiDefinitionWithBLOBs> selectRepeatByProtocol(@Param("names") List<String> names, @Param("protocol") String protocol, @Param("projectId") String projectId);
-
-    int countById(String id);
 
     List<ApiDefinition> selectEffectiveIdByProjectIdAndHaveNotCase(@Param("projectId") String projectId, @Param("versionId") String versionId);
 

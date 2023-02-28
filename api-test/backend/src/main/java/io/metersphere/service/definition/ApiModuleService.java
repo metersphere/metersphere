@@ -22,6 +22,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,17 +34,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -167,41 +158,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (StringUtils.isNotBlank(versionId)) {
             request.setVersionId(versionId);
         }
-
-        List<Map<String, Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
-        Map<String, Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
-        // 获取所有模块数ID
-        for (ApiModuleDTO node : apiModules) {
-            List<String> moduleIds = new ArrayList<>();
-            this.nodeList(apiModules, node.getId(), moduleIds);
-            moduleIds.add(node.getId());
-            int countNum = 0;
-            for (String moduleId : moduleIds) {
-                if (moduleCountMap.containsKey(moduleId)) {
-                    countNum += moduleCountMap.get(moduleId).intValue();
-                }
-            }
-            node.setCaseNum(countNum);
-        }
-        return getNodeTrees(apiModules);
-    }
-
-    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
-        Map<String, Integer> returnMap = new HashMap<>();
-        for (Map<String, Object> map : moduleCountList) {
-            Object moduleIdObj = map.get("moduleId");
-            Object countNumObj = map.get("countNum");
-            if (moduleIdObj != null && countNumObj != null) {
-                String moduleId = String.valueOf(moduleIdObj);
-                try {
-                    Integer countNumInteger = Integer.parseInt(String.valueOf(countNumObj));
-                    returnMap.put(moduleId, countNumInteger);
-                } catch (Exception e) {
-                    LogUtil.error("method parseModuleCountList has error:", e);
-                }
-            }
-        }
-        return returnMap;
+        List<ApiModuleDTO> countMNodes = extApiDefinitionMapper.moduleCountByCollection(request);
+        return getNodeTrees(apiModules, getCountMap(countMNodes));
     }
 
     public static void nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
