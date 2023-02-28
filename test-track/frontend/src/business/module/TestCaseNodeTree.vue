@@ -211,7 +211,8 @@ export default {
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
             }
-            if (this.routeModuleId) {
+            let isCurrentNodeEqualsRouteModule = this.currentNode && this.currentNode.data && this.currentNode.data.id === this.routeModuleId;
+            if (this.routeModuleId && !isCurrentNodeEqualsRouteModule) {
               if (this.$refs.nodeTree) {
                 this.$refs.nodeTree.setCurrentKeyById(this.routeModuleId);
               }
