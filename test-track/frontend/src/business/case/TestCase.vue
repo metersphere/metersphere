@@ -390,7 +390,7 @@ export default {
         });
     },
     updateActiveDom(activeDom) {
-      openMinderConfirm(this, activeDom);
+      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_CASE:READ+EDIT');
     },
     importChangeConfirm(isSave) {
       store.isTestCaseMinderChanged = false;

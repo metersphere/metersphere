@@ -66,6 +66,7 @@ import {
   testCaseNodeEdit,
   testCaseNodePos
 } from "@/api/test-case-node";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseNodeTree",
@@ -349,6 +350,9 @@ export default {
     },
     openMinderConfirm() {
       let isTestCaseMinderChanged = useStore().isTestCaseMinderChanged;
+      if (!hasPermission('PROJECT_TRACK_CASE:READ+EDIT')) {
+        return false;
+      }
       if (isTestCaseMinderChanged) {
         this.$refs.isChangeConfirm.open();
       }

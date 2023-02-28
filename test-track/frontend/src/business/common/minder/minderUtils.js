@@ -5,6 +5,7 @@ import {deleteIssueRelate} from "@/api/issue";
 import {minderPageInfoMap} from "@/api/testCase";
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 import {useStore} from "@/store";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -671,7 +672,11 @@ export function handleMinderIssueDelete(commandName, isPlan) {
 }
 
 
-export function openMinderConfirm(vueObj, activeDom) {
+export function openMinderConfirm(vueObj, activeDom, permission) {
+  if (permission && !hasPermission(permission)) {
+    vueObj.activeDom = activeDom;
+    return;
+  }
   let isTestCaseMinderChanged = useStore().isTestCaseMinderChanged;
   if (vueObj.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
     if (vueObj.planStatus !=='Archived') {
