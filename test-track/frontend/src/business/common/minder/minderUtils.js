@@ -1,6 +1,6 @@
 import i18n from "@/i18n";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {$success, $warning} from "metersphere-frontend/src/plugins/message";
+import {$success, $warning, $info} from "metersphere-frontend/src/plugins/message";
 import {deleteIssueRelate} from "@/api/issue";
 import {minderPageInfoMap} from "@/api/testCase";
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
@@ -569,6 +569,31 @@ export function handlePasteAfter(rootNode) {
       handlePasteAfter(rootNode.children[i]);
     }
   }
+}
+
+export function handlePasteTip(rootNode) {
+  if (hasUnloadedNode(rootNode)) {
+    $info(i18n.t('case.minder_paste_tip'));
+  }
+}
+
+/**
+ * 判断节点下面是否有没有加载过用例的模块节点
+ * @param rootNode
+ * @returns {boolean}
+ */
+export function hasUnloadedNode(rootNode) {
+  if (isModuleNode(rootNode) && !rootNode.data.loaded) {
+    return true;
+  }
+  if (rootNode.children) {
+    for (let i = 0; i < rootNode.children.length; i++) {
+      if (hasUnloadedNode(rootNode.children[i])) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export function getChildNodeId(rootNode, nodeIds) {
