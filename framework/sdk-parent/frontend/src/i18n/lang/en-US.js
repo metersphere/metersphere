@@ -484,6 +484,7 @@ const message = {
     original_state: 'Original State',
     custom_num: 'CustomNum',
     version: 'Version',
+    version_data: 'Version data',
     is_new: "Is new",
     form_config: "Form config",
     form_content: "Form content",

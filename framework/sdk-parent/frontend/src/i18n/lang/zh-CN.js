@@ -486,6 +486,7 @@ const message = {
     original_state: '原始状态',
     custom_num: '自定义编号',
     version: '版本',
+    version_data: '版本的数据',
     is_new: "是否新建",
     form_config: "表单配置",
     form_content: "表单内容",

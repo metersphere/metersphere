@@ -1072,6 +1072,17 @@
         </where>
     </select>
 
+    <select id="unTrashCaseListByApiIds" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+        SELECT * FROM api_test_case
+        <where>
+            (api_test_case.status IS NULL OR api_test_case.status != 'Trash')
+            AND api_definition_id IN
+            <foreach collection="ids" item="v" separator="," open="(" close=")">
+                #{v}
+            </foreach>
+        </where>
+    </select>
+
     <select id="relevanceApiList" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         SELECT
         atc.id,
