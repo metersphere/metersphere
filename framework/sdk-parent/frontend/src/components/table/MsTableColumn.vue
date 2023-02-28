@@ -11,6 +11,7 @@
                    :sortable="sortable"
                    :filter-method="filterMethod"
                    :filtered-value="filteredValue	"
+                   :render-header="renderHeader"
                    :show-overflow-tooltip="showOverflowTooltip">
 
     <template v-slot:default="scope">
@@ -89,6 +90,26 @@ export default {
   },
   mounted() {
     this.active = true;
+  },
+  methods: {
+    renderHeader(h, data) {
+      if (data.column.label.length > 7) {
+        return h("span", [
+          h("el-tooltip", {
+            attrs: {
+              class: "item",
+              effect: "dark",
+              content: data.column.label,
+              placement: "top"
+            }
+          }, [
+            h("span", data.column.label)
+          ])
+        ])
+      } else {
+        return h("span", data.column.label);
+      }
+    }
   }
 };
 </script>
