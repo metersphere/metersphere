@@ -936,7 +936,7 @@ export default {
           }
           this.$success(this.$t("commons.save_success"));
         });
-      }).catch(() => {
+      }, () => {
         row.scheduleOpen = !row.scheduleOpen;
       });
     },
