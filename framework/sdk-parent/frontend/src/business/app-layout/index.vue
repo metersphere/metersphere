@@ -143,6 +143,7 @@ export default {
 
           let title = response.data[4].paramValue;
           if (title) {
+            localStorage.setItem("default-document-title", title);
             document.title = title;
           }
           if (response.data[0].paramValue) {
