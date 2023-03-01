@@ -323,6 +323,8 @@ export default {
       this.currentModule = node.data;
       this.currentNode = node;
 
+      this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
+
       // 刷新模块树
       this.nohupReloadTree(node.data.id);
     },
