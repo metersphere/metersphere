@@ -6,7 +6,8 @@ public enum TestReviewCaseStatus {
     UnPass("execute_not_pass", 2),
     Underway("test_case_review_status_underway", 3),
     Again("test_case_status_again", 4),
-    Prepare("test_case_status_prepare", 5);
+    Prepare("test_case_status_prepare", 5),
+    Rereview("test_case_review_status_re_review", 6);
 
     private String i18nKey;
     private Integer order;

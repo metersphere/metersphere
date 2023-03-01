@@ -548,11 +548,13 @@ public class TestCaseReviewService {
         TestCaseReview testCaseReview = new TestCaseReview();
         testCaseReview.setId(reviewId);
 
-        if (statusList.contains(TestReviewCaseStatus.Prepare.name()) || statusList.contains(TestReviewCaseStatus.Again.name())) {
+        if (statusList.contains(TestReviewCaseStatus.Prepare.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ||
+                statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Rereview.name())) {
             testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
             testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
             return;
-        } else if (statusList.contains(TestReviewCaseStatus.UnPass.name())) {
+        }
+        if (statusList.contains(TestReviewCaseStatus.UnPass.name())) {
             testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
             testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
             return;

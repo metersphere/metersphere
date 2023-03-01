@@ -5,9 +5,6 @@
       <!-- 创建 or 编辑用例 -->
       <div class="edit-header-container">
         <div class="header-content-row">
-          <div class="back" @click="back" v-if="!isPublicShow">
-            <img src="/assets/module/figma/icon_arrow-left_outlined.svg" alt="" />
-          </div>
           <div :class="'case-name'">
             {{ !editable ? form.name : $t('test_track.case.create_case') }}
           </div>
