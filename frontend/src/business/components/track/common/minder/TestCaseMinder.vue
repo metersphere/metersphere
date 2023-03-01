@@ -325,7 +325,7 @@ name: "TestCaseMinder",
 
         if (data.type !== 'tmp' && data.changed) {
           if (isModuleNodeData(data)) {
-            if (data.contextChanged) {
+            if (data.contextChanged && data.id !== 'root') {
               this.buildSaveModules(root, data, parent);
               root.children && root.children.forEach(i => {
                 if (isModuleNode(i)) {
