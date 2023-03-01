@@ -133,7 +133,7 @@ public class MetricQueryService {
                         LogUtil.error(e.getMessage(), e);
                         LogUtil.error(e);
                     }
-                    values.add((double) ja.get(1));
+                    values.add(Double.valueOf(ja.get(1).toString()));
                 });
 
                 if (CollectionUtils.isNotEmpty(values)) {
