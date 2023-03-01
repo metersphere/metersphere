@@ -549,6 +549,10 @@ export default {
   watch: {
     '$route'(to) {
       if (to.path.indexOf("/track/case/all") >= 0) {
+        if (to.query.moduleId) {
+          // 点击模块导致路由变更不刷新，避免刷新两次
+          return;
+        }
         this.getTemplateField();
         let ids = this.$route.params.ids;
         if (ids) {
