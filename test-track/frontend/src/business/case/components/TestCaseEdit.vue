@@ -969,6 +969,7 @@ export default {
         this.operationType = 'add';
 
         // add
+        document.title = this.$t('test_track.case.create_case');
         if (this.moduleOptions.length > 0) {
           this.form.module = this.moduleOptions[0].id;
         }
@@ -1065,6 +1066,7 @@ export default {
           this.form.id = null;
           testCase.casePublic = false;
         }
+        document.title = testCase.name;
         this.currentTestCaseInfo = testCase;
         this.setFormData(testCase);
         this.setTestCaseExtInfo(testCase);
