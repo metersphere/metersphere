@@ -19,7 +19,6 @@ const message = {
       case_type: "用例类型",
       test_plan: "所属测试计划",
       failure_times: "失败次数",
-      minder_paste_tip: "粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！"
     },
     rate: {
       case_review: "评审率",
@@ -151,6 +150,7 @@ const message = {
     cancel_relate_case_tips_content: "取消关联会影响测试计划相关统计, 确定取消吗?",
     back_tips: "你填写的信息未保存, 确定退出吗?",
     dependency_remove_confirm: "确定解除依赖吗?",
+    minder_paste_tip: "粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！",
     public: {
       remove: '是否移除用例',
       batch_remove_confirm: "确定移除{0}项用例?",
