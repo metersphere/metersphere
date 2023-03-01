@@ -1604,6 +1604,8 @@ public class IssuesService {
         request.setWorkspaceId(exportRequest.getWorkspaceId());
         request.setSelectAll(exportRequest.getIsSelectAll());
         request.setExportIds(exportRequest.getExportIds());
+        // 高级搜索条件
+        request.setCombine(exportRequest.getCombine());
         // 列表排序
         request.setOrders(exportRequest.getOrders());
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));

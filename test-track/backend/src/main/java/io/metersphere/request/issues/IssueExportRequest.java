@@ -22,6 +22,11 @@ public class IssueExportRequest {
     private List<OrderRequest> orders;
     private Map<String, List<IssueExportHeader>> exportFields;
 
+    /**
+     * 高级搜索
+     */
+    private Map<String, Object> combine;
+
     @Getter
     @Setter
     public static class IssueExportHeader {
