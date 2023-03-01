@@ -66,6 +66,7 @@ import {
   testCaseNodeEdit,
   testCaseNodePos
 } from "@/api/test-case-node";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseNodeTree",
@@ -322,8 +323,9 @@ export default {
       this.currentNode = node;
 
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
-      // 只在TAB页切换时才刷新树
-      // this.nohupReloadTree(node.data.id);
+
+      // 刷新模块树
+      this.nohupReloadTree(node.data.id);
     },
     nohupReloadTree(selectNodeId) {
       if (this.projectId) {
@@ -348,6 +350,9 @@ export default {
     },
     openMinderConfirm() {
       let isTestCaseMinderChanged = useStore().isTestCaseMinderChanged;
+      if (!hasPermission('PROJECT_TRACK_CASE:READ+EDIT')) {
+        return false;
+      }
       if (isTestCaseMinderChanged) {
         this.$refs.isChangeConfirm.open();
       }
