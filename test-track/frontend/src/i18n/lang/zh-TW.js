@@ -19,7 +19,6 @@ const message = {
       case_type: "用例類型",
       test_plan: "所屬測試計劃",
       failure_times: "失敗次數",
-      minder_paste_tip: "粘貼的節點中有未加載用例的模塊，目前不支持復製未加載的用例！"
     },
     rate: {
       case_review: "評審率",
@@ -151,6 +150,7 @@ const message = {
     cancel_relate_case_tips_content: "取消關聯會影響測試計劃相關統計, 確定取消嗎?",
     back_tips: "你填寫的信息未保存, 確定退出嗎?",
     dependency_remove_confirm: "確定解除依賴嗎?",
+    minder_paste_tip: "粘貼的節點中有未加載用例的模塊，目前不支持復製未加載的用例！",
     public: {
       remove: '是否移除用例',
       batch_remove_confirm: "確定移除{0}項用例?",

@@ -19,7 +19,6 @@ const message = {
       case_type: "Case Type",
       test_plan: "Test Plan",
       failure_times: "Failure times",
-      minder_paste_tip: "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!"
     },
     rate: {
       case_review: "Review rate",
@@ -151,6 +150,7 @@ const message = {
     cancel_relate_case_tips_content: "Cancel it will affect the test plan statistics. Sure?",
     back_tips: "TestCase is not saved, Are you sure to quit?",
     dependency_remove_confirm: "Is dependency release confirmed?",
+    minder_paste_tip: "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!",
     public: {
       remove: 'Whether to remove the use case ',
       batch_remove_confirm: "Confirm remove {0} item use case?",
