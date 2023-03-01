@@ -80,6 +80,8 @@ const message = {
     un_pass_review_confirm: "Are you sure you don't pass this review",
     please_input_review_comment: "Please enter the review comments",
     pass_review_confirm: "Are you sure to pass this review",
+    comment_require: "(require)",
+    comment_not_require: "(not_require)"
   },
   case: {
     all_case_content: "All case",
