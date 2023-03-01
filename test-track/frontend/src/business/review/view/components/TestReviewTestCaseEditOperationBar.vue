@@ -177,19 +177,19 @@ export default {
     uhPassCommentOpen() {
       this.isCommentRequire = true;
       this.commentTitle = this.$t('review.un_pass_review_confirm');
-      this.commentTip = this.$t('review.please_input_review_comment');
+      this.commentTip = this.$t('review.please_input_review_comment') + this.$t('review.comment_require');
       this.addCommentOpen('UnPass');
     },
     passCommentOpen() {
       this.isCommentRequire = false;
       this.commentTitle = this.$t('review.pass_review_confirm');
-      this.commentTip = this.$t('review.please_input_review_comment');
+      this.commentTip = this.$t('review.please_input_review_comment') + this.$t('review.comment_not_require');
       this.addCommentOpen('Pass');
     },
     commentOpen() {
       this.isCommentRequire = true;
       this.commentTitle = this.$t('case.comment');
-      this.commentTip = this.$t('commons.input_content');
+      this.commentTip = this.$t('commons.input_content') + this.$t('review.comment_not_require');
       this.addCommentOpen();
     },
   }
