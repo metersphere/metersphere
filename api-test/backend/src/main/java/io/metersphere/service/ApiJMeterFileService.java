@@ -66,6 +66,8 @@ public class ApiJMeterFileService {
     @Lazy
     @Resource
     private TemporaryFileUtil temporaryFileUtil;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     // 接口测试 用例/接口
     private static final List<String> CASE_MODES = new ArrayList<>() {{
@@ -76,18 +78,14 @@ public class ApiJMeterFileService {
         this.add(ApiRunMode.MANUAL_PLAN.name());
 
     }};
+    private static final List<String> PLAN_SCENARIO = List.of(
+            ApiRunMode.SCENARIO_PLAN.name(),
+            ApiRunMode.JENKINS_SCENARIO_PLAN.name(),
+            ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
 
-    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
-        Map<String, String> planEnvMap = new HashMap<>();
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode);
-        runRequest.setReportType(reportType);
-        runRequest.setQueueId(queueId);
-        BooleanPool booleanPool = new BooleanPool();
-        booleanPool.setK8s(true);
-        runRequest.setPool(booleanPool);
-
+    private ApiScenarioWithBLOBs getScenario(String runMode, String remoteTestId, Map<String, String> planEnvMap, Map<String, String> envMap) {
         ApiScenarioWithBLOBs scenario = null;
-        if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+        if (PLAN_SCENARIO.contains(runMode)) {
             // 获取场景用例单独的执行环境
             TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(remoteTestId);
             if (planApiScenario != null) {
@@ -95,63 +93,80 @@ public class ApiJMeterFileService {
                 String environmentGroupId = planApiScenario.getEnvironmentGroupId();
                 String environment = planApiScenario.getEnvironment();
                 if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(environment)) {
-                    planEnvMap = JSON.parseObject(environment, Map.class);
+                    planEnvMap.putAll(JSON.parseObject(environment, Map.class));
                 } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(environmentGroupId)) {
-                    planEnvMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+                    planEnvMap.putAll(environmentGroupProjectService.getEnvMap(environmentGroupId));
                 }
                 scenario = apiScenarioMapper.selectByPrimaryKey(planApiScenario.getApiScenarioId());
             }
         }
+        if (scenario == null) {
+            scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
+        }
+        if (MapUtils.isNotEmpty(envMap)) {
+            planEnvMap.putAll(envMap);
+        } else if (scenario != null && !PLAN_SCENARIO.contains(runMode)) {
+            String envType = scenario.getEnvironmentType();
+            String envJson = scenario.getEnvironmentJson();
+            String envGroupId = scenario.getEnvironmentGroupId();
+            if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+                planEnvMap.putAll(JSON.parseObject(envJson, Map.class));
+            } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+                planEnvMap.putAll(environmentGroupProjectService.getEnvMap(envGroupId));
+            }
+        }
+        return scenario;
+    }
 
-        ApiExecutionQueueDetail detail = executionQueueDetailMapper.selectByPrimaryKey(queueId);
-        if (detail == null) {
-            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-            example.createCriteria().andReportIdEqualTo(reportId);
-            List<ApiExecutionQueueDetail> list = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
-            if (CollectionUtils.isNotEmpty(list)) {
-                detail = list.get(0);
-            }
-        }
-        if (detail != null) {
-            runRequest.setRetryEnable(detail.getRetryEnable());
-            runRequest.setRetryNum(detail.getRetryNumber());
-        }
-        Map<String, String> envMap = new LinkedHashMap<>();
-        if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
-            envMap = JSON.parseObject(detail.getEvnMap(), Map.class);
-        }
-        if (MapUtils.isEmpty(envMap)) {
-            LoggerUtil.info("测试资源：【" + remoteTestId + "】, 报告【" + reportId + "】未重新选择环境");
-        }
-        HashTree hashTree = null;
-        if (CASE_MODES.contains(runMode)) {
-            hashTree = apiCaseSerialService.generateHashTree(remoteTestId, envMap, runRequest);
-        } else {
-            if (scenario == null) {
-                scenario = apiScenarioMapper.selectByPrimaryKey(remoteTestId);
-            }
-            if (scenario == null) {
-                // 清除队列
-                executionQueueDetailMapper.deleteByPrimaryKey(queueId);
-            }
-            if (MapUtils.isNotEmpty(envMap)) {
-                planEnvMap = envMap;
-            } else if (!StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
-                String envType = scenario.getEnvironmentType();
-                String envJson = scenario.getEnvironmentJson();
-                String envGroupId = scenario.getEnvironmentGroupId();
-                if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
-                    planEnvMap = JSON.parseObject(envJson, Map.class);
-                } else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
-                    planEnvMap = environmentGroupProjectService.getEnvMap(envGroupId);
+    public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode);
+        runRequest.setReportType(reportType);
+        runRequest.setQueueId(queueId);
+        BooleanPool booleanPool = new BooleanPool();
+        booleanPool.setK8s(true);
+        runRequest.setPool(booleanPool);
+        try {
+            ApiExecutionQueueDetail detail = executionQueueDetailMapper.selectByPrimaryKey(queueId);
+            if (detail == null) {
+                ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+                example.createCriteria().andReportIdEqualTo(reportId);
+                List<ApiExecutionQueueDetail> list = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+                if (CollectionUtils.isNotEmpty(list)) {
+                    detail = list.get(0);
                 }
             }
-            hashTree = GenerateHashTreeUtil.generateHashTree(scenario, planEnvMap, runRequest);
+            if (detail != null) {
+                runRequest.setRetryEnable(detail.getRetryEnable());
+                runRequest.setRetryNum(detail.getRetryNumber());
+            }
+            Map<String, String> processEnvMap = new LinkedHashMap<>();
+            if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
+                processEnvMap = JSONUtil.parseObject(detail.getEvnMap(), Map.class);
+            }
+
+            HashTree hashTree = null;
+            if (CASE_MODES.contains(runMode)) {
+                hashTree = apiCaseSerialService.generateHashTree(remoteTestId, processEnvMap, runRequest);
+            } else {
+                Map<String, String> execEnvMap = new HashMap<>();
+                ApiScenarioWithBLOBs scenario = this.getScenario(runMode, remoteTestId, execEnvMap, processEnvMap);
+                if (scenario != null) {
+                    hashTree = GenerateHashTreeUtil.generateHashTree(scenario, execEnvMap, runRequest);
+                }
+            }
+
+            if (MapUtils.isEmpty(processEnvMap)) {
+                LoggerUtil.info("测试资源：【" + remoteTestId + "】, 报告【" + reportId + "】未重新选择环境");
+            }
+            if (hashTree != null) {
+                ElementUtil.coverArguments(hashTree);
+                return zipFilesToByteArray((reportId + "_" + remoteTestId), reportId, hashTree);
+            }
+        } catch (Exception e) {
+            remakeReportService.testEnded(runRequest, "生成执行脚本异常:" + e.getMessage());
         }
-        if (hashTree != null) {
-            ElementUtil.coverArguments(hashTree);
-        }
-        return zipFilesToByteArray((reportId + "_" + remoteTestId), reportId, hashTree);
+        remakeReportService.testEnded(runRequest, "未找到测试资源【" + remoteTestId + "】,资源类型：" + runMode);
+        return new byte[0];
     }
 
     public byte[] downloadJmeterJar(Map<String, List<ProjectJarConfig>> map) {
