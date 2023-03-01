@@ -545,7 +545,8 @@ export default {
         "isSelectAll": this.page.condition.selectAll,
         "exportIds": this.$refs.table.selectIds,
         "exportFields": data,
-        "orders": getLastTableSortField(this.tableHeaderKey)
+        "orders": getLastTableSortField(this.tableHeaderKey),
+        "combine": this.page.condition.combine
       }
       this.$fileDownloadPost("/issues/export", param);
     },
