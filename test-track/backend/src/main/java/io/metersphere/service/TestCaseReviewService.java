@@ -264,7 +264,12 @@ public class TestCaseReviewService {
             List<TestCaseReviewUsers> reviewUsers = reviewUserMap.get(item.getId());
             if (CollectionUtils.isNotEmpty(reviewUsers)) {
                 item.setReviewers(new ArrayList<>());
-                reviewUsers.forEach(reviewUser -> item.getReviewers().add(userMap.get(reviewUser.getUserId())));
+                reviewUsers.forEach(reviewUser -> {
+                    User user = userMap.get(reviewUser.getUserId());
+                    if (user != null) {
+                        item.getReviewers().add(user);
+                    }
+                });
             }
         });
     }
