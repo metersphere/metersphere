@@ -2,6 +2,7 @@ package io.metersphere.xmind.parser;
 
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.utils.XmlUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -33,9 +34,12 @@ public class XmindLegacy {
         // 删除content.xml里面不能识别的字符串
         xmlContent = xmlContent.replace("xmlns=\"urn:xmind:xmap:xmlns:content:2.0\"", StringUtils.EMPTY);
         xmlContent = xmlContent.replace("xmlns:fo=\"http://www.w3.org/1999/XSL/Format\"", StringUtils.EMPTY);
-
         try {
             xmlContent = removeTopicsFromString(xmlContent);
+            // 反转义 xml 中的 < > 字符
+            xmlContent = StringEscapeUtils.unescapeXml(xmlContent);
+            xmlContent = xmlContent.replace("&gt;", ">");
+            xmlContent = xmlContent.replace("&lt;", "<");
         } catch (Exception e) {
             LogUtil.error("移除xml中的Topic出错：", e);
         }
