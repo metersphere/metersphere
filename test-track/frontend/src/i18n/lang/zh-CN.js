@@ -80,6 +80,8 @@ const message = {
     un_pass_review_confirm: "确定不通过此评审吗",
     please_input_review_comment: "请输入评审意见",
     pass_review_confirm: "确定通过此评审吗",
+    comment_require: "(必填)",
+    comment_not_require: "(选填)"
   },
   case: {
     all_case_content: "全部用例",
