@@ -420,6 +420,16 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         if (body.getType().equals(Body.JSON_STR)) {
             body.setJsonSchema(parseSchema2JsonSchema(bodyParameter.getSchema()));
             body.setFormat("JSON-SCHEMA");
+        } else if (body.getType().equals(Body.WWW_FROM) || body.getType().equals(Body.FORM_DATA)) {
+            String parameterStr = parseSchema(bodyParameter.getSchema());
+            JSONObject jsonObject = JSONUtil.parseObject(parameterStr);
+            Set<String> strings = jsonObject.keySet();
+            List<KeyValue> kvs = new ArrayList<>();
+            for (String key : strings) {
+                KeyValue keyValue = new KeyValue(key, jsonObject.get(key).toString());
+                kvs.add(keyValue);
+            }
+            body.setKvs(kvs);
         } else {
             body.setRaw(parseSchema(bodyParameter.getSchema()));
         }
