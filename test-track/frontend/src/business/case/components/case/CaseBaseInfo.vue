@@ -173,8 +173,8 @@
               content: isCustomNum ? form.customNum : form.num,
               contentType: 'INPUT',
             }"
-            :readonlyHoverEvent="isCustomNum"
-            :content-click-event="isCustomNum"
+            :readonlyHoverEvent="isCustomNum && !readOnly"
+            :content-click-event="isCustomNum && !readOnly"
             :model="form"
             :rules="rules"
           >
