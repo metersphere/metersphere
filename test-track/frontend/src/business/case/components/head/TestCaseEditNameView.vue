@@ -92,7 +92,7 @@ export default {
 }
 
 .case-name {
-  height: px2rem(24);
+  height: auto;
   font-size: 16px;
   font-family: "PingFang SC";
   font-style: normal;
