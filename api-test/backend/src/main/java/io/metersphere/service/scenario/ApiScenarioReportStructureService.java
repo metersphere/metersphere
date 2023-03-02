@@ -262,16 +262,18 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResultWithBLOBs>> maps, String reportType) {
+    public void reportFormatting(List<StepTreeDTO> dtoList, Map<String, List<ApiScenarioReportResultWithBLOBs>> maps) {
         // 按照创建时间排序
         for (int index = 0; index < dtoList.size(); index++) {
             StepTreeDTO dto = dtoList.get(index);
             dto.setIndex((index + 1));
             List<ApiScenarioReportResultWithBLOBs> reportResults = maps.get(dto.getResourceId());
+            List<StepTreeDTO> children = new LinkedList<>();
             if (CollectionUtils.isNotEmpty(reportResults)) {
                 for (int i = 0; i < reportResults.size(); i++) {
                     ApiScenarioReportResultWithBLOBs reportResult = reportResults.get(i);
-                    StepTreeDTO step = i == 0 ? dto : new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
+                    StepTreeDTO step = i == 0 && reportResults.size() == 1 ? dto
+                            : new StepTreeDTO(dto.getLabel(), UUID.randomUUID().toString(), dto.getType(), reportResults.get(i).getId(), (i + 1));
                     step.setStepId(reportResults.get(i).getId());
                     RequestResult result = new RequestResultExpandDTO(reportResult);
                     if (reportResult.getContent() != null) {
@@ -282,9 +284,14 @@ public class ApiScenarioReportStructureService {
                     step.setValue(result);
                     step.setTotalStatus(reportResult.getStatus());
                     step.setErrorCode(reportResults.get(i).getErrorCode());
-                    if (i > 0) {
-                        dtoList.add(step);
+                    if (reportResults.size() > 1) {
+                        children.add(step);
                     }
+                }
+                // 虚拟一层步骤
+                if (CollectionUtils.isNotEmpty(children)) {
+                    dto.setType(ElementConstants.VIRTUAL_STEPS);
+                    dto.setChildren(children);
                 }
             }
             // 未执行请求
@@ -295,8 +302,8 @@ public class ApiScenarioReportStructureService {
                 // 条件控制步骤
                 dto.setTotalStatus(ApiReportStatus.SUCCESS.name());
                 dto.setValue(new RequestResultExpandDTO(dto.getLabel(), ApiReportStatus.SUCCESS.name()));
-            } else if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty(((RequestResultExpandDTO) dto.getValue()).getStatus())) {
-                dto.setTotalStatus(((RequestResultExpandDTO) dto.getValue()).getStatus());
+            } else if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty((dto.getValue()).getStatus())) {
+                dto.setTotalStatus((dto.getValue()).getStatus());
             } else if (dto.getValue() != null && StringUtils.isEmpty(dto.getTotalStatus())) {
                 if (dto.getValue().getError() > 0 || BooleanUtils.isNotTrue(dto.getValue().isSuccess())) {
                     dto.setTotalStatus(ApiReportStatus.ERROR.name());
@@ -309,7 +316,7 @@ public class ApiScenarioReportStructureService {
             }
 
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
-                reportFormatting(dto.getChildren(), maps, reportType);
+                reportFormatting(dto.getChildren(), maps);
 
                 if (StringUtils.isEmpty(dto.getErrorCode())) {
                     //统计child的errorCode，合并到parent中
@@ -368,9 +375,7 @@ public class ApiScenarioReportStructureService {
                 dto.setTotalStatus(ApiReportStatus.ERROR.name());
             }
         }
-        if (!reportType.startsWith("UI")) {
-            this.orderLoops(dtoList);
-        }
+        this.orderLoops(dtoList);
     }
 
     /**
@@ -530,7 +535,7 @@ public class ApiScenarioReportStructureService {
 
     private ApiScenarioReportDTO getReport(String reportId, boolean selectContent) {
         ApiScenarioReport mainReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-        List<ApiScenarioReportResultWithBLOBs> reportResults = null;
+        List<ApiScenarioReportResultWithBLOBs> reportResults;
         if (selectContent) {
             ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
             example.createCriteria().andReportIdEqualTo(reportId);
@@ -551,8 +556,6 @@ public class ApiScenarioReportStructureService {
                 reportResults = reportResultMapper.selectByExampleWithBLOBs(example);
             }
         }
-
-        removeUiResultIfNotStep(reportResults, reportId);
 
         ApiScenarioReportStructureExample structureExample = new ApiScenarioReportStructureExample();
         structureExample.createCriteria().andReportIdEqualTo(reportId);
@@ -579,7 +582,7 @@ public class ApiScenarioReportStructureService {
 
             // 匹配结果
             Map<String, List<ApiScenarioReportResultWithBLOBs>> maps = reportResults.stream().collect(Collectors.groupingBy(ApiScenarioReportResult::getResourceId));
-            this.reportFormatting(stepList, maps, mainReport.getReportType());
+            this.reportFormatting(stepList, maps);
 
             reportDTO = this.countReportNum(stepList, reportDTO);
             // 统计场景数据
@@ -628,30 +631,6 @@ public class ApiScenarioReportStructureService {
 
     private List<ApiScenarioReportResultWithBLOBs> selectBaseInfoResultByReportId(String reportId) {
         return extApiScenarioReportResultMapper.selectBaseInfoResultByReportId(reportId);
-    }
-
-    /**
-     * UI 测试结果统计去掉前后置或其他不算步骤的执行结果
-     *
-     * @param reportResults
-     */
-    private void removeUiResultIfNotStep(List<ApiScenarioReportResultWithBLOBs> reportResults, String reportId) {
-        ApiScenarioReport report = scenarioReportMapper.selectByPrimaryKey(reportId);
-        if (report.getReportType() != null && report.getReportType().startsWith("UI")) {
-            if (CollectionUtils.isNotEmpty(reportResults)) {
-                Iterator<ApiScenarioReportResultWithBLOBs> iterator = reportResults.iterator();
-                while (iterator.hasNext()) {
-                    ApiScenarioReportResultWithBLOBs item = iterator.next();
-                    String baseInfo = item.getBaseInfo();
-                    if (StringUtils.isNotBlank(baseInfo)) {
-                        Boolean isNoStep = JSONUtil.parseObject(baseInfo).getBoolean("isNotStep");
-                        if (BooleanUtils.isTrue(isNoStep)) {
-                            iterator.remove();
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private void countAllUnexpected(List<StepTreeDTO> stepList, AtomicLong allUnExecute) {

@@ -60,4 +60,6 @@ public class ElementConstants {
     public static final String COVER = "COVER";
     public static final String MS_KEYSTORE_FILE_PATH = "MS-KEYSTORE-FILE-PATH";
     public static final String MS_KEYSTORE_FILE_PASSWORD = "MS-KEYSTORE-FILE-PASSWORD";
+    public static final String VIRTUAL_STEPS = "VIRTUAL_STEPS";
+
 }
