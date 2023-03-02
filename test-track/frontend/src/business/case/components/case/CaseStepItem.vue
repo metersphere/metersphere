@@ -32,7 +32,6 @@
             :rows="defaultRows"
             :placeholder="$t('commons.input_content')"
             @input="resizeTextarea(scope)"
-            @blur="onInputBlur"
           />
         </template>
       </el-table-column>
@@ -52,7 +51,6 @@
             :disabled="readOnly"
             :placeholder="$t('commons.input_content')"
             @input="resizeTextarea(scope)"
-            @blur="onInputBlur"
           />
         </template>
       </el-table-column>
@@ -222,13 +220,6 @@ export default {
         }
       });
       this.form.steps.splice(index + 1, 0, step);
-      if (data.desc && data.result) {
-        clearTimeout(this.TIMER);
-        this.TIMER = setTimeout(() => {
-          this.$emit("saveCase");
-          this.saveCase();
-        }, 500);
-      }
     },
     handleDeleteStep(index, data) {
       if (this.readOnly) {
@@ -243,11 +234,6 @@ export default {
           step.num--;
         }
       });
-      clearTimeout(this.TIMER);
-      this.TIMER = setTimeout(() => {
-        this.$emit("saveCase");
-        this.saveCase();
-      }, 500);
     },
     // 同一行文本框高度保持一致
     resizeTextarea(scope) {

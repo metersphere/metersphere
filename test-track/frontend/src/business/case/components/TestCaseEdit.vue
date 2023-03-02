@@ -6,7 +6,7 @@
       <div class="edit-header-container">
         <div class="header-content-row">
           <div :class="'case-name'">
-            {{ !editable ? form.name : $t('test_track.case.create_case') }}
+            {{ !editable ? form.name : editableState ? $t('test_track.case.edit_case') : $t('test_track.case.create_case') }}
           </div>
           <div class="case-edit" v-if="!editable">
             <div class="case-level" v-if="!isPublicShow">
@@ -95,24 +95,13 @@
             <div class="label-row">{{ $t("case.followed") }}</div>
           </div>
           <div
-            class="add-public-row head-opt"
-            v-if="!isPublicShow && !casePublic"
-            @click="addPublic"
+            class="follow-row head-opt" v-if="!isPublicShow"
+            @click="toEdit"
           >
             <div class="icon-row">
-              <img src="/assets/module/figma/icon_add-folder_outlined.svg" alt="" />
+              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
             </div>
-            <div class="label-row">{{ $t("case.add_to_public_case") }}</div>
-          </div>
-          <div
-            class="add-public-row head-opt"
-            v-if="!isPublicShow && casePublic"
-            @click="removePublic"
-          >
-            <div class="icon-row">
-              <img src="/assets/module/figma/icon_yes_outlined.svg" alt="" />
-            </div>
-            <div class="label-row">{{ $t("case.added_to_public_case") }}</div>
+            <div class="label-row">{{ $t("commons.edit") }}</div>
           </div>
           <div class="more-row head-opt" v-if="!isPublicShow">
             <div class="icon-row">
@@ -126,6 +115,27 @@
                 :visible-arrow="false"
               >
                 <div class="opt-row">
+                  <div
+                    class="add-public-row sub-opt-row"
+                    v-if="!casePublic"
+                    @click="addPublic"
+                  >
+                    <div class="icon">
+                      <img src="/assets/module/figma/icon_add-folder_outlined.svg" alt="" />
+                    </div>
+                    <div class="title">{{ $t("case.add_to_public_case") }}</div>
+                  </div>
+                  <div
+                    class="add-public-row sub-opt-row"
+                    v-if="!isPublicShow && casePublic"
+                    @click="removePublic"
+                  >
+                    <div class="icon">
+                      <img src="/assets/module/figma/icon_yes_outlined.svg" alt="" />
+                    </div>
+                    <div class="title">{{ $t("case.added_to_public_case") }}</div>
+                  </div>
+                  <div class="split"></div>
                   <div class="copy-row sub-opt-row" @click="copyRow">
                     <div class="icon">
                       <i class="el-icon-copy-document"></i>
@@ -191,6 +201,7 @@
       <div v-loading="loading" class="edit-content-container" :class="{'editable-edit-content-container' : editable}">
         <case-edit-info-component
           :editable="editable"
+          :editable-state="editableState"
           :richTextDefaultOpen="richTextDefaultOpen"
           :formLabelWidth="formLabelWidth"
           :read-only="readOnly"
@@ -219,7 +230,7 @@
               :form="form"
               :is-form-alive="isFormAlive"
               :isloading="loading"
-              :read-only="readOnly"
+              :read-only="readOnly || !editable"
               :public-enable="isPublicShow"
               :show-input-tag="showInputTag"
               :tree-nodes="treeNodes"
@@ -253,7 +264,7 @@
           <!-- 保存并新建 -->
           <div class="save-create-row">
             <el-button
-              v-if="showAddBtn"
+              v-if="showAddBtn && !editableState"
               v-prevent-re-click
               size="small"
               :disabled="readOnly || loading"
@@ -263,13 +274,23 @@
           </div>
           <!-- 保存并添加到公共用例库 -->
           <div
-            v-if="showPublic"
+            v-if="showPublic && !editableState"
             class="save-add-pub-row">
             <el-button size="small"
                        v-prevent-re-click
                        :disabled="readOnly || loading"
                        @click="handleCommand(3)">
               {{ $t("test_track.case.save_add_public") }}
+            </el-button>
+          </div>
+          <!-- 取消 -->
+          <div class="cancel-row">
+            <el-button
+              v-if="editableState"
+              size="small"
+              :disabled="readOnly || loading"
+              @click="handleCommand(4)">
+              {{ $t("commons.cancel") }}
             </el-button>
           </div>
         </template>
@@ -548,7 +569,8 @@ export default {
       // 3 表示
       saveType: 1,
       projectId: null,
-      createVersionId: null
+      createVersionId: null,
+      editableState: false
     };
   },
   props: {
@@ -602,7 +624,7 @@ export default {
       return !this.caseId || this.isCopy;
     },
     editable() {
-      return this.isAdd;
+      return this.isAdd || this.editableState;
     },
     isCopy() {
       return this.editType == 'copy';
@@ -918,6 +940,10 @@ export default {
       this.saveType = e;
       if (e === 3) {
         this.casePublic = true;
+      } else if (e === 4) {
+        this.editableState = false;
+        this.loadTestCase();
+        return;
       }
       this.saveCase();
     },
@@ -1173,6 +1199,10 @@ export default {
         this.loading = true;
         this.$request(option)
           .then((response) => {
+            if (this.editableState) {
+              this.editableState = false;
+              this.$refs.otherInfo.caseActiveName = 'detail';
+            }
             response = response.data;
             // 保存用例后刷新附件
             this.currentTestCaseInfo.isCopy = false;
@@ -1426,6 +1456,9 @@ export default {
           this.$success(this.$t("commons.follow_success"), false);
         });
       }
+    },
+    toEdit() {
+      this.editableState = true;
     },
     setSpecialPropForCompare: function (that) {
       that.newData.tags = JSON.parse(that.newData.tags || "{}");
@@ -2230,5 +2263,26 @@ export default {
   padding: 0 !important;
   height: 80px;
   min-width: 120px !important;
+}
+
+.case-step-item-popover .sub-opt-row .icon img {
+  width: 14px;
+  height: 14px;
+}
+
+.case-step-item-popover .add-public-row .icon {
+  color: #646a73;
+  margin-top: 3px;
+}
+.case-step-item-popover .add-public-row .title {
+  color: #1f2329;
+  margin-right: 10px;
+}
+.case-step-item-popover .add-public-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);
+}
+
+.case-step-item-popover .split {
+  width: 140px;
 }
 </style>

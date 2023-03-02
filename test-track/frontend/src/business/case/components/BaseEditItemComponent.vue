@@ -2,7 +2,6 @@
   <div class="edit-container">
     <div
       class="content"
-      v-custom-click-outside="preSave"
       @mouseleave="mouseLeaveEvent"
     >
       <div class="edit" v-show="edit">
