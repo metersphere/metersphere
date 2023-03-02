@@ -209,12 +209,6 @@ export default {
         });
       }
     },
-    'basisData.method': {
-      handler(v) {
-        this.changeApiProtocol(v);
-      },
-      deep: true,
-    },
   },
   methods: {
     openHis() {

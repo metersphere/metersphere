@@ -174,58 +174,6 @@ export default {
     };
   },
   watch: {
-    'basicForm.name': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      },
-    },
-    'basicForm.userId': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      },
-    },
-    'basicForm.moduleId': {
-      handler(v, v1) {
-        if (this.basicForm.moduleId) {
-          if (v && v1 && v !== v1) {
-            this.apiMapStatus();
-          }
-        }
-      },
-    },
-    'basicForm.status': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      },
-    },
-    'basicForm.follows': {
-      handler(v, v1) {
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1)) {
-          this.apiMapStatus();
-        }
-      },
-    },
-    'basicForm.description': {
-      handler(v, v1) {
-        if (v && v1 && v !== v1) {
-          this.apiMapStatus();
-        }
-      },
-    },
-    'basicForm.tags': {
-      handler(v, v1) {
-        this.tagCount++;
-        if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && this.tagCount > 1) {
-          this.apiMapStatus();
-        }
-      },
-    },
     moduleOptions: {
       handler(v, v1) {
         if (!this.basicForm.moduleId) {
@@ -236,12 +184,6 @@ export default {
     },
   },
   methods: {
-    apiMapStatus() {
-      store.apiStatus.set('fromChange', true);
-      if (this.basicForm.id) {
-        store.apiMap.set(this.basicForm.id, store.apiStatus);
-      }
-    },
     getMaintainerOptions() {
       getProjectMemberOption().then((data) => {
         this.maintainerOptions = data.data;
