@@ -256,15 +256,47 @@ button.el-button.el-button--default.el-button--small.el-button--danger {
   font-size: 17px;
 }
 
+
 /**
- * el-icon-close
+ el-tag
+ */
+
+span.el-tag.el-tag--info.el-tag--mini.el-tag--light {
+  flex-direction: row;
+  align-items: center;
+  padding: 1px 6px;
+  gap: 4px;
+  height: 24px;
+  background: rgba(31, 35, 41, 0.1);
+  border-radius: 2px;
+  flex: none;
+  flex-grow: 0;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+}
+
+span.el-tag.el-tag--info.el-tag--mini.el-tag--light span{
+  display: inline-block;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(31, 35, 41);
+}
+
+/**
+ * el-tag-icon-close
  */
 i.el-tag__close.el-icon-close {
   height: 0;
 }
 
 .el-select .el-tag__close.el-icon-close::before {
-  font-size: 26px;
+  font-size: 28px;
   position: relative;
   top: -7px;
   left: -6px;

@@ -91,32 +91,6 @@
             </div>
             <i slot="reference" class="el-icon-more"></i>
           </el-popover>
-          <!-- <el-button
-            type="primary"
-            :disabled="readOnly"
-            icon="el-icon-plus"
-            circle
-            size="mini"
-            @click="handleAddStep(scope.$index, scope.row)"
-          ></el-button>
-          <el-button
-            icon="el-icon-document-copy"
-            type="success"
-            :disabled="readOnly"
-            circle
-            size="mini"
-            @click="handleCopyStep(scope.$index, scope.row)"
-          ></el-button>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            circle
-            size="mini"
-            @click="handleDeleteStep(scope.$index, scope.row)"
-            :disabled="
-              readOnly || (scope.$index == 0 && form.steps.length <= 1)
-            "
-          ></el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -311,10 +285,10 @@ export default {
   height: 8px;
 }
 
-.table-edit-input :deep(.el-textarea__inner:hover) {
-  border-style: solid!important;
-  border-color: #783887!important;
-}
+/*.table-edit-input :deep(.el-textarea__inner:hover) {*/
+/*  border-style: solid!important;*/
+/*  border-color: #783887!important;*/
+/*}*/
 
 .table-edit-input :deep(.el-textarea__inner:focus) {
   border-style: solid!important;
@@ -352,8 +326,7 @@ i.el-icon-more:hover {
   display: flex;
   width: 118px;
   height: 32px;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin: 4px 0 4px;
   line-height: 32px;
   cursor: pointer;
 }
