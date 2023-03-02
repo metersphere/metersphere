@@ -13,7 +13,7 @@
                 <case-detail-component
                   :type="type"
                   :case-id="caseId"
-                  :read-only="readOnly"
+                  :read-only="readOnly || !editable"
                   :project-id="projectId"
                   :is-copy="isCopy"
                   :copy-case-id="copyCaseId"
@@ -157,6 +157,7 @@
           :isClickAttachmentTab="isClickAttachmentTab"
           :isTestPlan="isTestPlan"
           :editable="editable"
+          :editable-state="editableState"
           :form="form"
           :richTextDefaultOpen="richTextDefaultOpen"
           :formLabelWidth="formLabelWidth"
@@ -212,6 +213,8 @@ export default {
     "comments",
     "isClickAttachmentTab",
     "defaultOpen",
+    "edit",
+    "editableState"
   ],
   data() {
     return {
