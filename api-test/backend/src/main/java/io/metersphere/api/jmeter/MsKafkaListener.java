@@ -1,9 +1,11 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.api.dto.MsgDTO;
+import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.RequestResult;
 import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.TestResultService;
@@ -42,6 +44,9 @@ public class MsKafkaListener {
     @Resource
     private RedisTemplateService redisTemplateService;
 
+    @Resource
+    private ApiDefinitionEnvService apiDefinitionEnvService;
+
     private final ThreadPoolExecutor threadPool = new ThreadPoolExecutor(
             CORE_POOL_SIZE,
             MAX_POOL_SIZE,
@@ -76,9 +81,19 @@ public class MsKafkaListener {
             LoggerUtil.info("接收到执行结果：", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
                 MsgDTO dto = JSONUtil.parseObject(record.value(), MsgDTO.class);
-                if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name()) && dto.getContent().startsWith("result_")) {
-                    ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
-                    apiDefinitionEnvService.setEnvAndPoolName(dto);
+                if (StringUtils.isNotBlank(dto.getContent()) && dto.getContent().startsWith("result_")) {
+                    String content = dto.getContent().substring(7);
+                    if (StringUtils.isNotBlank(content)) {
+                        RequestResult baseResult = JSONUtil.parseObject(content, RequestResult.class);
+                        if (ObjectUtils.isNotEmpty(baseResult)) {
+                            //解析是否含有误报库信息
+                            RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(baseResult);
+                            dto.setContent(StringUtils.join("result_", JSON.toJSONString(expandDTO)));
+                            if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name()) && dto.getContent().startsWith("result_")) {
+                                apiDefinitionEnvService.setEnvAndPoolName(dto);
+                            }
+                        }
+                    }
                 }
                 WebSocketUtil.sendMessageSingle(dto);
             }

@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import io.metersphere.api.dto.definition.FakeError;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
@@ -31,12 +32,14 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.KeystoreConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.protocol.http.util.HTTPConstants;
+import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -213,10 +216,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             //根据配置增加全局前后至脚本
             JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), false);
             //增加误报、断言
-            if (!config.isOperating() && CollectionUtils.isNotEmpty(httpConfig.getErrorReportAssertions())) {
-                for (MsAssertions assertion : httpConfig.getErrorReportAssertions()) {
-                    assertion.toHashTree(httpSamplerTree, assertion.getHashTree(), config);
-                }
+            if (ObjectUtils.isNotEmpty(httpConfig.getFakeError())) {
+                sampler.setProperty(SampleResult.MS_FAKE_ERROR, JSONUtil.toJSONString(httpConfig.getFakeError()));
             }
             if (CollectionUtils.isNotEmpty(httpConfig.getAssertions())) {
                 for (MsAssertions assertion : httpConfig.getAssertions()) {
@@ -335,7 +336,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     httpConfig.setAssertions(ElementUtil.copyAssertion(environmentConfig.getAssertions()));
                 }
                 if (environmentConfig.isUseErrorCode()) {
-                    httpConfig.setErrorReportAssertions(HashTreeUtil.getErrorReportByProjectId(this.getProjectId(), environmentConfig.isHigherThanSuccess(), environmentConfig.isHigherThanError()));
+                    FakeError fakeError = new FakeError();
+                    fakeError.setHigherThanError(environmentConfig.isHigherThanError());
+                    fakeError.setProjectId(this.getProjectId());
+                    fakeError.setHigherThanSuccess(environmentConfig.isHigherThanSuccess());
+                    httpConfig.setFakeError(fakeError);
                 }
                 return httpConfig;
             }

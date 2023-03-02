@@ -11,12 +11,12 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ErrorReportLibraryParseDTO {
+public class FakeErrorLibraryDTO {
     private List<String> errorCodeList;
     private RequestResult result;
     private String requestStatus;
 
-    public ErrorReportLibraryParseDTO() {
+    public FakeErrorLibraryDTO() {
         this.errorCodeList = new ArrayList<>();
     }
 

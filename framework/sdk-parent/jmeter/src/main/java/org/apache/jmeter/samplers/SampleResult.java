@@ -44,7 +44,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * This is a nice packaging for the various information returned from taking a
  * sample of an entry.
- *
  */
 public class SampleResult implements Serializable, Cloneable, Searchable {
 
@@ -143,6 +142,8 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private static final String NULL_FILENAME = "NULL";
 
+    public static final String MS_FAKE_ERROR = "MS-FAKE-ERROR";
+
     static {
         if (START_TIMESTAMP) {
             log.info("Note: Sample TimeStamps are START times");
@@ -208,10 +209,14 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private String label = "";// Never return null
 
-    /** Filename used by ResultSaver */
+    /**
+     * Filename used by ResultSaver
+     */
     private String resultFileName = "";
 
-    /** The data used by the sampler */
+    /**
+     * The data used by the sampler
+     */
     private String samplerData;
 
     private String threadName = ""; // Never return null
@@ -234,12 +239,20 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private long idleTime = 0;// Allow for non-sample time
 
-    /** Start of pause (if any) */
+    /**
+     * Start of pause (if any)
+     */
     private long pauseTime = 0;
 
     private List<AssertionResult> assertionResults;
 
     private List<SampleResult> subResults;
+
+    private String fakeError;
+
+    public String getFakeError() {
+        return this.fakeError;
+    }
 
     /**
      * The data type of the sample
@@ -266,25 +279,39 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private String contentType = ""; // e.g. text/html; charset=utf-8
 
-    /** elapsed time */
+    /**
+     * elapsed time
+     */
     private long elapsedTime = 0;
 
-    /** time to first response */
+    /**
+     * time to first response
+     */
     private long latency = 0;
 
-    /** time to end connecting */
+    /**
+     * time to end connecting
+     */
     private long connectTime = 0;
 
-    /** Way to signal what to do on Test */
+    /**
+     * Way to signal what to do on Test
+     */
     private TestLogicalAction testLogicalAction = TestLogicalAction.CONTINUE;
 
-    /** Should thread terminate? */
+    /**
+     * Should thread terminate?
+     */
     private boolean stopThread = false;
 
-    /** Should test terminate? */
+    /**
+     * Should test terminate?
+     */
     private boolean stopTest = false;
 
-    /** Should test terminate abruptly? */
+    /**
+     * Should test terminate abruptly?
+     */
     private boolean stopTestNow = false;
 
     private int sampleCount = 1;
@@ -295,10 +322,14 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private long bodySize = 0;
 
-    /** Currently active threads in this thread group */
+    /**
+     * Currently active threads in this thread group
+     */
     private volatile int groupThreads = 0;
 
-    /** Currently active threads in all thread groups */
+    /**
+     * Currently active threads in all thread groups
+     */
     private volatile int allThreads = 0;
 
     private final long nanoTimeOffset;
@@ -342,6 +373,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
             this.samplerId = sampler.getPropertyAsString("MS-ID");
             this.resourceId = sampler.getPropertyAsString("MS-RESOURCE-ID");
             this.scenario = sampler.getPropertyAsString("MS-SCENARIO");
+            this.fakeError = sampler.getPropertyAsString(MS_FAKE_ERROR);
         }
 
     }
@@ -399,13 +431,11 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Create a sample with a specific elapsed time but don't allow the times to
      * be changed later
-     *
+     * <p>
      * (only used by HTTPSampleResult)
      *
-     * @param elapsed
-     *            time
-     * @param atend
-     *            create the sample finishing now, else starting now
+     * @param elapsed time
+     * @param atend   create the sample finishing now, else starting now
      */
     protected SampleResult(long elapsed, boolean atend) {
         this();
@@ -442,8 +472,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     }
 
     /**
-     * @param propertiesToSave
-     *            The propertiesToSave to set.
+     * @param propertiesToSave The propertiesToSave to set.
      */
     public void setSaveConfig(SampleSaveConfiguration propertiesToSave) {
         this.saveConfig = propertiesToSave;
@@ -460,13 +489,11 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Create a sample with specific start and end times for test purposes, but
      * don't allow the times to be changed later
-     *
+     * <p>
      * (used by StatVisualizerModel.Test)
      *
-     * @param start
-     *            start time in milliseconds since unix epoch
-     * @param end
-     *            end time in milliseconds since unix epoch
+     * @param start start time in milliseconds since unix epoch
+     * @param end   end time in milliseconds since unix epoch
      * @return sample with given start and end time
      */
     public static SampleResult createTestSample(long start, long end) {
@@ -480,8 +507,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Create a sample with a specific elapsed time for test purposes, but don't
      * allow the times to be changed later
      *
-     * @param elapsed
-     *            - desired elapsed time in milliseconds
+     * @param elapsed - desired elapsed time in milliseconds
      * @return sample that starts 'now' and ends <code>elapsed</code> milliseconds later
      */
     public static SampleResult createTestSample(long elapsed) {
@@ -497,9 +523,8 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Helper method to get 1 ms resolution timing.
      *
      * @return the current time in milliseconds
-     * @throws RuntimeException
-     *             when <code>useNanoTime</code> is <code>true</code> but
-     *             <code>nanoTimeOffset</code> is not set
+     * @throws RuntimeException when <code>useNanoTime</code> is <code>true</code> but
+     *                          <code>nanoTimeOffset</code> is not set
      */
     public long currentTimeInMillis() {
         if (useNanoTime) {
@@ -527,13 +552,10 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * For use by SaveService only.
      *
-     * @param stamp
-     *            this may be a start time or an end time (both in milliseconds)
-     * @param elapsed
-     *            time in milliseconds
-     * @throws RuntimeException
-     *             when <code>startTime</code> or <code>endTime</code> has been
-     *             set already
+     * @param stamp   this may be a start time or an end time (both in milliseconds)
+     * @param elapsed time in milliseconds
+     * @throws RuntimeException when <code>startTime</code> or <code>endTime</code> has been
+     *                          set already
      */
     public void setStampAndTime(long stamp, long elapsed) {
         if (startTime != 0 || endTime != 0) {
@@ -558,7 +580,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Set response code to OK, i.e. "200"
-     *
      */
     public void setResponseCodeOK() {
         responseCode = OK_CODE;
@@ -609,10 +630,9 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Get the sample timestamp, which may be either the start time or the end time.
      *
+     * @return timeStamp in milliseconds
      * @see #getStartTime()
      * @see #getEndTime()
-     *
-     * @return timeStamp in milliseconds
      */
     public long getTimeStamp() {
         return timeStamp;
@@ -652,7 +672,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Gets the assertion results associated with this sample.
      *
      * @return an array containing the assertion results for this sample.
-     *         Returns empty array if there are no assertion results.
+     * Returns empty array if there are no assertion results.
      */
     public AssertionResult[] getAssertionResults() {
         if (assertionResults == null) {
@@ -664,8 +684,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Add a subresult and adjust the parent byte count and end-time.
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult the {@link SampleResult} to be added
      */
     public void addSubResult(SampleResult subResult) {
         addSubResult(subResult, isRenameSampleLabel());
@@ -673,6 +692,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * see https://bz.apache.org/bugzilla/show_bug.cgi?id=63055
+     *
      * @return true if TestPlan is in functional mode or property subresults.disable_renaming is true
      */
     public static boolean isRenameSampleLabel() {
@@ -682,8 +702,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Add a subresult and adjust the parent byte count and end-time.
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult        the {@link SampleResult} to be added
      * @param renameSubResults boolean do we rename subResults based on position
      */
     public void addSubResult(SampleResult subResult, boolean renameSubResults) {
@@ -711,8 +730,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Add a subresult to the collection without updating any parent fields.
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult the {@link SampleResult} to be added
      */
     public void addRawSubResult(SampleResult subResult) {
         storeSubResult(subResult, isRenameSampleLabel());
@@ -721,8 +739,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Add a subresult to the collection without updating any parent fields.
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult the {@link SampleResult} to be added
      */
     private void addRawSubResult(SampleResult subResult, boolean renameSubResults) {
         storeSubResult(subResult, renameSubResults);
@@ -735,8 +752,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * addSubResult(SampleResult)}, except that the fields don't need to be
      * accumulated
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult the {@link SampleResult} to be added
      */
     public void storeSubResult(SampleResult subResult) {
         storeSubResult(subResult, isRenameSampleLabel());
@@ -749,8 +765,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * addSubResult(SampleResult)}, except that the fields don't need to be
      * accumulated
      *
-     * @param subResult
-     *            the {@link SampleResult} to be added
+     * @param subResult        the {@link SampleResult} to be added
      * @param renameSubResults boolean do we rename subResults based on position
      */
     public void storeSubResult(SampleResult subResult, boolean renameSubResults) {
@@ -768,7 +783,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Gets the subresults associated with this sample.
      *
      * @return an array containing the subresults for this sample. Returns an
-     *         empty array if there are no subresults.
+     * empty array if there are no subresults.
      */
     public SampleResult[] getSubResults() {
         if (subResults == null) {
@@ -779,12 +794,11 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Sets the responseData attribute of the SampleResult object.
-     *
+     * <p>
      * If the parameter is null, then the responseData is set to an empty byte array.
      * This ensures that getResponseData() can never be null.
      *
-     * @param response
-     *            the new responseData value
+     * @param response the new responseData value
      */
     public void setResponseData(byte[] response) {
         responseDataAsString = null;
@@ -795,9 +809,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Sets the responseData attribute of the SampleResult object.
      * Should only be called after setting the dataEncoding (if necessary)
      *
-     * @param response
-     *            the new responseData value (String)
-     *
+     * @param response the new responseData value (String)
      * @deprecated - only intended for use from BeanShell code
      */
     @Deprecated
@@ -816,7 +828,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      *
      * @param response the new responseData value (String)
      * @param encoding the encoding to set and then use (if null, use platform default)
-     *
      */
     public void setResponseData(final String response, final String encoding) {
         responseDataAsString = null;
@@ -837,9 +848,10 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * <p>
      * Note that some samplers may not store all the data, in which case
      * getResponseData().length will be incorrect.
-     *
+     * <p>
      * Instead, always use {@link #getBytes()} to obtain the sample result byte count.
      * </p>
+     *
      * @return the responseData value (cannot be null)
      */
     public byte[] getResponseData() {
@@ -875,7 +887,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Get the time it took this sample to occur.
      *
      * @return elapsed time in milliseconds
-     *
      */
     public long getTime() {
         return elapsedTime;
@@ -887,6 +898,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Sets the data type of the sample.
+     *
      * @param dataType String containing {@link #BINARY} or {@link #TEXT}
      * @see #BINARY
      * @see #TEXT
@@ -909,9 +921,9 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Extract and save the DataEncoding and DataType from the parameter provided.
      * Does not save the full content Type.
-     * @see #setContentType(String) which should be used to save the full content-type string
      *
      * @param ct - content type (may be null)
+     * @see #setContentType(String) which should be used to save the full content-type string
      */
     public void setEncodingAndType(String ct) {
         if (ct != null) {
@@ -966,8 +978,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Sets the successful attribute of the SampleResult object.
      *
-     * @param success
-     *            the new successful value
+     * @param success the new successful value
      */
     public void setSuccessful(boolean success) {
         this.success = success;
@@ -1007,6 +1018,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Returns the dataEncoding. May be null or the empty String.
+     *
      * @return the value of the dataEncoding
      */
     public String getDataEncodingNoDefault() {
@@ -1016,8 +1028,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Sets the dataEncoding.
      *
-     * @param dataEncoding
-     *            the dataEncoding to set, e.g. ISO-8895-1, UTF-8
+     * @param dataEncoding the dataEncoding to set, e.g. ISO-8895-1, UTF-8
      */
     public void setDataEncoding(String dataEncoding) {
         this.dataEncoding = dataEncoding;
@@ -1072,7 +1083,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * @param string -
-     *            request headers
+     *               request headers
      */
     public void setRequestHeaders(String string) {
         requestHeaders = string;
@@ -1080,7 +1091,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * @param string -
-     *            response headers
+     *               response headers
      */
     public void setResponseHeaders(String string) {
         responseHeaders = string;
@@ -1095,6 +1106,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Get the media type from the Content Type
+     *
      * @return the media type - e.g. text/html (without charset, if any)
      */
     public String getMediaType() {
@@ -1103,9 +1115,9 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Stores the content-type string, e.g. <code>text/xml; charset=utf-8</code>
-     * @see #setEncodingAndType(String) which can be used to extract the charset.
      *
      * @param string the content-type to be set
+     * @see #setEncodingAndType(String) which can be used to extract the charset.
      */
     public void setContentType(String string) {
         contentType = string;
@@ -1160,6 +1172,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Set idle time pause.
      * For use by SampleResultConverter/CSVSaveService.
+     *
      * @param idle long
      */
     public void setIdleTime(long idle) {
@@ -1173,7 +1186,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Record the start time of a sample
-     *
      */
     public void sampleStart() {
         if (startTime == 0) {
@@ -1185,7 +1197,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Record the end time of a sample and calculate the elapsed time
-     *
      */
     public void sampleEnd() {
         if (endTime == 0) {
@@ -1197,7 +1208,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Pause a sample
-     *
      */
     public void samplePause() {
         if (pauseTime != 0) {
@@ -1208,7 +1218,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Resume a sample
-     *
      */
     public void sampleResume() {
         if (pauseTime == 0) {
@@ -1221,9 +1230,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * When a Sampler is working as a monitor
      *
-     * @param monitor
-     *            flag whether this sampler is working as a monitor
-     *
+     * @param monitor flag whether this sampler is working as a monitor
      * @deprecated since 3.2 NOOP
      */
     @Deprecated
@@ -1265,7 +1272,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * Returns the count of errors.
      *
      * @return 0 - or 1 if the sample failed
-     *
+     * <p>
      * TODO do we need allow for nested samples?
      */
     public int getErrorCount() {
@@ -1299,8 +1306,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * still want to calculate the throughput. The bytes are the bytes of the
      * response data.
      *
-     * @param length
-     *            the number of bytes of the response data for this sample
+     * @param length the number of bytes of the response data for this sample
      */
     public void setBytes(long length) {
         bytes = length;
@@ -1311,8 +1317,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      * still want to calculate the throughput. The bytes are the bytes of the
      * response data.
      *
-     * @param length
-     *            the number of bytes of the response data for this sample
+     * @param length the number of bytes of the response data for this sample
      * @deprecated use setBytes(long)
      */
     @Deprecated
@@ -1321,7 +1326,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     }
 
     /**
-     *
      * @param sentBytesCount long sent bytes
      */
     public void setSentBytes(long sentBytesCount) {
@@ -1365,7 +1369,6 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     /**
      * Set the time to the first response
-     *
      */
     public void latencyEnd() {
         latency = currentTimeInMillis() - startTime - idleTime;
@@ -1374,8 +1377,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * This is only intended for use by SampleResultConverter!
      *
-     * @param latency
-     *            The latency to set.
+     * @param latency The latency to set.
      */
     public void setLatency(long latency) {
         this.latency = latency;
@@ -1407,8 +1409,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * This is only intended for use by SampleResultConverter!
      *
-     * @param timeStamp
-     *            The timeStamp to set.
+     * @param timeStamp The timeStamp to set.
      */
     public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
@@ -1440,8 +1441,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     }
 
     /**
-     * @param parent
-     *            The parent to set.
+     * @param parent The parent to set.
      */
     public void setParent(SampleResult parent) {
         this.parent = parent;
@@ -1472,6 +1472,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     }
 
     // Bug 47394
+
     /**
      * Allow custom SampleSenders to drop unwanted assertionResults
      */
@@ -1489,8 +1490,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     /**
      * Set the headers size in bytes
      *
-     * @param size
-     *            the number of bytes of the header
+     * @param size the number of bytes of the header
      */
     public void setHeadersSize(int size) {
         this.headersSize = size;
@@ -1549,7 +1549,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
         public void run() {
             // Wait longer than a clock pulse (generally 10-15ms)
             getOffset(30L); // Catch an early clock pulse to reduce slop.
-            while(true) {
+            while (true) {
                 getOffset(NANOTHREAD_SLEEP); // Can now afford to wait a bit longer between checks
             }
         }
@@ -1577,12 +1577,12 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
     }
 
     /**
-     * @deprecated use SampleResult#setTestLogicalAction(TestLogicalAction)
      * @param startNextThreadLoop the startNextLoop to set
+     * @deprecated use SampleResult#setTestLogicalAction(TestLogicalAction)
      */
     @Deprecated
     public void setStartNextThreadLoop(boolean startNextThreadLoop) {
-        if(startNextThreadLoop) {
+        if (startNextThreadLoop) {
             testLogicalAction = TestLogicalAction.START_NEXT_ITERATION_OF_THREAD;
         } else {
             testLogicalAction = TestLogicalAction.CONTINUE;

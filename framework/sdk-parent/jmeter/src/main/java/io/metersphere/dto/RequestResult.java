@@ -53,4 +53,6 @@ public class RequestResult {
         this.passAssertions++;
     }
 
+    private String fakeErrorMessage;
+
 }

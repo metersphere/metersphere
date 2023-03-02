@@ -3,7 +3,7 @@ package io.metersphere.commons.utils;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
+import io.metersphere.api.dto.FakeErrorLibraryDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ResponseFormatType;
@@ -24,7 +24,7 @@ public class ResponseUtil {
         //根据responseheader的信息来处理返回数据
         baseResult = ResponseUtil.parseResponseBodyByHeader(baseResult);
         //解析是否含有误报库信息
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(baseResult);
+        FakeErrorLibraryDTO errorCodeDTO = FakeErrorParse.parseAssertions(baseResult);
         RequestResult requestResult = errorCodeDTO.getResult();
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
