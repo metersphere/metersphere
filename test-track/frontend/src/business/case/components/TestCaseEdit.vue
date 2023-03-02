@@ -5,10 +5,17 @@
       <!-- 创建 or 编辑用例 -->
       <div class="edit-header-container">
         <div class="header-content-row">
-          <div :class="'case-name'">
-            {{ !editable ? form.name : editableState ? $t('test_track.case.edit_case') : $t('test_track.case.create_case') }}
-          </div>
-          <div class="case-edit" v-if="!editable">
+
+          <!-- 用例名称展示与编辑 -->
+          <test-case-edit-name-view
+            :is-add="isAdd"
+            :editable-state="editableState"
+            :is-name-edit.sync="isNameEdit"
+            :form="form"
+            @save="saveCaseWithoutRefresh"
+          />
+
+          <div class="case-edit" v-show="!isNameEdit && !editable">
             <div class="case-level" v-if="!isPublicShow">
               <priority-table-item :value="form.priority" />
             </div>
@@ -389,11 +396,13 @@ import {getProject, versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
+import TestCaseEditNameView from "@/business/case/components/head/TestCaseEditNameView";
 
 const store = useStore();
 export default {
   name: "TestCaseEdit",
   components: {
+    TestCaseEditNameView,
     PriorityTableItem,
     CaseEditInfoComponent,
     CaseBaseInfo,
@@ -442,6 +451,7 @@ export default {
       type: "",
       form: {
         name: "",
+        num: '',
         module: "default-module",
         nodePath: "/未规划用例",
         maintainer: getCurrentUser().id,
@@ -571,7 +581,8 @@ export default {
       saveType: 1,
       projectId: null,
       createVersionId: null,
-      editableState: false
+      editableState: false,
+      isNameEdit: false
     };
   },
   props: {
@@ -635,6 +646,12 @@ export default {
     },
     showAddBtn() {
       return this.isAdd || this.showPublic;
+    },
+    titleNum() {
+      if (!this.form.num) {
+        return '';
+      }
+      return '【' +  (this.isCustomNum ? this.form.customNum : this.form.num) + '】';
     }
   },
   watch: {
@@ -1190,6 +1207,15 @@ export default {
         }
         if (this.$refs.selectPropDialog) {
           this.$refs.selectPropDialog.close();
+        }
+      }
+    },
+    saveCaseWithoutRefresh() {
+      if (this.validateForm()) {
+        let param = this.buildParam();
+        if (this.validate(param)) {
+          let option = this.getOption(param);
+          this.$request(option);
         }
       }
     },
@@ -1772,9 +1798,11 @@ export default {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-grow: 1;
       .header-content-row {
         display: flex;
         align-items: center;
+        width: 80%;
         .back {
           margin-left: px2rem(24);
           width: px2rem(20);
@@ -1784,33 +1812,6 @@ export default {
             width: 100%;
             height: 100%;
           }
-        }
-
-        .case-name {
-          height: px2rem(24);
-          font-size: 16px;
-          font-family: "PingFang SC";
-          font-style: normal;
-          font-weight: 500;
-          line-height: px2rem(24);
-          color: #1f2329;
-          margin-left: px2rem(8);
-          margin-right: px2rem(8);
-          cursor: pointer;
-          max-width: 800px;
-          /* 文本不会换行显示 */
-          white-space: nowrap;
-          /* 超出盒子部分隐藏 */
-          overflow: hidden;
-          /* 文本超出的部分打点显示 */
-          text-overflow: ellipsis;
-          padding-left: 0.5rem;
-          padding-right: 0.5rem;
-        }
-        .case-name-hover:hover {
-          cursor: pointer;
-          background: rgba(31, 35, 41, 0.1);
-          border-radius: 4px;
         }
 
         .case-edit {
