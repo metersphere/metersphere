@@ -79,7 +79,7 @@ export default {
     // 高级搜索框再次打开时调用 component.init() 函数
     this.component.init = this.reload;
     //重置模块树
-    this.component.reset = this.init;
+    this.component.reset = this.reset;
   },
   methods: {
     init() {
@@ -99,6 +99,12 @@ export default {
           this.handleTreeNodes(response.data);
         })
       }
+    },
+    reset() {
+      // 加载数据
+      this.init();
+      // 清空选项
+      this.$refs.tree.setCheckedKeys([]);
     },
     reload() {
       // 数据可能变更，刷新数据
@@ -153,7 +159,9 @@ export default {
       this.component.value = checkedKeys;
     },
     changeTreeTag() {
-      this.$refs.tree.setCheckedKeys(this.component.value);
+      if (this.component.value) {
+        this.$refs.tree.setCheckedKeys(this.component.value);
+      }
     },
     removeTreeTag(data) {
       this.$refs.tree.setChecked(data, false, false);
