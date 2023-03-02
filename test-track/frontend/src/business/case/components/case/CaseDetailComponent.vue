@@ -192,7 +192,7 @@
       </div>
 
       <!-- 附件 -->
-      <div class="attachment-row">
+      <div class="attachment-row" v-if="!editableState">
         <div class="attachment-name case-title-wrap">
           <div class="name title-wrap">{{ $t("case.attachment") }}</div>
         </div>
@@ -206,7 +206,7 @@
               :type="type"
               :isCopy="isCopy"
               :copyCaseId="copyCaseId"
-              :readOnly="readOnly"
+              :readOnly="readOnly && editable"
               :projectId="projectId"
               :isClickAttachmentTab="isClickAttachmentTab"
               :isDelete="!isTestPlan"
@@ -266,16 +266,29 @@ export default {
     projectId: String,
     copyCaseId: String,
     isCopy: Boolean,
+    editableState: Boolean
   },
   methods: {
     getUploadFiles() {
-      return this.$refs.attachmentComp.uploadFiles;
+      if (this.$refs.attachmentComp) {
+        return this.$refs.attachmentComp.uploadFiles;
+      } else {
+        return [];
+      }
     },
     getRelateFiles() {
-      return this.$refs.attachmentComp.relateFiles;
+      if (this.$refs.attachmentComp) {
+        return this.$refs.attachmentComp.relateFiles;
+      } else {
+        return [];
+      }
     },
     getUnRelateFiles() {
-      return this.$refs.attachmentComp.unRelateFiles;
+      if (this.$refs.attachmentComp) {
+        return this.$refs.attachmentComp.unRelateFiles;
+      } else {
+        return [];
+      }
     },
     textBlur(options, refName) {
       if (!this.editable && options.autoSave) {
