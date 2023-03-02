@@ -126,7 +126,7 @@ public class MsJDBCSampler extends MsTestElement {
         //添加csv
         ElementUtil.addApiVariables(config, tree, this.getProjectId());
         //增加误报、全局断言
-        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
+        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId(), jdbcSampler);
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();
         if (environmentId == null) {

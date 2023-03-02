@@ -85,6 +85,7 @@ public class JMeterBase {
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
         requestResult.setScenario(result.getScenario());
+        requestResult.setFakeErrorMessage(result.getFakeError());
         if (result instanceof HTTPSampleResult) {
             HTTPSampleResult res = (HTTPSampleResult) result;
             requestResult.setCookies(res.getCookies());
@@ -143,13 +144,7 @@ public class JMeterBase {
     }
 
     private static ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {
-        ResponseAssertionResult responseAssertionResult = null;
-
-        if (StringUtils.startsWith(assertionResult.getName(), "ErrorReportAssertion")) {
-            responseAssertionResult = new ErrorReportAssertionResult(assertionResult.getFailureMessage());
-        } else {
-            responseAssertionResult = new ResponseAssertionResult();
-        }
+        ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
 
         responseAssertionResult.setName(assertionResult.getName());
         if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("split==") != -1) {

@@ -3,7 +3,6 @@ package io.metersphere.api.dto.definition.request.sampler;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -140,13 +139,14 @@ public class MsTCPSampler extends MsTestElement {
         ElementUtil.addApiVariables(config, tree, this.getProjectId());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
-        tree.set(tcpSampler(config), samplerHashTree);
+        TCPSampler tcpSampler = tcpSampler(config);
+        tree.set(tcpSampler, samplerHashTree);
         setUserParameters(samplerHashTree);
         if (tcpPreProcessor != null && StringUtils.isNotBlank(tcpPreProcessor.getScript())) {
             samplerHashTree.add(tcpPreProcessor.getShellProcessor());
         }
         //增加误报、全局断言
-        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId());
+        HashTreeUtil.addPositive(envConfig, samplerHashTree, config, this.getProjectId(), tcpSampler);
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();
         if (environmentId == null) {
@@ -154,15 +154,9 @@ public class MsTCPSampler extends MsTestElement {
         }
         //根据配置将脚本放置在私有脚本之前
         JMeterScriptUtil.setScriptByEnvironmentConfig(envConfig, samplerHashTree, GlobalScriptFilterRequest.TCP.name(), environmentId, config, false);
-        HashTreeUtil hashTreeUtil = new HashTreeUtil();
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
-            EnvironmentConfig finalEnvConfig = envConfig;
             hashTree.forEach(el -> {
-                if (el instanceof MsAssertions && finalEnvConfig != null) {
-                    //断言设置需要和全局断言、误报进行去重
-                    el = hashTreeUtil.duplicateRegexInAssertions(ElementUtil.copyAssertion(finalEnvConfig.getAssertions()), (MsAssertions) el);
-                }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }

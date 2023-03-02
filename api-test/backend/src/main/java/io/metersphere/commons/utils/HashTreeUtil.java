@@ -1,9 +1,9 @@
 package io.metersphere.commons.utils;
 
 import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.FakeError;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertionRegex;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -15,7 +15,6 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
-import io.metersphere.service.ExtErrorReportLibraryService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -23,6 +22,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
+import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
+import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
+import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -182,53 +185,19 @@ public class HashTreeUtil {
         return execute_env_param_dataMap;
     }
 
-    public MsAssertions duplicateRegexInAssertions(List<MsAssertions> compareList, MsAssertions target) {
-        if (target != null && CollectionUtils.isNotEmpty(target.getRegex())) {
-            List<MsAssertionRegex> compareRegexList = new ArrayList<>();
-            if (CollectionUtils.isNotEmpty(compareList)) {
-                for (MsAssertions assertions : compareList) {
-                    if (assertions != null && CollectionUtils.isNotEmpty(assertions.getRegex())) {
-                        compareRegexList.addAll(assertions.getRegex());
-                    }
-                }
-            }
-
-            List<MsAssertionRegex> duplicatedList = new ArrayList<>();
-            for (MsAssertionRegex regex : target.getRegex()) {
-                boolean isExit = false;
-                for (MsAssertionRegex compareRegex : compareRegexList) {
-                    if (StringUtils.equals(regex.getType(), compareRegex.getType())
-                            && StringUtils.equals(regex.getSubject(), compareRegex.getSubject())
-                            && StringUtils.equals(regex.getExpression(), compareRegex.getExpression())) {
-                        isExit = true;
-                        break;
-                    }
-                }
-                if (!isExit) {
-                    duplicatedList.add(regex);
-                }
-            }
-            target.setRegex(duplicatedList);
-        }
-        return target;
-    }
-
-    public static List<MsAssertions> getErrorReportByProjectId(String projectId, boolean higherThanSuccess, boolean higherThanError) {
-        ExtErrorReportLibraryService service = CommonBeanFactory.getBean(ExtErrorReportLibraryService.class);
-        if (service == null) {
-            return new ArrayList<>();
-        }
-        return service.getAssertionByProjectIdAndStatusIsOpen(projectId, higherThanSuccess, higherThanError);
-    }
-
-    public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId) {
+    public static void addPositive(EnvironmentConfig envConfig, HashTree samplerHashTree, ParameterConfig config, String projectId, AbstractTestElement sample) {
         if (envConfig == null) {
             return;
         }
         if (!config.isOperating() && envConfig.isUseErrorCode()) {
-            List<MsAssertions> errorReportAssertion = HashTreeUtil.getErrorReportByProjectId(projectId, envConfig.isHigherThanSuccess(), envConfig.isHigherThanError());
-            for (MsAssertions assertion : errorReportAssertion) {
-                assertion.toHashTree(samplerHashTree, assertion.getHashTree(), config);
+            FakeError fakeError = new FakeError();
+            fakeError.setHigherThanError(envConfig.isHigherThanError());
+            fakeError.setProjectId(projectId);
+            fakeError.setHigherThanSuccess(envConfig.isHigherThanSuccess());
+            if (sample instanceof JDBCSampler) {
+                sample.setProperty(SampleResult.MS_FAKE_ERROR, JSONUtil.toJSONString(fakeError));
+            } else if (sample instanceof TCPSampler) {
+                sample.setProperty(SampleResult.MS_FAKE_ERROR, JSONUtil.toJSONString(fakeError));
             }
         }
         if (CollectionUtils.isNotEmpty(envConfig.getAssertions())) {

@@ -2,8 +2,7 @@ package io.metersphere.commons.utils;
 
 
 import io.metersphere.api.dto.ApiScenarioReportBaseInfoDTO;
-import io.metersphere.api.dto.ErrorReportLibraryParseDTO;
-import io.metersphere.base.domain.ApiScenarioReportResult;
+import io.metersphere.api.dto.FakeErrorLibraryDTO;
 import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.dto.RequestResult;
@@ -12,27 +11,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 public class ResultConversionUtil {
 
-    public static List<ApiScenarioReportResult> getApiScenarioReportResults(String reportId, List<RequestResult> requestResults) {
-        //解析误报内容
-        List<ApiScenarioReportResult> list = new LinkedList<>();
-        if (CollectionUtils.isEmpty(requestResults)) {
-            return list;
-        }
-        requestResults.forEach(item -> {
-            list.add(getApiScenarioReportResult(reportId, item));
-        });
-        return list;
-    }
-
     public static ApiScenarioReportResultWithBLOBs getApiScenarioReportResult(String reportId, RequestResult requestResult) {
         //解析误报内容
-        ErrorReportLibraryParseDTO errorCodeDTO = ErrorReportLibraryUtil.parseAssertions(requestResult);
+        FakeErrorLibraryDTO errorCodeDTO = FakeErrorParse.parseAssertions(requestResult);
         RequestResult result = errorCodeDTO.getResult();
         String resourceId = result.getResourceId();
 

@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.api.dto.definition.FakeError;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -30,6 +31,7 @@ public class HttpConfig {
     private List<MsAssertions> assertions;
     private List<MsAssertions> errorReportAssertions;
     private String description;
+    private FakeError fakeError;
 
 
     public HttpConfig initHttpConfig(HttpConfigCondition configCondition) {
