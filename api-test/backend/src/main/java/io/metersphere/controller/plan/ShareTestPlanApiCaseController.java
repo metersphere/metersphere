@@ -3,12 +3,12 @@ package io.metersphere.controller.plan;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RestController
@@ -22,25 +22,25 @@ public class ShareTestPlanApiCaseController {
 
     @GetMapping("/list/failure/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiFailureList(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
+        shareInfoService.validate(shareId);
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/errorReport/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getErrorReportApiCaseList(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
+        shareInfoService.validate(shareId);
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
 
     @GetMapping("/list/unExecute/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
+        shareInfoService.validate(shareId);
         return testPlanApiCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
-        shareInfoService.validate(shareId, planId);
+        shareInfoService.validate(shareId);
         return testPlanApiCaseService.getAllCases(planId);
     }
 }

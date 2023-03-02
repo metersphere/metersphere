@@ -37,6 +37,10 @@ export function getShareScenarioReport(shareId, reportId) {
   return get('/api/scenario/report/get/' + shareId + '/' + reportId);
 }
 
+export function getSharePlanScenarioReport(shareId, reportId) {
+  return get('/share/test/plan/scenario/case/get/' + shareId + '/' + reportId);
+}
+
 export function getScenarioReportStepDetail(stepId) {
   return get('/api/scenario/report/get/step/detail/' + stepId);
 }

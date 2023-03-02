@@ -348,6 +348,11 @@
         where load_report_id = #{planId}
           and `status` = 'run'
     </select>
+    <select id="selectPlanIdByTestPlanId" resultType="java.lang.String">
+        SELECT plan.project_id from test_plan plan LEFT JOIN
+                                    test_plan_report report on plan.id = report.test_plan_id
+        where report.id =#{id}
+    </select>
     <update id="updateStatusNullById">
         update test_plan_load_case tplc
         set status = null

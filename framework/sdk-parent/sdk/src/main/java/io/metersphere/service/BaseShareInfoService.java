@@ -1,16 +1,24 @@
 package io.metersphere.service;
 
+import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.ShareInfo;
 import io.metersphere.base.mapper.ShareInfoMapper;
 import io.metersphere.base.mapper.ext.BaseShareInfoMapper;
+import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.dto.ShareInfoDTO;
+import io.metersphere.i18n.Translator;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
+
+import static io.metersphere.commons.user.ShareUtil.getTimeMills;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -20,6 +28,8 @@ public class BaseShareInfoService {
     BaseShareInfoMapper baseShareInfoMapper;
     @Resource
     ShareInfoMapper shareInfoMapper;
+    @Resource
+    private BaseProjectApplicationService baseProjectApplicationService;
 
     /**
      * 生成分享连接
@@ -60,4 +70,35 @@ public class BaseShareInfoService {
     public ShareInfo get(String id) {
         return shareInfoMapper.selectByPrimaryKey(id);
     }
+
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void validateExpiredTestPlan(ShareInfo shareInfo, String projectId) {
+        // 有效期根据类型从ProjectApplication中获取
+
+        if (shareInfo == null) {
+            MSException.throwException(Translator.get("connection_expired"));
+        }
+        String type = ProjectApplicationType.TRACK_SHARE_REPORT_TIME.toString();
+
+        if (StringUtils.isBlank(type) || Strings.isBlank(projectId)) {
+            millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), 1000 * 60 * 60 * 24, shareInfo.getId());
+        } else {
+            ProjectApplication projectApplication = baseProjectApplicationService.getProjectApplication(projectId, type);
+            if (projectApplication.getTypeValue() == null) {
+                millisCheck(System.currentTimeMillis() - shareInfo.getUpdateTime(), 1000 * 60 * 60 * 24, shareInfo.getId());
+            } else {
+                String expr = projectApplication.getTypeValue();
+                long timeMills = getTimeMills(shareInfo.getUpdateTime(), expr);
+                millisCheck(System.currentTimeMillis(), timeMills, shareInfo.getId());
+            }
+        }
+    }
+
+    private void millisCheck(long compareMillis, long millis, String shareInfoId) {
+        if (compareMillis > millis) {
+            shareInfoMapper.deleteByPrimaryKey(shareInfoId);
+            MSException.throwException(Translator.get("connection_expired"));
+        }
+    }
+
 }
