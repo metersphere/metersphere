@@ -13,6 +13,7 @@
                 <case-detail-component
                   :type="type"
                   :case-id="caseId"
+                  :editable-state="editableState"
                   :read-only="readOnly || !editable"
                   :project-id="projectId"
                   :is-copy="isCopy"
