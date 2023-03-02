@@ -1,7 +1,44 @@
 <template>
+  <!--  功能用例编辑页面右侧基本信息-->
   <div v-loading="isloading" class="case-base-info-form">
     <el-form ref="caseFrom" :rules="headerRules" :model="form" class="case-padding">
-
+      <!-- ID及自定义ID  -->
+      <div class="id-row case-wrap" v-if="!editable || isCustomNum">
+        <div class="case-title-wrap">
+          <div class="name title-wrap">ID</div>
+          <div class="required required-item"></div>
+        </div>
+        <div class="side-content">
+          <base-edit-item-component
+            :editable="editable"
+            :auto-save="!readOnly"
+            trigger="hover"
+            :contentObject="{
+              content: isCustomNum ? form.customNum : form.num,
+              contentType: 'INPUT',
+            }"
+            :readonlyHoverEvent="!readOnly"
+            :content-click-event="!readOnly"
+            :model="form"
+            :rules="rules"
+          >
+            <template v-slot:content="{ onClick, hoverEditable }">
+              <div :class="hoverEditable ? 'selectHover' : ''">
+                <el-form-item prop="customNum">
+                  <el-input
+                    :disabled="readOnly"
+                    v-model.trim="form.customNum"
+                    size="small"
+                    class="ms-case-input"
+                    @click.native="onClick"
+                  ></el-input>
+                </el-form-item>
+              </div>
+            </template>
+          </base-edit-item-component>
+        </div>
+      </div>
+      <!-- 公共用例展示所属项目 -->
       <div class="module-row case-wrap" v-if="publicEnable">
         <div class="case-title-wrap">
           <div class="name title-wrap">
@@ -46,8 +83,7 @@
           </base-edit-item-component>
         </div>
       </div>
-
-      <!--  用例库展示项目，不展示模块    -->
+      <!--  用例展示所属模块    -->
       <div class="module-row case-wrap" v-else>
         <div class="case-title-wrap">
           <div class="name title-wrap">
@@ -92,9 +128,8 @@
           </base-edit-item-component>
         </div>
       </div>
-
     </el-form>
-    <!-- 自定义字段 -->
+    <!-- 自定义字段Form -->
     <el-form
       v-if="isFormAlive"
       :model="customFieldForm"
@@ -115,6 +150,7 @@
       />
     </el-form>
     <el-form ref="baseCaseFrom" :rules="rules" :model="form" class="case-padding">
+      <!-- 版本字段  -->
       <div class="version-row case-wrap" v-if="versionEnable && !this.form.id">
         <div class="case-title-wrap">
           <div class="name title-wrap">{{ $t("commons.version") }}</div>
@@ -159,41 +195,7 @@
           </base-edit-item-component>
         </div>
       </div>
-      <div class="id-row case-wrap" v-if="!editable || isCustomNum">
-        <div class="case-title-wrap">
-          <div class="name title-wrap">ID</div>
-          <div class="required required-item"></div>
-        </div>
-        <div class="side-content">
-          <base-edit-item-component
-            :editable="editable"
-            :auto-save="isCustomNum"
-            trigger="hover"
-            :contentObject="{
-              content: isCustomNum ? form.customNum : form.num,
-              contentType: 'INPUT',
-            }"
-            :readonlyHoverEvent="isCustomNum && !readOnly"
-            :content-click-event="isCustomNum && !readOnly"
-            :model="form"
-            :rules="rules"
-          >
-            <template v-slot:content="{ onClick, hoverEditable }">
-              <div :class="hoverEditable ? 'selectHover' : ''">
-                <el-form-item prop="customNum">
-                  <el-input
-                    :disabled="readOnly"
-                    v-model.trim="form.customNum"
-                    size="small"
-                    class="ms-case-input"
-                    @click.native="onClick"
-                  ></el-input>
-                </el-form-item>
-              </div>
-            </template>
-          </base-edit-item-component>
-        </div>
-      </div>
+      <!-- 关联需求  -->
       <div class="story-row case-wrap">
         <div class="case-title-wrap">
           <div class="name title-wrap">
@@ -253,7 +255,7 @@
           </base-edit-item-component>
         </div>
       </div>
-      <!-- 选择了关联需求后展示，并且必填 -->
+      <!-- 需求名称: 选择了关联需求后展示，并且必填 -->
       <div class="story-name-row case-wrap" v-if="form.demandId === 'other'">
         <div class="case-title-wrap">
           <div class="name title-wrap">
@@ -291,6 +293,7 @@
           </base-edit-item-component>
         </div>
       </div>
+      <!-- 标签字段  -->
       <div class="tag-row case-wrap">
         <div class="case-title-wrap">
           <div class="name title-wrap">{{ $t("commons.tag") }}</div>
@@ -448,6 +451,7 @@ export default {
   },
   props: {
     editable: Boolean,
+    editableState: Boolean,
     form: Object,
     isFormAlive: Boolean,
     isloading: Boolean,
@@ -468,7 +472,7 @@ export default {
       return useStore().currentProjectIsCustomNum;
     },
     defaultModuleKey() {
-      if (this.editable) {
+      if (this.editable && !this.editableState) {
         let defaultNodeKey = '';
         if (this.$route.query.createNodeId) {
           defaultNodeKey = this.$route.query.createNodeId;

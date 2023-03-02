@@ -27,7 +27,7 @@
                 <template v-slot:content="{ onClick, hoverEditable }">
                   <div :class="hoverEditable ? 'selectHover' : ''">
                     <el-form-item :prop="item.name">
-                      <custom-filed-component
+                      <ms-custom-filed-component
                         :data="item"
                         :form="form"
                         prop="defaultValue"
@@ -51,13 +51,13 @@
 
 <script>
 import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
-import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
+import MsCustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
 import { sortCustomFields } from "metersphere-frontend/src/utils/custom_field";
 import BaseEditItemComponent from "../BaseEditItemComponent";
 
 export default {
   name: "CaseCustomFiledFormRow",
-  components: { CustomFiledComponent, BaseEditItemComponent },
+  components: { MsCustomFiledComponent, BaseEditItemComponent },
   props: {
     rules: Object,
     editable: Boolean,
