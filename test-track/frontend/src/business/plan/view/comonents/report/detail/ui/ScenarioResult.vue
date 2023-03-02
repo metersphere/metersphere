@@ -23,6 +23,7 @@
         :tree-node="treeNode"
         :command="node"
         :isActive="isActive"
+        :is-template="isTemplate"
         :result="node.value"/>
     </div>
     <div v-else>
@@ -63,6 +64,7 @@ export default {
     console: String,
     isActive: Boolean,
     isShare: Boolean,
+    isTemplate: Boolean,
     shareId: String,
   },
   data() {
