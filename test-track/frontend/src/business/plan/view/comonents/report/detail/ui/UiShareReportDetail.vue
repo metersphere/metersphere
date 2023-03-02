@@ -24,6 +24,7 @@
               <!-- all step-->
               <el-tab-pane :label="$t('api_report.total')" name="total">
                 <ms-scenario-results
+                  :is-template="isTemplate"
                   :treeData="fullTreeNodes"
                   :console="content.console"
                   :report="report"
@@ -42,6 +43,7 @@
                   :console="content.console"
                   :report="report"
                   :is-share="isShare"
+                  :is-template="isTemplate"
                   :share-id="shareId"
                   :treeData="fullTreeNodes" ref="failsTree"
                   :errorReport="content.error"/>
@@ -57,6 +59,7 @@
                   v-on:requestResult="requestResult"
                   :report="report"
                   :is-share="isShare"
+                  :is-template="isTemplate"
                   :share-id="shareId"
                   :console="content.console"
                   :treeData="fullTreeNodes" ref="errorReportTree"/>
@@ -73,6 +76,7 @@
                   v-on:requestResult="requestResult"
                   :report="report"
                   :is-share="isShare"
+                  :is-template="isTemplate"
                   :share-id="shareId"
                   :console="content.console"
                   :treeData="fullTreeNodes" ref="unExecuteTree"/>

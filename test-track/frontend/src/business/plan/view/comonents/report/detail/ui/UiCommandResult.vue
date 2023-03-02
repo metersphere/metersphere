@@ -19,7 +19,7 @@
             </span>
           </el-col>
 
-          <el-col :span="3">
+          <el-col :span="3" v-if="!isTemplate">
             <!-- 兼容旧数据 报告截图 -->
             <el-popover
               placement="right"
@@ -86,6 +86,7 @@ export default {
       default: false
     },
     treeNode: Object,
+    isTemplate: Boolean,
   },
   data() {
     return {
