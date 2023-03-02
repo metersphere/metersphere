@@ -56,6 +56,7 @@
           </div>
         </div>
         <div class="header-opt-row" v-if="!editable">
+          <!-- 公共用例库头部按钮展示 -->
           <div
             class="previous-public-row head-opt"
             :class="{'disable-row': isFirstPublic}"
@@ -82,6 +83,46 @@
             <span class="separator-row">|</span>
           </div>
           <div
+            class="edit-public-row head-opt"
+            v-if="isPublicShow"
+            @click="editPublicCase"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("commons.edit") }}</div>
+          </div>
+          <div
+            class="copy-public-row head-opt"
+            v-if="isPublicShow"
+            @click="copyPublicCase"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_copy_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("commons.copy") }}</div>
+          </div>
+          <div v-if="isPublicShow">
+            <span class="separator-row">|</span>
+          </div>
+          <div
+            class="close-row head-opt"
+            v-if="isPublicShow"
+            @click="closePublicCase"
+          >
+            <span class="el-icon-close"></span>
+          </div>
+          <!-- 功能用例库头部按钮展示 -->
+          <div
+            class="follow-row head-opt" v-if="!isPublicShow"
+            @click="toEdit"
+          >
+            <div class="icon-row">
+              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
+            </div>
+            <div class="label-row">{{ $t("commons.edit") }}</div>
+          </div>
+          <div
             class="follow-row head-opt"
             v-if="!showFollow && !isPublicShow"
             @click="saveFollow"
@@ -101,25 +142,17 @@
             </div>
             <div class="label-row">{{ $t("case.followed") }}</div>
           </div>
-          <div
-            class="follow-row head-opt" v-if="!isPublicShow"
-            @click="toEdit"
-          >
-            <div class="icon-row">
-              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
-            </div>
-            <div class="label-row">{{ $t("commons.edit") }}</div>
-          </div>
           <div class="more-row head-opt" v-if="!isPublicShow">
-            <div class="icon-row">
+            <div class="icon-row" @mouseenter="$refs.headMoreOptPopover.doShow()" @mouseleave="$refs.headMoreOptPopover.doClose()">
               <img src="/assets/module/figma/icon_more_outlined.svg" alt="" />
             </div>
             <div class="label-row">
               <el-popover
-                placement="bottom-start"
+                placement="bottom-end"
                 trigger="hover"
-                popper-class="case-step-item-popover"
+                popper-class="more-opt-item-popover"
                 :visible-arrow="false"
+                ref="headMoreOptPopover"
               >
                 <div class="opt-row">
                   <div
@@ -160,36 +193,6 @@
                 <div slot="reference">{{ $t("case.more") }}</div>
               </el-popover>
             </div>
-          </div>
-          <div
-            class="edit-public-row head-opt"
-            v-if="isPublicShow"
-            @click="editPublicCase"
-          >
-            <div class="icon-row">
-              <img src="/assets/module/figma/icon_edit_outlined.svg" alt="" />
-            </div>
-            <div class="label-row">{{ $t("commons.edit") }}</div>
-          </div>
-          <div
-            class="copy-public-row head-opt"
-            v-if="isPublicShow"
-            @click="copyPublicCase"
-          >
-            <div class="icon-row">
-              <img src="/assets/module/figma/icon_copy_outlined.svg" alt="" />
-            </div>
-            <div class="label-row">{{ $t("commons.copy") }}</div>
-          </div>
-          <div v-if="isPublicShow">
-            <span class="separator-row">|</span>
-          </div>
-          <div
-            class="close-row head-opt"
-            v-if="isPublicShow"
-            @click="closePublicCase"
-          >
-            <span class="el-icon-close"></span>
           </div>
         </div>
       </div>
@@ -232,6 +235,7 @@
           <el-scrollbar>
             <case-base-info
               :editable="editable"
+              :editable-state="editableState"
               :case-id="form.id"
               :project-id="projectId"
               :form="form"
@@ -1222,12 +1226,14 @@ export default {
       let param = this.buildParam();
       if (this.validate(param)) {
         let option = this.getOption(param);
-        this.loading = true;
+        if (!isAddPublic) {
+          this.loading = true;
+        }
         this.$request(option)
           .then((response) => {
             if (this.editableState) {
-              this.editableState = false;
-              this.$refs.otherInfo.caseActiveName = 'detail';
+              // 如果是编辑态保存用例, 则直接reload页面
+              location.reload();
             }
             response = response.data;
             // 保存用例后刷新附件
@@ -1464,9 +1470,7 @@ export default {
             break;
           }
         }
-        this.loading = true;
         testCaseEditFollows(this.form.id, this.form.follows).then(() => {
-          this.loading = false;
           this.$success(this.$t("commons.cancel_follow_success"), false);
         });
       } else {
@@ -1476,9 +1480,7 @@ export default {
         }
         this.form.follows.push(this.currentUser().id);
 
-        this.loading = true;
         testCaseEditFollows(this.form.id, this.form.follows).then(() => {
-          this.loading = false;
           this.$success(this.$t("commons.follow_success"), false);
         });
       }
@@ -2266,24 +2268,86 @@ export default {
   min-width: 120px !important;
 }
 
-.case-step-item-popover .sub-opt-row .icon img {
-  width: 14px;
-  height: 14px;
+.more-opt-item-popover .sub-opt-row .icon img {
+  width: 15px;
+  height: 15px;
 }
 
-.case-step-item-popover .add-public-row .icon {
+.more-opt-item-popover .add-public-row .icon {
   color: #646a73;
-  margin-top: 3px;
+  margin-top: 4px;
 }
-.case-step-item-popover .add-public-row .title {
+.more-opt-item-popover .add-public-row .title {
   color: #1f2329;
   margin-right: 10px;
 }
-.case-step-item-popover .add-public-row:hover {
+.more-opt-item-popover .add-public-row:hover {
   background-color: rgba(31, 35, 41, 0.1);
 }
 
-.case-step-item-popover .split {
-  width: 140px;
+.more-opt-item-popover {
+  padding: 0 !important;
+  min-width: 118px !important;
+}
+.more-opt-item-popover .opt-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.more-opt-item-popover .sub-opt-row {
+  display: flex;
+  width: 100%;
+  height: 32px;
+  margin: 3px 0 4px;
+  line-height: 32px;
+  cursor: pointer;
+}
+.more-opt-item-popover .sub-opt-row .icon {
+  margin-left: 13px;
+  margin-right: 9.33px;
+}
+.more-opt-item-popover .sub-opt-row .title {
+  font-family: "PingFang SC";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  /* identical to box height, or 157% */
+
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.1px;
+}
+.more-opt-item-popover .split {
+  width: 170px;
+  height: 1px;
+  background-color: rgba(31, 35, 41, 0.15);
+}
+
+.more-opt-item-popover .copy-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);;
+}
+
+.more-opt-item-popover .copy-row .icon {
+  color: #646a73;
+}
+.more-opt-item-popover .copy-row .title {
+  color: #1f2329;
+}
+
+.more-opt-item-popover .delete-row:hover {
+  background-color: rgba(31, 35, 41, 0.1)!important;
+}
+
+.more-opt-item-popover .delete-row .icon {
+  color: #f54a45;
+}
+.more-opt-item-popover .delete-row .title {
+  color: #f54a45;
+}
+
+.more-opt-item-popover .delete-row {
+  background-color: transparent;
+  padding: 0;
 }
 </style>
