@@ -41,4 +41,6 @@ public interface ExtTestPlanLoadCaseMapper {
     List<String> selectIdByLoadCaseReportIdAndStatusIsRun(String reportId);
 
     void updateStatusNullById(String id);
+
+    String selectPlanIdByTestPlanId(@Param("id") String id);
 }

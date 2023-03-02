@@ -11,4 +11,6 @@ public interface ExtTestPlanApiScenarioMapper {
     List<TestPlanApiScenario> selectPlanByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
 
     List<TestPlanApiScenario> selectByScenarioIds(@Param("ids") List<String> ids);
+
+    String selectPlanIdByTestPlanId(@Param("id") String id);
 }

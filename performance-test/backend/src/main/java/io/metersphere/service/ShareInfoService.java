@@ -5,42 +5,45 @@ import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.ShareInfo;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ShareInfoMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-
 import static io.metersphere.commons.user.ShareUtil.getTimeMills;
 
 @Service
-public class ShareInfoService {
+public class ShareInfoService extends BaseShareInfoService {
     @Resource
     private ShareInfoMapper shareInfoMapper;
     @Resource
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
+
 
     public void validateExpired(String shareId) {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
         this.validateExpired(shareInfo);
     }
 
-    public void validate(String shareId, String customData) {
+    public void validate(String shareId) {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
-        validateExpired(shareInfo);
+        if (ObjectUtils.isNotEmpty(shareInfo)) {
+            String projectId = extTestPlanLoadCaseMapper.selectPlanIdByTestPlanId(shareInfo.getCustomData());
+            validateExpiredTestPlan(shareInfo, projectId);
+        }
         if (shareInfo == null) {
             MSException.throwException("ShareInfo not exist!");
-        } else {
-            if (!StringUtils.equals(customData, shareInfo.getCustomData())) {
-                MSException.throwException("ShareInfo validate failure!");
-            }
         }
     }
 

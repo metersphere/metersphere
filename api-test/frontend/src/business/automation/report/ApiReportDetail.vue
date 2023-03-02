@@ -126,6 +126,7 @@ import {
   getScenarioReport,
   getScenarioReportDetail,
   getShareScenarioReport,
+  getSharePlanScenarioReport,
   reportReName,
 } from '../../../api/scenario-report';
 import { STEP } from '../../automation/scenario/Setting';
@@ -459,6 +460,15 @@ export default {
           this.buildReport();
         }
       } else if (this.isShare) {
+        if (this.isPlan) {
+          getSharePlanScenarioReport(this.shareId, this.reportId).then((res) => {
+            let data = res.data;
+            if (data) {
+              this.checkReport(data);
+              this.handleGetScenarioReport(data);
+            }
+          });
+        }
         if (this.reportId) {
           getShareScenarioReport(this.shareId, this.reportId).then((res) => {
             let data = res.data;

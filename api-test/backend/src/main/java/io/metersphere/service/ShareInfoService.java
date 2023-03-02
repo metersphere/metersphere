@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ShareInfoMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.ShareType;
@@ -21,15 +22,16 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -58,6 +60,8 @@ public class ShareInfoService extends BaseShareInfoService {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
 
     public Pager<List<ApiDocumentInfoDTO>> selectApiInfoByParam(ApiDocumentRequest apiDocumentRequest, int goPage, int pageSize) {
         this.iniApiDocumentRequest(apiDocumentRequest);
@@ -627,15 +631,14 @@ public class ShareInfoService extends BaseShareInfoService {
         }
     }
 
-    public void validate(String shareId, String customData) {
+    public void validate(String shareId) {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
-        validateExpired(shareInfo);
+        if (ObjectUtils.isNotEmpty(shareInfo)) {
+            String projectId = extTestPlanApiScenarioMapper.selectPlanIdByTestPlanId(shareInfo.getCustomData());
+            validateExpiredTestPlan(shareInfo, projectId);
+        }
         if (shareInfo == null) {
             MSException.throwException("ShareInfo not exist!");
-        } else {
-            if (!StringUtils.equals(customData, shareInfo.getCustomData())) {
-                MSException.throwException("ShareInfo validate failure!");
-            }
         }
     }
 }
