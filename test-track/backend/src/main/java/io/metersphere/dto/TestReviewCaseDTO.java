@@ -21,4 +21,5 @@ public class TestReviewCaseDTO extends TestCaseWithBLOBs {
     private String projectName;
     private String versionName;
     private List<TestCaseTestDTO> list;
+    private List<CustomFieldDao> fields;
 }

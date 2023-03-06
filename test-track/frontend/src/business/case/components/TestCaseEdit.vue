@@ -1110,10 +1110,6 @@ export default {
           testCase.id = getUUID();
           testCase.refId = null;
           testCase.versionId = this.initLatestVersionId;
-
-          this.testCaseTemplate.customFields.forEach((item) => {
-            item.isEdit = false;
-          });
           this.form.id = null;
           testCase.casePublic = false;
         }
@@ -1307,6 +1303,11 @@ export default {
       }
       param.casePublic = this.casePublic;
       param.type = "functional";
+      if (this.isCopy) {
+        this.testCaseTemplate.customFields.forEach((item) => {
+          item.isEdit = false;
+        });
+      }
       buildCustomFields(this.form, param, this.testCaseTemplate);
       this.parseOldFields(param);
       //配置多版本复制的时候是否要连带复制其他信息

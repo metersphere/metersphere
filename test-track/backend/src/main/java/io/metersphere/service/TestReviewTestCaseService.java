@@ -222,6 +222,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 获取每个评审人的评审结果
+     *
      * @return
      */
     public List<TestCaseComment> getReviewerStatusComment(String id) {
@@ -267,7 +268,7 @@ public class TestReviewTestCaseService {
     }
 
     private String updateReviewCaseStatus(TestCaseReviewTestCase testCaseReviewTestCase, String reviewPassRule,
-                                        List<TestCaseCommentDTO> comments, Consumer<String> handleStatusChangeFunc) {
+                                          List<TestCaseCommentDTO> comments, Consumer<String> handleStatusChangeFunc) {
         TestCaseReviewTestCase originReviewTestCase = testCaseReviewTestCaseMapper.selectByPrimaryKey(testCaseReviewTestCase.getId());
 
         // 初始化为原状态，计算完如果有修改才修改
@@ -349,6 +350,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 只保留每个用户的最后一条有效评论
+     *
      * @param comments
      * @param reviewerSet
      * @return
@@ -359,9 +361,9 @@ public class TestReviewTestCaseService {
 
         comments = comments.stream().filter(item -> {
             if (StringUtils.isBlank(item.getStatus()) || // 过滤没有状态的评论
-                StringUtils.equalsAny(item.getStatus(), TestCaseReviewCommentStatus.RuleChange.name(),
-                        TestCaseReviewCommentStatus.StatusChange.name()) || // 过滤不影响结果的状态
-                userSet.contains(item.getAuthor())) { // 保留最新的一条评论
+                    StringUtils.equalsAny(item.getStatus(), TestCaseReviewCommentStatus.RuleChange.name(),
+                            TestCaseReviewCommentStatus.StatusChange.name()) || // 过滤不影响结果的状态
+                    userSet.contains(item.getAuthor())) { // 保留最新的一条评论
                 return false;
             }
             // 必须是评审人
@@ -387,6 +389,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 过滤掉重新提审之前的评论
+     *
      * @param comments
      * @return
      */
@@ -404,6 +407,7 @@ public class TestReviewTestCaseService {
 
     public TestReviewCaseDTO get(String reviewId) {
         TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(reviewId);
+        testReviewCaseDTO.setFields(testCaseService.getCustomFieldByCaseId(testReviewCaseDTO.getCaseId()));
         return testReviewCaseDTO;
     }
 
@@ -481,7 +485,7 @@ public class TestReviewTestCaseService {
             // 修改评审人后重新计算用例的评审状态
             TestCaseReview testReview = testCaseReviewService.getTestReview(request.getReviewId());
             List<TestCaseReviewTestCase> testCaseReviewTestCases = selectForReviewChange(request.getReviewId());
-            for (TestCaseReviewTestCase  reviewTestCase : testCaseReviewTestCases) {
+            for (TestCaseReviewTestCase reviewTestCase : testCaseReviewTestCases) {
                 // 重新计算评审状态
                 reCalcReviewCaseStatus(testReview.getReviewPassRule(), reviewTestCase);
             }
@@ -633,6 +637,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
@@ -663,7 +668,7 @@ public class TestReviewTestCaseService {
 
     public void handlePassRuleChange(String originPassRule, TestCaseReview review) {
         List<TestCaseReviewTestCase> reviewTestCases = selectForReviewChange(review.getId());
-        for (TestCaseReviewTestCase  reviewTestCase : reviewTestCases) {
+        for (TestCaseReviewTestCase reviewTestCase : reviewTestCases) {
             // 如果是已经评审过的用例，则重新计算
             updateReviewCaseStatusForRuleChange(originPassRule, reviewTestCase, review.getReviewPassRule());
         }
@@ -697,6 +702,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 重新计算用例的评审状态
+     *
      * @param reviewPassRule
      * @param reviewTestCase
      */
@@ -715,6 +721,7 @@ public class TestReviewTestCaseService {
 
     /**
      * 将已经评审过的用例改成重新提审状态
+     *
      * @param caseId
      */
     public void reReviewByCaseId(String caseId) {
