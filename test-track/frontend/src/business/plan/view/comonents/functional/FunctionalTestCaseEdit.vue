@@ -618,16 +618,7 @@ export default {
       this.relationGraphOpen = val;
     },
     openTestTestCase(item) {
-      let TestCaseData = this.$router.resolve({
-        path: "/track/case/all",
-        query: {
-          redirectID: getUUID(),
-          dataType: "testCase",
-          dataSelectRange: item.caseId,
-          projectId: item.projectId,
-        },
-      });
-      window.open(TestCaseData.href, "_blank");
+      openCaseEdit({caseId: item.caseId}, this);
     },
     addPLabel(str) {
       return "<p>" + str + "</p>";
