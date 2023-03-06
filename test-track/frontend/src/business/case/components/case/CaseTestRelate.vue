@@ -253,7 +253,6 @@ export default {
 @import "@/business/style/index.scss";
 .el-button.el-button--default.el-button--small {
   background: #ffffff;
-  border: 1px solid #783887 !important;
   border-radius: 4px;
 }
 .relate-container {

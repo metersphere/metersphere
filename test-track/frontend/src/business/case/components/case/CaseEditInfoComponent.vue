@@ -149,6 +149,7 @@
     <el-scrollbar>
       <div class="content-container editable-container" v-if="editable">
         <case-detail-component
+          :class="{ 'edit-component' : (editableState || editable) }"
           :type="type"
           :case-id="caseId"
           :read-only="readOnly"
@@ -516,6 +517,10 @@ export default {
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
 
+.edit-component :deep(.v-note-wrapper) {
+  border: 1px solid #bbbfc4 !important;
+}
+
 .case-edit-wrap {
   :deep(.el-form-item__content) {
     line-height: px2rem(32);
@@ -619,7 +624,6 @@ export default {
           }
           :deep(.v-note-wrapper) {
             box-sizing: border-box;
-            border: 1px solid #bbbfc4 !important;
             border-radius: 4px;
             box-shadow: none !important;
           }

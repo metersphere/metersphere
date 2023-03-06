@@ -120,7 +120,6 @@ export default {
   width: 30px !important;
   height: 30px !important;
   background: #FFFFFF !important;
-  border: 1px solid #BBBFC4 !important;
   border-radius: 4px !important;
   padding: 5px 4px 4px 3px !important;
 }
