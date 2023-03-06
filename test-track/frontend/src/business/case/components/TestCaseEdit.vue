@@ -4,13 +4,13 @@
     <div class="case-edit-box">
       <!-- 创建 or 编辑用例 -->
       <div class="edit-header-container">
-        <div class="header-content-row">
-
+        <div class="header-content-row" :style="!isPublicShow ? 'width: 80%' : 'max-width: 65%'">
           <!-- 用例名称展示与编辑 -->
           <test-case-edit-name-view
             :is-add="isAdd"
             :editable-state="editableState"
             :is-name-edit.sync="isNameEdit"
+            :is-public-show="isPublicShow"
             :form="form"
             @save="saveCaseWithoutRefresh"
           />
@@ -1804,7 +1804,6 @@ export default {
       .header-content-row {
         display: flex;
         align-items: center;
-        width: 80%;
         .back {
           margin-left: px2rem(24);
           width: px2rem(20);

@@ -3,7 +3,7 @@
     <!-- 基于form组件进行表单验证 -->
     <el-form ref="caseDetailForm" :rules="rules" :model="form">
       <!-- case name -->
-      <div class="case-name-row" v-on:keydown.enter.prevent v-if="editableState">
+      <div class="case-name-row" v-on:keydown.enter.prevent v-if="editable">
         <div class="case-name case-title-wrap">
           <div class="name title-wrap">{{ $t("case.case_name") }}</div>
           <div class="required required-item"></div>

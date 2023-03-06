@@ -33,6 +33,7 @@ export default {
     isNameEdit: Boolean,
     editableState: Boolean,
     isAdd: Boolean,
+    isPublicShow: Boolean
   },
   data() {
     return {
@@ -62,6 +63,9 @@ export default {
       this.$emit('save');
     },
     handleNameClick() {
+      if (this.isPublicShow) {
+        return;
+      }
       this.$emit('update:isNameEdit', !this.isNameEdit);
     }
   }
