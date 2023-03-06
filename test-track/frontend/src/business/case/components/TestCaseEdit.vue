@@ -262,7 +262,7 @@
           <!-- 保存 -->
           <div
             class="save-btn-row"
-            v-if="showAddBtn">
+            v-if="showAddBtn || editableState">
             <el-button
               v-prevent-re-click
               size="small"
