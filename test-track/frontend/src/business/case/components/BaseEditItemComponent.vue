@@ -27,7 +27,7 @@
       <div class="readonly" v-show="!edit">
         <div
           class="text"
-          v-if="contentObject.content && contentObject.contentType == 'TEXT'"
+          v-if="contentObject.content && contentObject.contentType === 'TEXT'"
           @click="handleReadTextClick"
         >
           {{ contentObject.content }}
@@ -35,7 +35,7 @@
         <div
           class="select"
           v-else-if="
-            contentObject.content && contentObject.contentType == 'INPUT'
+            contentObject.content && contentObject.contentType === 'INPUT'
           "
           @click="handleReadTextClick"
           @mouseenter="mouseEnterEvent"
@@ -46,7 +46,7 @@
           class="tag-wrap"
           v-else-if="
             contentObject.content &&
-            contentObject.contentType == 'TAG' &&
+            contentObject.contentType === 'TAG' &&
             Array.isArray(contentObject.content) &&
             contentObject.content.length > 0
           "
@@ -67,7 +67,7 @@
           v-else-if="
             contentObject.content &&
             contentObject.content.demandId &&
-            contentObject.contentType == 'STORY'
+            contentObject.contentType === 'STORY'
           "
           @click="handleReadTextClick"
         >
@@ -81,7 +81,7 @@
         <div
           class="select"
           v-else-if="
-            contentObject.content && contentObject.contentType == 'SELECT'
+            contentObject.content && contentObject.contentType === 'SELECT'
           "
           @mouseenter="mouseEnterEvent"
         >
@@ -90,21 +90,35 @@
         <div
           class="select"
           v-else-if="
-            contentObject.content && contentObject.contentType == 'RICHTEXT'
+            contentObject.content && contentObject.contentType === 'RICHTEXT'
           "
           @click="handleReadTextClick"
         >
-          {{ contentObject.content }}
+          <ms-mark-down-text
+            v-if="contentObject.contentType === 'RICHTEXT'"
+            class="rich-text"
+            prop="content"
+            :disabled="true"
+            :data="contentObject"/>
         </div>
         <div
           v-else-if="
-            contentObject.content && contentObject.contentType == 'CUSTOM'
+            contentObject.content && contentObject.contentType === 'CUSTOM'
           "
           :class="getCustomComponentType()"
           @click="handleReadTextClick"
           @mouseenter="mouseEnterEvent"
         >
-          {{ getCustomText() }}
+          <span v-if="contentObject.content.type !== 'richText'">
+            {{ getCustomText() }}
+          </span>
+          <span v-else>
+             <ms-mark-down-text
+               class="rich-text"
+               prop="defaultValue"
+               :disabled="true"
+               :data="contentObject.content"/>
+          </span>
         </div>
         <div class="empty" v-else @click="handleReadTextClick">
           {{ $t("case.none") }}
@@ -115,8 +129,10 @@
 </template>
 <script>
 import { getProjectMemberOption } from "metersphere-frontend/src/api/user";
+import MsMarkDownText from "@/business/case/components/richtext/MsMarkDownText";
 export default {
   name: "BaseEditItemComponent",
+  components: {MsMarkDownText},
   data() {
     return {
       selfEditable: false,
@@ -149,7 +165,7 @@ export default {
     contentClickEvent: {
       type: Boolean,
       default: true,
-    },
+    }
   },
   computed: {
     edit() {
@@ -403,6 +419,20 @@ export default {
 </script>
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+
+.rich-text {
+  border: 0px !important;
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.rich-text :deep(.v-show-content) {
+  background-color: #fff !important;
+  padding: 0 !important;
+}
+
 .text {
   font-family: "PingFang SC";
   font-style: normal;

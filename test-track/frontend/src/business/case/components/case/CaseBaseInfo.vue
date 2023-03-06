@@ -840,7 +840,6 @@ export default {
           }
           :deep(.v-note-wrapper) {
             box-sizing: border-box;
-            border: 1px solid #bbbfc4 !important;
             border-radius: 4px;
             box-shadow: none !important;
           }

@@ -126,9 +126,6 @@ export default {
       :deep(.v-right-item) {
         display: none;
       }
-      :deep(.v-note-wrapper:hover) {
-        border: 1px solid #783887 !important;
-      }
       :deep(.v-note-wrapper .v-note-op) {
         height: 34px !important;
         min-height: 34px !important;
