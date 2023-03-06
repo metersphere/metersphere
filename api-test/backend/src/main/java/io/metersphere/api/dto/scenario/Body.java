@@ -62,14 +62,6 @@ public class Body {
         }
     }
 
-    public boolean isOldKV() {
-        if (StringUtils.equals(type, KV)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public List<KeyValue> getBodyParams(HTTPSamplerProxy sampler, String requestId) {
         List<KeyValue> body = new ArrayList<>();
         if (this.isKV() || this.isBinary()) {
@@ -84,7 +76,7 @@ public class Body {
             }
         } else {
             if (StringUtils.isNotEmpty(this.getRaw()) || this.getJsonSchema() != null) {
-                parseJonBodyMock();
+                analyticalData();
                 KeyValue keyValue = new KeyValue(StringUtils.EMPTY, JSON_SCHEMA, this.getRaw(), true, true);
                 sampler.setPostBodyRaw(true);
                 keyValue.setEnable(true);
@@ -95,33 +87,43 @@ public class Body {
         return body;
     }
 
-    private void parseJonBodyMock() {
-        if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
-            if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
-                    && JSON_SCHEMA.equals(this.format)) {
-                this.raw = StringEscapeUtils.unescapeJava(JSONSchemaBuilder.generator(JSONUtil.toJSONString(this.getJsonSchema())));
+    private void parseMock() {
+        if (StringUtils.isNotEmpty(this.getRaw())) {
+            String value = StringUtils.chomp(this.getRaw().trim());
+            if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
+                List list = JSON.parseArray(this.getRaw());
+                if (!this.getRaw().contains(ElementConstants.REF)) {
+                    jsonMockParse(list);
+                }
+                this.raw = JSONUtil.toJSONString(list);
             } else {
-                try {
-                    if (StringUtils.isNotEmpty(this.getRaw())) {
-                        String value = StringUtils.chomp(this.getRaw().trim());
-                        if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
-                            List list = JSON.parseArray(this.getRaw());
-                            if (!this.getRaw().contains("$ref")) {
-                                jsonMockParse(list);
-                            }
-                            this.raw = JSONUtil.parserArray(JSONUtil.toJSONString(list));
-                        } else {
-                            Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
-                            if (!this.getRaw().contains("$ref")) {
-                                jsonMockParse(map);
-                            }
-                            this.raw = JSONUtil.parserObject(JSONUtil.toJSONString(map));
-                        }
-                    }
-                } catch (Exception e) {
-                    LoggerUtil.error("json mock value is abnormal", e);
+                Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
+                if (!this.getRaw().contains(ElementConstants.REF)) {
+                    jsonMockParse(map);
+                }
+                this.raw = JSONUtil.toJSONString(map);
+            }
+        }
+    }
+
+    private void analyticalData() {
+        try {
+            boolean isArray = false;
+            if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
+                if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null && JSON_SCHEMA.equals(this.format)) {
+                    this.raw = StringEscapeUtils.unescapeJava(JSONSchemaBuilder.generator(JSONUtil.toJSONString(this.getJsonSchema())));
+                } else {
+                    parseMock();
+                }
+                // 格式化处理
+                if (isArray) {
+                    this.raw = JSONUtil.parserArray(this.raw);
+                } else {
+                    this.raw = JSONUtil.parserObject(this.raw);
                 }
             }
+        } catch (Exception e) {
+            LoggerUtil.error("json mock value is abnormal", e);
         }
     }
 

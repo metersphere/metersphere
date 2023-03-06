@@ -56,7 +56,7 @@ public class JSONSchemaBuilder {
         return "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value);
     }
 
-    private static void valueOf(String evlValue, String propertyName, JSONObject concept) {
+    private static boolean valueOf(String evlValue, String propertyName, JSONObject concept) {
         if (StringUtils.startsWith(evlValue, "@")) {
             String str = ScriptEngineUtils.calculate(evlValue);
             switch (evlValue) {
@@ -73,8 +73,10 @@ public class JSONSchemaBuilder {
                     concept.put(propertyName, str);
                     break;
             }
+            return false;
         } else {
             concept.put(propertyName, ScriptEngineUtils.buildFunctionCallString(evlValue));
+            return true;
         }
     }
 
@@ -122,7 +124,11 @@ public class JSONSchemaBuilder {
                     }
                 }
             } catch (Exception e) {
-                valueOf(FormatterUtil.getElementValue(object).getAsString(), propertyName, concept);
+                boolean hasValue = valueOf(FormatterUtil.getElementValue(object).getAsString(), propertyName, concept);
+                if (hasValue) {
+                    String value = FormatterUtil.getElementValue(object).getAsString();
+                    processValue(concept, map, propertyName, value);
+                }
             }
         } else if (propertyObjType.equals(PropertyConstant.BOOLEAN)) {
             // 先设置空值
@@ -137,10 +143,7 @@ public class JSONSchemaBuilder {
                         if (isBoolean(value)) {
                             concept.put(propertyName, Boolean.valueOf(value));
                         } else {
-                            concept.put(propertyName, value);
-                            String key = StringUtils.join("\"", propertyName, "\"", ": \"", value, "\"");
-                            String targetValue = StringUtils.join("\"", propertyName, "\"", ":", value);
-                            map.put(key, targetValue);
+                            processValue(concept, map, propertyName, value);
                         }
                     }
                 }
@@ -156,6 +159,19 @@ public class JSONSchemaBuilder {
         } else if (StringUtils.equalsIgnoreCase(propertyObjType, "null")) {
             concept.put(propertyName, JSONObject.NULL);
         }
+    }
+
+    public static void processValue(JSONObject concept, Map<String, String> map, String propertyName, String value) {
+        concept.put(propertyName, value);
+        String key = StringUtils.join("\"", propertyName, "\"", ":\"", value, "\"");
+        String targetValue = StringUtils.join("\"", propertyName, "\"", ":", value);
+        map.put(key, targetValue);
+    }
+
+    public static void processArrayValue(Map<String, String> map, String value) {
+        String key = StringUtils.join("\"",value, "\"");
+        String targetValue = StringUtils.join(value);
+        map.put(key, targetValue);
     }
 
     private static void analyzeArray(JSONObject concept, String propertyName, JsonObject object, Map<String, String> map) {
@@ -176,7 +192,7 @@ public class JSONSchemaBuilder {
             JsonObject itemsObject = element.getAsJsonObject();
             if (object.has(PropertyConstant.ITEMS)) {
                 if (FormatterUtil.isMockValue(itemsObject)) {
-                    formatItems(itemsObject, targetArray);
+                    formatItems(itemsObject, targetArray, map);
                 } else if (itemsObject.has(PropertyConstant.TYPE) && (itemsObject.has(PropertyConstant.ENUM) || itemsObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.STRING))) {
                     targetArray.put(FormatterUtil.getMockValue(itemsObject));
                 } else if (itemsObject.has(PropertyConstant.TYPE) && itemsObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.NUMBER)) {
@@ -202,12 +218,12 @@ public class JSONSchemaBuilder {
         });
     }
 
-    private static void formatItems(JsonObject itemsObject, JSONArray array) {
+    private static void formatItems(JsonObject itemsObject, JSONArray array, Map<String, String> map) {
+        String type = StringUtils.EMPTY;
+        if (itemsObject.has(PropertyConstant.TYPE)) {
+            type = itemsObject.get(PropertyConstant.TYPE).getAsString();
+        }
         try {
-            String type = StringUtils.EMPTY;
-            if (itemsObject.has(PropertyConstant.TYPE)) {
-                type = itemsObject.get(PropertyConstant.TYPE).getAsString();
-            }
             if (StringUtils.equalsIgnoreCase(type, PropertyConstant.STRING)) {
                 String value = FormatterUtil.getStrValue(itemsObject);
                 array.put(value);
@@ -227,6 +243,10 @@ public class JSONSchemaBuilder {
             }
         } catch (Exception e) {
             arrayValueOf(FormatterUtil.getStrValue(itemsObject), array);
+            if (StringUtils.equalsAnyIgnoreCase(type, PropertyConstant.INTEGER, PropertyConstant.NUMBER)) {
+                String value = FormatterUtil.getElementValue(itemsObject).getAsString();
+                processArrayValue(map, value);
+            }
         }
     }
 

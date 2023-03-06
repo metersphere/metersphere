@@ -37,7 +37,6 @@ public class JSONUtil {
             .disableHtmlEscaping()
             .serializeNulls()
             .create();
-    ;
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
