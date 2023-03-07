@@ -141,6 +141,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.tag')"
+          :show-overflow-tooltip="false"
           min-width="80">
           <template v-slot:default="scope">
             <el-tooltip class="item" effect="dark" placement="top">
