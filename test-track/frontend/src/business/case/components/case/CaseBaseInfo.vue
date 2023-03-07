@@ -390,14 +390,6 @@ export default {
             trigger: "blur",
           },
         ],
-        customNum: [
-          { required: true, message: "ID必填", trigger: "blur" },
-          {
-            max: 50,
-            message: this.$t("test_track.length_less_than") + "50",
-            trigger: "blur",
-          },
-        ],
         demandName: [
           {
             required: true,
@@ -428,6 +420,14 @@ export default {
         ],
       },
       headerRules: {
+        customNum: [
+          { required: true, message: "ID必填", trigger: "blur" },
+          {
+            max: 50,
+            message: this.$t("test_track.length_less_than") + "50",
+            trigger: "blur",
+          },
+        ],
         module: [
           {
             required: true,
@@ -607,6 +607,15 @@ export default {
     validateCustomForm() {
       let isValidate = true;
       this.$refs["customFieldForm"].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+        }
+      });
+      return isValidate;
+    },
+    validateCaseFrom() {
+      let isValidate = true;
+      this.$refs["caseFrom"].validate((valid) => {
         if (!valid) {
           isValidate = false;
         }
