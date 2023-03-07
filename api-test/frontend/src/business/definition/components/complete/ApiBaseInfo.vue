@@ -210,7 +210,6 @@ export default {
     },
     'basicForm.tags': {
       handler(v, v1) {
-        console.log(v, v1)
         if (v && v1 && JSON.stringify(v) !== JSON.stringify(v1) && v!=='[]' && v1!=='[]') {
           this.apiMapStatus();
         }
