@@ -301,7 +301,7 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_COPY']
         },
         {
-          name: this.$t('test_track.case.batch_delete_btn'),
+          name: this.$t('test_track.case.public_remove'),
           handleClick: this.handleDeleteBatchToPublic,
           permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE'],
           isDelete: true
@@ -330,7 +330,7 @@ export default {
               permissions: ['PROJECT_TRACK_CASE:READ+COPY']
             },
             {
-              tip: this.$t('commons.delete'), icon: "el-icon-delete",
+              tip: this.$t('test_track.case.public_remove'), icon: "el-icon-delete",
               exec: this.handleDeleteToGc,
               permissions: ['PROJECT_TRACK_CASE:READ+DELETE'],
               isDisable: !this.isOwner,
@@ -480,9 +480,9 @@ export default {
             this.$refs.apiDeleteConfirm.open(testCase, this.$t('test_track.case.delete_confirm'));
           } else {
             let title = this.$t('case.public.remove') + ": " + testCase.name + "?";
-            this.$confirm(title, '', {
+            this.$confirm(this.$t('test_track.case.public_batch_delete_tip'), title, {
                 cancelButtonText: this.$t("commons.cancel"),
-                confirmButtonText: this.$t("commons.delete"),
+                confirmButtonText: this.$t("test_track.case.public_remove"),
                 customClass: 'custom-confirm-delete',
                 callback: action => {
                   if (action === "confirm") {
@@ -560,7 +560,7 @@ export default {
       let title = this.$t('case.public.batch_remove_confirm', [this.$refs.table.selectIds.length]);
       this.$confirm(title, '', {
           cancelButtonText: this.$t("commons.cancel"),
-          confirmButtonText: this.$t("commons.delete"),
+          confirmButtonText: this.$t("test_track.case.public_remove"),
           customClass: 'custom-confirm-delete',
           callback: action => {
             if (action === "confirm") {
