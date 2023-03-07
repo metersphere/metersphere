@@ -1156,20 +1156,22 @@ public class TestPlanService {
             if (!CollectionUtils.isEmpty(testPlanTestCases)) {
                 Long nextTestCaseOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanTestCaseMapper::getLastOrder);
                 for (TestPlanTestCase testCase : testPlanTestCases) {
-                    TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
-                    testPlanTestCase.setId(UUID.randomUUID().toString());
-                    testPlanTestCase.setPlanId(targetPlanId);
-                    testPlanTestCase.setCaseId(testCase.getCaseId());
-                    testPlanTestCase.setStatus("Prepare");
-                    testPlanTestCase.setExecutor(testCase.getExecutor());
-                    testPlanTestCase.setCreateTime(System.currentTimeMillis());
-                    testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-                    testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-                    testPlanTestCase.setRemark(testCase.getRemark());
-                    testPlanTestCase.setOrder(nextTestCaseOrder);
-                    testPlanTestCase.setIsDel(false);
-                    nextTestCaseOrder += 5000;
-                    testCaseMapper.insert(testPlanTestCase);
+                    if (BooleanUtils.isNotTrue(testCase.getIsDel())) {
+                        TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+                        testPlanTestCase.setId(UUID.randomUUID().toString());
+                        testPlanTestCase.setPlanId(targetPlanId);
+                        testPlanTestCase.setCaseId(testCase.getCaseId());
+                        testPlanTestCase.setStatus("Prepare");
+                        testPlanTestCase.setExecutor(testCase.getExecutor());
+                        testPlanTestCase.setCreateTime(System.currentTimeMillis());
+                        testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+                        testPlanTestCase.setCreateUser(SessionUtils.getUserId());
+                        testPlanTestCase.setRemark(testCase.getRemark());
+                        testPlanTestCase.setOrder(nextTestCaseOrder);
+                        testPlanTestCase.setIsDel(false);
+                        nextTestCaseOrder += 5000;
+                        testCaseMapper.insert(testPlanTestCase);
+                    }
                 }
             }
             sqlSession.flushStatements();
