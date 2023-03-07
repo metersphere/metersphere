@@ -268,7 +268,9 @@ export default {
         .then(() => {
           this.$success(this.$t("test_track.module.success_create"), false);
           this.list();
-        });
+        }).catch(() => {
+        this.list();
+      });
     },
     handleImport() {
       if (!this.projectId) {
