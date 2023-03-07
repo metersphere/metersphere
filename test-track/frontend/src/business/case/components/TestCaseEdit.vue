@@ -1558,7 +1558,7 @@ export default {
         });
       }
       let detailForm = this.$refs.otherInfo.validateForm();
-      let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm();
+      let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm() && this.$refs.testCaseBaseInfo.validateCaseFrom();
       let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
       if (!detailForm || !baseInfoValidate) {
         return false;

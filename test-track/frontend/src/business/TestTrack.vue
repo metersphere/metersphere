@@ -296,23 +296,63 @@ span.el-tag.el-tag--info.el-tag--mini.el-tag--light span{
   color: rgb(31, 35, 41);
 }
 
+
 /**
  * el-tag-icon-close
  */
 i.el-tag__close.el-icon-close {
   height: 0;
+  position: relative;
+  top: -11px!important;
+  left: 1px!important;
 }
 
-.el-select .el-tag__close.el-icon-close::before {
+.el-tag__close.el-icon-close::before {
   font-size: 28px;
-  position: relative;
-  top: -7px;
-  left: -6px;
 }
 
 .el-tag.el-tag--info .el-tag__close:hover {
   color: #1F2329;
   background-color: #909399;
+}
+
+
+/**
+ * 统一测试跟踪MsInputTag样式, 交互改造后去掉
+ */
+span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light {
+  flex-direction: row;
+  align-items: center;
+  padding: 1px 6px;
+  gap: 4px;
+  height: 24px;
+  background: rgba(31, 35, 41, 0.1);
+  border-radius: 2px;
+  flex: none;
+  flex-grow: 0;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+  top: 6px;
+
+}
+
+span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light span{
+  display: inline-block;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(31, 35, 41);
+}
+
+.ms-top.el-tag .el-tag__close.el-icon-close::before {
+  font-size: 24px;
+  position: relative;
+  top: -3px;
 }
 </style>
 
