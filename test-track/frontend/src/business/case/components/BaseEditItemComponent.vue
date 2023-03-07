@@ -30,7 +30,9 @@
           v-if="contentObject.content && contentObject.contentType === 'TEXT'"
           @click="handleReadTextClick"
         >
-          {{ contentObject.content }}
+          <el-tooltip :content="contentObject.content" placement="top" effect="dark">
+            <span>{{ contentObject.content }}</span>
+          </el-tooltip>
         </div>
         <div
           class="select"
@@ -40,7 +42,9 @@
           @click="handleReadTextClick"
           @mouseenter="mouseEnterEvent"
         >
-          {{ contentObject.content }}
+          <el-tooltip :content="contentObject.content" placement="top" effect="dark">
+            <span>{{ contentObject.content }}</span>
+          </el-tooltip>
         </div>
         <div
           class="tag-wrap"
@@ -58,7 +62,9 @@
               :key="index"
               class="tag-row"
             >
-              {{ item }}
+              <el-tooltip :content="item" placement="top" effect="dark">
+                <span>{{ item }}</span>
+              </el-tooltip>
             </div>
           </div>
         </div>
@@ -451,11 +457,12 @@ export default {
 }
 .select {
   width: 100%;
-  height: auto;
+  max-height: px2rem(64);
   line-height: 32px;
   font-weight: 400;
   font-size: 14px;
   color: #1f2329;
+  overflow-y: hidden;
 }
 // .select:hover {
 //   background: rgba(31, 35, 41, 0.1);

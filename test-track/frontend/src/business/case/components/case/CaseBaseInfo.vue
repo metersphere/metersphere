@@ -945,7 +945,6 @@ export default {
         }
         .side-content {
           width: px2rem(256);
-          height: 32px;
           :deep(.el-select) {
             width: 100%;
           }
