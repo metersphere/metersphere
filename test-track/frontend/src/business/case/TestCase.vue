@@ -504,7 +504,8 @@ export default {
       this.$refs.trashNodeTree.list();
       this.hasRefreshDefault = false;
     },
-    refreshTreeByCaseFilter() {
+    refreshTreeByCaseFilter(currentVersion) {
+      this.condition.versionId = currentVersion || null;
       if (this.publicEnable) {
         this.$refs.publicNodeTree.list();
       } else if (this.trashEnable) {
