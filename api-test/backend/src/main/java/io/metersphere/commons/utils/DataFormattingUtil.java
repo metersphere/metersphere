@@ -10,9 +10,11 @@ import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.environment.service.BaseEnvironmentService;
+import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.BodyFile;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
@@ -168,6 +170,8 @@ public class DataFormattingUtil {
             jmx = StringUtils.replace(jmx, " guiclass=\"DubboSampleGui\" ", " guiclass=\"io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui\" ");
             jmx = StringUtils.replace(jmx, " guiclass=\"DubboDefaultConfigGui\" ", " guiclass=\"io.github.ningyu.jmeter.plugin.dubbo.gui.DubboDefaultConfigGui\" ");
             jmx = StringUtils.replace(jmx, " testclass=\"DubboSample\" ", " testclass=\"io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample\" ");
+            jmx = RegExUtils.replacePattern(jmx, "(PRE_PROCESSOR_ENV_false|PRE_PROCESSOR_ENV_true)", Translator.get("pre_processor_env"));
+            jmx = RegExUtils.replacePattern(jmx, "(POST_PROCESSOR_ENV_false|POST_PROCESSOR_ENV_true)", Translator.get("post_processor_env"));
         }
         return jmx;
     }
