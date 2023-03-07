@@ -178,11 +178,14 @@ export default {
   background: transparent;
   border: 0;
   color: #303133;
-  font-size: 12px;
-  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   outline: none;
   padding-left: 0;
-  width: 100px;
+  width: auto;
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  margin-left: 12px;
 }
 
 .el-input-tag {
@@ -234,9 +237,11 @@ span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light span{
   color: rgb(31, 35, 41);
 }
 
-:deep(.ms-top.el-tag .el-icon-close::before) {
-  font-size: 24px;
+:deep(.el-tag .el-icon-close::before) {
+  display: block;
+  font-size: 26px;
   position: relative;
-  top: -3px;
+  top: -15px;
+  left: -6px;
 }
 </style>

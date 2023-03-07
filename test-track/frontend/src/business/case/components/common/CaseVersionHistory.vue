@@ -1,7 +1,8 @@
 <template>
   <div class="version-history-box">
     <el-popover
-      placement="bottom-end"
+      :append-to-body="false"
+      placement="bottom-start"
       width="392"
       trigger="click"
       popper-class="version-popover"
@@ -589,7 +590,7 @@ export default {
 </style>
 <style>
 .version-popover {
-  left: 215px !important;
+  position: relative;
   padding: 0px !important;
 }
 </style>
