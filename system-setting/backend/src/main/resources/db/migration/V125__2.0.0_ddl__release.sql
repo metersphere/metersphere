@@ -1,4 +1,42 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
+-- v1.20.16 升级版本号重叠了
+ALTER TABLE load_test_report
+    MODIFY name VARCHAR(255) NOT NULL;
+
+ALTER TABLE load_test_report
+    MODIFY test_name VARCHAR(255) NULL;
+
+ALTER TABLE `test_plan_report_content`
+    ADD COLUMN `api_base_count` LONGTEXT COMMENT 'request (JSON format)';
+
+-- v1.20.17 升级版本号重叠了
+-- 增加一个索引
+SELECT IF(EXISTS(SELECT DISTINCT index_name
+                 FROM information_schema.statistics
+                 WHERE table_schema = DATABASE()
+                   AND table_name = 'api_definition'
+                   AND index_name LIKE 'api_definition_module_id_status_index'),
+          'select 1',
+          'ALTER TABLE api_definition ADD INDEX api_definition_module_id_status_index (module_id, status)')
+INTO @a;
+PREPARE stmt1 FROM @a;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
+
+--
+-- 增加一个索引
+SELECT IF(EXISTS(SELECT DISTINCT index_name
+                 FROM information_schema.statistics
+                 WHERE table_schema = DATABASE()
+                   AND table_name = 'load_test_report_detail'
+                   AND index_name LIKE 'load_test_report_detail_report_id_part_index'),
+          'select 1',
+          'ALTER TABLE load_test_report_detail ADD INDEX load_test_report_detail_report_id_part_index (report_id, part)')
+INTO @a;
+PREPARE stmt2 FROM @a;
+EXECUTE stmt2;
+DEALLOCATE PREPARE stmt2;
+
 -- 初始化V2.0.0
 -- V117_v1-20-3_custom_field
 -- 存储用例的自定义字段值
