@@ -198,6 +198,7 @@
         </foreach>
         and tc.review_status in ('Prepare','Pass','UnPass')
         and tc.create_user = #{userId,jdbcType=VARCHAR}
+        and (tc.status is null or tc.status != 'Trash');
     </select>
 
     <sql id="queryPublicCaseWhere">
