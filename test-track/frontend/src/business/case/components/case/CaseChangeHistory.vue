@@ -36,10 +36,7 @@
           </div>
         </template>
       </ms-table-column>
-      <ms-table-column
-        prop="originalValue"
-        :label="$t('case.content_before_change')"
-      >
+      <ms-table-column prop="originalValue" :label="$t('case.content_before_change')" :show-overflow-tooltip="false">
         <template v-slot:default="scope">
           <div v-if="scope.row.details && scope.row.details.columns">
             <div v-for="detail in scope.row.details.columns" :key="detail.id">
