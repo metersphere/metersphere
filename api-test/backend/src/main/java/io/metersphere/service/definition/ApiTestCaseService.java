@@ -438,6 +438,10 @@ public class ApiTestCaseService {
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
         ApiFileUtil.createBodyFiles(request.getId(), bodyFiles);
+        if (request.getRequest() != null) {
+            request.getRequest().setRefType(MsHashTreeConstants.CASE);
+            request.getRequest().setEnable(true);
+        }
         request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
         if (StringUtils.isNotBlank(request.getSourceIdByCopy())) {
             ApiFileUtil.copyBdyFile(request.getSourceIdByCopy(), request.getId());
