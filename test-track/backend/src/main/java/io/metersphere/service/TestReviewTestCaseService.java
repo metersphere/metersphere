@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -746,5 +747,20 @@ public class TestReviewTestCaseService {
 
     public List<TestCaseReviewTestCase> selectForReviewerChange(String reviewId) {
         return extTestCaseReviewTestCaseMapper.selectForReviewerChange(reviewId);
+    }
+
+    /**
+     * 检查执行结果，自动更新计划状态
+     * @param caseId
+     */
+    public void checkStatus(String caseId) {
+        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(caseId);
+        if (testCaseReview.getEndTime() != null && testCaseReview.getEndTime() < System.currentTimeMillis()) {
+            TestCaseReviewExample example = new TestCaseReviewExample();
+            example.createCriteria().andIdEqualTo(caseId);
+            TestCaseReview review = new TestCaseReview();
+            review.setStatus(TestPlanStatus.Finished.name());
+            testCaseReviewMapper.updateByExampleSelective(review,example);
+        }
     }
 }

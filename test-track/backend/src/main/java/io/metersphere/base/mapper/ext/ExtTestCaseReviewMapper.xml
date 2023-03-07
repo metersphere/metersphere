@@ -192,4 +192,13 @@
             </foreach>
         </if>) as temp
     </select>
+
+    <select id="selectStatusById" resultType="java.lang.String">
+        SELECT
+            `status`
+        FROM
+            test_case_review
+        WHERE
+            id = #{id}
+    </select>
 </mapper>

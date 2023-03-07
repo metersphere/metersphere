@@ -26,4 +26,6 @@ public interface ExtTestCaseReviewMapper {
      * @return Review ID
      */
     int checkIsHave(@Param("reviewId") String reviewId, @Param("projectIds") Set<String> projectIds);
+
+    String selectStatusById(@Param("id") String id);
 }
