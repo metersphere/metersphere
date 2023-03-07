@@ -120,6 +120,7 @@ export default {
                 '    report = reportlengthStr+report;\n' +
                 '    ctx.getCurrentSampler().setRequestData(report);\n' +
                 '}',
+              disabled: this.isGroovy
             },
             {
               title: this.$t('api_test.request.processor.code_hide_report_length'),
@@ -180,6 +181,11 @@ export default {
       this.reload();
     }
   },
+  computed: {
+    isGroovy() {
+      return this.jsr223ProcessorData.scriptLanguage !== 'groovy';
+    }
+  },
   methods: {
     addTemplate(template) {
       if (!this.jsr223ProcessorData.script) {
@@ -199,6 +205,11 @@ export default {
       this.$nextTick(() => (this.isCodeEditAlive = true));
     },
     languageChange(language) {
+      if (language === 'groovy') {
+        this.codeTemplates[5].hideScript = true;
+      } else {
+        this.codeTemplates[5].hideScript = this.isHideScript();
+      }
       this.jsr223ProcessorData.scriptLanguage = language;
       this.$emit("languageChange");
     },
