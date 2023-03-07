@@ -1,4 +1,86 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
+
+-- 定时任务不执行的问题修复
+SET foreign_key_checks = 0;
+-- swagger
+UPDATE qrtz_triggers
+SET SCHED_NAME = 'apiScheduler'
+WHERE TRIGGER_GROUP = 'SWAGGER_IMPORT' AND SCHED_NAME = 'clusterScheduler';
+
+-- api
+UPDATE qrtz_triggers
+SET SCHED_NAME = 'apiScheduler'
+WHERE TRIGGER_GROUP = 'API_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- ui
+UPDATE qrtz_triggers
+SET SCHED_NAME = 'uiScheduler'
+WHERE TRIGGER_GROUP = 'UI_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- test-plan
+UPDATE qrtz_triggers
+SET SCHED_NAME = 'trackScheduler'
+WHERE TRIGGER_GROUP = 'TEST_PLAN_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- issue-sync
+UPDATE qrtz_triggers
+SET SCHED_NAME = 'trackScheduler'
+WHERE TRIGGER_GROUP = 'ISSUE_SYNC' AND SCHED_NAME = 'clusterScheduler';
+
+
+-- swagger
+UPDATE qrtz_cron_triggers
+SET SCHED_NAME = 'apiScheduler'
+WHERE TRIGGER_GROUP = 'SWAGGER_IMPORT' AND SCHED_NAME = 'clusterScheduler';
+
+-- api
+UPDATE qrtz_cron_triggers
+SET SCHED_NAME = 'apiScheduler'
+WHERE TRIGGER_GROUP = 'API_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- ui
+UPDATE qrtz_cron_triggers
+SET SCHED_NAME = 'uiScheduler'
+WHERE TRIGGER_GROUP = 'UI_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- test-plan
+UPDATE qrtz_cron_triggers
+SET SCHED_NAME = 'trackScheduler'
+WHERE TRIGGER_GROUP = 'TEST_PLAN_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- issue-sync
+UPDATE qrtz_cron_triggers
+SET SCHED_NAME = 'trackScheduler'
+WHERE TRIGGER_GROUP = 'ISSUE_SYNC' AND SCHED_NAME = 'clusterScheduler';
+
+
+-- swagger
+UPDATE qrtz_job_details
+SET SCHED_NAME = 'apiScheduler', JOB_CLASS_NAME = 'io.metersphere.sechedule.SwaggerUrlImportJob'
+WHERE JOB_GROUP = 'SWAGGER_IMPORT' AND SCHED_NAME = 'clusterScheduler';
+
+-- api
+UPDATE qrtz_job_details
+SET SCHED_NAME = 'apiScheduler', JOB_CLASS_NAME = 'io.metersphere.sechedule.ApiScenarioTestJob'
+WHERE JOB_GROUP = 'API_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- ui
+UPDATE qrtz_job_details
+SET SCHED_NAME = 'uiScheduler', JOB_CLASS_NAME = 'io.metersphere.sechedule.UiTestJob'
+WHERE JOB_GROUP = 'UI_SCENARIO_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- test-plan
+UPDATE qrtz_job_details
+SET SCHED_NAME = 'trackScheduler', JOB_CLASS_NAME = 'io.metersphere.plan.job.TestPlanTestJob'
+WHERE JOB_GROUP = 'TEST_PLAN_TEST' AND SCHED_NAME = 'clusterScheduler';
+
+-- issue-sync
+UPDATE qrtz_job_details
+SET SCHED_NAME = 'trackScheduler', JOB_CLASS_NAME = 'io.metersphere.job.sechedule.IssueSyncJob'
+WHERE JOB_GROUP = 'ISSUE_SYNC' AND SCHED_NAME = 'clusterScheduler';
+
+SET foreign_key_checks = 1;
+
 -- v2_3 init
 -- V2_3_micro_service_module
 -- 工单名称: V2_3_micro_service_module
