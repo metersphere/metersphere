@@ -27,23 +27,27 @@
         <ms-table-column
           prop="name"
           :field="item"
-          :label="$t('test_track.review.review_name')"/>
+          :label="$t('test_track.review.review_name')"
+          min-width="130px"/>
 
        <ms-table-column
          prop="reviewer"
          :field="item"
-         :label="$t('test_track.review.reviewer')"/>
+         :label="$t('test_track.review.reviewer')"
+         min-width="140px"/>
 
         <ms-table-column
           prop="projectName"
           :field="item"
-          :label="$t('test_track.review.review_project')"/>
+          :label="$t('test_track.review.review_project')"
+          min-width="120px"/>
 
         <ms-table-column
           prop="creatorName"
           :field="item"
           :filters="userFilter"
-          :label="$t('test_track.review.creator')"/>
+          :label="$t('test_track.review.creator')"
+          min-width="120px"/>
 
         <ms-table-column
           prop="status"
@@ -75,13 +79,14 @@
            :field="item"
            :fields-width="fieldsWidth"
            :label="$t('api_test.definition.api_case_number')"
-           min-width="200px">
+           min-width="50px">
         </ms-table-column>
 
         <ms-table-column
           prop="endTime"
           :field="item"
-          :label="$t('test_track.review.end_time')">
+          :label="$t('test_track.review.end_time')"
+          min-width="140px">
           <template v-slot:default="scope">
             <span>{{ scope.row.endTime | datetimeFormat }}</span>
           </template>
@@ -91,8 +96,7 @@
            prop="passRate"
            :field="item"
            :fields-width="fieldsWidth"
-           :label="$t('commons.pass_rate')"
-           min-width="120px">
+           :label="$t('commons.pass_rate')">
         </ms-table-column>
       </span>
 
