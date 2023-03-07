@@ -8,7 +8,7 @@
           <div class="name title-wrap">ID</div>
           <div class="required required-item"></div>
         </div>
-        <div class="side-content">
+      <div class="side-content">
           <base-edit-item-component
             :editable="editable"
             :auto-save="!readOnly"
@@ -113,14 +113,15 @@
                   <ms-select-tree
                     :disabled="readOnly"
                     :data="treeNodes"
-                    :defaultKey="defaultModuleKey"
                     :obj="moduleObj"
-                    @getValue="(id, data) => setModule(id, data)"
+                    :default-key="defaultModuleKey"
+                    @getValue="setModule"
                     clearable
                     checkStrictly
                     size="small"
                     @selectClick="onClick"
                     @clean="onClick"
+                    ref="moduleTree"
                   />
                 </el-form-item>
               </div>
@@ -447,6 +448,7 @@ export default {
       demandOptions: [],
       versionFilters: [],
       demandList: [],
+      defaultModuleKey: ''
     };
   },
   props: {
@@ -471,36 +473,38 @@ export default {
     isCustomNum() {
       return useStore().currentProjectIsCustomNum;
     },
-    defaultModuleKey() {
-      if (this.editable && !this.editableState) {
-        let defaultNodeKey = '';
-        if (this.$route.query.createNodeId) {
-          defaultNodeKey = this.$route.query.createNodeId;
-        } else {
-          this.treeNodes.forEach(node => {
-            if (node.label === '未规划用例') {
-              defaultNodeKey = node.id;
-              this.form.module = defaultNodeKey;
-              this.form.nodePath = node.path;
-            }
-          })
-        }
-        return defaultNodeKey;
-      } else {
-        return this.form.module
-      }
+    createNodeId() {
+      return this.$route.query.createNodeId;
     }
   },
   mounted() {
     this.getDemandOptions();
     this.getVersionOptions();
-    if (this.$route.query.createNodeId) {
-      this.form.module = this.$route.query.createNodeId;
-      let node = this.findTreeNode(this.treeNodes);
-      this.form.nodePath = node.path;
-    }
   },
   methods: {
+    setDefaultModule() {
+      this.doSetDefaultModule(this.treeNodes);
+    },
+    doSetDefaultModule(treeNodes) {
+      if (treeNodes && treeNodes.length > 0) {
+        if (this.createNodeId) {
+          // 创建时设置选中的模块
+          this.form.module = this.createNodeId;
+          let node = this.findTreeNode(treeNodes);
+          this.form.nodePath = node.path;
+        } else if (this.form.module) {
+          // 编辑重新设置下 nodePath
+          let node = this.findTreeNode(treeNodes);
+          this.form.nodePath = node ? node.path : '';
+        } else {
+          // 创建不带模块ID，设置成为规划模块
+          this.form.module = treeNodes[0].id;
+          this.form.nodePath = treeNodes[0].path;
+        }
+        this.defaultModuleKey = this.form.module;
+        this.$refs.moduleTree.setData(this.form.module);
+      }
+    },
     handleDemandOptionPlatform(data){
       if(data.platform){
         return data.platform
@@ -586,8 +590,10 @@ export default {
       }
     },
     setModule(id, data) {
-      this.form.module = id;
-      this.form.nodePath = data.path;
+      if (data) {
+        this.form.module = id;
+        this.form.nodePath = data.path;
+      }
     },
     mouseLeaveEvent(refName) {
       if (!this.editable && this.$refs[refName]) {
