@@ -2,7 +2,7 @@
   <div>
     <div>
       <div class="ms-opt-btn" v-if="versionEnable">{{ $t('project.version.name') }}: {{ versionName }}</div>
-      <div style="float: left; margin-top: 15px">
+      <div style="float: left; margin-top: 15px" v-if="!isTcp">
         Mock地址：
         <el-link
           v-if="this.getUrlPrefix !== ''"
