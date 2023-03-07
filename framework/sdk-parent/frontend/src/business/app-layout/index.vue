@@ -144,7 +144,12 @@ export default {
           let title = response.data[4].paramValue;
           if (title) {
             localStorage.setItem("default-document-title", title);
-            document.title = title;
+            if (this.$route.fullPath.indexOf("/track/case/edit") === -1) {
+              // 如果不是用例编辑, 新增, 复制页面则需修改title为系统title
+              document.title = title;
+            }
+          } else {
+            localStorage.setItem("default-document-title", "MeterSphere");
           }
           if (response.data[0].paramValue) {
             this.shortcutIcon();
