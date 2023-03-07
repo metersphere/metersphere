@@ -234,11 +234,9 @@ span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light span{
   color: rgb(31, 35, 41);
 }
 
-:deep(.el-tag .el-icon-close::before) {
-  display: block;
-  font-size: 26px;
+:deep(.ms-top.el-tag .el-icon-close::before) {
+  font-size: 24px;
   position: relative;
-  top: -15px;
-  left: -6px;
+  top: -3px;
 }
 </style>
