@@ -561,11 +561,7 @@ public class TestCaseReviewService {
         if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ) {
             return;
         }
-        if (statusList.contains(TestReviewCaseStatus.UnPass.name())) {
-            testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
-            testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-            return;
-        }
+
         testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
