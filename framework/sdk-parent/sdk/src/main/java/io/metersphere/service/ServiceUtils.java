@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.CustomFieldType;
+import io.metersphere.commons.constants.OperatorTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
@@ -384,8 +385,15 @@ public class ServiceUtils {
                         CustomFieldType.CHECKBOX.getValue(), CustomFieldType.MULTIPLE_SELECT.getValue())
                         && StringUtils.isNotEmpty(custom.get("value").toString())) {
                     List<String> customValues = JSON.parseArray(custom.get("value").toString(), String.class);
-                    List<String> jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).collect(Collectors.toList());
-                    custom.put("value", "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));
+                    List<String> jsonValues;
+                    if (StringUtils.equalsIgnoreCase(custom.get("operator").toString(), OperatorTypeConstants.NOT_IN)) {
+                        jsonValues = customValues.stream().map(item -> "locate('"+item+"',`value`) = 0").collect(Collectors.toList());
+                        custom.put("value", "(".concat(StringUtils.join(jsonValues, " and ")).concat(")"));
+                    } else {
+                        jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).collect(Collectors.toList());
+                        custom.put("value", "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));
+                    }
+
                 }
             });
         }
