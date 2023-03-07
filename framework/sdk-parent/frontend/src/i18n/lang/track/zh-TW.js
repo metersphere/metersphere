@@ -100,6 +100,8 @@ export default {
     batch_delete_confirm: "確定刪除{0}項用例?",
     batch_delete_completely_confirm: "確定徹底刪除{0}項用例",
     batch_delete_tip: "刪除後將無法恢復, 請謹慎操作。",
+    public_batch_delete_tip: "移除後將無法恢復, 請謹慎操作。",
+    public_remove:"移除",
     batch_delete_soft_tip: "刪除的內容將進入回收站",
     save_create_continue: "保存併繼續創建",
     save_add_public: "保存併添加到公共用例庫",
