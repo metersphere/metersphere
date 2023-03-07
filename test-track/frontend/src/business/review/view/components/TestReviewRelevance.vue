@@ -3,12 +3,13 @@
     <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
                width="75%"
                :close-on-click-modal="false"
+               :fullscreen="isFullScreen"
                top="50px" :destroy-on-close="true"
                append-to-body>
 
       <template slot="title" :slot-scope="$t('test_track.review_view.relevance_case')" v-if="!$slots.headerBtn">
         <ms-dialog-header :title="$t('test_track.review_view.relevance_case')" @cancel="dialogFormVisible = false"
-                          @confirm="saveReviewRelevance">
+                          @confirm="saveReviewRelevance" @fullScreen="fullScreen">
           <template #other>
             <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
           </template>
@@ -45,6 +46,7 @@
                       v-loading="result.loading"
                       :total="total"
                       :page-size.sync="pageSize"
+                      :screen-height="screenHeight"
                       @handlePageChange="getReviews"
                       @refresh="getReviews"
                       @selectCountChange="setSelectCounts"
@@ -196,6 +198,8 @@ export default {
         {text: this.$t('test_track.review.underway'), value: 'Underway'},
       ],
       selectCounts: null,
+      isFullScreen: false,
+      screenHeight: 'calc(100vh - 420px)'
     };
   },
   props: {
@@ -233,6 +237,10 @@ export default {
     this.toggleSelection(this.testReviews);
   },
   methods: {
+    fullScreen(){
+      this.isFullScreen = !this.isFullScreen;
+      this.screenHeight = this.isFullScreen ?'calc(100vh - 180px)' :'calc(100vh - 420px)'
+    },
     setConditionModuleIdParam() {
       this.condition.components.forEach(component => {
         if (component.key === 'moduleIds') {

@@ -3,7 +3,7 @@
   <div class="msDialogHeader">
     <span style="float: left;font-size: 18px;color: #303133;">{{ title }}</span>
 
-    <div style="float: right; margin-right: 30px">
+    <div style="top: 20px; right: 50px; position: absolute;">
       <el-tooltip effect="dark" :content="$t('commons.full_screen_editing')"
                   placement="top-start">
         <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
@@ -57,7 +57,7 @@ export default {
 <style scoped>
 .ms_btn {
   float: right;
-  margin-right: 50px;
+  margin-right: 70px;
 }
 
 .msDialogHeader {
