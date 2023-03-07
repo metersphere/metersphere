@@ -18,6 +18,8 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.NodeNumDTO;
+import io.metersphere.dto.TestCaseDTO;
+import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.exception.ExcelException;
 import io.metersphere.i18n.Translator;
@@ -25,13 +27,12 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
-import io.metersphere.dto.TestCaseDTO;
-import io.metersphere.dto.TestCaseNodeDTO;
+import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.testcase.*;
-import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -41,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,7 +96,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     private void validateNode(TestCaseNode node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
-            throw new RuntimeException(Translator.get("test_case_node_level_tip")
+            MSException.throwException(Translator.get("test_case_node_level_tip")
                     + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
         this.checkTestCaseNodeExist(node);
