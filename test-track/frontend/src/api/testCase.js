@@ -272,3 +272,7 @@ export function saveCaseRelevanceLoad(caseId, param) {
 export function checkProjectPermission(projectId) {
   return get(BASE_URL + "check/permission/" + projectId);
 }
+
+export function testCaseAutoCheck(caseId) {
+  return get(`/test/review/case/auto-check/${caseId}`);
+}

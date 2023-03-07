@@ -549,14 +549,16 @@ public class TestCaseReviewService {
     }
 
     public void editTestReviewStatus(String reviewId) {
+        String status = extTestCaseReviewMapper.selectStatusById(reviewId);
+        if (StringUtils.equalsAnyIgnoreCase(status, TestCaseReviewStatus.Completed.name(), TestCaseReviewStatus.Finished.name())){
+            return;
+        }
+
         List<String> statusList = extTestReviewCaseMapper.getStatusByReviewId(reviewId);
         TestCaseReview testCaseReview = new TestCaseReview();
         testCaseReview.setId(reviewId);
 
-        if (statusList.contains(TestReviewCaseStatus.Prepare.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ||
-                statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Rereview.name())) {
-            testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
-            testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+        if (statusList.contains(TestReviewCaseStatus.Underway.name()) || statusList.contains(TestReviewCaseStatus.Again.name()) ) {
             return;
         }
         if (statusList.contains(TestReviewCaseStatus.UnPass.name())) {

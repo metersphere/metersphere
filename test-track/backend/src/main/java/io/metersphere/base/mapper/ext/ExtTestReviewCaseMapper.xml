@@ -329,9 +329,12 @@
     </select>
 
     <select id="getStatusByReviewId" resultType="java.lang.String">
-        select review_status
-        from test_case
-        where id in (select case_id from test_case_review_test_case where review_id = #{reviewId});
+        SELECT
+            status
+        FROM
+            test_case_review_test_case
+        WHERE
+            review_id = #{reviewId} and is_del = 0;
     </select>
 
     <select id="findRelateTestReviewId" resultType="java.lang.String">
