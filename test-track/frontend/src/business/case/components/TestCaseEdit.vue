@@ -963,6 +963,7 @@ export default {
         this.casePublic = true;
       } else if (e === 4) {
         this.editableState = false;
+        this.$refs.otherInfo.caseActiveName = 'detail';
         this.loadTestCase();
         return;
       }

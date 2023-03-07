@@ -1,6 +1,6 @@
 <template>
   <div class="case-name">
-    <div v-if="isAdd || editableState" :class="'case-name'">
+    <div v-if="isAdd || editableState">
       {{ editableState ? $t('test_track.case.edit_case') : $t('test_track.case.create_case') }}
     </div>
     <div :class="isNameEdit ? 'name-input' : 'name-text'" v-else>
@@ -16,8 +16,12 @@
          />
       </span>
       <span v-else @click="handleNameClick">
-       {{ titleNum }}
-       {{ form.name }}
+        <el-tooltip :content="form.name" effect="dark" placement="bottom-start">
+          <span>
+            {{ titleNum }}
+            {{ form.name }}
+          </span>
+        </el-tooltip>
       </span>
     </div>
   </div>
@@ -77,19 +81,20 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
-
 .name-input {
-  width: 80%;
+  min-width: px2rem(900);
 }
+
 .name-text:hover {
   cursor: pointer;
   background: rgba(31, 35, 41, 0.1);
   border-radius: 4px;
 }
-.name-text {
-  max-width: 800px;
-}
 
+.name-text {
+  width: auto;
+  padding-right: 0.5rem;
+}
 
 .input-error :deep(.el-input__inner) {
   border-color: #F56C6C;
@@ -112,7 +117,7 @@ export default {
   overflow: hidden;
   /* 文本超出的部分打点显示 */
   text-overflow: ellipsis;
-  padding-right: 0.5rem;
+  max-width: 85%;
 }
 
 </style>

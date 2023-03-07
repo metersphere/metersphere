@@ -55,6 +55,7 @@ export default {
   box-sizing: border-box;
   border-radius: 4px;
   box-shadow: none !important;
+  border: 1px solid #bbbfc4!important;
 }
 :deep(.v-note-show) {
   min-height: 64px;

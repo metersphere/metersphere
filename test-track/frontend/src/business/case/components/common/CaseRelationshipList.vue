@@ -22,7 +22,7 @@
         >
       </div>
     </div>
-    <div class="dep-list-wrap" v-if="expand">
+    <div class="dep-list-wrap" v-show="expand">
       <test-case-relationship-list
         v-if="resourceType === 'TEST_CASE'"
         :case-id="resourceId"
@@ -34,7 +34,7 @@
         ref="testCaseRelationshipList"
       />
     </div>
-    <div class="split" v-else></div>
+    <div class="split" v-show="!expand"></div>
   </div>
 </template>
 
