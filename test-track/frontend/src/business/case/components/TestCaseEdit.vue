@@ -608,9 +608,6 @@ export default {
     routeProjectId() {
       return this.$route.query.projectId;
     },
-    moduleOptions() {
-      return store.testCaseModuleOptions;
-    },
     isCustomNum() {
       return store.currentProjectIsCustomNum;
     },
@@ -803,8 +800,11 @@ export default {
             this.treeNodes.forEach(node => {
               node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
               buildTree(node, {path: ''});
-              this.setNodeModule();
             });
+            if (!this.caseId) {
+              // 创建时设置模块ID
+              this.setDefaultModule();
+            }
           });
       }
 
@@ -903,19 +903,6 @@ export default {
         "Test case",
         "TRACK_TEST_CASE",
       ]);
-    },
-    setNodeModule() {
-      if (this.caseId) {
-        this.form.module = this.currentTestCaseInfo.nodeId;
-        this.form.nodePath = this.currentTestCaseInfo.nodePath;
-      }
-      if ((!this.form.module ||
-          this.form.module === "default-module" ||
-          this.form.module === "root")
-        && this.treeNodes.length > 0) {
-        this.form.module = this.treeNodes[0].id;
-        this.form.nodePath = this.treeNodes[0].path;
-      }
     },
     setDefaultValue() {
       if (!this.form.prerequisite) {
@@ -1022,9 +1009,7 @@ export default {
 
         // add
         document.title = this.$t('test_track.case.create_case');
-        if (this.moduleOptions.length > 0) {
-          this.form.module = this.moduleOptions[0].id;
-        }
+
         let user = JSON.parse(localStorage.getItem(TokenKey));
         this.form.priority = "P3";
         this.form.type = "functional";
@@ -1043,6 +1028,11 @@ export default {
       }
       if (callback) {
         callback();
+      }
+    },
+    setDefaultModule() {
+      if (this.$refs.testCaseBaseInfo) {
+        this.$refs.testCaseBaseInfo.doSetDefaultModule(this.treeNodes);
       }
     },
     async checkCurrentProject() {
@@ -1158,7 +1148,10 @@ export default {
         this.form.stepModel = "STEP";
       }
       this.casePublic = tmp.casePublic;
+
       this.form.module = testCase.nodeId;
+
+      this.$refs.testCaseBaseInfo.setDefaultModule();
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(
         this.form,
