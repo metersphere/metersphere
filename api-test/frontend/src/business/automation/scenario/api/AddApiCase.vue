@@ -67,6 +67,9 @@ export default {
       });
     },
     saveCase(api) {
+      if (api && api.refType) {
+        api.refType = "CASE";
+      }
       let obj = {
         apiDefinitionId: api.id,
         name: api.name,
