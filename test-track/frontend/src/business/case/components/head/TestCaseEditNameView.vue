@@ -1,24 +1,24 @@
 <template>
-  <div class="case-name" :class="isNameEdit ? 'name-input' : 'name-text'">
+  <div class="case-name">
     <div v-if="isAdd || editableState" :class="'case-name'">
       {{ editableState ? $t('test_track.case.edit_case') : $t('test_track.case.create_case') }}
     </div>
-    <div v-else>
-          <span v-if="isNameEdit">
-             <el-input
-               :class="{ 'input-error' : showInputError}"
-               size="small"
-               :placeholder="$t('case.please_enter_the_case_name')"
-               v-model="form.name"
-               @blur="handleNameEdit"
-               :maxlength="255"
-               show-word-limit
-             />
-          </span>
+    <div :class="isNameEdit ? 'name-input' : 'name-text'" v-else>
+      <span v-if="isNameEdit">
+         <el-input
+           :class="{ 'input-error' : showInputError}"
+           size="small"
+           :placeholder="$t('case.please_enter_the_case_name')"
+           v-model="form.name"
+           @blur="handleNameEdit"
+           :maxlength="255"
+           show-word-limit
+         />
+      </span>
       <span v-else @click="handleNameClick">
-             {{ titleNum }}
-             {{ form.name }}
-          </span>
+       {{ titleNum }}
+       {{ form.name }}
+      </span>
     </div>
   </div>
 </template>

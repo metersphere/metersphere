@@ -271,12 +271,6 @@ export default {
   height: 32px;
 }
 
-:deep(.ms-select-tag.el-select .el-tag__close.el-icon-close::before) {
-  position: relative;
-  top: -17px;
-  left: -6px;
-}
-
 :deep(.ms-select-tag.el-select span.el-select__tags-text) {
   max-width: 240px!important;
 }
