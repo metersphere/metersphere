@@ -826,6 +826,7 @@ export default {
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
+      this.$emit('search',currentVersion);
     },
     toggleAdvanceSearch() {
       this.$refs.advanceSearch.toggle();
