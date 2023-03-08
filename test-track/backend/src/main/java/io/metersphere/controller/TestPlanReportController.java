@@ -18,9 +18,9 @@ import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.plan.request.TestPlanReportSaveRequest;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,6 +45,11 @@ public class TestPlanReportController {
     @GetMapping("/getMetric/{planId}")
     public TestPlanReportDTO getMetric(@PathVariable String planId) {
         return testPlanReportService.getMetric(planId);
+    }
+
+    @GetMapping("/real-time/{planId}")
+    public TestPlanSimpleReportDTO getRealTimeReport(@PathVariable String planId) {
+        return testPlanReportService.getRealTimeReport(planId);
     }
 
     @GetMapping("/db/{reportId}")
@@ -77,7 +82,7 @@ public class TestPlanReportController {
         String userId = SessionUtils.getUser().getId();
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, triggerMode);
-        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest,null);
+        TestPlanScheduleReportInfoDTO report = testPlanReportService.genTestPlanReport(saveRequest, null);
         testPlanReportService.genTestPlanReportContent(report);
         testPlanReportService.countReportByTestPlanReportId(report.getTestPlanReport().getId(), null, triggerMode);
         return "success";
