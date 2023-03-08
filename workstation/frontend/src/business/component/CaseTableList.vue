@@ -658,7 +658,7 @@ export default {
         caseId: testCase.id,
         projectId: testCase.projectId
       };
-      let path = '/track/' + query.projectId + '/case/edit/' + query.caseId;
+      let path = '/track/case/edit/' + query.caseId;
       delete query.projectId;
       delete query.caseId;
       let TestCaseData = this.$router.resolve({
