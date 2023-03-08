@@ -165,7 +165,7 @@
       <div>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
-                   size="90%">
+                   size="90%" @close="search">
           <micro-app :to="`/ui/report/view/${reportId}`" route-name="ApiReportView"
                      :route-params="{showCancelButton: false, reportId, view: true}" service="ui"/>
         </el-drawer>
