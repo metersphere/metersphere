@@ -887,6 +887,9 @@ public class ApiDefinitionService {
             if (apiTestCaseWithBLOBs.getCreateTime() == null) {
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
             }
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getProjectId())) {
+                apiTestCaseWithBLOBs.setProjectId(apiDefinition.getProjectId());
+            }
             apiTestCaseWithBLOBs.setUpdateTime(System.currentTimeMillis());
 
             if (StringUtils.isBlank(apiTestCaseWithBLOBs.getCaseStatus())) {
