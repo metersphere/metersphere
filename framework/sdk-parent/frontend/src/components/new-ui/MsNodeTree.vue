@@ -38,7 +38,7 @@
               </span>
 
               <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
+                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
               </el-tooltip>
 
               <span v-if="!disabled" class="node-operate child">
@@ -128,7 +128,7 @@
           </span>
 
           <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
+            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
           </el-tooltip>
 
 
