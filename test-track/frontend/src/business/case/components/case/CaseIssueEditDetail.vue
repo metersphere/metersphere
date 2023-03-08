@@ -9,7 +9,23 @@
       ref="form"
     >
       <!-- 标题 -->
-      <div class="title-row" v-if="!enableThirdPartTemplate">
+      <div class="title-row" v-if="!(this.issueTemplate.platform === 'Local')">
+        <el-form-item :label="$t('commons.title')" prop="title">
+          <div slot="label" class="required-item">
+            {{ $t("commons.title") }}
+          </div>
+          <el-input
+            v-model="form.title"
+            autocomplete="off"
+            class="top-input-class"
+            maxlength="255"
+            show-word-limit
+          >
+          </el-input>
+        </el-form-item>
+      </div>
+
+      <div class="title-row" v-else>
         <el-form-item :label="$t('commons.title')" prop="title">
           <div slot="label" class="required-item">
             {{ $t("commons.title") }}
