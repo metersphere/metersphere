@@ -1053,6 +1053,53 @@ public class TestPlanReportService {
         return testPlanReportDTO;
     }
 
+    /**
+     * 获取测试计划实时报告
+     *
+     * @param planId
+     * @return
+     */
+    public TestPlanSimpleReportDTO getRealTimeReport(String planId) {
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
+        TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
+        TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
+        TestPlanUiResultReportDTO uiResult = new TestPlanUiResultReportDTO();
+        report.setFunctionResult(functionResult);
+        report.setApiResult(apiResult);
+        report.setUiResult(uiResult);
+        report.setStartTime(testPlan.getActualStartTime());
+        report.setEndTime(testPlan.getActualEndTime());
+        report.setSummary(testPlan.getReportSummary());
+        report.setConfig(testPlan.getReportConfig());
+        testPlanTestCaseService.calculatePlanReport(planId, report);
+        issuesService.calculatePlanReport(planId, report);
+        planTestPlanApiCaseService.calculatePlanReport(planId, report);
+        planTestPlanScenarioCaseService.calculatePlanReport(planId, report);
+        planTestPlanLoadCaseService.calculatePlanReport(planId, report);
+        planTestPlanUiScenarioCaseService.calculatePlanReport(planId, report);
+
+        if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
+            report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
+        } else {
+            report.setExecuteRate(0.0);
+        }
+        if (report.getPassCount() != 0 && report.getCaseCount() != null) {
+            report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getCaseCount());
+        } else {
+            report.setPassRate(0.0);
+        }
+
+        report.setName(testPlan.getName());
+        Project project = baseProjectService.getProjectById(testPlan.getProjectId());
+        if (project.getPlatform() != null && project.getPlatform().equals(IssuesManagePlatform.Local.name())) {
+            report.setIsThirdPartIssue(false);
+        } else {
+            report.setIsThirdPartIssue(true);
+        }
+        return report;
+    }
+
     public void selectEnvironmentByTestPlanReport(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReport testPlanReport) {
         if (StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
             try {
