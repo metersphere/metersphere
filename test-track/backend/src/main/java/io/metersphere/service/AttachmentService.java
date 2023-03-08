@@ -642,6 +642,13 @@ public class AttachmentService {
         return JSON.toJSONString(details);
     }
 
+    /**
+     * 删除文件操作记录
+     *
+     * @param attachmentId
+     * @param attachmentType
+     * @return
+     */
     public String getLogDetails(String attachmentId, String attachmentType) {
         FileAttachmentMetadata fileAttachmentMetadata = fileAttachmentMetadataMapper.selectByPrimaryKey(attachmentId);
         if (fileAttachmentMetadata == null) {
@@ -656,6 +663,114 @@ public class AttachmentService {
         }
         String relationId = attachmentModuleRelations.get(0).getRelationId();
         return this.getLogDetails(relationId, attachmentType, fileName, true);
+    }
+
+    /**
+     * 关联文件的操作记录
+     *
+     * @param sourceId
+     * @param type
+     * @param refIds 关联或取消关联的文件ID
+     * @return
+     */
+    public String getLogDetails(String sourceId, String type, List refIds, Boolean isRelate) {
+        String projectId = null;
+        String createUser = null;
+        if (StringUtils.isBlank(sourceId) || StringUtils.isBlank(type) || CollectionUtils.isEmpty(refIds)) {
+            return null;
+        }
+        if (AttachmentType.ISSUE.type().equals(type)) {
+            IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(sourceId);
+            if (issues == null) {
+                return null;
+            }
+            projectId = issues.getProjectId();
+            createUser = issues.getCreator();
+        } else if (AttachmentType.TEST_CASE.type().equals(type)) {
+            TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(sourceId);
+            if (testCase == null) {
+                return null;
+            }
+            projectId = testCase.getProjectId();
+            createUser = testCase.getCreateUser();
+        }
+        AttachmentRequest attachmentRequest = new AttachmentRequest();
+        attachmentRequest.setBelongId(sourceId);
+        attachmentRequest.setBelongType(type);
+        List<FileAttachmentMetadata> originFiles = listMetadata(attachmentRequest);
+        List<String> fileNames = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(originFiles)) {
+            fileNames = originFiles.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+        }
+        String after;
+        String before;
+
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(refIds);
+        List<FileMetadata> fileMetadata = fileMetadataMapper.selectByExample(example);
+        List<String> refNames = fileMetadata.stream().map(FileMetadata::getName).collect(Collectors.toList());
+
+        after = String.join(",", fileNames);
+        List<String> unRelateFiles = fileNames.stream().filter(filename -> !refNames.contains(filename)).collect(Collectors.toList());
+        before = String.join(",", unRelateFiles);
+
+        List<DetailColumn> columns = new ArrayList<>();
+        DetailColumn column = new DetailColumn("附件", "files", before, after);
+        columns.add(column);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(sourceId), projectId, createUser, columns);
+        return JSON.toJSONString(details);
+    }
+
+    /**
+     * 取消关联文件的操作记录
+     *
+     * @param sourceId
+     * @param type
+     * @param refIds 关联或取消关联的文件ID
+     * @return
+     */
+    public String getLogDetails(String sourceId, String type, List refIds) {
+        String projectId = null;
+        String createUser = null;
+        if (StringUtils.isBlank(sourceId) || StringUtils.isBlank(type) || CollectionUtils.isEmpty(refIds)) {
+            return null;
+        }
+        if (AttachmentType.ISSUE.type().equals(type)) {
+            IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(sourceId);
+            if (issues == null) {
+                return null;
+            }
+            projectId = issues.getProjectId();
+            createUser = issues.getCreator();
+        } else if (AttachmentType.TEST_CASE.type().equals(type)) {
+            TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(sourceId);
+            if (testCase == null) {
+                return null;
+            }
+            projectId = testCase.getProjectId();
+            createUser = testCase.getCreateUser();
+        }
+        AttachmentRequest attachmentRequest = new AttachmentRequest();
+        attachmentRequest.setBelongId(sourceId);
+        attachmentRequest.setBelongType(type);
+        List<FileAttachmentMetadata> originFiles = listMetadata(attachmentRequest);
+        List<String> fileNames = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(originFiles)) {
+            fileNames = originFiles.stream().map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+        }
+        String after;
+        String before;
+
+        before = String.join(",", fileNames);
+        List<String> unRelateFiles = originFiles.stream().filter(originFile -> !StringUtils.equals(originFile.getId(), refIds.get(0).toString()))
+                .map(FileAttachmentMetadata::getName).collect(Collectors.toList());
+        after = String.join(",", unRelateFiles);
+
+        List<DetailColumn> columns = new ArrayList<>();
+        DetailColumn column = new DetailColumn("附件", "files", before, after);
+        columns.add(column);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(sourceId), projectId, createUser, columns);
+        return JSON.toJSONString(details);
     }
 
 }
