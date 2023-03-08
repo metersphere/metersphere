@@ -114,6 +114,7 @@ export default {
       }
     }
     .pagenation-wrap {
+      margin-top: px2rem(12);
       height: px2rem(68);
       border-top: 1px solid rgba(31, 35, 41, 0.15);
       :deep(.home-pagination) {

@@ -246,7 +246,7 @@ export default {
       projectName: "",
       projects: [],
       customNum: false,
-      screenHeight: "calc(100vh - 185px)",
+      screenHeight: "calc(60vh)",
       priorityFilters: [
         { text: "P0", value: "P0" },
         { text: "P1", value: "P1" },
@@ -463,7 +463,6 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     .table-data-row {
-      height: px2rem(430);
       :deep(.test-content) {
         overflow: scroll;
       }
@@ -472,6 +471,7 @@ export default {
       }
     }
     .pagenation-wrap {
+      margin-top: px2rem(12);
       height: px2rem(68);
       :deep(.home-pagination) {
         margin-top: 6px;
