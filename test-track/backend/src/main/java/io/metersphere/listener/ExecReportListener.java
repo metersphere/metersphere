@@ -34,11 +34,12 @@ public class ExecReportListener {
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, groupId = "${spring.application.name}")
     public void consume(ConsumerRecord<?, String> record) {
-        LoggerUtil.info("Execute message received：", record.value());
         Object testIdObj = record.key();
         if (ObjectUtils.isEmpty(testIdObj)) {
+            LoggerUtil.info("Execute message. received：", record.value());
             this.testPlanReportTestEnded(record.value());
         } else {
+            LoggerUtil.info("Execute message. key:[" + testIdObj.toString() + "], received：", record.value());
             this.automationCaseTestEnd(testIdObj.toString());
         }
 

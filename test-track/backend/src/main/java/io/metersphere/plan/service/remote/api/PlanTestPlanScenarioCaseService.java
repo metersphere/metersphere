@@ -44,7 +44,23 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
                 if (MapUtils.isEmpty(report.getProjectEnvMap())) {
                     report.setProjectEnvMap(getPlanProjectEnvMap(idList));
                 } else {
-                    report.getProjectEnvMap().putAll(getPlanProjectEnvMap(idList));
+                    Map<String, List<String>> projectEnvMap = getPlanProjectEnvMap(idList);
+                    if (MapUtils.isNotEmpty(projectEnvMap)) {
+                        for (Map.Entry<String, List<String>> entry : projectEnvMap.entrySet()) {
+                            String project = entry.getKey();
+                            List<String> envList = entry.getValue();
+                            if (report.getProjectEnvMap().containsKey(project)) {
+                                for (String env : envList) {
+                                    if (!report.getProjectEnvMap().get(project).contains(env)) {
+                                        report.getProjectEnvMap().get(project).add(env);
+                                    }
+                                }
+                            } else {
+                                report.getProjectEnvMap().put(project, envList);
+                            }
+
+                        }
+                    }
                 }
             } catch (Exception e) {
                 LogUtil.error(e);

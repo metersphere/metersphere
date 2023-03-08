@@ -1404,7 +1404,7 @@ public class TestPlanService {
         if (StringUtils.isNotBlank(reportConfig)) {
             config = JSON.parseMap(reportConfig);
         }
-        TestPlanSimpleReportDTO report = getReport(planId, null);
+        TestPlanSimpleReportDTO report = testPlanReportService.getRealTimeReport(planId);
         buildFunctionalReport(report, config, planId);
         buildApiReport(report, config, planId, saveResponse);
         buildLoadReport(report, config, planId, saveResponse);
@@ -1482,7 +1482,7 @@ public class TestPlanService {
             HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
         }
         try {
-            return getReport(planId, null);
+            return testPlanReportService.getRealTimeReport(planId);
         } finally {
             HttpHeaderUtils.clearUser();
         }
@@ -1543,72 +1543,6 @@ public class TestPlanService {
             } else {
                 report.setIsThirdPartIssue(true);
             }
-        }
-        return report;
-    }
-
-    /**
-     * 生成测试计划报告并进行统计
-     *
-     * @param planId
-     * @param testPlanExecuteReportDTO 测试计划各个资源的报告。 （如果为空，则取当前测试计划资源的最新报告）
-     * @return
-     */
-    public TestPlanSimpleReportDTO getReport(String planId, TestPlanCaseReportResultDTO testPlanExecuteReportDTO) {
-        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
-        TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
-        TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
-        TestPlanUiResultReportDTO uiResult = new TestPlanUiResultReportDTO();
-        report.setFunctionResult(functionResult);
-        report.setApiResult(apiResult);
-        report.setUiResult(uiResult);
-        report.setStartTime(testPlan.getActualStartTime());
-        report.setEndTime(testPlan.getActualEndTime());
-        report.setSummary(testPlan.getReportSummary());
-        report.setConfig(testPlan.getReportConfig());
-        testPlanTestCaseService.calculatePlanReport(planId, report);
-        issuesService.calculatePlanReport(planId, report);
-        if (testPlanExecuteReportDTO == null) {
-            planTestPlanApiCaseService.calculatePlanReport(planId, report);
-            planTestPlanScenarioCaseService.calculatePlanReport(planId, report);
-            planTestPlanLoadCaseService.calculatePlanReport(planId, report);
-            planTestPlanUiScenarioCaseService.calculatePlanReport(planId, report);
-        } else {
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap())) {
-                planTestPlanApiCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanApiCaseIdAndReportIdMap().values()), report);
-            }
-
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap())) {
-                planTestPlanScenarioCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanScenarioIdAndReportIdMap().values()), report);
-            }
-
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap())) {
-                planTestPlanLoadCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanLoadCaseIdAndReportIdMap().values()), report);
-            }
-
-            if (MapUtils.isNotEmpty(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap())) {
-                planTestPlanUiScenarioCaseService.calculatePlanReport(new ArrayList<>(testPlanExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap().values()), report);
-            }
-        }
-
-        if (report.getExecuteCount() != 0 && report.getCaseCount() != null) {
-            report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
-        } else {
-            report.setExecuteRate(0.0);
-        }
-        if (report.getPassCount() != 0 && report.getCaseCount() != null) {
-            report.setPassRate(report.getPassCount() * 0.1 * 10 / report.getCaseCount());
-        } else {
-            report.setPassRate(0.0);
-        }
-
-        report.setName(testPlan.getName());
-        Project project = baseProjectService.getProjectById(testPlan.getProjectId());
-        if (project.getPlatform() != null && project.getPlatform().equals(IssuesManagePlatform.Local.name())) {
-            report.setIsThirdPartIssue(false);
-        } else {
-            report.setIsThirdPartIssue(true);
         }
         return report;
     }

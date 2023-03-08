@@ -276,11 +276,6 @@ public class TestPlanController {
         testPlanService.exportPlanDbReport(reportId, lang, response);
     }
 
-    @GetMapping("/report/{planId}")
-    public TestPlanSimpleReportDTO getReport(@PathVariable String planId) {
-        return testPlanService.getReport(planId, null);
-    }
-
     @GetMapping("/report/functional/result")
     public TestCaseReportStatusResultDTO getFunctionalResultReport(@PathVariable String planId) {
         return testPlanService.getFunctionalResultReport(planId);
