@@ -26,6 +26,8 @@
                     :placeholder="$t('case.please_enter_the_case_name')"
                     v-model="form.name"
                     @blur="textBlur(val, 'nameRef')"
+                    :maxlength="255"
+                    show-word-limit
                   ></el-input>
                 </el-form-item>
               </template>
