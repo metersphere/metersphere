@@ -312,6 +312,7 @@ export default {
   }
   .content-wrap {
     width: px2rem(930);
+    overflow-y: scroll;
   }
 }
 .footer-wrap {

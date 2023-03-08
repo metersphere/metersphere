@@ -151,7 +151,7 @@ export default {
         { text: "P2", value: "P2" },
         { text: "P3", value: "P3" },
       ],
-      screenHeight: "calc(100vh - 300px)", //屏幕高度
+      screenHeight: "calc(60vh - 15px)", //屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
