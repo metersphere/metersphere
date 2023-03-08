@@ -19,6 +19,7 @@
 import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar";
 import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import {getTestCasePublicNodes} from "@/api/testCase";
+import {useStore} from "@/store";
 
 export default {
   name: "TestCasePublicNodeTree",
@@ -46,6 +47,8 @@ export default {
       this.$refs.publicNodeTree.filter(this.condition.filterText);
     },
     publicNodeChange(node, nodeIds, pNodes) {
+      let store = useStore();
+      store.testCasePublicSelectNodeIds = nodeIds;
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
     },
     list() {
