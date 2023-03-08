@@ -85,6 +85,7 @@
         <npm.version>8.12.1</npm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
+        <javax-version>2.3.0</javax-version>
     </properties>
 
     <modules>
