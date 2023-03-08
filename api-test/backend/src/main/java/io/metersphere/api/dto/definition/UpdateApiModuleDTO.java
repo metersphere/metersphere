@@ -18,5 +18,8 @@ public class UpdateApiModuleDTO {
     private Map<String, ApiModule> moduleMap;
     private List<ApiDefinitionWithBLOBs> definitionWithBLOBs;
     private List<ApiTestCaseWithBLOBs> caseWithBLOBs;
+    private List<ApiTestCaseWithBLOBs> repeatCaseList;
+    private Map<String, List<ApiDefinitionWithBLOBs>> repeatApiMap;
+
 
 }

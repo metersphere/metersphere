@@ -184,8 +184,6 @@ public class ApiDefinitionImportUtilService {
         Map<String, String> idPathMap = updateApiModuleDTO.getIdPathMap();
         ApiModuleDTO chooseModule = updateApiModuleDTO.getChooseModule();
 
-        Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
-
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
         ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
@@ -194,22 +192,25 @@ public class ApiDefinitionImportUtilService {
         List<ApiDefinitionWithBLOBs> toUpdateList = new ArrayList<>();
         //与当前导入接口重复的系统内所有数据
         List<ApiDefinitionWithBLOBs> repeatList;
-
+        ApiImportParamDto apiImportParamDto = new ApiImportParamDto(chooseModule, idPathMap, optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
+        apiImportParamDto.setRepeatApiMap(updateApiModuleDTO.getRepeatApiMap());
+        apiImportParamDto.setRepeatCaseList(updateApiModuleDTO.getRepeatCaseList());
         //处理导入数据与已存在数据关系
         if (request.getProtocol().equals("HTTP")) {
             if (urlRepeat) {
-                repeatList = dealHttpUrlRepeat(chooseModule, idPathMap, optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
+                repeatList = dealHttpUrlRepeat(apiImportParamDto);
             } else {
-                repeatList = dealHttpUrlNoRepeat(optionData, fullCoverage, request, moduleMap, toUpdateList, optionDataCases);
+                repeatList = dealHttpUrlNoRepeat(apiImportParamDto);
             }
             if (optionData.isEmpty()) {
                 moduleMap = new HashMap<>();
             }
 
         } else {
-            repeatList = dealRepeat(request, optionData, moduleMap, fullCoverage, idPathMap, chooseModule, toUpdateList, optionDataCases);
+            repeatList = dealRepeat(apiImportParamDto);
         }
 
+        Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         if (MapUtils.isNotEmpty(moduleMap)) {
             moduleMap.forEach((k, v) -> apiModuleMapper.insert(v));
         }
@@ -229,9 +230,9 @@ public class ApiDefinitionImportUtilService {
             //如果 sameRefIds 与 toUpdates 相同，就用  toUpdates 代替 sameRefIds，因为toUpdates 可能会修改模块路径
             if (CollectionUtils.isNotEmpty(repeatList)) {
                 sameRefIds = repeatList.stream().filter(t -> t.getRefId().equals(item.getRefId())).collect(Collectors.toList());
-                List<String> repeatIds = sameRefIds.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+                List<String> repeatIds = sameRefIds.stream().map(ApiDefinition::getId).toList();
                 List<ApiDefinitionWithBLOBs> toUpdates = toUpdateList.stream().filter(t -> t.getRefId().equals(item.getRefId())).collect(Collectors.toList());
-                List<String> toUpDateIds = toUpdates.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+                List<String> toUpDateIds = toUpdates.stream().map(ApiDefinition::getId).toList();
                 List<String> reduce1 = repeatIds.stream().filter(t -> !toUpDateIds.contains(t)).collect(Collectors.toList());
                 if (CollectionUtils.isEmpty(reduce1)) {
                     sameRefIds = toUpdates;
@@ -278,9 +279,75 @@ public class ApiDefinitionImportUtilService {
         return apiImportSendNoticeDTOS;
     }
 
-    private List<ApiDefinitionWithBLOBs> dealHttpUrlRepeat(ApiModuleDTO chooseModule, Map<String, String> idPathMap, List<ApiDefinitionWithBLOBs> optionData,
-                                                           Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap,
-                                                           List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    /**
+     * @param optionDatas     操作过可以导入的文件里的接口
+     * @param repeatApiMap    文件里与可操作的接口重复的接口
+     * @param repeatCaseList  文件里与可操作的case重复的case
+     * @param optionDataCases 操作过可以导入的文件里的case
+     */
+    private void setRepeatApiToCase(List<ApiDefinitionWithBLOBs> optionDatas, Map<String, List<ApiDefinitionWithBLOBs>> repeatApiMap, List<ApiTestCaseWithBLOBs> repeatCaseList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+        Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = repeatCaseList.stream().collect(Collectors.groupingBy(ApiTestCaseWithBLOBs::getApiDefinitionId));
+        Map<String, List<ApiTestCaseWithBLOBs>> importCaseMap = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCaseWithBLOBs::getApiDefinitionId));
+        for (ApiDefinitionWithBLOBs optionData : optionDatas) {
+            //文件里和当前导入数据的接口重复的数据
+            String apiId = optionData.getId();
+            //文件重复的case,这里取出来是为了和api组成caseList导入进去
+            List<ApiTestCaseWithBLOBs> apiTestCaseWithBLOBs = apiIdCaseMap.get(apiId);
+            List<ApiDefinitionWithBLOBs> apiDefinitionWithBLOBs = repeatApiMap.get(apiId);
+            if (CollectionUtils.isEmpty(apiTestCaseWithBLOBs)) {
+                apiTestCaseWithBLOBs = new ArrayList<>();
+            }
+            if (CollectionUtils.isNotEmpty(apiDefinitionWithBLOBs)) {
+                for (ApiDefinitionWithBLOBs apiDefinitionWithBLOB : apiDefinitionWithBLOBs) {
+                    apiTestCaseWithBLOBs.add(apiToCase(apiDefinitionWithBLOB, apiId));
+                }
+            }
+            //取出当前操作接口应该导入的case用于对比名字重复加序号
+            List<ApiTestCaseWithBLOBs> importCaseList = importCaseMap.get(apiId);
+            List<String> nameList = importCaseList.stream().map(ApiTestCaseWithBLOBs::getName).toList();
+            for (int i = 0; i < apiTestCaseWithBLOBs.size(); i++) {
+                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = apiTestCaseWithBLOBs.get(i);
+                if (nameList.contains(apiTestCaseWithBLOBs1.getName())) {
+                    apiTestCaseWithBLOBs1.setName(apiTestCaseWithBLOBs1.getName() + "0" + i);
+                }
+            }
+            optionDataCases.addAll(apiTestCaseWithBLOBs);
+        }
+
+    }
+
+    /**
+     * 将接口转成用例
+     *
+     * @param apiDefinitionWithBLOB
+     * @return
+     */
+    private ApiTestCaseWithBLOBs apiToCase(ApiDefinitionWithBLOBs apiDefinitionWithBLOB, String apiId) {
+        ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+        apiTestCase.setName(apiDefinitionWithBLOB.getName());
+        apiTestCase.setApiDefinitionId(apiId);
+        apiTestCase.setCreateUserId(apiDefinitionWithBLOB.getCreateUser());
+        apiTestCase.setTags(apiDefinitionWithBLOB.getTags());
+        apiTestCase.setStatus(apiDefinitionWithBLOB.getStatus());
+        apiTestCase.setOriginalStatus(apiDefinitionWithBLOB.getOriginalState());
+        apiTestCase.setVersionId(apiDefinitionWithBLOB.getVersionId());
+        apiTestCase.setOrder(apiDefinitionWithBLOB.getOrder());
+        apiTestCase.setCaseStatus(apiDefinitionWithBLOB.getCaseStatus());
+        apiTestCase.setDescription(apiDefinitionWithBLOB.getDescription());
+        apiTestCase.setRequest(apiDefinitionWithBLOB.getRequest());
+        return apiTestCase;
+    }
+
+    private List<ApiDefinitionWithBLOBs> dealHttpUrlRepeat(ApiImportParamDto apiImportParamDto) {
+        ApiTestImportRequest request = apiImportParamDto.getRequest();
+        List<ApiDefinitionWithBLOBs> optionData = apiImportParamDto.getOptionData();
+        ApiModuleDTO chooseModule = apiImportParamDto.getChooseModule();
+        Map<String, String> idPathMap = apiImportParamDto.getIdPathMap();
+        Boolean fullCoverage = apiImportParamDto.getFullCoverage();
+        List<ApiDefinitionWithBLOBs> toUpdateList = apiImportParamDto.getToUpdateList();
+        List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
+        Map<String, ApiModule> moduleMap = apiImportParamDto.getModuleMap();
+
         String updateVersionId = getUpdateVersionId(request);
         Boolean fullCoverageApi = getFullCoverageApi(request);
         String projectId = request.getProjectId();
@@ -289,6 +356,11 @@ public class ApiDefinitionImportUtilService {
             request.setModuleId(null);
         }
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, request.getModuleId());
+
+        //如果系统内，没有重复数据，要把文件重复的数据改成接口的case
+        if (CollectionUtils.isEmpty(repeatApiDefinitionWithBLOBs)) {
+            setRepeatApiToCase(optionData, apiImportParamDto.getRepeatApiMap(), apiImportParamDto.getRepeatCaseList(), optionDataCases);
+        }
         //这个是名称加请求方式加路径加模块为key的map 就是为了去重
         Map<String, ApiDefinitionWithBLOBs> optionMap = new HashMap<>();
         //这个是系统内重复的数据
@@ -339,9 +411,13 @@ public class ApiDefinitionImportUtilService {
         return repeatApiDefinitionWithBLOBs;
     }
 
-    private List<ApiDefinitionWithBLOBs> dealHttpUrlNoRepeat(List<ApiDefinitionWithBLOBs> optionData,
-                                                             Boolean fullCoverage, ApiTestImportRequest request, Map<String, ApiModule> moduleMap,
-                                                             List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    private List<ApiDefinitionWithBLOBs> dealHttpUrlNoRepeat(ApiImportParamDto apiImportParamDto) {
+        ApiTestImportRequest request = apiImportParamDto.getRequest();
+        List<ApiDefinitionWithBLOBs> optionData = apiImportParamDto.getOptionData();
+        Boolean fullCoverage = apiImportParamDto.getFullCoverage();
+        List<ApiDefinitionWithBLOBs> toUpdateList = apiImportParamDto.getToUpdateList();
+        List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
+        Map<String, ApiModule> moduleMap = apiImportParamDto.getModuleMap();
 
         //这个是名称加请求方式加路径加模块为key的map 就是为了去重
         Map<String, ApiDefinitionWithBLOBs> optionMap;
@@ -351,7 +427,10 @@ public class ApiDefinitionImportUtilService {
         String projectId = request.getProjectId();
         //系统内重复的数据
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBs(optionData, projectId);
-
+        //如果系统内，没有重复数据，要把文件重复的数据改成接口的case
+        if (CollectionUtils.isEmpty(repeatApiDefinitionWithBLOBs)) {
+            setRepeatApiToCase(optionData, apiImportParamDto.getRepeatApiMap(), apiImportParamDto.getRepeatCaseList(), optionDataCases);
+        }
         //这个是系统内重复的数据
         Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getMethod().concat(t.getPath())));
 
@@ -432,12 +511,6 @@ public class ApiDefinitionImportUtilService {
                 }
             }
         });
-    }
-
-    private static void getChooseModuleUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> optionMap, String chooseModulePath) {
-        for (ApiDefinitionWithBLOBs optionDatum : optionData) {
-            optionMap.put(optionDatum.getName().concat(optionDatum.getMethod()).concat(optionDatum.getPath()).concat(chooseModulePath), optionDatum);
-        }
     }
 
     private static void getUrlRepeatOptionMap(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiDefinitionWithBLOBs> optionMap) {
@@ -541,7 +614,7 @@ public class ApiDefinitionImportUtilService {
         Set<String> importKeys = methodPathMap.keySet();
         List<String> repeatKeyList = new ArrayList<>(repeatKeys);
         List<String> importKeysList = new ArrayList<>(importKeys);
-        List<String> intersection = repeatKeyList.stream().filter(importKeysList::contains).collect(Collectors.toList());
+        List<String> intersection = repeatKeyList.stream().filter(importKeysList::contains).toList();
         if (intersection.size() == importKeysList.size()) {
             //导入文件没有新增接口无需创建接口模块
             moduleMap = new HashMap<>();
@@ -679,7 +752,9 @@ public class ApiDefinitionImportUtilService {
             if (apiTestCaseWithBLOBs.getNum() == null) {
                 apiTestCaseWithBLOBs.setNum(apiTestCaseService.getNextNum(apiDefinition.getId(), apiDefinition.getNum() + i, apiDefinition.getProjectId()));
             }
-
+            if (StringUtils.isBlank(apiTestCaseWithBLOBs.getProjectId())) {
+                apiTestCaseWithBLOBs.setProjectId(apiDefinition.getProjectId());
+            }
             if (apiDefinition.getToBeUpdateTime() != null) {
                 apiTestCaseWithBLOBs.setToBeUpdateTime(apiDefinition.getToBeUpdateTime());
             }
@@ -706,10 +781,22 @@ public class ApiDefinitionImportUtilService {
         return apiTestCaseDTOS;
     }
 
-    private List<ApiDefinitionWithBLOBs> dealRepeat(ApiTestImportRequest request, List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap, Boolean fullCoverage, Map<String, String> idPathMap, ApiModuleDTO chooseModule,
-                                                    List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiTestCaseWithBLOBs> optionDataCases) {
+    private List<ApiDefinitionWithBLOBs> dealRepeat(ApiImportParamDto apiImportParamDto) {
+        ApiTestImportRequest request = apiImportParamDto.getRequest();
+        List<ApiDefinitionWithBLOBs> optionData = apiImportParamDto.getOptionData();
+        ApiModuleDTO chooseModule = apiImportParamDto.getChooseModule();
+        Map<String, String> idPathMap = apiImportParamDto.getIdPathMap();
+        Boolean fullCoverage = apiImportParamDto.getFullCoverage();
+        List<ApiDefinitionWithBLOBs> toUpdateList = apiImportParamDto.getToUpdateList();
+        List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
+        Map<String, ApiModule> moduleMap = apiImportParamDto.getModuleMap();
+
         String chooseModuleId = request.getModuleId();
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getApiDefinitionWithBLOBsList(request, optionData);
+        //如果系统内，没有重复数据，要把文件重复的数据改成接口的case
+        if (CollectionUtils.isEmpty(repeatApiDefinitionWithBLOBs)) {
+            setRepeatApiToCase(optionData, apiImportParamDto.getRepeatApiMap(), apiImportParamDto.getRepeatCaseList(), optionDataCases);
+        }
         //重复接口的case
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
