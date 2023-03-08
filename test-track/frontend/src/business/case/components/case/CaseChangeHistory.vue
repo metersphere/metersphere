@@ -267,7 +267,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 120px;
+  width: 150px !important;
 }
 .wrap {
   padding: 24px 0 0 0;

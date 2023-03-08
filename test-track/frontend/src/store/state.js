@@ -4,6 +4,7 @@ export default {
     theme: undefined,
     testCaseSelectNode: {},
     testCaseSelectNodeIds: [],
+    testCasePublicSelectNodeIds: [],
     testCaseModuleOptions: [],
     testReviewSelectNode: {},
     testReviewSelectNodeIds: [],

@@ -369,7 +369,7 @@ export default {
       return getCurrentProjectID();
     },
     ...mapState(useStore, {
-      selectNodeIds: 'testCaseSelectNodeIds',
+      selectNodeIds: 'testCasePublicSelectNodeIds',
       selectNode: 'testCaseSelectNode',
       moduleOptions: 'testCaseModuleOptions',
       customNum: 'currentProjectIsCustomNum'
@@ -417,6 +417,12 @@ export default {
       this.condition.nodeIds = [];
       initCondition(this.condition, this.condition.selectAll);
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        if (!this.selectNode || this.selectNode.data.id !== 'root') {
+          // 优化：如果当前选中节点是root节点，则不添加过滤条件
+          this.condition.nodeIds = this.selectNodeIds;
+        }
+      }
       this.condition.versionId = this.currentVersion || null;
       this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
       if (nodeIds && Array.isArray(nodeIds) && nodeIds.length > 0) {
