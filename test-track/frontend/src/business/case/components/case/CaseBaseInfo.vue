@@ -14,7 +14,7 @@
             :auto-save="!readOnly"
             trigger="hover"
             :contentObject="{
-              content: isCustomNum ? form.customNum : form.num,
+              content: isCustomNum ? form.customNum.toString() : form.num.toString(),
               contentType: 'INPUT',
             }"
             :readonlyHoverEvent="!readOnly"

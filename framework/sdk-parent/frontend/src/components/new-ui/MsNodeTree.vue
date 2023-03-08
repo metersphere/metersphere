@@ -38,7 +38,7 @@
               </span>
 
               <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
+                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
               </el-tooltip>
 
               <span v-if="!disabled" class="node-operate child">
@@ -128,7 +128,7 @@
           </span>
 
           <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? showBySubStr(getLocalDefaultName()) : showBySubStr(data.name)" :case-num="getCaseNum(data)"/>
+            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
           </el-tooltip>
 
 
@@ -193,7 +193,6 @@
 
 <script>
 import MsLeft2RightContainer from "../MsLeft2RightContainer";
-import { Message } from 'element-ui';
 
 export default {
   name: "MsNodeTree",
@@ -652,13 +651,6 @@ export default {
         return this.$t('commons.module_title');
       }
     },
-    showBySubStr(text) {
-      if (text.toString().length > 7) {
-        return text.toString().substring(0, 7) + "...";
-      } else {
-        return text.toString();
-      }
-    },
     getCaseNum(data) {
       if (this.showCaseNum && data.caseNum) {
         return " (" + data.caseNum + ")";
@@ -712,11 +704,11 @@ export default {
 }
 
 .node-title {
-  width: 0px;
+  width: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1 1 auto;
-  padding: 0px 9px;
+  padding: 0 9px;
   overflow: hidden;
   font-family: 'PingFang SC';
   font-style: normal;
@@ -744,7 +736,7 @@ export default {
 
 .node-operate > i {
   color: #409eff;
-  margin: 0px 5px;
+  margin: 0 5px;
 }
 
 .name-input {
@@ -764,6 +756,10 @@ export default {
 
 :deep(.is-leaf.el-tree-node__expand-icon.el-icon-caret-right:before) {
   color: transparent;
+}
+
+.el-tree-node__content > .el-tree-node__expand-icon {
+  padding: 9px 6px 6px 6px;
 }
 
 :deep(.el-tree-node__content) {
@@ -808,8 +804,8 @@ export default {
 
 .drag {
   position: relative;
-  left: -38px;
-  top: 2px;
+  left: -40px;
+  top: 0;
   width: 0;
 }
 
@@ -857,7 +853,7 @@ export default {
 
 .module-more-operate {
   margin-left: 10px;
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 .search-input {

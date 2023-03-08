@@ -73,11 +73,13 @@ public class AttachmentController {
     }
 
     @PostMapping("/metadata/relate")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, title = "#request.belongType", content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
     public void relate(@RequestBody AttachmentRequest request) {
         attachmentService.relate(request);
     }
 
     @PostMapping("/metadata/unrelated")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, title = "#request.belongType", beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
     public void unrelated(@RequestBody AttachmentRequest request) {
         attachmentService.unrelated(request);
     }
