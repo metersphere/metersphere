@@ -86,6 +86,8 @@ public class TestPlanReportService {
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
@@ -333,6 +335,7 @@ public class TestPlanReportService {
 
 
         if (testPlanReport == null) {
+            runInfoDTO.setResourcePool(runModeConfigDTO.getResourcePoolId());
             returnDTO = this.genTestPlanReport(saveRequest, runInfoDTO);
         }
         returnDTO.setPlanScenarioIdMap(saveRequest.getScenarioIdMap());
@@ -662,6 +665,8 @@ public class TestPlanReportService {
         if (testPlanReport != null && reportContent != null) {
             try {
                 TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildTestPlanReport(testPlan, testPlanReport, reportContent);
+                //查找运行环境
+                this.selectEnvironmentByTestPlanReport(reportBuildResultDTO.getTestPlanSimpleReportDTO(), testPlanReport);
                 returnDTO = reportBuildResultDTO.getTestPlanSimpleReportDTO();
             } catch (Exception e) {
                 LogUtil.error("计算测试计划报告信息出错!", e);
@@ -1051,8 +1056,6 @@ public class TestPlanReportService {
         }
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
-        //查找运行环境
-        this.selectEnvironmentByTestPlanReport(testPlanReportDTO, testPlanReport);
         return testPlanReportDTO;
     }
 
@@ -1116,6 +1119,13 @@ public class TestPlanReportService {
 
     public void setEnvironmentToDTO(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReportRunInfoDTO runInfoDTO) {
         if (ObjectUtils.allNotNull(testPlanReportDTO, runInfoDTO)) {
+            //查找资源池
+            if (StringUtils.isNotEmpty(runInfoDTO.getResourcePool())) {
+                TestResourcePool resourcePool = testResourcePoolMapper.selectByPrimaryKey(runInfoDTO.getResourcePool());
+                if (resourcePool != null) {
+                    testPlanReportDTO.setResourcePool(resourcePool.getName());
+                }
+            }
             // 环境组/运行环境
             if (StringUtils.isNotEmpty(runInfoDTO.getEnvGroupId())) {
                 EnvironmentGroup environmentGroup = apiTestEnvironmentService.selectById(runInfoDTO.getEnvGroupId());
@@ -1123,25 +1133,44 @@ public class TestPlanReportService {
                     testPlanReportDTO.setEnvGroupName(environmentGroup.getName());
                 }
             } else {
-                if (MapUtils.isNotEmpty(runInfoDTO.getRequestEnvMap())) {
-                    Map<String, List<String>> projectEnvMap = new HashMap<>();
-                    for (Map.Entry<String, List<String>> entry : runInfoDTO.getRequestEnvMap().entrySet()) {
-                        String projectId = entry.getKey();
-                        List<String> envIdList = entry.getValue();
-                        Project project = baseProjectService.getProjectById(projectId);
-                        String projectName = project == null ? null : project.getName();
-                        if (StringUtils.isNotEmpty(projectName)) {
-                            List<String> envNameList = new ArrayList<>();
-                            for (String envId : envIdList) {
-                                String envName = apiTestEnvironmentService.selectNameById(envId);
-                                envNameList.add(envName);
-                            }
-                            projectEnvMap.put(projectName, envNameList);
+                Map<String, List<String>> requestEnvMap = new HashMap<>();
+                if (MapUtils.isEmpty(runInfoDTO.getRequestEnvMap())) {
+                    if (MapUtils.isNotEmpty(runInfoDTO.getApiCaseRunInfo())) {
+                        for (Map<String, String> map : runInfoDTO.getApiCaseRunInfo().values()) {
+                            requestEnvMap = TestPlanReportUtil.mergeApiCaseEnvMap(requestEnvMap, map);
                         }
                     }
-                    if (MapUtils.isNotEmpty(projectEnvMap)) {
-                        testPlanReportDTO.setProjectEnvMap(projectEnvMap);
+                    if (MapUtils.isNotEmpty(runInfoDTO.getScenarioRunInfo())) {
+                        for (Map<String, List<String>> map : runInfoDTO.getScenarioRunInfo().values()) {
+                            requestEnvMap = TestPlanReportUtil.mergeProjectEnvMap(requestEnvMap, map);
+                        }
                     }
+                    if (MapUtils.isNotEmpty(runInfoDTO.getUiScenarioRunInfo())) {
+                        for (Map<String, List<String>> map : runInfoDTO.getUiScenarioRunInfo().values()) {
+                            requestEnvMap = TestPlanReportUtil.mergeProjectEnvMap(requestEnvMap, map);
+                        }
+                    }
+                } else {
+                    requestEnvMap = runInfoDTO.getRequestEnvMap();
+                }
+
+                Map<String, List<String>> projectEnvMap = new HashMap<>();
+                for (Map.Entry<String, List<String>> entry : requestEnvMap.entrySet()) {
+                    String projectId = entry.getKey();
+                    List<String> envIdList = entry.getValue();
+                    Project project = baseProjectService.getProjectById(projectId);
+                    String projectName = project == null ? null : project.getName();
+                    if (StringUtils.isNotEmpty(projectName)) {
+                        List<String> envNameList = new ArrayList<>();
+                        for (String envId : envIdList) {
+                            String envName = apiTestEnvironmentService.selectNameById(envId);
+                            envNameList.add(envName);
+                        }
+                        projectEnvMap.put(projectName, envNameList);
+                    }
+                }
+                if (MapUtils.isNotEmpty(projectEnvMap)) {
+                    testPlanReportDTO.setProjectEnvMap(projectEnvMap);
                 }
             }
             //运行模式
