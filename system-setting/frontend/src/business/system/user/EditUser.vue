@@ -433,6 +433,10 @@ export default {
             this.currentGroupWSIds.add(project.workspaceId);
             if (this.form.groups[this.currentWSGroupIndex] && this.form.groups[this.currentWSGroupIndex].ids.indexOf(project.workspaceId) === -1) {
               this.form.groups[this.currentWSGroupIndex].ids.push(project.workspaceId);
+            } else if (this.form.groups.filter(g => g.type === "ws_member+WORKSPACE").length > 0
+              && this.form.groups.filter(g => g.type === "ws_member+WORKSPACE")[0].ids
+              && this.form.groups.filter(g => g.type === "ws_member+WORKSPACE")[0].ids.indexOf(project.workspaceId) === -1) {
+              this.form.groups.filter(g => g.type === "ws_member+WORKSPACE")[0].ids.push(project.workspaceId);
             }
           }
         })
@@ -442,7 +446,9 @@ export default {
       let _type = type.split("+")[1];
       if (_type === GROUP_TYPE.WORKSPACE) {
         this.currentGroupWSIds.forEach(item => {
-          this.form.groups[index].ids.push(item);
+          if (this.form.groups[index] && this.form.groups[index].ids) {
+            this.form.groups[index].ids.push(item);
+          }
         })
       } else {
         this.form.groups[index].ids = [];
