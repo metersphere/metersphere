@@ -13,6 +13,7 @@ import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.performance.LoadCaseRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
@@ -40,6 +41,8 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             calculatePlanReport(report, planReportCaseDTOS);
+            List<String> resourcePools = selectResourcePoolsByPlanReport(planId);
+            report.setResourcePools(TestPlanReportUtil.mergeResourcePools(report.getResourcePools(), resourcePools));
         }
     }
 
@@ -118,6 +121,11 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }
 
+    public List<String> selectResourcePoolsByPlanReport(String planId) {
+        return (List<String>) microService.getForData(serviceName, BASE_UEL + "/resource/pool/" + planId);
+    }
+
+
     public Boolean hasFailCase(String planId, List<String> performanceIds) {
         return (Boolean) microService.postForData(serviceName, BASE_UEL + "/has/fail/" + planId, performanceIds);
     }
@@ -142,4 +150,7 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         return (String) microService.getForData(serviceName, BASE_UEL + "/pool/" + loadReportId);
     }
 
+    public List<String> selectResourcePoolsByPlan(String planId) {
+        return (List<String>) microService.getForData(serviceName, BASE_UEL + "/resource/pool/case/" + planId);
+    }
 }

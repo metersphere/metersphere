@@ -876,6 +876,7 @@ public class TestPlanService {
         if (haveExecCase(testPlanId, true)) {
             this.verifyPool(projectId, runModeConfig);
         }
+
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = this.genTestPlanReport(planReportId, testPlanId, userId, triggerMode, runModeConfig);
         //定时任务执行重新设置实际开始时间

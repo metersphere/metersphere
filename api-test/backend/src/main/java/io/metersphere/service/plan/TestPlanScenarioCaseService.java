@@ -1093,13 +1093,18 @@ public class TestPlanScenarioCaseService {
         return extTestPlanScenarioCaseMapper.selectForPlanReport(planId);
     }
 
-    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
+    public AutomationsRunInfoDTO getPlanProjectEnvMap(List<String> resourceIds) {
+        AutomationsRunInfoDTO returnRunInfoDTO = new AutomationsRunInfoDTO();
         Map<String, List<String>> result = new LinkedHashMap<>();
+        List<String> resourcePoolList = new ArrayList<>();
         if (!com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(resourceIds)) {
             Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectProjectEnvMapByTestPlanScenarioIds(resourceIds);
             testPlanApiCaseService.setProjectEnvMap(result, projectEnvMap);
+            resourcePoolList = extApiScenarioModuleMapper.selectResourcePoolIdByTestPlanScenarioIds(resourceIds);
         }
-        return result;
+        returnRunInfoDTO.setResourcePools(resourcePoolList);
+        returnRunInfoDTO.setProjectEnvMap(result);
+        return returnRunInfoDTO;
     }
 
     public List<ApiScenarioModuleDTO> getNodeByPlanId(List<String> projectIds, String planId) {

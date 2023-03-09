@@ -6,6 +6,7 @@ import io.metersphere.api.dto.QueryReferenceRequest;
 import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.plan.AutomationsRunInfoDTO;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
@@ -140,7 +141,7 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping("/get/plan/env/map")
-    public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
+    public AutomationsRunInfoDTO getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
         return testPlanApiCaseService.getPlanProjectEnvMap(resourceIds);
     }
 

@@ -10,6 +10,7 @@ import io.metersphere.api.dto.QueryReferenceRequest;
 import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.plan.AutomationsRunInfoDTO;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.api.dto.plan.TestPlanApiCaseInfoDTO;
 import io.metersphere.api.exec.api.ApiCaseExecuteService;
@@ -521,8 +522,9 @@ public class TestPlanApiCaseService {
         return extTestPlanApiCaseMapper.selectProjectId(id);
     }
 
-    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
+    public AutomationsRunInfoDTO getPlanProjectEnvMap(List<String> resourceIds) {
         Map<String, List<String>> result = new LinkedHashMap<>();
+        List<String> resourcePoolIds = new ArrayList<>();
         if (!CollectionUtils.isEmpty(resourceIds)) {
             List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
             Map<String, List<String>> projectConfigMap = new HashMap<>();
@@ -538,8 +540,12 @@ public class TestPlanApiCaseService {
                 }
             });
             result = apiDefinitionService.getProjectEnvNameByEnvConfig(projectConfigMap);
+            resourcePoolIds = extTestPlanApiCaseMapper.selectResourcePoolIdByTestPlanApiIds(resourceIds);
         }
-        return result;
+        AutomationsRunInfoDTO returnDTO = new AutomationsRunInfoDTO();
+        returnDTO.setProjectEnvMap(result);
+        returnDTO.setResourcePools(resourcePoolIds);
+        return returnDTO;
     }
 
     public void setProjectEnvMap(Map<String, List<String>> result, Map<String, List<String>> projectEnvMap) {

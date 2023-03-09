@@ -43,4 +43,9 @@ public interface ExtTestPlanLoadCaseMapper {
     void updateStatusNullById(String id);
 
     String selectPlanIdByTestPlanId(@Param("id") String id);
+
+    List<String> getResourcePoolByPlanId(String planId);
+
+    List<String> getCaseResourcePoolByPlanId(String planId);
+
 }
