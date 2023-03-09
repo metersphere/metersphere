@@ -1,82 +1,66 @@
 package io.metersphere.plan.utils;
 
-import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.dto.*;
+import io.metersphere.dto.TestPlanApiDTO;
+import io.metersphere.dto.TestPlanScenarioDTO;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.ApiPlanReportDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
 import io.metersphere.service.ServiceUtils;
-import io.metersphere.xpack.track.dto.IssuesDao;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class TestPlanReportUtil {
-    public static void initCaseExecuteInfoToDTO(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReportContentWithBLOBs testPlanReportContent) {
-        testPlanReportDTO.setFunctionAllCases(
-                getReportContentResultArray(testPlanReportContent.getFunctionAllCases(), TestPlanCaseDTO.class)
-        );
-        testPlanReportDTO.setIssueList(
-                getReportContentResultArray(testPlanReportContent.getIssueList(), IssuesDao.class)
-        );
-        testPlanReportDTO.setFunctionResult(
-                getReportContentResultObject(testPlanReportContent.getFunctionResult(), TestPlanFunctionResultReportDTO.class)
-        );
-        testPlanReportDTO.setApiResult(
-                getReportContentResultObject(testPlanReportContent.getApiResult(), TestPlanApiResultReportDTO.class)
-        );
-        testPlanReportDTO.setLoadResult(
-                getReportContentResultObject(testPlanReportContent.getLoadResult(), TestPlanLoadResultReportDTO.class)
-        );
-        testPlanReportDTO.setFunctionAllCases(
-                getReportContentResultArray(testPlanReportContent.getFunctionAllCases(), TestPlanCaseDTO.class)
-        );
-        testPlanReportDTO.setIssueList(
-                getReportContentResultArray(testPlanReportContent.getIssueList(), IssuesDao.class)
-        );
-        testPlanReportDTO.setApiAllCases(
-                getReportContentResultArray(testPlanReportContent.getApiAllCases(), TestPlanApiDTO.class)
-        );
-        testPlanReportDTO.setApiFailureCases(
-                getReportContentResultArray(testPlanReportContent.getApiFailureCases(), TestPlanApiDTO.class)
-        );
-        testPlanReportDTO.setScenarioAllCases(
-                getReportContentResultArray(testPlanReportContent.getScenarioAllCases(), TestPlanScenarioDTO.class)
-        );
-        testPlanReportDTO.setScenarioFailureCases(
-                getReportContentResultArray(testPlanReportContent.getScenarioFailureCases(), TestPlanScenarioDTO.class)
-        );
-        testPlanReportDTO.setLoadAllCases(
-                getReportContentResultArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class)
-        );
-        testPlanReportDTO.setLoadFailureCases(
-                getReportContentResultArray(testPlanReportContent.getLoadFailureCases(), TestPlanLoadCaseDTO.class)
-        );
-        testPlanReportDTO.setErrorReportCases(
-                getReportContentResultArray(testPlanReportContent.getErrorReportCases(), TestPlanApiDTO.class)
-        );
-        testPlanReportDTO.setErrorReportScenarios(
-                getReportContentResultArray(testPlanReportContent.getErrorReportScenarios(), TestPlanScenarioDTO.class)
-        );
-        testPlanReportDTO.setUnExecuteCases(
-                getReportContentResultArray(testPlanReportContent.getUnExecuteCases(), TestPlanApiDTO.class)
-        );
-        testPlanReportDTO.setUnExecuteScenarios(
-                getReportContentResultArray(testPlanReportContent.getUnExecuteScenarios(), TestPlanScenarioDTO.class)
-        );
-        testPlanReportDTO.setUiResult(
-                getReportContentResultObject(testPlanReportContent.getUiResult(), TestPlanUiResultReportDTO.class)
-        );
-        testPlanReportDTO.setUiAllCases(
-                getReportContentResultArray(testPlanReportContent.getUiAllCases(), TestPlanUiScenarioDTO.class)
-        );
-        testPlanReportDTO.setUiFailureCases(
-                getReportContentResultArray(testPlanReportContent.getUiFailureCases(), TestPlanUiScenarioDTO.class)
-        );
+
+    public static Map<String, List<String>> mergeProjectEnvMap(Map<String, List<String>> projectEnvMap, Map<String, List<String>> originProjectEnvMap) {
+        if (projectEnvMap == null) {
+            projectEnvMap = new HashMap<String, List<String>>();
+        }
+        if (originProjectEnvMap == null) {
+            originProjectEnvMap = new HashMap<String, List<String>>();
+        }
+        Map<String, List<String>> r = new HashMap<>();
+        projectEnvMap.entrySet().forEach(e -> {
+            r.put(e.getKey(), e.getValue());
+        });
+        originProjectEnvMap.entrySet().forEach(e -> {
+            if (r.containsKey(e.getKey())) {
+                r.get(e.getKey()).addAll(e.getValue());
+                r.put(e.getKey(), r.get(e.getKey()).stream().distinct().collect(Collectors.toList()));
+            } else {
+                r.put(e.getKey(), e.getValue());
+            }
+        });
+        return r;
+    }
+
+    public static Map<String, List<String>> mergeApiCaseEnvMap(Map<String, List<String>> projectEnvMap, Map<String, String> originProjectEnvMap) {
+        if (projectEnvMap == null) {
+            projectEnvMap = new HashMap<String, List<String>>();
+        }
+        if (MapUtils.isEmpty(originProjectEnvMap)) {
+            return projectEnvMap;
+        }
+        Map<String, List<String>> r = new HashMap<>();
+        projectEnvMap.entrySet().forEach(e -> {
+            r.put(e.getKey(), e.getValue());
+        });
+        originProjectEnvMap.entrySet().forEach(e -> {
+            if (r.containsKey(e.getKey())) {
+                r.get(e.getKey()).add(e.getValue());
+            } else {
+                r.put(e.getKey(), new ArrayList<>() {{
+                    this.add(e.getValue());
+                }});
+            }
+        });
+        return r;
     }
 
     public static boolean checkReportConfig(Map config, String key, String subKey) {

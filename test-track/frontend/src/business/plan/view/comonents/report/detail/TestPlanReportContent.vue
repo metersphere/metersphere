@@ -242,6 +242,8 @@ export default {
           getTestPlanReportContent(this.reportId).then((r) => {
             this.loading = false;
             this.report = r.data;
+            this.runMode = this.report.runMode;
+            this.resourcePool = this.report.resourcePool;
             this.report.config = this.getDefaultConfig(this.report);
           });
         }
@@ -260,6 +262,8 @@ export default {
           getTestPlanReport(this.planId).then((r) => {
             this.loading = false;
             this.report = r.data;
+            this.runMode = this.report.runMode;
+            this.resourcePool = this.report.resourcePool;
             this.report.config = this.getDefaultConfig(this.report);
           });
         }

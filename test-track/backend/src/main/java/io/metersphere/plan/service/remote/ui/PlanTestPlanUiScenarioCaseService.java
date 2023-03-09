@@ -14,12 +14,12 @@ import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
+import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -89,34 +89,12 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
             try {
                 Map<String, List<String>> projectEnvMap = getPlanProjectEnvMap(idList);
-                report.setProjectEnvMap(mergeProjectEnvMap(projectEnvMap, report.getProjectEnvMap()));
+                report.setProjectEnvMap(TestPlanReportUtil.mergeProjectEnvMap(projectEnvMap, report.getProjectEnvMap()));
             } catch (Exception e) {
                 LogUtil.error(e);
             }
             report.setUiResult(uiResult);
         }
-    }
-
-    public Map<String, List<String>> mergeProjectEnvMap(Map<String, List<String>> projectEnvMap, Map<String, List<String>> originProjectEnvMap) {
-        if (MapUtils.isEmpty(projectEnvMap)) {
-            return originProjectEnvMap;
-        }
-        if (MapUtils.isEmpty(originProjectEnvMap)) {
-            return projectEnvMap;
-        }
-        Map<String, List<String>> r = new HashMap<>();
-        projectEnvMap.entrySet().forEach(e -> {
-            r.put(e.getKey(), e.getValue());
-        });
-        originProjectEnvMap.entrySet().forEach(e -> {
-            if (r.containsKey(e.getKey())) {
-                r.get(e.getKey()).addAll(e.getValue());
-                r.put(e.getKey(), r.get(e.getKey()).stream().distinct().collect(Collectors.toList()));
-            } else {
-                r.put(e.getKey(), e.getValue());
-            }
-        });
-        return r;
     }
 
     @NotNull
