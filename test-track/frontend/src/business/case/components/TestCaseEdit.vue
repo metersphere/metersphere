@@ -23,7 +23,7 @@
               <!--  版本历史 v-xpack -->
               <mx-version-history
                 v-xpack
-                v-if="versionEnable"
+                v-show="versionEnable"
                 ref="versionHistory"
                 :current-id="currentTestCaseInfo.id"
                 :is-read="readOnly"
@@ -240,11 +240,11 @@
               :project-id="projectId"
               :form="form"
               :is-form-alive="isFormAlive"
-              :isloading="loading"
+              :is-loading="loading"
               :read-only="readOnly || !editable"
+              :enable-default-module="!caseId"
               :public-enable="isPublicShow"
               :show-input-tag="showInputTag"
-              :tree-nodes="treeNodes"
               :project-list="projectList"
               :custom-field-form="customFieldForm"
               :custom-field-rules="customFieldRules"
@@ -376,11 +376,9 @@ import {
   testCaseEditFollows,
   testCaseGetByVersionId,
   testCaseDeleteToGc,
-  getTestCaseNodesByCaseFilter,
   getTestCaseByVersionId,
   getEditSimpleTestCase,
   getSimpleTestCase,
-  testCaseBatchEdit,
 } from "@/api/testCase";
 
 import {
@@ -395,7 +393,6 @@ import CaseEditInfoComponent from "./case/CaseEditInfoComponent";
 import CaseBaseInfo from "./case/CaseBaseInfo";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import MxVersionHistory from "./common/CaseVersionHistory"
-import {buildTree} from "metersphere-frontend/src/model/NodeTree";
 import {getProject, versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
@@ -456,7 +453,6 @@ export default {
       form: {
         name: "",
         num: '',
-        module: "default-module",
         nodePath: "/未规划用例",
         maintainer: getCurrentUser().id,
         priority: "P0",
@@ -502,7 +498,7 @@ export default {
             trigger: "blur",
           },
         ],
-        module: [
+        nodeId: [
           {
             required: true,
             message: this.$t("test_track.case.input_module"),
@@ -572,7 +568,6 @@ export default {
       isClickAttachmentTab: false,
       latestVersionId: "",
       hasLatest: false,
-      treeNodes: [],
       currentTestCaseInfo: {},
       currentVersionName: "",
       versionEnable: false,
@@ -754,11 +749,22 @@ export default {
     setIsLastedVersion(isLastedVersion) {
       this.isLastedVersion = isLastedVersion;
     },
+    async freshTestCase(caseId) {
+      this.loading = true;
+      this.routerToEdit(caseId);
+      this.$nextTick(() => {
+        this.initEdit();
+      });
+    },
     async loadTestCase() {
 
       if (localStorage.getItem('projectChangeFlag')) {
         localStorage.removeItem('projectChangeFlag');
         return;
+      }
+
+      if (this.isPublicShow) {
+        this.resetForm();
       }
 
       let initFuc = this.initEdit;
@@ -789,22 +795,6 @@ export default {
         getProjectListAll().then((response) => {
           this.projectList = response.data; //获取当前工作空间所拥有的项目,
         });
-      }
-
-      if (!this.isPublicShow) {
-        // 公共用例库不展示模块，这里调用接口会有权限校验
-        getTestCaseNodesByCaseFilter(this.projectId, {})
-          .then(r => {
-            this.treeNodes = r.data;
-            this.treeNodes.forEach(node => {
-              node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
-              buildTree(node, {path: ''});
-            });
-            if (!this.caseId) {
-              // 创建时设置模块ID
-              this.setDefaultModule();
-            }
-          });
       }
 
       getTestCaseFollow(this.caseId).then((response) => {
@@ -993,7 +983,6 @@ export default {
         history.pushState(null, null, document.URL);
         window.addEventListener("popstate", this.close);
       }
-      this.resetForm();
       listenGoBack(this.close);
 
       if (this.caseId) {
@@ -1028,11 +1017,6 @@ export default {
       }
       if (callback) {
         callback();
-      }
-    },
-    setDefaultModule() {
-      if (this.$refs.testCaseBaseInfo) {
-        this.$refs.testCaseBaseInfo.doSetDefaultModule(this.treeNodes);
       }
     },
     async checkCurrentProject() {
@@ -1145,9 +1129,6 @@ export default {
       }
       this.casePublic = tmp.casePublic;
 
-      this.form.module = testCase.nodeId;
-
-      this.$refs.testCaseBaseInfo.setDefaultModule();
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(
         this.form,
@@ -1222,8 +1203,8 @@ export default {
         this.$request(option)
           .then((response) => {
             if (this.editableState) {
-              // 如果是编辑态保存用例, 则直接reload页面
-              location.reload();
+               // 如果是编辑态保存用例, 则直接reload页面
+               this.editableState = false;
             }
             response = response.data;
             // 保存用例后刷新附件
@@ -1246,14 +1227,15 @@ export default {
               if (this.createVersionId) {
                 // 如果是创建版本，创建完跳转到对应的版本
                 this.createVersionId = null;
-                this.routerToEdit(response.data.id);
+                this.freshTestCase(response.data.id);
               }
             } else {
               param.id = response.data.id;
               this.close();
               if (this.saveType === 2) {
                 // 保存并创建
-                location.reload();
+                this.resetForm();
+                this.initEdit();
               } else {
                 this.isLastedVersion = true;
                 this.routerToEdit(response.data.id);
@@ -1269,9 +1251,6 @@ export default {
     },
     routerToEdit(id) {
       this.$router.push({path: '/track/case/edit/' + id});
-      setTimeout(() => {
-        window.location.reload();
-      }, 300);
     },
     buildParam() {
       let param = {};
@@ -1280,7 +1259,6 @@ export default {
       }
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
-      param.nodeId = this.form.module;
       param.copyCaseId = this.caseId;
       param.projectId = this.projectId;
 
@@ -1415,7 +1393,7 @@ export default {
     },
     _resetForm() {
       this.form.name = "";
-      this.form.module = "";
+      this.form.nodeId = "";
       this.form.type = "";
       this.form.method = "";
       this.form.maintainer = "";
@@ -1540,7 +1518,7 @@ export default {
         });
     },
     checkout(testCase) {
-      this.routerToEdit(testCase.id);
+      this.freshTestCase(testCase.id);
     },
     validateForm() {
       let isValidate = true;
@@ -1564,12 +1542,12 @@ export default {
         for (let i = 0; i < customFieldFormFields.length; i++) {
           let customField = customFieldFormFields[i];
           if (customField.validateState === "error") {
+            let name = customField.label || customField.labelFor;
             if (this.currentValidateName) {
               this.currentValidateName =
-                this.currentValidateName + "," + customField.label;
+                this.currentValidateName + "," + name;
             } else {
-              this.currentValidateName =
-                customField.label || customField.labelFor;
+              this.currentValidateName = name;
             }
           }
         }

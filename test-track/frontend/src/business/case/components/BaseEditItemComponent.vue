@@ -175,7 +175,7 @@ export default {
   },
   computed: {
     edit() {
-      return this.editable || this.selfEditable || this.hoverEditable;
+      return this.editable;
     },
   },
   mounted() {

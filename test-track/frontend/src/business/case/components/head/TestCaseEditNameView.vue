@@ -46,10 +46,11 @@ export default {
   },
   computed: {
     titleNum() {
-      if (!this.form.num) {
+      let num = this.isCustomNum ? this.form.customNum : this.form.num;
+      if (!num) {
         return '';
       }
-      return '【' + (this.isCustomNum ? this.form.customNum : this.form.num) + '】';
+      return `【${num}】`;
     },
     isCustomNum() {
       return useStore().currentProjectIsCustomNum;

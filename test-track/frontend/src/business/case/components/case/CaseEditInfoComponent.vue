@@ -330,20 +330,6 @@ export default {
     setRelationshipGraph(val) {
       this.$emit("syncRelationGraphOpen", val);
     },
-
-    setModuleId(moduleId) {
-      let data = {
-        id: getUUID(),
-        resourceId: getCurrentProjectID(),
-        moduleId: moduleId,
-        projectId: getCurrentProjectID(),
-        fileName: this.dumpFile.name,
-        attachmentId: this.dumpFile.id,
-      };
-      dumpAttachment(data).then(() => {
-        this.$success(this.$t("organization.integration.successful_operation"));
-      });
-    },
     getRelatedTest() {
       if (this.$refs.relateTest) {
         this.$refs.relateTest.initTable();
