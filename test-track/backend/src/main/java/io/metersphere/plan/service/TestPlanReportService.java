@@ -445,9 +445,11 @@ public class TestPlanReportService {
 
         testPlanReportMapper.insert(testPlanReport);
 
-        //更新TestPlan状态，改为进行中
-        testPlan.setStatus(TestPlanStatus.Underway.name());
-        testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        if (runInfoDTO != null) {
+            //runInfoDTO 不为Null时，是执行测试计划行为触发的，要更新TestPlan状态为进行中
+            testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        }
 
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         returnDTO.setTestPlanReport(testPlanReport);
@@ -709,6 +711,7 @@ public class TestPlanReportService {
             testPlanReportContent = parseReportDaoToReportContent(reportDTO, testPlanReportContentList.get(0));
             testPlanReportContent.setStartTime(null);
             testPlanReportContent.setEndTime(null);
+            testPlanReportContent.setApiBaseCount(JSON.toJSONString(reportDTO));
             testPlanReportContentMapper.updateByPrimaryKeySelective(testPlanReportContent);
         }
 
@@ -1042,7 +1045,7 @@ public class TestPlanReportService {
         if (ObjectUtils.anyNull(testPlanReport, testPlanReportContent)) {
             return testPlanReportDTO;
         }
-        if (this.isDynamicallyGenerateReports(testPlanReportContent)) {
+        if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
             testPlanReportDTO = this.initTestPlanReportStruct(testPlan, testPlanReport, testPlanReportContent);
         }
