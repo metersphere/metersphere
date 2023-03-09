@@ -18,6 +18,8 @@ export default {
     testCaseDefaultValue: {},
     temWorkspaceId: null,
     appFixed: null,
+    // 防止全量导出时重复点击
+    isTestCaseExporting: false
   }),
   persist: false,
   getters: {

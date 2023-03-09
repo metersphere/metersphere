@@ -15,7 +15,13 @@
     </div>
     <span slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible = false" size="small">{{ $t('commons.cancel') }}</el-button>
-      <el-button type="primary" @click="exportTestCase" size="small">{{ $t('commons.export') }}</el-button>
+      <el-button v-prevent-re-click
+                 type="primary"
+                 @click="exportTestCase"
+                 :disabled="isTestCaseExporting"
+                 size="small">
+        {{ $t('commons.export') }}
+      </el-button>
     </span>
   </el-dialog>
 </template>
@@ -26,7 +32,9 @@ import MsTableButton from 'metersphere-frontend/src/components/MsTableButton';
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token"
 import TestCaseExportFieldSelectTable from "@/business/case/components/export/TestCaseExportFieldSelectTable";
-
+import {useStore} from "@/store";
+import {mapState} from "pinia";
+const store = useStore();
 export default {
   name: "TestCaseImport",
   components: {TestCaseExportFieldSelectTable, ElUploadList, MsTableButton},
@@ -41,6 +49,11 @@ export default {
     }
   },
   activated() {
+  },
+  computed: {
+    ...mapState(useStore, {
+      isTestCaseExporting: 'isTestCaseExporting',
+    })
   },
   methods: {
     handleError(err, file, fileList) {
