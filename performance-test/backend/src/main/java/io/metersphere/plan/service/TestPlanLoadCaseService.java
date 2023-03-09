@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.utils.*;
@@ -26,6 +27,7 @@ import io.metersphere.plan.service.remote.TestPlanService;
 import io.metersphere.request.*;
 import io.metersphere.service.*;
 import io.metersphere.xpack.resourcepool.service.ValidQuotaResourcePoolService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -34,9 +36,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -378,6 +378,8 @@ public class TestPlanLoadCaseService {
             }
             if (StringUtils.isEmpty(status)) {
                 status = Translator.get("not_execute");
+            } else if (StringUtils.equals(PerformanceTestStatus.Completed.name(), status)) {
+                status = TestPlanLoadCaseStatus.success.name();
             }
             loadCaseDTO.setReportId(reportID);
             loadCaseDTO.setLoadReportId(reportID);

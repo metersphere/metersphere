@@ -60,15 +60,6 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         }
     }
 
-    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
-        try {
-            List<PlanReportCaseDTO> planReportCaseDTOs = planLoadTestReportService.getPlanReportCaseDTO(reportIds);
-            calculatePlanReport(report, planReportCaseDTOs);
-        } catch (MSException e) {
-            LogUtil.error(e);
-        }
-    }
-
     private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanLoadResultReportDTO loadResult = new TestPlanLoadResultReportDTO();
         report.setLoadResult(loadResult);

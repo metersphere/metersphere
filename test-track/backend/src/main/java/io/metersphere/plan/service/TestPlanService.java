@@ -1370,8 +1370,7 @@ public class TestPlanService {
                 TestPlanCaseReportResultDTO testPlanExecuteReportDTO = testPlanReportService.selectCaseDetailByTestPlanReport(config, testPlan.getId(), testPlanReportContentWithBLOBs);
                 report = generateTestPlanReport(
                         config,
-                        testPlanReport.getCreator(),
-                        StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.COMPLETED.name(), TestPlanReportStatus.SUCCESS.name(), TestPlanReportStatus.FAILED.name()),
+                        testPlanReport,
                         testPlan, testPlanExecuteReportDTO);
             }
             returnDTO.setTestPlanSimpleReportDTO(report);
@@ -1488,17 +1487,20 @@ public class TestPlanService {
     }
 
     //根据用例运行结果生成测试计划报告
-    public TestPlanSimpleReportDTO generateTestPlanReport(Map reportConfig, String operator, boolean isTestPlanReportExecuteOver, TestPlanWithBLOBs testPlan, TestPlanCaseReportResultDTO testPlanCaseReportResultDTO) {
+    public TestPlanSimpleReportDTO generateTestPlanReport(Map reportConfig, TestPlanReport testPlanReport, TestPlanWithBLOBs testPlan, TestPlanCaseReportResultDTO testPlanCaseReportResultDTO) {
         TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
-        if (ObjectUtils.anyNotNull(testPlan, testPlanCaseReportResultDTO)) {
+        if (ObjectUtils.anyNotNull(testPlan, testPlanReport, testPlanCaseReportResultDTO)) {
             TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
             TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
             TestPlanUiResultReportDTO uiResult = new TestPlanUiResultReportDTO();
             report.setFunctionResult(functionResult);
             report.setApiResult(apiResult);
             report.setUiResult(uiResult);
-            report.setStartTime(testPlan.getActualStartTime());
-            report.setEndTime(testPlan.getActualEndTime());
+            report.setStartTime(testPlanReport.getCreateTime());
+            if (testPlanReport.getCreateTime() != testPlanReport.getEndTime() && testPlanReport.getEndTime() != 0) {
+                //防止测试计划报告非正常状态停止时造成的测试时间显示不对
+                report.setEndTime(testPlanReport.getEndTime());
+            }
             report.setSummary(testPlan.getReportSummary());
             report.setConfig(testPlan.getReportConfig());
 
@@ -1517,7 +1519,11 @@ public class TestPlanService {
             }
 
             //功能用例的状态更新以及统计
-            testPlanTestCaseService.calculateReportByTestCaseList(operator, testPlan, isTestPlanReportExecuteOver, testPlanCaseReportResultDTO.getFunctionCaseList(), report);
+            testPlanTestCaseService.calculateReportByTestCaseList(
+                    testPlanReport.getCreator(),
+                    testPlan,
+                    StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.COMPLETED.name(), TestPlanReportStatus.SUCCESS.name(), TestPlanReportStatus.FAILED.name()),
+                    testPlanCaseReportResultDTO.getFunctionCaseList(), report);
             if (report.getFunctionAllCases() == null || report.getIssueList() == null) {
                 //构建功能用例和issue
                 this.buildFunctionalReport(report, reportConfig, testPlan.getId());
