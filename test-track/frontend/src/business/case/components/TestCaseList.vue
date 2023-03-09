@@ -300,7 +300,6 @@ import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 import {mapState} from "pinia";
 import {useStore} from "@/store"
 import {getProject, versionEnableByProjectId} from "@/api/project";
-import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectApplicationConfig} from "@/api/project-application";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
@@ -314,6 +313,7 @@ import {
 } from "@/business/utils/sdk-utils";
 import {getTagToolTips, initTestCaseConditionComponents, openCaseEdit, parseColumnTag} from "@/business/case/test-case";
 
+const store = useStore();
 
 export default {
   name: "TestCaseList",
@@ -658,7 +658,7 @@ export default {
           item.columnKey = 'status';
         }
       });
-      useStore().testCaseDefaultValue = testCaseDefaultValue;
+      store.testCaseDefaultValue = testCaseDefaultValue;
     },
     getCreateUserName(userId) {
       let user = this.userFilter.filter(item => item.value === userId);
@@ -1040,6 +1040,8 @@ export default {
         fileNameSuffix = ".xlsx";
       }
       this.loading = true;
+      store.isTestCaseExporting = true;
+
       this.$request(config).then(response => {
         this.loading = false;
         const filename = "Metersphere_case_" + this.projectName + fileNameSuffix;
@@ -1055,6 +1057,7 @@ export default {
           navigator.msSaveBlob(blob, filename);
           this.$emit('closeExport');
         }
+        store.isTestCaseExporting = false;
       });
     },
     batchEdit(form) {

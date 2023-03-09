@@ -41,9 +41,10 @@ export default {
     Vue.directive('permission-disable', NoPermissionDisable.hasPermissions);
     Vue.directive('xpack', Permission.hasLicense);
     Vue.directive('preventLinkReClick', onceLinkClick);
+    // 防止重复点击
     Vue.directive('preventReClick', onceClick);
     Vue.directive('modules', modules);
-    //支持左右拖拽
+    // 支持左右拖拽
     Vue.directive('left-to-right-drag', Drag.left2RightDrag);
     Vue.directive('right-to-left-drag', Drag.right2LeftDrag);
     Vue.directive('bottom-to-top-drag', Drag.bottom2TopDrag);

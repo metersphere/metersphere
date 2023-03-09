@@ -370,6 +370,9 @@ export default {
           this.openExportDialog(0, true)
           break;
         case "xmind":
+          if (store.isTestCaseExporting) {
+            return;
+          }
           this.exportTestCase(e, {exportAll: true})
           break;
       }
