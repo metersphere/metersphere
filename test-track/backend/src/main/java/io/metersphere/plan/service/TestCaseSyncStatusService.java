@@ -20,7 +20,6 @@ import io.metersphere.utils.BatchProcessingUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,49 +111,9 @@ public class TestCaseSyncStatusService {
         }
     }
 
-    public void checkAndUpdateFunctionCaseStatus(String testId) {
-        TestPlanApiCase testPlanApiCase = null;
-        TestPlanApiScenario testPlanApiScenario = null;
-        TestPlanLoadCase testPlanLoadCase = null;
-        TestPlanUiScenario testPlanUiScenario = null;
 
-        testPlanApiCase = extTestPlanApiCaseMapper.selectBaseInfoById(testId);
-        if (testPlanApiCase == null) {
-            testPlanApiScenario = extTestPlanScenarioCaseMapper.selectBaseInfoById(testId);
-        }
-        if (ObjectUtils.allNull(testPlanApiCase, testPlanApiScenario)) {
-            testPlanLoadCase = extTestPlanLoadCaseMapper.selectBaseInfoById(testId);
-        }
-        if (ObjectUtils.allNull(testPlanApiCase, testPlanApiScenario, testPlanLoadCase)) {
-            testPlanUiScenario = extTestPlanUiCaseMapper.selectBaseInfoById(testId);
-        }
 
-        String automationCaseId = null, planId = null;
-        String triggerCaseExecResult = null;
-        if (testPlanApiCase != null) {
-            automationCaseId = testPlanApiCase.getApiCaseId();
-            planId = testPlanApiCase.getTestPlanId();
-            triggerCaseExecResult = testPlanApiCase.getStatus();
-        } else if (testPlanApiScenario != null) {
-            automationCaseId = testPlanApiScenario.getApiScenarioId();
-            planId = testPlanApiScenario.getTestPlanId();
-            triggerCaseExecResult = testPlanApiScenario.getLastResult();
-        } else if (testPlanLoadCase != null) {
-            automationCaseId = testPlanLoadCase.getLoadCaseId();
-            planId = testPlanLoadCase.getTestPlanId();
-            triggerCaseExecResult = testPlanLoadCase.getStatus();
-        } else if (testPlanUiScenario != null) {
-            automationCaseId = testPlanUiScenario.getUiScenarioId();
-            planId = testPlanUiScenario.getTestPlanId();
-            triggerCaseExecResult = testPlanUiScenario.getLastResult();
-        }
-
-        if (StringUtils.isNoneEmpty(automationCaseId, planId, triggerCaseExecResult)) {
-            this.updateFunctionCaseStatusByAutomationCaseId(automationCaseId, planId, triggerCaseExecResult);
-        }
-    }
-
-    private void updateFunctionCaseStatusByAutomationCaseId(String automationCaseId, String testPlanId, String triggerCaseRunResult) {
+    public void updateFunctionCaseStatusByAutomationCaseId(String automationCaseId, String testPlanId, String triggerCaseRunResult) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
         if (testPlan != null && testPlan.getAutomaticStatusUpdate()) {
             HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(testPlan.getCreator()));

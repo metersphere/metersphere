@@ -221,6 +221,7 @@ import i18n from "@/i18n";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import UiRunMode from "@/business/plan/view/comonents/ui/UiRunMode";
+import {baseSocket} from "@/api/base-network";
 
 export default {
   name: "MsTestPlanUiScenarioList",
@@ -340,7 +341,13 @@ export default {
       return editTestPlanUiScenarioCaseOrder;
     }
   },
+  beforeDestroy() {
+    if (this.websocket && this.websocket.close instanceof Function) {
+      this.websocket.close();
+    }
+  },
   created() {
+    this.initWebSocket();
     this.search();
     this.getVersionOptions();
   },
@@ -354,6 +361,34 @@ export default {
     }
   },
   methods: {
+    initWebSocket() {
+      this.websocket = baseSocket("/plan/ui/" + this.planId);
+      this.websocket.onmessage = this.onMessage;
+      this.websocket.onopen = this.onOpen;
+      this.websocket.onerror = this.onError;
+      this.websocket.onclose = this.onClose;
+    },
+    onOpen() {
+    },
+    onError() {
+    },
+    onMessage(e) {
+      if (e.data === 'CONN_SUCCEEDED') {
+        return;
+      }
+      try {
+        let obj = JSON.parse(e.data);
+        let {planCaseId, planCaseStatus} = obj;
+        let data = this.tableData.filter(d => d.id === planCaseId);
+        if (data.length > 0) {
+          data[0]['lastResult'] = planCaseStatus;
+        }
+      } catch (ex) {
+        // nothing
+      }
+    },
+    onClose() {
+    },
     filterSearch() {
       // 添加搜索条件时，当前页设置成第一页
       this.currentPage = 1;
