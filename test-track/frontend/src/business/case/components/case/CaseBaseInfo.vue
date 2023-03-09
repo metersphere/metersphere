@@ -1,6 +1,6 @@
 <template>
   <!--  功能用例编辑页面右侧基本信息-->
-  <div v-loading="isloading" class="case-base-info-form">
+  <div v-loading="isLoading" class="case-base-info-form">
     <el-form ref="caseFrom" :rules="headerRules" :model="form" class="case-padding">
       <!-- ID及自定义ID  -->
       <div class="id-row case-wrap" v-if="!editable || isCustomNum">
@@ -92,7 +92,7 @@
           <div class="required required-item"></div>
         </div>
 
-        <div class="side-content">
+        <div class="side-content" v-if="treeNodes">
           <base-edit-item-component
             :editable="editable"
             :auto-save="!readOnly"
@@ -114,7 +114,7 @@
                     :disabled="readOnly"
                     :data="treeNodes"
                     :obj="moduleObj"
-                    :default-key="defaultModuleKey"
+                    :default-key="form.nodeId"
                     @getValue="setModule"
                     clearable
                     checkStrictly
@@ -344,6 +344,8 @@ import CustomFiledFormRow from "./CaseCustomFiledFormRow";
 import { useStore } from "@/store";
 import BaseEditItemComponent from "../BaseEditItemComponent";
 import { issueDemandList } from "@/api/issue";
+import {getTestCaseNodesByCaseFilter} from "@/api/testCase";
+import {buildTree} from "@/business/utils/sdk-utils";
 export default {
   name: "CaseBaseInfo",
   components: {
@@ -365,8 +367,7 @@ export default {
       this.buildDemandOptions();
     },
     projectId() {
-      this.getDemandOptions();
-      this.getVersionOptions();
+      this.init();
     }
   },
   data() {
@@ -429,7 +430,7 @@ export default {
             trigger: "blur",
           },
         ],
-        module: [
+        nodeId: [
           {
             required: true,
             message: this.$t("test_track.case.input_module"),
@@ -448,7 +449,8 @@ export default {
       demandOptions: [],
       versionFilters: [],
       demandList: [],
-      defaultModuleKey: ''
+      defaultModuleKey: '',
+      treeNodes: null,
     };
   },
   props: {
@@ -456,11 +458,10 @@ export default {
     editableState: Boolean,
     form: Object,
     isFormAlive: Boolean,
-    isloading: Boolean,
+    isLoading: Boolean,
     readOnly: Boolean,
     publicEnable: Boolean,
     showInputTag: Boolean,
-    treeNodes: Array,
     projectList: Array,
     customFieldForm: Object,
     customFieldRules: Object,
@@ -468,6 +469,7 @@ export default {
     defaultOpen: String,
     versionEnable: Boolean,
     projectId: String,
+    enableDefaultModule: Boolean
   },
   computed: {
     isCustomNum() {
@@ -478,32 +480,53 @@ export default {
     }
   },
   mounted() {
-    this.getDemandOptions();
-    this.getVersionOptions();
+    this.init();
   },
   methods: {
-    setDefaultModule() {
-      this.doSetDefaultModule(this.treeNodes);
+    init() {
+      this.getDemandOptions();
+      this.getVersionOptions();
+      this.getNodeTrees();
     },
-    doSetDefaultModule(treeNodes) {
-      if (treeNodes && treeNodes.length > 0) {
-        if (this.createNodeId) {
-          // 创建时设置选中的模块
-          this.form.module = this.createNodeId;
-          let node = this.findTreeNode(treeNodes);
-          this.form.nodePath = node.path;
-        } else if (this.form.module) {
+    setDefaultModule(treeNodes) {
+      if (this.enableDefaultModule) {
+        // 创建时设置模块ID
+        if (treeNodes && treeNodes.length > 0) {
+          if (this.createNodeId) {
+            // 创建时设置选中的模块
+            this.form.nodeId = this.createNodeId;
+            let node = this.findTreeNode(treeNodes);
+            this.form.nodePath = node ? node.path : '';
+          }  else {
+            // 创建不带模块ID，设置成为规划模块
+            this.form.nodeId = treeNodes[0].id;
+            this.form.nodePath = treeNodes[0].path;
+          }
+        }
+      } else {
+        if (this.form.nodeId) {
           // 编辑重新设置下 nodePath
           let node = this.findTreeNode(treeNodes);
           this.form.nodePath = node ? node.path : '';
-        } else {
-          // 创建不带模块ID，设置成为规划模块
-          this.form.module = treeNodes[0].id;
-          this.form.nodePath = treeNodes[0].path;
         }
-        this.defaultModuleKey = this.form.module;
-        this.$refs.moduleTree.setData(this.form.module);
       }
+    },
+    getNodeTrees() {
+      if (this.publicEnable || !this.projectId) {
+        return;
+      }
+      getTestCaseNodesByCaseFilter(this.projectId, {})
+        .then(r => {
+          let treeNodes = r.data;
+          treeNodes.forEach(node => {
+            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
+            buildTree(node, {path: ''});
+          });
+
+          this.setDefaultModule(treeNodes);
+
+          this.treeNodes = treeNodes;
+        });
     },
     handleDemandOptionPlatform(data){
       if(data.platform){
@@ -577,7 +600,7 @@ export default {
     findTreeNode(nodeArray) {
       for (let i = 0; i < nodeArray.length; i++) {
         let node = nodeArray[i];
-        if (node.id === this.form.module) {
+        if (node.id === this.form.nodeId) {
           return node;
         } else {
           if (node.children && node.children.length > 0) {
@@ -591,7 +614,7 @@ export default {
     },
     setModule(id, data) {
       if (data) {
-        this.form.module = id;
+        this.form.nodeId = id;
         this.form.nodePath = data.path;
       }
     },
