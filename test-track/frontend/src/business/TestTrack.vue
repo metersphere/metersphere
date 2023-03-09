@@ -268,8 +268,7 @@ i.el-dialog__close.el-icon.el-icon-close:before {
 /**
  el-tag
  */
-
-span.el-tag.el-tag--info.el-tag--mini.el-tag--light {
+span.el-tag.el-tag--info.el-tag--mini.el-tag--light, span.el-tag.el-tag--info.el-tag--small.el-tag--light {
   flex-direction: row;
   align-items: center;
   padding: 1px 6px;
@@ -296,6 +295,14 @@ span.el-tag.el-tag--info.el-tag--mini.el-tag--light span{
   color: rgb(31, 35, 41);
 }
 
+span.el-tag.el-tag--info.el-tag--small.el-tag--light span{
+  display: inline-block;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgb(31, 35, 41);
+}
 
 /**
  * el-tag-icon-close

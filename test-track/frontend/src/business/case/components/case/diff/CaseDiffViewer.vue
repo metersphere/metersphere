@@ -25,7 +25,7 @@
             </div>
             <div class="version-creator">
               <div class="username">{{ item.createUserName }}</div>
-              <div class="static-label">创建</div>
+              <div class="static-label">{{$t('permission.project_custom_code.create')}}</div>
             </div>
           </div>
         </div>
@@ -426,7 +426,9 @@ export default {
       await this.fetchCaseVersions();
       await this.fetchAllCaseVersion();
       // 构造版本列表 根据顺序
-      this.formatVersionList();
+      // 这里构建的是全部的版本, 用来快速切换,
+      // this.formatVersionList();
+      this.formatCompareVersion();
       this.checkoutVersionCase();
       this.calculate();
       this.defaultExecutor = new DefaultDiffExecutor(
@@ -502,6 +504,13 @@ export default {
         f.progress = 100;
       });
       return tableData;
+    },
+    formatCompareVersion() {
+      // 只添加比对的版本
+      let leftVersion = this.versionOptions.filter(version => version.id === this.versionLeftId);
+      let rightVersion = this.versionOptions.filter(version => version.id === this.versionRightId);
+      this.versionList.push(leftVersion[0]);
+      this.versionList.push(rightVersion[0]);
     },
     checkoutVersionCase() {
       if (this.versionLeftId) {
