@@ -718,7 +718,7 @@ public class TestPlanApiCaseService {
     }
 
     public List<TestPlanApiDTO> getFailureListByIds(Set<String> planApiCaseIds) {
-        return extTestPlanApiCaseMapper.getFailureListByIds(planApiCaseIds, null);
+        return buildCases(extTestPlanApiCaseMapper.getFailureListByIds(planApiCaseIds, null));
     }
 
     public List<ApiModuleDTO> getNodeByPlanId(List<String> projectIds, String planId, String protocol) {

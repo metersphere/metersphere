@@ -890,7 +890,6 @@ public class TestPlanService {
 
         LoggerUtil.info("预生成测试计划报告【" + reportInfoDTO.getTestPlanReport() != null ? reportInfoDTO.getTestPlanReport().getName() : StringUtils.EMPTY + "】计划报告ID[" + planReportId + "]");
 
-
         List<TestPlanApiDTO> apiTestCases = null;
         List<TestPlanScenarioDTO> scenarioCases = null;
         List<TestPlanUiScenarioDTO> uiScenarios = null;
