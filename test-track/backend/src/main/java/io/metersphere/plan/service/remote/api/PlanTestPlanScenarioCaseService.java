@@ -10,11 +10,11 @@ import io.metersphere.plan.dto.*;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
+import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -40,30 +40,10 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
             calculatePlanReport(report, planReportCaseDTOS);
             //记录接口用例的运行环境信息
             List<String> idList = planReportCaseDTOS.stream().map(PlanReportCaseDTO::getId).collect(Collectors.toList());
-            try {
-                if (MapUtils.isEmpty(report.getProjectEnvMap())) {
-                    report.setProjectEnvMap(getPlanProjectEnvMap(idList));
-                } else {
-                    Map<String, List<String>> projectEnvMap = getPlanProjectEnvMap(idList);
-                    if (MapUtils.isNotEmpty(projectEnvMap)) {
-                        for (Map.Entry<String, List<String>> entry : projectEnvMap.entrySet()) {
-                            String project = entry.getKey();
-                            List<String> envList = entry.getValue();
-                            if (report.getProjectEnvMap().containsKey(project)) {
-                                for (String env : envList) {
-                                    if (!report.getProjectEnvMap().get(project).contains(env)) {
-                                        report.getProjectEnvMap().get(project).add(env);
-                                    }
-                                }
-                            } else {
-                                report.getProjectEnvMap().put(project, envList);
-                            }
-
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
+            AutomationsRunInfoDTO automationsRunInfoDTO = getPlanProjectEnvMap(idList);
+            if (automationsRunInfoDTO != null) {
+                report.setProjectEnvMap(TestPlanReportUtil.mergeProjectEnvMap(report.getProjectEnvMap(), automationsRunInfoDTO.getProjectEnvMap()));
+                report.setResourcePools(TestPlanReportUtil.mergeResourcePools(report.getResourcePools(), automationsRunInfoDTO.getResourcePools()));
             }
         }
     }
@@ -138,8 +118,8 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         return microService.getForDataArray(serviceName, BASE_UEL + "/get/report/status/" + planId, PlanReportCaseDTO.class);
     }
 
-    public Map<String, List<String>> getPlanProjectEnvMap(List<String> resourceIds) {
-        return (Map<String, List<String>>) microService.postForData(serviceName, BASE_UEL + "/get/plan/env/map", resourceIds);
+    public AutomationsRunInfoDTO getPlanProjectEnvMap(List<String> resourceIds) {
+        return microService.postForData(serviceName, BASE_UEL + "/get/plan/env/map", resourceIds, AutomationsRunInfoDTO.class);
     }
 
     public List<String> getExecResultByPlanId(String planId) {

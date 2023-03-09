@@ -25,4 +25,14 @@
         </foreach>
         order by api_scenario_module.pos asc
     </select>
+    <select id="selectResourcePoolIdByTestPlanScenarioIds" resultType="java.lang.String">
+        SELECT DISTINCT actuator FROM api_scenario_report WHERE id in (
+        SELECT report_id FROM test_plan_api_scenario
+                         WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        )
+    </select>
+
 </mapper>

@@ -299,7 +299,7 @@ public class TestPlanReportService {
             returnDTO.setApiTestCaseDataMap(planApiCaseIdMap);
         }
 
-
+        List<String> loadResourcePools = new ArrayList<>();
         if (serviceIdSet.contains(MicroServiceName.PERFORMANCE_TEST)) {
             Map<String, String> performanceIdMap = new LinkedHashMap<>();
             List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = planTestPlanLoadCaseService.list(planId);
@@ -308,10 +308,10 @@ public class TestPlanReportService {
             }
             saveRequest.setPerformanceIsExecuting(!performanceIdMap.isEmpty());
             saveRequest.setPerformanceIdMap(performanceIdMap);
-
             returnDTO.setPerformanceIdMap(performanceIdMap);
-        }
 
+            loadResourcePools = planTestPlanLoadCaseService.selectResourcePoolsByPlan(planId);
+        }
 
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
             Map<String, String> uiScenarioIdMap = new LinkedHashMap<>();
@@ -333,9 +333,13 @@ public class TestPlanReportService {
             returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
         }
 
-
         if (testPlanReport == null) {
-            runInfoDTO.setResourcePool(runModeConfigDTO.getResourcePoolId());
+            runInfoDTO.setResourcePools(loadResourcePools);
+            if (StringUtils.isNotEmpty(runModeConfigDTO.getResourcePoolId())) {
+                if (!runInfoDTO.getResourcePools().contains(runModeConfigDTO.getResourcePoolId())) {
+                    runInfoDTO.getResourcePools().add(runModeConfigDTO.getResourcePoolId());
+                }
+            }
             returnDTO = this.genTestPlanReport(saveRequest, runInfoDTO);
         }
         returnDTO.setPlanScenarioIdMap(saveRequest.getScenarioIdMap());
@@ -1103,6 +1107,23 @@ public class TestPlanReportService {
         } else {
             report.setIsThirdPartIssue(true);
         }
+
+        //查找资源池
+        if (CollectionUtils.isNotEmpty(report.getResourcePools())) {
+            TestResourcePoolExample example = new TestResourcePoolExample();
+            example.createCriteria().andIdIn(report.getResourcePools());
+            List<TestResourcePool> resourcePoolList = testResourcePoolMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(resourcePoolList)) {
+                ArrayList<String> resourcePoolName = new ArrayList<>();
+                resourcePoolList.forEach(item -> {
+                    if (!resourcePoolName.contains(item.getName())) {
+                        resourcePoolName.add(item.getName());
+                    }
+                });
+                String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
+                report.setResourcePool(resourcePoolNames);
+            }
+        }
         return report;
     }
 
@@ -1120,10 +1141,19 @@ public class TestPlanReportService {
     public void setEnvironmentToDTO(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReportRunInfoDTO runInfoDTO) {
         if (ObjectUtils.allNotNull(testPlanReportDTO, runInfoDTO)) {
             //查找资源池
-            if (StringUtils.isNotEmpty(runInfoDTO.getResourcePool())) {
-                TestResourcePool resourcePool = testResourcePoolMapper.selectByPrimaryKey(runInfoDTO.getResourcePool());
-                if (resourcePool != null) {
-                    testPlanReportDTO.setResourcePool(resourcePool.getName());
+            if (CollectionUtils.isNotEmpty(runInfoDTO.getResourcePools())) {
+                TestResourcePoolExample example = new TestResourcePoolExample();
+                example.createCriteria().andIdIn(runInfoDTO.getResourcePools());
+                List<TestResourcePool> resourcePoolList = testResourcePoolMapper.selectByExample(example);
+                if (CollectionUtils.isNotEmpty(resourcePoolList)) {
+                    ArrayList<String> resourcePoolName = new ArrayList<>();
+                    resourcePoolList.forEach(item -> {
+                        if (!resourcePoolName.contains(item.getName())) {
+                            resourcePoolName.add(item.getName());
+                        }
+                    });
+                    String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
+                    testPlanReportDTO.setResourcePool(resourcePoolNames);
                 }
             }
             // 环境组/运行环境

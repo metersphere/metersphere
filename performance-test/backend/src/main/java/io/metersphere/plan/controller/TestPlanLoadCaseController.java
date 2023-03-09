@@ -22,9 +22,9 @@ import io.metersphere.plan.service.TestPlanLoadCaseService;
 import io.metersphere.request.PlanSubReportRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.RunTestPlanRequest;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/test/plan/load/case")
@@ -177,6 +177,16 @@ public class TestPlanLoadCaseController {
     @GetMapping("/plan/exec/result/{planId}")
     public List<String> getExecResultByPlanId(@PathVariable String planId) {
         return testPlanLoadCaseService.getStatus(planId);
+    }
+
+    @GetMapping("/resource/pool/{planId}")
+    public List<String> getResourcePoolByPlanId(@PathVariable String planId) {
+        return testPlanLoadCaseService.getResourcePoolByPlanId(planId);
+    }
+
+    @GetMapping("/resource/pool/case/{planId}")
+    public List<String> getCaseResourcePoolByPlanId(@PathVariable String planId) {
+        return testPlanLoadCaseService.getCaseResourcePoolByPlanId(planId);
     }
 
     @GetMapping("/get/report/status/{planId}")

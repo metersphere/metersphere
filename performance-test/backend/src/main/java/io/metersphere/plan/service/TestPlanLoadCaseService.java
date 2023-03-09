@@ -709,4 +709,12 @@ public class TestPlanLoadCaseService {
                 .map(TestPlanLoadCaseDTO::getLoadCaseId)
                 .collect(Collectors.toList()).isEmpty();
     }
+
+    public List<String> getResourcePoolByPlanId(String planId) {
+        return extTestPlanLoadCaseMapper.getResourcePoolByPlanId(planId);
+    }
+
+    public List<String> getCaseResourcePoolByPlanId(String planId) {
+        return extTestPlanLoadCaseMapper.getCaseResourcePoolByPlanId(planId);
+    }
 }

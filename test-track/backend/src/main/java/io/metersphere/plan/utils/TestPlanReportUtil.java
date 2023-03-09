@@ -135,4 +135,17 @@ public class TestPlanReportUtil {
         }
         return null;
     }
+
+    public static List<String> mergeResourcePools(List<String> resourcePools, List<String> originResourcePools) {
+        if (resourcePools == null) {
+            resourcePools = new ArrayList<>();
+        }
+        if (originResourcePools == null) {
+            return resourcePools;
+        }
+        List<String> returnList = new ArrayList<>();
+        returnList.addAll(resourcePools);
+        returnList.addAll(originResourcePools);
+        return returnList.stream().distinct().collect(Collectors.toList());
+    }
 }

@@ -226,7 +226,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/get/plan/env/map")
-    public Map<String, List<String>> getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
+    public AutomationsRunInfoDTO getPlanProjectEnvMap(@RequestBody List<String> resourceIds) {
         return testPlanScenarioCaseService.getPlanProjectEnvMap(resourceIds);
     }
 
