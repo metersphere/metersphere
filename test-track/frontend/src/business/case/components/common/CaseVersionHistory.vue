@@ -214,7 +214,7 @@ export default {
         return;
       }
       this.setDefaultCompareOptions();
-      this.versionLeftId = this.currentVersionId;
+      this.versionRightId = this.currentVersionId;
       this.compareDialogVisible = true;
     },
     clearSelectData() {
