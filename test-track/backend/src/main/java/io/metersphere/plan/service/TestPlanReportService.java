@@ -1180,6 +1180,21 @@ public class TestPlanReportService {
         testPlanReportContentMapper.insert(content);
     }
 
+    private Map<String, String> parseLoadCaseReportMap(String loadReportStructStr) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (StringUtils.isNotEmpty(loadReportStructStr)) {
+            Map<String, String> caseReportList = null;
+            try {
+                caseReportList = JSON.parseMap(loadReportStructStr);
+            } catch (Exception ignored) {
+            }
+            if (MapUtils.isNotEmpty(caseReportList)) {
+                returnMap = caseReportList;
+            }
+        }
+        return returnMap;
+    }
+
     private Map<String, String> parseCaseReportMap(String reportStructStr) {
         Map<String, String> returnMap = new HashMap<>();
         if (StringUtils.isNotEmpty(reportStructStr)) {
@@ -1236,7 +1251,7 @@ public class TestPlanReportService {
         //查找性能测试报告结果
         if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】开始查找性能测试报告结果");
-            Map<String, String> testPlanLoadCaseIdAndReportIdMap = this.parseCaseReportMap(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct());
+            Map<String, String> testPlanLoadCaseIdAndReportIdMap = this.parseLoadCaseReportMap(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct());
             if (MapUtils.isNotEmpty(testPlanLoadCaseIdAndReportIdMap)) {
                 ApiPlanReportRequest request = new ApiPlanReportRequest();
                 request.setConfig(reportConfig);

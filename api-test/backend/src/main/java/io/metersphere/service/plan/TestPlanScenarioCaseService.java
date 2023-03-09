@@ -994,7 +994,7 @@ public class TestPlanScenarioCaseService {
     }
 
     public List<TestPlanScenarioDTO> getListByIds(Set<String> ids) {
-        return extTestPlanScenarioCaseMapper.getFailureListByIds(ids, null);
+        return this.buildCases(extTestPlanScenarioCaseMapper.getFailureListByIds(ids, null));
     }
 
     public TestPlanEnvInfoDTO generateEnvironmentInfo(TestPlanReport testPlanReport) {
