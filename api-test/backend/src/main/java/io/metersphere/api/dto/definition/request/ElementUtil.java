@@ -429,7 +429,8 @@ public class ElementUtil {
                             Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(MsTestElement::getId))),
                             ArrayList::new));
 
-            element.setHashTree((LinkedList<MsTestElement>) sourceList);
+            element.getHashTree().clear();
+            element.getHashTree().addAll(sourceList);
         } catch (Exception e) {
             element.setHashTree(targetHashTree);
         }
