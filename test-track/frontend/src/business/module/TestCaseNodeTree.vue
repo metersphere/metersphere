@@ -307,6 +307,8 @@ export default {
         .then(() => {
           testCaseNodePos(list)
           this.list();
+        }).catch((err) => {
+          this.list();
         });
     },
     setModuleOptions() {
