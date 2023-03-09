@@ -56,6 +56,8 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
 
     private String runMode;
 
+    private ApiDefinitionEnvService apiDefinitionEnvService;
+
     @Override
     public Object clone() {
         MsDebugListener clone = (MsDebugListener) super.clone();
@@ -119,6 +121,9 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
     @Override
     public void testStarted(String host) {
         LogUtil.debug("TestStarted " + this.getName());
+        if (apiDefinitionEnvService == null) {
+            apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
+        }
     }
 
     @Override
@@ -163,31 +168,28 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setRunMode(runMode);
 
                 String console = FixedCapacityUtil.getJmeterLogger(this.getName(), false);
-                ApiDefinitionEnvService apiDefinitionEnvService = CommonBeanFactory.getBean(ApiDefinitionEnvService.class);
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
-                        transactionResult.getResponseResult().setConsole(console);
-                        //对响应内容进行进一步解析和处理。
-                        RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(transactionResult);
-                        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
-                            apiDefinitionEnvService.setEnvAndPoolName(transactionResult, expandDTO);
-                        }
-                        dto.setContent("result_" + JSON.toJSONString(expandDTO));
-                        WebSocketUtil.sendMessageSingle(dto);
+                        this.sendResult(transactionResult, console, dto);
                     });
                 } else {
-                    requestResult.getResponseResult().setConsole(console);
-                    //对响应内容进行进一步解析和处理。
-                    RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
-                    if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
-                        apiDefinitionEnvService.setEnvAndPoolName(requestResult, expandDTO);
-                    }
-                    dto.setContent("result_" + JSON.toJSONString(expandDTO));
-                    WebSocketUtil.sendMessageSingle(dto);
+                    this.sendResult(requestResult, console, dto);
                 }
                 LoggerUtil.debug("send. " + this.getName());
             }
         }
+    }
+
+    private void sendResult(RequestResult requestResult, String console, MsgDTO dto) {
+        requestResult.getResponseResult().setConsole(console);
+        //对响应内容进行进一步解析和处理。
+        RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(requestResult);
+        if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
+            apiDefinitionEnvService.setEnvAndPoolName(requestResult, expandDTO);
+        }
+        dto.setContent("result_" + JSON.toJSONString(expandDTO));
+        WebSocketUtil.sendMessageSingle(dto);
+
     }
 
     private void setVars(SampleResult result) {

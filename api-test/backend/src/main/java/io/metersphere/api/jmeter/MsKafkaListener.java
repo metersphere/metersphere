@@ -101,23 +101,4 @@ public class MsKafkaListener {
             LoggerUtil.error("KAFKA消费失败：", e);
         }
     }
-
-    public void outKafkaPoolLogger() {
-        StringBuffer buffer = new StringBuffer()
-                .append(StringUtils.LF)
-                .append("KAFKA Consume 线程池详情：")
-                .append(StringUtils.LF)
-                .append(" KAFKA Consume 核心线程数：" + threadPool.getCorePoolSize())
-                .append(StringUtils.LF)
-                .append(" KAFKA Consume 活动线程数：" + threadPool.getActiveCount())
-                .append(StringUtils.LF)
-                .append(" KAFKA Consume 最大线程数：" + threadPool.getMaximumPoolSize())
-                .append(StringUtils.LF)
-                .append(" KAFKA Consume 最大队列数：" + (threadPool.getQueue().size() + threadPool.getQueue().remainingCapacity()))
-                .append(StringUtils.LF)
-                .append(" KAFKA Consume 当前排队线程数：" + (threadPool.getQueue().size()))
-                .append(StringUtils.LF);
-        LoggerUtil.info(buffer.toString());
-    }
-
 }
