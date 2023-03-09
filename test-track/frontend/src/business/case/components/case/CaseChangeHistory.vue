@@ -276,6 +276,9 @@ export default {
   height: px2rem(350) !important;
   max-height: px2rem(536) !important;
 }
+.wrap :deep(.el-table::before) {
+  background: none;
+}
 
 .wrap .change-his-pagination {
   padding-top: 24px!important;
