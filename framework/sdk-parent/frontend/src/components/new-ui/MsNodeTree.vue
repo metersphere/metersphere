@@ -445,24 +445,20 @@ export default {
     save(node, data) {
       if (data.name.trim() === '') {
         this.$warning(this.$t('test_track.module.input_name'), false);
-        this.$refs['nameInput'].focus();
         return;
       }
       if (data.name.trim().length > this.nameLimit) {
         this.$warning(this.$t('test_track.length_less_than') + this.nameLimit, false);
-        this.$refs['nameInput'].focus();
         return;
       }
       if (data.name.indexOf("\\") > -1) {
         this.$warning(this.$t('commons.node_name_tip'), false);
-        this.$refs['nameInput'].focus();
         return;
       }
       let sameLevelNode = node.parent.childNodes;
       let filterNode = sameLevelNode.filter(sameNode => sameNode.data.name === node.data.name);
       if (filterNode.length > 1) {
         this.$warning(this.$t('test_track.module.case_module_already_exists'), false);
-        this.$refs['nameInput'].focus();
         return;
       }
       let param = {};
