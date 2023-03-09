@@ -7,7 +7,7 @@ import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
 import io.metersphere.base.mapper.ApiExecutionQueueMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.TestPlanReportStatus;
-import io.metersphere.plan.service.TestCaseSyncStatusService;
+import io.metersphere.plan.service.AutomationCaseExecOverService;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -30,7 +30,7 @@ public class ExecReportListener {
     @Resource
     private TestPlanReportService testPlanReportService;
     @Resource
-    private TestCaseSyncStatusService testCaseSyncStatusService;
+    private AutomationCaseExecOverService automationCaseExecOverService;
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, groupId = "${spring.application.name}")
     public void consume(ConsumerRecord<?, String> record) {
@@ -45,14 +45,9 @@ public class ExecReportListener {
 
     }
 
-    /**
-     * 测试计划相关的自动化用例结束后，会根据测试计划的配置判断是否要同步功能用例的状态
-     * 目前暂时只有这一个需求。后续如果有了更多操作，建议将该方法内的逻辑处理放入一个共有方法中。
-     *
-     * @param testId
-     */
     public void automationCaseTestEnd(String testId) {
-        testCaseSyncStatusService.checkAndUpdateFunctionCaseStatus(testId);
+        //自动化用例执行完成之后的后续操作
+        automationCaseExecOverService.automationCaseExecOver(testId);
     }
 
     public void testPlanReportTestEnded(String testPlanReportId) {
