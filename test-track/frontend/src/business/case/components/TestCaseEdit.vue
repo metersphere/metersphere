@@ -1255,6 +1255,7 @@ export default {
                 // 保存并创建
                 location.reload();
               } else {
+                this.isLastedVersion = true;
                 this.routerToEdit(response.data.id);
               }
             }
