@@ -237,6 +237,10 @@ public class ServiceUtils {
 
             // 获取移动的参考对象
             T target = selectByPrimaryKeyFunc.apply(request.getTargetId());
+            if (target == null) {
+                // 如果参考对象被删除，则不处理
+                return;
+            }
             Long targetOrder = (Long) getOrder.invoke(target);
 
             if (request.getMoveMode().equals(ResetOrderRequest.MoveMode.AFTER.name())) {
