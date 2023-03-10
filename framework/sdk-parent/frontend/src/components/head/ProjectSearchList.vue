@@ -46,7 +46,6 @@ export default {
   },
   inject: [
     'reload',
-    'reloadTopMenus'
   ],
   data() {
     return {
@@ -113,7 +112,6 @@ export default {
         copyRedirectUrl = getDefaultSecondLevelMenu(copyRedirectUrl);
         if (copyRedirectUrl !== '/') {
           this.$router.push(copyRedirectUrl);
-          this.reloadTopMenus();
           this.reload();
           return;
         }
@@ -139,7 +137,6 @@ export default {
           this.$router.push("/");
         }
       }
-      this.reloadTopMenus();
       this.reload();
     },
     change(projectId) {

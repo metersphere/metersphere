@@ -8,6 +8,7 @@ export default {
     isReadOnly: true,
     theme: undefined,
     testCaseSelectNode: {},
+    testCasePublicSelectNode: {},
     testCaseSelectNodeIds: [],
     testCaseModuleOptions: [],
     testReviewSelectNode: {},

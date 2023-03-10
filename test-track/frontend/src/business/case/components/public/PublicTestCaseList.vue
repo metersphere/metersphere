@@ -370,7 +370,7 @@ export default {
     },
     ...mapState(useStore, {
       selectNodeIds: 'testCasePublicSelectNodeIds',
-      selectNode: 'testCaseSelectNode',
+      selectNode: 'testCasePublicSelectNode',
       moduleOptions: 'testCaseModuleOptions',
       customNum: 'currentProjectIsCustomNum'
     }),

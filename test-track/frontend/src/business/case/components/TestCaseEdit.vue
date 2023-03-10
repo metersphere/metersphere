@@ -393,7 +393,7 @@ import CaseEditInfoComponent from "./case/CaseEditInfoComponent";
 import CaseBaseInfo from "./case/CaseBaseInfo";
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import MxVersionHistory from "./common/CaseVersionHistory"
-import {getProject, versionEnableByProjectId} from "@/api/project";
+import {versionEnableByProjectId} from "@/api/project";
 import {openCaseEdit} from "@/business/case/test-case";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
 import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
@@ -1602,6 +1602,8 @@ export default {
       setLatestVersionById(param).then(() => {
         this.$success(this.$t("commons.modify_success"));
         this.checkoutByVersionId(version.id);
+      }).catch(() => {
+        this.$refs.versionHistory.loading = false;
       });
     },
     hasOtherInfo() {
