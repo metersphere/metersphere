@@ -30,7 +30,7 @@ import {fullScreenLoading, stopFullScreenLoading} from "../../utils";
 import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getCurrentWorkspaceId} from "../../utils/token";
 import {hasPermissions} from "../../utils/permission";
 import {getUserProjectList, switchProject} from "../../api/project";
-import {useUserStore} from "@/store";
+import {useUserStore, useCommonStore} from "@/store";
 import {getDefaultSecondLevelMenu} from "../../router";
 
 export default {
@@ -42,6 +42,7 @@ export default {
   created() {
     this.init();
     this.userStore = useUserStore();
+    this.commonStore = useCommonStore();
   },
   inject: [
     'reload',
@@ -150,6 +151,7 @@ export default {
       switchProject({id: this.userId, lastProjectId: projectId})
         .then(response => {
           this.userStore.switchProject(response);
+          this.commonStore.projectChangeFlag = true;
           this.$EventBus.$emit('projectChange');
           this.changeProjectName(projectId);
           // 刷新路由

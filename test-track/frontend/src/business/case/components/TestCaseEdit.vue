@@ -365,7 +365,7 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import { useStore } from "@/store";
+import {useCommonStore, useStore} from "@/store";
 import { getProjectApplicationConfig } from "@/api/project-application";
 import {
   deleteTestCaseVersion,
@@ -400,6 +400,7 @@ import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
 import TestCaseEditNameView from "@/business/case/components/head/TestCaseEditNameView";
 
 const store = useStore();
+const commonStore = useCommonStore();
 export default {
   name: "TestCaseEdit",
   components: {
@@ -709,10 +710,6 @@ export default {
     this.loadTestCase();
   },
   created(){
-    this.$EventBus.$on('projectChange', () => {
-      localStorage.setItem('projectChangeFlag', 'true');
-      this.$router.push('/track/case/all');
-    });
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
     this.setInitialVal();
   },
@@ -758,8 +755,9 @@ export default {
     },
     async loadTestCase() {
 
-      if (localStorage.getItem('projectChangeFlag')) {
-        localStorage.removeItem('projectChangeFlag');
+      if (commonStore.projectChangeFlag) {
+        commonStore.projectChangeFlag = false;
+        this.$router.push('/track/case/all');
         return;
       }
 
