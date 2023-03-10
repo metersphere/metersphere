@@ -57,6 +57,11 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * 取消关联文件应用ID
      */
     private List<String> unRelateFileMetaIds = new ArrayList<>();
+    /**
+     * since v2.8.0
+     * 复制用例过滤掉的原始附件ID
+     */
+    private List<String> filterCopyFileMetaIds = new ArrayList<>();
 
     private List<String> batchDeleteIds;
 

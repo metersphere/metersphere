@@ -175,7 +175,7 @@ export default {
         !(
           this.readOnly ||
           !this.isDelete ||
-          this.isCopy ||
+          // this.isCopy ||
           (!this.fileItem.id && !this.isToRelate)
         ) &&
         this.isComplete &&
@@ -190,7 +190,7 @@ export default {
         !(
           this.readOnly ||
           // !this.isDelete ||
-          this.isCopy ||
+          // this.isCopy ||
           (!this.fileItem.id && !this.isToUpload)
         ) &&
         this.isComplete &&

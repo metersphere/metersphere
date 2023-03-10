@@ -64,15 +64,15 @@
               <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id || scope.row.status === 'toRelate' || scope.row.isRelatedDeleted"
                          v-if="scope.row.progress === 100"
                          icon="el-icon-download" size="mini" circle/>
-              <el-button :disabled="isCopy || !scope.row.id"
+              <el-button :disabled="!scope.row.id"
                          @click="handleUpload(scope.row)"  type="primary"
-                         v-if="scope.row.progress === 100 && scope.row.isLocal"
+                         v-if="scope.row.progress === 100 && scope.row.isLocal && !isCopy"
                          icon="el-icon-upload" size="mini" circle/>
-              <el-button :disabled="readOnly || !isDelete || isCopy || (!scope.row.id && scope.row.status !== 'toUpload')"
+              <el-button :disabled="readOnly || !isDelete || (!scope.row.id && scope.row.status !== 'toUpload')"
                          @click="handleDelete(scope.row, scope.$index)" type="danger"
                          v-if="scope.row.progress === 100 && scope.row.isLocal"
                          icon="el-icon-delete" size="mini" circle/>
-              <el-button :disabled="readOnly || !isDelete || isCopy || (!scope.row.id && scope.row.status !== 'toRelate')"
+              <el-button :disabled="readOnly || !isDelete || (!scope.row.id && scope.row.status !== 'toRelate')"
                          @click="handleUnRelate(scope.row, scope.$index)" type="danger"
                          v-if="scope.row.progress === 100 && !scope.row.isLocal"
                          icon="el-icon-unlock" size="mini"

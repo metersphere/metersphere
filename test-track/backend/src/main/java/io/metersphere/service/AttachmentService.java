@@ -162,13 +162,20 @@ public class AttachmentService {
         attachmentModuleRelationMapper.deleteByExample(example);
     }
 
-    public void copyAttachment(AttachmentRequest request) {
+    public void copyAttachment(AttachmentRequest request, List<String> filterIds) {
+        List<AttachmentModuleRelation> needDealFiles = new ArrayList<>();
         AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
         example.createCriteria().andRelationIdEqualTo(request.getCopyBelongId()).andRelationTypeEqualTo(request.getBelongType());
         List<AttachmentModuleRelation> attachmentModuleRelations = attachmentModuleRelationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(attachmentModuleRelations)) {
+        if (CollectionUtils.isNotEmpty(filterIds)) {
+            // 复制用例或缺陷时, 需过滤掉的附件
+            needDealFiles = attachmentModuleRelations.stream().filter(relation -> !filterIds.contains(relation.getAttachmentId())).collect(Collectors.toList());
+        } else {
+            needDealFiles = attachmentModuleRelations;
+        }
+        if (CollectionUtils.isNotEmpty(needDealFiles)) {
             // 本地附件
-            List<String> localAttachments = attachmentModuleRelations.stream()
+            List<String> localAttachments = needDealFiles.stream()
                     .filter(relation -> StringUtils.isEmpty(relation.getFileMetadataRefId()))
                     .map(AttachmentModuleRelation::getAttachmentId)
                     .filter(StringUtils::isNotEmpty).collect(Collectors.toList());
@@ -181,7 +188,7 @@ public class AttachmentService {
                 attachmentModuleRelationMapper.insert(record);
             });
             // 文件管理关联附件
-            List<AttachmentModuleRelation> refAttachments = attachmentModuleRelations.stream()
+            List<AttachmentModuleRelation> refAttachments = needDealFiles.stream()
                     .filter(relation -> StringUtils.isNotEmpty(relation.getFileMetadataRefId())).collect(Collectors.toList());
             refAttachments.forEach(refAttachment -> {
                 refAttachment.setRelationId(request.getBelongId());
