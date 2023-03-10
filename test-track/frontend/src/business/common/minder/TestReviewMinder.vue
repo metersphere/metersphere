@@ -118,13 +118,17 @@ export default {
       }
     },
     setParamCallback(data, item) {
-      if (item.reviewStatus === 'Pass') {
-        data.resource.push(this.$t('test_track.plan_view.pass'));
-      } else if (item.reviewStatus === 'UnPass') {
-        data.resource.push(this.$t('test_track.plan_view.not_pass'));
-      } else {
-        data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
+      let statusMap = {
+        'Pass' : this.$t('test_track.review.pass'),
+        'UnPass' : this.$t('test_track.review.un_pass'),
+        'Again' : this.$t('test_track.review.again'),
+        'Underway' : this.$t('test_track.review.underway')
       }
+      let resourceName = statusMap[item.status];
+      if (!resourceName) {
+        resourceName = this.$t('test_track.review.underway');
+      }
+      data.resource.push(resourceName);
       data.caseId = item.caseId;
     },
     save(data) {
