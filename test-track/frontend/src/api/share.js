@@ -1,4 +1,8 @@
-import {get, post, generateShareUrl} from "metersphere-frontend/src/plugins/request"
+import {
+  generateShareUrl,
+  get,
+  post,
+} from "metersphere-frontend/src/plugins/request";
 
 export function generateApiDocumentShareInfo(param) {
   return post("/share/generate/api/document", param);
@@ -18,20 +22,26 @@ export function getShareContent(shareId, stepId) {
 }
 
 export function getShareApiReport(shareId, testId) {
-  return get('/share/api/definition/report/getReport/' + shareId + '/' + testId);
+  return get(
+    "/share/api/definition/report/getReport/" + shareId + "/" + testId
+  );
+}
+
+export function getShareApiReportByReportId(reportId) {
+  return get("/share/api/definition/report/by/id/" + reportId);
 }
 
 export function getShareInfo(id) {
-  return get('/share/info/get/' + id);
+  return get("/share/info/get/" + id);
 }
 
 export function getShareId() {
   //let herfUrl = 'http://localhost:8080/sharePlanReport?shareId=bf9496ac-8577-46b4-adf9-9c7e93dd06a8';
   let herfUrl = window.location.href;
-  if (herfUrl.indexOf('shareId=') > -1) {
-    let shareId = '';
+  if (herfUrl.indexOf("shareId=") > -1) {
+    let shareId = "";
     new URL(herfUrl).searchParams.forEach((value, key) => {
-      if (key === 'shareId') {
+      if (key === "shareId") {
         shareId = value;
       }
     });
@@ -52,6 +62,6 @@ export function getShareId() {
 }
 
 export function getShareRedirectUrl(data) {
-  let name = '/share-plan-report';
+  let name = "/share-plan-report";
   return generateShareUrl(name, data.shareUrl);
 }
