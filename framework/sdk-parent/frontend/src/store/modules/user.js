@@ -42,6 +42,7 @@ export default {
   state: () => ({
     language: getLanguage(),
     showLicenseCountWarning: false,
+    projectChangeFlag: false
   }),
   persist: true,
   getters: {
