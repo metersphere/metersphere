@@ -496,20 +496,36 @@ export default {
             // 创建时设置选中的模块
             this.form.nodeId = this.createNodeId;
             let node = this.findTreeNode(treeNodes);
-            this.form.nodePath = node ? node.path : '';
+            if (node) {
+              this.form.nodePath = node.path;
+            } else {
+              // 如果模块已删除，设置为未规划模块
+              this.setUnplannedModule(treeNodes);
+            }
           }  else {
             // 创建不带模块ID，设置成为规划模块
-            this.form.nodeId = treeNodes[0].id;
-            this.form.nodePath = treeNodes[0].path;
+            this.setUnplannedModule(treeNodes);
           }
         }
       } else {
         if (this.form.nodeId) {
           // 编辑重新设置下 nodePath
           let node = this.findTreeNode(treeNodes);
-          this.form.nodePath = node ? node.path : '';
+          if (node) {
+            this.form.nodePath = node.path;
+          } else {
+            // 如果模块已删除，或者跨项目复制公共用例，设置为未规划模块
+            this.setUnplannedModule(treeNodes);
+          }
+        } else {
+          this.setUnplannedModule(treeNodes);
         }
       }
+    },
+    setUnplannedModule(treeNodes) {
+      // 创建不带模块ID，设置成为规划模块
+      this.form.nodeId = treeNodes[0].id;
+      this.form.nodePath = treeNodes[0].path;
     },
     getNodeTrees() {
       if (this.publicEnable || !this.projectId) {

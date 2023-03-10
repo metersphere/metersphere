@@ -635,7 +635,10 @@ export default {
       return this.isAdd || this.editableState;
     },
     isCopy() {
-      return this.editType == 'copy';
+      return this.editType === 'copy' || this.isPublicCopy;
+    },
+    isPublicCopy() {
+      return this.editType === 'publicCopy';
     },
     showPublic() {
       return this.isPublic && this.isXpack;
@@ -838,7 +841,7 @@ export default {
     },
     copyPublicCase() {
       // 这里复制使用当前项目，不使用 projectId ，可能没有权限
-      openCaseEdit({caseId: this.caseId, type: 'copy', projectId: getCurrentProjectID()},  this);
+      openCaseEdit({caseId: this.caseId, type: 'publicCopy', projectId: getCurrentProjectID()},  this);
     },
     closePublicCase() {
       this.$emit("close");
@@ -998,9 +1001,6 @@ export default {
         document.title = this.$t('test_track.case.create_case');
 
         let user = JSON.parse(localStorage.getItem(TokenKey));
-        this.form.priority = "P3";
-        this.form.type = "functional";
-        this.form.method = "manual";
         this.form.maintainer = user.id;
         this.form.tags = [];
         this.form.versionId = this.initLatestVersionId;
@@ -1127,6 +1127,12 @@ export default {
       }
       this.casePublic = tmp.casePublic;
 
+      if (this.isPublicCopy) {
+        // 如果是 copy 用例库的用例，责任人设置成当前用户
+        let user = JSON.parse(localStorage.getItem(TokenKey));
+        this.form.maintainer = user.id;
+      }
+
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(
         this.form,
@@ -1140,7 +1146,7 @@ export default {
       this.reloadForm();
     },
     resetSystemField() {
-      if (this.operationType === "add") {
+      if (!this.caseId) {
         return;
       }
       // 用例等级等字段以表中对应字段为准，后端复杂操作直接改表中对应字段即可
