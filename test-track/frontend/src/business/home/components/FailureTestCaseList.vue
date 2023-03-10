@@ -35,7 +35,7 @@
           style="min-height: 228px"
         >
           <el-table-column
-            type="index"
+            prop="sortIndex"
             :label="$t('home.case.index')"
             show-overflow-tooltip
             width="100px"
@@ -131,6 +131,7 @@
           :page-size.sync="pageSize"
           layout="prev, pager, next, sizes"
           :total="total"
+          :pageSizes="[5, 10]"
         />
       </div>
     </div>
@@ -176,14 +177,13 @@ export default {
         this.loadError = false;
         homeTestPlanFailureCaseGet(
           this.projectId,
-          10,
-          this.currentPage,
-          this.pageSize
+          this.pageSize,
+          this.currentPage - 1
         )
           .then((r) => {
             this.loading = false;
             this.loadError = false;
-            this.total = r.data.itemCount;
+            this.total = 10;
             this.tableData = r.data.listObject;
           })
           .catch(() => {

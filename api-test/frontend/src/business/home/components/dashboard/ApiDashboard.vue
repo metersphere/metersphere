@@ -20,7 +20,7 @@
         </div>
         <div v-show="!loadError">
           <div class="main-info">
-            <count-chart :api-data="apiData" ref="countChart" />
+            <count-chart :version-id="versionId" :api-data="apiData" ref="countChart" />
           </div>
           <div class="addition-info">
             <el-row :gutter="16" style="margin: 0">
@@ -141,6 +141,7 @@ export default {
       loadError: false,
       apiCoveredRageToolTip: this.$t('api_test.home_page.formula.api_coverage'),
       completedRageToolTip: this.$t('api_test.home_page.formula.completion'),
+      versionId: 'default',
       apiData: {
         httpCount: 0,
         tcpCount: 0,
@@ -161,6 +162,7 @@ export default {
     search(versionId) {
       this.loading = true;
       this.loadError = false;
+      this.versionId = versionId;
       let selectProjectId = getCurrentProjectID();
       apiCountByProjectId(selectProjectId, versionId)
         .then((response) => {

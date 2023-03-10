@@ -15,7 +15,7 @@
           </el-row>
           <el-row :gutter="16">
             <el-col :span="12">
-              <api-dashboard :version-id="versionId" @redirectPage="redirectPage" ref="apiDashboard" />
+              <api-dashboard @redirectPage="redirectPage" ref="apiDashboard" />
             </el-col>
             <el-col :span="12">
               <api-case-dashboard @redirectPage="redirectPage" ref="apiCaseDashboard" />
