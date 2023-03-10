@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -59,7 +58,7 @@ public class TcpApiParamService {
                             tcpSampler.setRequest(tcpSampler.getRawDataStruct());
                             break;
                         case "xml":
-                            String xmlDataStruct = this.genValueFromEsbDataStructByParam(tcpSampler.getXmlDataStruct());
+                            String xmlDataStruct = this.genValueFromEsbDataStructByParam(tcpSampler.getXmlDataStruct(), tcpSampler.getConnectEncoding());
                             tcpSampler.setRequest(xmlDataStruct);
                             break;
                         case "json":
@@ -75,8 +74,8 @@ public class TcpApiParamService {
     }
 
     //通过报文模版中的变量参数，解析报文数据结构，生成对应的xml数据
-    private String genValueFromEsbDataStructByParam(List<TcpTreeTableDataStruct> dataStructRequestList) {
-        String returnValue = TcpTreeTableDataParser.treeTableData2Xml(dataStructRequestList);
+    private String genValueFromEsbDataStructByParam(List<TcpTreeTableDataStruct> dataStructRequestList, String connectEncoding) {
+        String returnValue = TcpTreeTableDataParser.treeTableData2Xml(dataStructRequestList, connectEncoding);
         return returnValue;
     }
 
