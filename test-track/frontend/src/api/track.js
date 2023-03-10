@@ -4,14 +4,9 @@ export function getTrackCount(selectProjectId) {
   return get("/track/count/" + selectProjectId);
 }
 
-export function homeTestPlanFailureCaseGet(
-  projectId,
-  limitNumber,
-  currentPage,
-  pageSize
-) {
+export function homeTestPlanFailureCaseGet(projectId, pageSize, currentPage) {
   return get(
-    `/track/failure/case/about/plan/${projectId}/default/${limitNumber}/${currentPage}/${pageSize}`
+    `/track/failure/case/about/plan/${projectId}/default/${pageSize}/${currentPage}`
   );
 }
 
