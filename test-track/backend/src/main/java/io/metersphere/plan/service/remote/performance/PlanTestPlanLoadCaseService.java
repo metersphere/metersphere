@@ -8,7 +8,7 @@ import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.TestPlanLoadCaseDTO;
 import io.metersphere.dto.TestPlanLoadResultReportDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.performance.LoadCaseRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
@@ -37,7 +37,7 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
     @Lazy
     private TestPlanService testPlanService;
 
-    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         if (DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             calculatePlanReport(report, planReportCaseDTOS);
@@ -46,7 +46,7 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         }
     }
 
-    public void calculateReportByLoadCaseList(List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList, TestPlanSimpleReportDTO report) {
+    public void calculateReportByLoadCaseList(List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
             testPlanLoadCaseDTOList.forEach(item -> {
@@ -63,7 +63,7 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         }
     }
 
-    private void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
+    private void calculatePlanReport(TestPlanReportDataStruct report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanLoadResultReportDTO loadResult = new TestPlanLoadResultReportDTO();
         report.setLoadResult(loadResult);
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();

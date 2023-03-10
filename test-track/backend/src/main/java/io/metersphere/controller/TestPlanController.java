@@ -17,7 +17,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.ExecutionModeDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.AddTestPlanRequest;
 import io.metersphere.plan.request.BatchOperateRequest;
 import io.metersphere.plan.request.QueryTestPlanRequest;
@@ -267,7 +267,7 @@ public class TestPlanController {
     }
 
     @GetMapping("/get/report/export/{planId}")
-    public TestPlanSimpleReportDTO getExportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+    public TestPlanReportDataStruct getExportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
         return testPlanService.buildPlanReport(planId, true);
     }
 

@@ -19,7 +19,7 @@ import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.function.*;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanApiTestCaseService;
@@ -521,7 +521,7 @@ public class TestPlanTestCaseService {
     }
 
 
-    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanTestCaseMapper.selectForPlanReport(planId);
             this.calculatePlanReport(planReportCaseDTOS, report);
@@ -530,7 +530,7 @@ public class TestPlanTestCaseService {
         }
     }
 
-    public void calculateReportByTestCaseList(String operator, TestPlan testPlan, boolean isTestPlanExecuteOver, List<TestPlanCaseDTO> testPlanCaseList, TestPlanSimpleReportDTO report) {
+    public void calculateReportByTestCaseList(String operator, TestPlan testPlan, boolean isTestPlanExecuteOver, List<TestPlanCaseDTO> testPlanCaseList, TestPlanReportDataStruct report) {
         try {
             if (ObjectUtils.anyNotNull(testPlan, report) && CollectionUtils.isNotEmpty(testPlanCaseList)) {
                 List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
@@ -557,7 +557,7 @@ public class TestPlanTestCaseService {
         }
     }
 
-    private void calculatePlanReport(List<PlanReportCaseDTO> planReportCaseDTOList, TestPlanSimpleReportDTO report) {
+    private void calculatePlanReport(List<PlanReportCaseDTO> planReportCaseDTOList, TestPlanReportDataStruct report) {
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();

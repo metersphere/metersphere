@@ -49,7 +49,7 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
         return microService.postForData(serviceName, BASE_URL + "/plan/report", request, UiPlanReportDTO.class);
     }
 
-    public void calculateReportByUiScenarios(List<TestPlanUiScenarioDTO> uiScenarioDTOList, TestPlanSimpleReportDTO report) {
+    public void calculateReportByUiScenarios(List<TestPlanUiScenarioDTO> uiScenarioDTOList, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
             uiScenarioDTOList.forEach(item -> {
@@ -66,7 +66,7 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
         }
     }
 
-    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(List<String> reportIds, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = planUiScenarioReportService.selectForPlanReport(reportIds);
             calculatePlanReport(report, planReportCaseDTOS);
@@ -75,12 +75,12 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
         }
     }
 
-    public void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
+    public void calculatePlanReport(TestPlanReportDataStruct report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanUiResultReportDTO uiResult = getUiResult(report, planReportCaseDTOS);
         report.setUiResult(uiResult);
     }
 
-    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
 
@@ -98,7 +98,7 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
     }
 
     @NotNull
-    private TestPlanUiResultReportDTO getUiResult(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
+    private TestPlanUiResultReportDTO getUiResult(TestPlanReportDataStruct report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanUiResultReportDTO uiResult = report.getUiResult();
 
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();

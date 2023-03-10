@@ -1276,7 +1276,7 @@ public class TestPlanService {
         return planTestPlanScenarioCaseService.getApiCaseEnv(planApiScenarioIds);
     }
 
-    public void buildFunctionalReport(TestPlanSimpleReportDTO report, Map config, String planId) {
+    public void buildFunctionalReport(TestPlanReportDataStruct report, Map config, String planId) {
         if (checkReportConfig(config, "functional")) {
             List<TestPlanCaseDTO> allCases = null;
             List<String> statusList = getFunctionalReportStatusList(config);
@@ -1293,7 +1293,7 @@ public class TestPlanService {
         }
     }
 
-    public void buildUiReport(TestPlanSimpleReportDTO report, Map config, String planId, TestPlanCaseReportResultDTO testPlanExecuteReportDTO, boolean saveResponse) {
+    public void buildUiReport(TestPlanReportDataStruct report, Map config, String planId, TestPlanCaseReportResultDTO testPlanExecuteReportDTO, boolean saveResponse) {
         ApiPlanReportRequest request = new ApiPlanReportRequest();
         request.setConfig(config);
         request.setPlanId(planId);
@@ -1330,7 +1330,7 @@ public class TestPlanService {
         return statusList.size() > 0 ? statusList : null;
     }
 
-    public void buildApiReport(TestPlanSimpleReportDTO report, Map config, String planId, boolean saveResponse) {
+    public void buildApiReport(TestPlanReportDataStruct report, Map config, String planId, boolean saveResponse) {
         ApiPlanReportRequest request = new ApiPlanReportRequest();
         request.setConfig(config);
         request.setPlanId(planId);
@@ -1341,7 +1341,7 @@ public class TestPlanService {
         }
     }
 
-    public void buildLoadReport(TestPlanSimpleReportDTO report, Map config, String planId, boolean saveResponse) {
+    public void buildLoadReport(TestPlanReportDataStruct report, Map config, String planId, boolean saveResponse) {
         ApiPlanReportRequest request = new ApiPlanReportRequest();
         request.setConfig(config);
         request.setPlanId(planId);
@@ -1357,36 +1357,33 @@ public class TestPlanService {
      * @param testPlanReportContentWithBLOBs 测试计划报告内容
      * @return
      */
-    public TestPlanReportBuildResultDTO buildTestPlanReport(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
-        TestPlanReportBuildResultDTO returnDTO = new TestPlanReportBuildResultDTO();
+    public TestPlanReportDataStruct buildTestPlanReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+        TestPlanReportDataStruct testPlanReportStruct = null;
         if (ObjectUtils.allNotNull(testPlanReport, testPlanReportContentWithBLOBs)) {
             Map config = null;
             if (StringUtils.isNotBlank(testPlan.getReportConfig())) {
                 config = JSON.parseMap(testPlan.getReportConfig());
             }
-            TestPlanSimpleReportDTO report = this.getTestPlanReportStructByCreated(testPlanReportContentWithBLOBs);
+            testPlanReportStruct = this.getTestPlanReportStructByCreated(testPlanReportContentWithBLOBs);
             //检查是否有已经生成过的测试计划报告内容。如若没有则进行动态计算
-            if (report == null) {
+            if (testPlanReportStruct == null) {
                 //查询测试计划内的用例信息，然后进行测试计划报告的结果统计
                 TestPlanCaseReportResultDTO testPlanExecuteReportDTO = testPlanReportService.selectCaseDetailByTestPlanReport(config, testPlan.getId(), testPlanReportContentWithBLOBs);
-                report = generateTestPlanReport(
+                testPlanReportStruct = initTestPlanReportStructData(
                         config,
                         testPlanReport,
                         testPlan, testPlanExecuteReportDTO);
             }
-            returnDTO.setTestPlanSimpleReportDTO(report);
-        } else {
-            returnDTO.setTestPlanSimpleReportDTO(new TestPlanSimpleReportDTO());
         }
-        return returnDTO;
+        return testPlanReportStruct == null ? new TestPlanReportDataStruct() : testPlanReportStruct;
     }
 
     //获取已生成过的测试计划报告内容
-    private TestPlanSimpleReportDTO getTestPlanReportStructByCreated(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
-        TestPlanSimpleReportDTO reportStruct = null;
+    private TestPlanReportDataStruct getTestPlanReportStructByCreated(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+        TestPlanReportDataStruct reportStruct = null;
         try {
             if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getApiBaseCount())) {
-                reportStruct = JSON.parseObject(testPlanReportContentWithBLOBs.getApiBaseCount(), TestPlanSimpleReportDTO.class);
+                reportStruct = JSON.parseObject(testPlanReportContentWithBLOBs.getApiBaseCount(), TestPlanReportDataStruct.class);
             }
         } catch (Exception e) {
             LogUtil.info("解析接口统计数据出错！数据：" + testPlanReportContentWithBLOBs.getApiBaseCount(), e);
@@ -1395,7 +1392,7 @@ public class TestPlanService {
     }
 
 
-    public TestPlanSimpleReportDTO buildPlanReport(String planId, boolean saveResponse) {
+    public TestPlanReportDataStruct buildPlanReport(String planId, boolean saveResponse) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
 
         String reportConfig = testPlan.getReportConfig();
@@ -1403,7 +1400,7 @@ public class TestPlanService {
         if (StringUtils.isNotBlank(reportConfig)) {
             config = JSON.parseMap(reportConfig);
         }
-        TestPlanSimpleReportDTO report = testPlanReportService.getRealTimeReport(planId);
+        TestPlanReportDataStruct report = testPlanReportService.getRealTimeReport(planId);
         buildFunctionalReport(report, config, planId);
         buildApiReport(report, config, planId, saveResponse);
         buildLoadReport(report, config, planId, saveResponse);
@@ -1412,13 +1409,13 @@ public class TestPlanService {
     }
 
     public void exportPlanReport(String planId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
-        TestPlanSimpleReportDTO report = buildPlanReport(planId, true);
+        TestPlanReportDataStruct report = buildPlanReport(planId, true);
         report.setLang(lang);
         render(report, response);
     }
 
     public void exportPlanDbReport(String reportId, String lang, HttpServletResponse response) throws UnsupportedEncodingException, JsonProcessingException {
-        TestPlanSimpleReportDTO report = testPlanReportService.getReport(reportId);
+        TestPlanReportDataStruct report = testPlanReportService.getReport(reportId);
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             report.setApiAllCases(planTestPlanApiCaseService.buildResponse(report.getApiAllCases()));
@@ -1444,7 +1441,7 @@ public class TestPlanService {
         return ServiceUtils.checkConfigEnable(config, key);
     }
 
-    public void render(TestPlanSimpleReportDTO report, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void render(TestPlanReportDataStruct report, HttpServletResponse response) throws UnsupportedEncodingException {
         response.reset();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("test", StandardCharsets.UTF_8.name()));
@@ -1476,7 +1473,7 @@ public class TestPlanService {
         }
     }
 
-    public TestPlanSimpleReportDTO getShareReport(ShareInfo shareInfo, String planId) {
+    public TestPlanReportDataStruct getShareReport(ShareInfo shareInfo, String planId) {
         if (SessionUtils.getUser() == null) {
             HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
         }
@@ -1488,8 +1485,8 @@ public class TestPlanService {
     }
 
     //根据用例运行结果生成测试计划报告
-    public TestPlanSimpleReportDTO generateTestPlanReport(Map reportConfig, TestPlanReport testPlanReport, TestPlanWithBLOBs testPlan, TestPlanCaseReportResultDTO testPlanCaseReportResultDTO) {
-        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
+    public TestPlanReportDataStruct initTestPlanReportStructData(Map reportConfig, TestPlanReport testPlanReport, TestPlanWithBLOBs testPlan, TestPlanCaseReportResultDTO testPlanCaseReportResultDTO) {
+        TestPlanReportDataStruct report = new TestPlanReportDataStruct();
         if (ObjectUtils.anyNotNull(testPlan, testPlanReport, testPlanCaseReportResultDTO)) {
             TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
             TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();

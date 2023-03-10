@@ -38,4 +38,12 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectReportStatusByReportIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
+        select id,status from api_scenario_report
+        WHERE id IN
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </select>
 </mapper>

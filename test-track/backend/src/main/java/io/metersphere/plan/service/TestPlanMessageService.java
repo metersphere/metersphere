@@ -10,7 +10,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseShareInfoService;
 import io.metersphere.service.BaseUserService;
@@ -142,7 +142,7 @@ public class TestPlanMessageService {
         UserDTO userDTO = baseUserService.getUserDTO(creator);
         // 计算各种属性
         HttpHeaderUtils.runAsUser(userDTO);
-        TestPlanSimpleReportDTO report = testPlanReportService.getReport(testPlanReport.getId());
+        TestPlanReportDataStruct report = testPlanReportService.getReport(testPlanReport.getId());
         HttpHeaderUtils.clearUser();
 
         Map<String, Long> caseCountMap = calculateCaseCount(report);
@@ -219,7 +219,7 @@ public class TestPlanMessageService {
         return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
     }
 
-    private Map<String, Long> calculateCaseCount(TestPlanSimpleReportDTO report) {
+    private Map<String, Long> calculateCaseCount(TestPlanReportDataStruct report) {
         Map<String, Long> result = new HashMap<>();
         // 功能用例
         result.put("functionAllCount", 0L);

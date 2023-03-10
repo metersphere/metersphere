@@ -19,4 +19,13 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectReportStatusByReportIds"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select id,status from api_definition_exec_result
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
 </mapper>

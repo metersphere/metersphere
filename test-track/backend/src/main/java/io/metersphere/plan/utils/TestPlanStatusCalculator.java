@@ -1,11 +1,11 @@
 package io.metersphere.plan.utils;
 
 import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.dto.PlanReportCaseDTO;
+import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.dto.PlanReportCaseDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
-import io.metersphere.excel.constants.TestPlanTestCaseStatus;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -40,11 +40,12 @@ public class TestPlanStatusCalculator {
 
     /**
      * 将map转成前端需要的数组数据
+     *
      * @param resultMap
      * @param statusResult
      */
     public static void addToReportCommonStatusResultList(Map<String, TestCaseReportStatusResultDTO> resultMap,
-                                                        List<TestCaseReportStatusResultDTO> statusResult) {
+                                                         List<TestCaseReportStatusResultDTO> statusResult) {
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Pass.name());
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Failure.name());
         addToReportStatusResultList(resultMap, statusResult, "error");
@@ -66,7 +67,7 @@ public class TestPlanStatusCalculator {
      */
     public static void buildStatusResultMap(List<PlanReportCaseDTO> planReportCaseDTOS,
                                             Map<String, TestCaseReportStatusResultDTO> statusResultMap,
-                                            TestPlanSimpleReportDTO report, String successStatus) {
+                                            TestPlanReportDataStruct report, String successStatus) {
         planReportCaseDTOS.forEach(item -> {
             report.setCaseCount((report.getCaseCount() == null ? 0 : report.getCaseCount()) + 1);
             String status = item.getStatus();

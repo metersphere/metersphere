@@ -537,7 +537,7 @@ public class TestPlanReportService {
     }
 
     //更新测试计划报告的数据结构
-    private void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanSimpleReportDTO reportStruct) {
+    private void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanReportDataStruct reportStruct) {
         //更新BaseCount统计字段和通过率
         testPlanReportContentWithBLOBs.setPassRate(reportStruct.getPassRate());
         testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(reportStruct));
@@ -607,9 +607,11 @@ public class TestPlanReportService {
             if (!isRerunningTestPlan) {
                 content.setStartTime(testPlanReport.getStartTime());
                 content.setEndTime(endTime);
+                //重跑的报告要重新生成统计数据
+                content.setApiBaseCount(null);
             }
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            TestPlanSimpleReportDTO apiBaseCountStruct = this.initTestPlanReportStruct(testPlan, testPlanReport, content);
+            TestPlanReportDataStruct apiBaseCountStruct = this.generateTestPlanReportStruct(testPlan, testPlanReport, content);
             if (apiBaseCountStruct.getPassRate() == 1) {
                 testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
             } else if (apiBaseCountStruct.getPassRate() < 1) {
@@ -664,19 +666,18 @@ public class TestPlanReportService {
     }
 
     //构建测试计划报告的数据结构
-    private TestPlanSimpleReportDTO initTestPlanReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
-        TestPlanSimpleReportDTO returnDTO = null;
+    private TestPlanReportDataStruct generateTestPlanReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
+        TestPlanReportDataStruct returnDTO = null;
         if (testPlanReport != null && reportContent != null) {
             try {
-                TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildTestPlanReport(testPlan, testPlanReport, reportContent);
+                returnDTO = testPlanService.buildTestPlanReportStruct(testPlan, testPlanReport, reportContent);
                 //查找运行环境
-                this.selectEnvironmentByTestPlanReport(reportBuildResultDTO.getTestPlanSimpleReportDTO(), testPlanReport);
-                returnDTO = reportBuildResultDTO.getTestPlanSimpleReportDTO();
+                this.initRunInfomation(returnDTO, testPlanReport);
             } catch (Exception e) {
                 LogUtil.error("计算测试计划报告信息出错!", e);
             }
         }
-        return returnDTO;
+        return returnDTO == null ? new TestPlanReportDataStruct() : returnDTO;
     }
 
     /**
@@ -715,7 +716,7 @@ public class TestPlanReportService {
         List<TestPlanReportContentWithBLOBs> testPlanReportContentList = testPlanReportContentMapper.selectByExampleWithBLOBs(example);
 
         TestPlanReportContentWithBLOBs testPlanReportContent = null;
-        TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(testPlan.getId(), false);
+        TestPlanReportDataStruct reportDTO = testPlanService.buildPlanReport(testPlan.getId(), false);
         if (!testPlanReportContentList.isEmpty()) {
             testPlanReportContent = parseReportDaoToReportContent(reportDTO, testPlanReportContentList.get(0));
             testPlanReportContent.setStartTime(null);
@@ -737,7 +738,7 @@ public class TestPlanReportService {
         testPlanReportMapper.updateByPrimaryKey(testPlanReport);
     }
 
-    public TestPlanReportContentWithBLOBs parseReportDaoToReportContent(TestPlanSimpleReportDTO reportDTO, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+    public TestPlanReportContentWithBLOBs parseReportDaoToReportContent(TestPlanReportDataStruct reportDTO, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
         String id = testPlanReportContentWithBLOBs.getId();
         String testPlanReportId = testPlanReportContentWithBLOBs.getTestPlanReportId();
         if (testPlanReportContentWithBLOBs.getEndTime() != null) {
@@ -809,7 +810,7 @@ public class TestPlanReportService {
      * @param testPlanReport
      * @return
      */
-    private String getTestPlanReportStatus(TestPlanReport testPlanReport, TestPlanSimpleReportDTO reportDTO) {
+    private String getTestPlanReportStatus(TestPlanReport testPlanReport, TestPlanReportDataStruct reportDTO) {
         String status = TestPlanReportStatus.COMPLETED.name();
         if (testPlanReport != null) {
             if (testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting() || testPlanReport.getIsScenarioExecuting()) {
@@ -1025,7 +1026,7 @@ public class TestPlanReportService {
         this.delete(ids);
     }
 
-    public TestPlanSimpleReportDTO getShareDbReport(ShareInfo shareInfo, String reportId) {
+    public TestPlanReportDataStruct getShareDbReport(ShareInfo shareInfo, String reportId) {
         if (SessionUtils.getUser() == null) {
             HttpHeaderUtils.runAsUser(shareInfo.getCreateUserId());
         }
@@ -1047,8 +1048,8 @@ public class TestPlanReportService {
         }
     }
 
-    public TestPlanSimpleReportDTO getReport(String reportId) {
-        TestPlanSimpleReportDTO testPlanReportDTO = new TestPlanSimpleReportDTO();
+    public TestPlanReportDataStruct getReport(String reportId) {
+        TestPlanReportDataStruct testPlanReportDTO = new TestPlanReportDataStruct();
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(reportId);
         TestPlanReportContentWithBLOBs testPlanReportContent = this.selectTestPlanReportContentByReportId(reportId);
         if (ObjectUtils.anyNull(testPlanReport, testPlanReportContent)) {
@@ -1056,7 +1057,7 @@ public class TestPlanReportService {
         }
         if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            testPlanReportDTO = this.initTestPlanReportStruct(testPlan, testPlanReport, testPlanReportContent);
+            testPlanReportDTO = this.generateTestPlanReportStruct(testPlan, testPlanReport, testPlanReportContent);
         }
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
@@ -1069,9 +1070,9 @@ public class TestPlanReportService {
      * @param planId
      * @return
      */
-    public TestPlanSimpleReportDTO getRealTimeReport(String planId) {
+    public TestPlanReportDataStruct getRealTimeReport(String planId) {
         TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
+        TestPlanReportDataStruct report = new TestPlanReportDataStruct();
         TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
         TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
         TestPlanUiResultReportDTO uiResult = new TestPlanUiResultReportDTO();
@@ -1127,7 +1128,7 @@ public class TestPlanReportService {
         return report;
     }
 
-    public void selectEnvironmentByTestPlanReport(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReport testPlanReport) {
+    public void initRunInfomation(TestPlanReportDataStruct testPlanReportDTO, TestPlanReport testPlanReport) {
         if (StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
             try {
                 TestPlanReportRunInfoDTO runInfoDTO = JSON.parseObject(testPlanReport.getRunInfo(), TestPlanReportRunInfoDTO.class);
@@ -1138,7 +1139,7 @@ public class TestPlanReportService {
         }
     }
 
-    public void setEnvironmentToDTO(TestPlanSimpleReportDTO testPlanReportDTO, TestPlanReportRunInfoDTO runInfoDTO) {
+    public void setEnvironmentToDTO(TestPlanReportDataStruct testPlanReportDTO, TestPlanReportRunInfoDTO runInfoDTO) {
         if (ObjectUtils.allNotNull(testPlanReportDTO, runInfoDTO)) {
             //查找资源池
             if (CollectionUtils.isNotEmpty(runInfoDTO.getResourcePools())) {
@@ -1289,7 +1290,7 @@ public class TestPlanReportService {
         LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】开始处理用例执行结果");
         TestPlanCaseReportResultDTO reportDetailDTO = new TestPlanCaseReportResultDTO();
         //查找api测试报告结果
-        if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
+        if (StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct()) || StringUtils.isNotEmpty(testPlanReportContentWithBLOBs.getPlanScenarioReportStruct())) {
             LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】开始查找接口测试报告结果");
             try {
                 Map<String, String> apiCaseReportMap = this.parseCaseReportMap(testPlanReportContentWithBLOBs.getPlanApiCaseReportStruct());
@@ -1303,7 +1304,9 @@ public class TestPlanReportService {
                 if (MapUtils.isNotEmpty(scenarioReportMap)) {
                     request.setScenarioReportIdList(new ArrayList<>(scenarioReportMap.values()));
                 }
-                ApiReportResultDTO apiReportResult = planTestPlanScenarioCaseService.getApiExecuteReport(request);
+                ApiReportResultDTO apiReportResult = new ApiReportResultDTO();
+                apiReportResult.setApiReportResultMap(this.selectApiCaseRunResultByIds(request.getApiReportIdList()));
+                apiReportResult.setScenarioReportResultMap(this.selectScenarioRunResultByIds(request.getScenarioReportIdList()));
                 reportDetailDTO.setApiPlanReportDTO(this.getApiPlanReport(reportConfig, testPlanReportContentWithBLOBs, apiReportResult));
             } catch (Exception e) {
                 LogUtil.error("连接Api-test查找报告结果信息失败!", e);
@@ -1364,6 +1367,28 @@ public class TestPlanReportService {
         }
         LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】用例执行结果处理结束");
         return reportDetailDTO;
+    }
+
+    private Map<String, String> selectApiCaseRunResultByIds(List<String> apiReportIdList) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(apiReportIdList)) {
+            List<ApiDefinitionExecResult> apiDefinitionExecResultList = extTestPlanApiCaseMapper.selectReportStatusByReportIds(apiReportIdList);
+            if (CollectionUtils.isNotEmpty(apiDefinitionExecResultList)) {
+                returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiDefinitionExecResult::getId, ApiDefinitionExecResult::getStatus, (k1, k2) -> k1));
+            }
+        }
+        return returnMap;
+    }
+
+    private Map<String, String> selectScenarioRunResultByIds(List<String> scenarioReportIdList) {
+        Map<String, String> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(scenarioReportIdList)) {
+            List<ApiScenarioReport> apiDefinitionExecResultList = extTestPlanScenarioCaseMapper.selectReportStatusByReportIds(scenarioReportIdList);
+            if (CollectionUtils.isNotEmpty(apiDefinitionExecResultList)) {
+                returnMap = apiDefinitionExecResultList.stream().collect(Collectors.toMap(ApiScenarioReport::getId, ApiScenarioReport::getStatus, (k1, k2) -> k1));
+            }
+        }
+        return returnMap;
     }
 
     private List<TestPlanScenarioDTO> getByScenarioExecReportIds(String planScenarioReportStruct, Map<String, String> scenarioReportResultMap) {

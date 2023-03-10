@@ -34,7 +34,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
     @Resource
     PlanApiScenarioReportService planApiScenarioReportService;
 
-    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         if (DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             List<PlanReportCaseDTO> planReportCaseDTOS = selectStatusForPlanReport(planId);
             calculatePlanReport(report, planReportCaseDTOS);
@@ -48,7 +48,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         }
     }
 
-    public void calculateReportByScenario(List<TestPlanScenarioDTO> testPlanScenarioDTOList, TestPlanSimpleReportDTO report) {
+    public void calculateReportByScenario(List<TestPlanScenarioDTO> testPlanScenarioDTOList, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOList = new ArrayList<>();
             testPlanScenarioDTOList.forEach(item -> {
@@ -65,7 +65,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         }
     }
 
-    public void calculatePlanReport(List<String> reportIds, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(List<String> reportIds, TestPlanReportDataStruct report) {
         try {
             List<PlanReportCaseDTO> planReportCaseDTOS = planApiScenarioReportService.selectForPlanReport(reportIds);
             calculatePlanReport(report, planReportCaseDTOS);
@@ -74,7 +74,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         }
     }
 
-    public void calculatePlanReport(TestPlanSimpleReportDTO report, List<PlanReportCaseDTO> planReportCaseDTOS) {
+    public void calculatePlanReport(TestPlanReportDataStruct report, List<PlanReportCaseDTO> planReportCaseDTOS) {
         TestPlanApiResultReportDTO apiResult = report.getApiResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
