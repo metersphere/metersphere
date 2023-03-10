@@ -15,7 +15,7 @@
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
           <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
-                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" @select="select"
                            show-word-limit/>
 
         </el-col>
