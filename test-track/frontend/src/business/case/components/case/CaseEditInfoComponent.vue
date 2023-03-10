@@ -283,6 +283,11 @@ export default {
         return this.$refs.testCaseBaseInfo.getUnRelateFiles();
       }
     },
+    getFilterCopyFiles() {
+      if (this.$refs.testCaseBaseInfo) {
+        return this.$refs.testCaseBaseInfo.getFilterCopyFiles();
+      }
+    },
     getFileMetaData(id) {
       if (!this.$refs.testCaseBaseInfo) {
         return;

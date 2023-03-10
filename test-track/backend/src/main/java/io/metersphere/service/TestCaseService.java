@@ -570,7 +570,7 @@ public class TestCaseService {
                 attachmentRequest.setBelongId(testCase.getId());
                 attachmentRequest.setCopyBelongId(oldTestCaseId);
                 attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
-                attachmentService.copyAttachment(attachmentRequest);
+                attachmentService.copyAttachment(attachmentRequest, null);
             }
             if (otherInfoConfig.isDependency()) {
                 List<RelationshipEdge> preRelations = relationshipEdgeService.getRelationshipEdgeByType(oldTestCaseId, "PRE");
@@ -2202,51 +2202,51 @@ public class TestCaseService {
             attachmentRequest.setCopyBelongId(request.getCopyCaseId());
             attachmentRequest.setBelongId(testCaseWithBLOBs.getId());
             attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
-            attachmentService.copyAttachment(attachmentRequest);
-        } else {
-            // 新增需上传用例所有待上传的附件
-            if (CollectionUtils.isNotEmpty(files)) {
-                files.forEach(file -> {
-                    AttachmentRequest attachmentRequest = new AttachmentRequest();
-                    attachmentRequest.setBelongId(testCaseWithBLOBs.getId());
-                    attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
-                    attachmentService.uploadAttachment(attachmentRequest, file);
-                });
-            }
-            // 同步待关联的文件附件, 生成关联记录
-            if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
-                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-                FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
-                AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
-                FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
-                request.getRelateFileMetaIds().forEach(filemetaId -> {
-                    FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
-                    FileAssociation fileAssociation = new FileAssociation();
-                    fileAssociation.setId(UUID.randomUUID().toString());
-                    fileAssociation.setFileMetadataId(filemetaId);
-                    fileAssociation.setFileType(fileMetadata.getType());
-                    fileAssociation.setType(FileAssociationType.TEST_CASE.name());
-                    fileAssociation.setProjectId(fileMetadata.getProjectId());
-                    fileAssociation.setSourceItemId(filemetaId);
-                    fileAssociation.setSourceId(testCaseWithBLOBs.getId());
-                    associationBatchMapper.insert(fileAssociation);
-                    AttachmentModuleRelation record = new AttachmentModuleRelation();
-                    record.setRelationId(testCaseWithBLOBs.getId());
-                    record.setRelationType(AttachmentType.TEST_CASE.type());
-                    record.setFileMetadataRefId(fileAssociation.getId());
-                    record.setAttachmentId(UUID.randomUUID().toString());
-                    attachmentModuleRelationBatchMapper.insert(record);
-                    FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
-                    BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
-                    fileAttachmentMetadata.setId(record.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(SessionUtils.getUserId());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
-                    fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
-                });
-                sqlSession.flushStatements();
-                if (sqlSession != null && sqlSessionFactory != null) {
-                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-                }
+            attachmentService.copyAttachment(attachmentRequest, request.getFilterCopyFileMetaIds());
+        }
+        // 新增及复制都需处理用例所有待上传和待关联的附件
+        // upload file
+        if (CollectionUtils.isNotEmpty(files)) {
+            files.forEach(file -> {
+                AttachmentRequest attachmentRequest = new AttachmentRequest();
+                attachmentRequest.setBelongId(testCaseWithBLOBs.getId());
+                attachmentRequest.setBelongType(AttachmentType.TEST_CASE.type());
+                attachmentService.uploadAttachment(attachmentRequest, file);
+            });
+        }
+        // relate file
+        if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
+            AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+            FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
+            request.getRelateFileMetaIds().forEach(filemetaId -> {
+                FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
+                FileAssociation fileAssociation = new FileAssociation();
+                fileAssociation.setId(UUID.randomUUID().toString());
+                fileAssociation.setFileMetadataId(filemetaId);
+                fileAssociation.setFileType(fileMetadata.getType());
+                fileAssociation.setType(FileAssociationType.TEST_CASE.name());
+                fileAssociation.setProjectId(fileMetadata.getProjectId());
+                fileAssociation.setSourceItemId(filemetaId);
+                fileAssociation.setSourceId(testCaseWithBLOBs.getId());
+                associationBatchMapper.insert(fileAssociation);
+                AttachmentModuleRelation record = new AttachmentModuleRelation();
+                record.setRelationId(testCaseWithBLOBs.getId());
+                record.setRelationType(AttachmentType.TEST_CASE.type());
+                record.setFileMetadataRefId(fileAssociation.getId());
+                record.setAttachmentId(UUID.randomUUID().toString());
+                attachmentModuleRelationBatchMapper.insert(record);
+                FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+                BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
+                fileAttachmentMetadata.setId(record.getAttachmentId());
+                fileAttachmentMetadata.setCreator(SessionUtils.getUserId());
+                fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
+                fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
+            });
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
         return testCaseWithBLOBs;
