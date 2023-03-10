@@ -7,6 +7,7 @@ import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.plan.request.function.TestPlanFuncCaseConditions;
 import io.metersphere.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -76,4 +77,9 @@ public interface ExtTestPlanTestCaseMapper {
     void updateExecResultByTestCaseIdAndTestPlanId(@Param("testCaseId") String testCaseId, @Param("testPlanId") String testPlanId, @Param("execResult") String execResult);
 
     List<TestPlanTestCase> selectByAutomationCaseIdAndTestPlanId(@Param("automationCaseId") String automationCaseId, @Param("test_plan_id") String testPlanId);
+
+    List<ExecutedCaseInfoResult> findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("versionId") String version, @Param("startTimestamp") long startTimestamp, @Param("limitNumber") int limitNumber);
+
+    @Select("SELECT id FROM test_plan_test_case WHERE plan_id = #{planId} AND case_id = #{caseId}")
+    List<String> selectIdByTestCaseIdAndTestPlanId(@Param("caseId") String caseId, @Param("planId") String planId);
 }

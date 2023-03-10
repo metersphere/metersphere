@@ -4,9 +4,13 @@ import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanUiScenario;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanUiCaseMapper;
 import io.metersphere.dto.TestPlanCaseStatusDTO;
 import io.metersphere.utils.JsonUtils;
+import io.metersphere.utils.LoggerUtil;
 import io.metersphere.websocket.UICaseStatusHandleSocket;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
@@ -71,8 +75,13 @@ public class AutomationCaseExecOverService {
             testCaseSyncStatusService.updateFunctionCaseStatusByAutomationCaseId(automationCaseId, planId, triggerCaseExecResult);
         }
         if (testPlanUiScenario != null) {
-            //UI执行完成发送Socket
-            UICaseStatusHandleSocket.sendMessageSingle(planId, JsonUtils.toJSONString(TestPlanCaseStatusDTO.builder().planCaseId(testPlanUiScenario.getId()).planCaseStatus(triggerCaseExecResult)));
+            try {
+                //UI执行完成发送Socket
+                UICaseStatusHandleSocket.sendMessageSingle(planId, JsonUtils.toJSONString(TestPlanCaseStatusDTO.builder().planCaseId(testPlanUiScenario.getId()).planCaseStatus(triggerCaseExecResult)));
+            } catch (Exception e) {
+                LoggerUtil.error("ui执行完成发送socket失败！", e);
+            }
+
         }
     }
 }

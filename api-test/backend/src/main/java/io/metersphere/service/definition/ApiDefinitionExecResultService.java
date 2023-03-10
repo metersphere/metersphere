@@ -2,7 +2,6 @@ package io.metersphere.service.definition;
 
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.RequestResultExpandDTO;
-import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -352,39 +351,6 @@ public class ApiDefinitionExecResultService {
             return 0;
         } else {
             return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
-        }
-    }
-
-    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId, boolean selectFunctionCase, int limitNumber) {
-
-        //获取7天之前的日期
-        Date startDay = DateUtils.dateSum(new Date(), -6);
-        //将日期转化为 00:00:00 的时间戳
-        Date startTime = null;
-        try {
-            startTime = DateUtils.getDayStartTime(startDay);
-        } catch (Exception e) {
-            LogUtil.error("解析日期出错!", e);
-        }
-
-        if (startTime == null) {
-            return new ArrayList<>(0);
-        } else {
-            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, selectFunctionCase, startTime.getTime(), limitNumber);
-
-            List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
-
-            for (int i = 0; i < list.size(); i++) {
-                if (i < limitNumber) {
-                    //开始遍历查询TestPlan信息 --> 提供前台做超链接
-                    ExecutedCaseInfoResult item = list.get(i);
-                    returnList.add(item);
-                } else {
-                    break;
-                }
-            }
-
-            return returnList;
         }
     }
 

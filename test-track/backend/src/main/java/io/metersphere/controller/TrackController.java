@@ -1,23 +1,27 @@
 package io.metersphere.controller;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.MicroServiceName;
-import io.metersphere.dto.BugStatistics;
-import io.metersphere.dto.TrackCountResult;
-import io.metersphere.dto.TrackStatisticsDTO;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.TrackService;
 import io.metersphere.utils.DiscoveryUtil;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.Resource;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -56,6 +60,32 @@ public class TrackController {
         }
 
         return statistics;
+    }
+
+    @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{limitNumber}/{goPage}/{pageSize}")
+    public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable String versionId,
+                                                                     @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
+        if (StringUtils.equalsIgnoreCase(versionId, "default")) {
+            versionId = null;
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        List<ExecutedCaseInfoResult> selectDataList = trackService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, versionId, limitNumber);
+        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
+        for (int dataIndex = 0; dataIndex < selectDataList.size(); dataIndex++) {
+            ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
+            dataDTO.setSortIndex(dataIndex + 1);
+            ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
+            dataDTO.setCaseID(selectData.getTestCaseID());
+            dataDTO.setCaseName(selectData.getCaseName());
+            dataDTO.setTestPlan(selectData.getTestPlan());
+            dataDTO.setFailureTimes(selectData.getFailureTimes());
+            dataDTO.setTestPlanId(selectData.getTestPlanId());
+            dataDTO.setCaseType(selectData.getCaseType());
+            dataDTO.setId(selectData.getId());
+            dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
+            returnList.add(dataDTO);
+        }
+        return PageUtils.setPageInfo(page, returnList);
     }
 
     @GetMapping("/relevance/count/{projectId}")

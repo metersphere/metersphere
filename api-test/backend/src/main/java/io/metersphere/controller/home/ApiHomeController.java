@@ -6,11 +6,9 @@ import io.metersphere.api.dto.DubboProvider;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.RegistryCenter;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.CoveredDTO;
 import io.metersphere.api.dto.datacount.response.ExecuteResultCountDTO;
-import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.base.domain.ApiDefinition;
@@ -32,7 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -249,31 +246,6 @@ public class ApiHomeController {
             }
         }
         return PageUtils.setPageInfo(page, resultList);
-    }
-
-
-    @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{selectFunctionCase}/{limitNumber}/{goPage}/{pageSize}")
-    public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable String versionId, @PathVariable boolean selectFunctionCase,
-                                                                     @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
-        versionId = this.initializationVersionId(versionId);
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, versionId, selectFunctionCase, limitNumber);
-        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
-        for (int dataIndex = 0; dataIndex < selectDataList.size(); dataIndex++) {
-            ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
-            dataDTO.setSortIndex(dataIndex + 1);
-            ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
-            dataDTO.setCaseID(selectData.getTestCaseID());
-            dataDTO.setCaseName(selectData.getCaseName());
-            dataDTO.setTestPlan(selectData.getTestPlan());
-            dataDTO.setFailureTimes(selectData.getFailureTimes());
-            dataDTO.setTestPlanId(selectData.getTestPlanId());
-            dataDTO.setCaseType(selectData.getCaseType());
-            dataDTO.setId(selectData.getId());
-            dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
-            returnList.add(dataDTO);
-        }
-        return PageUtils.setPageInfo(page, returnList);
     }
 
     //初始化版本ID

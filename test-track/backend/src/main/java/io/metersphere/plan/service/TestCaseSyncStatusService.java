@@ -16,11 +16,14 @@ import io.metersphere.plan.enums.FunctionCaseExecResult;
 import io.metersphere.plan.enums.TestCaseReleevanceType;
 import io.metersphere.plan.utils.TestCaseSyncStatusUtil;
 import io.metersphere.service.BaseUserService;
+import io.metersphere.service.FunctionCaseExecutionInfoService;
 import io.metersphere.utils.BatchProcessingUtil;
+import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +52,8 @@ public class TestCaseSyncStatusService {
     private BaseUserService baseUserService;
     @Resource
     private TestCaseCommentMapper testCaseCommentMapper;
+    @Resource
+    private FunctionCaseExecutionInfoService functionCaseExecutionInfoService;
 
     //通过自动化用例的状态，获取最新的功能用例状态。
     public void getTestCaseStatusByTestPlanExecuteOver(List<PlanReportCaseDTO> testPlanCaseList, List<TestPlanApiDTO> apiAllCases, List<TestPlanScenarioDTO> scenarioAllCases, List<TestPlanLoadCaseDTO> loadAllCases, List<TestPlanUiScenarioDTO> uiAllCases) {
@@ -100,64 +105,72 @@ public class TestCaseSyncStatusService {
             }
             if (MapUtils.isNotEmpty(successCaseMap)) {
                 extTestPlanTestCaseMapper.updateExecResultByTestPlanCaseIdList(new ArrayList<>(successCaseMap.keySet()), FunctionCaseExecResult.SUCCESS.toString());
+                functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(successCaseMap.keySet()), FunctionCaseExecResult.SUCCESS.toString());
             }
             if (MapUtils.isNotEmpty(errorCaseMap)) {
                 extTestPlanTestCaseMapper.updateExecResultByTestPlanCaseIdList(new ArrayList<>(errorCaseMap.keySet()), FunctionCaseExecResult.ERROR.toString());
+                functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(errorCaseMap.keySet()), FunctionCaseExecResult.ERROR.toString());
             }
             if (MapUtils.isNotEmpty(blockingCaseMap)) {
                 extTestPlanTestCaseMapper.updateExecResultByTestPlanCaseIdList(new ArrayList<>(blockingCaseMap.keySet()), FunctionCaseExecResult.BLOCKING.toString());
+                functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(blockingCaseMap.keySet()), FunctionCaseExecResult.BLOCKING.toString());
                 this.addTestCaseComment(operator, testPlanName, blockingCaseMap, FunctionCaseExecResult.BLOCKING.toString());
             }
         }
     }
 
 
-
+    @Async
     public void updateFunctionCaseStatusByAutomationCaseId(String automationCaseId, String testPlanId, String triggerCaseRunResult) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
-        if (testPlan != null && testPlan.getAutomaticStatusUpdate()) {
-            HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(testPlan.getCreator()));
+        try {
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+            if (testPlan != null && testPlan.getAutomaticStatusUpdate()) {
+                HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(testPlan.getCreator()));
 
-            Set<String> testCaseIdSet = new HashSet<>();
-            List<TestPlanTestCase> testPlanTestCaseList = extTestPlanTestCaseMapper.selectByAutomationCaseIdAndTestPlanId(automationCaseId, testPlanId);
-            testPlanTestCaseList.forEach(item -> testCaseIdSet.add(item.getCaseId()));
+                Set<String> testCaseIdSet = new HashSet<>();
+                List<TestPlanTestCase> testPlanTestCaseList = extTestPlanTestCaseMapper.selectByAutomationCaseIdAndTestPlanId(automationCaseId, testPlanId);
+                testPlanTestCaseList.forEach(item -> testCaseIdSet.add(item.getCaseId()));
 
-            if (CollectionUtils.isNotEmpty(testCaseIdSet)) {
-                TestCaseTestExample testCaseTestExample = new TestCaseTestExample();
-                testCaseTestExample.createCriteria().andTestCaseIdIn(new ArrayList<>(testCaseIdSet));
-                List<TestCaseTest> testCaseTestList = testCaseTestMapper.selectByExample(testCaseTestExample);
-                Map<String, List<TestCaseTest>> testCaseTestMap = testCaseTestList.stream().collect(Collectors.groupingBy(TestCaseTest::getTestCaseId));
+                if (CollectionUtils.isNotEmpty(testCaseIdSet)) {
+                    TestCaseTestExample testCaseTestExample = new TestCaseTestExample();
+                    testCaseTestExample.createCriteria().andTestCaseIdIn(new ArrayList<>(testCaseIdSet));
+                    List<TestCaseTest> testCaseTestList = testCaseTestMapper.selectByExample(testCaseTestExample);
+                    Map<String, List<TestCaseTest>> testCaseTestMap = testCaseTestList.stream().collect(Collectors.groupingBy(TestCaseTest::getTestCaseId));
 
-                for (Map.Entry<String, List<TestCaseTest>> entry : testCaseTestMap.entrySet()) {
-                    TestCaseRelevanceCasesRequest request = this.generateRelevanceCasesRequest(testPlanId, entry.getKey(), entry.getValue());
-                    CaseExecResult priorityResult = TestCaseSyncStatusUtil.getTestCaseExecResultByRelevance(request.getTestCaseTestList(),
-                            request.getApiAllCaseMap(), request.getScenarioAllCaseMap(), request.getLoadAllCaseMap(), request.getUiAllCaseMap());
-                    if (priorityResult == null) {
-                        continue;
-                    }
+                    for (Map.Entry<String, List<TestCaseTest>> entry : testCaseTestMap.entrySet()) {
+                        TestCaseRelevanceCasesRequest request = this.generateRelevanceCasesRequest(testPlanId, entry.getKey(), entry.getValue());
+                        CaseExecResult priorityResult = TestCaseSyncStatusUtil.getTestCaseExecResultByRelevance(request.getTestCaseTestList(),
+                                request.getApiAllCaseMap(), request.getScenarioAllCaseMap(), request.getLoadAllCaseMap(), request.getUiAllCaseMap());
+                        if (priorityResult == null) {
+                            continue;
+                        }
 
-                    String automationCaseResult = null;
-                    if (priorityResult != null && StringUtils.isNotEmpty(priorityResult.getExecResult())) {
-                        if (StringUtils.equalsIgnoreCase(ApiReportStatus.ERROR.name(), priorityResult.getExecResult())) {
-                            automationCaseResult = ApiReportStatus.ERROR.name();
-                            priorityResult.setExecResult(FunctionCaseExecResult.ERROR.toString());
-                        } else if (StringUtils.equalsIgnoreCase(ApiReportStatus.FAKE_ERROR.name(), priorityResult.getExecResult())) {
-                            automationCaseResult = ApiReportStatus.FAKE_ERROR.name();
-                            priorityResult.setExecResult(FunctionCaseExecResult.BLOCKING.toString());
-                        } else if (StringUtils.equalsIgnoreCase(ApiReportStatus.SUCCESS.name(), priorityResult.getExecResult())) {
-                            priorityResult.setExecResult(FunctionCaseExecResult.SUCCESS.toString());
+                        String automationCaseResult = null;
+                        if (priorityResult != null && StringUtils.isNotEmpty(priorityResult.getExecResult())) {
+                            if (StringUtils.equalsIgnoreCase(ApiReportStatus.ERROR.name(), priorityResult.getExecResult())) {
+                                automationCaseResult = ApiReportStatus.ERROR.name();
+                                priorityResult.setExecResult(FunctionCaseExecResult.ERROR.toString());
+                            } else if (StringUtils.equalsIgnoreCase(ApiReportStatus.FAKE_ERROR.name(), priorityResult.getExecResult())) {
+                                automationCaseResult = ApiReportStatus.FAKE_ERROR.name();
+                                priorityResult.setExecResult(FunctionCaseExecResult.BLOCKING.toString());
+                            } else if (StringUtils.equalsIgnoreCase(ApiReportStatus.SUCCESS.name(), priorityResult.getExecResult())) {
+                                priorityResult.setExecResult(FunctionCaseExecResult.SUCCESS.toString());
+                            }
+                        }
+
+                        //通过 triggerCaseRunResult(触发操作的用例的执行结果) 进行判断，会不会直接影响最终结果。如果是，在改变功能用例状态时也要增加一条评论。
+                        extTestPlanTestCaseMapper.updateExecResultByTestCaseIdAndTestPlanId(entry.getKey(), testPlanId, priorityResult.getExecResult());
+                        //记录功能用例执行信息
+                        functionCaseExecutionInfoService.insertExecutionInfoByCaseIdAndPlanId(entry.getKey(), testPlanId, priorityResult.getExecResult());
+                        if (StringUtils.equalsIgnoreCase(triggerCaseRunResult, automationCaseResult) && !StringUtils.equalsIgnoreCase(triggerCaseRunResult, ApiReportStatus.SUCCESS.name())) {
+                            this.addTestCaseComment(testPlan.getCreator(), testPlan.getName(), entry.getKey(), priorityResult.getCaseName(), FunctionCaseExecResult.BLOCKING.toString());
                         }
                     }
-
-                    //通过 triggerCaseRunResult(触发操作的用例的执行结果) 进行判断，会不会直接影响最终结果。如果是，在改变功能用例状态时也要增加一条评论。
-                    extTestPlanTestCaseMapper.updateExecResultByTestCaseIdAndTestPlanId(entry.getKey(), testPlanId, priorityResult.getExecResult());
-                    if (StringUtils.equalsIgnoreCase(triggerCaseRunResult, automationCaseResult) && !StringUtils.equalsIgnoreCase(triggerCaseRunResult, ApiReportStatus.SUCCESS.name())) {
-                        this.addTestCaseComment(testPlan.getCreator(), testPlan.getName(), entry.getKey(), priorityResult.getCaseName(), FunctionCaseExecResult.BLOCKING.toString());
-                    }
                 }
+                HttpHeaderUtils.clearUser();
             }
-
-            HttpHeaderUtils.clearUser();
+        } catch (Exception e) {
+            LoggerUtil.error("更新功能用例状态出错!", e);
         }
     }
 
