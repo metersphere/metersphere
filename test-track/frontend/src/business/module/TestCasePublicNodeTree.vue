@@ -21,6 +21,7 @@ import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import {getTestCasePublicNodes} from "@/api/testCase";
 import {useStore} from "@/store";
 
+const store = useStore();
 export default {
   name: "TestCasePublicNodeTree",
   components: {MsNodeTree, MsSearchBar},
@@ -42,13 +43,17 @@ export default {
       this.filter();
     },
   },
+  mounted() {
+    store.testCasePublicSelectNode = {};
+    store.testCasePublicSelectNodeIds = [];
+  },
   methods: {
     filter() {
       this.$refs.publicNodeTree.filter(this.condition.filterText);
     },
     publicNodeChange(node, nodeIds, pNodes) {
-      let store = useStore();
       store.testCasePublicSelectNodeIds = nodeIds;
+      store.testCasePublicSelectNode = node;
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
     },
     list() {
