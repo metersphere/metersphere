@@ -985,12 +985,18 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
             /*apiTestCaseWithBLOBs.add(apiToCase(optionData,apiId));*/
             //取出当前操作接口应该导入的case用于对比名字重复加序号
+            List<String> nameList = new ArrayList<>();
             List<ApiTestCaseWithBLOBs> importCaseList = importCaseMap.get(apiId);
-            List<String> nameList = importCaseList.stream().map(ApiTestCaseWithBLOBs::getName).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(nameList)) {
+                nameList = importCaseList.stream().map(ApiTestCaseWithBLOBs::getName).collect(Collectors.toList());
+            }
             for (int i = 0; i < apiTestCaseWithBLOBs.size(); i++) {
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = apiTestCaseWithBLOBs.get(i);
                 if (nameList.contains(apiTestCaseWithBLOBs1.getName())) {
                     apiTestCaseWithBLOBs1.setName(apiTestCaseWithBLOBs1.getName() + "0" + i);
+                    nameList.add(apiTestCaseWithBLOBs1.getName() + "0" + i);
+                } else {
+                    nameList.add(apiTestCaseWithBLOBs1.getName());
                 }
             }
             optionDataCases.addAll(apiTestCaseWithBLOBs);
