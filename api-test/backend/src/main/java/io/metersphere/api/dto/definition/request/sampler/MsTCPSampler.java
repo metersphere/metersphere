@@ -106,7 +106,7 @@ public class MsTCPSampler extends MsTestElement {
                     break;
                 case "xml":
                     if (CollectionUtils.isNotEmpty(this.xmlDataStruct)) {
-                        request = TcpTreeTableDataParser.treeTableData2Xml(this.xmlDataStruct);
+                        request = TcpTreeTableDataParser.treeTableData2Xml(this.xmlDataStruct, this.connectEncoding);
                     }
                     break;
                 case "raw":

@@ -34,7 +34,7 @@ public class TcpTreeTableDataParser {
     public static final String DATA_TYPE_STRING = PropertyConstant.STRING;
     public static final String DATA_TYPE_OBJECT = PropertyConstant.OBJECT;
 
-    public static String treeTableData2Xml(List<TcpTreeTableDataStruct> treeDataList) {
+    public static String treeTableData2Xml(List<TcpTreeTableDataStruct> treeDataList, String encoding) {
         String xmlString = StringUtils.EMPTY;
         try {
             if (treeDataList == null || treeDataList.isEmpty()) {
@@ -56,7 +56,12 @@ public class TcpTreeTableDataParser {
             // 设置XML文档格式
             OutputFormat outputFormat = OutputFormat.createPrettyPrint();
             // 设置XML编码方式,即是用指定的编码方式保存XML文档到字符串(String),这里也可以指定为GBK或是ISO8859-1
-            outputFormat.setEncoding(StandardCharsets.UTF_8.name());
+            if (StringUtils.equals(encoding, StandardCharsets.UTF_8.name())) {
+                outputFormat.setEncoding(StandardCharsets.UTF_8.name());
+            } else {
+                //目前只有UTF-8和GBK两种编码
+                outputFormat.setEncoding(encoding);
+            }
             //outputFormat.setSuppressDeclaration(true); //是否生产xml头
             outputFormat.setIndent(true); //设置是否缩进
             outputFormat.setNewlines(true); //设置是否换行
