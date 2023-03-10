@@ -39,7 +39,7 @@
               :on-exceed="handleExceed"
               :on-success="handleSuccess"
               :on-error="handleError"
-              :disabled="readOnly || isCopy"
+              :disabled="readOnly"
             >
               <div class="icon" style="display: inline-flex; line-height: 34px" @click="uploadLocalFile">
                 <div style="margin-right: 10px">
@@ -47,7 +47,7 @@
                 </div>
                 <el-button
                   size="small"
-                  :disabled="readOnly || isCopy"
+                  :disabled="readOnly"
                   type="text"
                   >{{ $t("permission.project_file.local_upload") }}</el-button
                 >
@@ -78,7 +78,7 @@
           >
             <el-button
               type="text"
-              :disabled="readOnly || isCopy"
+              :disabled="readOnly"
               size="small"
               @click="associationFile"
               >{{ $t("permission.project_file.associated_files") }}</el-button
@@ -163,6 +163,7 @@ export default {
       uploadFiles: [],
       relateFiles: [],
       unRelateFiles: [],
+      filterCopyFiles: [],
       dumpFile: {},
       result: {},
     };
@@ -188,7 +189,7 @@ export default {
     },
     associationFile() {
       this.$refs['popover'].doClose();
-      if (this.readOnly || this.isCopy) {
+      if (this.readOnly) {
         return;
       }
       //唤起关联文件
@@ -329,14 +330,30 @@ export default {
       }
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      if (this.type === "add") {
-        this.uploadFiles.splice(index, 1);
+      if (file.status === 'toUpload') {
+        // 带上传的附件直接移除
+        let uploadIndex = this.findUploadFileIndex(file);
+        this.uploadFiles.splice(uploadIndex, 1);
       } else {
-        deleteTestCaseAttachment(file.id).then(() => {
-          this.$success(this.$t("commons.delete_success"), false);
-          this.getFileMetaData();
-        });
+        if (this.isCopy) {
+          //复制过来的附件需在后台过滤
+          this.filterCopyFiles.push(file.id);
+        } else {
+          // 编辑, 直接删除
+          deleteTestCaseAttachment(file.id).then(() => {
+            this.$success(this.$t("commons.delete_success"), false);
+            this.getFileMetaData();
+          });
+        }
       }
+    },
+    findUploadFileIndex(targetFile) {
+      for (let i = 0; i < this.uploadFiles.length; i++) {
+        if (this.uploadFiles[i].name === targetFile.name) {
+          return i;
+        }
+      }
+      return -1;
     },
     handleUnRelate(file, index) {
       // 取消关联
@@ -349,30 +366,31 @@ export default {
           callback: (action) => {
             if (action === "confirm") {
               this.result.loading = true;
-              let unRelateFileIndex = this.tableData.findIndex(
-                (f) => f.name === file.name
-              );
+              let unRelateFileIndex = this.tableData.findIndex((f) => f.name === file.name);
               this.tableData.splice(unRelateFileIndex, 1);
               if (file.status === "toRelate") {
                 // 待关联的记录, 直接移除
-                let unRelateId = this.relateFiles.findIndex(
-                  (f) => f === file.id
-                );
+                let unRelateId = this.relateFiles.findIndex((f) => f === file.id);
                 this.relateFiles.splice(unRelateId, 1);
                 this.result.loading = false;
               } else {
-                // 已经关联的记录
-                this.unRelateFiles.push(file.id);
-                let data = {
-                  belongType: this.belongType,
-                  belongId: this.targetId,
-                  metadataRefIds: this.unRelateFiles,
-                };
-                unrelatedAttachment(data).then(() => {
-                  this.$success(this.$t("commons.unrelated_success"), false);
-                  this.result.loading = false;
-                  this.getFileMetaData(this.issueId);
-                });
+                if (this.isCopy) {
+                  // 复制过来的记录, 后台过滤
+                  this.filterCopyFiles.push(file.id)
+                } else {
+                  // 已经关联的记录
+                  this.unRelateFiles.push(file.id);
+                  let data = {
+                    belongType: this.belongType,
+                    belongId: this.targetId,
+                    metadataRefIds: this.unRelateFiles,
+                  };
+                  unrelatedAttachment(data).then(() => {
+                    this.$success(this.$t("commons.unrelated_success"), false);
+                    this.result.loading = false;
+                    this.getFileMetaData(this.issueId);
+                  });
+                }
               }
             }
           },

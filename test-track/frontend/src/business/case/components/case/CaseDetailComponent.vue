@@ -292,6 +292,13 @@ export default {
         return [];
       }
     },
+    getFilterCopyFiles() {
+      if (this.$refs.attachmentComp) {
+        return this.$refs.attachmentComp.filterCopyFiles;
+      } else {
+        return [];
+      }
+    },
     textBlur(options, refName) {
       if (!this.editable && options.autoSave) {
         options.editFactor = false;

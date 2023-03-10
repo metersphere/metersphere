@@ -221,7 +221,7 @@
           :copy-case-id="caseId"
           :label-width="formLabelWidth"
           :case-id="caseId"
-          :type="type"
+          :type="!caseId ? 'add' : 'edit'"
           :comments.sync="comments"
           @openComment="openComment"
           @getComments="getComments"
@@ -1297,6 +1297,9 @@ export default {
         }
         if (this.$refs.otherInfo.getUnRelateFiles() && this.$refs.otherInfo.getUnRelateFiles().length > 0) {
           param.unRelateFileMetaIds = this.$refs.otherInfo.getUnRelateFiles();
+        }
+        if (this.$refs.otherInfo.getFilterCopyFiles() && this.$refs.otherInfo.getFilterCopyFiles().length > 0) {
+          param.filterCopyFileMetaIds = this.$refs.otherInfo.getFilterCopyFiles();
         }
       }
       if (this.createVersionId) {
