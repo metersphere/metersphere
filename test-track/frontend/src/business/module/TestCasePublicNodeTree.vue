@@ -1,5 +1,5 @@
 <template>
-  <ms-node-tree class="node-tree"
+  <ms-node-tree class="public-node-tree"
                 v-loading="loading"
                 local-suffix="test_case"
                 default-label="未规划用例"
@@ -74,5 +74,7 @@ export default {
 </script>
 
 <style scoped>
-
+.public-node-tree :deep(.node-tree) {
+  height: calc(100vh - 205px);
+}
 </style>
