@@ -108,9 +108,8 @@
             :data="contentObject"/>
         </div>
         <div
-          v-else-if="
-            contentObject.content && contentObject.contentType === 'CUSTOM'
-          "
+          id="custom-div"
+          v-else-if="contentObject.content && contentObject.contentType === 'CUSTOM'"
           :class="getCustomComponentType()"
           @click="handleReadTextClick"
           @mouseenter="mouseEnterEvent"
@@ -211,6 +210,9 @@ export default {
         default:
           type = "select";
           break;
+      }
+      if (this.getCustomText() === this.$t("case.none")) {
+        type = type + ' custom-empty';
       }
       return type;
     },
@@ -454,6 +456,14 @@ export default {
   font-size: 14px;
   line-height: 22px;
   color: #8f959e;
+}
+.custom-empty {
+  font-family: "PingFang SC" !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  font-size: 14px !important;
+  line-height: 22px !important;
+  color: #8f959e !important;
 }
 .select {
   width: 100%;
