@@ -1,7 +1,18 @@
-import {post, get} from "metersphere-frontend/src/plugins/request";
+import { get, post } from "metersphere-frontend/src/plugins/request";
 
 export function getTrackCount(selectProjectId) {
   return get("/track/count/" + selectProjectId);
+}
+
+export function homeTestPlanFailureCaseGet(
+  projectId,
+  limitNumber,
+  currentPage,
+  pageSize
+) {
+  return get(
+    `/track/failure/case/about/plan/${projectId}/default/${limitNumber}/${currentPage}/${pageSize}`
+  );
 }
 
 export function getTrackRelevanceCount(selectProjectId) {
@@ -12,8 +23,21 @@ export function getTrackCaseBar(selectProjectId) {
   return get("/track/case/bar/" + selectProjectId);
 }
 
-export function getTrackRunningTask(selectProjectId, currentPage, pageSize, param) {
-  return post("/task/center/runningTask/" + selectProjectId + "/" + currentPage + "/" + pageSize, param);
+export function getTrackRunningTask(
+  selectProjectId,
+  currentPage,
+  pageSize,
+  param
+) {
+  return post(
+    "/task/center/runningTask/" +
+      selectProjectId +
+      "/" +
+      currentPage +
+      "/" +
+      pageSize,
+    param
+  );
 }
 
 export function getTrackBugCount(selectProjectId) {
@@ -21,9 +45,10 @@ export function getTrackBugCount(selectProjectId) {
 }
 
 export function formatNumber(param) {
-  let num = (param || 0).toString(), result = '';
+  let num = (param || 0).toString(),
+    result = "";
   while (num.length > 3) {
-    result = ',' + num.slice(-3) + result;
+    result = "," + num.slice(-3) + result;
     num = num.slice(0, num.length - 3);
   }
   if (num) {
@@ -31,4 +56,3 @@ export function formatNumber(param) {
   }
   return result;
 }
-

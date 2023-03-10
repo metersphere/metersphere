@@ -1,7 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExpand;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
@@ -25,8 +24,6 @@ public interface ExtApiDefinitionExecResultMapper {
     ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceIdAndType(String resourceId, String type);
 
     long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
-
-    List<ExecutedCaseInfoResult> findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("versionId") String version, @Param("selectFunctionCase") boolean selectFunctionCase, @Param("startTimestamp") long startTimestamp, @Param("limitNumber") int limitNumber);
 
     String selectExecResult(String resourceId);
 

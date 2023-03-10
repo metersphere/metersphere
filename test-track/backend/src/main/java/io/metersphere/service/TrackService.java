@@ -3,18 +3,16 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.CustomField;
-import io.metersphere.base.domain.TestPlan;
-import io.metersphere.base.domain.TestPlanExample;
 import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtIssuesMapper;
-import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.CustomFieldScene;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.IssueStatus;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.BugStatistics;
-import io.metersphere.dto.TestPlanBugCount;
+import io.metersphere.dto.ExecutedCaseInfoResult;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TrackCountResult;
 import io.metersphere.i18n.Translator;
@@ -23,13 +21,13 @@ import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -49,7 +47,12 @@ public class TrackService {
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private TestPlanService testPlanService;
-
+    @Resource
+    private ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private ExtIssuesMapper extIssuesMapper;
 
@@ -303,5 +306,41 @@ public class TrackService {
         testPlan.setId(planId);
         testPlanService.calcTestPlanRate(testPlan);
         return testPlan.getPassRate();
+    }
+
+    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId, int limitNumber) {
+
+        //获取7天之前的日期
+        Date startDay = DateUtils.dateSum(new Date(), -6);
+        //将日期转化为 00:00:00 的时间戳
+        Date startTime = null;
+        try {
+            startTime = DateUtils.getDayStartTime(startDay);
+        } catch (Exception e) {
+            LogUtil.error("解析日期出错!", e);
+        }
+
+        if (startTime == null) {
+            return new ArrayList<>(0);
+        } else {
+            List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
+            ArrayList<ExecutedCaseInfoResult> allCaseExecList = new ArrayList<>();
+            allCaseExecList.addAll(extTestPlanTestCaseMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, startTime.getTime(), limitNumber));
+            allCaseExecList.addAll(extTestPlanApiCaseMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, startTime.getTime(), limitNumber));
+            allCaseExecList.addAll(extTestPlanScenarioCaseMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, startTime.getTime(), limitNumber));
+
+            if (CollectionUtils.isNotEmpty(allCaseExecList)) {
+                allCaseExecList.sort(Comparator.comparing(ExecutedCaseInfoResult::getFailureTimes).reversed());
+                for (int i = 0; i < allCaseExecList.size(); i++) {
+                    if (i < limitNumber) {
+                        ExecutedCaseInfoResult item = allCaseExecList.get(i);
+                        returnList.add(item);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return returnList;
+        }
     }
 }

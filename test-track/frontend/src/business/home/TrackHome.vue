@@ -23,10 +23,7 @@
 
           <el-row style="margin-top: 16px">
             <el-col style="background-color: #ffffff">
-              <ms-failure-test-case-list
-                :select-function-case="true"
-                @redirectPage="redirectPage"
-              />
+              <ms-failure-test-case-list @redirectPage="redirectPage" />
             </el-col>
           </el-row>
 
