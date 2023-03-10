@@ -2,6 +2,7 @@ export default {
   id: "commonStore",
   state: () => ({
     fileDownloadList: [], // 文件下载进度列表,
+    projectChangeFlag: false
   }),
   persist: false,
   getters: {},
