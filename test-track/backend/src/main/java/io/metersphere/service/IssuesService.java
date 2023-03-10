@@ -176,14 +176,20 @@ public class IssuesService {
             // 用例与第三方缺陷平台中的缺陷关联
             handleTestCaseIssues(issuesRequest);
 
-            // 如果是复制新增, 同步MS附件到Jira
+            // 如果是复制新增, 同步MS附件到Jira, 需过滤移除的附件
             if (StringUtils.isNotEmpty(issuesRequest.getCopyIssueId())) {
                 AttachmentRequest attachmentRequest = new AttachmentRequest();
                 attachmentRequest.setBelongId(issuesRequest.getCopyIssueId());
                 attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
                 List<String> attachmentIds = attachmentService.getAttachmentIdsByParam(attachmentRequest);
-                if (CollectionUtils.isNotEmpty(attachmentIds)) {
-                    for (String attachmentId : attachmentIds) {
+                List<String> needDealAttachmentIds = new ArrayList<>();
+                if (CollectionUtils.isNotEmpty(issuesRequest.getFilterCopyFileMetaIds())) {
+                    needDealAttachmentIds = attachmentIds.stream().filter(attachmentId -> !issuesRequest.getFilterCopyFileMetaIds().contains(attachmentId)).collect(Collectors.toList());
+                } else {
+                    needDealAttachmentIds = attachmentIds;
+                }
+                if (CollectionUtils.isNotEmpty(needDealAttachmentIds)) {
+                    for (String attachmentId : needDealAttachmentIds) {
                         FileAttachmentMetadata fileAttachmentMetadata = attachmentService.getFileAttachmentMetadataByFileId(attachmentId);
                         File file = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
                         attachmentService.syncIssuesAttachment(issues, file, AttachmentSyncType.UPLOAD);
@@ -213,74 +219,75 @@ public class IssuesService {
             attachmentRequest.setCopyBelongId(issuesRequest.getCopyIssueId());
             attachmentRequest.setBelongId(issues.getId());
             attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
-            attachmentService.copyAttachment(attachmentRequest);
+            attachmentService.copyAttachment(attachmentRequest, issuesRequest.getFilterCopyFileMetaIds());
 
-            // MS附件同步到其他平台, Jira, Zentao已经在创建缺陷时处理, AzureDevops单独处理
+            // MS附件同步到其他平台, Jira, Zentao已经在创建缺陷时处理, AzureDevops单独处理, 需过滤移除的附件
             if (StringUtils.equals(issuesRequest.getPlatform(), IssuesManagePlatform.AzureDevops.toString())) {
                 AttachmentRequest request = new AttachmentRequest();
                 request.setBelongId(issuesRequest.getCopyIssueId());
                 request.setBelongType(AttachmentType.ISSUE.type());
-                uploadAzureCopyAttachment(request, issuesRequest.getPlatform(), platformId);
+                uploadAzureCopyAttachment(request, issuesRequest.getPlatform(), platformId, issuesRequest.getFilterCopyFileMetaIds());
             }
-        } else {
-            final String issueId = issues.getId();
-            final String platform = issues.getPlatform();
-            // 新增, 需保存并同步所有待上传的附件
-            if (CollectionUtils.isNotEmpty(files)) {
-                files.forEach(file -> {
-                    AttachmentRequest attachmentRequest = new AttachmentRequest();
-                    attachmentRequest.setBelongId(issueId);
-                    attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
-                    attachmentService.uploadAttachment(attachmentRequest, file);
-                });
-            }
-            // 处理待关联的文件附件, 生成关联记录, 并同步至第三方平台
-            if (CollectionUtils.isNotEmpty(issuesRequest.getRelateFileMetaIds())) {
-                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-                FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
-                AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
-                FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
-                issuesRequest.getRelateFileMetaIds().forEach(filemetaId -> {
-                    FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
-                    FileAssociation fileAssociation = new FileAssociation();
-                    fileAssociation.setId(UUID.randomUUID().toString());
-                    fileAssociation.setFileMetadataId(filemetaId);
-                    fileAssociation.setFileType(fileMetadata.getType());
-                    fileAssociation.setType(FileAssociationType.ISSUE.name());
-                    fileAssociation.setProjectId(fileMetadata.getProjectId());
-                    fileAssociation.setSourceItemId(filemetaId);
-                    fileAssociation.setSourceId(issueId);
-                    associationBatchMapper.insert(fileAssociation);
-                    AttachmentModuleRelation relation = new AttachmentModuleRelation();
-                    relation.setRelationId(issueId);
-                    relation.setRelationType(AttachmentType.ISSUE.type());
-                    relation.setFileMetadataRefId(fileAssociation.getId());
-                    relation.setAttachmentId(UUID.randomUUID().toString());
-                    attachmentModuleRelationBatchMapper.insert(relation);
-                    FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
-                    BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
-                    fileAttachmentMetadata.setId(relation.getAttachmentId());
-                    fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
-                    fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
-                    fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
-                    // 下载文件管理文件, 同步到第三方平台
-                    File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
-                    if (PlatformPluginService.isPluginPlatform(platform)) {
-                        issuesRequest.setPlatform(platform);
-                        attachmentService.syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
-                    } else {
-                        IssuesRequest addIssueRequest = new IssuesRequest();
-                        addIssueRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-                        addIssueRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                        Objects.requireNonNull(IssueFactory.createPlatform(platform, addIssueRequest))
-                                .syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
-                    }
-                    FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
-                });
-                sqlSession.flushStatements();
-                if (sqlSession != null && sqlSessionFactory != null) {
-                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+
+        // 新增,复制; 需保存并同步所有待上传, 待关联的附件
+        final String issueId = issues.getId();
+        final String platform = issues.getPlatform();
+        // upload file
+        if (CollectionUtils.isNotEmpty(files)) {
+            files.forEach(file -> {
+                AttachmentRequest attachmentRequest = new AttachmentRequest();
+                attachmentRequest.setBelongId(issueId);
+                attachmentRequest.setBelongType(AttachmentType.ISSUE.type());
+                attachmentService.uploadAttachment(attachmentRequest, file);
+            });
+        }
+        // relate file
+        if (CollectionUtils.isNotEmpty(issuesRequest.getRelateFileMetaIds())) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            FileAssociationMapper associationBatchMapper = sqlSession.getMapper(FileAssociationMapper.class);
+            AttachmentModuleRelationMapper attachmentModuleRelationBatchMapper = sqlSession.getMapper(AttachmentModuleRelationMapper.class);
+            FileAttachmentMetadataMapper fileAttachmentMetadataBatchMapper = sqlSession.getMapper(FileAttachmentMetadataMapper.class);
+            issuesRequest.getRelateFileMetaIds().forEach(filemetaId -> {
+                FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(filemetaId);
+                FileAssociation fileAssociation = new FileAssociation();
+                fileAssociation.setId(UUID.randomUUID().toString());
+                fileAssociation.setFileMetadataId(filemetaId);
+                fileAssociation.setFileType(fileMetadata.getType());
+                fileAssociation.setType(FileAssociationType.ISSUE.name());
+                fileAssociation.setProjectId(fileMetadata.getProjectId());
+                fileAssociation.setSourceItemId(filemetaId);
+                fileAssociation.setSourceId(issueId);
+                associationBatchMapper.insert(fileAssociation);
+                AttachmentModuleRelation relation = new AttachmentModuleRelation();
+                relation.setRelationId(issueId);
+                relation.setRelationType(AttachmentType.ISSUE.type());
+                relation.setFileMetadataRefId(fileAssociation.getId());
+                relation.setAttachmentId(UUID.randomUUID().toString());
+                attachmentModuleRelationBatchMapper.insert(relation);
+                FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
+                BeanUtils.copyBean(fileAttachmentMetadata, fileMetadata);
+                fileAttachmentMetadata.setId(relation.getAttachmentId());
+                fileAttachmentMetadata.setCreator(fileMetadata.getCreateUser() == null ? StringUtils.EMPTY : fileMetadata.getCreateUser());
+                fileAttachmentMetadata.setFilePath(fileMetadata.getPath() == null ? StringUtils.EMPTY : fileMetadata.getPath());
+                fileAttachmentMetadataBatchMapper.insert(fileAttachmentMetadata);
+                // 下载文件管理文件, 同步到第三方平台
+                File refFile = attachmentService.downloadMetadataFile(filemetaId, fileMetadata.getName());
+                if (PlatformPluginService.isPluginPlatform(platform)) {
+                    issuesRequest.setPlatform(platform);
+                    attachmentService.syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
+                } else {
+                    IssuesRequest addIssueRequest = new IssuesRequest();
+                    addIssueRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+                    addIssueRequest.setProjectId(SessionUtils.getCurrentProjectId());
+                    Objects.requireNonNull(IssueFactory.createPlatform(platform, addIssueRequest))
+                            .syncIssuesAttachment(issuesRequest, refFile, AttachmentSyncType.UPLOAD);
                 }
+                FileUtils.deleteFile(FileUtils.ATTACHMENT_TMP_DIR + File.separator + fileMetadata.getName());
+            });
+            sqlSession.flushStatements();
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
         return getIssue(issues.getId());
@@ -1768,10 +1775,16 @@ public class IssuesService {
         return filterIssues;
     }
 
-    private void uploadAzureCopyAttachment(AttachmentRequest attachmentRequest, String platform, String platformId) {
+    private void uploadAzureCopyAttachment(AttachmentRequest attachmentRequest, String platform, String platformId, List filterIds) {
         List<String> attachmentIds = attachmentService.getAttachmentIdsByParam(attachmentRequest);
-        if (CollectionUtils.isNotEmpty(attachmentIds)) {
-            attachmentIds.forEach(attachmentId -> {
+        List<String> needDealAttachmentIds = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(filterIds)) {
+            needDealAttachmentIds = attachmentIds.stream().filter(attachmentId -> !filterIds.contains(attachmentId)).collect(Collectors.toList());
+        } else {
+            needDealAttachmentIds = attachmentIds;
+        }
+        if (CollectionUtils.isNotEmpty(needDealAttachmentIds)) {
+            needDealAttachmentIds.forEach(attachmentId -> {
                 FileAttachmentMetadata fileAttachmentMetadata = attachmentService.getFileAttachmentMetadataByFileId(attachmentId);
                 File file = new File(fileAttachmentMetadata.getFilePath() + "/" + fileAttachmentMetadata.getName());
                 IssuesRequest createRequest = new IssuesRequest();

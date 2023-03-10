@@ -26,12 +26,23 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
      * 复制测试用例时原始用例ID
      */
     private String copyCaseId;
-    // 是否处理附件文件
+    /**
+     * 是否处理附件文件
+     */
     private boolean handleAttachment = true;
-    // 关联文件管理引用ID
+    /**
+     * 关联文件管理引用ID(新增操作)
+     */
     private List<String> relateFileMetaIds = new ArrayList<>();
-    // 取消关联文件应用ID
+    /**
+     * 取消关联文件应用ID(新增操作)
+     */
     private List<String> unRelateFileMetaIds = new ArrayList<>();
+    /**
+     * since v2.8.0
+     * 复制用例过滤掉的原始附件ID
+     */
+    private List<String> filterCopyFileMetaIds = new ArrayList<>();
 
     /**
      * 创建新版本时 是否连带复制其他信息的配置类

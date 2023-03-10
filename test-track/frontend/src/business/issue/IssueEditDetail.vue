@@ -108,13 +108,13 @@
                         :on-exceed="handleExceed"
                         :on-success="handleSuccess"
                         :on-error="handleError"
-                        :disabled="readOnly || type === 'copy'">
-                        <el-button :disabled="readOnly || type === 'copy'" type="text">
+                        :disabled="readOnly">
+                        <el-button :disabled="readOnly" type="text">
                           {{ $t('permission.project_file.local_upload') }}
                         </el-button>
                       </el-upload>
                     </div>
-                    <el-button type="text" :disabled="readOnly || type === 'copy'" @click="associationFile">
+                    <el-button type="text" :disabled="readOnly" @click="associationFile">
                       {{ $t('permission.project_file.associated_files') }}
                     </el-button>
                     <i class="el-icon-plus" slot="reference"/>
@@ -325,6 +325,7 @@ export default {
       uploadFiles: [],
       relateFiles: [],
       unRelateFiles: [],
+      filterCopyFiles: [],
       dumpFile: {},
       enableThirdPartTemplate: false
     };
@@ -567,6 +568,9 @@ export default {
       if (this.relateFiles.length > 0) {
         param.relateFileMetaIds = this.relateFiles;
       }
+      if (this.filterCopyFiles.length > 0) {
+        param.filterCopyFileMetaIds = this.filterCopyFiles;
+      }
       return param;
     },
     _save() {
@@ -671,14 +675,14 @@ export default {
         name: file.name,
         size: byteToSize(file.size),
         updateTime: new Date().getTime(),
-        progress: this.type === 'add' || this.isCaseEdit ? 100 : 0,
-        status: this.type === 'add' || this.isCaseEdit ? 'toUpload' : 0,
+        progress: this.type === 'add' || this.isCaseEdit || this.type === 'copy' ? 100 : 0,
+        status: this.type === 'add' || this.isCaseEdit || this.type === 'copy'? 'toUpload' : 0,
         creator: user.name,
         type: getTypeByFileName(file.name),
         isLocal: true
       });
 
-      if (this.type === 'add' || this.isCaseEdit) {
+      if (this.type === 'add' || this.isCaseEdit || this.type === 'copy') {
         // 新增上传
         this.uploadFiles.push(file);
         return false;
@@ -770,15 +774,19 @@ export default {
       }
       this.fileList.splice(index, 1);
       this.tableData.splice(index, 1);
-      if (this.type === 'add' || this.isCaseEdit) {
+      if (file.status === 'toUpload') {
         let delIndex = this.uploadFiles.findIndex(uploadFile => uploadFile.name === file.name)
         this.uploadFiles.splice(delIndex, 1);
       } else {
-        deleteIssueAttachment(file.id)
-          .then(() => {
-            this.$success(this.$t('commons.delete_success'));
-            this.getFileMetaData(this.issueId);
-          });
+        if (this.type === 'copy') {
+          this.filterCopyFiles.push(file.id);
+        } else {
+          deleteIssueAttachment(file.id)
+            .then(() => {
+              this.$success(this.$t('commons.delete_success'));
+              this.getFileMetaData(this.issueId);
+            });
+        }
       }
     },
     handleUnRelate(file, index) {
@@ -795,16 +803,20 @@ export default {
               let unRelateId = this.relateFiles.findIndex(f => f === file.id);
               this.relateFiles.splice(unRelateId, 1);
             } else {
-              // 已经关联的记录
-              this.unRelateFiles.push(file.id);
-              let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': this.unRelateFiles};
-              this.result.loading = true;
-              unrelatedAttachment(data)
-                .then(() => {
-                  this.$success(this.$t('commons.unrelated_success'));
-                  this.result.loading = false;
-                  this.getFileMetaData(this.issueId);
-                })
+              if (this.type === 'copy') {
+                this.filterCopyFiles.push(file.id);
+              } else {
+                // 已经关联的记录
+                this.unRelateFiles.push(file.id);
+                let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': this.unRelateFiles};
+                this.result.loading = true;
+                unrelatedAttachment(data)
+                  .then(() => {
+                    this.$success(this.$t('commons.unrelated_success'));
+                    this.result.loading = false;
+                    this.getFileMetaData(this.issueId);
+                  })
+              }
             }
           }
         }
@@ -836,7 +848,7 @@ export default {
         }
       }
       if (!repeatRecord) {
-        if (this.type === 'add' || this.isCaseEdit) {
+        if (this.type === 'add' || this.isCaseEdit || this.type === 'copy') {
           // 新增
           rows.forEach(row => {
             this.relateFiles.push(row.id);

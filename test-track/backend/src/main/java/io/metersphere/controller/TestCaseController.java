@@ -200,8 +200,6 @@ public class TestCaseController {
         if (StringUtils.isBlank(request.getId())) {
             //新增 后端生成 id
             request.setId(UUID.randomUUID().toString());
-        } else {
-            //复制，前端生成 id
         }
         return testCaseService.add(request, files);
     }
