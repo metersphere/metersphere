@@ -1,47 +1,53 @@
 <template>
   <el-container>
-    <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
+    <ms-aside-container
+      width="500px"
+      :default-hidden-bottom-top="200"
+      :enable-auto-height="true"
+    >
       <el-card>
         <el-scrollbar>
-          <ms-table v-loading="loading"
-                    :show-select-all="false"
-                    :screen-height="null"
-                    :enable-selection="false"
-                    :highlight-current-row="true"
-                    @refresh="getScenarioApiCase"
-                    @handleRowClick="rowClick"
-                    :data="apiCases">
-
-            <ms-table-column
-              :width="100"
-              :label="$t('commons.id')"
-              prop="num">
+          <ms-table
+            v-loading="loading"
+            :show-select-all="false"
+            :screen-height="null"
+            :enable-selection="false"
+            :highlight-current-row="true"
+            @refresh="getScenarioApiCase"
+            @handleRowClick="rowClick"
+            :data="apiCases"
+          >
+            <ms-table-column :width="100" :label="$t('commons.id')" prop="num">
             </ms-table-column>
 
-            <ms-table-column
-              :label="$t('commons.name')"
-              prop="name">
+            <ms-table-column :label="$t('commons.name')" prop="name">
             </ms-table-column>
 
             <el-table-column
               prop="principalName"
-              :label="$t('test_track.plan.plan_principal')"/>
+              :label="$t('test_track.plan.plan_principal')"
+            />
 
             <ms-table-column
               :label="$t('test_track.case.priority')"
               :width="80"
-              prop="priority">
+              prop="priority"
+            >
               <template v-slot:default="scope">
-                <priority-table-item :value="scope.row.priority" ref="priority"/>
+                <priority-table-item
+                  :value="scope.row.priority"
+                  ref="priority"
+                />
               </template>
             </ms-table-column>
 
             <ms-table-column
               :width="80"
               :label="$t('test_track.plan_view.execute_result')"
-              prop="lastResult">
+              prop="lastResult"
+            >
               <template v-slot:default="scope">
-                <ms-test-plan-api-status :status="scope.row.execResult"/>
+                <ms-test-plan-api-status :status="scope.row.execResult" />
               </template>
             </ms-table-column>
           </ms-table>
@@ -50,22 +56,27 @@
     </ms-aside-container>
     <ms-main-container v-loading="responseLoading">
       <div v-if="showResponse">
-        <micro-app v-if="!isTemplate"
-                   route-name="ApiReportView"
-                   service="api"
-                   :route-params="{
-                      isTestPlan: showResponse,
-                      response
-                    }"/>
+        <micro-app
+          v-if="!isTemplate"
+          route-name="ApiReportView"
+          service="api"
+          :route-params="{
+            isTestPlan: showResponse,
+            response,
+          }"
+        />
         <el-card v-else>
-          <ms-request-result-tail :response="response"
-                                  :is-test-plan="showResponse"
-                                  ref="debugResult"/>
-
+          <ms-request-result-tail
+            :response="response"
+            :is-test-plan="showResponse"
+            ref="debugResult"
+          />
         </el-card>
       </div>
 
-      <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
+      <div class="empty" v-else>
+        {{ $t("test_track.plan.load_case.content_empty") }}
+      </div>
     </ms-main-container>
   </el-container>
 </template>
@@ -85,14 +96,17 @@ import {
   getSharePlanApiAllCase,
   getSharePlanApiErrorReportCase,
   getSharePlanApiFailureCase,
-  getSharePlanApiUnExecuteCase
+  getSharePlanApiUnExecuteCase,
 } from "@/api/remote/plan/test-plan";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {getShareApiReport} from "@/api/share";
-import {apiDefinitionReportGet, apiDefinitionReportGetDb} from "@/api/remote/api/api-definition";
+import { getShareApiReport, getShareApiReportByReportId } from "@/api/share";
+import {
+  apiDefinitionReportGet,
+  apiDefinitionReportGetDb,
+} from "@/api/remote/api/api-definition";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 
@@ -103,8 +117,13 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
-    MsRequestResultTail
+    MsTableColumn,
+    MsTable,
+    StatusTableItem,
+    MethodTableItem,
+    TypeTableItem,
+    PriorityTableItem,
+    MsRequestResultTail,
   },
   props: {
     planId: String,
@@ -115,7 +134,7 @@ export default {
     isAll: Boolean,
     isErrorReport: Boolean,
     isUnExecute: Boolean,
-    isDb: Boolean
+    isDb: Boolean,
   },
   data() {
     return {
@@ -123,17 +142,17 @@ export default {
       responseLoading: false,
       loading: false,
       response: {},
-      showResponse: false
-    }
+      showResponse: false,
+    };
   },
   watch: {
     apiCases() {
       if (this.apiCases) {
-        this.$emit('setSize', this.apiCases.length);
+        this.$emit("setSize", this.apiCases.length);
       } else {
         this.apiCases = [];
       }
-    }
+    },
   },
   mounted() {
     this.getScenarioApiCase();
@@ -142,75 +161,111 @@ export default {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isErrorReport) {
-          this.apiCases = this.report.errorReportCases ? this.report.errorReportCases : [];
+          this.apiCases = this.report.errorReportCases
+            ? this.report.errorReportCases
+            : [];
         } else if (this.isUnExecute) {
-          this.apiCases = this.report.unExecuteCases ? this.report.unExecuteCases : [];
+          this.apiCases = this.report.unExecuteCases
+            ? this.report.unExecuteCases
+            : [];
         } else if (this.isAll) {
-          this.apiCases = this.report.apiAllCases ? this.report.apiAllCases : [];
+          this.apiCases = this.report.apiAllCases
+            ? this.report.apiAllCases
+            : [];
         } else {
-          this.apiCases = this.report.apiFailureCases ? this.report.apiFailureCases : [];
+          this.apiCases = this.report.apiFailureCases
+            ? this.report.apiFailureCases
+            : [];
         }
       } else if (this.isShare) {
         if (this.isErrorReport) {
           this.loading = true;
-          getSharePlanApiErrorReportCase(this.shareId, this.planId)
-            .then((r) => {
+          getSharePlanApiErrorReportCase(this.shareId, this.planId).then(
+            (r) => {
               this.loading = false;
               this.apiCases = r.data;
-            });
+            }
+          );
         } else if (this.isUnExecute) {
           this.loading = true;
-          getSharePlanApiUnExecuteCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getSharePlanApiUnExecuteCase(this.shareId, this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         } else if (this.isAll) {
           this.loading = true;
-          getSharePlanApiAllCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getSharePlanApiAllCase(this.shareId, this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         } else {
           this.loading = true;
-          getSharePlanApiFailureCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getSharePlanApiFailureCase(this.shareId, this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         }
       } else {
         if (this.isErrorReport) {
           this.loading = true;
-          getPlanApiErrorReportCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getPlanApiErrorReportCase(this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         } else if (this.isUnExecute) {
           this.loading = true;
-          getPlanApiUnExecuteCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getPlanApiUnExecuteCase(this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         } else if (this.isAll) {
           this.loading = true;
-          getPlanApiAllCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getPlanApiAllCase(this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         } else {
           this.loading = true;
-          getPlanApiFailureCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.apiCases = r.data;
-            });
+          getPlanApiFailureCase(this.planId).then((r) => {
+            this.loading = false;
+            this.apiCases = r.data;
+          });
         }
       }
+    },
+    selectReportContentByReportId(reportId) {
+      this.responseLoading = true;
+      apiDefinitionReportGet(reportId).then((response) => {
+        this.responseLoading = false;
+        if (response.data) {
+          let data = response.data;
+          if (data) {
+            this.showResponse = true;
+            try {
+              this.response = JSON.parse(data.content);
+            } catch (e) {
+              this.response = {};
+            }
+          }
+        }
+      });
+    },
+    selectShareReportContentByReportId(reportId) {
+      this.responseLoading = true;
+      getShareApiReportByReportId(reportId).then((response) => {
+        this.responseLoading = false;
+        if (response.data) {
+          let data = response.data;
+          if (data) {
+            this.showResponse = true;
+            try {
+              this.response = JSON.parse(data.content);
+            } catch (e) {
+              this.response = {};
+            }
+          }
+        }
+      });
     },
     rowClick(row) {
       this.showResponse = false;
@@ -221,9 +276,11 @@ export default {
             this.response = JSON.parse(row.response);
           }
         } else if (this.isShare) {
-          this.responseLoading = true;
-          getShareApiReport(this.shareId, row.id)
-            .then((r) => {
+          if (row.reportId) {
+            this.selectShareReportContentByReportId(row.reportId);
+          } else {
+            this.responseLoading = true;
+            getShareApiReport(this.shareId, row.id).then((r) => {
               this.responseLoading = false;
               let data = r.data;
               if (data && data.content) {
@@ -231,49 +288,33 @@ export default {
                 this.response = JSON.parse(data.content);
               }
             });
+          }
         } else {
           if (row.reportId) {
-            this.responseLoading = true;
-            apiDefinitionReportGet(row.reportId)
-              .then(response => {
-                this.responseLoading = false;
-                if (response.data) {
-                  let data = response.data;
-                  if (data) {
-                    this.showResponse = true;
-                    try {
-                      this.response = JSON.parse(data.content);
-                    } catch (e) {
-                      this.response = {};
-                    }
-                  }
-                }
-              });
+            this.selectReportContentByReportId(row.reportId);
           } else {
             this.responseLoading = true;
-            apiDefinitionReportGetDb(row.id)
-              .then((r) => {
-                this.responseLoading = false;
-                let data = r.data;
-                if (data && data.content) {
-                  this.showResponse = true;
-                  try {
-                    this.response = JSON.parse(data.content);
-                  } catch (e) {
-                    this.response = {};
-                  }
+            apiDefinitionReportGetDb(row.id).then((r) => {
+              this.responseLoading = false;
+              let data = r.data;
+              if (data && data.content) {
+                this.showResponse = true;
+                try {
+                  this.response = JSON.parse(data.content);
+                } catch (e) {
+                  this.response = {};
                 }
-              });
+              }
+            });
           }
         }
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .el-card :deep(.el-card__body) {
   height: 550px;
 }

@@ -23,4 +23,10 @@ public class ShareTestPlanApiReportController {
         shareInfoService.validate(shareId);
         return apiDefinitionService.getDbResult(testId);
     }
+
+    @GetMapping("/api/definition/report/by/id/{reportId}")
+    public ApiReportResult getApiReport(@PathVariable String reportId) {
+        return apiDefinitionService.getReportById(reportId);
+    }
+
 }
