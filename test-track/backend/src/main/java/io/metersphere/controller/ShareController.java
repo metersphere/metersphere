@@ -5,7 +5,7 @@ import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.plan.dto.ExecutionModeDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
@@ -41,7 +41,7 @@ public class ShareController {
     }
 
     @GetMapping("/test/plan/report/{shareId}/{planId}")
-    public TestPlanSimpleReportDTO getReport(@PathVariable String shareId, @PathVariable String planId) {
+    public TestPlanReportDataStruct getReport(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
         return testPlanService.getShareReport(shareInfoService.get(shareId), planId);
     }
@@ -61,7 +61,7 @@ public class ShareController {
     }
 
     @GetMapping("/test/plan/report/db/{shareId}/{reportId}")
-    public TestPlanSimpleReportDTO getTestPlanDbReport(@PathVariable String shareId, @PathVariable String reportId) {
+    public TestPlanReportDataStruct getTestPlanDbReport(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validate(shareId, reportId);
         return testPlanReportService.getShareDbReport(shareInfoService.get(shareId), reportId);
     }

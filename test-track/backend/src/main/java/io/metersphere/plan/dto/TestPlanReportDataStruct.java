@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class TestPlanSimpleReportDTO extends TestPlanReportContent {
+public class TestPlanReportDataStruct extends TestPlanReportContent {
     private String name;
 
     private int executeCount;

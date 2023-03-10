@@ -687,7 +687,8 @@ public class TestPlanScenarioCaseService {
     private void calculateScenarioResultDTO(List<String> scenarioReportIdList,
                                             TestPlanScenarioStepCountDTO stepCount) {
         if (CollectionUtils.isNotEmpty(scenarioReportIdList)) {
-            List<ApiScenarioReportResultWithBLOBs> resultList = extApiScenarioReportResultMapper.selectIdAndStatusByReportIdList(scenarioReportIdList);
+
+            List<ApiScenarioReportResultWithBLOBs> resultList = BatchProcessingUtil.selectScenarioReportResultByScenarioReportId(scenarioReportIdList, extApiScenarioReportResultMapper::selectIdAndStatusByReportIdList);
             resultList = apiScenarioReportStructureService.filterProcessResult(resultList);
             stepCount.setScenarioStepTotal(resultList.size());
             int successStep = 0;

@@ -14,7 +14,7 @@ import io.metersphere.dto.TestPlanReportDTO;
 import io.metersphere.dto.TestPlanScheduleReportInfoDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.TestPlanReportSaveRequest;
 import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.request.report.QueryTestPlanReportRequest;
@@ -48,12 +48,12 @@ public class TestPlanReportController {
     }
 
     @GetMapping("/real-time/{planId}")
-    public TestPlanSimpleReportDTO getRealTimeReport(@PathVariable String planId) {
+    public TestPlanReportDataStruct getRealTimeReport(@PathVariable String planId) {
         return testPlanReportService.getRealTimeReport(planId);
     }
 
     @GetMapping("/db/{reportId}")
-    public TestPlanSimpleReportDTO getReport(@PathVariable String reportId) {
+    public TestPlanReportDataStruct getReport(@PathVariable String reportId) {
         return testPlanReportService.getReport(reportId);
     }
 

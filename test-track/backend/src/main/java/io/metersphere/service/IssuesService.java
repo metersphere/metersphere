@@ -32,7 +32,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.plan.dto.PlanReportIssueDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
-import io.metersphere.plan.dto.TestPlanSimpleReportDTO;
+import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
@@ -53,7 +53,6 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -1226,7 +1225,7 @@ public class IssuesService {
     }
 
 
-    public void calculateReportByIssueList(List<IssuesDao> issueList, TestPlanSimpleReportDTO report) {
+    public void calculateReportByIssueList(List<IssuesDao> issueList, TestPlanReportDataStruct report) {
         if (CollectionUtils.isNotEmpty(issueList)) {
             List<PlanReportIssueDTO> planReportIssueDTOList = new ArrayList<>();
             issueList.forEach(issue -> {
@@ -1241,12 +1240,12 @@ public class IssuesService {
         }
     }
 
-    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(String planId, TestPlanReportDataStruct report) {
         List<PlanReportIssueDTO> planReportIssueDTOList = extIssuesMapper.selectForPlanReport(planId);
         this.calculatePlanReport(planReportIssueDTOList, report);
     }
 
-    public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanSimpleReportDTO report) {
+    public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanReportDataStruct report) {
         planReportIssueDTOList = DistinctKeyUtil.distinctByKey(planReportIssueDTOList, PlanReportIssueDTO::getId);
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();

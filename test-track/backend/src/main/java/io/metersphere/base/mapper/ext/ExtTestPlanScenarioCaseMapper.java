@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.plan.dto.CaseExecResult;
 import io.metersphere.plan.dto.TestPlanApiScenarioInfoDTO;
@@ -17,4 +18,6 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     @Select("SELECT id,test_plan_id,api_scenario_id,last_result FROM test_plan_api_scenario WHERE id = #{0} ")
     TestPlanApiScenario selectBaseInfoById(String testId);
+
+    List<ApiScenarioReport> selectReportStatusByReportIds(@Param("ids") List<String> scenarioReportIdList);
 }

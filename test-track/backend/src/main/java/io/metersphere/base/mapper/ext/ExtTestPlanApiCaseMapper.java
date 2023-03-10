@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.plan.dto.CaseExecResult;
 import io.metersphere.plan.dto.TestPlanApiCaseInfoDTO;
@@ -15,5 +16,7 @@ public interface ExtTestPlanApiCaseMapper {
 
     @Select("SELECT id,test_plan_id,api_case_id,status FROM test_plan_api_case WHERE id = #{0} ")
     TestPlanApiCase selectBaseInfoById(String testId);
+
+    List<ApiDefinitionExecResult> selectReportStatusByReportIds(@Param("ids") List<String> apiReportIdList);
 }
 
