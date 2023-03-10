@@ -1,85 +1,83 @@
 <template>
   <div>
-    <ms-chart v-if="visible && data.length > 0" :options="options" :height="height"/>
-    <div v-if="visible && data.length <= 0" style="height: 300px">
-
-    </div>
+    <ms-chart
+      v-if="visible && data.length > 0"
+      :options="options"
+      :height="height"
+    />
+    <div v-if="visible && data.length <= 0" style="height: 300px"></div>
   </div>
 </template>
 
 <script>
-
 import MsChart from "./chart/MsChart";
 export default {
   name: "MsDoughnutPieChart",
-  components: {MsChart},
+  components: { MsChart },
   data() {
     return {
       visible: false,
       options: {
         tooltip: {
-          trigger: 'item'
+          trigger: "item",
         },
         legend: {
-          orient: 'vertical',
+          orient: "vertical",
           right: 50,
-          bottom: '40%',
+          bottom: "40%",
           formatter: function (name) {
             return name;
-          }
+          },
         },
         series: [
           {
             name: this.name,
-            type: 'pie',
+            type: "pie",
             left: -150,
-            radius: ['40%', '50%'],
+            radius: ["40%", "50%"],
             avoidLabelOverlap: false,
             label: {
-              // padding: [10, 10, 20, 10],
               lineHeight: 35,
               fontSize: 20,
-              // fontWeight: 'bold',
-              position: 'center',
-              color: 'gray',
+              position: "center",
+              color: "gray",
               formatter: function (params) {
-                return '';
+                return "";
               },
             },
             labelLine: {
-              show: false
+              show: false,
             },
-            data: this.data
-          }
-        ]
-      }
-    }
+            data: this.data,
+          },
+        ],
+      },
+    };
   },
   props: {
     name: {
       type: String,
-      default: '数据名称'
+      default: "数据名称",
     },
     data: {
       type: Array,
       default() {
-        return []
-      }
+        return [];
+      },
     },
     height: {
       type: Number,
       default() {
-        return 400
-      }
-    }
+        return 400;
+      },
+    },
   },
   watch: {
     data() {
       this.reload();
-    }
+    },
   },
-  created() {
-  },
+  created() {},
   mounted() {
     this.reload();
   },
@@ -98,29 +96,43 @@ export default {
 
       this.options.series[0].data = data;
 
-      this.data.forEach(item => {
+      this.data.forEach((item) => {
         count += item.value;
       });
 
+      let total = 0;
+      for (let i = 0; i < data.length; i++) {
+        total += data[i].value;
+      }
+
+      let dataPercentObj = {};
+      let percentCount = 0;
+      for (let i = 0; i < data.length; i++) {
+        let dataName = data[i].name;
+        let value = data[i].value;
+        let percent = 100 - percentCount;
+        if (i !== data.length - 1) {
+          percent = new Number(((value / total) * 100).toFixed(0));
+          percentCount += percent;
+        }
+        dataPercentObj[dataName] = percent;
+      }
       this.options.legend.formatter = (name) => {
-        let total = 0;
         let target = 0;
         for (let i = 0, l = data.length; i < l; i++) {
-          total += data[i].value;
           if (data[i].name == name) {
             target = data[i].value;
           }
         }
-        return name + '  |  ' + target + '     ' + ((target / total) * 100).toFixed(0) + '%';
+        return name + "  |  " + target + "     " + dataPercentObj[name] + "%";
       };
 
       this.options.series[0].label.formatter = (params) => {
-        return title + '\n' + count;
+        return title + "\n" + count;
       };
     },
-  }
-}
+  },
+};
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
