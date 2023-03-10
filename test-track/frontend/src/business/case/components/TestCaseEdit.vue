@@ -365,7 +365,7 @@ import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {useCommonStore, useStore} from "@/store";
+import {useStore, useUserStore} from "@/store";
 import { getProjectApplicationConfig } from "@/api/project-application";
 import {
   deleteTestCaseVersion,
@@ -400,7 +400,7 @@ import CaseDiffSideViewer from "./case/diff/CaseDiffSideViewer";
 import TestCaseEditNameView from "@/business/case/components/head/TestCaseEditNameView";
 
 const store = useStore();
-const commonStore = useCommonStore();
+
 export default {
   name: "TestCaseEdit",
   components: {
@@ -581,7 +581,8 @@ export default {
       projectId: null,
       createVersionId: null,
       editableState: false,
-      isNameEdit: false
+      isNameEdit: false,
+      useUserStore: {}
     };
   },
   props: {
@@ -713,6 +714,7 @@ export default {
     this.loadTestCase();
   },
   created(){
+    this.useUserStore = useUserStore();
     this.$EventBus.$on("handleSaveCaseWithEvent", this.handleSaveCaseWithEvent);
     this.setInitialVal();
   },
@@ -757,9 +759,8 @@ export default {
       });
     },
     async loadTestCase() {
-
-      if (commonStore.projectChangeFlag) {
-        commonStore.projectChangeFlag = false;
+      if (this.useUserStore.projectChangeFlag) {
+        this.useUserStore.projectChangeFlag = false;
         this.$router.push('/track/case/all');
         return;
       }
