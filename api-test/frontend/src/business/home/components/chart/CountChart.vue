@@ -20,6 +20,7 @@ export default {
   props: {
     apiData: Object,
     totalTime: Number,
+    versionId: String,
     isExport: {
       type: Boolean,
       default: false,
@@ -175,7 +176,7 @@ export default {
             },
           },
           sublink: hasPermission('PROJECT_API_DEFINITION:READ')
-            ? '/#/api/definition/' + getUUID() + '/api/thisWeekCount'
+            ? '/#/api/definition/' + this.versionId + '/api/api/thisWeekCount'
             : '',
           subtextStyle: {
             color: '#1F2329',
