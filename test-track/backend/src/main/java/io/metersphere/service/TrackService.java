@@ -308,7 +308,7 @@ public class TrackService {
         return testPlan.getPassRate();
     }
 
-    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId, int limitNumber) {
+    public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId) {
 
         //获取7天之前的日期
         Date startDay = DateUtils.dateSum(new Date(), -6);
@@ -323,6 +323,7 @@ public class TrackService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
+            int limitNumber = 10;
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
             ArrayList<ExecutedCaseInfoResult> allCaseExecList = new ArrayList<>();
             allCaseExecList.addAll(extTestPlanTestCaseMapper.findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber(projectId, versionId, startTime.getTime(), limitNumber));

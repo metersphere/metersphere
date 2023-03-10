@@ -2,7 +2,6 @@ package io.metersphere.controller;
 
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.utils.PageUtils;
@@ -62,31 +61,41 @@ public class TrackController {
         return statistics;
     }
 
-    @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{limitNumber}/{goPage}/{pageSize}")
+    @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{pageSize}/{goPage}")
     public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable String versionId,
-                                                                     @PathVariable int limitNumber, @PathVariable int goPage, @PathVariable int pageSize) {
+                                                                     @PathVariable int pageSize, @PathVariable int goPage) {
         if (StringUtils.equalsIgnoreCase(versionId, "default")) {
             versionId = null;
         }
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        List<ExecutedCaseInfoResult> selectDataList = trackService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, versionId, limitNumber);
-        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
-        for (int dataIndex = 0; dataIndex < selectDataList.size(); dataIndex++) {
-            ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
-            dataDTO.setSortIndex(dataIndex + 1);
-            ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
-            dataDTO.setCaseID(selectData.getTestCaseID());
-            dataDTO.setCaseName(selectData.getCaseName());
-            dataDTO.setTestPlan(selectData.getTestPlan());
-            dataDTO.setFailureTimes(selectData.getFailureTimes());
-            dataDTO.setTestPlanId(selectData.getTestPlanId());
-            dataDTO.setCaseType(selectData.getCaseType());
-            dataDTO.setId(selectData.getId());
-            dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
-            returnList.add(dataDTO);
-        }
+
+        List<ExecutedCaseInfoResult> selectDataList = trackService.findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, versionId);
+        List<ExecutedCaseInfoDTO> returnList = this.getResultList(goPage, pageSize, selectDataList);
+        Page<Object> page = new Page<>(goPage, pageSize);
+        page.setTotal(selectDataList.size());
         return PageUtils.setPageInfo(page, returnList);
     }
+
+    private List<ExecutedCaseInfoDTO> getResultList(int goPage, int pageSize, List<ExecutedCaseInfoResult> selectDataList) {
+        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(selectDataList.size());
+        for (int dataIndex = goPage * pageSize; dataIndex < selectDataList.size(); dataIndex++) {
+            if (returnList.size() < pageSize) {
+                ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
+                dataDTO.setSortIndex(dataIndex + 1);
+                ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
+                dataDTO.setCaseID(selectData.getTestCaseID());
+                dataDTO.setCaseName(selectData.getCaseName());
+                dataDTO.setTestPlan(selectData.getTestPlan());
+                dataDTO.setFailureTimes(selectData.getFailureTimes());
+                dataDTO.setTestPlanId(selectData.getTestPlanId());
+                dataDTO.setCaseType(selectData.getCaseType());
+                dataDTO.setId(selectData.getId());
+                dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
+                returnList.add(dataDTO);
+            }
+        }
+        return returnList;
+    }
+
 
     @GetMapping("/relevance/count/{projectId}")
     public TrackStatisticsDTO getRelevanceCount(@PathVariable String projectId) {
