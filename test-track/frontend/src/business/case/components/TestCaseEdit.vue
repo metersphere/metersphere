@@ -1244,6 +1244,7 @@ export default {
               } else {
                 this.isLastedVersion = true;
                 this.routerToEdit(response.data.id);
+                this.initEdit();
               }
             }
             this.createVersionId = null;
