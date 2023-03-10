@@ -438,22 +438,26 @@ public class TestReviewTestCaseService {
             testCaseReviewTestCaseMapper.updateByExampleSelective(testCaseReviewTestCase, caseReviewTestCaseExample);
         }
 
-        ids.forEach(i -> {
-            String status = request.getStatus();
-            if (StringUtils.equals(status, TestCaseReviewCommentStatus.Pass.name())) {
-                status = TestCaseReviewCommentStatus.ForcePass.name();
-            } else if (StringUtils.equals(status, TestCaseReviewCommentStatus.UnPass.name())) {
-                status = TestCaseReviewCommentStatus.ForceUnPass.name();
-            }
+        ids.forEach(caseId -> {
+            String status = getForceUpdateStatusCommentStatus(request.getStatus());
             TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
             testCaseReviewTestCase.setStatus(status);
             testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
             testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
             testCaseReviewTestCase.setComment(request.getDescription());
-            testCaseReviewTestCase.setCaseId(i);
+            testCaseReviewTestCase.setCaseId(caseId);
             testCaseReviewTestCase.setReviewId(request.getReviewId());
             testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
         });
+    }
+
+    private String getForceUpdateStatusCommentStatus(String status) {
+        if (StringUtils.equals(status, TestCaseReviewCommentStatus.Pass.name())) {
+            status = TestCaseReviewCommentStatus.ForcePass.name();
+        } else if (StringUtils.equals(status, TestCaseReviewCommentStatus.UnPass.name())) {
+            status = TestCaseReviewCommentStatus.ForceUnPass.name();
+        }
+        return status;
     }
 
     public void editTestCaseBatchReviewer(TestReviewCaseBatchRequest request) {
@@ -523,6 +527,16 @@ public class TestReviewTestCaseService {
                 item.setUpdateTime(System.currentTimeMillis());
                 testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(item);
                 testCaseService.updateReviewStatus(item.getCaseId(), item.getStatus());
+
+                // 添加一条评论历史
+                String status = getForceUpdateStatusCommentStatus(item.getStatus());
+                TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
+                testCaseReviewTestCase.setStatus(status);
+                testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
+                testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
+                testCaseReviewTestCase.setCaseId(item.getCaseId());
+                testCaseReviewTestCase.setReviewId(reviewId);
+                testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
             });
         }
     }
