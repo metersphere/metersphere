@@ -22,6 +22,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
+import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
@@ -1507,6 +1508,7 @@ public class TestPlanService {
                 BeanUtils.copyBean(report, testPlanCaseReportResultDTO.getApiPlanReportDTO());
                 planTestPlanApiCaseService.calculateReportByApiCase(testPlanCaseReportResultDTO.getApiPlanReportDTO().getApiAllCases(), report);
                 planTestPlanScenarioCaseService.calculateReportByScenario(testPlanCaseReportResultDTO.getApiPlanReportDTO().getScenarioAllCases(), report);
+                this.sortApiCaseResultCount(report.getApiResult());
             }
             if (testPlanCaseReportResultDTO.getLoadPlanReportDTO() != null) {
                 BeanUtils.copyBean(report, testPlanCaseReportResultDTO.getLoadPlanReportDTO());
@@ -1549,6 +1551,48 @@ public class TestPlanService {
             }
         }
         return report;
+    }
+
+    private void sortApiCaseResultCount(TestPlanApiResultReportDTO apiResult) {
+        if (apiResult != null && CollectionUtils.isNotEmpty(apiResult.getApiCaseData())) {
+            /**
+             *排序方式： 未通过->误报->成功->未执行 未执行的放最后，成功倒数第二，以此类推。
+             * 这样做的目的是因为前台统计百分比时，四舍五入处理之后，有时会出现总百分比加起来不等于100%的情况。
+             * 为了解决这个问题，按照上序排序方式， 排在最后的状态，采用 100-其余百分比总和 来计算。
+             */
+            List<TestCaseReportStatusResultDTO> oldData = apiResult.getApiCaseData();
+            List<TestCaseReportStatusResultDTO> apiCaseData = new ArrayList<>();
+
+            TestCaseReportStatusResultDTO errorStatusDTO = null;
+            TestCaseReportStatusResultDTO fakeErrorStatusDTO = null;
+            TestCaseReportStatusResultDTO successStatusDTO = null;
+            //因为未执行的状态比较多， 比如停止、未运行、准备中等都属于未执行。所以这里直接用排除法，并用集合接收
+            List<TestCaseReportStatusResultDTO> unExecuteStatusDTOList = new ArrayList<>();
+
+            for (TestCaseReportStatusResultDTO dto : oldData) {
+                if (StringUtils.equalsIgnoreCase(dto.getStatus(), ApiReportStatus.FAKE_ERROR.toString())) {
+                    fakeErrorStatusDTO = dto;
+                } else if (StringUtils.equalsIgnoreCase(dto.getStatus(), ApiReportStatus.ERROR.toString())) {
+                    errorStatusDTO = dto;
+                } else if (StringUtils.equalsIgnoreCase(dto.getStatus(), ApiReportStatus.SUCCESS.toString())) {
+                    successStatusDTO = dto;
+                } else {
+                    unExecuteStatusDTOList.add(dto);
+                }
+            }
+            if (errorStatusDTO != null) {
+                apiCaseData.add(errorStatusDTO);
+            }
+            if (fakeErrorStatusDTO != null) {
+                apiCaseData.add(fakeErrorStatusDTO);
+            }
+            if (successStatusDTO != null) {
+                apiCaseData.add(successStatusDTO);
+            }
+            apiCaseData.addAll(unExecuteStatusDTOList);
+
+            apiResult.setApiCaseData(apiCaseData);
+        }
     }
 
     public void editReport(TestPlanWithBLOBs testPlanWithBLOBs) {
