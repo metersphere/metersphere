@@ -272,8 +272,23 @@ public class ApiExecutionQueueService {
     }
 
     public void testPlanReportTestEnded(String testPlanReportId) {
-        // 检查测试计划中其他队列是否结束
-        kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+        ApiExecutionQueueExample executionQueueExample = new ApiExecutionQueueExample();
+        executionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+        List<ApiExecutionQueue> queues = queueMapper.selectByExample(executionQueueExample);
+        if (org.springframework.util.CollectionUtils.isEmpty(queues)) {
+            LoggerUtil.info("测试计划执行结束开始发送通知：" + testPlanReportId);
+            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+        } else {
+            List<String> ids = queues.stream().map(ApiExecutionQueue::getId).collect(Collectors.toList());
+            ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
+            detailExample.createCriteria().andQueueIdIn(ids);
+            long count = executionQueueDetailMapper.countByExample(detailExample);
+            if (count == 0) {
+                LoggerUtil.info("测试计划执行结束开始发送通知：" + testPlanReportId);
+                // 检查测试计划中其他队列是否结束
+                kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+            }
+        }
     }
 
     public void queueNext(ResultDTO dto) {
