@@ -75,14 +75,15 @@
       @click.native="clickPane"
       v-model="data[prop]"
       :disabled="disabled"
-      @change="handleChange"/>
+      @change="handleChange" :precision="0" :step="1"/>
 
     <el-input-number
       v-else-if="data.type === 'float'"
       @click.native="clickPane"
       :disabled="disabled"
+      @input.native="changeInput($event)"
       @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1"/>
+      v-model="data[prop]" :step="0.1"/>
 
      <el-date-picker
        class="custom-with"
@@ -217,6 +218,12 @@ export default {
     },
     getTranslateOption(item) {
       return item.system ? this.$t(item.text) : item.text;
+    },
+    changeInput(e) {
+      // 默认浮点输入最多不超过10位
+      if (e.target.value.indexOf('.') >= 0) {
+        e.target.value = e.target.value.substring(0, e.target.value.indexOf('.') + 11);
+      }
     },
     handleChange() {
       if (this.form) {
