@@ -146,7 +146,7 @@ export default {
   mounted() {
     let store = useStore();
     store.testCaseSelectNode = {};
-    store.setTestCaseSelectNodeIds = [];
+    store.testCaseSelectNodeIds = [];
     this.list();
   },
   computed: {
@@ -215,7 +215,12 @@ export default {
             let isCurrentNodeEqualsRouteModule = this.currentNode && this.currentNode.data && this.currentNode.data.id === this.routeModuleId;
             if (this.routeModuleId && !isCurrentNodeEqualsRouteModule) {
               if (this.$refs.nodeTree) {
-                this.$refs.nodeTree.setCurrentKeyById(this.routeModuleId);
+                this.$nextTick(() => {
+                  if (this.$refs.nodeTree.getNode(this.routeModuleId)) {
+                    // 如果项目有此模块，则设置 moduleId
+                    this.$refs.nodeTree.setCurrentKeyById(this.routeModuleId);
+                  }
+                });
               }
             } else {
               this.setCurrentKey();
