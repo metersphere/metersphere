@@ -1,11 +1,11 @@
 <template>
-
   <test-case-relevance-base
     @setProject="setProject"
     @save="saveCaseRelevance"
     :plan-id="planId"
-    ref="baseRelevance">
-
+    ref="baseRelevance"
+    :is-saving="isSaving"
+  >
     <template v-slot:aside>
       <ms-api-scenario-module
         @nodeSelectEvent="nodeChange"
@@ -14,7 +14,8 @@
         :show-case-num="false"
         :relevance-project-id="projectId"
         :is-read-only="true"
-        ref="nodeTree"/>
+        ref="nodeTree"
+      />
     </template>
 
     <relevance-scenario-list
@@ -24,21 +25,23 @@
       :plan-id="planId"
       :project-id="projectId"
       @selectCountChange="setSelectCounts"
-      ref="apiScenarioList"/>
-
+      ref="apiScenarioList"
+    />
   </test-case-relevance-base>
-
 </template>
 
 <script>
-
 import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
 import RelevanceScenarioList from "./RelevanceScenarioList";
-import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
-import {getCurrentProjectID, hasLicense, strMapToObj} from "@/business/utils/sdk-utils";
-import {getVersionFilters} from "@/business/utils/sdk-utils";
-import {testPlanAutoCheck} from "@/api/remote/plan/test-plan";
-import {scenarioRelevance} from "@/api/remote/plan/test-plan-scenario";
+import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {
+  getCurrentProjectID,
+  hasLicense,
+  strMapToObj,
+} from "@/business/utils/sdk-utils";
+import { getVersionFilters } from "@/business/utils/sdk-utils";
+import { testPlanAutoCheck } from "@/api/remote/plan/test-plan";
+import { scenarioRelevance } from "@/api/remote/plan/test-plan-scenario";
 import MsApiScenarioModule from "@/business/plan/view/comonents/api/module/ApiScenarioModule";
 
 export default {
@@ -59,16 +62,17 @@ export default {
       currentRow: {},
       projectId: "",
       versionFilters: [],
+      isSaving: false,
     };
   },
   props: {
     planId: {
-      type: String
+      type: String,
     },
     versionEnable: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     open() {
@@ -116,18 +120,19 @@ export default {
       param.environmentType = envType;
       param.envGroupId = envGroupId;
 
-      scenarioRelevance(param)
-        .then(() => {
-          this.$success(this.$t('commons.save_success'));
-          this.$emit('refresh');
-          this.refresh();
-          this.autoCheckStatus();
-          this.$refs.baseRelevance.close();
-        });
+      scenarioRelevance(param).then(() => {
+        this.$success(this.$t("commons.save_success"));
+        this.$emit("refresh");
+        this.refresh();
+        this.autoCheckStatus();
+        this.$refs.baseRelevance.close();
+      });
     },
     async saveCaseRelevance() {
+      this.isSaving = true;
       const sign = await this.$refs.apiScenarioList.checkEnv();
       if (!sign) {
+        this.isSaving = false;
         return false;
       }
       let selectIds = [];
@@ -138,16 +143,19 @@ export default {
       let envGroupId = this.$refs.apiScenarioList.envGroupId;
 
       if (selectRows.size < 1) {
-        this.$warning(this.$t('test_track.plan_view.please_choose_test_case'));
+        this.isSaving = false;
+        this.$warning(this.$t("test_track.plan_view.please_choose_test_case"));
         return;
       }
-      selectRows.forEach(row => {
+      selectRows.forEach((row) => {
         selectIds.push(row.id);
-      })
+      });
       if (envType === ENV_TYPE.JSON && (!envMap || envMap.size < 1)) {
+        this.isSaving = false;
         this.$warning(this.$t("api_test.environment.select_environment"));
         return false;
       } else if (envType === ENV_TYPE.GROUP && !envGroupId) {
+        this.isSaving = false;
         this.$warning(this.$t("api_test.environment.select_environment"));
         return false;
       }
@@ -161,14 +169,19 @@ export default {
       param.condition = this.$refs.apiScenarioList.condition;
       scenarioRelevance(param)
         .then(() => {
-          this.$success(this.$t('commons.save_success'));
-          this.$emit('refresh');
+          this.isSaving = false;
+          this.$success(this.$t("commons.save_success"));
+          this.$emit("refresh");
           this.refresh();
           this.autoCheckStatus();
           this.$refs.baseRelevance.close();
+        })
+        .catch(() => {
+          this.isSaving = false;
         });
     },
-    autoCheckStatus() { //  检查执行结果，自动更新计划状态
+    autoCheckStatus() {
+      //  检查执行结果，自动更新计划状态
       if (!this.planId) {
         return;
       }
@@ -179,16 +192,16 @@ export default {
     },
     getVersionOptions() {
       if (hasLicense()) {
-        getVersionFilters(getCurrentProjectID())
-          .then(r => this.versionFilters = r.data);
+        getVersionFilters(getCurrentProjectID()).then(
+          (r) => (this.versionFilters = r.data)
+        );
       }
     },
-  }
+  },
 };
 </script>
 
 <style scoped>
-
 :deep(.select-menu) {
   margin-bottom: 15px;
 }
@@ -201,5 +214,4 @@ export default {
 :deep(.module-input) {
   width: 243px;
 }
-
 </style>
