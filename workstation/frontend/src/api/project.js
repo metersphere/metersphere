@@ -9,10 +9,6 @@ export function getProject(id) {
   return get(`/project/get/${id}`)
 }
 
-export function getProjectMemberSize(id) {
-  return get(`/project/member/size/${id}`)
-}
-
 export function versionEnableByProjectId(projectId) {
   return get('/project/version/enable/' + projectId);
 }

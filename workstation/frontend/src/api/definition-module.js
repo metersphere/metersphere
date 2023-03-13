@@ -1,10 +1,5 @@
 import {get, post} from "metersphere-frontend/src/plugins/request"
 
-export function getApiModules(projectId, protocol, currentVersion) {
-  let url = '/api/module/list/' + projectId + '/' + protocol + (currentVersion ? '/' + currentVersion : '');
-  return get(url);
-}
-
 export function getApiModuleByProjectIdAndProtocol(projectId, protocol) {
   let url = '/api/module/list/' + projectId + '/' + protocol;
   return get(url);
