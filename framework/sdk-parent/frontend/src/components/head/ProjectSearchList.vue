@@ -136,7 +136,23 @@ export default {
           this.$router.push("/");
         }
       }
+
+      this.rewriteProjectRouteParam();
       this.reload();
+    },
+    rewriteProjectRouteParam() {
+      if (this.$route.query.projectId && merge) {
+        let query = {};
+        Object.assign(query, this.$route.query);
+
+        // 切换项目的时候如果有项目 ID 参数，修改为切换后的项目 ID，模块参数置空
+        query.projectId = getCurrentProjectID();
+        delete query.moduleId;
+
+        this.$router.push({
+          query: Object.assign(query)
+        });
+      }
     },
     change(projectId) {
       let currentProjectId = getCurrentProjectID();
