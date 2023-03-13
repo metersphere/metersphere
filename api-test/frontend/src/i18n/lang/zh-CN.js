@@ -117,6 +117,7 @@ const message = {
   },
   automation: {
     project_no_permission: '当前操作人无此步骤的操作权限',
+    document_validity_msg: '文件已经被修改，请重新上传',
   },
 };
 

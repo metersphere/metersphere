@@ -121,6 +121,7 @@ const message = {
   },
   automation: {
     project_no_permission: 'The current person does not have the operation permission for this step',
+    document_validity_msg: 'The file has been modified, please re-upload',
   },
 };
 export default {
