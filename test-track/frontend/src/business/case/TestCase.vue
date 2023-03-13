@@ -393,7 +393,7 @@ export default {
         });
     },
     updateActiveDom(activeDom) {
-      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_CASE:READ+EDIT');
+      openMinderConfirm(this, activeDom, 'PROJECT_TRACK_CASE:READ');
     },
     importChangeConfirm(isSave) {
       store.isTestCaseMinderChanged = false;

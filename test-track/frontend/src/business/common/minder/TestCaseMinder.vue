@@ -131,7 +131,7 @@ export default {
       testCaseDefaultValue: 'testCaseDefaultValue',
     }),
     disabled() {
-      return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+      return !hasPermission('PROJECT_TRACK_CASE_MINDER:OPERATE');
     },
     moveEnable() {
       // 如果不是默认的排序条件不能调换位置
