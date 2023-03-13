@@ -73,7 +73,7 @@ export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNode
             // 加载临时节点
             getExtraNodeFuc(getCurrentProjectID(), data.id)
               .then((r) => {
-                appendExtraNodes(node, r.nodes);
+                appendExtraNodes(node, r.data);
                 param.result.loading = false;
                 resolve();
               });
