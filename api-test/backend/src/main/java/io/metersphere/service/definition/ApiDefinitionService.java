@@ -1165,31 +1165,28 @@ public class ApiDefinitionService {
     }
 
     /**
-     * 数据统计-接口类型
-     *
-     * @param projectId 项目ID
-     * @return List
-     */
-    public List<ApiDataCountResult> countProtocolByProjectID(String projectId, String versionId) {
-        return extApiDefinitionMapper.countProtocolByProjectID(projectId, versionId);
-    }
-
-    /**
      * 统计本周创建的数据总量
      *
-     * @param projectId
      * @return
      */
-    public long countByProjectIDAndCreateInThisWeek(String projectId, String versionId) {
+    public List<ApiDefinition> getApiByCreateInThisWeek(Map<String, List<ApiDefinition>> protocalAllApiList) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
         if (firstTime == null || lastTime == null) {
-            return 0;
+            return new ArrayList<>();
         } else {
-            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, versionId, firstTime.getTime(), lastTime.getTime());
+            List<ApiDefinition> apiCreatedInWeekList = new ArrayList<>();
+            for (List<ApiDefinition> apiList : protocalAllApiList.values()) {
+                for (ApiDefinition api : apiList) {
+                    if (api.getCreateTime() >= firstTime.getTime() && api.getCreateTime() <= lastTime.getTime()) {
+                        apiCreatedInWeekList.add(api);
+                    }
+                }
+            }
+            return apiCreatedInWeekList;
         }
     }
 
@@ -1668,24 +1665,17 @@ public class ApiDefinitionService {
     }
 
 
-    public long countEffectiveByProjectId(String projectId, String versionId) {
+    public Map<String, List<ApiDefinition>> countEffectiveByProjectId(String projectId, String versionId) {
         if (StringUtils.isEmpty(projectId)) {
-            return 0;
+            return new HashMap<>();
         } else {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            ApiDefinitionExample.Criteria criteria = example.createCriteria();
-            criteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
-            if (StringUtils.isNotBlank(versionId)) {
-                criteria.andVersionIdEqualTo(versionId);
-            } else {
-                criteria.andLatestEqualTo(true);
-            }
-            return apiDefinitionMapper.countByExample(example);
+            List<ApiDefinition> apiDefinitionList = extApiDefinitionMapper.selectBaseInfoByProjectIDAndVersion(projectId, versionId);
+            return apiDefinitionList.stream().collect(Collectors.groupingBy(ApiDefinition::getProtocol));
         }
     }
 
-    public long countApiByProjectIdAndHasCase(String projectId, String versionId) {
-        return extApiDefinitionMapper.countApiByProjectIdAndHasCase(projectId, versionId);
+    public List<ApiDefinition> selectBaseInfoByProjectIdAndHasCase(String projectId, String versionId) {
+        return extApiDefinitionMapper.selectBaseInfoByProjectIdAndHasCase(projectId, versionId);
     }
 
     public int getRelationshipCount(String id) {
@@ -2400,5 +2390,62 @@ public class ApiDefinitionService {
         if (CollectionUtils.isNotEmpty(updateCaseList)) {
             updateCaseList.forEach(apiTestCaseBatchMapper::updateByPrimaryKeyWithBLOBs);
         }
+    }
+
+    public List<ApiDefinition> getAPiNotInCollection(Map<String, List<ApiDefinition>> protocolAllDefinitionMap, List<ApiDefinition> checkCollection) {
+        List<ApiDefinition> returnList = new ArrayList<>();
+        if (MapUtils.isEmpty(protocolAllDefinitionMap)) {
+            return new ArrayList<>();
+        }
+        List<String> idInCheckCollection = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(checkCollection)) {
+            idInCheckCollection = checkCollection.stream().map(ApiDefinition::getId).collect(Collectors.toList());
+        }
+        for (List<ApiDefinition> apiList : protocolAllDefinitionMap.values()) {
+            for (ApiDefinition api : apiList) {
+                if (!idInCheckCollection.contains(api.getId())) {
+                    returnList.add(api);
+                }
+            }
+        }
+        return returnList;
+    }
+
+    public Map<String, List<ApiDefinition>> getUnCoverageApiMap(List<ApiDefinition> apiNoCaseList, List<String> apiIdInScenario) {
+        Map<String, List<ApiDefinition>> returnMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(apiNoCaseList)) {
+            if (apiIdInScenario == null) {
+                apiIdInScenario = new ArrayList<>();
+            }
+            for (ApiDefinition api : apiNoCaseList) {
+                if (!apiIdInScenario.contains(api.getId())) {
+                    if (returnMap.containsKey(api.getProtocol())) {
+                        returnMap.get(api.getProtocol()).add(api);
+                    } else {
+                        returnMap.put(api.getProtocol(), new ArrayList<>() {{
+                            this.add(api);
+                        }});
+                    }
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    public Map<String, List<ApiDefinition>> filterMap(Map<String, List<ApiDefinition>> targetMap, Map<String, List<ApiDefinition>> filter) {
+        Map<String, List<ApiDefinition>> returnMap = new HashMap<>();
+        if (MapUtils.isNotEmpty(targetMap)) {
+            for (Map.Entry<String, List<ApiDefinition>> entry : targetMap.entrySet()) {
+                List<ApiDefinition> filterList = filter.get(entry.getKey());
+                List<ApiDefinition> resultList = null;
+                if (CollectionUtils.isNotEmpty(filterList)) {
+                    resultList = new ArrayList<>(CollectionUtils.subtract(entry.getValue(), filterList));
+                } else {
+                    resultList = entry.getValue();
+                }
+                returnMap.put(entry.getKey(), resultList);
+            }
+        }
+        return returnMap;
     }
 }

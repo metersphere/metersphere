@@ -1,7 +1,10 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiComputeResult;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.dto.RelationshipGraphData;
 import io.metersphere.request.BaseQueryRequest;
@@ -25,9 +28,7 @@ public interface ExtApiDefinitionMapper {
 
     int reduction(@Param("ids") List<String> ids);
 
-    List<ApiDataCountResult> countProtocolByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
-
-    Long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("versionId") String versionId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+    List<ApiDefinition> selectBaseInfoByProjectIDAndVersion(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<ApiDataCountResult> countStateByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
@@ -55,7 +56,7 @@ public interface ExtApiDefinitionMapper {
 
     Long getLastOrder(@Param("projectId") String projectId, @Param("baseOrder") Long baseOrder);
 
-    long countApiByProjectIdAndHasCase(@Param("projectId") String projectId, @Param("versionId") String versionId);
+    List<ApiDefinition> selectBaseInfoByProjectIdAndHasCase(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<RelationshipGraphData.Node> getForGraph(@Param("ids") Set<String> ids);
 

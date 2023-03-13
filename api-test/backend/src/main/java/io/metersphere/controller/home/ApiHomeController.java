@@ -57,10 +57,12 @@ public class ApiHomeController {
     public ApiDataCountDTO apiCount(@PathVariable String projectId, @PathVariable String versionId) {
         versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
-        List<ApiDataCountResult> countResultByProtocolList = apiDefinitionService.countProtocolByProjectID(projectId, versionId);
-        apiCountResult.countProtocol(countResultByProtocolList);
-        long dateCountByCreateInThisWeek = apiDefinitionService.countByProjectIDAndCreateInThisWeek(projectId, versionId);
-        apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
+        //所有有效接口，用于计算不同请求的接口数量、本周创建、覆盖率
+        Map<String, List<ApiDefinition>> protocolAllDefinitionMap = apiDefinitionService.countEffectiveByProjectId(projectId, versionId);
+        apiCountResult.countProtocol(protocolAllDefinitionMap);
+        //本周创建
+        apiCountResult.setCreatedInWeek(apiDefinitionService.getApiByCreateInThisWeek(protocolAllDefinitionMap).size());
+
         //查询完成率、进行中、已完成
         List<ApiDataCountResult> countResultByStateList = apiDefinitionService.countStateByProjectID(projectId, versionId);
         apiCountResult.countStatus(countResultByStateList);
@@ -70,29 +72,33 @@ public class ApiHomeController {
             DecimalFormat df = new DecimalFormat("0.0");
             apiCountResult.setCompletedRate(df.format(completeRateNumber) + "%");
         }
-        //统计覆盖率
-        long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId, versionId);
-        long apiHasCase = apiDefinitionService.countApiByProjectIdAndHasCase(projectId, versionId);
-        List<ApiDefinition> apiNoCaseList = apiDefinitionService.selectEffectiveIdByProjectIdAndHaveNotCase(projectId, versionId);
-        Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
-        int apiInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList).size();
 
-        if (effectiveApiCount == 0) {
+        if (apiCountResult.getTotal() == 0) {
+            //没有任何接口数据
             apiCountResult.setCoveredCount(0);
             apiCountResult.setNotCoveredCount(0);
         } else {
-            long quotedApiCount = apiHasCase + apiInScenario;
-            apiCountResult.setCoveredCount(quotedApiCount);
-            apiCountResult.setNotCoveredCount(effectiveApiCount - quotedApiCount);
+
+            //统计覆盖率. 覆盖：接口下挂有用例/接口路径被场景引用
+            //带有用例的接口
+            List<ApiDefinition> apiDefinitionHasCase = apiDefinitionService.selectBaseInfoByProjectIdAndHasCase(projectId, versionId);
+            //没有case的接口
+            List<ApiDefinition> apiNoCaseList = apiDefinitionService.getAPiNotInCollection(protocolAllDefinitionMap, apiDefinitionHasCase);
+            Map<String, Map<String, String>> scenarioUrlList = apiAutomationService.selectScenarioUseUrlByProjectId(projectId, null);
+            List<String> apiIdInScenario = apiAutomationService.getApiIdInScenario(projectId, scenarioUrlList, apiNoCaseList);
+
+            Map<String, List<ApiDefinition>> unCoverageApiMap = apiDefinitionService.getUnCoverageApiMap(apiNoCaseList, apiIdInScenario);
+            Map<String, List<ApiDefinition>> coverageApiMap = apiDefinitionService.filterMap(protocolAllDefinitionMap, unCoverageApiMap);
+            apiCountResult.countCovered(coverageApiMap, false);
+            apiCountResult.countCovered(unCoverageApiMap, true);
             try {
-                float coveredRateNumber = (float) quotedApiCount * 100 / effectiveApiCount;
+                float coveredRateNumber = (float) apiCountResult.getCoveredCount() * 100 / apiCountResult.getTotal();
                 DecimalFormat df = new DecimalFormat("0.0");
                 apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
             } catch (Exception e) {
-                LogUtil.error("转化通过率失败：[" + quotedApiCount + "，" + effectiveApiCount + "]", e);
+                LogUtil.error("转化通过率失败：[" + apiCountResult.getCoveredCount() + "，" + apiCountResult.getTotal() + "]", e);
             }
         }
-
         return apiCountResult;
     }
 
