@@ -61,6 +61,7 @@ public class JSONSchemaBuilder {
             String str = ScriptEngineUtils.calculate(evlValue);
             switch (evlValue) {
                 case "@integer":
+                case "@natural":
                     concept.put(propertyName, NumberUtils.parseNumber(str, Long.class));
                     break;
                 case "@boolean":
@@ -169,7 +170,7 @@ public class JSONSchemaBuilder {
     }
 
     public static void processArrayValue(Map<String, String> map, String value) {
-        String key = StringUtils.join("\"",value, "\"");
+        String key = StringUtils.join("\"", value, "\"");
         String targetValue = StringUtils.join(value);
         map.put(key, targetValue);
     }
