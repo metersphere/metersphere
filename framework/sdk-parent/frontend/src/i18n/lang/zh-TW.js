@@ -2793,6 +2793,7 @@ const message = {
       import: "導入用例",
       export: "導出用例",
       recover: "恢復用例",
+      minder_operate: "操作腦圖",
     },
     project_track_review: {
       name: "測試評審",
