@@ -26,6 +26,11 @@
       "resourceId": "PROJECT_TRACK_CASE"
     },
     {
+      "id": "PROJECT_TRACK_CASE_MINDER:OPERATE",
+      "name": "permission.project_track_case.minder_operate",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
       "id": "PROJECT_TRACK_CASE:READ+COPY",
       "name": "permission.project_track_case.copy",
       "resourceId": "PROJECT_TRACK_CASE"
