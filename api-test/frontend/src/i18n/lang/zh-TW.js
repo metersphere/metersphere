@@ -117,6 +117,7 @@ const message = {
   },
   automation: {
     project_no_permission: '當前人操作無此步驟的操作權限',
+    document_validity_msg: '文件已經被修改，請重新上傳',
   },
 };
 
