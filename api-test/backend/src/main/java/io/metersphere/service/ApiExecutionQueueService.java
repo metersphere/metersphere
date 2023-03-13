@@ -67,6 +67,10 @@ public class ApiExecutionQueueService {
     private ApiCaseSerialService apiCaseSerialService;
     @Resource
     private KafkaTemplate<String, String> kafkaTemplate;
+    @Resource
+    private ApiExecutionQueueMapper apiExecutionQueueMapper;
+    @Resource
+    private ApiExecutionQueueDetailMapper apiExecutionQueueDetailMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -284,7 +288,21 @@ public class ApiExecutionQueueService {
             this.testPlanCaseTestEnd(testId, runMode);
         } else {
             // 由测试计划检查测试计划中其他队列是否结束
-            kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+            ApiExecutionQueueExample executionQueueExample = new ApiExecutionQueueExample();
+            executionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
+            List<ApiExecutionQueue> queues = apiExecutionQueueMapper.selectByExample(executionQueueExample);
+            if (CollectionUtils.isEmpty(queues)) {
+                LoggerUtil.info("Normal execution completes, update test plan report status：" + testPlanReportId);
+                kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+            } else {
+                List<String> ids = queues.stream().map(ApiExecutionQueue::getId).collect(Collectors.toList());
+                ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
+                detailExample.createCriteria().andQueueIdIn(ids);
+                long count = apiExecutionQueueDetailMapper.countByExample(detailExample);
+                if (count == 0) {
+                    kafkaTemplate.send(KafkaTopicConstants.TEST_PLAN_REPORT_TOPIC, testPlanReportId);
+                }
+            }
         }
     }
 
