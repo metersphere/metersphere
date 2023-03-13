@@ -1,5 +1,5 @@
 /* 前后端不分离的登录方式 */
-import {get, post, put} from "metersphere-frontend/src/plugins/request"
+import {get} from "metersphere-frontend/src/plugins/request"
 
 
 export function getProjectMember() {

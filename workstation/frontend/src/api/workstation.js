@@ -1,4 +1,4 @@
-import {post,get} from "metersphere-frontend/src/plugins/request"
+import {get} from "metersphere-frontend/src/plugins/request"
 
 export function getMyCreatedCaseGroupContMap(param) {
   return get('/workstation/creat_case_count/list/'+param);

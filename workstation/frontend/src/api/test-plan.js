@@ -1,6 +1,4 @@
 import {post,get} from "metersphere-frontend/src/plugins/request";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-
 
 export function getPlanStageOption(projectID) {
   return get('/test/plan/get/stage/option/' + projectID);
