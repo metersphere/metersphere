@@ -55,7 +55,7 @@ export function deleteBatchByCondition(params) {
 }
 
 export function apiScenarioAll(params) {
-  return post('/api/automation/id/all/', params);
+  return post('/api/automation/id/all', params);
 }
 
 export function getApiScenarios(params) {
