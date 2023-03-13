@@ -15,7 +15,10 @@
           </el-row>
           <el-row :gutter="16">
             <el-col :span="12">
-              <api-dashboard @redirectPage="redirectPage" ref="apiDashboard" />
+              <api-dashboard
+                @redirectPage="redirectPage"
+                @redirectPageWithDataType="redirectPageWithDataType"
+                ref="apiDashboard" />
             </el-col>
             <el-col :span="12">
               <api-case-dashboard @redirectPage="redirectPage" ref="apiCaseDashboard" />
@@ -130,6 +133,7 @@ export default {
         });
       }
     },
+
     /**
      *
      * @param redirectPage 要跳转的页面
@@ -183,6 +187,34 @@ export default {
           break;
         case 'testPlanEdit':
           home = this.$router.resolve('/track/plan/view/' + selectParam);
+          break;
+      }
+      if (home) {
+        window.open(home.href, '_blank');
+      }
+    },
+
+    redirectPageWithDataType(redirectPage, dataType, selectRange, selectParam, type) {
+      let uuid = getUUID();
+      let home;
+      let selectVersionId = this.versionId;
+      if (!selectVersionId || selectVersionId === '') {
+        selectVersionId = 'default';
+      }
+
+      switch (redirectPage) {
+        case 'api':
+          home = this.$router.resolve({
+            name: 'ApiDefinitionWithQuery',
+            params: {
+              versionId: selectVersionId,
+              redirectID: uuid,
+              dataType: dataType,
+              dataSelectRange: selectRange,
+              projectId: this.projectId,
+              type: type,
+            },
+          });
           break;
       }
       if (home) {
