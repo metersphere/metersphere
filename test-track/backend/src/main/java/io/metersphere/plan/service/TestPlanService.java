@@ -911,14 +911,13 @@ public class TestPlanService {
                 LogUtil.error("测试计划执行查询场景用例失败!", e);
             }
         }
-        if (MapUtils.isNotEmpty(reportInfoDTO.getPlanScenarioIdMap())) {
+        if (MapUtils.isNotEmpty(reportInfoDTO.getUiScenarioIdMap())) {
             try {
-                uiScenarios = planTestPlanUiScenarioCaseService.getFailureListByIds(reportInfoDTO.getPlanScenarioIdMap().keySet());
+                uiScenarios = planTestPlanUiScenarioCaseService.getFailureListByIds(reportInfoDTO.getUiScenarioIdMap().keySet());
             } catch (Exception e) {
                 LogUtil.error("测试计划执行查询UI用例失败!", e);
             }
         }
-
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
             //执行接口案例任务
             LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
