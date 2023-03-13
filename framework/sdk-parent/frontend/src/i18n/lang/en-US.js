@@ -2896,6 +2896,7 @@ const message = {
       import: "IMPORT",
       export: "EXPORT",
       recover: "RECOVER",
+      minder_operate: "OPERATE MINDER",
     },
     project_track_review: {
       name: "Review",

@@ -2796,6 +2796,7 @@ const message = {
       import: "导入用例",
       export: "导出用例",
       recover: "恢复用例",
+      minder_operate: "操作脑图",
     },
     project_track_review: {
       name: "测试评审",
