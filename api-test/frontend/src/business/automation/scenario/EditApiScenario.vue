@@ -1885,7 +1885,7 @@ export default {
                 }
               }
               this.isPreventReClick = true;
-              saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
+              await saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
                 this.isPreventReClick = false;
                 this.path = '/api/automation/update';
