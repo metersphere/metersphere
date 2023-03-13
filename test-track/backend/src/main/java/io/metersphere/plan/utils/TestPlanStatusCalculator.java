@@ -73,7 +73,8 @@ public class TestPlanStatusCalculator {
             String status = item.getStatus();
             if (StringUtils.isNotBlank(status)
                     && !StringUtils.equalsAnyIgnoreCase(status, TestPlanTestCaseStatus.Underway.name(), TestPlanTestCaseStatus.Prepare.name(),
-                    ExecuteResult.UN_EXECUTE.getValue(), ExecuteResult.STOP.getValue(), ApiReportStatus.PENDING.name(), ApiReportStatus.STOPPED.name())) {
+                    ExecuteResult.UN_EXECUTE.getValue(), ExecuteResult.STOP.getValue(), ApiReportStatus.PENDING.name(), ApiReportStatus.STOPPED.name(),
+                    ApiReportStatus.RUNNING.name(), ApiReportStatus.RERUNNING.name())) {
                 // 计算执行过的数量
                 report.setExecuteCount(report.getExecuteCount() + 1);
                 if (StringUtils.equalsIgnoreCase(successStatus, status)) {
