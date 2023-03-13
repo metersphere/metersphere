@@ -396,8 +396,8 @@
         </foreach>
     </update>
 
-    <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT protocol AS groupField, count(DISTINCT ref_id) AS countNumber
+    <select id="selectBaseInfoByProjectIDAndVersion" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT id,name,method,protocol,path,create_time
         FROM api_definition
         WHERE project_id = #{projectId}
           AND `status` != 'Trash'
@@ -407,7 +407,6 @@
         <if test="versionId == null">
             AND latest = 1
         </if>
-        GROUP BY protocol
     </select>
     <select id="countStateByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT status AS groupField, count(id) AS countNumber
@@ -422,19 +421,7 @@
         </if>
         GROUP BY status
     </select>
-    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
-        SELECT count(id) AS countNumber
-        FROM api_definition
-        WHERE project_id = #{projectId}
-          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
-          AND `status` != 'Trash'
-        <if test="versionId != null">
-            AND version_id = #{versionId}
-        </if>
-        <if test="versionId == null">
-            AND latest = 1
-        </if>
-    </select>
+
     <select id="countApiCoverageByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(api.id)                                                         AS countNumber,
                if(test_case_api.api_definition_id is null, "unCovered", "covered") AS groupField
@@ -673,6 +660,23 @@
         from api_definition
         WHERE project_id = #{projectId}
           AND status != 'Trash'
+        <if test="versionId != null">
+            AND version_id = #{versionId}
+        </if>
+        <if test="versionId == null">
+            AND latest = 1
+        </if>
+    </select>
+
+    <select id="selectBaseInfoByProjectIdAndHasCase" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id, path, method, protocol
+        FROM api_definition
+        WHERE project_id = #{projectId}
+        AND `status` != 'Trash'
+        AND
+        id IN (
+            SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
+        )
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -1008,22 +1012,6 @@
         order by `order` desc limit 1;
     </select>
 
-    <select id="countApiByProjectIdAndHasCase" resultType="java.lang.Long">
-        SELECT COUNT(id)
-        FROM api_definition
-        WHERE project_id = #{projectId}
-          AND `status` != 'Trash'
-          AND
-                    id IN (
-                        SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
-                    )
-        <if test="versionId != null">
-            AND version_id = #{versionId}
-        </if>
-        <if test="versionId == null">
-            AND latest = 1
-        </if>
-    </select>
     <select id="getForGraph" resultType="io.metersphere.dto.RelationshipGraphData$Node">
         select id,num,`name`
         from api_definition
