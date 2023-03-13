@@ -108,19 +108,6 @@ public class PerformanceTestService {
         List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
 
         loadTests.forEach(test -> {
-            // 删除时保存jmx内容
-            List<FileMetadata> fileMetadataList = getFileMetadataByTestId(test.getId());
-            List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
-            byte[] bytes = EngineFactory.mergeJmx(jmxFiles);
-            LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
-            loadTestReportExample.createCriteria().andTestIdEqualTo(test.getId());
-            List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
-            loadTestReports.forEach(loadTestReport -> {
-                LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
-                record.setId(loadTestReport.getId());
-                record.setJmxContent(new String(bytes, StandardCharsets.UTF_8));
-                extLoadTestReportMapper.updateJmxContentIfAbsent(record);
-            });
             baseScheduleService.deleteByResourceId(test.getId(), ScheduleGroup.PERFORMANCE_TEST.name());
 
             // delete load_test
