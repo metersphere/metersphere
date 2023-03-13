@@ -302,6 +302,10 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
                 String mdLink = "![" + name + "](" + path + ")";
                 result = matcher.replaceFirst(mdLink);
                 matcher = pattern.matcher(result);
+            } else if(url.contains("http")) {
+                String mdLink = "![" + UUID.randomUUID() + "](" + url + ")";
+                result = matcher.replaceFirst(mdLink);
+                matcher = pattern.matcher(result);
             }
         }
         return result;
