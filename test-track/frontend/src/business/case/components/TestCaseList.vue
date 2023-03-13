@@ -271,8 +271,8 @@ import {
   initCondition, parseCustomFilesForList,
 } from "metersphere-frontend/src/utils/tableUtils";
 import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTableItem";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {getUUID, operationConfirm, parseTag} from "metersphere-frontend/src/utils"
+import {getCurrentProjectID, getCurrentWorkspaceId, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {parseTag} from "metersphere-frontend/src/utils"
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
 import {getTestTemplate} from "@/api/custom-field-template";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
@@ -482,7 +482,8 @@ export default {
       advanceSearchShow: false,
       selectCounts: 0,
       refreshBySearch: false,
-      enableVersionColumn: false
+      enableVersionColumn: false,
+      projectId: ''
     };
   },
   props: {
@@ -499,8 +500,8 @@ export default {
     }
   },
   computed: {
-    projectId() {
-      return getCurrentProjectID();
+    routeProjectId() {
+      return this.$route.query.projectId;
     },
     systemFiledMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -516,6 +517,8 @@ export default {
     })
   },
   created: function () {
+    this.checkCurrentProject();
+
     getProjectMemberUserFilter((data) => {
       this.userFilter = data;
     });
@@ -630,6 +633,22 @@ export default {
           this.loading = false;
         });
       });
+    },
+    checkCurrentProject() {
+      // 带了 routeProjectId 校验是否是当前项目
+      if (this.routeProjectId) {
+        if (getCurrentProjectID() !== this.routeProjectId) {
+          setCurrentProjectID(this.routeProjectId);
+          location.reload();
+          return;
+        } else {
+          // 切换项目，url会重写为新的项目ID，也走这里
+          this.projectId = this.routeProjectId;
+        }
+      } else {
+        // 没带 routeProjectId 则使用当前项目
+        this.projectId = getCurrentProjectID();
+      }
     },
     getTagToolTips(tags) {
       return getTagToolTips(tags);

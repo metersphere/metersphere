@@ -305,6 +305,9 @@ export default {
       let pNodes = [];
       this.getChildNodeId(node.data, nodeIds);
       this.getParentNodes(node, pNodes);
+      pNodes.forEach(item => {
+        this.nodeExpand(item);
+      });
       this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
     },
     filterNode(value, data) {
@@ -343,6 +346,9 @@ export default {
           this.changeTreeNodeStatus(data);
         }
       });
+    },
+    getNode(key) {
+      return this.$refs.tree.getNode(key);
     },
     // 改变节点的状态
     changeTreeNodeStatus(parentData) {

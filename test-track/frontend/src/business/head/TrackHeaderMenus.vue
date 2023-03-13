@@ -9,7 +9,7 @@
           <el-menu-item :index="'/track/home'" v-permission="['PROJECT_TRACK_HOME:READ']">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">
+          <el-menu-item :index="caseListPath" v-permission="['PROJECT_TRACK_CASE:READ']">
             {{ $t("test_track.case.test_case") }}
           </el-menu-item>
 
@@ -57,33 +57,6 @@ export default {
       testCaseProjectPath: '',
       isProjectActivation: true,
       currentProject: sessionStorage.getItem(PROJECT_NAME),
-      caseRecent: {
-        title: this.$t('test_track.recent_case'),
-        url: "/test/case/recent/5",
-        index: function (item) {
-          return '/track/case/edit/' + item.id;
-        },
-        router: function (item) {
-        }
-      },
-      reviewRecent: {
-        title: this.$t('test_track.recent_review'),
-        url: "/test/case/review/recent/5",
-        index: function (item) {
-          return '/track/review/view/' + item.id;
-        },
-        router: function (item) {
-        }
-      },
-      planRecent: {
-        title: this.$t('test_track.recent_plan'),
-        url: getCurrentProjectID() === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + getCurrentProjectID(),
-        index: function (item) {
-          return '/track/plan/view/' + item.id;
-        },
-        router: function (item) {
-        }
-      },
       pathName: '',
     };
   },
@@ -91,12 +64,12 @@ export default {
     '$route': {
       immediate: true,
       handler(to, from) {
-        if (to.params && to.params.reviewId) {
+        if (to.path.indexOf("/track/review") >= 0) {
           this.pathName = '/track/review/all';
-        } else if (to.params && to.params.planId) {
+        } else if (to.path.indexOf("/track/plan") >= 0) {
           this.pathName = '/track/plan/all';
         } if (to.path.indexOf("/track/case") >= 0) {
-          this.pathName = '/track/case/all';
+          this.pathName = this.caseListPath;
         } else {
           this.pathName = to.path;
         }
@@ -106,6 +79,11 @@ export default {
   },
   mounted() {
     this.init();
+  },
+  computed: {
+    caseListPath() {
+      return '/track/case/all?projectId=' + this.getProjectId();
+    }
   },
   methods: {
     reload() {
@@ -129,9 +107,9 @@ export default {
         this.reload();
       }
     },
-
-  },
-  beforeDestroy() {
+    getProjectId() {
+      return getCurrentProjectID();
+    }
   }
 };
 
@@ -158,13 +136,6 @@ export default {
 .deactivation :deep(.el-submenu__title) {
   border-bottom: white !important;
 }
-
-/*.project-change {*/
-/*  height: 40px;*/
-/*  line-height: 40px;*/
-/*  color: inherit;*/
-/*  margin-left: 20px;*/
-/*}*/
 
 .el-menu-item {
   padding: 0 10px;
