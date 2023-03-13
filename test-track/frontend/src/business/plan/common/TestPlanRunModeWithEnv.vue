@@ -7,7 +7,7 @@
     @close="close"
     :visible.sync="runModeVisible"
   >
-    <div class="env-container">
+    <div class="env-container" style="max-height: 400px; overflow: auto">
       <div>
         <div>{{ $t("commons.environment") }}：</div>
         <env-select-popover
