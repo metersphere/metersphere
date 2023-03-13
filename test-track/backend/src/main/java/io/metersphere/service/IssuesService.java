@@ -81,6 +81,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -683,8 +685,28 @@ public class IssuesService {
             item.setCaseIds(new ArrayList<>(caseIdSet));
             item.setCaseCount(caseIdSet.size());
         });
+        bulidDescription(issues);
         buildCustomField(issues);
         return issues;
+    }
+
+    private void bulidDescription(List<IssuesDao> issues) {
+        issues.forEach(issuesDao -> {
+            if(!issuesDao.getDescription().contains("filename=")){
+                String description = issuesDao.getDescription();
+                String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(description);
+                while (matcher.find()) {
+                    String url = matcher.group(2);
+                    String name = description.substring(description.length()-3,description.length());
+                    String mdLink = "![" + name + "](" + url + ")";
+                    description = matcher.replaceFirst(mdLink);
+                    matcher = pattern.matcher(description);
+                }
+                issuesDao.setDescription(description);
+            }
+        });
     }
 
     private void buildCustomField(List<IssuesDao> data) {
