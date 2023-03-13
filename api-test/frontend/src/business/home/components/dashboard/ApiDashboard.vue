@@ -38,12 +38,87 @@
                             {{ $t('home.dashboard.public.covered') }}
                           </span>
                           <div class="common-amount">
-                            <el-link
-                              class="addition-info-num"
-                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
-                              @click="redirectPage('api', 'api', 'covered', null)">
-                              {{ formatAmount(apiData.coveredCount) }}
-                            </el-link>
+                            <el-popover placement="top-start" width="200" trigger="hover">
+                              <div>
+                                <el-row class="addition-info-title">
+                                  <el-col>
+                                    <div
+                                      style="
+                                        width: 8px;
+                                        height: 8px;
+                                        background-color: #aa4fbf;
+                                        margin: 7px;
+                                        float: left;
+                                      " />
+                                    <span style="line-height: 22px">HTTP:</span>
+                                    <div style="float: right">
+                                      <el-link
+                                        class="coverage-num-link"
+                                        @click="redirectPageWithDataType('api', 'api', 'covered', null, 'HTTP')"
+                                        >{{ apiData.httpCovered }}</el-link
+                                      >
+                                    </div>
+                                  </el-col>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #fad355;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">RPC :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'covered', null, 'DUBBO')"
+                                      >{{ apiData.rpcCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #14e1c6;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">TCP :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'covered', null, 'TCP')"
+                                      >{{ apiData.tcpCovered }}
+                                    </el-link>
+                                  </div>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #4e83fd;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">SQL :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'covered', null, 'SQL')"
+                                      >{{ apiData.sqlCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                              </div>
+                              <el-link slot="reference" class="addition-info-num">
+                                {{ formatAmount(apiData.coveredCount) }}
+                              </el-link>
+                            </el-popover>
                           </div>
                         </el-col>
                         <el-col :span="12">
@@ -51,12 +126,85 @@
                             {{ $t('home.dashboard.public.not_covered') }}
                           </span>
                           <div class="common-amount">
-                            <el-link
-                              class="addition-info-num"
-                              v-permission-disable="['PROJECT_API_DEFINITION:READ']"
-                              @click="redirectPage('api', 'api', 'notCovered', null)">
-                              {{ formatAmount(apiData.notCoveredCount) }}
-                            </el-link>
+                            <el-popover placement="top-start" width="200" trigger="hover">
+                              <div>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #aa4fbf;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">HTTP:</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'notCovered', null, 'HTTP')"
+                                      >{{ apiData.httpNotCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #fad355;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">RPC :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'notCovered', null, 'DUBBO')"
+                                      >{{ apiData.rpcNotCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #14e1c6;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">TCP :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'notCovered', null, 'TCP')"
+                                      >{{ apiData.tcpNotCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                                <el-row class="addition-info-title">
+                                  <div
+                                    style="
+                                      width: 8px;
+                                      height: 8px;
+                                      background-color: #4e83fd;
+                                      margin: 7px;
+                                      float: left;
+                                    " />
+                                  <span style="line-height: 22px">SQL :</span>
+                                  <div style="float: right">
+                                    <el-link
+                                      class="coverage-num-link"
+                                      @click="redirectPageWithDataType('api', 'api', 'notCovered', null, 'SQL')"
+                                      >{{ apiData.sqlNotCovered }}</el-link
+                                    >
+                                  </div>
+                                </el-row>
+                              </div>
+                              <el-link slot="reference" class="addition-info-num">
+                                {{ formatAmount(apiData.notCoveredCount) }}
+                              </el-link>
+                            </el-popover>
                           </div>
                         </el-col>
                       </el-row>
@@ -155,6 +303,14 @@ export default {
         runningCount: 0,
         finishedCount: 0,
         notRunCount: 0,
+        httpCovered: 0,
+        rpcCovered: 0,
+        tcpCovered: 0,
+        sqlCovered: 0,
+        httpNotCovered: 0,
+        rpcNotCovered: 0,
+        tcpNotCovered: 0,
+        sqlNotCovered: 0,
       },
     };
   },
@@ -183,8 +339,18 @@ export default {
     redirectPage(redirectPage, dataType, selectRange, selectParam) {
       this.$emit('redirectPage', redirectPage, dataType, selectRange, selectParam);
     },
+    redirectPageWithDataType(redirectPage, dataType, selectRange, selectParam, type) {
+      this.$emit('redirectPageWithDataType', redirectPage, dataType, selectRange, selectParam, type);
+    },
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.coverage-num-link {
+  line-height: 22px;
+  color: #783887 !important;
+  font-size: 14px;
+  font-weight: 500;
+}
+</style>

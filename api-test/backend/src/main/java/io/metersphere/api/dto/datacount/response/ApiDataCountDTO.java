@@ -1,15 +1,19 @@
 package io.metersphere.api.dto.datacount.response;
 
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.enums.ApiHomeFilterEnum;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 接口数据统计返回
@@ -23,6 +27,19 @@ public class ApiDataCountDTO {
     private long rpcCount = 0;
     private long sqlCount = 0;
     private long createdInWeek = 0;
+
+    //不同请求方式的覆盖数
+    private long httpCovered = 0;
+    private long tcpCovered = 0;
+    private long sqlCovered = 0;
+    private long rpcCovered = 0;
+
+    //不同请求方式的未覆盖
+    private long httpNotCovered = 0;
+    private long tcpNotCovered = 0;
+    private long rpcNotCovered = 0;
+    private long sqlNotCovered = 0;
+
     private long coveredCount = 0;
     private long notCoveredCount = 0;
     private long runningCount = 0;
@@ -49,11 +66,29 @@ public class ApiDataCountDTO {
     //通过率
     private String passRate = "0%";
 
-    /**
-     * 对Protocol视角对查询结果进行统计
-     *
-     * @param countResultList 查询参数
-     */
+    public void countProtocol(Map<String, List<ApiDefinition>> protocalAllApiMap) {
+        for (Map.Entry<String, List<ApiDefinition>> entry : protocalAllApiMap.entrySet()) {
+            switch (entry.getKey()) {
+                case RequestTypeConstants.DUBBO:
+                    this.rpcCount += entry.getValue().size();
+                    break;
+                case RequestTypeConstants.HTTP:
+                    this.httpCount += entry.getValue().size();
+                    break;
+                case RequestTypeConstants.SQL:
+                    this.sqlCount += entry.getValue().size();
+                    break;
+                case RequestTypeConstants.TCP:
+                    this.tcpCount += entry.getValue().size();
+                    break;
+                default:
+                    break;
+            }
+        }
+        this.total = this.rpcCount + this.httpCount + this.sqlCount + this.tcpCount;
+    }
+
+
     public void countProtocol(List<ApiDataCountResult> countResultList) {
         for (ApiDataCountResult countResult :
                 countResultList) {
@@ -76,7 +111,6 @@ public class ApiDataCountDTO {
         }
         this.total = this.rpcCount + this.httpCount + this.sqlCount + this.tcpCount;
     }
-
 
     /**
      * 对Status视角对查询结果进行统计
@@ -160,6 +194,58 @@ public class ApiDataCountDTO {
             } else if (StringUtils.equalsAnyIgnoreCase(countResult.getGroupField(), ApiReportStatus.FAKE_ERROR.name(), "errorReportResult")) {
                 this.fakeErrorCount += countResult.getCountNumber();
             }
+        }
+    }
+
+    /**
+     * 统计覆盖率相关数据
+     *
+     * @param coverageMap 和覆盖率相关的protocol集合
+     * @param isUnCovered 是否统计的是未覆盖的数据
+     */
+    public void countCovered(Map<String, List<ApiDefinition>> coverageMap, boolean isUnCovered) {
+        if (MapUtils.isNotEmpty(coverageMap)) {
+            for (Map.Entry<String, List<ApiDefinition>> entry : coverageMap.entrySet()) {
+                if (CollectionUtils.isNotEmpty(entry.getValue())) {
+                    switch (entry.getKey()) {
+                        case RequestTypeConstants.DUBBO:
+                            if (isUnCovered) {
+                                this.rpcNotCovered += entry.getValue().size();
+                            } else {
+                                this.rpcCovered += entry.getValue().size();
+                            }
+                            break;
+                        case RequestTypeConstants.HTTP:
+                            if (isUnCovered) {
+                                this.httpNotCovered += entry.getValue().size();
+                            } else {
+                                this.httpCovered += entry.getValue().size();
+                            }
+                            break;
+                        case RequestTypeConstants.SQL:
+                            if (isUnCovered) {
+                                this.sqlNotCovered += entry.getValue().size();
+                            } else {
+                                this.sqlCovered += entry.getValue().size();
+                            }
+                            break;
+                        case RequestTypeConstants.TCP:
+                            if (isUnCovered) {
+                                this.tcpNotCovered += entry.getValue().size();
+                            } else {
+                                this.tcpCovered += entry.getValue().size();
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+        if (isUnCovered) {
+            this.notCoveredCount = this.rpcNotCovered + this.httpNotCovered + this.tcpNotCovered + this.sqlNotCovered;
+        } else {
+            this.coveredCount = this.rpcCovered + this.httpCovered + this.tcpCovered + this.sqlCovered;
         }
     }
 }
