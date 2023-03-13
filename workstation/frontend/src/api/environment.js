@@ -1,9 +1,5 @@
 import {get, post} from 'metersphere-frontend/src/plugins/request';
 
-export function getEnvironmentPages(goPage, pageSize, param) {
-  return post(`/environment/list/${goPage}/${pageSize}`, param);
-}
-
 export function getEnvironments(projectId) {
   return get(`/environment/list/${projectId}`);
 }
@@ -16,16 +12,8 @@ export function getEnvironmentGroupPages(goPage, pageSize, param) {
   return post(`/environment/group/list/${goPage}/${pageSize}`, param);
 }
 
-export function getAllEnvironmentGroups(param) {
-  return post('/environment/group/get/all', param);
-}
-
 export function copyEnvironmentGroup(groupId) {
   return get(`/environment/group/copy/${groupId}`);
-}
-
-export function delEnvironmentGroup(groupId) {
-  return get(`/environment/group/delete/${groupId}`);
 }
 
 export function modifyEnvironmentGroup(group) {
