@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Data
@@ -90,36 +92,38 @@ public class Body {
     private void parseMock() {
         if (StringUtils.isNotEmpty(this.getRaw())) {
             String value = StringUtils.chomp(this.getRaw().trim());
-            if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
-                List list = JSON.parseArray(this.getRaw());
-                if (!this.getRaw().contains(ElementConstants.REF)) {
-                    jsonMockParse(list);
+            try {
+                if (StringUtils.startsWith(value, "[") && StringUtils.endsWith(value, "]")) {
+                    List list = JSON.parseArray(this.getRaw());
+                    if (!this.getRaw().contains(ElementConstants.REF)) {
+                        jsonMockParse(list);
+                    }
+                    this.raw = JSONUtil.parserArray(JSONUtil.toJSONString(list));
+                } else {
+                    Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
+                    if (!this.getRaw().contains(ElementConstants.REF)) {
+                        jsonMockParse(map);
+                    }
+                    this.raw = JSONUtil.parserObject(JSONUtil.toJSONString(map));
                 }
-                this.raw = JSONUtil.toJSONString(list);
-            } else {
-                Map<String, Object> map = JSON.parseObject(this.getRaw(), Map.class);
-                if (!this.getRaw().contains(ElementConstants.REF)) {
-                    jsonMockParse(map);
+            } catch (Exception e) {
+                String pattern = "@[a-zA-Z]*";
+                Pattern regex = Pattern.compile(pattern);
+                Matcher matcher = regex.matcher(this.raw);
+                while (matcher.find()) {
+                    this.raw = this.raw.replace(matcher.group(), "${__Mock(" + matcher.group() + ")}");
                 }
-                this.raw = JSONUtil.toJSONString(map);
             }
         }
     }
 
     private void analyticalData() {
         try {
-            boolean isArray = false;
             if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, JSON_STR)) {
                 if (StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null && JSON_SCHEMA.equals(this.format)) {
                     this.raw = StringEscapeUtils.unescapeJava(JSONSchemaBuilder.generator(JSONUtil.toJSONString(this.getJsonSchema())));
                 } else {
                     parseMock();
-                }
-                // 格式化处理
-                if (isArray) {
-                    this.raw = JSONUtil.parserArray(this.raw);
-                } else {
-                    this.raw = JSONUtil.parserObject(this.raw);
                 }
             }
         } catch (Exception e) {
