@@ -66,6 +66,9 @@ export default {
         }
       }
     },
+    errorRefresh() {
+      this.$emit('errorRefresh');
+    },
     run() {
       let testPlan = createComponent('TestPlan');
       testPlan.clazzName = TYPE_TO_C.get(testPlan.type);

@@ -75,8 +75,26 @@ function getScenarioFiles(obj) {
   }
   return scenarioFiles;
 }
-
-export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
+async function checkFile(scenarioFiles) {
+  return new Promise((resolve, reject) => {
+    scenarioFiles.forEach((item) => {
+      let func = item
+        .slice(0, 1)
+        .arrayBuffer()
+        .then(() => {
+          resolve(false);
+        })
+        .catch(() => {
+          resolve(true);
+        });
+      return func;
+    });
+    if (!scenarioFiles || scenarioFiles.length == 0) {
+      resolve(false);
+    }
+  });
+}
+export async function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
   if (store.pluginFiles && store.pluginFiles.length > 0) {
     store.pluginFiles.forEach((fileItem) => {
@@ -86,7 +104,15 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
       }
     });
   }
+
   let scenarioFiles = getScenarioFiles(scenario);
+  let isUpdated = await checkFile(scenarioFiles);
+  if (isUpdated) {
+    _this.$error(_this.$t('automation.document_validity_msg'));
+    _this.isPreventReClick = false;
+    _this.errorRefresh();
+    return;
+  }
   let formData = new FormData();
   if (bodyFiles) {
     bodyFiles.forEach((f) => {
