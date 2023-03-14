@@ -3,14 +3,27 @@
     <div class="request-result">
       <div @click="active">
         <el-row :gutter="18" type="flex" align="middle" class="info">
-          <el-col class="ms-req-name-col" :span="18" v-if="indexNumber!=undefined">
+          <el-col
+            class="ms-req-name-col"
+            :span="18"
+            v-if="indexNumber != undefined"
+          >
             <el-tooltip :content="getName(request.name)" placement="top">
               <div class="method ms-req-name">
                 <div class="el-step__icon is-text ms-api-col-create">
-                  <div class="el-step__icon-inner"> {{ indexNumber }}</div>
+                  <div class="el-step__icon-inner">{{ indexNumber }}</div>
                 </div>
-                <i class="icon el-icon-arrow-right" :class="{'is-active': showActive}" @click="active" @click.stop/>
-                <el-link class="report-label-req" @click="isLink" v-if="redirect && resourceId">
+                <i
+                  class="icon el-icon-arrow-right"
+                  :class="{ 'is-active': showActive }"
+                  @click="active"
+                  @click.stop
+                />
+                <el-link
+                  class="report-label-req"
+                  @click="isLink"
+                  v-if="redirect && resourceId"
+                >
                   {{ request.name }}
                 </el-link>
                 <span v-else>{{ getName(request.name) }}</span>
@@ -19,28 +32,52 @@
           </el-col>
           <el-col :span="3">
             <div v-if="totalStatus">
-              <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
-                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                          :open-delay="800">
-                <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+              <el-tooltip
+                effect="dark"
+                v-if="baseErrorCode && baseErrorCode !== ''"
+                :content="baseErrorCode"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+                placement="bottom"
+                :open-delay="800"
+              >
+                <div
+                  v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                  style="color: #5daf34"
+                >
                   {{ baseErrorCode }}
                 </div>
-                <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+                <div
+                  v-else-if="totalStatus === 'errorReportResult'"
+                  style="color: #f6972a"
+                >
                   {{ baseErrorCode }}
                 </div>
-                <div v-else style="color: #FE6F71">
+                <div v-else style="color: #fe6f71">
                   {{ baseErrorCode }}
                 </div>
               </el-tooltip>
             </div>
             <div v-else>
-              <el-tooltip effect="dark" v-if="baseErrorCode && baseErrorCode!==''" :content="baseErrorCode"
-                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                          :open-delay="800">
-                <div v-if="request.success" style="color: #F6972A">
+              <el-tooltip
+                effect="dark"
+                v-if="baseErrorCode && baseErrorCode !== ''"
+                :content="baseErrorCode"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+                placement="bottom"
+                :open-delay="800"
+              >
+                <div v-if="request.success" style="color: #f6972a">
                   {{ baseErrorCode }}
                 </div>
-                <div v-else style="color: #FE6F71">
+                <div v-else style="color: #fe6f71">
                   {{ baseErrorCode }}
                 </div>
               </el-tooltip>
@@ -48,31 +85,58 @@
           </el-col>
           <el-col :span="6">
             <div v-if="totalStatus">
-              <el-tooltip effect="dark" :content="request.responseResult.responseCode"
-                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                          :open-delay="800">
-                <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+              <el-tooltip
+                effect="dark"
+                :content="request.responseResult.responseCode"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+                placement="bottom"
+                :open-delay="800"
+              >
+                <div
+                  v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                  style="color: #5daf34"
+                >
                   {{ request.responseResult.responseCode }}
                 </div>
-                <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+                <div
+                  v-else-if="totalStatus === 'errorReportResult'"
+                  style="color: #f6972a"
+                >
                   {{ request.responseResult.responseCode }}
                 </div>
-                <div style="color: #FE6F71" v-else>
+                <div style="color: #fe6f71" v-else>
                   {{ request.responseResult.responseCode }}
                 </div>
               </el-tooltip>
             </div>
             <div v-else>
-              <el-tooltip effect="dark" :content="request.responseResult.responseCode"
-                          style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom"
-                          :open-delay="800">
-                <div style="color: #F6972A" v-if="baseErrorCode && baseErrorCode!=='' && request.success">
+              <el-tooltip
+                effect="dark"
+                :content="request.responseResult.responseCode"
+                style="
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+                placement="bottom"
+                :open-delay="800"
+              >
+                <div
+                  style="color: #f6972a"
+                  v-if="
+                    baseErrorCode && baseErrorCode !== '' && request.success
+                  "
+                >
                   {{ request.responseResult.responseCode }}
                 </div>
                 <div style="color: #5daf34" v-else-if="request.success">
                   {{ request.responseResult.responseCode }}
                 </div>
-                <div style="color: #FE6F71" v-else>
+                <div style="color: #fe6f71" v-else>
                   {{ request.responseResult.responseCode }}
                 </div>
               </el-tooltip>
@@ -80,13 +144,19 @@
           </el-col>
           <el-col :span="3">
             <div v-if="totalStatus">
-              <div v-if="totalStatus === 'Success'|| totalStatus === 'success'" style="color: #5daf34">
+              <div
+                v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                style="color: #5daf34"
+              >
                 {{ request.responseResult.responseTime }}
               </div>
-              <div v-else-if="totalStatus === 'errorReportResult'" style="color: #F6972A">
+              <div
+                v-else-if="totalStatus === 'errorReportResult'"
+                style="color: #f6972a"
+              >
                 {{ request.responseResult.responseTime }}
               </div>
-              <div style="color: #FE6F71" v-else>
+              <div style="color: #fe6f71" v-else>
                 {{ request.responseResult.responseTime }}
               </div>
             </div>
@@ -94,45 +164,77 @@
               <span v-if="request.success">
                 {{ request.responseResult.responseTime }} ms
               </span>
-              <span style="color: #FE6F71" v-else>
+              <span style="color: #fe6f71" v-else>
                 {{ request.responseResult.responseTime }} ms
               </span>
             </div>
           </el-col>
           <el-col :span="2">
             <div v-if="totalStatus">
-              <el-tag size="mini" v-if="totalStatus === 'unexecute'">{{
-                  $t('api_test.home_page.detail_card.unexecute')
-                }}
+              <el-tag size="mini" v-if="totalStatus === 'unexecute'"
+                >{{ $t("api_test.home_page.detail_card.unexecute") }}
               </el-tag>
-              <el-tag v-else-if="totalStatus === 'errorReportResult' " class="ms-test-error_code"
-                      size="mini">
-                {{ $t('error_report_library.option.name') }}
+              <el-tag
+                v-else-if="
+                  totalStatus === 'errorReportResult' ||
+                  totalStatus === 'FAKE_ERROR'
+                "
+                class="ms-test-error_code"
+                size="mini"
+              >
+                {{ $t("error_report_library.option.name") }}
               </el-tag>
-              <el-tag size="mini" type="success" v-else-if="totalStatus === 'Success' || totalStatus === 'success'">
-                {{ $t('api_report.success') }}
+              <el-tag
+                size="mini"
+                type="success"
+                v-else-if="
+                  totalStatus === 'Success' ||
+                  totalStatus === 'SUCCESS' ||
+                  totalStatus === 'success'
+                "
+              >
+                {{ $t("api_report.success") }}
               </el-tag>
-              <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
+              <el-tag size="mini" type="danger" v-else>
+                {{ $t("api_report.fail") }}</el-tag
+              >
             </div>
             <div v-else>
-              <el-tag v-if="request.testing" class="ms-test-running" size="mini">
-                <i class="el-icon-loading" style="font-size: 16px"/>
-                {{ $t('commons.testing') }}
+              <el-tag
+                v-if="request.testing"
+                class="ms-test-running"
+                size="mini"
+              >
+                <i class="el-icon-loading" style="font-size: 16px" />
+                {{ $t("commons.testing") }}
               </el-tag>
-              <el-tag size="mini" v-else-if="request.unexecute">{{
-                  $t('api_test.home_page.detail_card.unexecute')
-                }}
+              <el-tag size="mini" v-else-if="request.unexecute"
+                >{{ $t("api_test.home_page.detail_card.unexecute") }}
               </el-tag>
-              <el-tag size="mini" v-else-if="!request.success && request.status && request.status==='unexecute'">{{
-                  $t('api_test.home_page.detail_card.unexecute')
-                }}
+              <el-tag
+                size="mini"
+                v-else-if="
+                  !request.success &&
+                  request.status &&
+                  request.status === 'unexecute'
+                "
+                >{{ $t("api_test.home_page.detail_card.unexecute") }}
               </el-tag>
-              <el-tag v-else-if="baseErrorCode && baseErrorCode!== '' && request.success" class="ms-test-error_code"
-                      size="mini">
-                {{ $t('error_report_library.option.name') }}
+              <el-tag
+                v-else-if="
+                  baseErrorCode && baseErrorCode !== '' && request.success
+                "
+                class="ms-test-error_code"
+                size="mini"
+              >
+                {{ $t("error_report_library.option.name") }}
               </el-tag>
-              <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
-              <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
+              <el-tag size="mini" type="success" v-else-if="request.success">
+                {{ $t("api_report.success") }}</el-tag
+              >
+              <el-tag size="mini" type="danger" v-else>
+                {{ $t("api_report.fail") }}</el-tag
+              >
             </div>
           </el-col>
         </el-row>
@@ -146,7 +248,8 @@
             :request-type="requestType"
             :request="requestInfo"
             :console="console"
-            v-if="showActive"/>
+            v-if="showActive"
+          />
         </div>
       </el-collapse-transition>
     </div>
@@ -159,7 +262,7 @@ import MsRequestResultTail from "./RequestResultTail";
 export default {
   name: "MsRequestResult",
   components: {
-    MsRequestResultTail
+    MsRequestResultTail,
   },
   props: {
     request: Object,
@@ -172,11 +275,11 @@ export default {
     redirect: Boolean,
     errorCode: {
       type: String,
-      default: ""
+      default: "",
     },
     isActive: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isShare: Boolean,
     shareId: String,
@@ -192,7 +295,7 @@ export default {
         type: String,
         default() {
           return "#B8741A";
-        }
+        },
       },
       requestInfo: {
         loading: true,
@@ -205,10 +308,10 @@ export default {
         type: String,
         default() {
           return "#F9F1EA";
-        }
+        },
       },
       showActive: false,
-    }
+    };
   },
   watch: {
     isActive() {
@@ -223,23 +326,28 @@ export default {
       handler(n) {
         if (this.request.errorCode) {
           this.baseErrorCode = this.request.errorCode;
-        } else if (this.request.attachInfoMap && this.request.attachInfoMap.errorReportResult) {
+        } else if (
+          this.request.attachInfoMap &&
+          this.request.attachInfoMap.errorReportResult
+        ) {
           if (this.request.attachInfoMap.errorReportResult !== "") {
             this.baseErrorCode = this.request.attachInfoMap.errorReportResult;
           }
         }
       },
-    }
+    },
   },
   methods: {
     isLink() {
       let uri = "/#/api/definition?caseId=" + this.resourceId;
-      this.clickResource(uri)
+      this.clickResource(uri);
     },
     clickResource(uri) {
-      this.$get('/user/update/currentByResourceId/' + this.resourceId).then(() => {
-        this.toPage(uri);
-      });
+      this.$get("/user/update/currentByResourceId/" + this.resourceId).then(
+        () => {
+          this.toPage(uri);
+        }
+      );
     },
     toPage(uri) {
       let id = "new_a";
@@ -254,23 +362,33 @@ export default {
       element.parentNode.removeChild(element);
     },
     loadRequestInfoExpand() {
-      if (!this.request.responseResult || this.request.responseResult.body === null || this.request.responseResult.body === undefined) {
+      if (
+        !this.request.responseResult ||
+        this.request.responseResult.body === null ||
+        this.request.responseResult.body === undefined
+      ) {
         if (this.isShare) {
-          this.$get("/share/" + this.shareId + "/scenario/report/selectReportContent/" + this.stepId).then(response => {
+          this.$get(
+            "/share/" +
+              this.shareId +
+              "/scenario/report/selectReportContent/" +
+              this.stepId
+          ).then((response) => {
             this.requestInfo = response.data;
             this.$nextTick(() => {
               this.requestInfo.loading = false;
             });
           });
         } else {
-          this.$get("/ui/scenario/report/selectReportContent/" + this.stepId).then(response => {
+          this.$get(
+            "/ui/scenario/report/selectReportContent/" + this.stepId
+          ).then((response) => {
             this.requestInfo = response.data;
             this.$nextTick(() => {
               this.requestInfo.loading = false;
             });
           });
         }
-
       } else {
         this.requestInfo = this.request;
       }
@@ -307,9 +425,9 @@ export default {
         return "";
       }
       return name;
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -324,7 +442,7 @@ export default {
 }
 
 .request-result .method {
-  color: #1E90FF;
+  color: #1e90ff;
   font-size: 14px;
   font-weight: 500;
   line-height: 35px;
@@ -356,11 +474,11 @@ export default {
 }
 
 .sub-result .info {
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .sub-result .method {
-  border-left: 5px solid #1E90FF;
+  border-left: 5px solid #1e90ff;
   padding-left: 20px;
 }
 
@@ -369,7 +487,7 @@ export default {
 }
 
 .sub-result:last-child {
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .ms-test-running {
@@ -377,21 +495,21 @@ export default {
 }
 
 .ms-test-error_code {
-  color: #F6972A;
-  background-color: #FDF5EA;
-  border-color: #FDF5EA;
+  color: #f6972a;
+  background-color: #fdf5ea;
+  border-color: #fdf5ea;
 }
 
 .ms-api-col {
-  background-color: #EFF0F0;
-  border-color: #EFF0F0;
+  background-color: #eff0f0;
+  border-color: #eff0f0;
   margin-right: 10px;
   font-size: 12px;
-  color: #64666A;
+  color: #64666a;
 }
 
 .ms-api-col-create {
-  background-color: #EBF2F2;
+  background-color: #ebf2f2;
   border-color: #008080;
   margin-right: 10px;
   font-size: 12px;
