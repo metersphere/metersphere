@@ -78,16 +78,4 @@ public class ShareController {
         HttpHeaderUtils.clearUser();
         return reportExtInfo;
     }
-
-    @GetMapping("test/plan/ext/plan/{shareId}/{planId}")
-    public ExecutionModeDTO getExtPlan(@PathVariable String shareId, @PathVariable String planId) throws JsonProcessingException {
-        shareInfoService.validate(shareId, planId);
-        if (SessionUtils.getUser() == null) {
-            HttpHeaderUtils.runAsUser("admin");
-        }
-        //          testPlanService.getExtInfoByPlanId 这个方法逻辑有问题。分不清楚干嘛用的。方法删了，调用地方先注释了。
-        //        TestPlanExtReportDTO reportExtInfo = testPlanService.getExtInfoByPlanId(planId);
-        HttpHeaderUtils.clearUser();
-        return new ExecutionModeDTO();
-    }
 }
