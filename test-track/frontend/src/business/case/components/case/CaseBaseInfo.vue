@@ -109,7 +109,7 @@
           >
             <template v-slot:content="{ onClick, hoverEditable }">
               <div :class="hoverEditable ? 'selectHover' : ''">
-                <el-form-item prop="module">
+                <el-form-item prop="nodeId">
                   <ms-select-tree
                     :disabled="readOnly"
                     :data="treeNodes"
@@ -423,7 +423,7 @@ export default {
       },
       headerRules: {
         customNum: [
-          { required: true, message: "ID必填", trigger: "blur" },
+          { required: true, message: 'ID' + this.$t('commons.cannot_be_null'), trigger: "blur" },
           {
             max: 50,
             message: this.$t("test_track.length_less_than") + "50",
@@ -433,7 +433,7 @@ export default {
         nodeId: [
           {
             required: true,
-            message: this.$t("test_track.case.input_module"),
+            message: this.$t("api_test.environment.module_warning"),
             trigger: "change",
           },
         ],
@@ -451,6 +451,7 @@ export default {
       demandList: [],
       defaultModuleKey: '',
       treeNodes: null,
+      validateTip: ''
     };
   },
   props: {
@@ -640,32 +641,54 @@ export default {
         this.handleSaveEvent();
       }
     },
+    validateWithTip() {
+      this.validateTip = '';
+      // 这里非短路或，收集所有的错误提示
+      if (!this.validateForm() | !this.validateCustomForm() | !this.validateCaseFrom()) {
+        if (this.validateTip) {
+          this.$error(this.validateTip.substring(0, this.validateTip.length - 1));
+          this.validateTip = '';
+        }
+        return false;
+      }
+      return true;
+    },
     validateForm() {
       let isValidate = true;
-      this.$refs["baseCaseFrom"].validate((valid) => {
+      this.$refs["baseCaseFrom"].validate((valid, msg) => {
         if (!valid) {
           isValidate = false;
+          this.recordTip(msg);
         }
       });
       return isValidate;
     },
     validateCustomForm() {
       let isValidate = true;
-      this.$refs["customFieldForm"].validate((valid) => {
+      this.$refs["customFieldForm"].validate((valid, msg) => {
         if (!valid) {
           isValidate = false;
+          this.recordTip(msg);
         }
       });
       return isValidate;
     },
     validateCaseFrom() {
       let isValidate = true;
-      this.$refs["caseFrom"].validate((valid) => {
+      this.$refs["caseFrom"].validate((valid, msg) => {
         if (!valid) {
           isValidate = false;
+          this.recordTip(msg);
         }
       });
       return isValidate;
+    },
+    recordTip(msg) {
+      for (const field in msg) {
+        if (msg[field]) {
+          msg[field].forEach(item => this.validateTip += item.message + ',');
+        }
+      }
     },
     getCustomFields() {
       let caseFromFields = this.$refs["caseFrom"].fields;
