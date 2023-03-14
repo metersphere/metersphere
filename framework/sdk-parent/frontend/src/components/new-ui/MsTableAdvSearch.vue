@@ -275,7 +275,9 @@ export default {
       }
     },
     setScrollToBottom() {
-      this.$refs['scrollbar'].wrap.scrollTop = this.$refs['scrollbar'].wrap.scrollHeight;
+      if (this.$refs['scrollbar']) {
+        this.$refs['scrollbar'].wrap.scrollTop = this.$refs['scrollbar'].wrap.scrollHeight;
+      }
     }
   }
   ,

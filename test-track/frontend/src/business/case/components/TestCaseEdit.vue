@@ -461,6 +461,7 @@ export default {
         method: "",
         prerequisite: "",
         testId: "",
+        nodeId: '',
         steps: [
           {
             num: 1,
@@ -1539,31 +1540,8 @@ export default {
           }
         });
       }
-      let detailForm = this.$refs.otherInfo.validateForm();
-      let baseInfoValidate = this.$refs.testCaseBaseInfo.validateForm() && this.$refs.testCaseBaseInfo.validateCaseFrom();
-      let customValidate = this.$refs.testCaseBaseInfo.validateCustomForm();
-      if (!detailForm || !baseInfoValidate) {
-        return false;
-      }
-      if (!customValidate) {
-        let customFieldFormFields =
-          this.$refs.testCaseBaseInfo.getCustomFields();
-        for (let i = 0; i < customFieldFormFields.length; i++) {
-          let customField = customFieldFormFields[i];
-          if (customField.validateState === "error") {
-            let name = customField.label || customField.labelFor;
-            if (this.currentValidateName) {
-              this.currentValidateName =
-                this.currentValidateName + "," + name;
-            } else {
-              this.currentValidateName = name;
-            }
-          }
-        }
-        this.isValidate = true;
-        this.$warning(this.currentValidateName + this.$t("commons.cannot_be_null"), false);
-        this.currentValidateName = "";
-        return false;
+      if (!this.$refs.testCaseBaseInfo.validateWithTip()) {
+        isValidate = false;
       }
       return isValidate;
     },
