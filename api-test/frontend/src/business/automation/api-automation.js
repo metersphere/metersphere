@@ -82,15 +82,15 @@ async function checkFile(scenarioFiles) {
         .slice(0, 1)
         .arrayBuffer()
         .then(() => {
-          resolve(false);
+          resolve();
         })
         .catch(() => {
-          resolve(true);
+          resolve(item.name);
         });
       return func;
     });
     if (!scenarioFiles || scenarioFiles.length == 0) {
-      resolve(false);
+      resolve();
     }
   });
 }
@@ -106,9 +106,10 @@ export async function saveScenario(url, scenario, scenarioDefinition, _this, suc
   }
 
   let scenarioFiles = getScenarioFiles(scenario);
-  let isUpdated = await checkFile(scenarioFiles);
-  if (isUpdated) {
-    _this.$error(_this.$t('automation.document_validity_msg'));
+  let fileName = await checkFile(scenarioFiles);
+  fileName = fileName || (await checkFile(bodyFiles));
+  if (fileName) {
+    _this.$error('[ ' + fileName + ' ]' + _this.$t('automation.document_validity_msg'));
     _this.isPreventReClick = false;
     _this.errorRefresh();
     return;
