@@ -8,7 +8,7 @@
     :tag-enable="true"
     :disabled="disable"
     :select-node="selectNode"
-    :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
+    :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare'), this.$t('test_track.review.again'), this.$t('test_track.review.underway')]"
     :ignore-num="true"
     @afterMount="handleAfterMount"
     @save="save"
