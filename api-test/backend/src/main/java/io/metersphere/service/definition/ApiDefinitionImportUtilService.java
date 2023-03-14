@@ -212,7 +212,8 @@ public class ApiDefinitionImportUtilService {
 
         Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         if (MapUtils.isNotEmpty(moduleMap)) {
-            moduleMap.forEach((k, v) -> apiModuleMapper.insert(v));
+
+            delModule(apiModuleService, optionData, moduleMap, apiModuleMapper);
         }
         int num = 0;
         if (!CollectionUtils.isEmpty(optionData) && optionData.get(0) != null && optionData.get(0).getProjectId() != null) {
@@ -279,6 +280,32 @@ public class ApiDefinitionImportUtilService {
         return apiImportSendNoticeDTOS;
     }
 
+    private static void delModule(ApiModuleService apiModuleService, List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap, ApiModuleMapper apiModuleMapper) {
+        Map<String, ApiModule> rootModuleMap = new HashMap<>();
+        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+        //过滤空的模块
+        moduleMap.forEach((modulePath, v) -> {
+            if (moduleOptionData.get(modulePath) != null && moduleOptionData.get(modulePath).size() > 0) {
+                apiModuleMapper.insert(v);
+            } else {
+                rootModuleMap.put(modulePath, v);
+            }
+        });
+        //防止空的模块是其余模块的父亲
+        rootModuleMap.forEach((modulePath, v) -> {
+            for (String path : moduleOptionData.keySet()) {
+                String[] modulePathTree = apiModuleService.getPathTree(modulePath);
+                String[] pathTree = apiModuleService.getPathTree(path);
+                List<String> modulePathList = Arrays.asList(modulePathTree);
+                List<String> pathTreeList = Arrays.asList(pathTree);
+                if (new HashSet<>(pathTreeList).containsAll(modulePathList)) {
+                    apiModuleMapper.insert(v);
+                    break;
+                }
+            }
+        });
+    }
+
     /**
      * @param optionDatas     操作过可以导入的文件里的接口
      * @param repeatApiMap    文件里与可操作的接口重复的接口
@@ -306,7 +333,7 @@ public class ApiDefinitionImportUtilService {
             List<String> nameList = new ArrayList<>();
             List<ApiTestCaseWithBLOBs> importCaseList = importCaseMap.get(apiId);
             if (CollectionUtils.isNotEmpty(importCaseList)) {
-                nameList = importCaseList.stream().map(ApiTestCaseWithBLOBs::getName).toList();
+                nameList = importCaseList.stream().map(ApiTestCaseWithBLOBs::getName).collect(Collectors.toList());
             }
             for (int i = 0; i < apiTestCaseWithBLOBs.size(); i++) {
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs1 = apiTestCaseWithBLOBs.get(i);
@@ -1063,7 +1090,6 @@ public class ApiDefinitionImportUtilService {
                 List<ApiDefinitionWithBLOBs> moduleData = moduleOptionData.get(modulePath);
                 if (moduleData != null && moduleData.size() <= 1) {
                     moduleMap.remove(modulePath);
-                    removeModulePath(moduleMap, moduleOptionData, modulePath);
                     moduleData.remove(apiDefinitionWithBLOBs);
                 }
                 //不覆盖同一接口不做更新 注意原接口的update时间不变
@@ -1073,21 +1099,6 @@ public class ApiDefinitionImportUtilService {
                 }
             }
         });
-    }
-
-    private void removeModulePath(Map<String, ApiModule> moduleMap, Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData, String modulePath) {
-        if (StringUtils.isBlank(modulePath)) {
-            return;
-        }
-        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        String[] pathTree = apiModuleService.getPathTree(modulePath);
-        String lastPath = pathTree[pathTree.length - 1];
-        String substring = modulePath.substring(0, modulePath.indexOf("/" + lastPath));
-        if (moduleOptionData.get(substring) == null || moduleOptionData.get(substring).size() == 0) {
-            moduleMap.remove(substring);
-            removeModulePath(moduleMap, moduleOptionData, substring);
-        }
-
     }
 
     private static void buildCases(List<ApiTestCaseWithBLOBs> optionDataCases, Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap, List<String> caseIds) {
