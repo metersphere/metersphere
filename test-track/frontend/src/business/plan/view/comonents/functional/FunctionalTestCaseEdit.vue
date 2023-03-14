@@ -233,7 +233,7 @@ import {
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
-import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
+import CustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
 import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";

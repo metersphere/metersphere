@@ -118,7 +118,7 @@ import {
 import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
 import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
-import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
+import CustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import MsPreviousNextButton from "metersphere-frontend/src/components/MsPreviousNextButton";
