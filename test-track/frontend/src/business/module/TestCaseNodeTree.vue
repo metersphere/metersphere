@@ -372,7 +372,9 @@ export default {
       this.$emit('importChangeConfirm', isSave);
     },
     closeExport() {
-      this.$refs.testCaseExport.close();
+      if (this.$refs.testCaseExport) {
+        this.$refs.testCaseExport.close();
+      }
     }
   }
 };
