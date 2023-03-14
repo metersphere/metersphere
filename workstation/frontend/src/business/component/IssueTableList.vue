@@ -312,7 +312,7 @@ export default {
           }
         }
         if (this.isToDo && item.id === '状态') {
-          item.filters = item.filters.filter(i => i.value !== 'closed')
+          item.filters = item.filters.filter(i => (i.value !== 'closed' && i.value !== '已关闭' && i.value !== 'resolved' && i.value !== 'Done' && i.value !== 'verified'))
         }
       });
 
@@ -405,8 +405,12 @@ export default {
             {
               id: statusFieldId,
               operator: 'not in',
-              value:[
-                'closed'
+              value: [
+                'closed',
+                '已关闭',
+                'resolved',
+                'Done',
+                'verified'
               ],
               type: 'select'
             }
