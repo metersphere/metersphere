@@ -137,6 +137,7 @@ export default {
       this.result.loading = true;
       testReviewCaseMinderEdit(this.reviewId, saveCases)
         .then(() => {
+          this.$post('/test/case/review/edit/status/' + this.reviewId);
           this.result.loading = false;
           this.$success(this.$t('commons.save_success'));
           this.setIsChange(false);
