@@ -9,8 +9,8 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
-import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.api.ApiScenarioRequest;
+import io.metersphere.plan.request.ui.UiPlanReportRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.api.PlanUiScenarioReportService;
@@ -45,7 +45,7 @@ public class PlanTestPlanUiScenarioCaseService extends UiTestService {
         return (List<String>) microService.getForData(serviceName, BASE_URL + "/plan/exec/result/" + planId);
     }
 
-    public UiPlanReportDTO getUiReport(ApiPlanReportRequest request) {
+    public UiPlanReportDTO getUiReport(UiPlanReportRequest request) {
         return microService.postForData(serviceName, BASE_URL + "/plan/report", request, UiPlanReportDTO.class);
     }
 
