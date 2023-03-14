@@ -390,23 +390,3 @@ export function reportSocket(reportId) {
 export function testPlanLoadCaseEditStatus(planId) {
   return post(BASE_URL + `edit/status/${planId}`, new Promise(() => {}));
 }
-
-export function getTestPlanExtReport(planId, reportId) {
-  if (reportId) {
-    return get(BASE_URL + "ext/report/" + reportId);
-  } else if (planId) {
-    return get(BASE_URL + "ext/plan/" + planId);
-  } else {
-    return new Promise(() => {});
-  }
-}
-
-export function getShareTestPlanExtReport(shareId, planId, reportId) {
-  if (reportId) {
-    return get("/share" + BASE_URL + `ext/report/${shareId}/${reportId}`);
-  } else if (planId) {
-    return get("/share" + BASE_URL + `ext/plan/${shareId}/${planId}`);
-  } else {
-    return new Promise(() => {});
-  }
-}

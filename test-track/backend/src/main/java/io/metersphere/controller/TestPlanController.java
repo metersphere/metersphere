@@ -14,7 +14,6 @@ import io.metersphere.dto.TestPlanRerunParametersDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.plan.dto.ExecutionModeDTO;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
@@ -379,15 +378,5 @@ public class TestPlanController {
     @GetMapping(value = "/status/reset/{planId}")
     public void resetStatus(@PathVariable String planId) {
         testPlanService.resetStatus(planId);
-    }
-
-    @GetMapping("/ext/report/{reportId}")
-    public ExecutionModeDTO getExtReport(@PathVariable String reportId) throws JsonProcessingException {
-        return new ExecutionModeDTO();
-    }
-
-    @GetMapping("/ext/plan/{planId}")
-    public ExecutionModeDTO getExtPlan(@PathVariable String planId) throws JsonProcessingException {
-        return new ExecutionModeDTO();
     }
 }
