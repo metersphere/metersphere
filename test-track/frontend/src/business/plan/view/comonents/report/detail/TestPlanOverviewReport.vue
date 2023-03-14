@@ -99,7 +99,6 @@ import TestPlanReportContainer from "@/business/plan/view/comonents/report/detai
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import { datetimeFormat } from "fit2cloud-ui/src/filters/time";
-import { getTestPlanExtReport } from "@/api/remote/plan/test-plan";
 
 export default {
   name: "TestPlanOverviewReport",
