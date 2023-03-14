@@ -679,6 +679,9 @@ export default {
       },
       deep: true,
     },
+    $route(to, from) {
+      this.$router.go(0);
+    }
   },
   beforeDestroy() {
     this.removeListener();
