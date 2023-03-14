@@ -151,6 +151,7 @@ import MsTableColumn from "../table/MsTableColumn";
 import MsInputTag from "../MsInputTag";
 import {getProjectMemberOption} from "../../api/user";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
+import {OPTION_LABEL_PREFIX} from "../../utils/tableUtils";
 
 export default {
   name: "CustomFiledComponent",
@@ -222,6 +223,13 @@ export default {
       }
       this.$emit('change', this.data.name);
       this.$forceUpdate();
+      if (this.data.inputSearch) {
+        // 处理 jira 的 sprint 字段
+        let selectOption = this.data.options.find(item => item.value === this.data[this.prop]);
+        if (selectOption) {
+          this.data.optionLabel = OPTION_LABEL_PREFIX + selectOption.text;
+        }
+      }
     },
     handleSelectInput(val) {
       this.loading = true;
