@@ -29,7 +29,7 @@
     </el-row>
 
     <el-dialog :title="$t('api_test.request.assertions.script')" :visible.sync="visible" width="900px" append-to-body
-               :close-on-click-modal="false">
+               :close-on-click-modal="true" v-if="visible">
       <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.variable"
@@ -273,6 +273,7 @@ export default {
       }
     },
     detail() {
+      console.log(this.edit)
       this.disabled = false;
       this.visible = true;
     },
@@ -293,7 +294,9 @@ export default {
       this.close();
     }
   },
-
+  beforeDestroy() {
+    this.$emit('close', this.assertion);
+  },
   computed: {
     hasEmptyOperator() {
       return !!this.assertion.operator && this.assertion.operator.indexOf("empty") > 0;
