@@ -6,9 +6,11 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioReferenceIdMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReferenceIdMapper;
 import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.service.MsHashTreeService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -20,7 +22,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,25 +41,9 @@ public class ApiScenarioReferenceIdService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    public List<ApiScenarioReferenceId> findByReferenceIds(List<String> deleteIds) {
-        if (CollectionUtils.isEmpty(deleteIds)) {
-            return new ArrayList<>(0);
-        } else {
-            ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
-            example.createCriteria().andReferenceIdIn(deleteIds);
-            return apiScenarioReferenceIdMapper.selectByExample(example);
-        }
-    }
-
     public void deleteByScenarioId(String scenarioId) {
         ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
         example.createCriteria().andApiScenarioIdEqualTo(scenarioId);
-        apiScenarioReferenceIdMapper.deleteByExample(example);
-    }
-
-    public void deleteByScenarioIds(List<String> scenarioIds) {
-        ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
-        example.createCriteria().andApiScenarioIdIn(scenarioIds);
         apiScenarioReferenceIdMapper.deleteByExample(example);
     }
 
@@ -69,25 +54,6 @@ public class ApiScenarioReferenceIdService {
         this.deleteByScenarioId(scenario.getId());
         List<ApiScenarioReferenceId> savedList = this.getApiAndScenarioRelation(scenario);
         this.insertApiScenarioReferenceIds(savedList);
-    }
-
-    public void saveApiAndScenarioRelation(List<ApiScenarioWithBLOBs> scenarios) {
-        if (CollectionUtils.isNotEmpty(scenarios)) {
-            List<String> idList = new ArrayList<>(scenarios.size());
-            LinkedList<ApiScenarioReferenceId> savedList = new LinkedList<>();
-            scenarios.forEach(scenario -> {
-                if (StringUtils.isNotEmpty(scenario.getId())) {
-                    idList.add(scenario.getId());
-                    savedList.addAll(this.getApiAndScenarioRelation(scenario));
-                }
-            });
-            if (CollectionUtils.isNotEmpty(idList)) {
-                ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
-                example.createCriteria().andApiScenarioIdIn(idList);
-                apiScenarioReferenceIdMapper.deleteByExample(example);
-            }
-            this.insertApiScenarioReferenceIds(savedList);
-        }
     }
 
     public void insertApiScenarioReferenceIds(List<ApiScenarioReferenceId> list) {
@@ -114,13 +80,13 @@ public class ApiScenarioReferenceIdService {
             JSONArray hashTree = jsonObject.optJSONArray(MsHashTreeService.HASH_TREE);
             for (int index = 0; index < hashTree.length(); index++) {
                 JSONObject item = hashTree.optJSONObject(index);
-                if (item == null) {
+                if (item == null || StringUtils.equals(item.optString(PropertyConstant.TYPE), ElementConstants.SCENARIO)) {
                     continue;
                 }
 
                 if (item.has(MsHashTreeService.ID) && item.has(MsHashTreeService.REFERENCED)) {
                     String url = null;
-                    String method = null;
+                    String method;
                     if (item.has(MsHashTreeService.PATH) && StringUtils.isNotEmpty(MsHashTreeService.PATH)) {
                         url = item.optString(MsHashTreeService.PATH);
                     } else if (item.has(MsHashTreeService.URL)) {
@@ -157,7 +123,8 @@ public class ApiScenarioReferenceIdService {
 
     private String getMethodFromSample(JSONObject item) {
         String method = null;
-        if (item.has(MsHashTreeService.TYPE) && item.has(MsHashTreeService.METHOD) && StringUtils.equalsIgnoreCase(item.optString(MsHashTreeService.TYPE), ElementConstants.HTTP_SAMPLER))
+        if (item.has(MsHashTreeService.TYPE) && item.has(MsHashTreeService.METHOD)
+                && StringUtils.equalsIgnoreCase(item.optString(MsHashTreeService.TYPE), ElementConstants.HTTP_SAMPLER))
             method = item.optString(MsHashTreeService.METHOD);
         return method;
     }
@@ -196,16 +163,6 @@ public class ApiScenarioReferenceIdService {
             }
         }
         return deepRelations;
-    }
-
-    public List<ApiScenarioReferenceId> findByReferenceIdsAndRefType(List<String> deleteIds, String referenceType) {
-        if (CollectionUtils.isEmpty(deleteIds)) {
-            return new ArrayList<>(0);
-        } else {
-            ApiScenarioReferenceIdExample example = new ApiScenarioReferenceIdExample();
-            example.createCriteria().andReferenceIdIn(deleteIds).andReferenceTypeEqualTo(referenceType);
-            return apiScenarioReferenceIdMapper.selectByExample(example);
-        }
     }
 
     public List<ApiScenarioReferenceId> selectUrlByProjectId(String projectId, String versionId) {
