@@ -38,6 +38,8 @@ import io.metersphere.plan.request.function.PlanCaseRelevanceRequest;
 import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.request.ui.RunUiScenarioRequest;
+import io.metersphere.plan.request.ui.TestPlanUiExecuteReportDTO;
+import io.metersphere.plan.request.ui.UiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
@@ -1294,8 +1296,8 @@ public class TestPlanService {
         }
     }
 
-    public void buildUiReport(TestPlanReportDataStruct report, Map config, String planId, TestPlanCaseReportResultDTO testPlanExecuteReportDTO, boolean saveResponse) {
-        ApiPlanReportRequest request = new ApiPlanReportRequest();
+    public void buildUiReport(TestPlanReportDataStruct report, Map config, String planId, TestPlanUiExecuteReportDTO testPlanExecuteReportDTO, boolean saveResponse) {
+        UiPlanReportRequest request = new UiPlanReportRequest();
         request.setConfig(config);
         request.setPlanId(planId);
         request.setSaveResponse(saveResponse);

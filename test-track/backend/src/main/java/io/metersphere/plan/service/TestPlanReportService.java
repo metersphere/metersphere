@@ -21,6 +21,8 @@ import io.metersphere.plan.request.TestPlanReportSaveRequest;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.api.TestPlanRunRequest;
 import io.metersphere.plan.request.performance.LoadPlanReportDTO;
+import io.metersphere.plan.request.ui.TestPlanUiExecuteReportDTO;
+import io.metersphere.plan.request.ui.UiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.*;
 import io.metersphere.plan.service.remote.performance.PlanLoadTestReportService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
@@ -1267,6 +1269,28 @@ public class TestPlanReportService {
         return returnMap;
     }
 
+    private TestPlanUiExecuteReportDTO parseUiCaseReportMap(String reportStructStr) {
+        TestPlanUiExecuteReportDTO uiExecuteReportDTO = new TestPlanUiExecuteReportDTO();
+        if (StringUtils.isNotEmpty(reportStructStr)) {
+            Map<String, String> uiReportMap = new HashMap<>();
+            Map<String, TestPlanUiScenarioDTO> uiDTOMap = new HashMap<>();
+            List<TestPlanUiScenarioDTO> testPlanUiScenarioDTOList = null;
+            try {
+                testPlanUiScenarioDTOList = JSON.parseArray(reportStructStr, TestPlanUiScenarioDTO.class);
+            } catch (Exception ignored) {
+            }
+            if (CollectionUtils.isNotEmpty(testPlanUiScenarioDTOList)) {
+                for (TestPlanUiScenarioDTO dto : testPlanUiScenarioDTOList) {
+                    uiReportMap.put(dto.getId(), dto.getReportId());
+                    uiDTOMap.put(dto.getId(), dto);
+                }
+            }
+            uiExecuteReportDTO.setTestPlanUiScenarioIdAndReportIdMap(uiReportMap);
+            uiExecuteReportDTO.setUiScenarioInfoDTOMap(uiDTOMap);
+        }
+        return uiExecuteReportDTO;
+    }
+
     private Map<String, String> parseCaseReportMap(String reportStructStr) {
         Map<String, String> returnMap = new HashMap<>();
         if (StringUtils.isNotEmpty(reportStructStr)) {
@@ -1343,15 +1367,15 @@ public class TestPlanReportService {
         //查找UI测试报告结果
         if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】开始查找UI测试报告结果");
-            Map<String, String> testPlanUiCaseIdAndReportIdMap = this.parseCaseReportMap(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct());
-            if (MapUtils.isNotEmpty(testPlanUiCaseIdAndReportIdMap)) {
-                ApiPlanReportRequest request = new ApiPlanReportRequest();
-                request.setConfig(reportConfig);
-                request.setPlanId(testPlanId);
-                request.setSaveResponse(null);
-                request.setTestPlanExecuteReportDTO(reportDetailDTO);
+            TestPlanUiExecuteReportDTO uiExecuteReportDTO = this.parseUiCaseReportMap(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct());
+            if (MapUtils.isNotEmpty(uiExecuteReportDTO.getTestPlanUiScenarioIdAndReportIdMap())
+                    && MapUtils.isNotEmpty(uiExecuteReportDTO.getUiScenarioInfoDTOMap())) {
+                UiPlanReportRequest planSubReportRequest = new UiPlanReportRequest();
+                planSubReportRequest.setTestPlanExecuteReportDTO(uiExecuteReportDTO);
+                planSubReportRequest.setConfig(reportConfig);
+                planSubReportRequest.setSaveResponse(false);
                 try {
-                    UiPlanReportDTO uiReport = planTestPlanUiScenarioCaseService.getUiReport(request);
+                    UiPlanReportDTO uiReport = planTestPlanUiScenarioCaseService.getUiReport(planSubReportRequest);
                     reportDetailDTO.setUiPlanReportDTO(uiReport);
                 } catch (Exception e) {
                     LogUtil.error("连接Ui-test查找报告结果信息失败!", e);
