@@ -333,6 +333,12 @@
                 <property name="object" value="${condition}.platform"/>
             </include>
         </if>
+        <if test="${condition}.platformStatus != null">
+            and issues.platform_status
+            <include refid="condition">
+                <property name="object" value="${condition}.platformStatus"/>
+            </include>
+        </if>
         <if test="${condition}.followPeople != null">
             and issues.id in (
             select issue_id from issue_follow where follow_id
