@@ -34,6 +34,7 @@
 
     <el-dialog
       :title="$t('api_test.request.assertions.script')"
+      v-if="visible"
       :visible.sync="visible"
       width="900px"
       append-to-body
