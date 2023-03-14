@@ -85,7 +85,6 @@
 <script>
 import TestPlanFunctionalReport from "@/business/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {
-  getShareTestPlanExtReport,
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
@@ -254,6 +253,8 @@ export default {
             this.loading = false;
             this.report = r.data;
             this.report.config = this.getDefaultConfig(this.report);
+            this.runMode = this.report.runMode;
+            this.resourcePool = this.report.resourcePool;
           });
         }
       } else {
@@ -265,20 +266,6 @@ export default {
             this.runMode = this.report.runMode;
             this.resourcePool = this.report.resourcePool;
             this.report.config = this.getDefaultConfig(this.report);
-          });
-        }
-      }
-      if (!this.isTemplate) {
-        if (this.isShare) {
-          getShareTestPlanExtReport(
-            this.shareId,
-            this.planId,
-            this.reportId
-          ).then((response) => {
-            if (response.data) {
-              this.runMode = response.data.runMode;
-              this.resourcePool = response.data.resourcePool;
-            }
           });
         }
       }

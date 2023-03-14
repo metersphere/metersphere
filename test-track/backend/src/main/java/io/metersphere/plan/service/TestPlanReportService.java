@@ -1124,7 +1124,11 @@ public class TestPlanReportService {
                 });
                 String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
                 report.setResourcePool(resourcePoolNames);
+            } else {
+                report.setResourcePool("LOCAL");
             }
+        } else {
+            report.setResourcePool("LOCAL");
         }
         return report;
     }
@@ -1156,7 +1160,11 @@ public class TestPlanReportService {
                     });
                     String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
                     testPlanReportDTO.setResourcePool(resourcePoolNames);
+                } else {
+                    testPlanReportDTO.setResourcePool("LOCAL");
                 }
+            } else {
+                testPlanReportDTO.setResourcePool("LOCAL");
             }
             // 环境组/运行环境
             if (StringUtils.isNotEmpty(runInfoDTO.getEnvGroupId())) {
