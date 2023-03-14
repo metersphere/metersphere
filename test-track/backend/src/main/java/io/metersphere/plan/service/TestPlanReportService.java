@@ -1335,8 +1335,8 @@ public class TestPlanReportService {
         //查找UI测试报告结果
         if (DiscoveryUtil.hasService(MicroServiceName.UI_TEST)) {
             LogUtil.info("测试计划报告【" + testPlanReportContentWithBLOBs.getTestPlanReportId() + "】开始查找UI测试报告结果");
-            Map<String, String> testPlanLoadCaseIdAndReportIdMap = this.parseCaseReportMap(testPlanReportContentWithBLOBs.getPlanLoadCaseReportStruct());
-            if (MapUtils.isNotEmpty(testPlanLoadCaseIdAndReportIdMap)) {
+            Map<String, String> testPlanUiCaseIdAndReportIdMap = this.parseCaseReportMap(testPlanReportContentWithBLOBs.getPlanUiScenarioReportStruct());
+            if (MapUtils.isNotEmpty(testPlanUiCaseIdAndReportIdMap)) {
                 ApiPlanReportRequest request = new ApiPlanReportRequest();
                 request.setConfig(reportConfig);
                 request.setPlanId(testPlanId);
