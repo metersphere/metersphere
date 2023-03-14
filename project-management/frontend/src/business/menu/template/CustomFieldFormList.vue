@@ -43,7 +43,7 @@
       width="80"
       prop="type">
       <template v-slot="scope">
-        <el-checkbox v-model="scope.row.required"/>
+        <el-checkbox :disabled="scope.row.disabled" v-model="scope.row.required"/>
       </template>
     </ms-table-column>
 

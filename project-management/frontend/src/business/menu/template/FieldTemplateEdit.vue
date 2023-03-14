@@ -197,6 +197,9 @@ export default {
         this.loading = getCustomFieldTemplates(condition).then((response) => {
           this.relateFields = response.data;
           this.relateFields.forEach(item => {
+            if (item.name === '用例等级' && item.system) {
+              item.disabled = true;
+            }
             if (item.options) {
               item.options = JSON.parse(item.options);
             }
@@ -221,6 +224,10 @@ export default {
       this.loading = getCustomFieldDefault(condition).then((response) => {
         let data = response.data;
         data.forEach(item => {
+          if (item.name === '用例等级' && item.system && item.scene === 'TEST_CASE') {
+            item.required = true;
+            item.disabled = true;
+          }
           if (item.id) {
             this.templateContainIds.add(item.id);
           }
