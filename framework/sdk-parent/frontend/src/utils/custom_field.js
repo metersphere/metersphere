@@ -138,6 +138,10 @@ export function buildCustomFields(data, param, template) {
         customField["value"] = item.defaultValue
           ? JSON.stringify(item.defaultValue)
           : "";
+        // 处理 jira 的 sprint 字段
+        if (item.optionLabel) {
+          customField["textValue"] = item.optionLabel;
+        }
       }
       if (item.isEdit) {
         editFields.push(customField);
