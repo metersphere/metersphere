@@ -142,7 +142,7 @@
           :fields-width="fieldsWidth"
           :label="$t('commons.tag')"
           :show-overflow-tooltip="false"
-          min-width="80">
+          min-width="180">
           <template v-slot:default="scope">
             <el-tooltip class="item" effect="dark" placement="top">
                 <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
