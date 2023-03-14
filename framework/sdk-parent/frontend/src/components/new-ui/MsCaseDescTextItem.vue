@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     filterText(val) {
-      if (val.trim() === '' || val.trim().length === 0) {
+      if (!val || !val.trim()) {
         return this.$t('case.none');
       } else {
         return val;
