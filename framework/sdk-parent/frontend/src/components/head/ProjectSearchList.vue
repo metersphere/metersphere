@@ -141,7 +141,7 @@ export default {
       this.reload();
     },
     rewriteProjectRouteParam() {
-      if (this.$route.query.projectId && merge) {
+      if (this.$route.query.projectId) {
         let query = {};
         Object.assign(query, this.$route.query);
 
