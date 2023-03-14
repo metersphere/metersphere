@@ -44,6 +44,7 @@ import ReviewStatus from "@/business/case/components/ReviewStatus";
 import {getReviewerStatusComment} from "@/api/test-review-test-case";
 import MsUserIcon from "metersphere-frontend/src/components/MsUserIcon";
 import {openCaseEdit} from "@/business/case/test-case";
+import { checkProjectPermission } from "@/api/testCase";
 
 export default {
   name: "TestReviewTestCaseEditHeaderBar",
@@ -78,7 +79,13 @@ export default {
       }
     },
     openTestCase() {
-      openCaseEdit({caseId: this.testCase.caseId}, this);
+      checkProjectPermission(this.testCase.projectId).then((r) => {
+        if (r.data) {
+          openCaseEdit({caseId: this.testCase.caseId}, this);
+        } else {
+          this.$error(this.$t("commons.project_permission"));
+        }
+      });
     },
     close() {
       this.$emit('close');

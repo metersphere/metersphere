@@ -343,6 +343,13 @@ export default {
           null,
           buildTestCaseOldFields(item)
         );
+        this.testCaseTemplate.customFields.forEach((item) => {
+          try {
+            item.defaultValue = JSON.parse(item.defaultValue);
+          } catch (e) {
+            // nothing
+          }
+        });
         this.isCustomFiledActive = true;
         this.testCase = item;
         if (!this.testCase.actualResult) {
