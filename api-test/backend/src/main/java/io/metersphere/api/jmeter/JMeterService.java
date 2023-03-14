@@ -117,10 +117,10 @@ public class JMeterService {
         // 接口用例集成报告/测试计划报告日志记录
         if (StringUtils.isNotEmpty(request.getTestPlanReportId())
                 && StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            FixedCapacityUtil.put(request.getTestPlanReportId(), new StringBuffer(""));
+            FixedCapacityUtil.put(request.getTestPlanReportId(), new StringBuffer());
         } else {
             // 报告日志记录
-            FixedCapacityUtil.put(request.getReportId(), new StringBuffer(""));
+            FixedCapacityUtil.put(request.getReportId(), new StringBuffer());
         }
         LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtil.size());
         if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
@@ -148,6 +148,18 @@ public class JMeterService {
         runner.run(request.getReportId());
     }
 
+    private void fileProcessing(JmeterRunRequestDTO request) {
+        ElementUtil.coverArguments(request.getHashTree());
+        //解析HashTree里的文件信息
+        List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(request.getHashTree(), request.getReportId(), false);
+        if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
+            redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()),
+                    JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
+        }
+        redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()),
+                new MsTestPlan().getJmx(request.getHashTree()));
+    }
+
     private void runNode(JmeterRunRequestDTO request) {
         request.setKafkaConfig(KafkaConfig.getKafka());
         //获取MinIO配置和系统下的插件jar包
@@ -160,14 +172,7 @@ public class JMeterService {
             try {
                 // 缓存调试脚本
                 if (request.getHashTree() != null) {
-                    ElementUtil.coverArguments(request.getHashTree());
-                    //解析HashTree里的文件信息
-                    List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(request.getHashTree(), request.getReportId(), false);
-                    if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
-                        redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
-                    }
-
-                    redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()), new MsTestPlan().getJmx(request.getHashTree()));
+                    this.fileProcessing(request);
                 }
                 LoggerUtil.info("开始发送请求[ " + request.getTestId() + " ] 到K8S节点执行", request.getReportId());
                 final Engine engine = EngineFactory.createApiEngine(request);
@@ -191,16 +196,7 @@ public class JMeterService {
             List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
             if (request.getHashTree() != null) {
                 // 过程变量处理
-                ElementUtil.coverArguments(request.getHashTree());
-
-
-                //解析HashTree里的文件信息
-                List<AttachmentBodyFile> attachmentBodyFileList = ApiFileUtil.getExecuteFile(request.getHashTree(), request.getReportId(), false);
-                if (CollectionUtils.isNotEmpty(attachmentBodyFileList)) {
-                    redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()), JmxFileUtil.getRedisJmxFileString(attachmentBodyFileList));
-                }
-
-                redisTemplateService.setIfAbsent(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()), new MsTestPlan().getJmx(request.getHashTree()));
+                this.fileProcessing(request);
                 request.setHashTree(null);
             }
             apiPoolDebugService.run(request, resources);
