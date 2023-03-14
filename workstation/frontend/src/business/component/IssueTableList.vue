@@ -312,7 +312,7 @@ export default {
           }
         }
         if (this.isToDo && item.id === '状态') {
-          item.filters = item.filters.filter(i => i.value !== 'closed')
+          item.filters = item.filters.filter(i => (i.value !== 'closed' && i.value !== '已关闭' && i.value !== 'resolved' && i.value !== 'Done' && i.value !== 'verified'))
         }
       });
 
@@ -401,16 +401,37 @@ export default {
           }
         });
         if (statusFieldId) {
-          this.page.condition.combine.customs = [
+          this.page.condition.combine.platformStatus = [
             {
               id: statusFieldId,
               operator: 'not in',
-              value:[
-                'closed'
+              value: [
+                'closed',
+                '已关闭',
+                'resolved',
+                'Done',
+                'verified'
               ],
               type: 'select'
             }
           ];
+        }
+        this.page.condition.combine.platformStatus = {
+          operator: "not in",
+          value: [
+            'closed',
+            '已关闭',
+            '已完成',
+            '完成',
+            '拒绝',
+            '已拒绝',
+            'rejected',
+            'delete',
+            'resolved',
+            'Done',
+            'verified',
+            '已验证'
+          ],
         }
       }
     },
