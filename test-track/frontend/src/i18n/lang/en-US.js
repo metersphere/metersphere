@@ -154,7 +154,8 @@ const message = {
     public: {
       remove: 'Whether to remove the use case ',
       batch_remove_confirm: "Confirm remove {0} item use case?",
-    }
+    },
+    enter_issues_content: "Please enter the defect content...",
   },
   attachment: {
     preview: "Preview",

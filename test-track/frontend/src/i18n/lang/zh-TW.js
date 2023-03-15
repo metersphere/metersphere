@@ -154,7 +154,8 @@ const message = {
     public: {
       remove: '是否移除用例',
       batch_remove_confirm: "確定移除{0}項用例?",
-    }
+    },
+    enter_issues_content: "輸入缺陷內容...",
   },
   attachment: {
     preview: "預覽",
