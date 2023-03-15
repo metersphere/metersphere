@@ -531,7 +531,7 @@ public class TestPlanLoadCaseService {
     }
 
     public void buildLoadResponse(List<TestPlanLoadCaseDTO> cases) {
-        if (!org.apache.commons.collections.CollectionUtils.isEmpty(cases)) {
+        if (!CollectionUtils.isEmpty(cases)) {
             cases.forEach(item -> {
                 LoadCaseReportRequest request = new LoadCaseReportRequest();
                 String reportId = item.getLoadReportId();

@@ -2,21 +2,30 @@
   <div>
     <el-row :gutter="10">
       <el-col :span="4">
-        <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
-                   @change="changeInstance(currentInstance)">
+        <el-select
+          v-model="currentInstance"
+          placeholder=""
+          size="small"
+          style="width: 100%"
+          @change="changeInstance(currentInstance)"
+        >
           <el-option
             v-for="item in resource"
             :key="item.resourceId"
             :label="item.resourceName"
-            :value="item.resourceId">
+            :value="item.resourceId"
+          >
           </el-option>
         </el-select>
       </el-col>
       <el-col :span="20">
         <div class="logging-content" v-loading="loading">
           <ul class="infinite-list">
-            <li class="infinite-list-item" v-for="(log, index) in logContent"
-                :key="currentInstance+index">
+            <li
+              class="infinite-list-item"
+              v-for="(log, index) in logContent"
+              :key="currentInstance + index"
+            >
               {{ log.content }}
             </li>
           </ul>
@@ -27,7 +36,6 @@
 </template>
 
 <script>
-
 export default {
   name: "LogDetails",
   data() {
@@ -35,14 +43,17 @@ export default {
       resource: [],
       logContent: [],
       result: {},
-      id: '',
+      id: "",
       page: 1,
       pageCount: 5,
       loading: false,
-      currentInstance: ''
+      currentInstance: "",
     };
   },
-  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
+  props: ["report", "export", "isShare", "shareId", "planReportTemplate"],
+  created() {
+    this.getResource();
+  },
   methods: {
     getResource() {
       if (this.planReportTemplate) {
@@ -66,9 +77,9 @@ export default {
       }
       this.loading = true;
       if (this.planReportTemplate) {
-        let {reportLogResource} = this.planReportTemplate;
+        let { reportLogResource } = this.planReportTemplate;
         if (reportLogResource && reportLogResource.length > 0) {
-          let {reportLogs} = reportLogResource[0];
+          let { reportLogs } = reportLogResource[0];
           if (reportLogs) {
             this.handleGetPlanTemplateLog(reportLogs);
           }
@@ -76,7 +87,7 @@ export default {
       }
     },
     handleGetPlanTemplateLog(data) {
-      data.forEach(log => {
+      data.forEach((log) => {
         if (this.logContent) {
           this.logContent.push(log);
         }
@@ -92,9 +103,9 @@ export default {
     },
   },
   watch: {
-    '$route'(to) {
+    $route(to) {
       if (to.name === "perReportView") {
-        this.id = to.path.split('/')[4];
+        this.id = to.path.split("/")[4];
         this.getResource();
       }
     },
@@ -109,7 +120,7 @@ export default {
           this.getResource();
         }
       },
-      deep: true
+      deep: true,
     },
     planReportTemplate: {
       handler() {
@@ -117,8 +128,8 @@ export default {
           this.getResource();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 };
 </script>
@@ -134,11 +145,10 @@ export default {
   padding: 0;
   margin: 0;
   list-style: none;
-  overflow: auto
+  overflow: auto;
 }
 
 .infinite-list-item {
   overflow: hidden;
 }
-
 </style>
