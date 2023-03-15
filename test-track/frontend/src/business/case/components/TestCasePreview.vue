@@ -9,16 +9,41 @@
     <template v-slot:title>
       {{$t('test_track.case.case_desc')}}
     </template>
-    <div style="height: 100%; overflow: auto">
+
+    <div style="height: 1000px; overflow: scroll;">
       <el-form :model="data" class="case-desc-form">
-        <div class="prerequisite-item-layout" style="margin-top: 24px; margin-bottom: 20px">
+
+        <div class="prerequisite-item-layout">
           <h3>{{$t('test_track.case.prerequisite')}}</h3>
-          <span>{{data.prerequisite}}</span>
+          <div class="case-desc-form-div">
+            <span v-if="!data['prerequisite']">{{$t('case.none')}}</span>
+            <ms-mark-down-text v-else :disabled="true" :data="data" prop="prerequisite"/>
+          </div>
         </div>
+
         <step-change-item :label-width="formLabelWidth" :form="data"/>
-        <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="data" :content="data.stepDescription" style="margin-bottom: 20px"/>
-        <ms-case-desc-text-item v-if="data.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="data" :content="data.expectedResult"/>
-        <ms-case-desc-text-item v-if="data.stepModel === 'STEP' || !data.stepModel" :data="data"/>
+
+        <div v-if="data.stepModel === 'TEXT'" class="prerequisite-item-layout">
+          <h3>{{$t('test_track.case.step_desc')}}</h3>
+          <div class="case-desc-form-div">
+            <span v-if="!data['stepDescription']">{{$t('case.none')}}</span>
+            <ms-mark-down-text v-else :disabled="true" :data="data" prop="stepDescription"/>
+          </div>
+        </div>
+
+        <div v-if="data.stepModel === 'TEXT'" class="prerequisite-item-layout">
+          <h3>{{$t('test_track.case.expected_results')}}</h3>
+          <div class="case-desc-form-div">
+            <span v-if="!data['expectedResult']">{{$t('case.none')}}</span>
+            <ms-mark-down-text v-else :disabled="true" :data="data" prop="expectedResult"/>
+          </div>
+        </div>
+
+        <div v-if="data.stepModel === 'STEP' || !data.stepModel" class="prerequisite-item-layout">
+          <div class="case-desc-form-div">
+            <ms-case-desc-text-item :data="data"/>
+          </div>
+        </div>
       </el-form>
     </div>
   </el-drawer>
@@ -29,6 +54,7 @@ import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import MsCaseDescTextItem from "metersphere-frontend/src/components/new-ui/MsCaseDescTextItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
+import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 
 export default {
   name: "TestCasePreview",
@@ -37,6 +63,7 @@ export default {
     MsCaseDescTextItem,
     StepChangeItem,
     TestCaseStepItem,
+    MsMarkDownText
   },
   props: {
     width: {
@@ -109,6 +136,8 @@ export default {
   flex: none;
   order: 0;
   flex-grow: 0;
+  margin-top: 24px;
+  margin-bottom: 20px;
 }
 
 .prerequisite-item-layout h3{
@@ -151,5 +180,10 @@ export default {
   flex: none;
   order: 0;
   flex-grow: 0;
+}
+
+.case-desc-form-div {
+  height: 150px;
+  overflow-y: scroll;
 }
 </style>
