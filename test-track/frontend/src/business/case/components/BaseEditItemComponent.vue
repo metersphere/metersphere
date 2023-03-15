@@ -221,29 +221,22 @@ export default {
     getMemberOptions() {
       if (this.projectId) {
         getProjectMemberById(this.projectId).then((r) => {
-          let tempMemberOptions = r.data || [];
-          let tempArr = [];
-          tempMemberOptions.forEach((e) => {
-            tempArr.push({
-              value: e.id,
-              text: e.name,
-            });
-          });
-          this.memberOptions = tempArr;
+          this.handelMemberOptions(r.data);
         });
       } else {
-        getProjectMemberOption().then((r) => {
-          let tempMemberOptions = r.data || [];
-          let tempArr = [];
-          tempMemberOptions.forEach((e) => {
-            tempArr.push({
-              value: e.id,
-              text: e.name,
-            });
-          });
-          this.memberOptions = tempArr;
-        });
+        this.handelMemberOptions(r.data);
       }
+    },
+    handelMemberOptions(data) {
+      let tempMemberOptions = data || [];
+      let tempArr = [];
+      tempMemberOptions.forEach((e) => {
+        tempArr.push({
+          value: e.id,
+          text: e.name,
+        });
+      });
+      this.memberOptions = tempArr;
     },
     getTranslateOption(item) {
       if (!item) {
