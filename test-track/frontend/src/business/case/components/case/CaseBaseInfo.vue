@@ -148,6 +148,7 @@
         :default-open="defaultOpen"
         :issue-template="testCaseTemplate"
         :editable="editable"
+        :project-id="form.projectId"
       />
     </el-form>
     <el-form ref="baseCaseFrom" :rules="rules" :model="form" class="case-padding">

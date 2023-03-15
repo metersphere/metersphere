@@ -171,7 +171,8 @@ export default {
     contentClickEvent: {
       type: Boolean,
       default: true,
-    }
+    },
+    projectId: String
   },
   computed: {
     edit() {
@@ -218,17 +219,31 @@ export default {
   },
   methods: {
     getMemberOptions() {
-      getProjectMemberOption().then((r) => {
-        let tempMemberOptions = r.data || [];
-        let tempArr = [];
-        tempMemberOptions.forEach((e) => {
-          tempArr.push({
-            value: e.id,
-            text: e.name,
+      if (this.projectId) {
+        getProjectMemberById(this.projectId).then((r) => {
+          let tempMemberOptions = r.data || [];
+          let tempArr = [];
+          tempMemberOptions.forEach((e) => {
+            tempArr.push({
+              value: e.id,
+              text: e.name,
+            });
           });
+          this.memberOptions = tempArr;
         });
-        this.memberOptions = tempArr;
-      });
+      } else {
+        getProjectMemberOption().then((r) => {
+          let tempMemberOptions = r.data || [];
+          let tempArr = [];
+          tempMemberOptions.forEach((e) => {
+            tempArr.push({
+              value: e.id,
+              text: e.name,
+            });
+          });
+          this.memberOptions = tempArr;
+        });
+      }
     },
     getTranslateOption(item) {
       if (!item) {
