@@ -527,7 +527,7 @@ export default {
         this._save();
       }
     },
-    buildPram() {
+    buildParam() {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
@@ -574,7 +574,7 @@ export default {
       return param;
     },
     _save() {
-      let param = this.buildPram();
+      let param = this.buildParam();
       this.parseOldFields(param);
       let option = this.getOption(param);
       this.result.loading = true;

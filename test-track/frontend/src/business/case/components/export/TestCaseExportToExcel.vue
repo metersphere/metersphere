@@ -5,6 +5,7 @@
              :visible.sync="dialogVisible"
              width="40%"
              custom-class="export-dialog"
+             append-to-body
              @close="close">
     <span class="select-row">{{!exportAll ? $t('test_track.batch_operate_select_row_count', [size]) : $t('test_track.select_all_row')}}</span>
     <test-case-export-field-select-table
@@ -36,7 +37,7 @@ import {useStore} from "@/store";
 import {mapState} from "pinia";
 const store = useStore();
 export default {
-  name: "TestCaseImport",
+  name: "TestCaseExportToExcel",
   components: {TestCaseExportFieldSelectTable, ElUploadList, MsTableButton},
   data() {
     return {

@@ -21,10 +21,6 @@
       @filter="filter"
       ref="nodeTree">
       <template v-slot:header>
-        <ms-search-bar
-          :show-operator="showOperator"
-          :condition="condition"
-          :commands="operators"/>
         <module-public-button
           v-if="showPublicBtn"
           :condition="condition"
@@ -50,7 +46,6 @@
 import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import TestCaseCreate from "@/business/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/case/components/import/TestCaseImport";
-import TestCaseExport from "@/business/case/components/export/TestCaseExport";
 import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar";
 import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
@@ -74,7 +69,6 @@ export default {
     IsChangeConfirm,
     MsSearchBar,
     TestCaseImport,
-    TestCaseExport,
     TestCaseCreate,
     MsNodeTree,
     ModuleTrashButton,
@@ -93,23 +87,6 @@ export default {
         trashEnable: false,
         publicEnable: false
       },
-      operators: [
-        {
-          label: this.$t('test_track.case.create'),
-          callback: this.addTestCase,
-          permissions: ['PROJECT_TRACK_CASE:READ+CREATE']
-        },
-        {
-          label: this.$t('api_test.api_import.label'),
-          callback: this.handleImport,
-          permissions: ['PROJECT_TRACK_CASE:READ+IMPORT']
-        },
-        {
-          label: this.$t('api_test.export_config'),
-          callback: this.handleExport,
-          permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
-        }
-      ],
       currentNode: {}
     };
   },
@@ -158,13 +135,6 @@ export default {
     }
   },
   methods: {
-    addTestCase() {
-      if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
-        return;
-      }
-      this.$refs.testCaseCreate.open(this.currentModule)
-    },
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
@@ -277,28 +247,6 @@ export default {
         this.list();
       });
     },
-    handleImport() {
-      if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
-        return;
-      }
-      if (!this.openMinderConfirm()) {
-        this.$refs.testCaseImport.open();
-      }
-    },
-    handleExport() {
-      if (!this.projectId) {
-        this.$warning(this.$t('commons.check_project_tip'));
-        return;
-      }
-      this.$emit('handleExportCheck')
-    },
-    openExport() {
-      this.$refs.testCaseExport.open();
-    },
-    exportTestCase(type, param) {
-      this.$emit('exportTestCase', type, param);
-    },
     remove(nodeIds) {
       testCaseNodeDelete(nodeIds)
         .then(() => {
@@ -370,11 +318,6 @@ export default {
     },
     changeConfirm(isSave) {
       this.$emit('importChangeConfirm', isSave);
-    },
-    closeExport() {
-      if (this.$refs.testCaseExport) {
-        this.$refs.testCaseExport.close();
-      }
     }
   }
 };
