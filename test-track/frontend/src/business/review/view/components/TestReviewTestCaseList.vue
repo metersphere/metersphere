@@ -195,7 +195,7 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
-import {editTestReviewTestCaseOrder, getTestReviewTestCase,testCaseAutoCheck} from "@/api/testCase";
+import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
@@ -404,7 +404,6 @@ export default {
       this.$refs.headerCustom.open(list);
     },
     initTableData(callback) {
-      this.autoCheckStatus();
       initCondition(this.condition, this.condition.selectAll);
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
@@ -435,13 +434,6 @@ export default {
           });
         this.getNexPageData();
       }
-    },
-    autoCheckStatus() {
-      //  检查执行结果，自动更新计划状态
-      if (!this.reviewId) {
-        return;
-      }
-      testCaseAutoCheck(this.reviewId);
     },
     getNexPageData() {
       getTestReviewTestCase(this.currentPage * this.pageSize + 1, 1, this.condition)
