@@ -110,6 +110,7 @@ export default {
         // 获取有权限的跳转路径
         copyRedirectUrl = getDefaultSecondLevelMenu(copyRedirectUrl);
         if (copyRedirectUrl !== '/') {
+          copyRedirectUrl = this.rewriteProjectRouteUrl(copyRedirectUrl);
           this.$router.push(copyRedirectUrl);
           this.reload();
           return;
@@ -153,6 +154,46 @@ export default {
           query: Object.assign(query)
         });
       }
+    },
+    rewriteProjectRouteUrl(url) {
+      // 切换项目的时候如果有项目 ID 参数，修改为切换后的项目 ID，模块参数置空
+      // url 示例 /track/case/all?projectId=AAA&moduleId=BBB
+      let urlArray = url.split('?');
+      let path = urlArray[0];  // /track/case/all
+      if (urlArray.length > 1) {
+        let query = urlArray[1];
+        if (!query) {
+          return path;
+        }
+        path += '?';
+        // projectId=AAA&moduleId=BBB
+        let queryParams = query.split('&');
+        for (let queryParam of queryParams) {
+          if (!queryParam) {
+            break;
+          }
+          let kv = queryParam.split('=');
+          let paramKey = kv[0];
+          if (kv.length < 1) {
+            break;
+          }
+          let paramValue = kv[1];
+          if (!paramValue) {
+            continue;
+          }
+          if (paramKey === 'projectId') {
+            paramValue = getCurrentProjectID();
+          } else if (paramKey === 'moduleId') {
+            break;
+          }
+          path += paramKey + '=' + paramValue + '&';
+        }
+      }
+      if (path[path.length - 1] === '&') {
+        // 去掉末尾 &
+        return path.substring(0, path.length - 1);
+      }
+      return path;
     },
     change(projectId) {
       let currentProjectId = getCurrentProjectID();
