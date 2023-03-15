@@ -467,12 +467,12 @@ export default {
 }
 .select {
   width: 100%;
-  max-height: px2rem(64);
+  max-height: px2rem(128);
   line-height: 32px;
   font-weight: 400;
   font-size: 14px;
   color: #1f2329;
-  overflow-y: hidden;
+  overflow-y: scroll;
 }
 // .select:hover {
 //   background: rgba(31, 35, 41, 0.1);
