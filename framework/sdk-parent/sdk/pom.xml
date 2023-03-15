@@ -321,7 +321,15 @@
                     <artifactId>jakarta.activation</artifactId>
                     <groupId>com.sun.activation</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>async-http-client</artifactId>
+                    <groupId>org.asynchttpclient</groupId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-http-jdk-client</artifactId>
         </dependency>
 
         <!-- 基础包 -->
