@@ -104,9 +104,5 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.updateOrder(request);
     }
 
-    @GetMapping("/auto-check/{caseId}")
-    public void autoCheck(@PathVariable String caseId) {
-        testReviewTestCaseService.checkStatus(caseId);
-    }
 
 }

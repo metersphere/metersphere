@@ -144,6 +144,9 @@ public class TestCaseReviewService {
             request.setReviewerId(SessionUtils.getUserId());
         }
         List<TestCaseReviewDTO> list = extTestCaseReviewMapper.list(request);
+        list.forEach(testCaseReviewDTO -> {
+            testReviewTestCaseService.checkStatus(testCaseReviewDTO);
+        });
         calcReviewRate(list);
         setReviews(list);
         return list;
@@ -521,11 +524,11 @@ public class TestCaseReviewService {
         }
 
         TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
-        if (StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Prepare.name())
-                || StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Completed.name())) {
+        if (StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Prepare.name())) {
             testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
             testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
         }
+
     }
 
     public List<String> getTestCaseReviewerIds(String reviewId) {
