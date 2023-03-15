@@ -1507,7 +1507,7 @@ public class ApiDefinitionService {
         UpdateApiModuleDTO updateApiModuleDTO = apiModuleService.checkApiModule(request, apiImport, filterData, StringUtils.equals("fullCoverage", request.getModeId()), urlRepeat);
         List<ApiDefinitionWithBLOBs> updateList = updateApiModuleDTO.getNeedUpdateList();
         List<ApiDefinitionWithBLOBs> data = updateApiModuleDTO.getDefinitionWithBLOBs();
-        List<ApiModule> moduleList = updateApiModuleDTO.getModuleList();
+        Map<String, ApiModule> moduleMap = updateApiModuleDTO.getModuleMap();
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = updateApiModuleDTO.getCaseWithBLOBs();
         Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
 
@@ -1521,10 +1521,8 @@ public class ApiDefinitionService {
             num = getNextNum(data.get(0).getProjectId());
         }
 
-        if (moduleList != null) {
-            for (ApiModule apiModule : moduleList) {
-                apiModuleMapper.insert(apiModule);
-            }
+        if (moduleMap != null) {
+            delModule(data, moduleMap, apiModuleMapper);
         }
         //如果需要导入的数据为空。此时清空mock信息
         if (data.isEmpty()) {
@@ -1625,6 +1623,33 @@ public class ApiDefinitionService {
         planRequest.setProjectId(request.getProjectId());
         dto.setTestPlanList(extTestPlanMapper.selectTestPlanByRelevancy(planRequest));
         return dto;
+    }
+
+    private static void delModule(List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap, ApiModuleMapper apiModuleMapper) {
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        Map<String, ApiModule> rootModuleMap = new HashMap<>();
+        Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
+        //过滤空的模块
+        moduleMap.forEach((modulePath, v) -> {
+            if (moduleOptionData.get(modulePath) != null && moduleOptionData.get(modulePath).size() > 0) {
+                apiModuleMapper.insert(v);
+            } else {
+                rootModuleMap.put(modulePath, v);
+            }
+        });
+        //防止空的模块是其余模块的父亲
+        rootModuleMap.forEach((modulePath, v) -> {
+            for (String path : moduleOptionData.keySet()) {
+                String[] modulePathTree = apiModuleService.getPathTree(modulePath);
+                String[] pathTree = apiModuleService.getPathTree(path);
+                List<String> modulePathList = Arrays.asList(modulePathTree);
+                List<String> pathTreeList = Arrays.asList(pathTree);
+                if (new HashSet<>(pathTreeList).containsAll(modulePathList)) {
+                    apiModuleMapper.insert(v);
+                    break;
+                }
+            }
+        });
     }
 
     public void editApiBath(ApiBatchRequest request) {
