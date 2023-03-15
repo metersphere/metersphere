@@ -7,7 +7,9 @@
             <span class="ms-card-data-digital">{{ maxUsers }}</span>
             <span class="ms-card-data-unit"> VU</span>
           </span>
-          <span class="ms-card-desc">{{ $t('load_test.report.ActiveThreadsChart') }}</span>
+          <span class="ms-card-desc">{{
+            $t("load_test.report.ActiveThreadsChart")
+          }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -16,7 +18,9 @@
             <span class="ms-card-data-digital">{{ avgTransactions }}</span>
             <span class="ms-card-data-unit"> TPS</span>
           </span>
-          <span class="ms-card-desc">{{ $t('load_test.report.TransactionsChart') }}</span>
+          <span class="ms-card-desc">{{
+            $t("load_test.report.TransactionsChart")
+          }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -25,7 +29,9 @@
             <span class="ms-card-data-digital">{{ errors }}</span>
             <span class="ms-card-data-unit"> %</span>
           </span>
-          <span class="ms-card-desc">{{ $t('load_test.report.ErrorsChart') }}</span>
+          <span class="ms-card-desc">{{
+            $t("load_test.report.ErrorsChart")
+          }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -34,7 +40,9 @@
             <span class="ms-card-data-digital">{{ avgResponseTime }}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
-          <span class="ms-card-desc">{{ $t('load_test.report.ResponseTimeChart') }}</span>
+          <span class="ms-card-desc">{{
+            $t("load_test.report.ResponseTimeChart")
+          }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -43,7 +51,9 @@
             <span class="ms-card-data-digital">{{ responseTime90 }}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
-          <span class="ms-card-desc">90% {{ $t('load_test.report.ResponseTimeChart') }}</span>
+          <span class="ms-card-desc"
+            >90% {{ $t("load_test.report.ResponseTimeChart") }}</span
+          >
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -52,17 +62,27 @@
             <span class="ms-card-data-digital">{{ avgBandwidth }}</span>
             <span class="ms-card-data-unit"> KiB/s</span>
           </span>
-          <span class="ms-card-desc">{{ $t('load_test.report.Network') }}</span>
+          <span class="ms-card-desc">{{ $t("load_test.report.Network") }}</span>
         </el-card>
       </el-col>
     </el-row>
 
     <el-row>
       <el-col :span="12">
-        <ms-chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"></ms-chart>
+        <ms-chart
+          ref="chart1"
+          :options="loadOption"
+          class="chart-config"
+          :autoresize="true"
+        ></ms-chart>
       </el-col>
       <el-col :span="12">
-        <ms-chart ref="chart2" :options="resOption" class="chart-config" :autoresize="true"></ms-chart>
+        <ms-chart
+          ref="chart2"
+          :options="resOption"
+          class="chart-config"
+          :autoresize="true"
+        ></ms-chart>
       </el-col>
     </el-row>
   </div>
@@ -71,7 +91,19 @@
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 
-const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+const color = [
+  "#60acfc",
+  "#32d3eb",
+  "#5bc49f",
+  "#feb64d",
+  "#ff7c7c",
+  "#9287e7",
+  "#ca8622",
+  "#bda29a",
+  "#6e7074",
+  "#546570",
+  "#c4ccd3",
+];
 
 const groupBy = function (xs, key) {
   return xs.reduce(function (rv, x) {
@@ -82,7 +114,7 @@ const groupBy = function (xs, key) {
 
 export default {
   name: "TestOverview",
-  components: {MsChart},
+  components: { MsChart },
   data() {
     return {
       maxUsers: "0",
@@ -96,10 +128,13 @@ export default {
       resOption: {},
       errorOption: {},
       resCodeOption: {},
-      id: ''
+      id: "",
     };
   },
-  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
+  props: ["report", "export", "isShare", "shareId", "planReportTemplate"],
+  created() {
+    this.initTableData();
+  },
   methods: {
     initTableData() {
       if (this.planReportTemplate) {
@@ -110,13 +145,13 @@ export default {
       this.getResChart();
     },
     buildInfo(data) {
-      this.maxUsers = data ? data.maxUsers : '0';
-      this.avgThroughput = data ? data.avgThroughput : '0';
-      this.avgTransactions = data ? data.avgTransactions : '0';
-      this.errors = data ? data.errors : '0';
-      this.avgResponseTime = data ? data.avgResponseTime : '0';
-      this.responseTime90 = data ? data.responseTime90 : '0';
-      this.avgBandwidth = data ? data.avgBandwidth : '0';
+      this.maxUsers = data ? data.maxUsers : "0";
+      this.avgThroughput = data ? data.avgThroughput : "0";
+      this.avgTransactions = data ? data.avgTransactions : "0";
+      this.errors = data ? data.errors : "0";
+      this.avgResponseTime = data ? data.avgResponseTime : "0";
+      this.responseTime90 = data ? data.responseTime90 : "0";
+      this.avgBandwidth = data ? data.avgBandwidth : "0";
     },
     getLoadChart() {
       if (this.planReportTemplate) {
@@ -131,63 +166,77 @@ export default {
       let loadOption = {
         color: color,
         title: {
-          text: 'Load',
-          left: 'center',
+          text: "Load",
+          left: "center",
           top: 20,
           textStyle: {
-            color: '#65A2FF'
+            color: "#65A2FF",
           },
         },
         tooltip: {
           show: true,
-          trigger: 'axis',
+          trigger: "axis",
           // extraCssText: 'z-index: 999;',
           confine: true,
         },
         legend: {},
         xAxis: {},
-        series: []
+        series: [],
       };
 
       let allData = [];
-      let result = groupBy(data, 'xAxis');
+      let result = groupBy(data, "xAxis");
       for (const xAxis in result) {
-        let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
-        let yAxis2 = result[xAxis].filter(a => a.yAxis === -1).map(a => a.yAxis2).reduce((a, b) => a + b, 0);
-        allData.push({
-          groupName: 'users',
-          xAxis: xAxis,
-          yAxis: yAxis1,
-          yAxis2: -1,
-          yAxisIndex: 0,
-        }, {
-          groupName: 'transactions/s',
-          xAxis: xAxis,
-          yAxis: -1,
-          yAxis2: yAxis2,
-          yAxisIndex: 1,
-        });
+        let yAxis1 = result[xAxis]
+          .filter((a) => a.yAxis2 === -1)
+          .map((a) => a.yAxis)
+          .reduce((a, b) => a + b, 0);
+        let yAxis2 = result[xAxis]
+          .filter((a) => a.yAxis === -1)
+          .map((a) => a.yAxis2)
+          .reduce((a, b) => a + b, 0);
+        allData.push(
+          {
+            groupName: "users",
+            xAxis: xAxis,
+            yAxis: yAxis1,
+            yAxis2: -1,
+            yAxisIndex: 0,
+          },
+          {
+            groupName: "transactions/s",
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis2,
+            yAxisIndex: 1,
+          }
+        );
       }
-      let yAxisList = allData.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-      let yAxis2List = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+      let yAxisList = allData
+        .filter((m) => m.yAxis2 === -1)
+        .map((m) => m.yAxis);
+      let yAxis2List = allData
+        .filter((m) => m.yAxis === -1)
+        .map((m) => m.yAxis2);
       let yAxisListMax = this._getChartMax(yAxisList);
       let yAxis2ListMax = this._getChartMax(yAxis2List);
-      loadOption.yAxis = [{
-        name: 'User',
-        type: 'value',
-        min: 0,
-        max: yAxisListMax,
-        splitNumber: 5,
-        interval: yAxisListMax / 5
-      },
+      loadOption.yAxis = [
         {
-          name: 'Transactions/s',
-          type: 'value',
+          name: "User",
+          type: "value",
+          min: 0,
+          max: yAxisListMax,
+          splitNumber: 5,
+          interval: yAxisListMax / 5,
+        },
+        {
+          name: "Transactions/s",
+          type: "value",
           splitNumber: 5,
           min: 0,
           max: yAxis2ListMax,
-          interval: yAxis2ListMax / 5
-        }
+          interval: yAxis2ListMax / 5,
+        },
       ];
       this.loadOption = this.generateOption(loadOption, allData);
     },
@@ -204,16 +253,16 @@ export default {
       let resOption = {
         color: color,
         title: {
-          text: 'Response Time',
-          left: 'center',
+          text: "Response Time",
+          left: "center",
           top: 20,
           textStyle: {
-            color: '#99743C'
+            color: "#99743C",
           },
         },
         tooltip: {
           show: true,
-          trigger: 'axis',
+          trigger: "axis",
           // extraCssText: 'z-index: 999;',
           confine: true,
           formatter: function (params, ticket, callback) {
@@ -231,21 +280,24 @@ export default {
             }
 
             return result;
-          }
+          },
         },
         legend: {},
         xAxis: {},
-        series: []
+        series: [],
       };
 
       let allData = [];
-      let result = groupBy(data, 'xAxis');
+      let result = groupBy(data, "xAxis");
       for (const xAxis in result) {
-        let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+        let yAxis1 = result[xAxis]
+          .filter((a) => a.yAxis2 === -1)
+          .map((a) => a.yAxis)
+          .reduce((a, b) => a + b, 0);
         yAxis1 = yAxis1 / result[xAxis].length;
 
         allData.push({
-          groupName: 'response',
+          groupName: "response",
           xAxis: xAxis,
           yAxis: -1,
           yAxis2: yAxis1,
@@ -253,16 +305,18 @@ export default {
         });
       }
 
-      let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+      let yAxisList = allData
+        .filter((m) => m.yAxis === -1)
+        .map((m) => m.yAxis2);
       let yAxisListMax = this._getChartMax(yAxisList);
       resOption.yAxis = [
         {
-          name: 'Response Time',
-          type: 'value',
+          name: "Response Time",
+          type: "value",
           min: 0,
           max: yAxisListMax,
-          interval: yAxisListMax / 5
-        }
+          interval: yAxisListMax / 5,
+        },
       ];
       this.resOption = this.generateOption(resOption, allData);
     },
@@ -279,16 +333,16 @@ export default {
       let errorOption = {
         color: color,
         title: {
-          text: 'Errors',
-          left: 'center',
+          text: "Errors",
+          left: "center",
           top: 20,
           textStyle: {
-            color: '#99743C'
+            color: "#99743C",
           },
         },
         tooltip: {
           show: true,
-          trigger: 'axis',
+          trigger: "axis",
           // extraCssText: 'z-index: 999;',
           confine: true,
           formatter: function (params, ticket, callback) {
@@ -306,36 +360,41 @@ export default {
             }
 
             return result;
-          }
+          },
         },
         legend: {},
         xAxis: {},
-        series: []
+        series: [],
       };
 
       let allData = [];
-      let result = groupBy(data, 'xAxis');
+      let result = groupBy(data, "xAxis");
       for (const xAxis in result) {
-        let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+        let yAxis1 = result[xAxis]
+          .filter((a) => a.yAxis2 === -1)
+          .map((a) => a.yAxis)
+          .reduce((a, b) => a + b, 0);
 
         allData.push({
-          groupName: 'errors',
+          groupName: "errors",
           xAxis: xAxis,
           yAxis: -1,
           yAxis2: yAxis1,
           yAxisIndex: 0,
         });
       }
-      let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+      let yAxisList = allData
+        .filter((m) => m.yAxis === -1)
+        .map((m) => m.yAxis2);
       let yAxisListMax = this._getChartMax(yAxisList);
       errorOption.yAxis = [
         {
-          name: 'No',
-          type: 'value',
+          name: "No",
+          type: "value",
           min: 0,
           max: yAxisListMax,
-          interval: yAxisListMax / 5
-        }
+          interval: yAxisListMax / 5,
+        },
       ];
 
       this.errorOption = this.generateOption(errorOption, allData);
@@ -353,16 +412,16 @@ export default {
       let resCodeOption = {
         color: color,
         title: {
-          text: 'Response code',
-          left: 'center',
+          text: "Response code",
+          left: "center",
           top: 20,
           textStyle: {
-            color: '#99743C'
+            color: "#99743C",
           },
         },
         tooltip: {
           show: true,
-          trigger: 'axis',
+          trigger: "axis",
           // extraCssText: 'z-index: 999;',
           confine: true,
           formatter: function (params, ticket, callback) {
@@ -380,43 +439,52 @@ export default {
             }
 
             return result;
-          }
+          },
         },
         legend: {},
         xAxis: {},
-        series: []
+        series: [],
       };
 
       let allData = [];
-      let result = groupBy(data, 'xAxis');
+      let result = groupBy(data, "xAxis");
       for (const xAxis in result) {
-        let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+        let yAxis1 = result[xAxis]
+          .filter((a) => a.yAxis2 === -1)
+          .map((a) => a.yAxis)
+          .reduce((a, b) => a + b, 0);
 
         allData.push({
-          groupName: 'codes',
+          groupName: "codes",
           xAxis: xAxis,
           yAxis: -1,
           yAxis2: yAxis1,
           yAxisIndex: 0,
         });
       }
-      let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+      let yAxisList = allData
+        .filter((m) => m.yAxis === -1)
+        .map((m) => m.yAxis2);
       let yAxisListMax = this._getChartMax(yAxisList);
       resCodeOption.yAxis = [
         {
-          name: 'No',
-          type: 'value',
+          name: "No",
+          type: "value",
           min: 0,
           max: yAxisListMax,
-          interval: yAxisListMax / 5
-        }
+          interval: yAxisListMax / 5,
+        },
       ];
       this.resCodeOption = this.generateOption(resCodeOption, allData);
     },
     generateOption(option, data) {
       let chartData = data;
-      let legend = [], series = {}, xAxis = [], seriesData = [], yAxisIndex = {};
-      chartData.forEach(item => {
+      let legend = [],
+        series = {},
+        xAxis = [],
+        seriesData = [],
+        yAxisIndex = {};
+      chartData.forEach((item) => {
         if (!xAxis.includes(item.xAxis)) {
           xAxis.push(item.xAxis);
         }
@@ -428,9 +496,15 @@ export default {
           series[name] = [];
         }
         if (item.yAxis === -1) {
-          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis2.toFixed(2)]);
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, [
+            item.xAxis,
+            item.yAxis2.toFixed(2),
+          ]);
         } else {
-          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, [
+            item.xAxis,
+            item.yAxis.toFixed(2),
+          ]);
         }
       });
       this.$set(option.legend, "data", legend);
@@ -442,13 +516,13 @@ export default {
         d.sort((a, b) => a[0].localeCompare(b[0]));
         let items = {
           name: name,
-          type: 'line',
+          type: "line",
           data: d,
           smooth: true,
-          sampling: 'lttb',
+          sampling: "lttb",
           showSymbol: false,
           animation: !this.export,
-          yAxisIndex: yAxisIndex[name]
+          yAxisIndex: yAxisIndex[name],
         };
         seriesData.push(items);
       }
@@ -461,7 +535,7 @@ export default {
     },
     _unique(arr) {
       return Array.from(new Set(arr));
-    }
+    },
   },
   watch: {
     report: {
@@ -474,20 +548,20 @@ export default {
         if (status === "Completed" || status === "Running") {
           this.initTableData();
         } else {
-          this.maxUsers = '0';
-          this.avgThroughput = '0';
-          this.avgTransactions = '0';
-          this.errors = '0';
-          this.avgResponseTime = '0';
-          this.responseTime90 = '0';
-          this.avgBandwidth = '0';
+          this.maxUsers = "0";
+          this.avgThroughput = "0";
+          this.avgTransactions = "0";
+          this.errors = "0";
+          this.avgResponseTime = "0";
+          this.responseTime90 = "0";
+          this.avgBandwidth = "0";
           this.loadOption = {};
           this.resOption = {};
           this.errorOption = {};
           this.resCodeOption = {};
         }
       },
-      deep: true
+      deep: true,
     },
     planReportTemplate: {
       handler() {
@@ -495,14 +569,13 @@ export default {
           this.initTableData();
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 };
 </script>
 
 <style scoped>
-
 .ms-card-data {
   text-align: left;
   display: block;
@@ -533,52 +606,51 @@ export default {
 }
 
 .ms-card-index-2 .ms-card-data-digital {
-  color: #65A2FF;
+  color: #65a2ff;
 }
 
 .ms-card-index-2 {
-  border-left-color: #65A2FF;
+  border-left-color: #65a2ff;
   border-left-width: 3px;
 }
 
 .ms-card-index-3 .ms-card-data-digital {
-  color: #E6113C;
+  color: #e6113c;
 }
 
 .ms-card-index-3 {
-  border-left-color: #E6113C;
+  border-left-color: #e6113c;
   border-left-width: 3px;
 }
 
 .ms-card-index-4 .ms-card-data-digital {
-  color: #99743C;
+  color: #99743c;
 }
 
 .ms-card-index-4 {
-  border-left-color: #99743C;
+  border-left-color: #99743c;
   border-left-width: 3px;
 }
 
 .ms-card-index-5 .ms-card-data-digital {
-  color: #99743C;
+  color: #99743c;
 }
 
 .ms-card-index-5 {
-  border-left-color: #99743C;
+  border-left-color: #99743c;
   border-left-width: 3px;
 }
 
 .ms-card-index-6 .ms-card-data-digital {
-  color: #3C9899;
+  color: #3c9899;
 }
 
 .ms-card-index-6 {
-  border-left-color: #3C9899;
+  border-left-color: #3c9899;
   border-left-width: 3px;
 }
 
 .chart-config {
   width: 100%;
 }
-
 </style>
