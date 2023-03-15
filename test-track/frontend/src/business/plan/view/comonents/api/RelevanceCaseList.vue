@@ -50,10 +50,21 @@
           width="180px"
           :label="'API'+ $t('api_test.definition.api_path')"/>
 
-        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')" :show-overflow-tooltip="false">
           <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <el-tooltip class="item" effect="dark" placement="top">
+              <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+              <div class="oneLine">
+                <ms-tag
+                  v-for="(itemName, index) in scope.row.tags"
+                  :key="index"
+                  type="success"
+                  effect="plain"
+                  :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                  :content="itemName"
+                  style="margin-left: 0px; margin-right: 2px" />
+              </div>
+            </el-tooltip>
           </template>
         </ms-table-column>
 
@@ -265,6 +276,17 @@ export default {
       }
       this.clear();
     },
+    getTagToolTips(tags) {
+      try {
+        let showTips = '';
+        tags.forEach((item) => {
+          showTips += item + ',';
+        });
+        return showTips.substr(0, showTips.length - 1);
+      } catch (e) {
+        return '';
+      }
+    },
     showExecResult(row) {
       this.visible = false;
       this.$emit('showExecResult', row);
@@ -355,6 +377,12 @@ export default {
   float: right;
   margin-top: 5px;
   margin-right: 10px;
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 </style>
