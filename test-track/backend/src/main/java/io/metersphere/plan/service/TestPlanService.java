@@ -1423,8 +1423,10 @@ public class TestPlanService {
         if (serviceIdSet.contains(MicroServiceName.API_TEST)) {
             report.setApiAllCases(planTestPlanApiCaseService.buildResponse(report.getApiAllCases()));
             report.setApiFailureCases(planTestPlanApiCaseService.buildResponse(report.getApiFailureCases()));
+            report.setErrorReportCases(planTestPlanApiCaseService.buildResponse(report.getErrorReportCases()));
             report.setScenarioAllCases(planTestPlanScenarioCaseService.buildResponse(report.getScenarioAllCases()));
             report.setScenarioFailureCases(planTestPlanScenarioCaseService.buildResponse(report.getScenarioFailureCases()));
+            report.setErrorReportScenarios(planTestPlanScenarioCaseService.buildResponse(report.getErrorReportScenarios()));
         }
 
         if (serviceIdSet.contains(MicroServiceName.UI_TEST)) {
@@ -1455,7 +1457,8 @@ public class TestPlanService {
             String line = null;
             while (null != (line = bufferedReader.readLine())) {
                 if (line.contains("\"#report\"")) {
-                    line = line.replace("\"#report\"", new Gson().toJson(report));
+                    String reportInfo = new Gson().toJson(report);
+                    line = line.replace("\"#report\"", reportInfo);
                 }
                 line += StringUtils.LF;
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);

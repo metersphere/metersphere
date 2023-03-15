@@ -3,7 +3,6 @@ package io.metersphere.plan.utils;
 import io.metersphere.base.domain.TestCaseTest;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.dto.*;
-import io.metersphere.i18n.Translator;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.CaseExecResult;
 import io.metersphere.plan.enums.FunctionCaseExecResult;
@@ -259,6 +258,6 @@ public class TestCaseSyncStatusUtil {
     }
 
     public static String generateCommentDesc(String testPlanName, String caseName, String status) {
-        return String.format(Translator.get("test_case_sync_status_comment"), caseName, testPlanName, status);
+        return String.format("关联的case %s 在测试计划【%s】内的执行结果出现%s。", caseName, testPlanName, status);
     }
 }
