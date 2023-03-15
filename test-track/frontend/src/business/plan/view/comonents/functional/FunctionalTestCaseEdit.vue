@@ -618,7 +618,7 @@ export default {
       this.relationGraphOpen = val;
     },
     openTestTestCase(item) {
-      openCaseEdit({caseId: item.caseId}, this);
+      openCaseEdit({caseId: item.caseId, projectId: item.projectId}, this);
     },
     addPLabel(str) {
       return "<p>" + str + "</p>";

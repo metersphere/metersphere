@@ -469,7 +469,7 @@ export default {
       // 这个接口会校验权限
       getEditSimpleTestCase(testCase.id)
         .then(() => {
-          openCaseEdit({caseId: testCase.id}, this);
+          openCaseEdit({caseId: testCase.id, projectId: testCase.projectId}, this);
         })
         .catch(() => {});
     },

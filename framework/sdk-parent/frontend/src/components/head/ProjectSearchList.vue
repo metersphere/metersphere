@@ -204,7 +204,6 @@ export default {
       switchProject({id: this.userId, lastProjectId: projectId})
         .then(response => {
           this.userStore.switchProject(response);
-          this.userStore.projectChangeFlag = true;
           this.$EventBus.$emit('projectChange');
           this.changeProjectName(projectId);
           // 刷新路由

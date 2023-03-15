@@ -81,7 +81,7 @@ export default {
     openTestCase() {
       checkProjectPermission(this.testCase.projectId).then((r) => {
         if (r.data) {
-          openCaseEdit({caseId: this.testCase.caseId}, this);
+          openCaseEdit({caseId: this.testCase.caseId, projectId: this.testCase.projectId}, this);
         } else {
           this.$error(this.$t("commons.project_permission"));
         }
