@@ -35,24 +35,27 @@ import io.metersphere.plan.service.TestPlanTestCaseService;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.service.remote.ui.RelevanceUiCaseService;
-import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testcase.*;
 import io.metersphere.service.issue.platform.IssueFactory;
 import io.metersphere.service.remote.api.RelevanceApiCaseService;
 import io.metersphere.service.remote.performance.RelevanceLoadCaseService;
 import io.metersphere.service.remote.project.TrackTestCaseTemplateService;
+import io.metersphere.service.remote.ui.RelevanceUiCaseService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
 import io.metersphere.xmind.utils.XmindExportUtil;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.EditTestCaseRequest;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import io.metersphere.xpack.track.issue.IssuesPlatform;
 import io.metersphere.xpack.version.service.ProjectVersionService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -68,9 +71,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +80,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -233,6 +232,7 @@ public class TestCaseService {
         request.setDemandId(request.getDemandId());
         request.setDemandName(request.getDemandName());
         request.setCreateUser(SessionUtils.getUserId());
+        request.setLastExecuteResult(null);
         this.setNode(request);
         request.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extTestCaseMapper::getLastOrder));
         //直接点保存 || 复制走的逻辑
@@ -444,9 +444,9 @@ public class TestCaseService {
         Boolean reReview = config.getReReview();
         if (BooleanUtils.isTrue(reReview) && originCase != null) {
             if (!StringUtils.equals(originCase.getPrerequisite(), testCase.getPrerequisite())   // 前置条件添加发生变化
-            || !StringUtils.equals(originCase.getSteps(), testCase.getSteps())                  // 步骤发生变化
-            || !StringUtils.equals(originCase.getStepDescription(), testCase.getStepDescription())
-            || !StringUtils.equals(originCase.getExpectedResult(), testCase.getExpectedResult())) {
+                    || !StringUtils.equals(originCase.getSteps(), testCase.getSteps())                  // 步骤发生变化
+                    || !StringUtils.equals(originCase.getStepDescription(), testCase.getStepDescription())
+                    || !StringUtils.equals(originCase.getExpectedResult(), testCase.getExpectedResult())) {
                 testReviewTestCaseService.reReviewByCaseId(testCase.getId());
             }
         }
@@ -3024,6 +3024,11 @@ public class TestCaseService {
                 testCase.setCustomNum(String.valueOf(nextNum));
                 testCase.setNum(nextNum++);
                 testCase.setCasePublic(false);
+                testCase.setCreateUser(SessionUtils.getUserId());
+                testCase.setMaintainer(SessionUtils.getUserId());
+                testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testCase.setStatus(TestCaseReviewStatus.Prepare.name());
+                testCase.setLastExecuteResult(null);
                 testCase.setCreateTime(System.currentTimeMillis());
                 testCase.setUpdateTime(System.currentTimeMillis());
                 testCase.setRefId(id);
