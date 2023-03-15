@@ -493,7 +493,7 @@ export default {
         this._save(reset);
       }
     },
-    buildPram() {
+    buildParam() {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
@@ -537,7 +537,7 @@ export default {
       return param;
     },
     _save(reset) {
-      let param = this.buildPram();
+      let param = this.buildParam();
       this.parseOldFields(param);
       let option = this.getOption(param);
       saveOrUpdateIssue(option.url, option.data).then((response) => {

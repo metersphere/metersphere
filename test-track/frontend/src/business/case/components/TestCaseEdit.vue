@@ -861,19 +861,6 @@ export default {
           });
       }
     },
-    back() {
-      if (this.editable) {
-        this.$confirm(this.$t('case.back_tips'), this.$t('commons.prompt'), {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$router.push('/track/case/all');
-        });
-      } else {
-        this.$router.push('/track/case/all');
-      }
-    },
     openNewTab() {
       if (this.editable || !this.form.id || this.isPublicShow) {
         return;

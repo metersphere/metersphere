@@ -237,6 +237,9 @@
 
     <!--  删除接口提示  -->
     <list-item-delete-confirm ref="apiDeleteConfirm" @handleDelete="_handleDeleteVersion"/>
+
+    <test-case-export-to-excel @exportTestCase="exportTestCase" ref="exportExcel" class="export-case-layout"/>
+
   </div>
 
 </template>
@@ -312,12 +315,14 @@ import {
   getProjectMemberOption
 } from "@/business/utils/sdk-utils";
 import {getTagToolTips, initTestCaseConditionComponents, openCaseEdit, parseColumnTag} from "@/business/case/test-case";
+import TestCaseExportToExcel from "@/business/case/components/export/TestCaseExportToExcel";
 
 const store = useStore();
 
 export default {
   name: "TestCaseList",
   components: {
+    TestCaseExportToExcel,
     TestPlanCaseStatusTableItem, RelateDemand, TestCaseReviewStatusTableItem,
     MsCreateTimeColumn, MsUpdateTimeColumn, MsNewUiSearch,
     ListItemDeleteConfirm,
@@ -1031,7 +1036,6 @@ export default {
       }
       this.$refs.testCaseImport.open();
     },
-
     exportTestCase(exportType, fieldParam) {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -1132,7 +1136,7 @@ export default {
         });
     },
     handleBatchExportToExcel() {
-      this.$emit("openExcelExport", this.selectCounts, false);
+      this.$refs.exportExcel.open(this.selectCounts, false);
     },
     handleBatchExportToXmind() {
       this.exportTestCase("xmind", {exportAll: false})
@@ -1248,6 +1252,16 @@ span.version-select {
   position: relative;
   top: -1px;
   width: 140px!important;
+}
+
+.export-case-layout :deep(.el-button--small span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  position: relative;
+  top: -5px;
 }
 
 :deep(button.el-button.el-button--default.el-button--mini) {
