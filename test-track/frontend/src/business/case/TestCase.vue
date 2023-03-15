@@ -22,22 +22,6 @@
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-dropdown @command="handleExportCommand" placement="bottom-start" style="margin-left: 12px" class="btn-dropdown">
-        <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+EXPORT']">
-          <svg-icon icon-class="icon_download_outlined"/>
-          {{$t('commons.export')}}
-        </el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="excel">
-            <span class="export-model">{{$t('test_track.case.export.export_to_excel')}}</span>
-            <span class="export-tips">{{$t('test_track.case.export.export_to_excel_tips')}}</span>
-          </el-dropdown-item>
-          <el-dropdown-item style="margin-top: 10px" command="xmind" divided>
-            <span class="export-model">{{$t('test_track.case.export.export_to_xmind')}}</span>
-            <span class="export-tips">{{$t('test_track.case.export.export_to_xmind_tips')}}</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
     </div>
 
     <!-- public, trash back header  -->
@@ -55,10 +39,8 @@
           :show-operator="false"
           :public-total="publicTotal"
           :case-condition="condition"
-          @handleExportCheck="handleExportCheck"
           @refreshTable="refresh"
           @setTreeNodes="setTreeNodes"
-          @exportTestCase="exportTestCase"
           @refreshAll="refreshAll"
           @enableTrash="enableTrash"
           @enablePublic="enablePublic"
@@ -108,7 +90,6 @@
             :public-enable="false"
             :current-version="currentVersion"
             :version-enable.sync="versionEnable"
-            @closeExport="closeExport"
             @refreshTable="refresh"
             @getTrashList="getTrashList"
             @getPublicList="getPublicList"
@@ -117,7 +98,6 @@
             @setCondition="setCondition"
             @decrease="decrease"
             @search="refreshTreeByCaseFilter"
-            @openExcelExport="openExportDialog"
             ref="testCaseList">
           </test-case-list>
           <test-case-minder
@@ -172,16 +152,12 @@
       </ms-main-container>
     </div>
 
-    <!--  dialog  -->
-    <!-- export case -->
-    <test-case-export-to-excel @exportTestCase="exportTestCase" ref="exportExcel" class="export-case-layout"/>
     <!-- import case -->
     <test-case-common-import-new ref="caseImport" @refreshAll="refreshAll"/>
   </ms-container>
 </template>
 
 <script>
-import TestCaseExportToExcel from "@/business/case/components/export/TestCaseExportToExcel";
 import TestCaseCommonImportNew from "@/business/case/components/import/TestCaseCommonImportNew";
 import TestCaseList from "./components/TestCaseList";
 import SelectMenu from "../common/SelectMenu";
@@ -215,7 +191,7 @@ export default {
   components: {
     PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
     MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
-    MsMainButtonGroup, TestCaseExportToExcel, TestCaseCommonImportNew
+    MsMainButtonGroup, TestCaseCommonImportNew
   },
   comments: {},
   data() {
@@ -364,22 +340,6 @@ export default {
           break;
       }
     },
-    handleExportCommand(e) {
-      switch (e) {
-        case "excel":
-          this.openExportDialog(0, true)
-          break;
-        case "xmind":
-          if (store.isTestCaseExporting) {
-            return;
-          }
-          this.exportTestCase(e, {exportAll: true})
-          break;
-      }
-    },
-    openExportDialog(size, isExportAll) {
-      this.$refs.exportExcel.open(size, isExportAll);
-    },
     getTrashList() {
       testCaseNodeTrashCount(this.projectId)
         .then(response => {
@@ -437,21 +397,6 @@ export default {
         return false;
       }
       return true;
-    },
-    handleExportCheck() {
-      if (this.$refs.testCaseList.checkSelected()) {
-        this.$refs.nodeTree.openExport();
-      }
-    },
-    exportTestCase(type, param) {
-      if (this.activeDom !== 'left') {
-        this.$warning(this.$t('test_track.case.export.xmind_export_tip'), false);
-        return;
-      }
-      this.$refs.testCaseList.exportTestCase(type, param);
-    },
-    closeExport() {
-      this.$refs.nodeTree.closeExport();
     },
     publicNodeChange(node, nodeIds, pNodes) {
       if (this.$refs.testCasePublicList) {
@@ -737,7 +682,6 @@ export default {
   position: relative;
   top: -5px;
 }
-
 .edit-layout :deep(.el-button--small span){
   font-family: 'PingFang SC';
   font-style: normal;
