@@ -18,17 +18,20 @@
                 @click="addIssue"
               >
                 {{ $t("case.create_defect") }}
-              </div></el-dropdown-item
+              </div>
+            </el-dropdown-item
             >
             <el-dropdown-item
-              ><div
+            >
+              <div
                 class="add-btn"
                 v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
                 :disabled="readOnly"
                 @click="relateIssue"
               >
                 {{ $t("case.associate_existing_defects") }}
-              </div></el-dropdown-item
+              </div>
+            </el-dropdown-item
             >
           </el-dropdown-menu>
         </el-dropdown>
@@ -149,7 +152,7 @@
           >
           </ms-table-column>
 
-          <issue-description-table-item :field="item" />
+          <issue-description-table-item :field="item"/>
         </span>
       </ms-table>
     </div>
@@ -178,7 +181,7 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import { ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
+import {ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
 import IssueRelateList from "./CaseIssueRelateList";
 import {
   closeIssue,
@@ -192,12 +195,12 @@ import {
   getCustomFieldValue,
   getTableHeaderWithCustomFields,
 } from "metersphere-frontend/src/utils/tableUtils";
-import { LOCAL } from "metersphere-frontend/src/utils/constants";
+import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {
   getCurrentProjectID,
   getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import { operationConfirm } from "@/business/utils/sdk-utils";
+import {operationConfirm} from "@/business/utils/sdk-utils";
 import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 
 export default {
@@ -369,20 +372,27 @@ export default {
       }
     },
     deleteIssue(row) {
-      operationConfirm(this, this.$t("test_track.issue.delete_warning"), () => {
-        this.page.result.loading = true;
-        deleteIssueRelate({
-          id: row.id,
-          caseResourceId: this.getCaseResourceId(),
-          isPlanEdit: this.planId ? true : false,
-          projectId: this.projectId,
-          workspaceId: getCurrentWorkspaceId(),
-        }).then(() => {
-          this.page.result.loading = false;
-          this.getIssues();
-          this.$success(this.$t("test_track.cancel_relevance_success"), false);
-        });
-      });
+      this.$confirm(this.$t("test_track.issue.delete_warning"), this.$t("case.cancel_relate_case_tips_title"), {
+          cancelButtonText: this.$t("commons.cancel"),
+          confirmButtonText: this.$t("commons.confirm"),
+          callback: action => {
+            if (action === "confirm") {
+              this.page.result.loading = true;
+              deleteIssueRelate({
+                id: row.id,
+                caseResourceId: this.getCaseResourceId(),
+                isPlanEdit: this.planId ? true : false,
+                projectId: this.projectId,
+                workspaceId: getCurrentWorkspaceId(),
+              }).then(() => {
+                this.page.result.loading = false;
+                this.getIssues();
+                this.$success(this.$t("test_track.cancel_relevance_success"), false);
+              });
+            }
+          }
+        }
+      );
     },
   },
 };
@@ -390,6 +400,7 @@ export default {
 
 <style scoped lang="scss">
 @import "@/business/style/index.scss";
+
 .add-btn {
   display: inline-block;
   margin-right: 5px;
@@ -399,12 +410,15 @@ export default {
   cursor: pointer;
   color: #783887;
 }
+
 .relate-box {
   padding: 1.3rem 0 0 0;
+
   .relate-header {
     display: flex;
     justify-content: space-between;
     margin-bottom: 1.3rem;
+
     .menu-left-row {
       width: 98px;
       height: 32px;
@@ -416,6 +430,7 @@ export default {
       text-align: center;
       color: #783887;
     }
+
     .search-right-row {
       width: 240px;
     }
@@ -423,7 +438,7 @@ export default {
 }
 
 .el-dropdown-menu__item:hover {
-  background-color: rgba(31, 35, 41, 0.1)!important;
+  background-color: rgba(31, 35, 41, 0.1) !important;
 }
 
 .el-dropdown-menu__item {
@@ -431,6 +446,6 @@ export default {
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
-  color: #1F2329!important;
+  color: #1F2329 !important;
 }
 </style>
