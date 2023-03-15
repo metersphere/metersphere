@@ -1,12 +1,23 @@
 <template>
   <div v-if="dialogVisible" class="batch-move" v-loading="result.loading">
-    <el-dialog :title="this.$t(isMoveBatch ? 'test_track.case.batch_move_to' : 'test_track.case.batch_copy_to', [moveCaseTitle, selectNum])"
+    <el-dialog
                :visible.sync="dialogVisible"
                :before-close="close"
                :destroy-on-close="true"
                width="40%"
                append-to-body
                :close-on-click-modal="false">
+
+      <el-tooltip :content="contentTitle" placement="top" width="width" v-if="!publicEnable">
+        <span  class="tooltipStyle" v-if="isMoveBatch">将"{{moveCaseTitle|ellipsis}}"等{{selectNum}}个用例 移动到</span>
+        <span  class="tooltipStyle" v-else>将"{{moveCaseTitle|ellipsis}}"等{{selectNum}}个用例 复制到</span>
+      </el-tooltip>
+
+      <el-tooltip :content="contentTitle" placement="top" width="width" v-else>
+        <span  class="tooltipStyle" v-if="selectNum>1">将"{{moveCaseTitle|ellipsis}}"等{{selectNum}}个用例 复制到</span>
+        <span  class="tooltipStyle" v-else>将"{{moveCaseTitle|ellipsis}}" 复制到</span>
+      </el-tooltip>
+
       <el-input :placeholder="$t('test_track.module.search_by_name')" v-model="filterText" size="small" prefix-icon="el-icon-search"/>
 
       <el-scrollbar style="margin-top: 12px; border: 1px solid #DEE0E3; border-radius: 4px;">
@@ -62,7 +73,8 @@ export default {
       filterText: "",
       result: {},
       isMoveBatch: false,
-      selectNum: 0
+      selectNum: 0,
+      contentTitle:""
     }
   },
   props: {
@@ -85,6 +97,7 @@ export default {
       this.selectNum = selectNum;
       this.selectIds = selectIds;
       this.moduleOptions = moduleOptions;
+      this.contentTitle = this.$t(this.isMoveBatch ? 'test_track.case.batch_move_to' : 'test_track.case.batch_copy_to', [this.moveCaseTitle, this.selectNum]);
     },
     save() {
       if (!this.currentKey) {
@@ -122,6 +135,18 @@ export default {
     },
     nodeClick() {
       this.currentKey = this.$refs.tree.getCurrentKey();
+    }
+  },
+  filters: {
+    //文字数超出时，超出部分使用...
+    ellipsis(value) {
+      if (!value) {
+        return '';
+      }
+      if (value.length > 20) {
+        return value.slice(0, 20) + '...';
+      }
+      return value;
     }
   }
 }
@@ -190,5 +215,17 @@ export default {
   min-width: 80px;
   height: 32px;
   border-radius: 4px;
+}
+
+.tooltipStyle{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space:nowrap;
+  width:100%;
+  height:34px;
+  display: inline-block;
+  title:content;
+  font-size: x-large;
 }
 </style>

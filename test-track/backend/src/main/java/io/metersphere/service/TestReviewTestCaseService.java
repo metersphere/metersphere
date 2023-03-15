@@ -15,6 +15,7 @@ import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.constants.TestCaseReviewCommentStatus;
 import io.metersphere.constants.TestCaseReviewPassRule;
 import io.metersphere.dto.TestCaseCommentDTO;
+import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewCaseDTO;
 import io.metersphere.excel.converter.TestReviewCaseStatus;
 import io.metersphere.log.vo.DetailColumn;
@@ -768,16 +769,16 @@ public class TestReviewTestCaseService {
 
     /**
      * 检查执行结果，自动更新计划状态
-     * @param caseId
+     * @param testCaseReviewDTO
      */
-    public void checkStatus(String caseId) {
-        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(caseId);
-        if (testCaseReview.getEndTime() != null && testCaseReview.getEndTime() < System.currentTimeMillis()) {
+    public void checkStatus(TestCaseReviewDTO testCaseReviewDTO) {
+        if (testCaseReviewDTO.getEndTime() != null && testCaseReviewDTO.getEndTime() < System.currentTimeMillis() && !testCaseReviewDTO.getStatus().equals(TestPlanStatus.Finished.name())) {
             TestCaseReviewExample example = new TestCaseReviewExample();
-            example.createCriteria().andIdEqualTo(caseId);
+            example.createCriteria().andIdEqualTo(testCaseReviewDTO.getId());
             TestCaseReview review = new TestCaseReview();
             review.setStatus(TestPlanStatus.Finished.name());
             testCaseReviewMapper.updateByExampleSelective(review,example);
+            testCaseReviewDTO.setStatus(TestPlanStatus.Finished.name());
         }
     }
 }
