@@ -2,14 +2,15 @@ package io.metersphere.dto;
 
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
-
 import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.dto.Errors;
 import io.metersphere.plan.dto.ErrorsTop5;
 import io.metersphere.plan.dto.Statistics;
+import io.opentelemetry.sdk.metrics.data.MetricData;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.management.monitor.Monitor;
 import java.util.List;
 import java.util.Map;
 
@@ -34,8 +35,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
         private long startTime;
         private long endTime;
         private String fixLoadConfiguration;
-        //        private LoadTestExportJmx jmxContent;
-//        private List<LoadTestExportJmx> fixJmxContent;
+        private List<LoadTestExportJmx> fixJmxContent;
         private TestOverview testOverview;
         private List<ChartsData> loadChartData;
         private List<ChartsData> responseTimeChartData;
@@ -46,8 +46,8 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
         private List<Errors> reportErrors;
         private List<ErrorsTop5> reportErrorsTop5;
         private List<LogDetailDTO> reportLogResource;
-//        private List<Monitor> reportResource;
-//        private List<MetricData> metricData;
+        private List<Monitor> reportResource;
+        private List<MetricData> metricData;
         private List<TestResourcePoolDTO> resourcePools;
     }
 }
