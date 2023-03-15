@@ -286,17 +286,16 @@ export default {
       } else {
         this.condition.nodeIds = [];
       }
+      this.result.loading = true;
       initCondition(this.condition, this.condition.selectAll);
-      if (this.projectId) {
-        this.condition.projectId = this.projectId;
-        getTestCaseReviewsCasePage(this.currentPage, this.pageSize, this.condition)
-          .then((response) => {
-            let data = response.data;
-            this.total = data.itemCount;
-            this.testReviews = data.listObject;
-          });
-      }
-
+      this.condition.projectId = this.projectId || getCurrentProjectID();
+      getTestCaseReviewsCasePage(this.currentPage, this.pageSize, this.condition)
+        .then((response) => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.testReviews = data.listObject;
+          this.result.loading = false;
+        });
     },
     setSelectCounts(data) {
       this.selectCounts = data;
