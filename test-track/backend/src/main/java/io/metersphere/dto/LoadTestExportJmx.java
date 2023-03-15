@@ -9,6 +9,9 @@ public class LoadTestExportJmx {
     private String name;
     private String jmx;
 
+    public LoadTestExportJmx() {
+    }
+
     public LoadTestExportJmx(String name, String jmx) {
         this.name = name;
         this.jmx = jmx;
