@@ -110,7 +110,7 @@
         <div
           id="custom-div"
           v-else-if="contentObject.content && contentObject.contentType === 'CUSTOM'"
-          :class="getCustomComponentType()"
+          :class="getCustomComponentClass"
           @click="handleReadTextClick"
           @mouseenter="mouseEnterEvent"
         >
@@ -143,6 +143,7 @@ export default {
       selfEditable: false,
       hoverEditable: false,
       memberOptions: [],
+      isCustomNone: false
     };
   },
   props: {
@@ -176,19 +177,7 @@ export default {
     edit() {
       return this.editable;
     },
-  },
-  mounted() {
-    if (
-      this.contentObject.content &&
-      this.contentObject.content.type &&
-      (this.contentObject.content.type === "member" ||
-        this.contentObject.content.type === "multipleMember")
-    ) {
-      this.getMemberOptions();
-    }
-  },
-  methods: {
-    getCustomComponentType() {
+    getCustomComponentClass() {
       let type = "select";
       let curType = this.contentObject.content.type || "";
       //select
@@ -211,11 +200,23 @@ export default {
           type = "select";
           break;
       }
-      if (this.getCustomText() === this.$t("case.none")) {
+      if (this.isCustomNone) {
         type = type + ' custom-empty';
       }
       return type;
-    },
+    }
+  },
+  mounted() {
+    if (
+      this.contentObject.content &&
+      this.contentObject.content.type &&
+      (this.contentObject.content.type === "member" ||
+        this.contentObject.content.type === "multipleMember")
+    ) {
+      this.getMemberOptions();
+    }
+  },
+  methods: {
     getMemberOptions() {
       getProjectMemberOption().then((r) => {
         let tempMemberOptions = r.data || [];
@@ -256,7 +257,10 @@ export default {
           ? this.contentObject.content.value
           : this.contentObject.content.defaultValue;
         if(!tempValue || Array.isArray(tempValue) && tempValue.length <= 0){
+          this.isCustomNone = true;
           return this.$t("case.none");
+        } else {
+          this.isCustomNone = false;
         }
         if (Array.isArray(tempValue) && tempValue.length > 0) {
           let arr = [];
@@ -286,16 +290,24 @@ export default {
         this.contentObject.content.type === "input" ||
         this.contentObject.content.type === "richText"
       ) {
-        return this.contentObject.content.defaultValue === "" ||
-          this.contentObject.content.defaultValue == null
-          ? this.$t("case.none")
-          : this.contentObject.content.defaultValue;
+        if (this.contentObject.content.defaultValue === "" ||
+          this.contentObject.content.defaultValue == null) {
+          this.isCustomNone = true;
+          return this.$t("case.none");
+        } else {
+          this.isCustomNone = false;
+          return this.contentObject.content.defaultValue;
+        }
       }
 
-      return this.contentObject.content.defaultValue === "" ||
-        this.contentObject.content.defaultValue == null
-        ? this.$t("case.none")
-        : this.contentObject.content.defaultValue;
+      if (this.contentObject.content.defaultValue === "" ||
+        this.contentObject.content.defaultValue == null) {
+        this.isCustomNone = true;
+        return this.$t("case.none");
+      } else {
+        this.isCustomNone = false;
+        return this.contentObject.content.defaultValue;
+      }
     },
     getStoryPlatform() {
       let demandOptions = this.contentObject.content.demandOptions || [];
