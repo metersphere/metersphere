@@ -579,6 +579,9 @@ export default {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
+    if (this.$route && this.$route.params && this.$route.params.type) {
+      this.condition.protocol = this.$route.params.type;
+    }
     this.initTable();
     this.getMaintainerOptions();
     this.getVersionOptions();
