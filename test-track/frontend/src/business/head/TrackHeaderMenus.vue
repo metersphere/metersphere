@@ -68,7 +68,7 @@ export default {
           this.pathName = '/track/review/all';
         } else if (to.path.indexOf("/track/plan") >= 0) {
           this.pathName = '/track/plan/all';
-        } if (to.path.indexOf("/track/case") >= 0) {
+        } else if (to.path.indexOf("/track/case") >= 0) {
           this.pathName = this.caseListPath;
         } else {
           this.pathName = to.path;
