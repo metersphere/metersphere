@@ -138,7 +138,8 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         if (CollectionUtils.isEmpty(loadCases)) {
             return null;
         }
-        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class);
+        List<TestPlanLoadCaseDTO> returnList = microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class);
+        return returnList;
     }
 
     public Object relevanceList(int pageNum, int pageSize, LoadCaseRequest request) {

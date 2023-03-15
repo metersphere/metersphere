@@ -6,11 +6,9 @@ import io.metersphere.plan.dto.ChartsData;
 import io.metersphere.plan.dto.Errors;
 import io.metersphere.plan.dto.ErrorsTop5;
 import io.metersphere.plan.dto.Statistics;
-import io.opentelemetry.sdk.metrics.data.MetricData;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.management.monitor.Monitor;
 import java.util.List;
 import java.util.Map;
 
