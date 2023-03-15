@@ -1090,7 +1090,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private UpdateApiModuleDTO getUpdateApiModuleDTO(Map<String, ApiModule> moduleMap, List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas, List<ApiTestCaseWithBLOBs> optionDataCases) {
         UpdateApiModuleDTO updateApiModuleDTO = new UpdateApiModuleDTO();
-        updateApiModuleDTO.setModuleList(new ArrayList<>(moduleMap.values()));
+        updateApiModuleDTO.setModuleMap(moduleMap);
         updateApiModuleDTO.setNeedUpdateList(toUpdateList);
         updateApiModuleDTO.setDefinitionWithBLOBs(optionDatas);
         updateApiModuleDTO.setCaseWithBLOBs(optionDataCases);
@@ -1112,7 +1112,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                     List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
                     if (moduleDatas != null && moduleDatas.size() <= 1) {
                         moduleMap.remove(modulePath);
-                        removeModulePath(moduleMap, moduleOptionData, modulePath);
                         moduleDatas.remove(apiDefinitionWithBLOBs);
                     }
                     //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
@@ -1312,7 +1311,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
                 if (moduleDatas != null && moduleDatas.size() <= 1) {
                     moduleMap.remove(modulePath);
-                    removeModulePath(moduleMap, moduleOptionData, modulePath);
                     moduleDatas.remove(apiDefinitionWithBLOBs);
                 }
                 //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
@@ -1340,20 +1338,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiDefinitionWithBLOBs.setLatest(definitionWithBLOBs.getLatest());
         apiDefinitionWithBLOBs.setCreateTime(definitionWithBLOBs.getCreateTime());
         apiDefinitionWithBLOBs.setUpdateTime(definitionWithBLOBs.getUpdateTime());
-    }
-
-    private void removeModulePath(Map<String, ApiModule> moduleMap, Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData, String modulePath) {
-        if (StringUtils.isBlank(modulePath)) {
-            return;
-        }
-        String[] pathTree = getPathTree(modulePath);
-        String lastPath = pathTree[pathTree.length - 1];
-        String substring = modulePath.substring(0, modulePath.indexOf("/" + lastPath));
-        if (moduleOptionData.get(substring) == null || moduleOptionData.get(substring).size() == 0) {
-            moduleMap.remove(substring);
-            removeModulePath(moduleMap, moduleOptionData, substring);
-        }
-
     }
 
     private void startCoverModule(List<ApiDefinitionWithBLOBs> toUpdateList, List<ApiDefinitionWithBLOBs> optionDatas,
@@ -1620,7 +1604,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return chooseModuleParentId;
     }
 
-    private String[] getPathTree(String modulePath) {
+    public String[] getPathTree(String modulePath) {
         String substring = modulePath.substring(0, 1);
         if (substring.equals("/")) {
             modulePath = modulePath.substring(1);
