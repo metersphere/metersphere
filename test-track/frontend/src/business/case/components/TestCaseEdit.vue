@@ -1392,7 +1392,6 @@ export default {
     },
     _resetForm() {
       this.form.name = "";
-      this.form.nodeId = "";
       this.form.type = "";
       this.form.method = "";
       this.form.maintainer = "";
