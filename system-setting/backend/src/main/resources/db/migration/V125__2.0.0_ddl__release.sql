@@ -215,12 +215,6 @@ CREATE TABLE IF NOT EXISTS `file_attachment_metadata`
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_general_ci;
 
-
---
--- V129_2-0-0_test_case_report_api_base_count
-ALTER TABLE `test_plan_report_content`
-    ADD COLUMN `api_base_count` LONGTEXT COMMENT 'request (JSON format)';
-
 --
 -- V1_2-0-0_load_test_remember_environment
 ALTER TABLE `load_test`
