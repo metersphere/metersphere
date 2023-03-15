@@ -27,6 +27,7 @@
                 ref="versionHistory"
                 :current-id="currentTestCaseInfo.id"
                 :is-read="readOnly"
+                :is-public-show="isPublicShow"
                 :current-version-id="form.versionId"
                 @confirmOtherInfo="confirmOtherInfo"
                 :current-project-id="projectId"
@@ -197,7 +198,7 @@
         </div>
       </div>
       <!-- 检测版本 是否不是最新 -->
-      <div class="diff-latest-container" v-if="!editable && versionEnable && !isLastedVersion">
+      <div class="diff-latest-container" v-if="!editable && versionEnable && !isLastedVersion && !isPublicShow">
         <div class="left-view-row">
           <div class="view-icon"><img src="/assets/module/figma/icon_warning_colorful.svg" alt=""></div>
           <div class="view-content">{{$t("case.current_display_history_version")}}</div>
@@ -220,6 +221,7 @@
           :is-copy="isCopy"
           :copy-case-id="caseId"
           :label-width="formLabelWidth"
+          :is-public-show="isPublicShow"
           :case-id="caseId"
           :type="!caseId ? 'add' : 'edit'"
           :comments.sync="comments"

@@ -1,6 +1,14 @@
 <template>
   <div class="version-history-box">
+    <span v-if="isPublicShow">
+      <slot
+        name="versionLabel"
+        v-if="versionEnable && currentVersion.id"
+      ></slot>
+    </span>
+
     <el-popover
+      v-else
       :append-to-body="false"
       placement="bottom-start"
       width="392"
@@ -172,6 +180,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    isPublicShow: Boolean
   },
   data() {
     return {
