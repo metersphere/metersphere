@@ -762,11 +762,6 @@ export default {
       });
     },
     async loadTestCase() {
-      if (this.useUserStore.projectChangeFlag) {
-        this.useUserStore.projectChangeFlag = false;
-        this.$router.push('/track/case/all');
-        return;
-      }
 
       if (this.isPublicShow) {
         this.resetForm();
@@ -838,8 +833,8 @@ export default {
     editPublicCase() {
       // 这个接口会校验权限
       getEditSimpleTestCase(this.caseId)
-        .then(() => {
-          openCaseEdit({caseId: this.caseId},  this);
+        .then((r) => {
+          openCaseEdit({caseId: this.caseId, projectId: r.data.projectId},  this);
         })
         .catch(() => {});
     },
@@ -1017,16 +1012,17 @@ export default {
         });
       } else {
         this.projectId = this.routeProjectId;
+        if (this.projectId) {
+          // 带了 routeProjectId 校验是否是当前项目
+          if (getCurrentProjectID() !== this.projectId) {
+            setCurrentProjectID(this.projectId);
+            location.reload();
+            return;
+          }
+        }
         // 创建和复制
         if (this.isCopy || this.isAdd) {
-          // 带了 routeProjectId 校验是否是当前项目
-          if (this.routeProjectId) {
-            if (getCurrentProjectID() !== this.projectId) {
-              setCurrentProjectID(this.projectId);
-              location.reload();
-              return;
-            }
-          } else {
+          if (!this.projectId) {
             // 没带 routeProjectId 则使用当前项目
             this.projectId = getCurrentProjectID();
           }
@@ -1043,9 +1039,8 @@ export default {
           await getEditSimpleTestCase(this.caseId).then((response) => {
             let testCase = response.data;
             if (getCurrentProjectID() !== testCase.projectId) {
-              // 如果不是当前项目，先切项目
-              setCurrentProjectID(testCase.projectId);
-              location.reload();
+              // 如果不是当前项目，跳到列表页
+              this.$router.push({path: '/track/case/all', query: {projectId: getCurrentProjectID()}});
             } else {
               this.projectId = testCase.projectId;
             }
