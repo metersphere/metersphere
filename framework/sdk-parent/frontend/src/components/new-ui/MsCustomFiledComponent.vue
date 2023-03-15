@@ -152,7 +152,7 @@
 <script>
 import MsTableColumn from "../table/MsTableColumn";
 import MsInputTag from "../MsInputTag";
-import {getProjectMemberOption} from "../../api/user";
+import {getProjectMemberById, getProjectMemberOption} from "../../api/user";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 
 export default {
@@ -164,7 +164,8 @@ export default {
     'form',
     'disabled',
     'defaultOpen',
-    'isTemplateEdit'
+    'isTemplateEdit',
+    'projectId'
   ],
   data() {
     return {
@@ -199,13 +200,22 @@ export default {
     if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
       return;
     }
-    getProjectMemberOption()
-      .then((r) => {
+    if (this.projectId) {
+      getProjectMemberById(this.projectId).then((r) => {
         this.memberOptions = r.data;
         if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
           this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
         }
-      });
+      })
+    } else {
+      getProjectMemberOption()
+        .then((r) => {
+          this.memberOptions = r.data;
+          if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
+            this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+          }
+        });
+    }
   },
   watch: {
     form() {
