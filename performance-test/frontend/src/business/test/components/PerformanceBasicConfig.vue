@@ -73,7 +73,9 @@
 
       <ms-table-button icon="el-icon-circle-plus-outline"
                        :disabled="isReadOnly"
-                       :content="$t('load_test.load_exist_file')" @click="loadFile()"/>
+                       :content="$t('load_test.load_exist_file')"
+                       @click="loadFile()"/>
+      <span style="margin-left: 15px;">{{$t('performance_test.basic_config_file_limit_tip')}}</span>
     </el-row>
     <el-table class="basic-config" :data="tableData">
       <el-table-column
