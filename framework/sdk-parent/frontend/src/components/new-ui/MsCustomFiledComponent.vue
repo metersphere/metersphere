@@ -201,19 +201,14 @@ export default {
       return;
     }
     if (this.projectId) {
-      getProjectMemberById(this.projectId).then((r) => {
-        this.memberOptions = r.data;
-        if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
-          this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
-        }
-      })
+      getProjectMemberById(this.projectId)
+        .then((r) => {
+          this.handleMemberOptions(r.data);
+        });
     } else {
       getProjectMemberOption()
         .then((r) => {
-          this.memberOptions = r.data;
-          if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
-            this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
-          }
+          this.handleMemberOptions(r.data);
         });
     }
   },
@@ -223,6 +218,12 @@ export default {
     }
   },
   methods: {
+    handleMemberOptions(data) {
+      this.memberOptions = data;
+      if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
+        this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+      }
+    },
     clickPane(){
       this.$emit("onClick");
     },
