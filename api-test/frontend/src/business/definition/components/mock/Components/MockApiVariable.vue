@@ -194,10 +194,6 @@ export default {
   data() {
     return {
       currentItem: null,
-      requireds: [
-        { name: this.$t('commons.selector.required'), id: true },
-        { name: this.$t('commons.selector.not_required'), id: false },
-      ],
       isSelectAll: true,
       isActive: true,
       rangeTypeOptions: [
