@@ -3630,5 +3630,8 @@ export default {
     scenario_title: "場景測試任務",
     ui_title: "UI測試任務",
     perf_title: "性能測試任務"
-  }
+  },
+  automation: {
+    document_validity_msg: '文件已經被修改，請重新上傳',
+  },
 };

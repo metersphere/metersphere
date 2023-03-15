@@ -39,6 +39,9 @@ export default {
     }
   },
   methods: {
+    errorRefresh() {
+      this.$emit('errorRefresh');
+    },
     sort(stepArray) {
       if (stepArray) {
         for (let i in stepArray) {

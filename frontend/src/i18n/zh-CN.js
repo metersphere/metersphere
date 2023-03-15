@@ -3635,5 +3635,8 @@ export default {
     api_title: "接口测试任务",
     scenario_title: "场景测试任务",
     perf_title: "性能测试任务"
-  }
+  },
+  automation: {
+    document_validity_msg: '文件已经被修改，请重新上传',
+  },
 };

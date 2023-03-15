@@ -3625,5 +3625,8 @@ export default {
     scenario_title: "Scenario testing tasks",
     ui_title: "UI testing tasks",
     perf_title: "Perf testing tasks"
-  }
+  },
+  automation: {
+    document_validity_msg: 'The file has been modified, please re-upload',
+  },
 };

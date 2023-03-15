@@ -1609,7 +1609,7 @@ export default {
                   this.currentScenario.versionId = this.$refs.versionHistory.currentVersion.id;
                 }
               }
-              saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
+             await saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
                 this.path = "/api/automation/update";
                 this.$store.state.pluginFiles = [];

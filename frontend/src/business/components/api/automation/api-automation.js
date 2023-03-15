@@ -70,8 +70,27 @@ function getScenarioFiles(obj) {
   }
   return scenarioFiles;
 }
+async function checkFile(scenarioFiles) {
+  return new Promise((resolve, reject) => {
+    scenarioFiles.forEach((item) => {
+      let func = item
+        .slice(0, 1)
+        .arrayBuffer()
+        .then(() => {
+          resolve();
+        })
+        .catch(() => {
+          resolve(item.name);
+        });
+      return func;
+    });
+    if (!scenarioFiles || scenarioFiles.length == 0) {
+      resolve();
+    }
+  });
+}
 
-export function saveScenario(url, scenario, scenarioDefinition, _this, success) {
+export async function saveScenario(url, scenario, scenarioDefinition, _this, success) {
   let bodyFiles = getBodyUploadFiles(scenario, scenarioDefinition);
   if (_this && _this.$store && _this.$store.state && _this.$store.state.pluginFiles && _this.$store.state.pluginFiles.length > 0) {
     _this.$store.state.pluginFiles.forEach(fileItem => {
@@ -82,6 +101,15 @@ export function saveScenario(url, scenario, scenarioDefinition, _this, success) 
     });
   }
   let scenarioFiles = getScenarioFiles(scenario);
+  let fileName = await checkFile(scenarioFiles);
+  fileName = fileName || (await checkFile(bodyFiles));
+  if (fileName) {
+    _this.$error('[ ' + fileName + ' ]' + _this.$t('automation.document_validity_msg'));
+    _this.isPreventReClick = false;
+    _this.errorRefresh();
+    return;
+  }
+
   let formData = new FormData();
   if (bodyFiles) {
     bodyFiles.forEach(f => {
