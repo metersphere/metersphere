@@ -3,6 +3,7 @@ package io.metersphere.api.dto.mock;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -29,12 +30,21 @@ public class RequestMockParams {
 
 
     public boolean isEmpty() {
+        boolean isJsonParamEmpty = false;
+        if (jsonParam instanceof JSONObject) {
+            isJsonParamEmpty = ((JSONObject) jsonParam).isEmpty();
+        } else if (jsonParam instanceof JSONArray) {
+            isJsonParamEmpty = ((JSONArray) jsonParam).isEmpty();
+        } else {
+            isJsonParamEmpty = jsonParam == null;
+        }
         if (isPost) {
             return (restParamsObj == null || restParamsObj.isEmpty()) &&
+                    isJsonParamEmpty &&
                     (queryParamsObj == null || queryParamsObj.isEmpty())
                     && StringUtils.isBlank(raw);
         } else {
-            return (restParamsObj == null || restParamsObj.isEmpty()) &&
+            return (restParamsObj == null || restParamsObj.isEmpty()) && isJsonParamEmpty &&
                     (queryParamsObj == null || queryParamsObj.isEmpty());
         }
 

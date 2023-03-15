@@ -45,13 +45,20 @@
                 :open-delay="800"
               >
                 <div
-                  v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                  v-if="
+                    totalStatus === 'Success' ||
+                    totalStatus === 'SUCCESS' ||
+                    totalStatus === 'success'
+                  "
                   style="color: #5daf34"
                 >
                   {{ baseErrorCode }}
                 </div>
                 <div
-                  v-else-if="totalStatus === 'errorReportResult'"
+                  v-else-if="
+                    totalStatus === 'errorReportResult' ||
+                    totalStatus === 'FAKE_ERROR'
+                  "
                   style="color: #f6972a"
                 >
                   {{ baseErrorCode }}
@@ -97,13 +104,20 @@
                 :open-delay="800"
               >
                 <div
-                  v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                  v-if="
+                    totalStatus === 'Success' ||
+                    totalStatus === 'SUCCESS' ||
+                    totalStatus === 'success'
+                  "
                   style="color: #5daf34"
                 >
                   {{ request.responseResult.responseCode }}
                 </div>
                 <div
-                  v-else-if="totalStatus === 'errorReportResult'"
+                  v-else-if="
+                    totalStatus === 'errorReportResult' ||
+                    totalStatus === 'FAKE_ERROR'
+                  "
                   style="color: #f6972a"
                 >
                   {{ request.responseResult.responseCode }}
@@ -145,13 +159,20 @@
           <el-col :span="3">
             <div v-if="totalStatus">
               <div
-                v-if="totalStatus === 'Success' || totalStatus === 'success'"
+                v-if="
+                  totalStatus === 'Success' ||
+                  totalStatus === 'SUCCESS' ||
+                  totalStatus === 'success'
+                "
                 style="color: #5daf34"
               >
                 {{ request.responseResult.responseTime }}
               </div>
               <div
-                v-else-if="totalStatus === 'errorReportResult'"
+                v-else-if="
+                  totalStatus === 'errorReportResult' ||
+                  totalStatus === 'FAKE_ERROR'
+                "
                 style="color: #f6972a"
               >
                 {{ request.responseResult.responseTime }}
