@@ -17,6 +17,7 @@
                   :read-only="readOnly || !editable"
                   :project-id="projectId"
                   :is-copy="isCopy"
+                  :is-public-show="isPublicShow"
                   :copy-case-id="copyCaseId"
                   :isClickAttachmentTab="isClickAttachmentTab"
                   :isTestPlan="isTestPlan"
@@ -98,7 +99,7 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
-        <el-tab-pane :label="$t('case.comment')" name="comment">
+        <el-tab-pane :label="$t('case.comment')" name="comment" v-if="!isPublicShow">
           <span slot="label">
             {{ $t('case.comment') }}
             <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments && comments.length > 0">
@@ -158,6 +159,7 @@
           :copy-case-id="copyCaseId"
           :isClickAttachmentTab="isClickAttachmentTab"
           :isTestPlan="isTestPlan"
+          :is-public-show="isPublicShow"
           :editable="editable"
           :editable-state="editableState"
           :form="form"
@@ -216,7 +218,8 @@ export default {
     "isClickAttachmentTab",
     "defaultOpen",
     "edit",
-    "editableState"
+    "editableState",
+    "isPublicShow"
   ],
   data() {
     return {
