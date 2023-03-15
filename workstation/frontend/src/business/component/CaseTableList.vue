@@ -655,12 +655,9 @@ export default {
     },
     handleEdit(testCase, column) {
       let query = {
-        caseId: testCase.id,
         projectId: testCase.projectId
       };
-      let path = '/track/case/edit/' + query.caseId;
-      delete query.projectId;
-      delete query.caseId;
+      let path = '/track/case/edit/' + testCase.id;
       let TestCaseData = this.$router.resolve({
         path,
         query,
