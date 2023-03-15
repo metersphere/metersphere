@@ -248,8 +248,8 @@ export default {
     return {
       currentItem: null,
       requireds: [
-        { name: this.$t('commons.selector.required'), id: true },
-        { name: this.$t('commons.selector.not_required'), id: false },
+        { name: this.$t('commons.yes'), id: true },
+        { name: this.$t('commons.no'), id: false },
       ],
       isSelectAll: true,
       isActive: true,
