@@ -8,7 +8,7 @@
     :tag-enable="true"
     :disabled="disable"
     :select-node="selectNode"
-    :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare'), this.$t('test_track.review.again'), this.$t('test_track.review.underway')]"
+    :distinct-tags="distinctTags"
     :ignore-num="true"
     @afterMount="handleAfterMount"
     @save="save"
@@ -82,6 +82,9 @@ export default {
     }),
     disable() {
       return !hasPermission('PROJECT_TRACK_REVIEW:READ+EDIT');
+    },
+    distinctTags() {
+      return [...this.tags, this.$t('test_track.plan.plan_status_prepare'), this.$t('test_track.review.again'), this.$t('test_track.review.underway')];
     }
   },
   methods: {
@@ -101,7 +104,7 @@ export default {
           this.setIsChange(true);
         }
       });
-      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')], {
+      tagBatch(this.distinctTags, {
         param: this.getParam(),
         getCaseFuc: getReviewCasesForMinder,
         setParamCallback: this.setParamCallback
