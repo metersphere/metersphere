@@ -23,6 +23,7 @@
                 :content-click-event="!disabled"
                 :model="form"
                 :rules="rules"
+                :project-id="projectId"
               >
                 <template v-slot:content="{ onClick, hoverEditable }">
                   <div :class="hoverEditable ? 'selectHover' : ''">
@@ -31,10 +32,9 @@
                         :data="item"
                         :form="form"
                         prop="defaultValue"
-                        :disabled="
-                          (item.type !== 'richText' && isPublic) || disabled
-                        "
+                        :disabled="(item.type !== 'richText' && isPublic) || disabled"
                         :default-open="defaultOpen"
+                        :project-id="projectId"
                         @onClick="onClick"
                       />
                     </el-form-item>
@@ -87,6 +87,7 @@ export default {
         return "preview";
       },
     },
+    projectId: String
   },
   computed: {
     customFieldRowNums() {
