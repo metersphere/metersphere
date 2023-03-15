@@ -678,9 +678,6 @@ export default {
         }
       },
       deep: true,
-    },
-    $route(to, from) {
-      this.$router.go(0);
     }
   },
   beforeDestroy() {
@@ -1248,7 +1245,7 @@ export default {
               } else {
                 this.isLastedVersion = true;
                 this.routerToEdit(response.data.id);
-                this.initEdit();
+                setTimeout(() => this.initEdit(), 500);
               }
             }
             this.createVersionId = null;
