@@ -28,14 +28,17 @@ import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.xpack.api.service.ProjectApplicationSyncService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +76,37 @@ public class SystemProjectService {
     private BaseQuotaService baseQuotaService;
 
     public Project addProject(AddProjectRequest project) {
+        CommonBeanFactory.getBean(SystemProjectService.class).saveProject(project);
+        // 创建项目为当前用户添加用户组
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID().toString());
+        userGroup.setUserId(SessionUtils.getUserId());
+        userGroup.setCreateTime(System.currentTimeMillis());
+        userGroup.setUpdateTime(System.currentTimeMillis());
+        userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
+        userGroup.setSourceId(project.getId());
+        userGroupMapper.insert(userGroup);
+
+        // 创建新项目检查当前用户 last_project_id
+        baseUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
+
+        // 设置默认的通知
+        baseProjectMapper.setDefaultMessageTask(project.getId());
+
+        baseQuotaService.projectUseDefaultQuota(project.getId());
+
+        // 创建默认版本
+        addProjectVersion(project);
+        // 初始化项目应用管理
+        initProjectApplication(project.getId());
+        // 初始化项目默认节点
+        kafkaTemplate.send(KafkaTopicConstants.PROJECT_CREATED_TOPIC, project.getId());
+        LogUtil.info("send create_project message, project id: " + project.getId());
+        return project;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void saveProject(AddProjectRequest project) {
         if (StringUtils.isBlank(project.getName())) {
             MSException.throwException(Translator.get("project_name_is_null"));
         }
@@ -103,33 +137,6 @@ public class SystemProjectService {
         project.setUpdateTime(createTime);
         project.setSystemId(systemId);
         projectMapper.insertSelective(project);
-
-        // 创建项目为当前用户添加用户组
-        UserGroup userGroup = new UserGroup();
-        userGroup.setId(UUID.randomUUID().toString());
-        userGroup.setUserId(SessionUtils.getUserId());
-        userGroup.setCreateTime(System.currentTimeMillis());
-        userGroup.setUpdateTime(System.currentTimeMillis());
-        userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
-        userGroup.setSourceId(project.getId());
-        userGroupMapper.insert(userGroup);
-
-        // 创建新项目检查当前用户 last_project_id
-        baseUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
-
-        // 设置默认的通知
-        baseProjectMapper.setDefaultMessageTask(project.getId());
-
-        baseQuotaService.projectUseDefaultQuota(pjId);
-
-        // 创建默认版本
-        addProjectVersion(project);
-        // 初始化项目应用管理
-        initProjectApplication(project.getId());
-        // 初始化项目默认节点
-        kafkaTemplate.send(KafkaTopicConstants.PROJECT_CREATED_TOPIC, project.getId());
-        LogUtil.info("send create_project message, project id: " + project.getId());
-        return project;
     }
 
     public void addProjectVersion(Project project) {
