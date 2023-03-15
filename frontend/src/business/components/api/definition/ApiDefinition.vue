@@ -978,7 +978,7 @@ export default {
 }
 
 /deep/ .fulls-screen-btn {
-  position: fixed;
+  position: absolute !important;
   right: 0px;
   top: 0px;
 }
