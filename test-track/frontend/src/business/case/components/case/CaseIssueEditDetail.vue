@@ -112,6 +112,7 @@
           :slotTitleRequired="$t('custom_field.issue_content')"
           :data="form"
           :default-open="richTextDefaultOpen"
+          :placeholder="$t('case.enter_issues_content')"
           prop="description"
         />
       </div>
