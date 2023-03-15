@@ -521,6 +521,9 @@ public class TestReviewTestCaseService {
 
     public void editTestCaseForMinder(String reviewId, List<TestCaseReviewTestCase> testCaseReviewTestCases) {
         List<String> caseIds = testCaseReviewTestCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(caseIds)) {
+            return;
+        }
         checkReviewCase(reviewId, caseIds);
         if (!CollectionUtils.isEmpty(testCaseReviewTestCases)) {
             testCaseReviewTestCases.forEach((item) -> {
