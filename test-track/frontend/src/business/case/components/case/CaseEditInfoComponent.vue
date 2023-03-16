@@ -18,6 +18,7 @@
                   :project-id="projectId"
                   :is-copy="isCopy"
                   :is-public-show="isPublicShow"
+                  :is-readonly-user="isReadonlyUser"
                   :copy-case-id="copyCaseId"
                   :isClickAttachmentTab="isClickAttachmentTab"
                   :isTestPlan="isTestPlan"
@@ -113,7 +114,7 @@
             <el-scrollbar>
               <div class="content-container">
                 <case-comment-viewer
-                  :is-public-show="isPublicShow"
+                  :is-public-show="isPublicShow || isReadonlyUser"
                   @getComments="getComments"
                   :comments="comments"
                   ref="commentRef"
@@ -161,6 +162,7 @@
           :isClickAttachmentTab="isClickAttachmentTab"
           :isTestPlan="isTestPlan"
           :is-public-show="isPublicShow"
+          :is-readonly-user="isReadonlyUser"
           :editable="editable"
           :editable-state="editableState"
           :form="form"
@@ -220,7 +222,8 @@ export default {
     "defaultOpen",
     "edit",
     "editableState",
-    "isPublicShow"
+    "isPublicShow",
+    "isReadonlyUser"
   ],
   data() {
     return {

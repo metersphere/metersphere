@@ -17,8 +17,8 @@
               <el-dropdown-menu slot="dropdown" class="more-operate-menu-children" @mouseenter.native="() => $refs.parentMenu.show()" @mouseleave.native="() => $refs.parentMenu.hide()">
                 <template v-for='childOperator in operator.children'>
                   <el-dropdown-item v-if="isXPack(childOperator)" :disabled="isDisable(childOperator)" :divided="isDivide(childOperator)"
-                                    @click.native.stop="click(childOperator)" @mouseenter="childMove" style="height: 50px">
-                    <span class="operator" :class="{active: operator.isActive}">{{childOperator.name}}</span>
+                                    style="height: 50px" @click.native.stop="click(childOperator)" @mouseenter="childMove">
+                    <span class="operator" :class="{active: operator.isActive}" :style="isDisable(operator) ? 'color: #bbb!important' : ''">{{childOperator.name}}</span>
                     <span class="tips">{{childOperator.tips}}</span>
                   </el-dropdown-item>
                 </template>
@@ -26,7 +26,7 @@
             </el-dropdown>
           </el-dropdown-item>
           <!-- 一级 -->
-          <el-dropdown-item v-else :disabled="isDisable(operator)" :divided="isDivide(operator)" @click.native.stop="click(operator)" :key="index" :class="{active: operator.isActive}">
+          <el-dropdown-item v-else :disabled="isDisable(operator)" :style="isDisable(operator) ? 'color: #bbb!important' : ''" :divided="isDivide(operator)" @click.native.stop="click(operator)" :key="index" :class="{active: operator.isActive}">
             {{ operator.name }}
           </el-dropdown-item>
         </template>
@@ -286,6 +286,10 @@ export default {
 :deep(.el-icon-arrow-right:before) {
   font-size: 15px;
   color: #8F959E;
+}
+
+.disabled-class {
+  cursor: not-allowed;
 }
 </style>
 

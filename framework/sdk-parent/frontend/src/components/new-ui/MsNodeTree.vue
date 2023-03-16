@@ -58,13 +58,13 @@
                 <el-dropdown placement="bottom-start" v-if="data.id && data.id !== 'root' && data.name !== defaultLabel && !hideNodeOperator" trigger="click">
                   <el-button class="node-operate-btn" icon="el-icon-more" />
                   <el-dropdown-menu slot="dropdown" class="module-more-operate">
-                    <el-dropdown-item :disabled="!updatePermission">
+                    <el-dropdown-item :disabled="!hasPermissions(updatePermission)">
                       <span @click.stop="edit(node, data)" class="more-operate-btn">
                         <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('test_track.module.rename')}}
                       </span>
                     </el-dropdown-item>
-                    <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                    <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
                       <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                         <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('commons.delete')}}
@@ -76,13 +76,13 @@
                 <el-dropdown placement="bottom-start" v-if="data.id && data.name === defaultLabel && data.level !== 1 && !hideNodeOperator" trigger="click">
                   <el-button class="node-operate-btn"/>
                   <el-dropdown-menu slot="dropdown" class="module-more-operate">
-                    <el-dropdown-item :disabled="!updatePermission">
+                    <el-dropdown-item :disabled="!hasPermissions(updatePermission)">
                       <span @click.stop="edit(node, data)" class="more-operate-btn">
                         <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('test_track.module.rename')}}
                       </span>
                     </el-dropdown-item>
-                    <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                    <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
                       <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                         <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('commons.delete')}}
@@ -149,13 +149,13 @@
             <el-dropdown placement="bottom-start" v-if="data.id && data.id !== 'root' && data.name !== defaultLabel && !hideNodeOperator">
               <el-button class="node-operate-btn" icon="el-icon-more"/>
               <el-dropdown-menu slot="dropdown" class="module-more-operate">
-                <el-dropdown-item :disabled="!updatePermission">
+                <el-dropdown-item :disabled="!hasPermissions(updatePermission)">
                   <span @click.stop="edit(node, data)" class="more-operate-btn">
                     <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
@@ -167,13 +167,13 @@
             <el-dropdown placement="bottom-start" v-if="data.id && data.name === defaultLabel && data.level !== 1 && !hideNodeOperator">
               <el-button class="node-operate-btn"/>
               <el-dropdown-menu slot="dropdown" class="module-more-operate">
-                <el-dropdown-item :disabled="!updatePermission">
+                <el-dropdown-item :disabled="!hasPermissions(updatePermission)">
                   <span @click.stop="edit(node, data)" class="more-operate-btn">
                     <svg-icon icon-class="icon_global_rename" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!deletePermission" :divided="true">
+                <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
@@ -193,6 +193,7 @@
 
 <script>
 import MsLeft2RightContainer from "../MsLeft2RightContainer";
+import {hasPermissions} from "../../utils/permission";
 
 export default {
   name: "MsNodeTree",
@@ -283,6 +284,9 @@ export default {
     }
   },
   methods: {
+    hasPermissions(permission) {
+      return hasPermissions(permission[0]);
+    },
     init() {
       let num = 0;
       this.treeNodes.forEach(t => {

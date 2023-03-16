@@ -208,7 +208,7 @@
               :type="type"
               :isCopy="isCopy"
               :copyCaseId="copyCaseId"
-              :readOnly="(readOnly && editable) || isPublicShow"
+              :readOnly="(readOnly && editable) || isPublicShow || isReadonlyUser"
               :projectId="projectId"
               :isClickAttachmentTab="isClickAttachmentTab"
               :isDelete="!isTestPlan"
@@ -269,7 +269,8 @@ export default {
     copyCaseId: String,
     isCopy: Boolean,
     editableState: Boolean,
-    isPublicShow: Boolean
+    isPublicShow: Boolean,
+    isReadonlyUser: Boolean
   },
   methods: {
     getUploadFiles() {
