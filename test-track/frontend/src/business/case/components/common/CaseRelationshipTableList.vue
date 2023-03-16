@@ -11,27 +11,10 @@
       @refresh="getTableData"
     >
       <ms-table-column
-        min-width="200px"
-        width="200px"
-        v-if="relationshipType === 'POST'"
-        :label="$t('commons.relationship.type')"
-      >
-        <template>
-          <div class="pos-label">
-            {{ $t("commons.relationship.current_case") }}
-          </div>
-          <div class="pos-type pos-left-margin">
-            {{ $t("commons.relationship.after_finish") }}
-          </div>
-        </template>
-      </ms-table-column>
-
-      <ms-table-column
         prop="targetCustomNum"
         v-if="isCustomNum"
         :label="$t('commons.id')"
         sortable
-        min-width="100px"
         width="100px"
       />
 
@@ -40,7 +23,6 @@
         v-else
         :label="$t('commons.id')"
         sortable
-        min-width="100px"
         width="100px"
       />
 
@@ -48,8 +30,7 @@
         prop="targetName"
         :label="$t('case.case_name')"
         sortable
-        min-width="256px"
-        width="256px"
+        width="200px"
       />
 
       <ms-table-column
@@ -57,7 +38,6 @@
         prop="versionId"
         :label="$t('commons.version')"
         sortable
-        min-width="100px"
         width="100px"
       >
         <template v-slot:default="scope">
@@ -68,13 +48,12 @@
       <ms-table-column
         prop="creator"
         :label="$t('commons.create_user')"
-        min-width="120"
+        width="100"
       >
       </ms-table-column>
 
       <ms-table-column
         prop="status"
-        min-width="100px"
         width="100px"
         :label="$t('api_test.definition.api_case_status')"
       >
@@ -82,9 +61,9 @@
           <status-table-item :value="$t(statusMap.get(row.status))" />
         </template>
       </ms-table-column>
+
       <ms-table-column
-        width="200px"
-        min-width="200px"
+        width="150px"
         v-if="relationshipType === 'PRE'"
         :label="$t('commons.relationship.type')"
       >
@@ -98,6 +77,21 @@
         </template>
       </ms-table-column>
     </ms-table>
+
+    <ms-table-column
+      width="150px"
+      v-if="relationshipType === 'POST'"
+      :label="$t('commons.relationship.type')"
+    >
+      <template>
+        <div class="pos-label">
+          {{ $t("commons.relationship.current_case") }}
+        </div>
+        <div class="pos-type pos-left-margin">
+          {{ $t("commons.relationship.after_finish") }}
+        </div>
+      </template>
+    </ms-table-column>
 
     <relationship-functional-relevance
       :case-id="caseId"

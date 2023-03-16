@@ -22,7 +22,7 @@
           </el-col>
           <el-col :span="12" :offset="1">
             <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag" size="-" v-if="isStepTableAlive"/>
+              <ms-input-tag :currentScenario="form" ref="tag" v-if="isStepTableAlive"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -125,7 +125,7 @@
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
-import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
+import MsInputTag from "metersphere-frontend/src/components/new-ui/MsInputTag";
 import i18n from "@/i18n";
 import {getMaintainer} from "@/api/project";
 import {saveOrUpdateTestCaseReview} from "@/api/test-review";
