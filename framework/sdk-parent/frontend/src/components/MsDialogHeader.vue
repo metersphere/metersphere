@@ -12,7 +12,7 @@
       >
         <font-awesome-icon
           class="alt-ico"
-          :icon="['fa', 'expand-alt']"
+          :icon="icon"
           size="lg"
           @click="fullScreen"
         />
@@ -45,6 +45,11 @@
 <script>
 export default {
   name: "MsDialogHeader",
+  data() {
+    return {
+      icon:'',
+    };
+  },
   props: {
     title: String,
     btnSize: {
@@ -56,6 +61,14 @@ export default {
     hideButton: Boolean,
     enableCancel: Boolean,
     isButtonSaving: Boolean,
+    isFullScreen:Boolean,
+  },
+  created(){
+    if(this.isFullScreen) {
+      this.icon= ['fa', 'compress-alt'];
+    }else {
+      this.icon= ['fa', 'expand-alt'];
+    }
   },
   methods: {
     cancel() {
@@ -65,7 +78,13 @@ export default {
       this.$emit("confirm");
     },
     fullScreen() {
-      this.$emit("fullScreen");
+      let bool = !this.isFullScreen;
+      if(bool) {
+        this.icon= ['fa', 'compress-alt'];
+      }else {
+        this.icon= ['fa', 'expand-alt'];
+      }
+      this.$emit("update:isFullScreen",bool);
     },
   },
 };
