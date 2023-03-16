@@ -787,7 +787,9 @@
     <sql id="queryWhereCondition">
         <where>
             <if test="request.name != null and request.name!=''">
-                and t1.name like CONCAT('%', #{request.name},'%')
+                and (t1.name like CONCAT('%', #{request.name},'%')
+                or t1.tags like CONCAT('%', #{request.name},'%')
+                or t1.num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.id != null and request.id!=''">
                 AND t1.id = #{request.id}

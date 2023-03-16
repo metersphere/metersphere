@@ -30,6 +30,7 @@ import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.definition.ApiCaseResultService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -38,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -248,6 +248,9 @@ public class ApiCaseExecuteService {
                 (query) -> extApiTestCaseMapper.selectIdsByQuery((ApiTestCaseRequest) query));
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return responseDTOS;
+        }
         List<ApiTestCaseWithBLOBs> caseList = extApiTestCaseMapper.unTrashCaseListByIds(request.getIds());
         // 检查执行内容合规性
         PerformInspectionUtil.caseInspection(caseList);
