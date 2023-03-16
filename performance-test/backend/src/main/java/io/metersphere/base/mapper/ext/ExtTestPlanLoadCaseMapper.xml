@@ -150,7 +150,8 @@
         tplc.load_report_id,
         p.name as projectName,
         pv.name versionName,
-        lt.version_id versionId
+        lt.version_id versionId,
+        lt.description
         from test_plan_load_case tplc
         inner join load_test lt on tplc.load_case_id = lt.id
         left join user u on lt.user_id = u.id
