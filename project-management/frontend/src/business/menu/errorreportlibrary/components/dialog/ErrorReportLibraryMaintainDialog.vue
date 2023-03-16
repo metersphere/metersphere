@@ -47,7 +47,7 @@
           </el-col>
         </el-row>
         <el-row type="flex" :gutter="20">
-          <el-col :span="4">
+          <el-col :span="6">
             <el-form-item
               :label="$t('error_report_library.option.match_rule')"
               :label-width="formLabelWidth"
@@ -295,5 +295,9 @@ export default {
 
 .assertion-item {
   width: 100%;
+}
+
+.assertion-select {
+  width: 250px;
 }
 </style>
