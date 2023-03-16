@@ -6,20 +6,20 @@
     @close="close"
     :visible.sync="runModeVisible"
   >
-    <div class="mode-container">
-
+    <div class="mode-container" style="max-height: 400px; overflow: auto">
       <div>
         <div>{{ $t("commons.environment") }}：</div>
-        <env-select-popover :project-ids="projectIds"
-                            :project-list="projectList"
-                            :project-env-map="projectEnvListMap"
-                            :environment-type="'JSON'"
-                            :has-option-group="false"
-                            :show-env-group="false"
-                            :group-id="runConfig.environmentGroupId"
-                            @setProjectEnvMap="setProjectEnvMap"
-                            ref="envSelectPopover"
-                            class="mode-row"
+        <env-select-popover
+          :project-ids="projectIds"
+          :project-list="projectList"
+          :project-env-map="projectEnvListMap"
+          :environment-type="'JSON'"
+          :has-option-group="false"
+          :show-env-group="false"
+          :group-id="runConfig.environmentGroupId"
+          @setProjectEnvMap="setProjectEnvMap"
+          ref="envSelectPopover"
+          class="mode-row"
         ></env-select-popover>
       </div>
 
@@ -73,7 +73,7 @@
             <span v-if="runConfig.retryEnable">
               <el-tooltip placement="top" style="margin: 0 4px 0 2px">
                 <div slot="content">{{ $t("run_mode.retry_message") }}</div>
-                <i class="el-icon-question" style="cursor: pointer"/>
+                <i class="el-icon-question" style="cursor: pointer" />
               </el-tooltip>
               <span style="margin-left: 10px">
                 {{ $t("run_mode.retry") }}
@@ -111,13 +111,11 @@
         <div class="other-content">
           <div class="sub-item-row">
             <el-radio-group v-model="runConfig.reportType">
-              <el-radio label="iddReport">{{
-                  $t("run_mode.idd_report")
-                }}
+              <el-radio label="iddReport"
+                >{{ $t("run_mode.idd_report") }}
               </el-radio>
-              <el-radio label="setReport">{{
-                  $t("run_mode.set_report")
-                }}
+              <el-radio label="setReport"
+                >{{ $t("run_mode.set_report") }}
               </el-radio>
             </el-radio-group>
           </div>
@@ -137,7 +135,7 @@
             <span v-if="runConfig.retryEnable">
               <el-tooltip placement="top" style="margin: 0 4px 0 2px">
                 <div slot="content">{{ $t("run_mode.retry_message") }}</div>
-                <i class="el-icon-question" style="cursor: pointer"/>
+                <i class="el-icon-question" style="cursor: pointer" />
               </el-tooltip>
               <span style="margin-left: 10px">
                 {{ $t("run_mode.retry") }}
@@ -184,20 +182,24 @@
     </div>
 
     <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
+      <ms-dialog-footer @cancel="close" @confirm="handleRunBatch" />
     </template>
   </el-dialog>
 </template>
 
 <script>
-import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter'
-import {getCurrentProjectID, getOwnerProjects, strMapToObj} from "@/business/utils/sdk-utils";
+import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
+import {
+  getCurrentProjectID,
+  getOwnerProjects,
+  strMapToObj,
+} from "@/business/utils/sdk-utils";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
-import {testPlanUiScenarioCaseEnv} from "@/api/remote/ui/test-plan-ui-scenario-case";
+import { testPlanUiScenarioCaseEnv } from "@/api/remote/ui/test-plan-ui-scenario-case";
 
 export default {
   name: "UiRunMode",
-  components: {MsDialogFooter, EnvSelectPopover},
+  components: { MsDialogFooter, EnvSelectPopover },
   data() {
     return {
       runModeVisible: false,
@@ -298,8 +300,7 @@ export default {
       this.$emit("close");
     },
     getWsProjects() {
-      getOwnerProjects()
-        .then((res) => {
+      getOwnerProjects().then((res) => {
         this.projectList = res.data;
       });
     },
