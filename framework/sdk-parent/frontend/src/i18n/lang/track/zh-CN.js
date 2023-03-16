@@ -313,7 +313,7 @@ export default {
     no_check_schedule_enabled: "您勾选的数据没有检测到定时任务",
     load_case: {
       case: "性能用例",
-      execution_status: "执行状态",
+      execution_status: "执行结果",
       report: "报告",
       view_report: "查看报告",
       unlink_in_bulk: "批量取消关联",
