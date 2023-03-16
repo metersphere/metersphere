@@ -370,7 +370,7 @@ export default {
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
         let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
-        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1) {
+        if (typeArray.indexOf(scenarioDefinition[i].type) !== -1 && this.currentScenario) {
           scenarioDefinition[i].currentScenarioId = this.currentScenario.id;
         }
         if (scenarioDefinition[i].hashTree && scenarioDefinition[i].hashTree.length > 0) {
