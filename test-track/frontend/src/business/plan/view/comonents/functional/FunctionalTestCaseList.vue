@@ -1,7 +1,7 @@
 <template>
   <div class="card-container">
     <ms-table-header :condition.sync="condition" @search="search" ref="tableHeader"
-                     :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
+                     :show-create="false" class="table-header" :tip="$t('commons.search_by_id_name_tag')">
 
       <!-- 不显示 “全部用例” 标题,使标题为空 -->
       <template v-slot:title>
@@ -850,7 +850,6 @@ export default {
 </script>
 
 <style scoped>
-
 .search {
   margin-left: 10px;
   width: 240px;
@@ -864,5 +863,9 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.table-header {
+  padding-bottom: 0.6rem;
 }
 </style>
