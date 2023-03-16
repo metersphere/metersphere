@@ -1,25 +1,69 @@
 <template>
   <div v-loading="loading">
-    <el-card class="ms-test-chart" :style="{ width: w+'px', height: h + 'px'}" ref="msDrawer">
+    <el-card
+      class="ms-test-chart"
+      :style="{ width: w + 'px', height: h + 'px' }"
+      ref="msDrawer"
+    >
       <el-row class="ms-row">
-        <p class="tip"><span style="margin-left: 5px"></span> {{ $t('commons.report_statistics.chart') }} </p>
+        <p class="tip">
+          <span style="margin-left: 5px"></span>
+          {{ $t("commons.report_statistics.chart") }}
+        </p>
         <div class="ms-test-chart-header">
-          <el-select v-model="chartType" class="ms-col-type" size="mini" style="width: 100px" @change="generateOption">
-            <el-option :key="t.id" :value="t.id" :label="t.name" v-for="t in charts"/>
+          <el-select
+            v-model="chartType"
+            class="ms-col-type"
+            size="mini"
+            style="width: 100px"
+            @change="generateOption"
+          >
+            <el-option
+              :key="t.id"
+              :value="t.id"
+              :label="t.name"
+              v-for="t in charts"
+            />
           </el-select>
           <span style="margin: 0px 10px 10px">|</span>
-          <el-select v-model="order" class="ms-col-type" size="mini" style="width: 120px" @change="orderCharts">
-            <el-option :key="t.id" :value="t.id" :label="t.name" v-for="t in orders"/>
+          <el-select
+            v-model="order"
+            class="ms-col-type"
+            size="mini"
+            style="width: 120px"
+            @change="orderCharts"
+          >
+            <el-option
+              :key="t.id"
+              :value="t.id"
+              :label="t.name"
+              v-for="t in orders"
+            />
           </el-select>
           <span style="margin: 0px 10px 10px">|</span>
-          <font-awesome-icon v-if="!isFullScreen && showFullScreen" class="report-alt-ico" :icon="['fa', 'expand-alt']" size="lg"
-                             @click="fullScreen"/>
-          <font-awesome-icon v-if="isFullScreen && showFullScreen" class="report-alt-ico" :icon="['fa', 'compress-alt']" size="lg"
-                             @click="unFullScreen"/>
+          <font-awesome-icon
+            v-if="!isFullScreen && showFullScreen"
+            class="report-alt-ico"
+            :icon="['fa', 'expand-alt']"
+            size="lg"
+            @click="fullScreen"
+          />
+          <font-awesome-icon
+            v-if="isFullScreen && showFullScreen"
+            class="report-alt-ico"
+            :icon="['fa', 'compress-alt']"
+            size="lg"
+            @click="unFullScreen"
+          />
         </div>
       </el-row>
       <el-row>
-        <ms-chart ref="chart1" :options="loadOption" class="chart-config" :autoresize="true"/>
+        <ms-chart
+          ref="chart1"
+          :options="loadOption"
+          class="chart-config"
+          :autoresize="true"
+        />
       </el-row>
     </el-card>
   </div>
@@ -32,7 +76,7 @@ import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 
 export default {
   name: "TestAnalysisChart",
-  components: {MsChart},
+  components: { MsChart },
   props: {
     loadOption: {},
   },
@@ -49,35 +93,50 @@ export default {
         type: Boolean,
         default() {
           return true;
-        }
+        },
       },
       // 头部部分
       chartType: "line",
-      charts: [{id: 'line', name: this.$t('commons.report_statistics.line')}, {id: 'bar', name: this.$t('commons.report_statistics.bar')}],
+      charts: [
+        { id: "line", name: this.$t("commons.report_statistics.line") },
+        { id: "bar", name: this.$t("commons.report_statistics.bar") },
+      ],
       order: "",
-      orders: [{id: '', name: this.$t('commons.sort_default')}, {id: 'desc', name: this.$t('commons.report_statistics.desc')}, {
-        id: 'asc',
-        name: this.$t('commons.report_statistics.asc')
-      }],
+      orders: [
+        { id: "", name: this.$t("commons.sort_default") },
+        { id: "desc", name: this.$t("commons.report_statistics.desc") },
+        {
+          id: "asc",
+          name: this.$t("commons.report_statistics.asc"),
+        },
+      ],
       loading: false,
       options: {},
-    }
+    };
   },
   methods: {
+    reCountWidth(isHideOther) {
+      if (isHideOther) {
+        this.w = document.documentElement.clientWidth - 20;
+      } else {
+        this.w = document.documentElement.clientWidth - 760;
+      }
+      this.reload();
+    },
     orderCharts() {
-      this.$emit('orderCharts', this.order);
+      this.$emit("orderCharts", this.order);
     },
     generateOption() {
-      this.loadOption.series.forEach(item => {
+      this.loadOption.series.forEach((item) => {
         item.type = this.chartType;
-      })
+      });
       this.reload();
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
     },
     fullScreen() {
       this.originalW = this.w;
@@ -85,23 +144,22 @@ export default {
       this.w = document.body.clientWidth - 50;
       this.h = document.body.clientHeight;
       this.isFullScreen = true;
-      this.$emit('hidePage', true);
+      this.$emit("hidePage", true);
     },
     unFullScreen() {
       this.w = this.originalW;
       this.h = this.originalH;
       this.isFullScreen = false;
-      this.$emit('hidePage', false);
+      this.$emit("hidePage", false);
     },
     getOptions() {
       return this.loadOption;
-    }
+    },
   },
-}
+};
 </script>
 
 <style scoped>
-
 .ms-test-chart-header {
   z-index: 999;
   width: 320px;
@@ -121,7 +179,7 @@ export default {
   font-size: 18px;
 }
 
-:deep(.echarts ) {
+:deep(.echarts) {
   height: calc(100vh / 1.95);
 }
 
@@ -141,8 +199,7 @@ export default {
   width: 100%;
 }
 
-:deep(.el-card__body ) {
+:deep(.el-card__body) {
   padding: 0px;
 }
-
 </style>

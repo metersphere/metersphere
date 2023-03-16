@@ -8,6 +8,14 @@ import {
 import i18n from "../i18n";
 import html2canvas from "html2canvas";
 import JsPDF from "jspdf";
+/**
+ * 同一行的多个文本框高度保持一致
+ * 同时支持 autosize 的功能
+ * @param size 同一行中文本框的个数
+ * @param index 编辑行的下标
+ * 如果编辑某一行，则只调整某一行，提升效率
+ */
+import calcTextareaHeight from "element-ui/packages/input/src/calcTextareaHeight";
 
 export function setCustomizeColor(color) {
   // 自定义主题风格
@@ -309,10 +317,10 @@ export function sizeToByte(size) {
   let k = 1024,
     sizeUnits = ["B", "K", "M", "G", "T", "P", "E", "Z", "Y"];
   let i = 1;
-  for (i++; i < sizeUnits.length;) {
+  for (i++; i < sizeUnits.length; ) {
     let unit = sizeUnits[i];
     if (size.indexOf(unit) !== -1) {
-      return size.toString().replace(unit, "") * Math.pow(k, i)
+      return size.toString().replace(unit, "") * Math.pow(k, i);
     }
   }
 }
@@ -324,15 +332,6 @@ export function getTypeByFileName(filename) {
   let type = filename.substr(filename.lastIndexOf(".") + 1);
   return type.toUpperCase();
 }
-
-/**
- * 同一行的多个文本框高度保持一致
- * 同时支持 autosize 的功能
- * @param size 同一行中文本框的个数
- * @param index 编辑行的下标
- * 如果编辑某一行，则只调整某一行，提升效率
- */
-import calcTextareaHeight from "element-ui/packages/input/src/calcTextareaHeight";
 
 export function resizeTextarea(size = 2, index) {
   let textareaList = document.querySelectorAll(
@@ -404,7 +403,7 @@ export function downloadPDF(ele, pdfName) {
   let scale = canvas.height / ((canvas.width / 592.28) * 841.89);
   scale = scale > 3 ? 1 : 2;
   context.translate(-eleOffsetLeft - abs, -eleOffsetTop);
-  let scrollWidth = document.getElementById("apiTestReport").scrollWidth;
+  let scrollWidth = ele.scrollWidth;
   html2canvas(ele, {
     scale: scale, // 背景灰色
     background: "#FFFFFF",
