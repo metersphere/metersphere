@@ -182,6 +182,16 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             testCaseExcelData = this.parseDataToModel(data);
         }
 
+        buildUpdateOrErrorList(rowIndex, testCaseExcelData);
+
+        if (list.size() > BATCH_COUNT || updateList.size() > BATCH_COUNT) {
+            saveData();
+            list.clear();
+            updateList.clear();
+        }
+    }
+
+    private void buildUpdateOrErrorList(Integer rowIndex, TestCaseExcelData testCaseExcelData) {
         StringBuilder errMsg;
         try {
             //根据excel数据实体中的javax.validation + 正则表达式来校验excel数据
@@ -213,11 +223,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             if (isCreateModel()) {
                 list.add(testCaseExcelData);
             }
-        }
-        if (list.size() > BATCH_COUNT || updateList.size() > BATCH_COUNT) {
-            saveData();
-            list.clear();
-            updateList.clear();
         }
     }
 
@@ -856,6 +861,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     @Override
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+        // 如果文件最后一行是没有内容的步骤，这里处理最后一条合并单元格的数据
+        if (this.currentMergeData != null) {
+            buildUpdateOrErrorList(firstMergeRowIndex, currentMergeData);
+        }
         saveData();
         list.clear();
         customFieldsMap.clear();
