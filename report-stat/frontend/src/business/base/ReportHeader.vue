@@ -1,35 +1,55 @@
 <template>
   <div class="ms-header">
     <el-row>
-      <div class="ms-div">{{ title }}
+      <div class="ms-div">
+        {{ title }}
         <span v-if="historyReportName" class="history-report-name">
           {{ historyReportName }}
         </span>
       </div>
       <div class="ms-header-right">
-        <el-button type="primary" v-if="isSaveAsButtonShow" size="mini" @click="handleSaveAs" :disabled="readOnly">
-          {{ $t('commons.save_as') }}<i class="el-icon-files el-icon--right"></i></el-button>
-        <el-button type="primary" v-if="isSaveButtonShow" size="mini" @click="handleSave" :disabled="readOnly">
-          {{ $t('commons.save') }}<i class="el-icon-files el-icon--right"></i></el-button>
-        <el-button type="" size="mini" @click="handleExport" :disabled="readOnly">{{ $t('report.export') }}<i
-          class="el-icon-download el-icon--right"></i></el-button>
+        <el-button
+          type="primary"
+          v-if="isSaveAsButtonShow"
+          size="mini"
+          @click="handleSaveAs"
+          :disabled="readOnly"
+        >
+          {{ $t("commons.save_as") }}<i class="el-icon-files el-icon--right"></i
+        ></el-button>
+        <el-button
+          type="primary"
+          v-if="isSaveButtonShow"
+          size="mini"
+          @click="handleSave"
+          :disabled="readOnly"
+        >
+          {{ $t("commons.save") }}<i class="el-icon-files el-icon--right"></i
+        ></el-button>
+        <el-button
+          type=""
+          size="mini"
+          @click="handleExport"
+          :disabled="readOnly"
+          >{{ $t("report.export")
+          }}<i class="el-icon-download el-icon--right"></i
+        ></el-button>
         <span class="ms-span">|</span>
-        <i class="el-icon-close report-alt-ico" @click="close"/>
+        <i class="el-icon-close report-alt-ico" @click="close" />
       </div>
     </el-row>
   </div>
 </template>
 
 <script>
-import {exportPdf,} from "metersphere-frontend/src/utils";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
-import html2canvas from 'html2canvas';
+import { hasPermission } from "metersphere-frontend/src/utils/permission";
+import html2canvas from "html2canvas";
 
 export default {
   name: "ReportHeader",
   components: {},
   data() {
-    return {}
+    return {};
   },
   props: {
     title: String,
@@ -37,20 +57,22 @@ export default {
     historyReportName: String,
   },
   watch: {
-    historyReportName() {
-    }
+    historyReportName() {},
   },
-  created() {
-  },
+  created() {},
   computed: {
     readOnly() {
-      return !hasPermission('PROJECT_REPORT_ANALYSIS:READ+EXPORT');
+      return !hasPermission("PROJECT_REPORT_ANALYSIS:READ+EXPORT");
     },
     isSaveAsButtonShow() {
-      if (!this.historyReportId || this.historyReportId === null || this.historyReportId === '') {
+      if (
+        !this.historyReportId ||
+        this.historyReportId === null ||
+        this.historyReportId === ""
+      ) {
         return false;
       } else {
-        if (hasPermission('PROJECT_REPORT_ANALYSIS:READ+CREATE')) {
+        if (hasPermission("PROJECT_REPORT_ANALYSIS:READ+CREATE")) {
           return true;
         } else {
           return false;
@@ -58,28 +80,23 @@ export default {
       }
     },
     isSaveButtonShow() {
-      if (hasPermission('PROJECT_REPORT_ANALYSIS:READ+UPDATE')) {
+      if (hasPermission("PROJECT_REPORT_ANALYSIS:READ+UPDATE")) {
         return true;
       } else {
         return false;
       }
-    }
+    },
   },
   methods: {
     handleExport() {
-      let name = this.title;
-      this.$nextTick(function () {
-        setTimeout(() => {
-          html2canvas(document.getElementById('reportAnalysis'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
-          });
-        }, 1000);
-      });
+      this.$emit("exportReport", this.title);
     },
     handleSave() {
-      if (!this.historyReportId || this.historyReportId === null || this.historyReportId === '') {
+      if (
+        !this.historyReportId ||
+        this.historyReportId === null ||
+        this.historyReportId === ""
+      ) {
         this.$emit("selectAndSaveReport");
       } else {
         this.$emit("updateReport");
@@ -89,16 +106,16 @@ export default {
       this.$emit("selectAndSaveReport");
     },
     close() {
-      this.$emit('closePage');
+      this.$emit("closePage");
     },
   },
-}
+};
 </script>
 
 <style scoped>
 .ms-header {
-  border-bottom: 1px solid #E6E6E6;
-  background-color: #FFF;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #fff;
 }
 
 .ms-div {
