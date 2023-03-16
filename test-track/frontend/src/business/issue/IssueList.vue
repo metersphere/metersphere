@@ -546,7 +546,8 @@ export default {
         "exportIds": this.$refs.table.selectIds,
         "exportFields": data,
         "orders": getLastTableSortField(this.tableHeaderKey),
-        "combine": this.page.condition.combine
+        "combine": this.page.condition.combine,
+        "name": this.page.condition.name
       }
       this.$fileDownloadPost("/issues/export", param);
     },

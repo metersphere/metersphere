@@ -1651,6 +1651,8 @@ public class IssuesService {
         request.setWorkspaceId(exportRequest.getWorkspaceId());
         request.setSelectAll(exportRequest.getIsSelectAll());
         request.setExportIds(exportRequest.getExportIds());
+        // 列表搜索条件
+        request.setName(exportRequest.getName());
         // 高级搜索条件
         request.setCombine(exportRequest.getCombine());
         // 列表排序

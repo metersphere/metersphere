@@ -23,6 +23,11 @@ public class IssueExportRequest {
     private Map<String, List<IssueExportHeader>> exportFields;
 
     /**
+     * 列表搜索
+     */
+    private String name;
+
+    /**
      * 高级搜索
      */
     private Map<String, Object> combine;
