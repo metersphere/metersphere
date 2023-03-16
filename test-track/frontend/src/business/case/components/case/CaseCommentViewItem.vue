@@ -59,6 +59,7 @@ export default {
       default: false,
     },
     apiUrl: String,
+    isPublicShow: Boolean
   },
   watch: {
     "comment.description": {
@@ -83,6 +84,9 @@ export default {
       return name.substring(0, 2).toUpperCase();
     },
     openEdit() {
+      if (this.isPublicShow) {
+        return;
+      }
       if (getCurrentUser().id !== this.comment.author) {
         this.$warning(this.$t("test_track.comment.cannot_edit"), false);
         return;
@@ -97,6 +101,9 @@ export default {
       this.editComment(description);
     },
     deleteComment() {
+      if (this.isPublicShow) {
+        return;
+      }
       if (getCurrentUser().id !== this.comment.author) {
         this.$warning(this.$t("test_track.comment.cannot_delete"), false);
         return;
