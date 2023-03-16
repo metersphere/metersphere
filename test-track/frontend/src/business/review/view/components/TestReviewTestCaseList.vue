@@ -553,7 +553,7 @@ export default {
       param.reviewId = reviewId;
       param.description = form.description;
       if (form.type === 'reviewers') {
-        param.reviewer = form.value;
+        param.reviewerIds = form.value;
         param.appendTag = form.appendTag;
         batchEditTestReviewCaseReviewer(param)
           .then(() => {
