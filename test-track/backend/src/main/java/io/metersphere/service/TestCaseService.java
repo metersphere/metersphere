@@ -3209,7 +3209,7 @@ public class TestCaseService {
     public TestCaseWithBLOBs getSimpleCaseForEdit(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseMapper.selectByPrimaryKey(testCaseId);
         Project project = baseProjectService.getProjectById(testCase.getProjectId());
-        if (!SessionUtils.hasPermission(project.getWorkspaceId(), project.getId(), PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)) {
+        if (!SessionUtils.hasPermission(project.getWorkspaceId(), project.getId(), PermissionConstants.PROJECT_TRACK_CASE_READ)) {
             MSException.throwException(Translator.get("check_owner_project"));
         }
         return testCaseMapper.selectByPrimaryKey(testCaseId);

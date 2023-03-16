@@ -10,7 +10,7 @@
             :is-add="isAdd"
             :editable-state="editableState"
             :is-name-edit.sync="isNameEdit"
-            :is-public-show="isPublicShow"
+            :is-public-show="isPublicShow || hasReadonlyPermission"
             :form="form"
             @save="saveCaseWithoutRefresh"
           />
@@ -27,7 +27,7 @@
                 ref="versionHistory"
                 :current-id="currentTestCaseInfo.id"
                 :is-read="readOnly"
-                :is-public-show="isPublicShow"
+                :is-public-show="isPublicShow || hasReadonlyPermission"
                 :current-version-id="form.versionId"
                 @confirmOtherInfo="confirmOtherInfo"
                 :current-project-id="projectId"
@@ -115,7 +115,7 @@
           </div>
           <!-- 功能用例库头部按钮展示 -->
           <div
-            class="follow-row head-opt" v-if="!isPublicShow"
+            class="follow-row head-opt" v-if="!isPublicShow && !hasReadonlyPermission"
             @click="toEdit"
           >
             <div class="icon-row">
@@ -125,7 +125,7 @@
           </div>
           <div
             class="follow-row head-opt"
-            v-if="!showFollow && !isPublicShow"
+            v-if="!showFollow && !isPublicShow && !hasReadonlyPermission"
             @click="saveFollow"
           >
             <div class="icon-row">
@@ -135,7 +135,7 @@
           </div>
           <div
             class="follow-row head-opt"
-            v-if="showFollow && !isPublicShow"
+            v-if="showFollow && !isPublicShow && !hasReadonlyPermission"
             @click="saveFollow"
           >
             <div class="icon-row">
@@ -143,7 +143,7 @@
             </div>
             <div class="label-row">{{ $t("case.followed") }}</div>
           </div>
-          <div class="more-row head-opt" v-if="!isPublicShow">
+          <div class="more-row head-opt" v-if="!isPublicShow && !hasReadonlyPermission">
             <div class="icon-row" @mouseenter="$refs.headMoreOptPopover.doShow()" @mouseleave="$refs.headMoreOptPopover.doClose()">
               <img src="/assets/module/figma/icon_more_outlined.svg" alt="" />
             </div>
@@ -177,14 +177,14 @@
                     <div class="title">{{ $t("case.added_to_public_case") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="copy-row sub-opt-row" @click="copyRow">
+                  <div class="copy-row sub-opt-row" @click="copyRow" :style="!hasCopyPermission ? 'cursor: not-allowed' : 'cursor: default'">
                     <div class="icon">
                       <i class="el-icon-copy-document"></i>
                     </div>
                     <div class="title">{{ $t("commons.copy") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="delete-row sub-opt-row" @click="deleteRow">
+                  <div class="delete-row sub-opt-row" @click="deleteRow" :style="!hasDeletePermission ? 'cursor: not-allowed' : 'cursor: default'">
                     <div class="icon">
                       <i class="el-icon-delete"></i>
                     </div>
@@ -198,7 +198,7 @@
         </div>
       </div>
       <!-- 检测版本 是否不是最新 -->
-      <div class="diff-latest-container" v-if="!editable && versionEnable && !isLastedVersion && !isPublicShow">
+      <div class="diff-latest-container" v-if="!editable && versionEnable && !isLastedVersion && !isPublicShow && !hasReadonlyPermission">
         <div class="left-view-row">
           <div class="view-icon"><img src="/assets/module/figma/icon_warning_colorful.svg" alt=""></div>
           <div class="view-content">{{$t("case.current_display_history_version")}}</div>
@@ -222,6 +222,7 @@
           :copy-case-id="caseId"
           :label-width="formLabelWidth"
           :is-public-show="isPublicShow"
+          :is-readonly-user="hasReadonlyPermission"
           :case-id="caseId"
           :type="!caseId ? 'add' : 'edit'"
           :comments.sync="comments"
@@ -604,6 +605,15 @@ export default {
     publicCaseId: String,
   },
   computed: {
+    hasCopyPermission() {
+      return hasPermission('PROJECT_TRACK_CASE:READ+COPY')
+    },
+    hasDeletePermission() {
+      return hasPermission('PROJECT_TRACK_CASE:READ+DELETE')
+    },
+    hasReadonlyPermission() {
+      return hasPermission('PROJECT_TRACK_CASE:READ') && !hasPermission('PROJECT_TRACK_CASE:READ+EDIT')
+    },
     routeProjectId() {
       return this.$route.query.projectId;
     },
@@ -614,7 +624,7 @@ export default {
       return this.type === "edit" ? "preview" : "edit";
     },
     readOnly() {
-      if (this.isPublicShow) {
+      if (this.isPublicShow || this.hasReadonlyPermission) {
         return true;
       }
       const { rowClickHasPermission } = this.currentTestCaseInfo;
@@ -1595,9 +1605,15 @@ export default {
       this.saveCase();
     },
     copyRow() {
+      if (!hasPermission('PROJECT_TRACK_CASE:READ+COPY')) {
+        return;
+      }
       openCaseEdit({caseId: this.testCase.id, type: 'copy', projectId: this.projectId},  this);
     },
     deleteRow() {
+      if (!hasPermission('PROJECT_TRACK_CASE:READ+DELETE')) {
+        return;
+      }
       getTestCaseVersions(this.testCase.id)
         .then(response => {
           if (hasLicense() && this.versionEnable && response.data.length > 1) {
