@@ -44,7 +44,7 @@
         </el-form-item>
 
         <el-form-item v-else-if="form.type === 'reviewers'" :label="$t('test_track.case.batch_update_to')" prop="value">
-          <el-select v-model="form.value" style="width: 100%" :filterable="filterable" :disabled="!form.type">
+          <el-select multiple v-model="form.value" style="width: 100%" :filterable="filterable" :disabled="!form.type">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
                 <span>{{ option.id }}({{ option.name }})</span>

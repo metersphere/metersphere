@@ -11,8 +11,9 @@ import java.util.List;
 @Setter
 public class TestReviewCaseBatchRequest extends TestCaseReviewTestCase {
     private String reviewId;
+    private List<String> reviewerIds;
     private List<String> ids;
     private QueryCaseReviewCondition condition;
-    private Boolean appendTag;
+    private Boolean appendTag = false;
     private String description;
 }
