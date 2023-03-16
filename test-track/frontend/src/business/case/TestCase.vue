@@ -2,7 +2,7 @@
   <ms-container v-if="renderComponent" v-loading="loading">
     <!-- operate-button  -->
     <div class="top-btn-group-layout" v-if="!showPublicNode && !showTrashNode" style="margin-bottom: 16px">
-      <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+BATCH_EDIT']" @click="handleCreateCase" type="primary">
+      <el-button size="small" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']" @click="handleCreateCase" type="primary">
         <svg-icon icon-class="icon_add_outlined_white"/>
         {{$t('test_track.case.create_case')}}
       </el-button>
@@ -25,7 +25,7 @@
     </div>
 
     <!-- public, trash back header  -->
-    <div v-if="showPublicNode || showTrashNode" class="back-layout">
+    <div v-show="showPublicNode || showTrashNode" class="back-layout">
       <i class="el-icon-back" style="float: left;position: relative;top: 15px;left: 21px;" @click="activeName = 'default'"/>
       <span class="back-content">{{showPublicNode? $t('project.case_public') : $t('commons.trash')}}</span>
     </div>
