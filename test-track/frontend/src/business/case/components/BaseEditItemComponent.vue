@@ -294,12 +294,8 @@ export default {
         }
       }
 
-      if (
-        this.contentObject.content.type === "input" ||
-        this.contentObject.content.type === "richText"
-      ) {
-        if (this.contentObject.content.defaultValue === "" ||
-          this.contentObject.content.defaultValue == null) {
+      if (['input', 'richText', 'textarea'].indexOf(this.contentObject.content.type) > -1) {
+        if (!this.contentObject.content.defaultValue) {
           this.isCustomNone = true;
           return this.$t("case.none");
         } else {
@@ -308,8 +304,7 @@ export default {
         }
       }
 
-      if (this.contentObject.content.defaultValue === "" ||
-        this.contentObject.content.defaultValue == null) {
+      if (!this.contentObject.content.defaultValue) {
         this.isCustomNone = true;
         return this.$t("case.none");
       } else {
