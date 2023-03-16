@@ -74,14 +74,6 @@ export default {
     }
     this.mock.mock = this.mock.mock + '';
   },
-  watch: {
-    schema: {
-      handler(newValue, oldValue) {
-        this.schema.mock = this.mock;
-      },
-      deep: true,
-    },
-  },
   mounted() {},
   methods: {
     funcSearch(queryString, cb) {
