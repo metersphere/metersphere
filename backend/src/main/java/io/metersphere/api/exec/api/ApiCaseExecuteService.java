@@ -224,6 +224,9 @@ public class ApiCaseExecuteService {
 
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
 
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return responseDTOS;
+        }
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         List<ApiTestCaseWithBLOBs> caseList = apiTestCaseMapper.selectByExampleWithBLOBs(example);
