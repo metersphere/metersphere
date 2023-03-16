@@ -239,7 +239,7 @@ public class TestCaseSyncStatusUtil {
                 errorStatus = execResult;
             } else if (StringUtils.equalsIgnoreCase(ApiReportStatus.FAKE_ERROR.name(), execResult.getExecResult())) {
                 fakeErrorStatus = execResult;
-            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ApiReportStatus.FAKE_ERROR.name(), TestPlanStatus.Completed.name())) {
+            } else if (StringUtils.equalsAnyIgnoreCase(execResult.getExecResult(), ApiReportStatus.SUCCESS.name(), TestPlanStatus.Completed.name())) {
                 successStatus = execResult;
             } else if (StringUtils.isEmpty(execResult.getExecResult())) {
                 hasNoneStatus = true;

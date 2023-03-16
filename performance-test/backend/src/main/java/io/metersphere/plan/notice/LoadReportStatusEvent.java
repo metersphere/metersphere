@@ -1,9 +1,10 @@
 package io.metersphere.plan.notice;
 
 import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.base.domain.TestPlanLoadCaseExample;
-import io.metersphere.base.domain.TestPlanLoadCaseWithBLOBs;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
@@ -16,12 +17,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class LoadReportStatusEvent implements LoadTestFinishEvent {
 
     @Resource
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
+    @Resource
+    private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
 
     private void updateLoadCaseStatus(LoadTestReport loadTestReport) {
         String reportId = loadTestReport.getId();
@@ -37,17 +42,17 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
             LogUtil.info("update plan load case status: " + result);
             // 更新测试计划关联数据状态
             TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
-            example.createCriteria().andIdEqualTo(loadTestReport.getTestId());
+            example.createCriteria().andLoadReportIdEqualTo(reportId);
             if (testPlanLoadCaseMapper.countByExample(example) > 0) {
-                TestPlanLoadCaseWithBLOBs loadCase = new TestPlanLoadCaseWithBLOBs();
-                loadCase.setId(loadTestReport.getTestId());
-                loadCase.setStatus(TestPlanLoadCaseStatus.success.name());
-                testPlanLoadCaseMapper.updateByPrimaryKeySelective(loadCase);
-                LogUtil.info("Execute test_plan_load_case OVER.  Now send kafka to Test_Track. key:" + loadCase.getId());
-                PerfQueueService perfQueueService = CommonBeanFactory.getBean(PerfQueueService.class);
-                if (perfQueueService != null) {
-                    perfQueueService.checkTestPlanLoadCaseExecOver(loadCase.getId(), null);
-                }
+                extTestPlanLoadCaseMapper.updateCaseStatus(reportId, result);
+                List<TestPlanLoadCase> testPlanLoadCaseList = testPlanLoadCaseMapper.selectByExample(example);
+                testPlanLoadCaseList.forEach(item ->{
+                    LogUtil.info("Execute test_plan_load_case OVER.  Now send kafka to Test_Track. key:" + item.getId());
+                    PerfQueueService perfQueueService = CommonBeanFactory.getBean(PerfQueueService.class);
+                    if (perfQueueService != null) {
+                        perfQueueService.checkTestPlanLoadCaseExecOver(item.getId(), null);
+                    }
+                });
             }
         }
     }
