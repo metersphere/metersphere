@@ -7,10 +7,7 @@ import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.constants.TestCaseReviewCommentStatus;
 import io.metersphere.constants.TestCaseReviewPassRule;
@@ -23,7 +20,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
@@ -33,6 +29,7 @@ import io.metersphere.xpack.version.service.ProjectVersionService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,7 +88,15 @@ public class TestReviewTestCaseService {
                 .collect(Collectors.toList());
 
         // 查询评审人
-        userIds.addAll(getReviewUserIds(request.getReviewId(), caseIds));
+        List<TestCaseReviewTestCaseUsers> testCaseReviewTestCaseUsers =
+                getTestCaseReviewTestCaseUsers(request.getReviewId(), caseIds);
+        userIds.addAll(testCaseReviewTestCaseUsers.stream()
+                .map(TestCaseReviewTestCaseUsers::getUserId)
+                .collect(Collectors.toList())
+        );
+
+        Map<String, List<TestCaseReviewTestCaseUsers>> caseReviewerMap = testCaseReviewTestCaseUsers.stream()
+                .collect(Collectors.groupingBy(TestCaseReviewTestCaseUsers::getCaseId));
 
         Map<String, String> userNameMap = ServiceUtils.getUserNameMap(userIds);
 
@@ -107,20 +112,22 @@ public class TestReviewTestCaseService {
 
         list.forEach(item -> {
             // 设置责任人和评审人名称
-            item.setReviewerName(getReviewName(userIds, userNameMap));
+            List<TestCaseReviewTestCaseUsers> caseReviewers = caseReviewerMap.get(item.getCaseId());
+            if (CollectionUtils.isNotEmpty(caseReviewers)) {
+                List<String> reviewerIds = caseReviewerMap.get(item.getCaseId()).stream()
+                        .map(TestCaseReviewTestCaseUsers::getUserId)
+                        .collect(Collectors.toList());
+                item.setReviewerName(getReviewName(reviewerIds, userNameMap));
+            }
             item.setMaintainerName(userNameMap.get(item.getMaintainer()));
         });
         return list;
     }
 
-    private List<String> getReviewUserIds(String reviewId) {
-        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
-        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
-        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
-        return testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
-    }
-
     private String getReviewName(List<String> userIds, Map<String, String> userMap) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return StringUtils.EMPTY;
+        }
         List<String> userNames = new ArrayList<>();
         if (userIds.size() > 0) {
             for (String id : userIds) {
@@ -473,37 +480,69 @@ public class TestReviewTestCaseService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestReviewCaseMapper.selectTestCaseIds((QueryCaseReviewRequest) query));
         List<String> ids = request.getIds();
-        if (CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isEmpty(ids) || CollectionUtils.isEmpty(request.getReviewerIds())) {
             return;
         }
-        if (StringUtils.isNotBlank(request.getReviewer())) {
+
+        // 分批处理
+        SubListUtil.dealForSubList(ids, 500, (subList) -> {
+
+            SqlSession batchSqlSession = ServiceUtils.getBatchSqlSession();
+            TestCaseReviewTestCaseUsersMapper batchMapper = batchSqlSession.getMapper(TestCaseReviewTestCaseUsersMapper.class);
+
+            TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
+
             if (!request.getAppendTag()) {
-                TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
-                example.createCriteria().andCaseIdIn(request.getIds());
+                // 如果不是追加，则先删除，然后批量新增
+                example.createCriteria().andCaseIdIn(subList);
                 testCaseReviewTestCaseUsersMapper.deleteByExample(example);
-            }
-            for (int i = 0; i < ids.size(); i++) {
-                TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
-                example.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(ids.get(i)).andUserIdEqualTo(request.getReviewer());
+
+                subList.forEach(caseId ->
+                        request.getReviewerIds().forEach(reviewerId -> {
+                            addTestCaseReviewTestCaseUser(reviewerId, batchMapper, (String) caseId, request.getReviewId());
+                        }));
+            } else {
+                example.createCriteria()
+                        .andReviewIdEqualTo(request.getReviewId())
+                        .andCaseIdIn(subList)
+                        .andUserIdIn(request.getReviewerIds());
+                // 查询用例已有的评审人
                 List<TestCaseReviewTestCaseUsers> testCaseReviewTestCaseUsers = testCaseReviewTestCaseUsersMapper.selectByExample(example);
-                if (CollectionUtils.isEmpty(testCaseReviewTestCaseUsers)) {
-                    TestCaseReviewTestCaseUsers insertData = new TestCaseReviewTestCaseUsers();
-                    insertData.setCaseId(ids.get(i));
-                    insertData.setReviewId(request.getReviewId());
-                    insertData.setUserId(request.getReviewer());
-                    testCaseReviewTestCaseUsersMapper.insert(insertData);
-                }
+
+                Set<String> caseUserSet = testCaseReviewTestCaseUsers.stream()
+                        .map(item -> item.getCaseId() + item.getUserId())
+                        .collect(Collectors.toSet());
+
+                subList.forEach(caseId ->
+                        request.getReviewerIds().forEach(reviewerId -> {
+                            // 如果该用例没有当前的评审人就添加评审人
+                            if (!caseUserSet.contains(caseId + reviewerId)) {
+                                addTestCaseReviewTestCaseUser(reviewerId, batchMapper, (String) caseId, request.getReviewId());
+                            }
+                        }));
             }
 
+            batchSqlSession.flushStatements();
+            batchSqlSession.close();
+        });
 
-            // 修改评审人后重新计算用例的评审状态
-            TestCaseReview testReview = testCaseReviewService.getTestReview(request.getReviewId());
-            List<TestCaseReviewTestCase> testCaseReviewTestCases = selectForReviewChange(request.getReviewId());
-            for (TestCaseReviewTestCase reviewTestCase : testCaseReviewTestCases) {
-                // 重新计算评审状态
-                reCalcReviewCaseStatus(testReview.getReviewPassRule(), reviewTestCase);
-            }
+        // 修改评审人后重新计算用例的评审状态
+        TestCaseReview testReview = testCaseReviewService.getTestReview(request.getReviewId());
+        List<TestCaseReviewTestCase> testCaseReviewTestCases = selectForReviewChange(request.getReviewId());
+        for (TestCaseReviewTestCase reviewTestCase : testCaseReviewTestCases) {
+            // 重新计算评审状态
+            reCalcReviewCaseStatus(testReview.getReviewPassRule(), reviewTestCase);
         }
+
+    }
+
+    private void addTestCaseReviewTestCaseUser(String reviewer, TestCaseReviewTestCaseUsersMapper batchMapper,
+                                               String caseId, String reviewerId) {
+        TestCaseReviewTestCaseUsers insertData = new TestCaseReviewTestCaseUsers();
+        insertData.setCaseId(caseId);
+        insertData.setReviewId(reviewerId);
+        insertData.setUserId(reviewer);
+        batchMapper.insert(insertData);
     }
 
     private void checkReviewCase(String reviewId) {
@@ -679,21 +718,13 @@ public class TestReviewTestCaseService {
         return updateIsDel(ids, false);
     }
 
-    private List<String> getReviewUserIds(String reviewId, String caseId) {
-        TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
-        testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
-        List<TestCaseReviewTestCaseUsers> testCaseReviewUsers = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample);
-        return testCaseReviewUsers.stream().map(TestCaseReviewTestCaseUsers::getUserId).collect(Collectors.toList());
-    }
-
-    private List<String> getReviewUserIds(String reviewId, List<String> caseIds) {
+    private List<TestCaseReviewTestCaseUsers> getTestCaseReviewTestCaseUsers(String reviewId, List<String> caseIds) {
         if (CollectionUtils.isEmpty(caseIds)) {
             return new ArrayList<>();
         }
         TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
         testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdIn(caseIds);
-        List<TestCaseReviewTestCaseUsers> testCaseReviewUsers = testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample);
-        return testCaseReviewUsers.stream().map(TestCaseReviewTestCaseUsers::getUserId).collect(Collectors.toList());
+        return testCaseReviewTestCaseUsersMapper.selectByExample(testCaseReviewTestCaseUsersExample);
     }
 
     public List<TestCaseReviewTestCase> getCaseStatusByReviewIds(List<String> reviewIds) {
