@@ -8,6 +8,7 @@ const whiteList = ["/login"] // no redirect whitelist
 let store = null;
 
 router.beforeEach(async (to, from, next) => {
+  document.title = localStorage.getItem("default-document-title") || "MeterSphere";
   // start progress bar
   NProgress.start();
 
