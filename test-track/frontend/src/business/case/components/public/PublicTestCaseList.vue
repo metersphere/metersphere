@@ -303,7 +303,6 @@ export default {
         {
           name: this.$t('test_track.case.public_remove'),
           handleClick: this.handleDeleteBatchToPublic,
-          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE'],
           isDelete: true
         }
       ],

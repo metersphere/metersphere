@@ -420,7 +420,7 @@ export default {
         {
           name: this.$t('test_track.case.batch_delete_btn'),
           handleClick: this.handleDeleteBatchToGc,
-          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE'],
+          permissions: ['PROJECT_TRACK_CASE:READ+DELETE'],
           isDivide: true,
           isActive: true
         }
@@ -469,7 +469,7 @@ export default {
           isTextButton: true,
           tip: this.$t('test_track.case.batch_delete_case'),
           exec: this.handleDelete,
-          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+          permissions: ['PROJECT_TRACK_CASE:READ+BATCH_DELETE']
         }
       ],
       typeArr: [],
