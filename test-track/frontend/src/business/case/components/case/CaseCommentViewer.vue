@@ -11,6 +11,7 @@
         api-url="/test/case"
         @refresh="getComments"
         :readOnly="readOnly"
+        :is-public-show="isPublicShow"
       ></case-comment-view-item>
     </div>
   </div>
@@ -25,6 +26,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    isPublicShow: Boolean
   },
   components: {
     CaseCommentViewItem,

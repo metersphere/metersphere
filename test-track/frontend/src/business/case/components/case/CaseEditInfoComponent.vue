@@ -99,7 +99,7 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
-        <el-tab-pane :label="$t('case.comment')" name="comment" v-if="!isPublicShow">
+        <el-tab-pane :label="$t('case.comment')" name="comment">
           <span slot="label">
             {{ $t('case.comment') }}
             <div class="el-step__icon is-text ms-api-col ms-header" v-if="comments && comments.length > 0">
@@ -113,6 +113,7 @@
             <el-scrollbar>
               <div class="content-container">
                 <case-comment-viewer
+                  :is-public-show="isPublicShow"
                   @getComments="getComments"
                   :comments="comments"
                   ref="commentRef"
@@ -138,7 +139,7 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-      <div class="comment-common">
+      <div class="comment-common" v-if="!isPublicShow">
         <case-comment-component
           :case-id="caseId"
           :read-only="readOnly"
