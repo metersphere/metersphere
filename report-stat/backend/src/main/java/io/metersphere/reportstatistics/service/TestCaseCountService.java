@@ -2,6 +2,7 @@ package io.metersphere.reportstatistics.service;
 
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.i18n.Translator;
@@ -15,15 +16,16 @@ import io.metersphere.reportstatistics.service.remote.apitest.ScenarioRemoteServ
 import io.metersphere.reportstatistics.service.remote.performance.PerformanceRemoteService;
 import io.metersphere.reportstatistics.service.remote.projectmanagement.TestCaseTemplateRemoteService;
 import io.metersphere.reportstatistics.service.remote.track.TestCaseRemoteService;
+import io.metersphere.reportstatistics.utils.DiscoveryUtil;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.service.BaseUserService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -126,7 +128,6 @@ public class TestCaseCountService {
             } else if (StringUtils.equalsIgnoreCase(request.getTimeRangeUnit(), "year")) {
                 dateCountType = Calendar.YEAR;
             }
-
             if (dateCountType != 0 && request.getTimeRange() != 0) {
                 long startTime = DateUtils.dateSum(new Date(), (0 - request.getTimeRange()), dateCountType).getTime();
                 request.setStartTime(startTime);
@@ -246,7 +247,7 @@ public class TestCaseCountService {
         }
 
 
-        if (yAxisSelectTestCase) {
+        if (yAxisSelectTestCase && DiscoveryUtil.hasService(MicroServiceName.TEST_TRACK)) {
             functionCaseCountResult = testCaseRemoteService.countTestCaseByRequest(request);
             if (functionCaseCountResult.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
                 TestCaseCountChartResult result = new TestCaseCountChartResult();
@@ -255,7 +256,7 @@ public class TestCaseCountService {
                 functionCaseCountResult.add(result);
             }
         }
-        if (yAxisSelectApi) {
+        if (yAxisSelectApi && DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             Map<String, List<String>> apiCaseFilterList = new HashMap<>();
             if (MapUtils.isNotEmpty(request.getFilterSearchList())) {
                 for (Map.Entry<String, List<String>> entry : request.getFilterSearchList().entrySet()) {
@@ -274,7 +275,7 @@ public class TestCaseCountService {
                 apiCaseCountResult.add(result);
             }
         }
-        if (yAxisSelectScenarioCase) {
+        if (yAxisSelectScenarioCase && DiscoveryUtil.hasService(MicroServiceName.API_TEST)) {
             scenarioCaseCount = scenarioRemoteService.countTestCaseByRequest(request);
             if (scenarioCaseCount.isEmpty() && StringUtils.equalsIgnoreCase(request.getXaxis(), "casetype")) {
                 TestCaseCountChartResult result = new TestCaseCountChartResult();
@@ -283,7 +284,7 @@ public class TestCaseCountService {
                 scenarioCaseCount.add(result);
             }
         }
-        if (yAxisSelectLoad) {
+        if (yAxisSelectLoad && DiscoveryUtil.hasService(MicroServiceName.PERFORMANCE_TEST)) {
             Map<String, List<String>> loadCaseFilterMap = new HashMap<>();
             if (MapUtils.isNotEmpty(request.getFilterSearchList())) {
                 for (Map.Entry<String, List<String>> entry : request.getFilterSearchList().entrySet()) {
