@@ -654,17 +654,18 @@
             );
     </select>
 
-    <update id="updateExecResultByTestPlanCaseIdList">
+    <update id="updateDiffExecResultByTestPlanCaseIdList">
         UPDATE test_plan_test_case SET status = #{execResult}
         WHERE id IN
         <foreach collection="ids" item="value" separator="," open="(" close=")">
             #{value}
         </foreach>
+        AND status != #{execResult}
     </update>
 
-    <update id="updateExecResultByTestCaseIdAndTestPlanId">
+    <update id="updateDiffExecResultByTestCaseIdAndTestPlanId">
         UPDATE test_plan_test_case SET status = #{execResult}
-        WHERE case_id = #{testCaseId} AND plan_id = #{testPlanId}
+        WHERE case_id = #{testCaseId} AND plan_id = #{testPlanId} AND status != #{execResult}
     </update>
     <select id="findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
             resultType="io.metersphere.dto.ExecutedCaseInfoResult">
