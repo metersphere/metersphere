@@ -9,7 +9,7 @@
       </el-form-item>
 
       <el-row justify="space-between" class="select-time">
-        <el-col :span="8">
+        <el-col :span="8" v-if="runMode">
           <el-form-item :label="$t('report.run_model') + ':'">
             {{ runMode }}
           </el-form-item>
