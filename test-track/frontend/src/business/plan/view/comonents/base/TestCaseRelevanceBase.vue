@@ -19,6 +19,7 @@
         @confirm="save"
         btn-size="mini"
         @fullScreen="isFullScreen = !isFullScreen"
+        :is-full-screen.sync="isFullScreen"
       >
         <template #other>
           <table-select-count-bar
