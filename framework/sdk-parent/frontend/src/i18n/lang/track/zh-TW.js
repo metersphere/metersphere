@@ -312,7 +312,7 @@ export default {
     no_check_schedule_enabled: "您勾選的數據沒有檢測到定時任務",
     load_case: {
       case: "性能用例",
-      execution_status: "執行狀態",
+      execution_status: "執行結果",
       report: "報告",
       view_report: "查看報告",
       unlink_in_bulk: "批量取消關聯",

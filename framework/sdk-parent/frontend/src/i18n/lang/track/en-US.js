@@ -347,7 +347,7 @@ export default {
       "the data you checked does not detect a scheduled task",
     load_case: {
       case: "Load Case",
-      execution_status: "Execution status",
+      execution_status: "Execution result",
       report: "report",
       view_report: "View report",
       unlink_in_bulk: "Unlink in bulk",
