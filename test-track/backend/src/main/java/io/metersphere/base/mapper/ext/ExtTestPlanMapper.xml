@@ -213,6 +213,7 @@
                                     test_plan_test_case.status in
                                     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                                     ))
+                                    and (test_plan.status is null or test_plan.status != 'Trash')
                                 </when>
                                 <otherwise>
                                     and test_plan.status in
