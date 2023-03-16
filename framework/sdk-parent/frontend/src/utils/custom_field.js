@@ -80,7 +80,7 @@ export function parseCustomField(data, template, rules, oldFields) {
         let customField = data.fields[i];
         if (customField.id === item.id) {
           try {
-            if (item.type === "textarea" || item.type === "richText") {
+            if (item.type === "richText") {
               setDefaultValue(item, "\"" + customField.textValue + "\"");
             } else {
               setDefaultValue(item, customField.value);
