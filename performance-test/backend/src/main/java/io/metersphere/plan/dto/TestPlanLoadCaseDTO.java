@@ -22,6 +22,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCaseWithBLOBs {
     private String reportId;
     private String versionId;
     private String versionName;
+    private String description;
 
     @Getter
     @Setter
