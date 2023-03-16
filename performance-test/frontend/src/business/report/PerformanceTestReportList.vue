@@ -72,6 +72,9 @@
               :fields-width="fieldsWidth"
               min-width="100"
               :label="$t('report.max_users')">
+              <template v-slot:default="scope">
+                <span>{{ scope.row.maxUsers || '-'}}</span>
+              </template>
             </ms-table-column>
             <ms-table-column
               min-width="100"
@@ -80,6 +83,9 @@
               :fields-width="fieldsWidth"
               prop="avgResponseTime"
               :label="$t('report.response_time')">
+              <template v-slot:default="scope">
+                <span>{{ scope.row.avgResponseTime || '-'}}</span>
+              </template>
             </ms-table-column>
             <ms-table-column
               min-width="100"
@@ -88,6 +94,9 @@
               :field="item"
               :fields-width="fieldsWidth"
               label="TPS">
+              <template v-slot:default="scope">
+                <span>{{ scope.row.tps || '-'}}</span>
+              </template>
             </ms-table-column>
             <ms-table-column
               min-width="120"
