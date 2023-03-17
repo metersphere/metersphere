@@ -579,10 +579,11 @@ export default {
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
+    let protocol;
     if (this.$route && this.$route.params && this.$route.params.type) {
-      this.condition.protocol = this.$route.params.type;
+       protocol = this.$route.params.type;
     }
-    this.initTable();
+    this.initTable(protocol);
     this.getMaintainerOptions();
     this.getVersionOptions();
     this.checkVersionEnable();
@@ -696,7 +697,9 @@ export default {
       this.selectDataCounts = 0;
       this.condition.moduleIds = this.selectNodeIds;
       this.condition.projectId = this.projectId;
-      if (this.currentProtocol != null) {
+      if (currentProtocol && ["HTTP", "DUBBO", "SQL", "TCP"].includes(currentProtocol)) {
+        this.condition.protocol = currentProtocol;
+      }else if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
       this.enableOrderDrag = !(this.condition.orders && this.condition.orders.length > 0);
