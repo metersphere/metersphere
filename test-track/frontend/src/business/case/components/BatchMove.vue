@@ -143,8 +143,8 @@ export default {
       if (!value) {
         return '';
       }
-      if (value.length > 20) {
-        return value.slice(0, 20) + '...';
+      if (value.length > 25) {
+        return value.slice(0, 25) + '...';
       }
       return value;
     }
@@ -226,6 +226,6 @@ export default {
   height:34px;
   display: inline-block;
   title:content;
-  font-size: x-large;
+  font-size: large;
 }
 </style>

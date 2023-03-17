@@ -54,7 +54,12 @@
             <template v-slot:default="scope">
               <el-tooltip :content="getResultTip(scope.row)"
                           placement="top" :enterable="false" class="item" effect="dark">
-                <yan-progress :total="scope.row.caseCount" :done="getResultCount(scope.row, 'Pass')" :modify="getResultCount(scope.row, 'UnPass')" :tip="tip"/>
+                <ms-yan-progress :total="scope.row.caseCount"
+                               :pass="getResultCount(scope.row, 'Pass')"
+                               :unPass="getResultCount(scope.row, 'UnPass')"
+                               :underway="getResultCount(scope.row, 'Underway')"
+                               :again="getResultCount(scope.row, 'Again')"
+                               :tip="tip"/>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -83,10 +88,11 @@ import {getRelateTestCaseReview} from "@/api/test-review";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import BasicStatusLabel from "metersphere-frontend/src/components/BasicStatusLabel";
 import {hasPermission} from "@/business/utils/sdk-utils";
+import MsYanProgress from 'metersphere-frontend/src/components/yrogress/MsYanProgress';
 
 export default {
   name: "ReviewList",
-  components: {MsTableOperator, HomeBaseComponent, MsTableButton, HomePagination, BasicStatusLabel},
+  components: {MsTableOperator, HomeBaseComponent, MsTableButton, HomePagination, BasicStatusLabel,MsYanProgress},
   data() {
     return {
       loading: false,
@@ -97,9 +103,10 @@ export default {
       pageSize: 5,
       total: 0,
       tip: [
-        {text: "X", fillStyle: '#1F232926'},
-        {text: "X", fillStyle: '#F76964'},
-        {text: "X", fillStyle: '#AA4FBF'}
+        {text: "X", fillStyle: '#AA4FBF'},//评审中
+        {text: "X", fillStyle: '#55B040'},//通过
+        {text: "X", fillStyle: '#F76964'},//不通过
+        {text: "X", fillStyle: '#FFD131'}
       ]
     }
   },
