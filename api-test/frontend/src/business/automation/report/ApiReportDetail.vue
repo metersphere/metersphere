@@ -185,7 +185,10 @@ export default {
     templateReport: Object,
     isShare: Boolean,
     shareId: String,
-    isPlan: Boolean,
+    isPlan: {
+      type: Boolean,
+      default: false,
+    },
     showCancelButton: {
       type: Boolean,
       default: false,
@@ -468,8 +471,7 @@ export default {
               this.handleGetScenarioReport(data);
             }
           });
-        }
-        if (this.reportId) {
+        } else if (this.reportId) {
           getShareScenarioReport(this.shareId, this.reportId).then((res) => {
             let data = res.data;
             if (data) {

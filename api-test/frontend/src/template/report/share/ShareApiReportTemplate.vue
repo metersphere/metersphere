@@ -3,7 +3,7 @@
     :report-id="reportId"
     :share-id="shareId"
     :is-share="isShare"
-    :is-plan="true"
+    :is-plan="false"
     :show-cancel-button="false"></ms-api-report>
 </template>
 
