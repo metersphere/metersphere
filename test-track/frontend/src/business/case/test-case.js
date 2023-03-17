@@ -11,6 +11,7 @@ export function initTestCaseConditionComponents(condition, customFields, trashEn
   comp = comp.filter(element => {
     if (element.label === '责任人') {
       element.label = i18n.t('custom_field.case_maintainer');
+      return false;
     }
     if (element.label === '用例等级') {
       element.label = i18n.t('custom_field.case_priority');
