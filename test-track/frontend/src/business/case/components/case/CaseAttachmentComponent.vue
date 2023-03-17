@@ -303,13 +303,9 @@ export default {
     },
     handleDelete(file, index) {
       this.$alert(
-        (this.cancelFileToken.length > 0
-          ? this.$t("load_test.delete_file_when_uploading") + "<br/>"
-          : "") +
-          this.$t("load_test.delete_file_confirm") +
-          file.name +
-          "?",
-        "",
+        (this.cancelFileToken.length > 0 ? this.$t("load_test.delete_file_when_uploading") + "<br/>" : "") +
+                    this.$t("load_test.delete_file_confirm") + file.name + "?",
+        this.$t("attachment.delete_confirm_tips"),
         {
           confirmButtonText: this.$t("commons.confirm"),
           dangerouslyUseHTMLString: true,
@@ -521,6 +517,7 @@ export default {
   /* identical to box height, or 157% */
   width: 100%;
   color: #8f959e;
+  margin-top: 2px;
 }
 .el-button--small {
   font-family: "PingFang SC";

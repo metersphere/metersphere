@@ -3,7 +3,7 @@
     <div class="relate-header">
       <div class="menu-left-row">
         <el-dropdown placement="bottom" :disabled="readOnly">
-          <div style="line-height: 32px; color: #783887; cursor: pointer">
+          <div style="line-height: 32px; color: #1F2329; cursor: pointer">
             <i class="el-icon-connection" style="margin-right: 4.3px"></i
             >{{ $t("case.associated_defect") }}
           </div>
@@ -31,8 +31,7 @@
               >
                 {{ $t("case.associate_existing_defects") }}
               </div>
-            </el-dropdown-item
-            >
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -425,7 +424,7 @@ export default {
       left: 112px;
       top: 251px;
       background: #ffffff;
-      border: 1px solid #783887;
+      border: 1px solid #DCDFE6;
       border-radius: 4px;
       text-align: center;
       color: #783887;
@@ -435,6 +434,10 @@ export default {
       width: 240px;
     }
   }
+}
+
+.relate-box .relate-header .menu-left-row:hover {
+  background-color: whitesmoke;
 }
 
 .el-dropdown-menu__item:hover {

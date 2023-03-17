@@ -220,8 +220,8 @@
     <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts" @clear="clearTableSelect"/>
 
     <!-- 分页组件 -->
-    <home-pagination v-if="page.data.length > 0 && selectCounts == 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
-                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 19px"/>
+    <home-pagination v-if="page.data.length > 0 && selectCounts === 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+                     :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin: 26px 0 9px 0"/>
 
     <!-- dialog -->
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"

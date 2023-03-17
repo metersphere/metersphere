@@ -4,7 +4,7 @@
       <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 2px;left: 1px;margin-right: 9px;"/>
       <span style="margin-right: 12px;" class="to-public-content">{{ $t('project.case_public') }}</span>
       <span style="color: #8F959E">{{ '(' + publicTotal + ')' }}</span>
-      <svg-icon icon-class="icon_arrow-right_outlined_1" class-name="enter-public" style="float: right;display: none;position: relative;top: 4px;left: 128px;width: 1.1em;height: 1.1em;"/>
+      <svg-icon icon-class="icon_arrow-right_outlined_1" class-name="enter-public" style="float: right;display: none;position: relative;top: 4px;left: 150px;width: 1.1em;height: 1.1em;"/>
     </div>
   </div>
 </template>

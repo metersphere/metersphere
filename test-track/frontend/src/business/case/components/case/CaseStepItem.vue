@@ -95,11 +95,13 @@
       </el-table-column>
     </el-table>
     <div class="add-step-row" :class="{'disable-row' : readOnly}">
-      <div class="add-icon" @click="handleAddStepStandAlone">
-        <i class="el-icon-plus"></i>
-      </div>
-      <div class="add-label" @click="handleAddStepStandAlone">
-        {{ $t("case.add_steps") }}
+      <div class="add-step-hover" style="display: flex; padding-right: 1rem">
+        <div class="add-icon" @click="handleAddStepStandAlone">
+          <i class="el-icon-plus"></i>
+        </div>
+        <div class="add-label" @click="handleAddStepStandAlone">
+          {{ $t("case.add_steps") }}
+        </div>
       </div>
     </div>
   </el-form-item>
@@ -382,5 +384,8 @@ i.el-icon-more:hover {
   pointer-events: none;
   color: #fab6b6;
   cursor: not-allowed;
+}
+.add-step-hover:hover{
+  background-color: rgba(117, 36, 101, 0.1);
 }
 </style>
