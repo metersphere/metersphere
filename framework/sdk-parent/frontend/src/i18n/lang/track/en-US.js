@@ -332,7 +332,7 @@ export default {
     test_plan_ui_scenario_failed_count: "UI Scenario Case failed Count",
     test_plan_ui_scenario_un_execute_count: "UI Scenario Case unexecuted Count",
     test_plan_load_case_count: "Load Case Count",
-    test_plan_component_case_count: "Component Case Count",
+    test_plan_component_case_count: "Scenario request Count",
     data_name: "Data Name",
     test_plan_batch_switch: "batch on/off scheduled tasks",
     batch_update_schedule_enable:
