@@ -300,7 +300,7 @@ export default {
     test_plan_ui_scenario_failed_count: "UI 場景用例失敗數",
     test_plan_ui_scenario_un_execute_count: "UI 場景用例未執行數",
     test_plan_load_case_count: "性能用例數",
-    test_plan_component_case_count: "步驟用例數",
+    test_plan_component_case_count: "場景請求數",
     data_name: "數據名稱",
     test_plan_batch_switch: "批量開/關定時任務",
     batch_update_schedule_enable: "更新{0}個測試計劃的定時任務狀態為",
