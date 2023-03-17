@@ -15,7 +15,7 @@
       </span>
 
       <el-collapse-transition>
-        <div v-if="menu.open">
+        <div v-if="menu.open && !menu.hideScript">
           <div v-for="(child, key) in menu.children" :key="key" class="func-div">
             <el-link :disabled="child.disabled" @click="handleClick(child)" class="func-link nav-font">
               {{ child.title }}
