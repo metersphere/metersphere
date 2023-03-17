@@ -12,24 +12,27 @@ import jakarta.annotation.Resource;
 
 @Component
 public class PlatformPluginListener {
-    public static final String ADD_CONSUME_ID = "system_setting_platform_plugin_add";
-    public static final String DELETE_CONSUME_ID = "system_setting_platform_plugin_delete";
+    public static final String TEST_TRACK_PLATFORM_PLUGIN = "test_track_platform_plugin";
 
     @Resource
     private PlatformPluginService platformPluginService;
 
     // groupId 必须是每个实例唯一
-    @KafkaListener(id = ADD_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_ADD, groupId = "${eureka.instance.instance-id}")
-    public void handlePluginAdd(ConsumerRecord<?, String> record) {
-        String pluginId = record.value();
-        LogUtil.info("system setting service consume platform_plugin add message, plugin id: " + pluginId);
-        platformPluginService.loadPlugin(pluginId);
-    }
-
-    @KafkaListener(id = DELETE_CONSUME_ID, topics = KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, groupId = "${eureka.instance.instance-id}")
-    public void handlePluginDelete(ConsumerRecord<?, String> record) {
-        String pluginId = record.value();
-        LogUtil.info("system setting consume platform_plugin delete message, plugin id: " + pluginId);
-        platformPluginService.unload(pluginId);
+    @KafkaListener(id = TEST_TRACK_PLATFORM_PLUGIN, topics = KafkaTopicConstants.PLATFORM_PLUGIN, groupId = TEST_TRACK_PLATFORM_PLUGIN + "_" + "#{T(java.util.UUID).randomUUID()})")
+    public void handlePluginChange(ConsumerRecord<?, String> record) {
+        LogUtil.info("track service consume platform_plugin add message, plugin id: " + record);
+        String[] info = record.value().split(":");
+        String operate = info[0];
+        String pluginId = info[1];
+        switch (operate) {
+            case "ADD":
+                platformPluginService.loadPlugin(pluginId);
+                break;
+            case "DELETE":
+                platformPluginService.unload(pluginId);
+                break;
+            default:
+                break;
+        }
     }
 }
