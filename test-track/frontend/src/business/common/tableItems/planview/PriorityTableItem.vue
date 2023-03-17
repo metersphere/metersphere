@@ -13,7 +13,7 @@
       {{ value }}
     </el-tag>
     <el-tag v-else class="status-label unknown">
-      {{ value }}
+      {{ getPriorityText() }}
     </el-tag>
   </div>
 
@@ -26,7 +26,19 @@
       components: {MsTag},
       props: {
         value: {
-          type: String
+          type: String,
+        },
+        priorityOptions: {
+          type: Array,
+          default() {
+            return [];
+          }
+        }
+      },
+      methods: {
+        getPriorityText() {
+          let priorityItem = this.priorityOptions.find(item => item.value === this.value);
+          return priorityItem ? priorityItem.text : '';
         }
       }
     }
