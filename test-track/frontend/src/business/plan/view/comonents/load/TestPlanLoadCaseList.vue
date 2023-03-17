@@ -141,6 +141,7 @@
                :visible.sync="showResponse"
                direction="ltr"
                @close="handleClose"
+               :destroy-on-close="true"
                size="80%">
       <micro-app :to="`/performance/report/view/${reportId}`" service="performance"/>
     </el-drawer>
