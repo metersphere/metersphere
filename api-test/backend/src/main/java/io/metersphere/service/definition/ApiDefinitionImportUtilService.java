@@ -8,7 +8,10 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
+import io.metersphere.base.mapper.ApiModuleMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
@@ -17,13 +20,16 @@ import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ProjectConfig;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.BaseProjectApplicationService;
+import io.metersphere.service.BaseUserService;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.ext.ExtApiScheduleService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +40,6 @@ import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -69,6 +74,8 @@ public class ApiDefinitionImportUtilService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private BaseUserService baseUserService;
 
 
     public void checkUrl(ApiTestImportRequest request, Project project) {
@@ -89,9 +96,11 @@ public class ApiDefinitionImportUtilService {
     public void sendImportNotice(ApiTestImportRequest request, List<ApiImportSendNoticeDTO> apiImportSendNoticeDTOS, Project project) {
         if (StringUtils.equals(request.getType(), SCHEDULE)) {
             String scheduleId = extApiScheduleService.getScheduleInfo(request.getResourceId());
+            UserDTO userDTO = baseUserService.getUserDTO(request.getUserId());
             String context = request.getSwaggerUrl() + "导入成功";
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("url", request.getSwaggerUrl());
+            paramMap.put("operator", userDTO.getName());
             NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_SUCCESSFUL).build();
             noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
         }
@@ -142,10 +151,12 @@ public class ApiDefinitionImportUtilService {
     public void sendFailMessage(ApiTestImportRequest request, Project project) {
         if (StringUtils.equals(request.getType(), SCHEDULE)) {
             String scheduleId = extApiScheduleService.getScheduleInfo(request.getResourceId());
+            UserDTO userDTO = baseUserService.getUserDTO(request.getUserId());
             String context = request.getSwaggerUrl() + "导入失败";
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("url", request.getSwaggerUrl());
             paramMap.put("projectId", request.getProjectId());
+            paramMap.put("operator", userDTO.getName());
             NoticeModel noticeModel = NoticeModel.builder().operator(project.getCreateUser()).context(context).testId(scheduleId).subject(Translator.get("swagger_url_scheduled_import_notification")).paramMap(paramMap).event(NoticeConstants.Event.EXECUTE_FAILED).build();
             noticeSendService.send(NoticeConstants.Mode.SCHEDULE, StringUtils.EMPTY, noticeModel);
         }
