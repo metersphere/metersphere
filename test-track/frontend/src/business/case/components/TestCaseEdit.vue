@@ -17,7 +17,10 @@
 
           <div class="case-edit" v-show="!isNameEdit && !editable">
             <div class="case-level" v-if="!isPublicShow">
-              <priority-table-item :value="form.priority" />
+              <priority-table-item
+                :value="form.priority"
+                :priority-options="priorityOptions"
+              />
             </div>
             <div>
               <!--  版本历史 v-xpack -->
@@ -586,7 +589,8 @@ export default {
       createVersionId: null,
       editableState: false,
       isNameEdit: false,
-      useUserStore: {}
+      useUserStore: {},
+      priorityOptions: []
     };
   },
   props: {
@@ -1153,6 +1157,7 @@ export default {
       this.testCaseTemplate.customFields.forEach((field) => {
         if (field.name === "用例等级") {
           field.defaultValue = this.form.priority;
+          this.priorityOptions = field.options;
         } else if (field.name === "责任人") {
           field.defaultValue = this.form.maintainer;
         } else if (field.name === "用例状态") {
