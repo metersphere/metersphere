@@ -30,9 +30,9 @@
       </el-tree>
     </div>
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="close"
-        @confirm="save"/>
+      <el-button @click="close" size="small">{{ $t('commons.cancel') }}</el-button>
+      <el-button v-prevent-re-click type="primary" @click="save"
+                 @keydown.enter.native.prevent size="small" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
     </template>
   </el-dialog>
 </template>

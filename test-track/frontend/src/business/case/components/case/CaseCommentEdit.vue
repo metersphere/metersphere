@@ -181,6 +181,14 @@ export default {
     }
   }
 
+  .options .cancel:hover {
+    background-color: whitesmoke;
+  }
+
+  .options .submit:hover {
+    background-color: rgb(147, 96, 159)!important;
+  }
+
   .state-ready-row:hover {
     border: 1px solid #783887;
   }

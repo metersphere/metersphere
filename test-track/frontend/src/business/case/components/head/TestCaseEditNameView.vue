@@ -94,7 +94,7 @@ export default {
 
 .name-text {
   width: auto;
-  padding-right: 0.5rem;
+  padding: 0.2rem;
 }
 
 .input-error :deep(.el-input__inner) {
