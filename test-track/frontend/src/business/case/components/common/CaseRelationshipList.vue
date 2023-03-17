@@ -16,7 +16,6 @@
           icon="el-icon-plus"
           v-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
           :disabled="readOnly || !resourceId"
-          type="primary"
           @click="openRelevance"
           >{{ $t($t("commons.add")) }}</el-button
         >
@@ -114,18 +113,15 @@ export default {
     .opt-add-row {
       .el-button--small {
         background: #ffffff;
-        border: 1px solid #783887;
         border-radius: 4px;
-        color: #783887;
         height: 32px;
         line-height: 32px;
-        padding: 0px 18.17px 0px 18.17px !important;
+        padding: 0 18.17px 0 18.17px !important;
         font-size: 14px !important;
       }
       :deep(.el-icon-plus:before) {
         width: 11.67px;
         height: 11.67px;
-        color: #783887;
       }
     }
   }
@@ -136,6 +132,9 @@ export default {
     height: 1px;
     background-color: rgba(31, 35, 41, 0.15);
     margin-top: px2rem(24);
+  }
+  .opt-add-row .el-button--small:hover {
+    background-color: whitesmoke;
   }
 }
 </style>

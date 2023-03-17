@@ -2103,6 +2103,7 @@ const message = {
             scene: "場景用例",
             load: "性能用例",
             functional: "功能用例",
+            ui: "UI用例",
           },
         },
       },

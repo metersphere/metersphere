@@ -688,7 +688,7 @@ export default {
 }
 
 .node-tree {
-  height: calc(100vh - 330px);
+  height: calc(100vh - 270px);
 }
 
 .father .child {

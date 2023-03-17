@@ -1086,7 +1086,9 @@ export default {
           this.form.id = null;
           testCase.casePublic = false;
         }
-        document.title = testCase.name;
+        if (!this.isPublicShow) {
+          document.title = testCase.name;
+        }
         this.currentTestCaseInfo = testCase;
         this.setFormData(testCase);
         this.setTestCaseExtInfo(testCase);
@@ -1795,7 +1797,7 @@ export default {
             color: #646a73;
             align-items: center;
             margin-left: px2rem(8);
-            padding: -1 0.5rem;
+            padding: 0.2rem;
 
             .version-icon {
               width: 20.17px;
@@ -1914,7 +1916,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(10);
-          padding: 0 0.5rem;
+          padding: 0.2rem 0.5rem;
         }
 
         .edit-public-row.head-opt {
@@ -1962,7 +1964,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(24);
-          padding: 0 0.5rem;
+          padding: 0.2rem 0.5rem;
         }
       }
     }
