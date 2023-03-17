@@ -44,7 +44,6 @@
 <script>
 import CaseCommentEdit from "./CaseCommentEdit";
 import { getCurrentUser } from "metersphere-frontend/src/utils/token";
-import { deleteMarkDownImgByName } from "@/business/utils/sdk-utils";
 import CaseDiffStatus from "./diff/CaseDiffStatus";
 export default {
   name: "CaseCommentViewItem",
@@ -81,7 +80,7 @@ export default {
     },
     getShortName(name) {
       name = name || "";
-      return name.substring(0, 2).toUpperCase();
+      return name.substring(0, 1).toUpperCase();
     },
     openEdit() {
       if (this.isPublicShow) {
