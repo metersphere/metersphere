@@ -479,11 +479,11 @@ public class TestPlanLoadCaseService {
         try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
             example.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
-            List<TestPlanLoadCase> loadCases = testPlanLoadCaseMapper.selectByExample(example);
+            List<TestPlanLoadCaseWithBLOBs> loadCases = testPlanLoadCaseMapper.selectByExampleWithBLOBs(example);
             TestPlanLoadCaseMapper mapper = sqlSession.getMapper(TestPlanLoadCaseMapper.class);
             if (!org.apache.commons.collections.CollectionUtils.isEmpty(loadCases)) {
                 Long nextLoadOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanLoadCaseMapper::getLastOrder);
-                for (TestPlanLoadCase loadCase : loadCases) {
+                for (TestPlanLoadCaseWithBLOBs loadCase : loadCases) {
                     TestPlanLoadCaseWithBLOBs load = new TestPlanLoadCaseWithBLOBs();
                     load.setId(UUID.randomUUID().toString());
                     load.setTestPlanId(targetPlanId);
@@ -492,6 +492,9 @@ public class TestPlanLoadCaseService {
                     load.setUpdateTime(System.currentTimeMillis());
                     load.setCreateUser(SessionUtils.getUserId());
                     load.setOrder(nextLoadOrder);
+                    load.setTestResourcePoolId(loadCase.getTestResourcePoolId());
+                    load.setLoadConfiguration(loadCase.getLoadConfiguration());
+                    load.setAdvancedConfiguration(loadCase.getAdvancedConfiguration());
                     mapper.insert(load);
                     nextLoadOrder += 5000;
                 }
