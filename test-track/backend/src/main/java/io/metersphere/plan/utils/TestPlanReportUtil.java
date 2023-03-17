@@ -136,12 +136,22 @@ public class TestPlanReportUtil {
         return null;
     }
 
-    public static List<String> mergeResourcePools(List<String> resourcePools, List<String> originResourcePools) {
+    public static List<String> mergeResourcePools(List<String> resourcePools, List<String> reFormatOriginResourcePools) {
         if (resourcePools == null) {
             resourcePools = new ArrayList<>();
         }
-        if (originResourcePools == null) {
+        if (reFormatOriginResourcePools == null) {
             return resourcePools;
+        }
+        //检查originResourcePools是否含有null。 null代表local
+        List<String> originResourcePools = new ArrayList<>();
+        for (String resourcePool : reFormatOriginResourcePools) {
+            if (StringUtils.isEmpty(resourcePool)) {
+                resourcePool = "LOCAL";
+            }
+            if (!originResourcePools.contains(resourcePool)) {
+                originResourcePools.add(resourcePool);
+            }
         }
         List<String> returnList = new ArrayList<>();
         returnList.addAll(resourcePools);
