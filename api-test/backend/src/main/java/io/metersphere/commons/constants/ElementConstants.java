@@ -62,4 +62,6 @@ public class ElementConstants {
     public static final String MS_KEYSTORE_FILE_PASSWORD = "MS-KEYSTORE-FILE-PASSWORD";
     public static final String VIRTUAL_STEPS = "VIRTUAL_STEPS";
     public static final String REF = "$ref";
+    public static final String TYPE = "type";
+
 }
