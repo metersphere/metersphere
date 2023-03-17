@@ -1,6 +1,8 @@
 package io.metersphere.service.scenario;
 
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.MsHashTreeConstants;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.request.RelationshipEdgeRequest;
 import io.metersphere.service.RelationshipEdgeService;
@@ -39,7 +41,7 @@ public class ApiAutomationRelationshipEdgeService {
             beforeReferenceRelationships.removeAll(referenceRelationships);
             // 删除多余的关系
             if (CollectionUtils.isNotEmpty(beforeReferenceRelationships)) {
-                relationshipEdgeService.delete(scenarioWithBLOBs.getId(),beforeReferenceRelationships);
+                relationshipEdgeService.delete(scenarioWithBLOBs.getId(), beforeReferenceRelationships);
             }
         }
 
@@ -59,7 +61,7 @@ public class ApiAutomationRelationshipEdgeService {
             // 深度解析对比，防止是复制的关系
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             // 历史数据处理
-            this.relationships(element.getJSONArray("hashTree"), referenceRelationships);
+            this.relationships(element.getJSONArray(ElementConstants.HASH_TREE), referenceRelationships);
         }
         return referenceRelationships;
     }
@@ -73,13 +75,17 @@ public class ApiAutomationRelationshipEdgeService {
     public static void relationships(JSONArray hashTree, List<String> referenceRelationships) {
         for (int i = 0; i < hashTree.length(); i++) {
             JSONObject element = hashTree.getJSONObject(i);
-            if (element != null && StringUtils.equals(element.get("type").toString(), "scenario") && StringUtils.equals(element.get("referenced").toString(), "REF")) {
-                if (!referenceRelationships.contains(element.get("id").toString()) && element.get("id").toString().length() < 50) {
-                    referenceRelationships.add(element.get("id").toString());
+            if (element != null && element.has(ElementConstants.TYPE)
+                    && StringUtils.equals(element.optString(ElementConstants.TYPE), ElementConstants.SCENARIO)
+                    && element.has(MsHashTreeConstants.REFERENCED)
+                    && StringUtils.equals(element.optString(MsHashTreeConstants.REFERENCED), MsHashTreeConstants.REF)) {
+                if (!referenceRelationships.contains(element.optString(MsHashTreeConstants.ID))
+                        && element.optString(MsHashTreeConstants.ID).length() < 50) {
+                    referenceRelationships.add(element.optString(MsHashTreeConstants.ID));
                 }
             } else {
-                if (element.has("hashTree")) {
-                    JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                if (element.has(ElementConstants.HASH_TREE)) {
+                    JSONArray elementJSONArray = element.getJSONArray(ElementConstants.HASH_TREE);
                     relationships(elementJSONArray, referenceRelationships);
                 }
             }
