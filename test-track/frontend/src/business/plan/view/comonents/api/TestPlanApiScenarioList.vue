@@ -87,7 +87,7 @@
             :filters="apiscenariofilters.LEVEL_FILTERS"
           >
             <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.level" ref="level" />
+              <priority-table-item :value="scope.row.level" ref="level"/>
             </template>
           </ms-table-column>
 
@@ -107,16 +107,16 @@
                     <el-tag type="success" size="mini" effect="plain">
                       {{ k }}
                     </el-tag>
-                    <br />
+                    <br/>
                   </span>
                   <el-popover placement="top" width="350" trigger="click">
                     <div v-for="(k, v, index) in row.envs" :key="index">
                       <span class="plan-case-env"
-                        >{{ v }}:
+                      >{{ v }}:
                         <el-tag type="success" size="mini" effect="plain">{{
-                          k
-                        }}</el-tag
-                        ><br />
+                            k
+                          }}</el-tag
+                        ><br/>
                       </span>
                     </div>
                     <el-link
@@ -138,17 +138,23 @@
             prop="tagNames"
             :label="$t('api_test.automation.tag')"
             min-width="100px"
+            :showOverflowTooltip="false"
           >
             <template v-slot:default="scope">
+          <el-tooltip class="item" effect="dark" placement="top">
+            <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+            <div class="oneLine">
               <ms-tag
                 v-for="(itemName, index) in scope.row.tags"
                 :key="index"
                 type="success"
                 effect="plain"
+                :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
                 :content="itemName"
-                style="margin-left: 0px; margin-right: 2px"
-              />
-            </template>
+                style="margin-left: 0px; margin-right: 2px"/>
+            </div>
+          </el-tooltip>
+        </template>
           </ms-table-column>
 
           <ms-table-column
@@ -183,8 +189,8 @@
             min-width="120"
           />
 
-          <ms-update-time-column :field="item" :fields-width="fieldsWidth" />
-          <ms-create-time-column :field="item" :fields-width="fieldsWidth" />
+          <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
+          <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>
 
           <ms-table-column
             :field="item"
@@ -206,7 +212,7 @@
                 @click="showReport(row)"
                 :disabled="!row.lastResult || row.lastResult === 'PENDING'"
               >
-                <ms-test-plan-api-status :status="row.lastResult" />
+                <ms-test-plan-api-status :status="row.lastResult"/>
               </el-link>
             </template>
           </ms-table-column>
@@ -262,7 +268,7 @@
       @close="search"
     />
 
-    <ms-task-center ref="taskCenter" :show-menu="false" />
+    <ms-task-center ref="taskCenter" :show-menu="false"/>
   </div>
 </template>
 
@@ -274,7 +280,7 @@ import {
   getCurrentProjectID,
   getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import { getUUID, strMapToObj } from "metersphere-frontend/src/utils";
+import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import {
   hasLicense,
   hasPermission,
@@ -295,13 +301,13 @@ import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderL
 import BatchEdit from "@/business/case/components/BatchEdit";
 import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
-import { API_SCENARIO_FILTERS } from "metersphere-frontend/src/utils/table-constants";
+import {API_SCENARIO_FILTERS} from "metersphere-frontend/src/utils/table-constants";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import { editTestPlanScenarioCaseOrder } from "@/api/remote/plan/test-plan";
+import {editTestPlanScenarioCaseOrder} from "@/api/remote/plan/test-plan";
 import {
   testPlanScenarioCaseBatchDelete,
   testPlanScenarioCaseBatchUpdateEnv,
@@ -311,12 +317,12 @@ import {
   testPlanScenarioEnv,
   testPlanScenarioList,
 } from "@/api/remote/plan/test-plan-scenario";
-import { environmentGroupGetProjectMapName } from "@/api/environment-group";
-import { apiAutomationReduction } from "@/api/remote/api/api-automation";
+import {environmentGroupGetProjectMapName} from "@/api/environment-group";
+import {apiAutomationReduction} from "@/api/remote/api/api-automation";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
-import { getVersionFilters } from "@/business/utils/sdk-utils";
-import { TEST_PLAN_API_SCENARIO_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {TEST_PLAN_API_SCENARIO_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 
 export default {
@@ -478,7 +484,7 @@ export default {
       if (this.planId) {
         this.condition.planId = this.planId;
         testPlanScenarioList(
-          { pageNum: this.currentPage, pageSize: this.pageSize },
+          {pageNum: this.currentPage, pageSize: this.pageSize},
           this.condition
         ).then((response) => {
           let data = response.data;
@@ -552,7 +558,7 @@ export default {
       let rows = this.orderBySelectRows(this.$refs.table.selectRows);
       if (this.planId) {
         let selectParam = buildBatchParam(this);
-        let param = { config: config, planCaseIds: [] };
+        let param = {config: config, planCaseIds: []};
         param.ids = rows.map((r) => r.id);
         rows.forEach((row) => {
           this.buildExecuteParam(param, row);
@@ -571,7 +577,7 @@ export default {
     },
     execute(row) {
       this.infoDb = false;
-      let param = { planCaseIds: [] };
+      let param = {planCaseIds: []};
       this.reportId = "";
       this.buildExecuteParam(param, row);
       param.triggerMode = "MANUAL";
@@ -689,15 +695,26 @@ export default {
     openById(item) {
       let automationData = this.$router.resolve(
         "/api/automation/default/" +
-          getUUID() +
-          "/scenario/edit:" +
-          item.caseId +
-          "/" +
-          item.projectId +
-          "/" +
-          getCurrentWorkspaceId()
+        getUUID() +
+        "/scenario/edit:" +
+        item.caseId +
+        "/" +
+        item.projectId +
+        "/" +
+        getCurrentWorkspaceId()
       );
       window.open(automationData.href, "_blank");
+    },
+    getTagToolTips(tags) {
+      try {
+        let showTips = '';
+        tags.forEach((item) => {
+          showTips += item + ',';
+        });
+        return showTips.substr(0, showTips.length - 1);
+      } catch (e) {
+        return '';
+      }
     },
   },
 };
@@ -722,5 +739,11 @@ export default {
   text-overflow: ellipsis;
   width: 80px;
   vertical-align: middle;
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
