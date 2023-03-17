@@ -135,6 +135,7 @@
 <script>
 import { getProjectMemberOption } from "metersphere-frontend/src/api/user";
 import MsMarkDownText from "@/business/case/components/richtext/MsMarkDownText";
+import {getProjectMemberById} from "@/api/user";
 export default {
   name: "BaseEditItemComponent",
   components: {MsMarkDownText},
@@ -220,14 +221,14 @@ export default {
   methods: {
     getMemberOptions() {
       if (this.projectId) {
-        getProjectMemberById(this.projectId).then((r) => {
-          this.handelMemberOptions(r.data);
-        });
+        getProjectMemberById(this.projectId)
+          .then(r => this.handleMemberOptions(r.data));
       } else {
-        this.handelMemberOptions(r.data);
+        getProjectMemberOption()
+          .then(r => this.handleMemberOptions(r.data));
       }
     },
-    handelMemberOptions(data) {
+    handleMemberOptions(data) {
       let tempMemberOptions = data || [];
       let tempArr = [];
       tempMemberOptions.forEach((e) => {

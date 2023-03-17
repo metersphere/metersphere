@@ -76,22 +76,22 @@
           </div>
         </template>
       </ms-table-column>
-    </ms-table>
 
-    <ms-table-column
-      width="150px"
-      v-if="relationshipType === 'POST'"
-      :label="$t('commons.relationship.type')"
-    >
-      <template>
-        <div class="pos-label">
-          {{ $t("commons.relationship.current_case") }}
-        </div>
-        <div class="pos-type pos-left-margin">
-          {{ $t("commons.relationship.after_finish") }}
-        </div>
-      </template>
-    </ms-table-column>
+      <ms-table-column
+        width="150px"
+        v-if="relationshipType === 'POST'"
+        :label="$t('commons.relationship.type')"
+      >
+        <template>
+          <div class="pos-label">
+            {{ $t("commons.relationship.current_case") }}
+          </div>
+          <div class="pos-type pos-left-margin">
+            {{ $t("commons.relationship.after_finish") }}
+          </div>
+        </template>
+      </ms-table-column>
+    </ms-table>
 
     <relationship-functional-relevance
       :case-id="caseId"
