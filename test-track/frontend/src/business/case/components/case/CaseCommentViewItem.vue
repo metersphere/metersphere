@@ -174,14 +174,26 @@ export default {
       color: #bbbfc4;
     }
 
-    .edit {
+    .edit:hover .icon{
+      color: #783887;
     }
 
-    .remove {
+    .edit:hover .label{
+      color: #783887;
     }
+
+    .remove:hover .icon{
+      color: #783887;
+    }
+
+    .remove:hover .label{
+      color: #783887;
+    }
+
     .opt-row {
       margin-left: 21.33px;
       display: flex;
+      cursor: pointer;
       .icon {
         color: #646a73;
         width: 13.53px;
