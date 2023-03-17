@@ -675,7 +675,7 @@ public class TestPlanReportService {
             try {
                 returnDTO = testPlanService.buildTestPlanReportStruct(testPlan, testPlanReport, reportContent);
                 //查找运行环境
-                this.initRunInfomation(returnDTO, testPlanReport);
+                this.initRunInformation(returnDTO, testPlanReport);
             } catch (Exception e) {
                 LogUtil.error("计算测试计划报告信息出错!", e);
             }
@@ -1117,25 +1117,12 @@ public class TestPlanReportService {
             TestResourcePoolExample example = new TestResourcePoolExample();
             example.createCriteria().andIdIn(report.getResourcePools());
             List<TestResourcePool> resourcePoolList = testResourcePoolMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(resourcePoolList)) {
-                ArrayList<String> resourcePoolName = new ArrayList<>();
-                resourcePoolList.forEach(item -> {
-                    if (!resourcePoolName.contains(item.getName())) {
-                        resourcePoolName.add(item.getName());
-                    }
-                });
-                String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
-                report.setResourcePool(resourcePoolNames);
-            } else {
-                report.setResourcePool("LOCAL");
-            }
-        } else {
-            report.setResourcePool("LOCAL");
+            report.setResourcePool(getResourcePoolName(resourcePoolList, report.getResourcePools().contains("LOCAL")));
         }
         return report;
     }
 
-    public void initRunInfomation(TestPlanReportDataStruct testPlanReportDTO, TestPlanReport testPlanReport) {
+    public void initRunInformation(TestPlanReportDataStruct testPlanReportDTO, TestPlanReport testPlanReport) {
         if (StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
             try {
                 TestPlanReportRunInfoDTO runInfoDTO = JSON.parseObject(testPlanReport.getRunInfo(), TestPlanReportRunInfoDTO.class);
@@ -1146,6 +1133,23 @@ public class TestPlanReportService {
         }
     }
 
+    private String getResourcePoolName(List<TestResourcePool> resourcePoolList, boolean hasLocal) {
+        ArrayList<String> resourcePoolName = new ArrayList<>();
+        if (hasLocal) {
+            resourcePoolName.add("LOCAL");
+        }
+        if (CollectionUtils.isNotEmpty(resourcePoolList)) {
+            resourcePoolList.forEach(item -> {
+                if (!resourcePoolName.contains(item.getName())) {
+                    resourcePoolName.add(item.getName());
+                }
+            });
+        }
+
+        String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
+        return resourcePoolNames;
+    }
+
     public void setEnvironmentToDTO(TestPlanReportDataStruct testPlanReportDTO, TestPlanReportRunInfoDTO runInfoDTO) {
         if (ObjectUtils.allNotNull(testPlanReportDTO, runInfoDTO)) {
             //查找资源池
@@ -1153,19 +1157,9 @@ public class TestPlanReportService {
                 TestResourcePoolExample example = new TestResourcePoolExample();
                 example.createCriteria().andIdIn(runInfoDTO.getResourcePools());
                 List<TestResourcePool> resourcePoolList = testResourcePoolMapper.selectByExample(example);
-                if (CollectionUtils.isNotEmpty(resourcePoolList)) {
-                    ArrayList<String> resourcePoolName = new ArrayList<>();
-                    resourcePoolList.forEach(item -> {
-                        if (!resourcePoolName.contains(item.getName())) {
-                            resourcePoolName.add(item.getName());
-                        }
-                    });
-                    String resourcePoolNames = StringUtils.join(resourcePoolName.toArray(), StringUtils.SPACE);
-                    testPlanReportDTO.setResourcePool(resourcePoolNames);
-                } else {
-                    testPlanReportDTO.setResourcePool("LOCAL");
-                }
-            } else {
+                testPlanReportDTO.setResourcePool(getResourcePoolName(resourcePoolList, runInfoDTO.getResourcePools().contains("LOCAL")));
+            } else if (CollectionUtils.isNotEmpty(testPlanReportDTO.getApiAllCases()) || CollectionUtils.isNotEmpty(testPlanReportDTO.getScenarioAllCases())) {
+                //存在接口或者场景的用例，资源池默认是local
                 testPlanReportDTO.setResourcePool("LOCAL");
             }
             // 环境组/运行环境
