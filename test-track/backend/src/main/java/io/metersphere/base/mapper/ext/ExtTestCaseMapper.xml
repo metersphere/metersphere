@@ -52,6 +52,12 @@
                 <property name="object" value="${condition}.status"/>
             </include>
         </if>
+        <if test="${condition}.maintainer != null">
+            and test_case.maintainer
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.maintainer"/>
+            </include>
+        </if>
         <if test="${condition}.createTime != null">
             and test_case.create_time
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">

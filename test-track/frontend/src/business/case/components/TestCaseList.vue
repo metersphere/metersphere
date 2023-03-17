@@ -258,7 +258,7 @@ import HomePagination from '@/business/home/components/pagination/HomePagination
 import MsTableCountBar from 'metersphere-frontend/src/components/table/MsTableCountBar';
 import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
-import {OPERATORS, TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import BatchEdit from "./BatchEdit";
 import {TEST_CASE_LIST} from "metersphere-frontend/src/utils/constants";
 import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag";
