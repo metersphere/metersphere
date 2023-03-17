@@ -53,11 +53,8 @@ export default {
           {
             label: this.$t('group.operator'),
             value: 'operator',
-          },
-          {
-            label: this.$t('commons.name'),
-            value: 'name',
-          }];
+          }
+          ];
       }
     }
   },
