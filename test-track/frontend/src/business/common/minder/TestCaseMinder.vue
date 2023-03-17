@@ -289,6 +289,9 @@ export default {
       }
     },
     setIsChange(isChanged) {
+      if (this.disabled) {
+        return;
+      }
       useStore().$patch({
         isTestCaseMinderChanged: isChanged
       });
