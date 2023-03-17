@@ -114,7 +114,7 @@ public class PlatformPluginService {
 
     public void notifiedPlatformPluginAdd(String pluginId) {
         // 初始化项目默认节点
-        kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_ADD, pluginId);
+        kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN, "ADD:" + pluginId);
     }
 
     /**
@@ -220,7 +220,7 @@ public class PlatformPluginService {
         try {
             // 删除文件
             getPluginManager().getClassLoader(id).getStorageStrategy().delete();
-            kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN_DELETED, id);
+            kafkaTemplate.send(KafkaTopicConstants.PLATFORM_PLUGIN, "DELETE:" + id);
         } catch (IOException e) {
             LogUtil.error(e);
         }
