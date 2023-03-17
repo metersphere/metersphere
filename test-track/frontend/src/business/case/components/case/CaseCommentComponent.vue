@@ -55,7 +55,7 @@ export default {
       }
       let userObj = JSON.parse(token);
       let name = userObj.name;
-      return name.substring(0, 2).toUpperCase();
+      return name.substring(0, 1).toUpperCase();
     },
     toEdit() {
       this.state = "EDIT";
