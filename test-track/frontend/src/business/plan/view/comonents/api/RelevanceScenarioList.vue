@@ -97,16 +97,22 @@
         prop="tagNames"
         :label="$t('api_test.automation.tag')"
         min-width="100"
+        :showOverflowTooltip="false"
       >
         <template v-slot:default="scope">
-          <ms-tag
-            v-for="itemName in scope.row.tags"
-            :key="itemName"
-            type="success"
-            effect="plain"
-            :content="itemName"
-            style="margin-left: 0px; margin-right: 2px"
-          />
+          <el-tooltip class="item" effect="dark" placement="top">
+            <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+            <div class="oneLine">
+              <ms-tag
+                v-for="(itemName, index) in scope.row.tags"
+                :key="index"
+                type="success"
+                effect="plain"
+                :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                :content="itemName"
+                style="margin-left: 0px; margin-right: 2px" />
+            </div>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column
@@ -365,7 +371,18 @@ export default {
       this.selectRows = this.$refs.scenarioTable.selectRows;
       this.initProjectIds();
       this.$emit("selectCountChange", data);
-    }
+    },
+    getTagToolTips(tags) {
+      try {
+        let showTips = '';
+        tags.forEach((item) => {
+          showTips += item + ',';
+        });
+        return showTips.substr(0, showTips.length - 1);
+      } catch (e) {
+        return '';
+      }
+    },
   },
 };
 </script>
@@ -392,5 +409,11 @@ export default {
   float: right;
   margin-top: 15px;
   margin-right: 10px;
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
