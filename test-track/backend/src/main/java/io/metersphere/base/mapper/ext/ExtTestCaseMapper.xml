@@ -422,7 +422,8 @@
         from test_case
         left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
         project on test_case.project_id = project.id
-        where test_case.STATUS != 'Trash' and test_case.case_public = true GROUP BY ref_id)
+        where test_case.case_public = true and (test_case.status != 'Trash' or test_case.status is null) GROUP BY
+        ref_id)
         tmp on test_case.update_time = tmp.update_time and test_case.ref_id = tmp.ref_id
         <where>
             <if test="request.combine != null">
@@ -555,8 +556,10 @@
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='last_execute_result'">
-                            and test_case.last_execute_result in
+                            and (test_case.last_execute_result in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                            or test_case.last_execute_result is null)
+
                         </when>
                         <when test="key=='status'">
                             and test_case.status in
@@ -601,12 +604,12 @@
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">
-                    and test_case.status != 'Trash'
+                    and (test_case.status != 'Trash' or test_case.status is null)
                 </if>
             </foreach>
         </if>
         <if test="request.filters == null || request.filters.size() == 0 || !request.filters.containsKey('status')">
-            and test_case.status != 'Trash'
+            and (test_case.status != 'Trash' or test_case.status is null)
         </if>
     </sql>
 
@@ -806,7 +809,7 @@
         SELECT test_case.priority as groupField, count(id) AS countNumber
         FROM test_case
         WHERE project_id = #{projectId}
-          AND test_case.status != 'Trash'
+          and (test_case.status != 'Trash' or test_case.status is null)
           and latest = true
         GROUP BY test_case.priority
     </select>
@@ -815,15 +818,17 @@
         SELECT count(DISTINCT ref_id) AS countNumber
         FROM test_case
         WHERE test_case.project_id = #{projectId}
-          and test_case.status != 'Trash' and latest = 1
+          and (test_case.status != 'Trash' or test_case.status is null)
+          and latest = 1
           AND create_time BETWEEN #{firstDayTimestamp}
-          AND #{lastDayTimestamp}
+            AND #{lastDayTimestamp}
     </select>
     <select id="countStatus" resultType="io.metersphere.dto.TrackCountResult">
         SELECT review_status AS groupField, count(id) AS countNumber
         FROM test_case
         WHERE project_id = #{projectId}
-          and test_case.status != 'Trash' and latest = 1
+          and (test_case.status != 'Trash' or test_case.status is null)
+          and latest = 1
         GROUP BY test_case.review_status
     </select>
 
@@ -853,39 +858,41 @@
           and test_id IN (select id FROM ui_scenario WHERE `STATUS` != 'Trash')
         </if>
         )
-            test_case_test
+        test_case_test
         ON test_case.id = test_case_test.test_case_id
         WHERE
-            test_case.project_id = #{projectId}
-          AND test_case.STATUS != 'Trash'
-          AND latest = 1
+        test_case.project_id = #{projectId}
+        and (test_case.status != 'Trash' or test_case.status is null)
+        AND latest = 1
         GROUP BY
-            test_case_test.test_type
+        test_case_test.test_type
     </select>
     <select id="countRelevanceCreatedThisWeek" resultType="java.lang.Long">
         SELECT count(distinct test_case.ref_id) AS countNumber
         FROM test_case
                  join test_case_test on test_case.id = test_case_test.test_case_id
         WHERE test_case.project_id = #{projectId}
-          and test_case.status != 'Trash' and latest = 1
-        AND test_case_test.create_time BETWEEN #{firstDayTimestamp}
-          AND #{lastDayTimestamp}
+          and (test_case.status != 'Trash' or test_case.status is null)
+          and latest = 1
+          AND test_case_test.create_time BETWEEN #{firstDayTimestamp}
+            AND #{lastDayTimestamp}
     </select>
 
     <select id="countCoverage" resultType="int">
         select count(test_case.id)
         from test_case
         where test_case.project_id = #{projectId}
-          and test_case.status != 'Trash' and latest = 1
+        and (test_case.status != 'Trash' or test_case.status is null) and latest = 1
         and test_case.id in (
-                SELECT test_case_id FROM test_case_test WHERE test_type = 'testCase' and test_id IN (select id FROM
-                api_test_case WHERE `STATUS` is null or status != 'Trash')
-                UNION
-                SELECT test_case_id FROM test_case_test WHERE test_type = 'performance' and test_id IN (select id from load_test)
-                UNION
-                SELECT test_case_id FROM test_case_test WHERE test_type = 'automation' and test_id IN (select id FROM
-                api_scenario WHERE `STATUS` != 'Trash')
-                <if test="queryUi">
+        SELECT test_case_id FROM test_case_test WHERE test_type = 'testCase' and test_id IN (select id FROM
+        api_test_case WHERE `STATUS` is null or status != 'Trash')
+        UNION
+        SELECT test_case_id FROM test_case_test WHERE test_type = 'performance' and test_id IN (select id from
+        load_test)
+        UNION
+        SELECT test_case_id FROM test_case_test WHERE test_type = 'automation' and test_id IN (select id FROM
+        api_scenario WHERE `STATUS` != 'Trash')
+        <if test="queryUi">
                     UNION
                     SELECT test_case_id FROM test_case_test WHERE test_type = 'uiAutomation' and test_id IN (select id FROM
                     ui_scenario WHERE `STATUS` != 'Trash')
@@ -1009,7 +1016,7 @@
             <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
-            and test_case.status != 'Trash'
+            and (test_case.status != 'Trash' or test_case.status is null)
         </where>
     </select>
     <select id="selectRelateIdsByQuery" resultType="java.lang.String">
@@ -1100,7 +1107,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        and test_case.status != 'Trash';
+        and (test_case.status != 'Trash' or test_case.status is null);
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
         select count(id)
@@ -1109,7 +1116,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        and test_case.status != 'Trash';
+        and (test_case.status != 'Trash' or test_case.status is null);
     </select>
 
     <update id="deleteToGc">
@@ -1185,7 +1192,7 @@
                              from project
                              where workspace_id = #{workSpaceId})
           and case_public = true
-          and test_case.status != 'Trash'
+          and (test_case.status != 'Trash' or test_case.status is null)
     </select>
 
     <select id="trashCount" resultType="java.lang.Long">
