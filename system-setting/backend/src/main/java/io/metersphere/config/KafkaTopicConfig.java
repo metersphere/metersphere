@@ -32,14 +32,6 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic checkMockEnvTopic() {
-        return TopicBuilder.name(KafkaTopicConstants.CHECK_MOCK_ENV_TOPIC)
-                .partitions(partitions)
-                .replicas(replicas)
-                .build();
-    }
-
-    @Bean
     public NewTopic platformPluginAddTopic() {
         return TopicBuilder.name(KafkaTopicConstants.PLATFORM_PLUGIN)
                 .partitions(partitions)
