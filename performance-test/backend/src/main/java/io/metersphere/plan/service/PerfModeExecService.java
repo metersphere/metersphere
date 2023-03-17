@@ -24,6 +24,10 @@ public class PerfModeExecService {
             loadCase.setLoadReportId(request.getReportId());
             loadCase.setStatus(TestPlanLoadCaseStatus.run.name());
             request.setId(loadCase.getLoadCaseId());
+            // 设置本次报告中的压力配置信息
+            request.setLoadConfiguration(loadCase.getLoadConfiguration());
+            request.setAdvancedConfiguration(loadCase.getAdvancedConfiguration());
+            request.setTestResourcePoolId(loadCase.getTestResourcePoolId());
             try {
                 performanceTestService.run(request);
             } catch (Exception e) {
