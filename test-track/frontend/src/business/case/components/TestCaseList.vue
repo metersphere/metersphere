@@ -202,7 +202,7 @@
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
                 <priority-table-item
-                  :value="getCustomFieldValue(scope.row, field, scope.row.priority)"/>
+                  :value="getCustomFieldValue(scope.row, field, scope.row.priority)" :priority-options="priorityOptions"/>
             </span>
             <span v-else-if="field.name === '用例状态'">
               <case-status-table-item :value="getCustomFieldValue(scope.row, field, scope.row.status)"></case-status-table-item>
@@ -488,7 +488,8 @@ export default {
       selectCounts: 0,
       refreshBySearch: false,
       enableVersionColumn: false,
-      projectId: ''
+      projectId: '',
+      priorityOptions: []
     };
   },
   props: {
@@ -676,6 +677,7 @@ export default {
         }
         if (item.name === '用例等级') {
           item.columnKey = 'priority';
+          this.priorityOptions = item.options;
         } else if (item.name === '责任人') {
           item.columnKey = 'maintainer';
         } else if (item.name === '用例状态') {

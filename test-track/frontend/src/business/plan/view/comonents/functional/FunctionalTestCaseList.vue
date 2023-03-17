@@ -82,7 +82,10 @@
           min-width="120px"
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority" ref="priority"/>
+            <priority-table-item
+              :value="scope.row.priority"
+              :priority-options="priorityOptions"
+              ref="priority"/>
           </template>
         </ms-table-column>
 
@@ -241,7 +244,7 @@
           <template v-slot="scope">
               <span v-if="field.name === '用例等级'">
                   <priority-table-item
-                    :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+                    :value="getCustomFieldValue(scope.row, field)" :priority-options="priorityOptions"/>
               </span>
             <span v-else-if="field.name === '用例状态'">
                 {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
@@ -414,7 +417,8 @@ export default {
       },
       selectDataRange: "all",
       testCaseTemplate: {},
-      versionFilters: []
+      versionFilters: [],
+      priorityOptions: []
     };
   },
   props: {
@@ -574,6 +578,11 @@ export default {
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
+        this.testCaseTemplate.customFields.forEach(item => {
+          if (item.name === '用例等级') {
+            this.priorityOptions = item.options;
+          }
+        });
         this.testCaseTemplate.customFields = this.testCaseTemplate.customFields.filter(item => item.name === '用例状态' && item.system);
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
         let comp = getAdvSearchCustomField(this.condition, this.testCaseTemplate.customFields);

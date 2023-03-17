@@ -74,7 +74,7 @@
         :label="$t('test_track.case.priority')"
         width="120px">
         <template v-slot:default="scope">
-          <priority-table-item :value="scope.row.priority"/>
+          <priority-table-item :value="scope.row.priority" :priority-options="priorityOptions"/>
         </template>
       </ms-table-column>
 
@@ -185,7 +185,8 @@ export default {
       ],
       versionFilters: null,
       testCaseTemplate: {},
-      pageRefresh: false
+      pageRefresh: false,
+      priorityOptions: []
     };
   },
   props: {
@@ -328,6 +329,11 @@ export default {
       getTestTemplate(projectId).then(data => {
         this.testCaseTemplate = data;
         this.page.condition.components = initTestCaseConditionComponents(this.page.condition, this.testCaseTemplate.customFields);
+        this.testCaseTemplate.customFields.forEach(item => {
+          if (item.name === '用例等级') {
+            this.priorityOptions = item.options;
+          }
+        });
       });
     },
     getTagToolTips(tags) {
