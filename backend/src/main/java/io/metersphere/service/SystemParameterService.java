@@ -260,16 +260,31 @@ public class SystemParameterService {
             }
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
-            example.createCriteria().andParamKeyEqualTo(param.getParamKey());
-            if (systemParameterMapper.countByExample(example) > 0) {
-                systemParameterMapper.updateByPrimaryKey(param);
-            } else {
-                systemParameterMapper.insert(param);
-            }
-            example.clear();
-
             if (StringUtils.equals(param.getParamKey(), "base.url")) {
-                apiTestEnvironmentService.checkMockEvnInfoByBaseUrl(param.getParamValue());
+                example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+                List<SystemParameter> baseUrlParameterList = systemParameterMapper.selectByExample(example);
+                String oldBaseUrl = null;
+                if(CollectionUtils.isNotEmpty(baseUrlParameterList)){
+                    SystemParameter parameter = baseUrlParameterList.get(0);
+                    if(!StringUtils.equals(parameter.getParamValue(),param.getParamValue())){
+                        oldBaseUrl = parameter.getParamValue();
+                        systemParameterMapper.updateByPrimaryKey(param);
+                    }
+                }else {
+                    systemParameterMapper.insert(param);
+                }
+                example.clear();
+                if(StringUtils.isNotEmpty(oldBaseUrl)){
+                    apiTestEnvironmentService.batchUpdateMockEvnInfoByBaseUrl(oldBaseUrl,param.getParamValue());
+                }
+            }else {
+                example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+                if (systemParameterMapper.countByExample(example) > 0) {
+                    systemParameterMapper.updateByPrimaryKey(param);
+                } else {
+                    systemParameterMapper.insert(param);
+                }
+                example.clear();
             }
         });
     }
