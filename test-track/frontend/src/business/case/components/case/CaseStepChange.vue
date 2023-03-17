@@ -43,7 +43,7 @@ export default {
 .el-dropdown-link {
   cursor: pointer;
   color: #646a73;
-  padding: 0.2rem 0.5rem;
+  padding: 0.3rem 0.6rem;
 }
 
 .el-dropdown-link:hover {

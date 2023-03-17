@@ -128,13 +128,14 @@ export default {
     min-width: 98px;
     height: 32px;
     background: #ffffff;
-    border: 1px solid #bbbfc4;
+    border: 1px solid #DCDFE6;
     border-radius: 4px;
     gap: 4px;
     .header-row {
       display: flex;
       color: #1f2329;
-      margin-left: 12.58px;
+      border-radius: 4px;
+      padding-left: 12.58px;
       align-items: center;
       height: 100%;
       cursor: pointer;
@@ -159,5 +160,9 @@ export default {
       max-height: px2rem(269);
     }
   }
+}
+
+.dependencies-container .dep-header-wrap .header-row:hover {
+  background-color: whitesmoke;
 }
 </style>

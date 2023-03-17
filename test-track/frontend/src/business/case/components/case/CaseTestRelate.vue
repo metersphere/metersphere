@@ -3,9 +3,8 @@
     <div class="header-wrap">
       <div class="menu-row">
         <el-dropdown placement="bottom" @command="handleCommand" :disabled="readOnly" :class="{'disable-row' : readOnly}">
-          <div style="line-height: 32px; color: #783887; cursor: pointer">
-            <i class="el-icon-connection" style="margin-right: 4.3px"></i
-            >{{$t("test_track.case.relate_test")}}
+          <div style="line-height: 32px; color: #1F2329; cursor: pointer">
+            <i class="el-icon-connection" style="margin-right: 4.3px"></i>{{$t("test_track.case.relate_test")}}
           </div>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="api">{{
@@ -267,18 +266,21 @@ export default {
       left: 112px;
       top: 251px;
       background: #ffffff;
-      border: 1px solid #783887;
+      border: 1px solid #DCDFE6;
       border-radius: 4px;
       text-align: center;
       color: #783887;
     }
-
     .opt-row {
     }
   }
 
   .table-wrap {
   }
+}
+
+.relate-container .header-wrap .menu-row:hover {
+  background-color: whitesmoke;
 }
 
 .disable-row {
