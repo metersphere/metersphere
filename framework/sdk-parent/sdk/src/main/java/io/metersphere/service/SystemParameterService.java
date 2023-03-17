@@ -5,7 +5,6 @@ import io.metersphere.base.mapper.SystemHeaderMapper;
 import io.metersphere.base.mapper.SystemParameterMapper;
 import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.BaseSystemParameterMapper;
-import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
@@ -13,6 +12,7 @@ import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -24,15 +24,14 @@ import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.MailNoticeSender;
 import io.metersphere.request.HeaderRequest;
+import jakarta.annotation.Resource;
+import jakarta.mail.MessagingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import jakarta.mail.MessagingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -52,11 +51,10 @@ public class SystemParameterService {
     private SystemHeaderMapper systemHeaderMapper;
     @Resource
     private MailNoticeSender mailNoticeSender;
-
+    @Resource
+    private BaseEnvironmentService baseEnvironmentService;
     @Resource
     private MicroService microService;
-    @Resource
-    private KafkaTemplate<String, String> kafkaTemplate;
 
     public String searchEmail() {
         return baseSystemParameterMapper.email();
@@ -266,16 +264,31 @@ public class SystemParameterService {
             }
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
-            example.createCriteria().andParamKeyEqualTo(param.getParamKey());
-            if (systemParameterMapper.countByExample(example) > 0) {
-                systemParameterMapper.updateByPrimaryKey(param);
-            } else {
-                systemParameterMapper.insert(param);
-            }
-            example.clear();
-
             if (StringUtils.equals(param.getParamKey(), "base.url")) {
-                kafkaTemplate.send(KafkaTopicConstants.CHECK_MOCK_ENV_TOPIC, param.getParamValue());
+                example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+                List<SystemParameter> baseUrlParameterList = systemParameterMapper.selectByExample(example);
+                String oldBaseUrl = null;
+                if (CollectionUtils.isNotEmpty(baseUrlParameterList)) {
+                    SystemParameter parameter = baseUrlParameterList.get(0);
+                    if (!StringUtils.equals(parameter.getParamValue(), param.getParamValue())) {
+                        oldBaseUrl = parameter.getParamValue();
+                        systemParameterMapper.updateByPrimaryKey(param);
+                    }
+                } else {
+                    systemParameterMapper.insert(param);
+                }
+                example.clear();
+                if (StringUtils.isNotEmpty(oldBaseUrl)) {
+                    baseEnvironmentService.checkMockEvnInfoByBaseUrl(param.getParamValue());
+                }
+            } else {
+                example.createCriteria().andParamKeyEqualTo(param.getParamKey());
+                if (systemParameterMapper.countByExample(example) > 0) {
+                    systemParameterMapper.updateByPrimaryKey(param);
+                } else {
+                    systemParameterMapper.insert(param);
+                }
+                example.clear();
             }
         });
     }

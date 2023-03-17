@@ -10,8 +10,6 @@ public interface KafkaTopicConstants {
     String DEBUG_TOPICS = "MS-API-DEBUG-TOPIC";
     // 测试计划接收执行结果TOPIC
     String TEST_PLAN_REPORT_TOPIC = "TEST_PLAN_REPORT_TOPIC";
-    // 保存当前站点时检查MOCK环境
-    String CHECK_MOCK_ENV_TOPIC = "CHECK_MOCK_ENV_TOPIC";
     // 上传插件后，通知各服务从 minio 加载插件, 删除插件后卸载插件
     String PLATFORM_PLUGIN = "PLATFORM_PLUGIN";
 }
