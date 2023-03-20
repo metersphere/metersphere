@@ -28,4 +28,6 @@ public class ExecutedCaseInfoDTO {
     private String id;
     //测试计划集合
     private List<TestPlanDTO> testPlanDTOList;
+    private String protocol;
+    private String projectId;
 }
