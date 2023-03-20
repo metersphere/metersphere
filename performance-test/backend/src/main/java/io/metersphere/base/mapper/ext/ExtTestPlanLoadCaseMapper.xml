@@ -372,16 +372,14 @@
     <select id="getResourcePoolByPlanId" resultType="java.lang.String">
         SELECT ltr.test_resource_pool_id
         FROM test_plan_load_case tplc
-            INNER JOIN load_test_report ltr
-                ON tplc.load_case_id = ltr.test_id
+        INNER JOIN load_test_report ltr ON tplc.load_report_id = ltr.id
         WHERE tplc.test_plan_id = #{0}
     </select>
 
     <select id="getCaseResourcePoolByPlanId" resultType="java.lang.String">
-        SELECT lt.test_resource_pool_id
+
+        SELECT tplc.test_resource_pool_id
         FROM test_plan_load_case tplc
-                 INNER JOIN load_test lt
-                            ON tplc.load_case_id = lt.id
-        WHERE tplc.test_plan_id = #{0}
+        WHERE tplc.test_plan_id = #{0};
     </select>
 </mapper>
