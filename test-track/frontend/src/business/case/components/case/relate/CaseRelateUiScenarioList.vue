@@ -115,8 +115,8 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import { TEST_CASE_RELEVANCE_API_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
-import { getVersionFilters } from "@/business/utils/sdk-utils";
+import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {getCurrentProjectID, getVersionFilters} from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {
   getTestCaseRelevanceScenarioList,
@@ -200,11 +200,14 @@ export default {
       this.refreshBySearch = true;
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
-      if (projectId != null && typeof projectId === "string") {
+      if (projectId != null && typeof projectId === "string" && projectId !== "") {
         this.condition.projectId = projectId;
-      } else if (this.projectId != null) {
+      } else if (this.projectId != null && this.projectId !== "") {
         this.condition.projectId = this.projectId;
+      } else {
+        this.condition.projectId = getCurrentProjectID();
       }
+
       this.condition.notInIds = this.notInIds;
       this.condition.testCaseId = this.testCaseId;
       getTestCaseRelevanceUiScenarioList(
