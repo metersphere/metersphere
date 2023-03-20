@@ -42,6 +42,7 @@
             <el-scrollbar>
               <div class="content-container">
                 <case-test-relate
+                  ref="relateTest"
                   :case-id="caseId"
                   :read-only="readOnly"
                   :version-enable="versionEnable"

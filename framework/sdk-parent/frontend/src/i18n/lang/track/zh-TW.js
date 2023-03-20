@@ -420,7 +420,7 @@ export default {
     review_rate: "評審率",
     coverage: "覆蓋率",
     function_case_count: "功能用例數",
-    relevance_case_count: "有關聯用例的功能用例數",
+    relevance_case_count: "已關聯用例的功能用例數",
     serial_number: "序號",
     test_plan_name: "測試計劃名稱",
     case_size: "用例數",
