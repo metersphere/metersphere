@@ -6,13 +6,13 @@
                   :placeholder="placeholder"
                   @imgDel="imgDel" v-model="data[prop]" ref="md"/>
   </template>
-  
+
   <script>
   import {getCurrentUser} from "metersphere-frontend/src/utils/token";
   import {getUUID} from "metersphere-frontend/src/utils";
   import {deleteMarkDownImg, uploadMarkDownImg} from "metersphere-frontend/src/api/img";
   import {DEFAULT_XSS_ATTR} from "metersphere-frontend/src/utils/constants";
-  
+
   export default {
     name: "MsMarkDownText",
     components: {},
@@ -122,7 +122,7 @@
         defaultOpenValue: 'preview'
       }
     },
-  
+
     computed: {
       language() {
         const user = getCurrentUser();
@@ -181,7 +181,7 @@
           });
         }
       }
-  
+
     },
     methods: {
       imgAdd(pos, file) {
@@ -232,11 +232,11 @@
         // canvas.addEventListener("click", function () {
         //   wrap.remove();
         // });
-  
+
         //创建el-image-viewer__mask遮罩元素div
         let mask = document.createElement("div");
         mask.classList.add("el-image-viewer__mask");
-  
+
         //创建el-image-viewer__wrapper元素div
         let wrap = document.createElement("div");
         wrap.classList.add("el-image-viewer__wrapper");
@@ -255,25 +255,27 @@
     }
   }
   </script>
-  
+
   <style scoped>
-  
   .v-note-wrapper {
     display: block !important;
     position: static !important;
   }
-  
+
   :deep(.dropdown-item.dropdown-images) {
     display: none;
   }
-  
+
   :deep(.v-note-op .v-left-item.transition .op-icon.fa.fa-mavon-picture-o.dropdown.dropdown-wrapper .op-image.popup-dropdown.transition) {
     margin-left: 45px;
   }
-  
-  
+
+
   :deep(.v-note-op .v-left-item.transition .add-image-link-wrapper .add-image-link .op-btn.sure) {
     background: #783887;
   }
+
+  :deep(.content-input-wrapper) {
+    border-radius: 4px;
+  }
   </style>
-  

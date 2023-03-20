@@ -81,6 +81,7 @@ export default {
         this.cancel("");
         this.refresh(comment.caseId);
         this.formData.richText = "";
+        this.$emit('toggleCommentTab')
       });
     },
     refresh(id) {
