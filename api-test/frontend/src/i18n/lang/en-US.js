@@ -45,7 +45,7 @@ const message = {
         no_data: 'No data',
         load_error: 'Load error',
         this_week: 'Week',
-        fake_error: 'Fake error',
+        fake_error: 'FakeError',
         executed_times_in_week: 'Executed in week',
         executed_times: 'Executed in history',
         covered: 'Covered',
