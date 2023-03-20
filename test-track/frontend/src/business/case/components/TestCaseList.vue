@@ -84,7 +84,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
+            <a style="cursor:pointer" class="hover-enter" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
           </template>
         </ms-table-column>
 
@@ -97,7 +97,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
+            <a style="cursor:pointer" class="hover-enter" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
           </template>
         </ms-table-column>
 
@@ -107,8 +107,11 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.name')"
-          min-width="120"
-        />
+          min-width="120">
+          <template v-slot:default="scope">
+            <a style="cursor:pointer" class="hover-enter" @click="handleEdit(scope.row)"> {{ scope.row.name }} </a>
+          </template>
+        </ms-table-column>
 
         <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item" min-width="100px">
           <template v-slot:default="scope">
@@ -439,12 +442,6 @@ export default {
       ],
       operators: [],
       simpleOperators: [
-        {
-          tip: this.$t('commons.edit'),
-          isTextButton: true,
-          exec: this.handleEdit,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
-        },
         {
           tip: this.$t('commons.copy'),
           isTextButton: true,
@@ -1288,5 +1285,9 @@ span.version-select {
 :deep(button.el-button.el-button--default.el-button--mini:focus) {
   color: #783887;
   border: 1px solid #783887;
+}
+
+.hover-enter:hover{
+  color: #783887;
 }
 </style>
