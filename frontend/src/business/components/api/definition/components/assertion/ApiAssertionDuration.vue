@@ -40,8 +40,8 @@ export default {
   methods: {
     add() {
       if (this.validate()) {
-        this.duration.value = this.value;
-        this.duration.enable = true;
+        this.$set(this.duration, "value", this.value);
+        this.$set(this.duration, "enable", true);
         this.callback();
       }
     },
@@ -71,7 +71,7 @@ export default {
 <style scoped>
 
 .assertion-btn {
-  text-align: center;
-  width: 80px;
+  text-align: right;
+  width: 120px;
 }
 </style>
