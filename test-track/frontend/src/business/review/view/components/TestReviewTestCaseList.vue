@@ -504,7 +504,11 @@ export default {
       this.$refs.testReviewTestCaseEdit.openTestCaseEdit(testCase, this.tableData);
     },
     handleDelete(testCase) {
-      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name + " ？", '', {
+      let tip = this.$t('test_track.plan_view.confirm_cancel_relevance') + ' ' + testCase.name;
+      if (tip.length > 50) {
+        tip = tip.substring(0, 50) + '...';
+      }
+      this.$alert( tip + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
