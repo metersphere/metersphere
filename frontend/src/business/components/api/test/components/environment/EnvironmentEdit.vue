@@ -231,13 +231,14 @@ export default {
       this.environment.config.authManager.hashTree = [];
     }
     if (!this.environment.config.assertions) {
+      this.$set(this.environment.config, "assertions", {});
       this.environment.config.assertions = {
-        duration: {duration: 0},
+        duration: {value: 0},
         regex: [],
         jsonPath: [],
         xpath2: [],
         jsr223: [],
-        document: {type: "json", data: {json: [], xml: []}},
+        document: {type: "JSON", data: {json: [], xml: []}, enable: true},
       };
     }
   },
@@ -280,13 +281,14 @@ export default {
         this.environment.config.authManager.hashTree = [];
       }
       if (!this.environment.config.assertions) {
+        this.$set(this.environment.config, "assertions", {});
         this.environment.config.assertions = {
-          duration: {duration: 0},
+          duration: {value: 0},
           regex: [],
           jsonPath: [],
           xpath2: [],
           jsr223: [],
-          document: {type: "json", data: {json: [], xml: []}},
+          document: {type: "JSON", data: {json: [], xml: []}, enable: true},
         };
       }
 

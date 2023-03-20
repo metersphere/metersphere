@@ -33,11 +33,10 @@ export default {
       default: false
     }
   },
-
   methods: {
     add() {
       let obj = new AssertionDocument({id: "root"});
-      if (this.document.type === "JSON" && this.document.data.json.length === 0) {
+      if (this.document.type === "JSON" || this.document.type === "json" && this.document.data.json.length === 0) {
         this.document.data.json.push(obj);
       }
       if (this.document.type === "XML" && this.document.data.xml.length === 0) {

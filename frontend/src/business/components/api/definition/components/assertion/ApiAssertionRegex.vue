@@ -115,7 +115,7 @@ export default {
 }
 
 .assertion-btn {
-  text-align: center;
-  width: 80px;
+  text-align: right;
+  width: 120px;
 }
 </style>
