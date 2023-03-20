@@ -9,17 +9,32 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScriptFilter {
     public static final String beanshell = "/blacklist/beanshell.bk";
     public static final String groovy = "/blacklist/groovy.bk";
     public static final String python = "/blacklist/python.bk";
+    // 关键字内容较小，全局缓存下来避免重复读取
+    public static final Map<String, List<String>> scriptCache = new HashMap<>();
 
-    private static void blackList(StringBuffer buffer, String script, String path) {
+    public static void initScript(String path) {
         try {
             InputStream in = ScriptFilter.class.getResourceAsStream(path);
             List<String> bks = IOUtils.readLines(in, Charset.defaultCharset());
+            if (CollectionUtils.isNotEmpty(bks)) {
+                scriptCache.put(path, bks);
+            }
+        } catch (Exception ex) {
+            LogUtil.error(ex.getMessage());
+        }
+    }
+
+    private static void blackList(StringBuffer buffer, String script, String path) {
+        try {
+            List<String> bks = scriptCache.get(path);
             if (CollectionUtils.isNotEmpty(bks)) {
                 bks.forEach(item -> {
                     if (script.contains(item) && script.indexOf(item) != -1) {

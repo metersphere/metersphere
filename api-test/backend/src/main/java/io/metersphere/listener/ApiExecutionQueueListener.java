@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class ApiExecutionQueueListener {
     private ApiExecutionQueueService queueService;
 
-    @Scheduled(cron = "0 0/5 * * * ?")
+    @Scheduled(cron = "0 0/10 0/1 * * ?")
     public void execute() {
         if (queueService == null) {
             queueService = CommonBeanFactory.getBean(ApiExecutionQueueService.class);
