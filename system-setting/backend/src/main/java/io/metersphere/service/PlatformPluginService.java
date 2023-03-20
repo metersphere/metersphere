@@ -84,7 +84,7 @@ public class PlatformPluginService {
         if (pluginMapper.countByExample(example) > 0) {
             // 校验插件类型是否存在
             unload(id);
-            MSException.throwException(pluginMetaInfo.getKey() + " plugin is already exist!");
+            MSException.throwException(pluginMetaInfo.getKey() + Translator.get("platform_plugin_exit"));
         }
 
         PluginManagerUtil.uploadPlugin(id, file);
