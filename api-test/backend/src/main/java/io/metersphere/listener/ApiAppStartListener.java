@@ -1,6 +1,7 @@
 package io.metersphere.listener;
 
 import com.mchange.lang.IntegerUtils;
+import io.metersphere.api.dto.shell.filter.ScriptFilter;
 import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.commons.constants.ScheduleGroup;
@@ -55,6 +56,11 @@ public class ApiAppStartListener implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         LogUtil.info("================= API 应用启动 =================");
         System.setProperty("jmeter.home", jmeterHome);
+
+        LogUtil.info("初始化安全过滤脚本");
+        ScriptFilter.initScript(ScriptFilter.beanshell);
+        ScriptFilter.initScript(ScriptFilter.python);
+        ScriptFilter.initScript(ScriptFilter.groovy);
 
         LogUtil.info("加载自定义插件");
         pluginService.loadPlugins();
