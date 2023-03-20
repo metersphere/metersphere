@@ -26,6 +26,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.utils.LoggerUtil;
@@ -65,6 +66,8 @@ public class ApiExecuteService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -101,7 +104,6 @@ public class ApiExecuteService {
         caseWithBLOBs.setStatus(ApiReportStatus.RUNNING.name());
         apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
         request.setReport(report);
-
         if (StringUtils.isEmpty(request.getRunMode())) {
             request.setRunMode(ApiRunMode.DEFINITION.name());
         }
@@ -126,6 +128,7 @@ public class ApiExecuteService {
         jMeterService.verifyPool(testCaseWithBLOBs.getProjectId(), runModeConfigDTO);
 
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), null);
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs, runModeConfigDTO);
@@ -134,7 +137,7 @@ public class ApiExecuteService {
                 }
 
                 // 调用执行方法
-                JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), jmeterHashTree);
+                runRequest.setHashTree(jmeterHashTree);
                 if (MapUtils.isNotEmpty(extendedParameters)) {
                     runRequest.setExtendedParameters(extendedParameters);
                 }
@@ -147,20 +150,7 @@ public class ApiExecuteService {
                 }
                 jMeterService.run(runRequest);
             } catch (Exception ex) {
-                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
-                if (result != null) {
-                    result.setStatus(ApiReportStatus.ERROR.name());
-                    apiDefinitionExecResultMapper.updateByPrimaryKey(result);
-                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
-                    caseWithBLOBs.setStatus(ApiReportStatus.ERROR.name());
-                    apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
-                    ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(caseWithBLOBs.getApiDefinitionId());
-                    if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
-                        apiDefinitionWithBLOBs.setToBeUpdated(true);
-                        apiDefinitionWithBLOBs.setToBeUpdateTime(System.currentTimeMillis());
-                        apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
-                    }
-                }
+                remakeReportService.testEnded(runRequest, ex.getMessage());
                 LogUtil.error(ex.getMessage(), ex);
             }
         }

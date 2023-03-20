@@ -6,6 +6,7 @@ import io.metersphere.api.jmeter.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -54,6 +55,8 @@ public class TestResultService {
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
@@ -284,7 +287,13 @@ public class TestResultService {
             result.setContent(JSON.toJSONString(item));
 
             apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(result);
-            if (StringUtils.isNotEmpty(dto.getTestId())) {
+            if (StringUtils.equals(dto.getRunMode(), ApiRunMode.API_PLAN.name())) {
+                TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
+                if (testPlanApiCase != null) {
+                    testPlanApiCase.setStatus(ApiReportStatus.ERROR.name());
+                    testPlanApiCaseMapper.updateByPrimaryKey(testPlanApiCase);
+                }
+            } else if (StringUtils.isNotEmpty(dto.getTestId())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                 apiTestCase.setLastResultId(dto.getReportId());
                 apiTestCase.setId(dto.getTestId());
