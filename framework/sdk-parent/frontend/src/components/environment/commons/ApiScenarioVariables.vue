@@ -89,7 +89,8 @@
               v-model="scope.row.type"
               v-if="!scope.row.scope || scope.row.scope == 'api'"
               :placeholder="$t('commons.please_select')"
-              size="mini">
+              size="mini"
+            @change="changeType(scope.row)">
               <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
 
@@ -311,6 +312,7 @@ export default {
       // TODO 检查key重复
     },
     changeType(data) {
+      console.log(data);
       data.value = '';
       if (!data.delimiter || (!data.files && data.files.length === 0) || !data.quotedData) {
         data.delimiter = ',';
