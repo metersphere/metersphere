@@ -312,7 +312,6 @@ export default {
       // TODO 检查key重复
     },
     changeType(data) {
-      console.log(data);
       data.value = '';
       if (!data.delimiter || (!data.files && data.files.length === 0) || !data.quotedData) {
         data.delimiter = ',';
