@@ -105,7 +105,7 @@ export default {
     saveCaseRelevance() {
       let ids = this.$refs.apiCaseList.getSelectIds();
       saveCaseRelevanceApi(this.caseId, ids).then(() => {
-        this.$success(this.$t("commons.save_success"), false);
+        this.$success(this.$t("commons.relate_success"), false);
         this.$emit("refresh");
         this.$refs.baseRelevance.close();
       });

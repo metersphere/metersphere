@@ -563,7 +563,7 @@ export default {
     },
     handleDeleteBatchToPublic() {
       let title = this.$t('case.public.batch_remove_confirm', [this.$refs.table.selectIds.length]);
-      this.$confirm(title, '', {
+      this.$confirm(this.$t('test_track.case.public_batch_delete_tip'), title, {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("test_track.case.public_remove"),
           customClass: 'custom-confirm-delete',

@@ -58,7 +58,7 @@ input.el-input__inner {
  * el-message
  */
 .el-message-box__header {
-  padding: 20px 24px 0 24px;
+  padding: 24px 24px 0 24px;
   min-height: 24px;
 }
 
@@ -79,7 +79,7 @@ input.el-input__inner {
 }
 
 .el-message-box__content {
-  padding: 35px 0px 0px 24px;
+  padding: 24px 0px 0px 24px;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
@@ -94,6 +94,7 @@ input.el-input__inner {
 .el-message-box {
   width: 420px;
   height: 174px;
+  padding-bottom: 0;
 }
 
 .el-message-box__btns {

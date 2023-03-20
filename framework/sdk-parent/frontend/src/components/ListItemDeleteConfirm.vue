@@ -2,7 +2,7 @@
   <el-dialog
     :title="title"
     :visible.sync="deleteApiVisible"
-    :show-close="false"
+    :show-close="true"
     append-to-body
     width="30%"
   >
@@ -12,10 +12,10 @@
     </el-radio-group>
 
     <template v-slot:footer>
-      <ms-dialog-footer
-        @cancel="close"
-        @confirm="handleDelete">
-      </ms-dialog-footer>
+      <el-button @click="close" size="small">{{ $t('commons.cancel') }}</el-button>
+      <el-button v-prevent-re-click type="primary" @click="handleDelete" size="small" style="margin-left: 10px">
+        {{ $t('commons.confirm') }}
+      </el-button>
     </template>
   </el-dialog>
 </template>

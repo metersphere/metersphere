@@ -100,7 +100,7 @@ export default {
     batch_delete_confirm: "确定删除{0}项用例?",
     batch_delete_completely_confirm: "确定彻底删除{0}项用例?",
     batch_delete_tip: "删除后将无法恢复, 请谨慎操作。",
-    public_batch_delete_tip: "移除后将无法恢复, 请谨慎操作。",
+    public_batch_delete_tip: "将从公共用例库移除, 请谨慎操作。",
     public_remove: "移除",
     batch_delete_soft_tip: "删除的内容将进入回收站",
     delete: "删除用例",

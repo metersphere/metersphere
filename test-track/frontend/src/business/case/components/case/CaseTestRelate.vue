@@ -207,7 +207,7 @@ export default {
         type: 'warning'
       }).then(() => {
         deleteRelateTest(row.testCaseId, row.testId).then(() => {
-          this.$success(this.$t("commons.save_success"), false);
+          this.$success(this.$t('test_track.cancel_relevance_success'), false);
           this.initTable();
         });
       });
