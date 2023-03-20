@@ -1,9 +1,15 @@
 <template>
   <div class="bar-container">
     <div class="left-item bar-item">
-      <span>
+      <el-tooltip v-if="longerThanLimit" :content="testCase.name" effect="dark" placement="bottom-start">
+        <span>
+          {{ this.displayName }}
+        </span>
+      </el-tooltip>
+      <span v-else>
         {{ testCase.name }}
       </span>
+
       <el-popover v-if="reviewerStatus && reviewerStatus.length > 0" placement="right" trigger="hover">
 
         <div class="status-tip" v-for="item in reviewerStatus" :key="item.author">
@@ -51,7 +57,8 @@ export default {
   components: {ReviewStatus, MsUserIcon},
   data() {
     return {
-      reviewerStatus: null
+      reviewerStatus: null,
+      nameLengthLimit: 50
     };
   },
   props: {
@@ -60,6 +67,17 @@ export default {
       default() {
         return {};
       },
+    }
+  },
+  computed: {
+    displayName() {
+      if (this.longerThanLimit) {
+        return this.testCase.name.substring(0, this.nameLengthLimit) + '...';
+      }
+      return this.testCase.name;
+    },
+    longerThanLimit() {
+      return this.testCase.name && this.testCase.name.length > this.nameLengthLimit;
     }
   },
   watch: {
