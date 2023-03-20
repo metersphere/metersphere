@@ -180,14 +180,14 @@
                     <div class="title">{{ $t("case.added_to_public_case") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="copy-row sub-opt-row" @click="copyRow" :style="!hasCopyPermission ? 'cursor: not-allowed' : 'cursor: default'">
+                  <div class="copy-row sub-opt-row" @click="copyRow" :style="!hasCopyPermission ? 'cursor: not-allowed' : 'cursor: pointer'">
                     <div class="icon">
                       <i class="el-icon-copy-document"></i>
                     </div>
                     <div class="title">{{ $t("commons.copy") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="delete-row sub-opt-row" @click="deleteRow" :style="!hasDeletePermission ? 'cursor: not-allowed' : 'cursor: default'">
+                  <div class="delete-row sub-opt-row" @click="deleteRow" :style="!hasDeletePermission ? 'cursor: not-allowed' : 'cursor: pointer'">
                     <div class="icon">
                       <i class="el-icon-delete"></i>
                     </div>
@@ -1892,7 +1892,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0 0.5rem 0 0;
+          padding: 0.2rem 0.5rem 0.2rem 0;
         }
 
         .next-public-row.head-opt {
@@ -1904,7 +1904,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0 0 0 0.5rem;
+          padding: 0.2rem 0 0.2rem 0.5rem;
         }
 
         .follow-row.head-opt {
@@ -1928,7 +1928,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0 0.5rem;
+          padding: 0.2rem 0.5rem;
         }
 
         .copy-public-row.head-opt {
@@ -1940,9 +1940,11 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0 0.5rem;
+          padding: 0.2rem 0.5rem;
         }
-
+        .close-row.head-opt {
+          padding: 0.2rem;
+        }
         .add-public-row.head-opt {
           .icon-row {
             img {

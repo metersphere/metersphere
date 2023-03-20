@@ -421,7 +421,7 @@ export default {
     review_rate: "评审率",
     coverage: "覆盖率",
     function_case_count: "功能用例数",
-    relevance_case_count: "有关联用例的功能用例数",
+    relevance_case_count: "已关联用例的功能用例数",
     serial_number: "序号",
     test_plan_name: "测试计划名称",
     case_size: "用例数",

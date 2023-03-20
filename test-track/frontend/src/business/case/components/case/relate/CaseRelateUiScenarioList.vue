@@ -71,21 +71,26 @@
             min-width="120px"
           >
             <template v-slot:default="scope">
-              <plan-status-table-item :value="scope.row.status" />
+              <status-table-item :value="scope.row.status" />
             </template>
           </ms-table-column>
 
-          <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+          <ms-table-column prop="tags" :show-overflow-tooltip="false" min-width="180" :label="$t('commons.tag')">
             <template v-slot:default="scope">
-              <ms-tag
-                v-for="(itemName, index) in scope.row.tags"
-                :key="index"
-                type="success"
-                effect="plain"
-                :content="itemName"
-                style="margin-left: 0px; margin-right: 2px"
-              />
-              <span></span>
+              <el-tooltip class="item" effect="dark" placement="top">
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+                <div class="oneLine">
+                  <ms-single-tag
+                    v-for="(itemName, index) in parseColumnTag(scope.row.tags)"
+                    :key="index"
+                    type="success"
+                    effect="plain"
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                    :content="itemName"
+                    style="margin-left: 0; margin-right: 2px"/>
+                </div>
+              </el-tooltip>
+              <span/>
             </template>
           </ms-table-column>
         </ms-table>
@@ -112,27 +117,28 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTableItem";
+import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
-import MsTag from "metersphere-frontend/src/components/MsTag";
-import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
-import {getCurrentProjectID, getVersionFilters} from "@/business/utils/sdk-utils";
+import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag";
+import { TEST_CASE_RELEVANCE_API_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import { getVersionFilters } from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {
   getTestCaseRelevanceScenarioList,
   getTestCaseRelevanceUiScenarioList,
 } from "@/api/testCase";
+import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
 
 export default {
   name: "CaseRelateUiScenarioList",
   components: {
-    PlanStatusTableItem,
+    StatusTableItem,
     MsTablePagination,
     PriorityTableItem,
     MsTable,
     MsTableColumn,
     MsTableAdvSearchBar,
-    MsTag,
+    MsSingleTag,
     VersionSelect: MxVersionSelect,
     MsNewUiSearch,
     MsTableAdvSearch,
@@ -249,6 +255,19 @@ export default {
       this.condition.versionId = currentVersion || null;
       this.initTable();
     },
+    getTagToolTips(tags) {
+      return getTagToolTips(tags);
+    },
+    parseColumnTag(tags) {
+      return parseColumnTag(tags);
+    }
   },
 };
 </script>
+
+<style scoped>
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>
