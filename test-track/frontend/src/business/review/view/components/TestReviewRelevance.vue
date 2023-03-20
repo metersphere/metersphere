@@ -248,10 +248,11 @@ export default {
         }
       });
     },
-    openTestReviewRelevanceDialog() {
+    async openTestReviewRelevanceDialog() {
       this.getProject();
       this.dialogFormVisible = true;
-      this.getProjectNode(this.projectId);
+      await this.getProjectNode(this.projectId);
+      this.getReviews();
     },
     saveReviewRelevance() {
       let param = {};
@@ -308,12 +309,17 @@ export default {
       this.close();
     },
     close() {
+      this.testReviews = [];
+      this.treeNodes = [];
       this.lineStatus = false;
       this.selectIds.clear();
       this.selectNodeIds = [];
       this.selectNodeNames = [];
       this.dialogFormVisible = false;
-      this.condition.filters = {}
+      this.condition.filters = {};
+      if(this.condition.projectId) {
+        delete this.condition.projectId;
+      }
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -363,19 +369,22 @@ export default {
       this.projectId = project.id;
     },
     getProjectNode(projectId, condition) {
-      const index = this.projects.findIndex(project => project.id === projectId);
-      if (index !== -1) {
-        this.projectName = this.projects[index].name;
-        this.currentProject = this.projects[index];
-      }
-      if (projectId) {
-        this.projectId = projectId;
-      }
-      testCaseNodeListReviewRelate({reviewId: this.reviewId, projectId: this.projectId, ...condition})
-        .then((response) => {
-          this.treeNodes = response.data;
-        });
-      this.selectNodeIds = [];
+      return new Promise((resolve) => {
+        const index = this.projects.findIndex(project => project.id === projectId);
+        if (index !== -1) {
+          this.projectName = this.projects[index].name;
+          this.currentProject = this.projects[index];
+        }
+        if (projectId) {
+          this.projectId = projectId;
+        }
+        testCaseNodeListReviewRelate({reviewId: this.reviewId, projectId: this.projectId, ...condition})
+          .then((response) => {
+            this.treeNodes = response.data;
+            resolve();
+          });
+        this.selectNodeIds = [];
+      });
     },
     getVersionOptions() {
       getVersionFilters(this.projectId)
