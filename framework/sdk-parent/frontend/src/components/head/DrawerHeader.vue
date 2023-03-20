@@ -18,7 +18,7 @@
               <i class="el-icon-download"/>
               {{ $t('commons.export') }}
             </span>
-            <el-dropdown-menu slot="dropdown">
+            <el-dropdown-menu slot="dropdown" class="drawer-header">
               <el-dropdown-item @click.native.stop="exportJPG">JPG</el-dropdown-item>
               <el-dropdown-item @click.native.stop="exportPNG">PNG</el-dropdown-item>
             </el-dropdown-menu>
@@ -145,5 +145,16 @@ i.delimiter {
 
 .close-btn {
   background-color: transparent!important;
+}
+</style>
+
+<style>
+.drawer-header .el-dropdown-menu__item {
+  color: #1F2329 !important;
+}
+
+.drawer-header .el-dropdown-menu__item:hover {
+  background-color: rgba(31, 35, 41, 0.1) !important;
+  color: #1F2329 !important;
 }
 </style>

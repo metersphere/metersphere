@@ -115,7 +115,7 @@ export default {
     batch_delete_tip:
       "It cannot be recovered after delete, please delete carefully",
     public_batch_delete_tip:
-      "It cannot be restored after deletion, please proceed with caution.",
+      "It will be removed from public case, Carefully.",
     public_remove: "Remove",
     batch_delete_soft_tip: "The test case will be put into trash",
     save_create_continue: "Save and create continue",

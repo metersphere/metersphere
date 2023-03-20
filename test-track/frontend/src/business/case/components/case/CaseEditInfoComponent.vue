@@ -146,6 +146,7 @@
           :case-id="caseId"
           :read-only="readOnly"
           @stateChange="handleCommentStateChange"
+          @toggleCommentTab="toggleCommentTab"
           @getComments="getComments"
         />
       </div>
@@ -336,6 +337,9 @@ export default {
     },
     handleCommentStateChange(state) {
       this.commentState = state;
+    },
+    toggleCommentTab() {
+      this.caseActiveName = 'comment';
     },
     setRelationshipCount(count) {
       this.relationshipCount = count;
