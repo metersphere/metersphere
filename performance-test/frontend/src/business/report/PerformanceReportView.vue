@@ -98,6 +98,7 @@
                        size="mini"
                        :disabled="report.status === 'Completed' || report.status === 'Error'"
                        @change="refresh"
+                       :popper-append-to-body="false"
                        style="width: 100%;">
               <template slot="prefix">
                 <i class="el-icon-refresh" style="cursor: pointer;padding-top: 8px;" @click="refresh"></i>
