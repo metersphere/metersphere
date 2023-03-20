@@ -51,7 +51,7 @@
                 style="color: #783887; width: 100%"
                 :underline="false"
                 type="info"
-                @click="redirect(row.caseType, row.id)"
+                @click="redirect(row.caseType, row.id, row.protocol, row.projectId)"
                 :disabled="
                   (row.caseType === 'apiCase' && apiCaseReadOnly) ||
                   (row.caseType === 'scenario' && apiScenarioReadOnly) ||
@@ -192,13 +192,13 @@ export default {
           });
       }
     },
-    redirect(pageType, param) {
+    redirect(pageType, param, protocol, projectId) {
       switch (pageType) {
         case "testPlanEdit":
           this.$emit("redirectPage", "testPlanEdit", null, param);
           break;
         case "apiCase":
-          this.$emit("redirectPage", "api", "apiTestCase", "single:" + param);
+          this.$emit("redirectPage", "api", "apiTestCase", "single:" + param, projectId , protocol);
           break;
         case "scenario":
           this.$emit(

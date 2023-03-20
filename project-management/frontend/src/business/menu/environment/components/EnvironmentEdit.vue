@@ -252,7 +252,7 @@ export default {
         jsonPath: [],
         xpath2: [],
         jsr223: [],
-        document: {type: "JSON", data: {json: [], xml: []}},
+        document: {type: "JSON", data: {json: [], xml: []}, enable: true},
       });
     }
   },
@@ -301,7 +301,7 @@ export default {
           jsonPath: [],
           xpath2: [],
           jsr223: [],
-          document: {type: "JSON", data: {json: [], xml: []}},
+          document: {type: "JSON", data: {json: [], xml: []}, enable: true},
         });
       }
 
