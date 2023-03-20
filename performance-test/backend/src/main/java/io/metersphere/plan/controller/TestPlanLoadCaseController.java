@@ -181,7 +181,7 @@ public class TestPlanLoadCaseController {
 
     @GetMapping("/resource/pool/{planId}")
     public List<String> getResourcePoolByPlanId(@PathVariable String planId) {
-        return testPlanLoadCaseService.getResourcePoolByPlanId(planId);
+        return testPlanLoadCaseService.getResourcePoolFromReportByPlanId(planId);
     }
 
     @GetMapping("/resource/pool/case/{planId}")

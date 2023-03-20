@@ -713,7 +713,7 @@ public class TestPlanLoadCaseService {
                 .collect(Collectors.toList()).isEmpty();
     }
 
-    public List<String> getResourcePoolByPlanId(String planId) {
+    public List<String> getResourcePoolFromReportByPlanId(String planId) {
         return extTestPlanLoadCaseMapper.getResourcePoolByPlanId(planId);
     }
 
