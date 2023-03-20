@@ -95,7 +95,7 @@ export default {
     MsTable, MsTableColumn, MsTag
   },
   props: {
-    baseMockConfigData: {},
+    baseMockConfigData: {mockExpectConfigList:[]},
     versionName:String,
     isTcp: {
       type: Boolean,
