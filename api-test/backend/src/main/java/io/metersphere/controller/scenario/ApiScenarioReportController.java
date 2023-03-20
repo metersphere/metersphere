@@ -19,9 +19,9 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +42,7 @@ public class ApiScenarioReportController {
     @GetMapping("/get/{shareId}/{reportId}")
     public ApiScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validateExpired(shareId);
-        return apiReportService.get(reportId, true);
+        return apiReportService.get(reportId, false);
     }
 
     @GetMapping("/get/detail/{reportId}")
