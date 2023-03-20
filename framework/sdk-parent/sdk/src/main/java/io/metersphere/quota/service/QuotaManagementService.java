@@ -122,7 +122,7 @@ public class QuotaManagementService {
 
         BigDecimal vumTotal = quota.getVumTotal();
         BigDecimal max = BigDecimal.valueOf(99999999.00);
-        if (vumTotal.compareTo(max) > 0) {
+        if (vumTotal != null && vumTotal.compareTo(max) > 0) {
             MSException.throwException("总vum数量不能超过99999999！");
         }
         quotaMapper.insert(quota);
