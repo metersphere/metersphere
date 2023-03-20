@@ -61,7 +61,7 @@
               </el-button>
             </el-row>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="10">
             <div style="float: right;">
               <span class="ms-report-time-desc">
                 {{ $t('performance_test.report.test_duration_tips', [hours, minutes, seconds]) }}
@@ -92,24 +92,6 @@
                 </div>
               </div>
             </div>
-          </el-col>
-          <el-col :span="2">
-            <el-select v-model="refreshTime"
-                       size="mini"
-                       :disabled="report.status === 'Completed' || report.status === 'Error'"
-                       @change="refresh"
-                       :popper-append-to-body="false"
-                       style="width: 100%;">
-              <template slot="prefix">
-                <i class="el-icon-refresh" style="cursor: pointer;padding-top: 8px;" @click="refresh"></i>
-              </template>
-              <el-option
-                v-for="item in refreshTimes"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
           </el-col>
         </el-row>
 
