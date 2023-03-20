@@ -23,4 +23,6 @@ public class ExecutedCaseInfoResult {
     //案例类型
     private String caseType;
     private List<TestPlanDTO> testPlanDTOList;
+    private String protocol;
+    private String projectId;
 }
