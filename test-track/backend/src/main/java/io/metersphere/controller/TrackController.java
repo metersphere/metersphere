@@ -90,6 +90,8 @@ public class TrackController {
                 dataDTO.setCaseType(selectData.getCaseType());
                 dataDTO.setId(selectData.getId());
                 dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
+                dataDTO.setProtocol(selectData.getProtocol());
+                dataDTO.setProjectId(selectData.getProjectId());
                 returnList.add(dataDTO);
             }
         }

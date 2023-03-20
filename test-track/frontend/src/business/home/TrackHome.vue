@@ -77,7 +77,7 @@ export default {
     return {};
   },
   methods: {
-    redirectPage(page, dataType, selectType, title) {
+    redirectPage(page, dataType, selectType, projectId, protocol) {
       //api页面跳转
       //传入UUID是为了进行页面重新加载判断
       let uuid = getUUID();
@@ -118,7 +118,11 @@ export default {
               "/" +
               dataType +
               "/" +
-              selectType
+              selectType+
+              "/" +
+              projectId +
+              "/" +
+            protocol
           );
           break;
         case "issue":
