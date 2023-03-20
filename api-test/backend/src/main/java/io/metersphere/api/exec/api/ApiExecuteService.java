@@ -147,18 +147,31 @@ public class ApiExecuteService {
                 }
                 jMeterService.run(runRequest);
             } catch (Exception ex) {
-                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
+                ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                 if (result != null) {
+                    RequestResult requestResult = new RequestResult();
+                    ResponseResult responseResult = new ResponseResult();
+                    responseResult.setConsole(StringUtils.LF + ex.getMessage());
+                    requestResult.setResponseResult(responseResult);
+                    result.setContent(JSON.toJSONString(requestResult));
                     result.setStatus(ApiReportStatus.ERROR.name());
-                    apiDefinitionExecResultMapper.updateByPrimaryKey(result);
+                    apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(result);
                     ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
-                    caseWithBLOBs.setStatus(ApiReportStatus.ERROR.name());
-                    apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
-                    ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(caseWithBLOBs.getApiDefinitionId());
-                    if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
-                        apiDefinitionWithBLOBs.setToBeUpdated(true);
-                        apiDefinitionWithBLOBs.setToBeUpdateTime(System.currentTimeMillis());
-                        apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
+                    if (caseWithBLOBs != null) {
+                        caseWithBLOBs.setStatus(ApiReportStatus.ERROR.name());
+                        apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+                        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(caseWithBLOBs.getApiDefinitionId());
+                        if (apiDefinitionWithBLOBs.getProtocol().equals("HTTP")) {
+                            apiDefinitionWithBLOBs.setToBeUpdated(true);
+                            apiDefinitionWithBLOBs.setToBeUpdateTime(System.currentTimeMillis());
+                            apiDefinitionMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
+                        }
+                    } else {
+                        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(request.getCaseId());
+                        if (testPlanApiCase != null) {
+                            testPlanApiCase.setStatus(ApiReportStatus.ERROR.name());
+                            testPlanApiCaseMapper.updateByPrimaryKey(testPlanApiCase);
+                        }
                     }
                 }
                 LogUtil.error(ex.getMessage(), ex);

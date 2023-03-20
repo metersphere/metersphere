@@ -805,6 +805,7 @@ public class TestPlanApiCaseService {
         request.setEnvironmentId(testPlanApiCase.getEnvironmentId());
         request.setBloBs(apiCase);
         request.setReportId(reportId);
+        request.setTestPlanId(testPlanApiCase.getTestPlanId());
         Map<String, Object> extendedParameters = new HashMap<>();
         extendedParameters.put(ExtendedParameter.SYNC_STATUS, true);
         apiExecuteService.exec(request, extendedParameters);
