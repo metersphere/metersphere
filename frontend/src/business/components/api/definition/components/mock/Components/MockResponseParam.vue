@@ -12,7 +12,8 @@
             </el-tab-pane>
             <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
               <mock-api-response-body :isReadOnly="false" :isShowEnable="false" :api-id="apiId" :body="response.body"
-                                      :headers="response.headers" :use-post-script="response.usePostScript"/>
+                                      :headers="response.headers" :use-post-script="response.usePostScript"
+                                      :need-mock="false"/>
             </el-tab-pane>
 
             <el-tab-pane v-if="!isTcp" :label="$t('api_test.definition.request.status_code')" name="status_code"

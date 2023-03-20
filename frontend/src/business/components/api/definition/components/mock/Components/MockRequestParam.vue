@@ -18,7 +18,7 @@
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
               <ms-api-key-value :append-to-body="true" :show-desc="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
-                                :suggestions="headerSuggestions" :items="request.headers" :need-mock="true"/>
+                                :suggestions="headerSuggestions" :items="request.headers" :need-mock="false"/>
             </el-tab-pane>
 
             <!--query 参数-->
@@ -32,7 +32,9 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.query" :parameters="request.arguments"/>
+              <mock-combination-condition :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.query"
+                                          :disable-variable-tip="true"
+                                          :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -48,7 +50,9 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
               </el-row>
-              <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest" :parameters="request.rest"/>
+              <mock-combination-condition :is-rest="true" :filter-type-object="request" :is-read-only="isReadOnly" :is-show-enable="isShowEnable" :suggestions="apiParams.rest"
+                                          :disable-variable-tip="true"
+                                          :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
@@ -57,6 +61,7 @@
                              :suggestions="apiParams.form"
                              :is-read-only="isReadOnly"
                              :isShowEnable="isShowEnable"
+                             :need-mock="false"
                              :headers="request.headers" :body="request.body"/>
             </el-tab-pane>
             <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">

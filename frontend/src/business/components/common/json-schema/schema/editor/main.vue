@@ -25,6 +25,7 @@
                  :schema="pickValue"
                  :scenario-definition="scenarioDefinition"
                  :show-mock-vars="showMockVars"
+                 :need-mock="needMock"
                  @editScenarioAdvance="editScenarioAdvance"/>
       </el-col>
       <el-col :span="4">
@@ -49,6 +50,7 @@
                           :scenario-definition="scenarioDefinition"
                           :show-mock-vars="showMockVars"
                           :disabled="disabled"
+                          :need-mock="needMock"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType" @reloadItems="reloadItems"/>
     </template>
@@ -57,6 +59,7 @@
                           :deep="deep+1" :root="false" class="children"
                           :scenario-definition="scenarioDefinition"
                           :show-mock-vars="showMockVars"
+                          :need-mock="needMock"
                           @editScenarioAdvance="editScenarioAdvance"
                           :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
@@ -151,6 +154,12 @@ export default {
       default: 'zh_CN'
     },
     scenarioDefinition: Array,
+    needMock: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    }
   },
   computed: {
     pickValue() {

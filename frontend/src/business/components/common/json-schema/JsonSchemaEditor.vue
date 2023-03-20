@@ -10,6 +10,7 @@
                               :disabled="jsonSchemaDisable"
                               :value="schema"
                               :show-mock-vars="showMockVars"
+                              :need-mock="needMock"
                               :scenario-definition="scenarioDefinition"
                               @editScenarioAdvance="editScenarioAdvance"
                               lang="zh_CN" custom/>
@@ -52,6 +53,12 @@ export default {
       }
     },
     scenarioDefinition: Array,
+    needMock: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    }
   },
   created() {
     if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
