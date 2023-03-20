@@ -42,7 +42,7 @@
                     <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name"
                                   :prop="item.name"
                                   :label-width="formLabelWidth">
-                      <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                      <custom-filed-component v-if="!loading" :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -131,6 +131,7 @@ import {
 import TestReviewTestCaseEditOperationBar from "@/business/review/view/components/TestReviewTestCaseEditOperationBar";
 import TestReviewTestCaseEditHeaderBar from "@/business/review/view/components/TestReviewTestCaseEditHeaderBar";
 import CommentHistory from "@/business/review/view/components/commnet/CommentHistory";
+import {resetCaseSystemField} from "@/business/case/test-case";
 
 export default {
   name: "TestReviewTestCaseEdit",
@@ -266,6 +267,9 @@ export default {
         this.$refs.comment.getComments();
       }
     },
+    resetSystemField() {
+      resetCaseSystemField(this.testCaseTemplate.customFields, this.testCase);
+    },
     refreshTestCaseStatus(status) {
       this.testCase.reviewStatus = status;
       this.updateTestCases(this.testCase);
@@ -356,6 +360,7 @@ export default {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
+        this.resetSystemField();
       });
     },
     setTitleWith() {

@@ -117,6 +117,7 @@
                             :prop="item.name"
                           >
                             <custom-filed-component
+                              v-if="!loading"
                               :disabled="true"
                               :data="item"
                               :form="{}"
@@ -248,7 +249,7 @@ import {
 import { testPlanEditStatus } from "@/api/remote/plan/test-plan";
 import { getTestTemplate } from "@/api/custom-field-template";
 import { checkProjectPermission } from "@/api/testCase";
-import {openCaseEdit} from "@/business/case/test-case";
+import {openCaseEdit, resetCaseSystemField} from "@/business/case/test-case";
 
 export default {
   name: "FunctionalTestCaseEdit",
@@ -521,7 +522,11 @@ export default {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
+        this.resetSystemField();
       });
+    },
+    resetSystemField() {
+      resetCaseSystemField(this.testCaseTemplate.customFields, this.testCase);
     },
     openTestCaseEdit(testCase, tableData) {
       checkProjectPermission(testCase.projectId).then((r) => {

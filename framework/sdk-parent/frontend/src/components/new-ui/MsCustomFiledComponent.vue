@@ -108,10 +108,10 @@
                v-model="data[prop]"
                :placeholder="$t('commons.default')">
        <el-option
-         v-for="(item) in memberOptions"
-         :key="item.id"
-         :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
-         :value="item.id">
+         v-for="(item) in data.options ? data.options : []"
+         :key="item.value"
+         :label="item.text + (item.email ? ' (' + item.email + ')' : '')"
+         :value="item.value">
        </el-option>
     </el-select>
 
@@ -169,48 +169,14 @@ export default {
   ],
   data() {
     return {
-      memberOptions: [],
       originOptions: null,
       loading: false
     };
   },
   mounted() {
-    if (['select', 'multipleSelect', 'checkbox', 'radio'].indexOf(this.data.type) > -1 && this.data.options) {
-      let values = this.data[this.prop];
-      if (['multipleSelect', 'checkbox'].indexOf(this.data.type) > -1) {
-        if (values && values instanceof Array) {
-          for (let i = values.length - 1; i >= 0; i--) {
-            if (!this.data.options.find(item => item.value === values[i])) {
-              // 删除已删除的选项
-              values.splice(i, 1);
-            }
-          }
-        } else {
-          // 不是数组类型，改成空数组
-          this.data[this.prop] = [];
-        }
-      } else {
-        if (!this.data.options.find(item => item.value === values)) {
-          // 没有选项则清空
-          this.data[this.prop] = '';
-        }
-      }
-    }
+    this.clearDeletedOption();
     this.setFormData();
-    if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
-      return;
-    }
-    if (this.projectId) {
-      getProjectMemberById(this.projectId)
-        .then((r) => {
-          this.handleMemberOptions(r.data);
-        });
-    } else {
-      getProjectMemberOption()
-        .then((r) => {
-          this.handleMemberOptions(r.data);
-        });
-    }
+    this.getMemberOptions();
   },
   watch: {
     form() {
@@ -218,10 +184,65 @@ export default {
     }
   },
   methods: {
+    clearDeletedOption() {
+      // 如果选项没有当前值，置空
+      if (['select', 'multipleSelect', 'checkbox', 'radio'].indexOf(this.data.type) > -1 && this.data.options) {
+        if (['multipleSelect', 'checkbox'].indexOf(this.data.type) > -1) {
+         this.clearDeletedMultipleOption();
+        } else {
+          this.clearDeletedSingleOption();
+        }
+      }
+    },
+    clearDeletedMultipleOption() {
+      let values = this.data[this.prop];
+      if (values && values instanceof Array) {
+        for (let i = values.length - 1; i >= 0; i--) {
+          if (!this.data.options.find(item => item.value === values[i])) {
+            // 删除已删除的选项
+            values.splice(i, 1);
+          }
+        }
+      } else {
+        // 不是数组类型，改成空数组
+        this.data[this.prop] = [];
+      }
+    },
+    clearDeletedSingleOption() {
+      if (!this.data.options.find(item => item.value === this.data[this.prop])) {
+        // 没有选项则清空
+        this.data[this.prop] = '';
+      }
+    },
+    getMemberOptions() {
+      if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
+        return;
+      }
+      if (this.projectId) {
+        getProjectMemberById(this.projectId)
+          .then((r) => {
+            this.handleMemberOptions(r.data);
+          });
+      } else {
+        getProjectMemberOption()
+          .then((r) => {
+            this.handleMemberOptions(r.data);
+          });
+      }
+    },
     handleMemberOptions(data) {
-      this.memberOptions = data;
+      this.data.options = data;
+      this.data.options.forEach(item => {
+        item.value = item.id;
+        item.text = item.name;
+      });
       if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
-        this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+        this.data.options.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
+      }
+      if ('multipleMember' === this.data.type) {
+        this.clearDeletedMultipleOption();
+      } else {
+        this.clearDeletedSingleOption();
       }
     },
     clickPane(){
