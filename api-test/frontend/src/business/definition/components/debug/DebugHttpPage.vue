@@ -268,6 +268,9 @@ export default {
     },
     urlChange() {
       if (!this.debugForm.url) return;
+      if (!this.debugForm.url.startsWith("http")) {
+        this.debugForm.url = "http://" + this.debugForm.url;
+      }
       let url = this.getURL(this.debugForm.url);
       if (url && url.pathname) {
         if (this.debugForm.url.indexOf('?') != -1) {
