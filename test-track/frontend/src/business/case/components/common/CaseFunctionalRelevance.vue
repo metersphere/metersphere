@@ -135,18 +135,24 @@
             <ms-table-column
               prop="tags"
               :label="$t('commons.tag')"
-              width="90px"
+              :show-overflow-tooltip="false"
+              min-width="180"
             >
               <template v-slot:default="scope">
-                <ms-tag
-                  v-for="(itemName, index) in scope.row.tags"
-                  :key="index"
-                  type="success"
-                  effect="plain"
-                  :content="itemName"
-                  style="margin-left: 0px; margin-right: 2px"
-                />
-                <span />
+                <el-tooltip class="item" effect="dark" placement="top">
+                  <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+                  <div class="oneLine">
+                    <ms-single-tag
+                      v-for="(itemName, index) in parseColumnTag(scope.row.tags)"
+                      :key="index"
+                      type="success"
+                      effect="plain"
+                      :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                      :content="itemName"
+                      style="margin-left: 0; margin-right: 2px"/>
+                  </div>
+                </el-tooltip>
+                <span/>
               </template>
             </ms-table-column>
 
@@ -191,7 +197,7 @@ import TestCaseRelevanceBase from "./CaseRelevanceSideDialog";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import MsTag from "metersphere-frontend/src/components/MsTag";
+import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import StatusTableItem from "@/business/common/tableItems/planview/StatusTableItem";
@@ -203,7 +209,7 @@ import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersi
 import { getProjectApplicationConfig } from "@/api/project-application";
 import { getVersionFilters } from "@/business/utils/sdk-utils";
 import { getTestTemplate } from "@/api/custom-field-template";
-import { initTestCaseConditionComponents } from "@/business/case/test-case";
+import {getTagToolTips, initTestCaseConditionComponents, parseColumnTag} from "@/business/case/test-case";
 
 export default {
   name: "CaseFunctionalRelevance",
@@ -214,7 +220,7 @@ export default {
     StatusTableItem,
     MsUpdateTimeColumn,
     MsCreateTimeColumn,
-    MsTag,
+    MsSingleTag,
     MsTablePagination,
     MsTable,
     MsTableColumn,
@@ -404,6 +410,12 @@ export default {
         );
       });
     },
+    getTagToolTips(tags) {
+      return getTagToolTips(tags);
+    },
+    parseColumnTag(tags) {
+      return parseColumnTag(tags);
+    }
   },
 };
 </script>
@@ -478,5 +490,10 @@ export default {
       }
     }
   }
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>
