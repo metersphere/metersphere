@@ -281,6 +281,11 @@ public class ApiScenarioExecuteService {
         for (String testPlanScenarioId : request.getProcessVO().getTestPlanScenarioMap().keySet()) {
             TestPlanApiScenarioInfoDTO planApiScenario = request.getProcessVO().getTestPlanScenarioMap().get(testPlanScenarioId);
             ApiScenarioWithBLOBs scenario = scenarioMap.get(planApiScenario.getApiScenarioId());
+            Set<String> scenarioUsedProjectIdSet = null;
+            try {
+                scenarioUsedProjectIdSet = apiScenarioEnvService.getApiScenarioEnv(scenario.getScenarioDefinition()).getProjectIds();
+            } catch (Exception ignore) {
+            }
             if (scenario.getStepTotal() == null || scenario.getStepTotal() == 0) {
                 continue;
             }
@@ -318,14 +323,17 @@ public class ApiScenarioExecuteService {
                 if (MapUtils.isEmpty(runModeConfig.getEnvMap())) {
                     apiCaseExecuteService.setRunModeConfigEnvironment(runModeConfig, planEnvMap);
                 }
-                //对报告的envMap做过滤，过滤多余的key
-                Map<String, String> diffEnvMap = new HashMap<>();
-                planEnvMap.forEach((k, v) -> {
-                    if (StringUtils.equals(planApiScenario.getProjectId(), k)) {
-                        diffEnvMap.put(k, v);
-                    }
-                });
-                runModeConfig.setEnvMap(diffEnvMap);
+                //对报告的envMap做过滤，通过场景用到的项目来进行匹配，过滤掉使用不到的项目环境
+                if (CollectionUtils.isNotEmpty(scenarioUsedProjectIdSet)) {
+                    List<String> scenarioUsedProjectIdList = new ArrayList<>(scenarioUsedProjectIdSet);
+                    Map<String, String> diffEnvMap = new HashMap<>();
+                    planEnvMap.forEach((k, v) -> {
+                        if (scenarioUsedProjectIdList.contains(k)) {
+                            diffEnvMap.put(k, v);
+                        }
+                    });
+                    runModeConfig.setEnvMap(diffEnvMap);
+                }
                 report.setEnvConfig(JSON.toJSONString(runModeConfig));
             }
             // 生成文档结构
