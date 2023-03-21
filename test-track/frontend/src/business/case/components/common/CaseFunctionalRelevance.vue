@@ -147,7 +147,7 @@
                       :key="index"
                       type="success"
                       effect="plain"
-                      :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                      :show-tooltip="scope.row.tags && scope.row.tags.length === 1 && itemName.length * 12 <= 100"
                       :content="itemName"
                       style="margin-left: 0; margin-right: 2px"/>
                   </div>
