@@ -3,7 +3,6 @@ package io.metersphere.parse.xml.reader;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.engine.EngineContext;
 import io.metersphere.i18n.Translator;
@@ -323,7 +322,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void processCheckoutResponseAssertion(Element element) {
-        if (context.getProperty("statusCode") == null || JSON.parseArray(context.getProperty("statusCode").toString()).size() == 0) {
+        if (context.getProperty("statusCode") == null || ((List) context.getProperty("statusCode")).size() == 0) {
             return;
         }
         Element hashTree = getNextSibling(element);
@@ -375,7 +374,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void processCheckoutArguments(Element ele) {
-        if (context.getProperty("params") == null || JSON.parseArray(context.getProperty("params").toString()).size() == 0) {
+        if (context.getProperty("params") == null || ((List) context.getProperty("params")).size() == 0) {
             return;
         }
         Element hashTree = getNextSibling(ele);
@@ -495,7 +494,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
                 Object params = context.getProperty("params");
                 if (params instanceof List) {
                     for (Object p : (List) params) {
-                        Map jsonObject = JSON.parseObject(p.toString(), Map.class);
+                        Map jsonObject = (Map) p;
                         if (!(boolean) jsonObject.get("enable")) {
                             continue;
                         }
