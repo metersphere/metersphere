@@ -167,13 +167,12 @@ public class ApiScenarioExecuteService {
     }
 
     protected void execute(RunScenarioRequest request, String serialReportId, Map<String, RunModeDataDTO> executeQueue, DBTestQueue executionQueue) {
-        String finalSerialReportId = serialReportId;
         Thread thread = new Thread(() -> {
             Thread.currentThread().setName("SCENARIO-THREAD");
             if (isSerial(request)) {
                 apiScenarioSerialService.serial(executionQueue);
             } else {
-                apiScenarioParallelService.parallel(executeQueue, request, finalSerialReportId, executionQueue);
+                apiScenarioParallelService.parallel(executeQueue, request, serialReportId, executionQueue);
             }
         });
         thread.start();
