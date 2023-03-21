@@ -262,7 +262,8 @@ public class TrackService {
                             bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), count);
                         }
                     } else {
-                        statusArray.forEach(item -> {
+                        boolean isInStatusArray = false;
+                        for (Object item : statusArray) {
                             JSONObject statusObj = (JSONObject) item;
                             if (StringUtils.equals(status, statusObj.get("value").toString())) {
                                 Integer count = bugStatusMap.get(statusObj.get("text").toString());
@@ -272,15 +273,21 @@ public class TrackService {
                                     count += 1;
                                     bugStatusMap.put(statusObj.get("text").toString(), count);
                                 }
+                                isInStatusArray = true;
                             }
-                        });
+                        }
+
+                        if (!isInStatusArray) {
+                            Integer count = bugStatusMap.get(status);
+                            if (count == null) {
+                                bugStatusMap.put(status, 1);
+                            } else {
+                                count += 1;
+                                bugStatusMap.put(status, count);
+                            }
+                        }
                     }
                 }
-            }
-        }
-        if (MapUtils.isEmpty(bugStatusMap)) {
-            for (IssueStatus statusEnum : IssueStatus.values()) {
-                bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), 0);
             }
         }
         return bugStatusMap;
