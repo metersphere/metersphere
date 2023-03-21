@@ -43,6 +43,7 @@
                :title="$t('commons.edit')"
                :destroy-on-close="true"
                :close-on-click-modal="false"
+               @close="cancelComment"
                append-to-body>
 
       <div>
@@ -161,6 +162,9 @@ export default {
         this.$success(this.$t('commons.modify_success'));
         this.$emit("refresh");
       });
+    },
+    cancelComment() {
+      this.comment.description = this.description;
     },
     checkImage() {
       this.srcList = [];
