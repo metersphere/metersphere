@@ -514,7 +514,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             module.setCreateTime(System.currentTimeMillis());
             module.setUpdateTime(System.currentTimeMillis());
             module.setProjectId(projectId);
-            module.setCreateUser(SessionUtils.getUserId());
             apiModuleMapper.insert(module);
             return module;
         } else {
