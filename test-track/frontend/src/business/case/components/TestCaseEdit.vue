@@ -1212,6 +1212,7 @@ export default {
             if (this.editableState) {
                // 如果是编辑态保存用例, 则直接reload页面
                this.editableState = false;
+               this.$refs.otherInfo.caseActiveName = 'detail';
             }
             response = response.data;
             // 保存用例后刷新附件
@@ -1246,7 +1247,8 @@ export default {
               } else {
                 this.isLastedVersion = true;
                 this.routerToEdit(response.data.id);
-                setTimeout(() => this.initEdit(), 500);
+                this.form.num = response.data.num;
+                this.form.customNum = response.data.customNum;
               }
             }
             this.createVersionId = null;
