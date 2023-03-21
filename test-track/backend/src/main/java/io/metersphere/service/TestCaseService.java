@@ -792,6 +792,8 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request, boolean isSampleInfo) {
+        boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
+        request.setQueryUi(queryUi);
         this.initRequest(request, true);
         setDefaultOrder(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
