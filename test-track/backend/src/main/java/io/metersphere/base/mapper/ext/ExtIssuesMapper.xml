@@ -181,8 +181,8 @@
         from test_plan_test_case tptc
                  join test_plan tp on tp.id = tptc.plan_id
                  join test_case_issues tci on tptc.id = tci.resource_id
-                 join issues on tci.issues_id = issues.id
-        where tptc.is_del != 1 and tp.project_id = #{projectId}
+                 join issues i on tci.issues_id = i.id
+        where tptc.is_del != 1 and i.platform_status != 'delete' and tp.project_id = #{projectId}
     </select>
 
     <select id="getIssueCustomFields" resultType="io.metersphere.xpack.track.dto.IssuesDao">
