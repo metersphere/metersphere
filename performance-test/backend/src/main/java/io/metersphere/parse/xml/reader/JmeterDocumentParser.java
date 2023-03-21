@@ -323,7 +323,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void processCheckoutResponseAssertion(Element element) {
-        if (context.getProperty("statusCode") == null || JSON.parseArray(context.getProperty("statusCode").toString()).size() == 0) {
+        if (context.getProperty("statusCode") == null || ((List) context.getProperty("statusCode")).size() == 0) {
             return;
         }
         Element hashTree = getNextSibling(element);
@@ -375,7 +375,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
     private void processCheckoutArguments(Element ele) {
-        if (context.getProperty("params") == null || JSON.parseArray(context.getProperty("params").toString()).size() == 0) {
+        if (context.getProperty("params") == null || ((List) context.getProperty("params")).size() == 0) {
             return;
         }
         Element hashTree = getNextSibling(ele);
