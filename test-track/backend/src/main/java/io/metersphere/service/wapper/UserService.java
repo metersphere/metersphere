@@ -21,7 +21,7 @@ public class UserService {
     public UserDTO.PlatformInfo getCurrentPlatformInfo(String workspaceId) {
         String currentPlatformInfoStr = getCurrentPlatformInfoStr(workspaceId);
         if (StringUtils.isNotBlank(currentPlatformInfoStr)) {
-            JSON.parseObject(currentPlatformInfoStr, UserDTO.PlatformInfo.class);
+            return JSON.parseObject(currentPlatformInfoStr, UserDTO.PlatformInfo.class);
         }
         return null;
     }
