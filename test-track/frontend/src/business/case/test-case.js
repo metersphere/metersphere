@@ -109,7 +109,7 @@ export function getTagToolTips(tags) {
 }
 
 export function parseColumnTag(tags) {
-  if (tags.length > 1) {
+  if (tags && tags.length > 1) {
     let parseTags = [];
     parseTags.push(tags[0]);
     parseTags.push("+" + (tags.length - 1));
