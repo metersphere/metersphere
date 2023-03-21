@@ -85,4 +85,6 @@ public interface ExtApiScenarioMapper {
     List<String> selectScenarioIdInExecutionInfoByProjectIdIsNull();
 
     long countSourceIdByProjectIdIsNull();
+
+    List<String> selectIdByScenarioRequest(@Param("request") ApiScenarioRequest request);
 }

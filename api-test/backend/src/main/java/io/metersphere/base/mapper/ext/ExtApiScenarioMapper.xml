@@ -1035,5 +1035,16 @@
         FROM scenario_execution_info
         WHERE project_id IS NULL
     </select>
-
+    <select id="selectIdByScenarioRequest" resultType="java.lang.String">
+        select DISTINCT api_scenario.id
+        from api_scenario
+        inner join project on api_scenario.project_id = project.id
+        left join user on api_scenario.create_user = user.id
+        left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
+        left join user u2 on api_scenario.principal = u2.id
+        inner join project_version on api_scenario.project_id = project_version.project_id AND project_version.id =
+        api_scenario.version_id
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
 </mapper>

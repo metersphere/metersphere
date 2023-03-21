@@ -178,6 +178,14 @@ public class TestPlanScenarioCaseService {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    public List<String> relevanceProjectIds(ApiScenarioRequest request) {
+        request.setNotInTestPlan(true);
+        if (request.getAllowedRepeatCase()) {
+            request.setNotInTestPlan(false);
+        }
+        return apiAutomationService.projectIdInlist(request);
+    }
+
     public void relevance(ApiCaseRelevanceRequest request) {
         if (request.getAllowedRepeatCase()) {
             request.getCondition().setNotInTestPlan(false);

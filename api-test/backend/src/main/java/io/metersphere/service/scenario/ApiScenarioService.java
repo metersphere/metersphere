@@ -2308,4 +2308,37 @@ public class ApiScenarioService {
             return scenarioList.get(0);
         }
     }
+
+    public List<String> projectIdInlist(ApiScenarioRequest request) {
+        request = this.initRequest(request, true, true);
+        List<String> scenarioIdList = extApiScenarioMapper.selectIdByScenarioRequest(request);
+        if (CollectionUtils.isNotEmpty(request.getUnSelectIds())) {
+            scenarioIdList.removeAll(request.getUnSelectIds());
+        }
+        List<String> projectIdList = BatchProcessingUtil.getProjectIdsByScenarioIdList(scenarioIdList, this::getProjectIdsByScenarioIdList);
+
+        return projectIdList;
+    }
+
+    public List<String> getProjectIdsByScenarioIdList(List<String> scenarioIdList) {
+        List<String> projectIdList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(scenarioIdList)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(scenarioIdList);
+            List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = apiScenarioMapper.selectByExampleWithBLOBs(example);
+            for (ApiScenarioWithBLOBs scenario : scenarioWithBLOBsList) {
+                ScenarioEnv scenarioEnv = apiScenarioEnvService.getApiScenarioEnv(scenario.getScenarioDefinition());
+                if (CollectionUtils.isNotEmpty(scenarioEnv.getProjectIds())) {
+                    scenarioEnv.getProjectIds().forEach(projectId -> {
+                        if (!projectIdList.contains(projectId)) {
+                            projectIdList.add(projectId);
+                        }
+                    });
+                }
+            }
+        }
+        return projectIdList;
+    }
+
+
 }

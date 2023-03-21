@@ -78,6 +78,11 @@ public class TestPlanScenarioCaseController {
         return testPlanScenarioCaseService.relevanceList(request, goPage, pageSize);
     }
 
+    @PostMapping("/relevance/projectIds")
+    public List<String> relevanceProjectIds(@RequestBody ApiScenarioRequest request) {
+        return testPlanScenarioCaseService.relevanceProjectIds(request);
+    }
+
     @PostMapping("/relevance")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiScenarioService.class)
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {

@@ -16,6 +16,34 @@ public class BatchProcessingUtil {
 
     private static final int BATCH_PROCESS_QUANTITY = 1000;
 
+    public static List<String> getProjectIdsByScenarioIdList(List<String> scenarioIdList, Function<List<String>, List<String>> func) {
+        List<String> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(scenarioIdList)) {
+            int unProcessingCount = scenarioIdList.size();
+            while (scenarioIdList.size() > BATCH_PROCESS_QUANTITY) {
+                List<String> processingList = new ArrayList<>();
+                for (int i = 0; i < BATCH_PROCESS_QUANTITY; i++) {
+                    processingList.add(scenarioIdList.get(i));
+                }
+                //函数处理
+                returnList.addAll(func.apply(processingList));
+                scenarioIdList.removeAll(processingList);
+
+                //如果剩余数量没有发生变化，则跳出循环。防止出现死循环的情况
+                if (scenarioIdList.size() == unProcessingCount) {
+                    break;
+                } else {
+                    unProcessingCount = scenarioIdList.size();
+                }
+            }
+            if (CollectionUtils.isNotEmpty(scenarioIdList)) {
+                //剩余待处理数据进行处理
+                returnList.addAll(func.apply(scenarioIdList));
+            }
+        }
+        return returnList;
+    }
+
     public static List<ApiScenarioReportResultWithBLOBs> selectScenarioReportResultByScenarioReportId(List<String> scenarioReportId, Function<List<String>, List<ApiScenarioReportResultWithBLOBs>> func) {
         List<ApiScenarioReportResultWithBLOBs> returnList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(scenarioReportId)) {
