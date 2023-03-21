@@ -300,16 +300,18 @@ export default {
             let projectEnvMapElement = this.projectEnvMap[d];
             if (projectEnvMapElement.length > 0) {
               projectEnvMapElement.forEach((envId) => {
-                let filter = envs.filter((e) => e.id === envId);
+                let filteredEnv = envs.filter((e) => e.id === envId);
                 if (!this.selectedEnvName.has(d)) {
                   let name = [];
-                  name.push(filter[0].name);
+                  name.push(filteredEnv[0].name);
                   this.selectedEnvName.set(d, name);
+                  this.$emit("setDefaultEnv", d, name);
                 } else {
-                  this.selectedEnvName.get(d).push(filter[0].name);
+                  if (filteredEnv.length > 0) {
+                    this.selectedEnvName.get(d).push(filteredEnv[0].name);
+                    this.$emit("setDefaultEnv", d, filteredEnv[0].id);
+                  }
                 }
-
-                this.$emit("setDefaultEnv", d, filter[0].id);
               });
             }
           }
