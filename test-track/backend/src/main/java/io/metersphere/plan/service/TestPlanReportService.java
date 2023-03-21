@@ -208,22 +208,12 @@ public class TestPlanReportService {
             List<TestPlanApiScenarioInfoDTO> scenarios) {
 
         TestPlanReportRunInfoDTO runInfoDTO = new TestPlanReportRunInfoDTO();
-        if (MapUtils.isNotEmpty(config.getEnvMap())) {
-            //判断记录选择的环境还是默认环境
-            Map<String, List<String>> requestEnvMap = new HashMap<>();
-            for (Map.Entry<String, String> entry : config.getEnvMap().entrySet()) {
-                requestEnvMap.put(entry.getKey(), new ArrayList<>() {{
-                    this.add(entry.getValue());
-                }});
-            }
-            runInfoDTO.setRequestEnvMap(requestEnvMap);
-        } else {
-            runInfoDTO.setRequestEnvMap(config.getTestPlanDefaultEnvMap());
-        }
-
-        final Map<String, String> runEnvMap = MapUtils.isNotEmpty(config.getEnvMap()) ? config.getEnvMap() : new HashMap<>();
         runInfoDTO.setRunMode(config.getMode());
 
+        Map<String, List<String>> projectInvMap = TestPlanReportUtil.getTestPlanExecutedEnvironments(config.getTestPlanDefaultEnvMap(), config.getEnvMap());
+        runInfoDTO.setRequestEnvMap(projectInvMap);
+
+        final Map<String, String> runEnvMap = new HashMap<>();
         if (StringUtils.equals(GROUP, config.getEnvironmentType()) && StringUtils.isNotEmpty(config.getEnvironmentGroupId())) {
             Map<String, String> groupMap = baseEnvGroupProjectService.getEnvMap(config.getEnvironmentGroupId());
             if (MapUtils.isNotEmpty(groupMap)) {
@@ -1173,7 +1163,7 @@ public class TestPlanReportService {
                 if (MapUtils.isEmpty(runInfoDTO.getRequestEnvMap())) {
                     if (MapUtils.isNotEmpty(runInfoDTO.getApiCaseRunInfo())) {
                         for (Map<String, String> map : runInfoDTO.getApiCaseRunInfo().values()) {
-                            requestEnvMap = TestPlanReportUtil.mergeApiCaseEnvMap(requestEnvMap, map);
+                            requestEnvMap = TestPlanReportUtil.mergeEnvironmentMap(requestEnvMap, map);
                         }
                     }
                     if (MapUtils.isNotEmpty(runInfoDTO.getScenarioRunInfo())) {

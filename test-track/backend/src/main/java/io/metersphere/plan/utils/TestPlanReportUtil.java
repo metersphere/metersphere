@@ -40,7 +40,24 @@ public class TestPlanReportUtil {
         return r;
     }
 
-    public static Map<String, List<String>> mergeApiCaseEnvMap(Map<String, List<String>> projectEnvMap, Map<String, String> originProjectEnvMap) {
+    //获取测试计划执行时的环境
+    public static Map<String, List<String>> getTestPlanExecutedEnvironments(Map<String, List<String>> defaultEnvMap, Map<String, String> selectedEnvMap) {
+        Map<String, List<String>> returnMap = new HashMap<String, List<String>>();
+        if (MapUtils.isNotEmpty(defaultEnvMap)) {
+            returnMap.putAll(defaultEnvMap);
+        }
+        if (MapUtils.isNotEmpty(selectedEnvMap)) {
+            for (Map.Entry<String, String> entry : selectedEnvMap.entrySet()) {
+                String projectId = entry.getKey();
+                returnMap.put(projectId, new ArrayList<>() {{
+                    this.add(entry.getValue());
+                }});
+            }
+        }
+        return returnMap;
+    }
+
+    public static Map<String, List<String>> mergeEnvironmentMap(Map<String, List<String>> projectEnvMap, Map<String, String> originProjectEnvMap) {
         if (projectEnvMap == null) {
             projectEnvMap = new HashMap<String, List<String>>();
         }
