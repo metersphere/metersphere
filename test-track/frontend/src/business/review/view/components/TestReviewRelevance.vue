@@ -320,6 +320,7 @@ export default {
       if(this.condition.projectId) {
         delete this.condition.projectId;
       }
+      this.projectId = '';
     },
     filter(filters) {
       _filter(filters, this.condition);
