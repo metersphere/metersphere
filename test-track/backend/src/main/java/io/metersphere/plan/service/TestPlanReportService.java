@@ -1218,7 +1218,18 @@ public class TestPlanReportService {
                             String envName = apiTestEnvironmentService.selectNameById(envId);
                             envNameList.add(envName);
                         }
-                        projectEnvMap.put(projectName, envNameList);
+                        //考虑到存在不同工作空间下有相同名称的项目，这里还是要检查一下项目名称是否已被记录
+                        if (projectEnvMap.containsKey(projectName)) {
+                            envNameList.forEach(envName -> {
+                                if (!projectEnvMap.get(projectName).contains(envName)) {
+                                    projectEnvMap.get(projectName).add(envName);
+                                }
+                            });
+                        } else {
+                            projectEnvMap.put(projectName, new ArrayList<>() {{
+                                this.addAll(envNameList);
+                            }});
+                        }
                     }
                 }
                 if (MapUtils.isNotEmpty(projectEnvMap)) {
