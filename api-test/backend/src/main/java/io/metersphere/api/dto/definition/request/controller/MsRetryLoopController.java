@@ -52,7 +52,24 @@ public class MsRetryLoopController extends MsTestElement {
     }
 
     private String script() {
-        String script = "// 失败重试控制\n" + "try{\n" + "\tint errorCount = prev.getErrorCount();\n" + "\tif(errorCount == 0 && prev.getFirstAssertionFailureMessage() == null ){\n" + "\t   vars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "\t}\n" + "\tif(vars.get(\"" + ms_current_timer + "_num\") == null){\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\", \"0\");\n" + "\t}else{\n" + "\t\tint retryNum= Integer.parseInt(vars.get(\"" + ms_current_timer + "_num\"));\n" + "\t\tlog.info(\"重试：\"+ retryNum);\n" + "        \tprev.setSampleLabel(\"MsRetry_\"+ (retryNum + 1) + \"_\" + prev.getSampleLabel());\n" + "\t\tretryNum =retryNum +1;\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\",retryNum + \"\");\n" + "\t}\n" + "\tif(vars.get(\"" + ms_current_timer + "_num\").equals( \"" + retryNum + "\")){\n" + "\t\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "\t}\n" + "}catch (Exception e){\n" + "\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "}\n";
+        String script = "import org.apache.commons.lang3.StringUtils;" +
+                "\n// 失败重试控制" +
+                "\n" + "try{" +
+                "\n" + "\tint errorCount = prev.getErrorCount();" +
+                "\n" + "\tif(errorCount == 0 && StringUtils.isBlank(prev.getFirstAssertionFailureMessage()) ){" +
+                "\n" + "\t   vars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "\t}" +
+                "\n" + "\tif(vars.get(\"" + ms_current_timer + "_num\") == null){" +
+                "\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\", \"0\");" +
+                "\n" + "\t}else{" +
+                "\n" + "\t\tint retryNum= Integer.parseInt(vars.get(\"" + ms_current_timer + "_num\"));" +
+                "\n" + "\t\tlog.info(\"重试：\"+ retryNum);" +
+                "\n" + "        \tprev.setSampleLabel(\"MsRetry_\"+ (retryNum + 1) + \"_\" + prev.getSampleLabel());" +
+                "\n" + "\t\tretryNum =retryNum +1;\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\",retryNum + \"\");\n" + "\t}" +
+                "\n" + "\tif(vars.get(\"" + ms_current_timer + "_num\").equals( \"" + retryNum + "\")){" +
+                "\n" + "\t\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "\t}" +
+                "\n" + "}catch (Exception e){" +
+                "\n" + "\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" + "}" +
+                "\n";
         return script;
     }
 
