@@ -444,6 +444,12 @@ export default {
       operators: [],
       simpleOperators: [
         {
+          tip: this.$t('commons.view'),
+          isTextButton: true,
+          exec: this.handleEdit,
+          permissions: ['PROJECT_TRACK_CASE:READ']
+        },
+        {
           tip: this.$t('commons.copy'),
           isTextButton: true,
           exec: this.handleCopy,
