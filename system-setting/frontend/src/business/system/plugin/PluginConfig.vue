@@ -141,7 +141,7 @@ export default {
       this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(row) {
-      let tip = row.scenario !== 'platform' ? this.$t('api_test.jar_config.delete_tip') : this.$t('api_test.jar_config.delete_confirm');
+      let tip = row.scenario !== 'platform' ?  this.$t('api_test.jar_config.delete_tip')+ "，"  + this.$t('api_test.jar_config.delete_confirm') : this.$t('api_test.jar_config.delete_confirm');
       operationConfirm(this, tip, () => {
         this.loading = delPluginById(row.scenario || 'api', row.id).then(() => {
           this.$success(this.$t('commons.delete_success'));
