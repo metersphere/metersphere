@@ -556,15 +556,10 @@
         ORDER BY t.order DESC
     </select>
 
-    <select id="selectResourcePoolIdByTestPlanApiIds" resultType="java.lang.String">
-
-        SELECT DISTINCT actuator FROM  api_definition_exec_result execResult
-        INNER JOIN (
-            SELECT id, resource_id, max( create_time + 0 ) AS create_time
-            FROM    api_definition_exec_result WHERE resource_id IN
-            <foreach collection="ids" item="id" separator="," open="(" close=")">
-                #{id}
-            </foreach>
-        ) t ON execResult.id = t.id
+    <select id="selectResourcePoolIdByReportIds" resultType="java.lang.String">
+        SELECT DISTINCT actuator FROM api_definition_exec_result WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>
