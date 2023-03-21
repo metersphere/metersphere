@@ -163,7 +163,7 @@ public class TrackStatisticsDTO {
         }
     }
 
-    public void countRelevance(List<TrackCountResult> relevanceResults) {
+    public void countRelevance(List<TrackCountResult> relevanceResults, boolean queryUI) {
         Map<String, Integer> chartData = new HashMap<>();
         for (TrackCountResult countResult : relevanceResults) {
             if (StringUtils.equalsIgnoreCase(TrackCount.TESTCASE, countResult.getGroupField())) {
@@ -193,13 +193,15 @@ public class TrackStatisticsDTO {
                     chartData.put(Translator.get("scenario_case"), count);
                 }
             }
-            if (StringUtils.equalsIgnoreCase(TrackCount.UI_AUTOMATION, countResult.getGroupField())) {
-                Integer count = chartData.get(Translator.get("ui_scenario_case"));
-                if (count == null) {
-                    chartData.put(Translator.get("ui_scenario_case"), (int) countResult.getCountNumber());
-                } else {
-                    count += (int) countResult.getCountNumber();
-                    chartData.put(Translator.get("ui_scenario_case"), count);
+            if (queryUI) {
+                if (StringUtils.equalsIgnoreCase(TrackCount.UI_AUTOMATION, countResult.getGroupField())) {
+                    Integer count = chartData.get(Translator.get("ui_scenario_case"));
+                    if (count == null) {
+                        chartData.put(Translator.get("ui_scenario_case"), (int) countResult.getCountNumber());
+                    } else {
+                        count += (int) countResult.getCountNumber();
+                        chartData.put(Translator.get("ui_scenario_case"), count);
+                    }
                 }
             }
             this.allRelevanceCaseCount += countResult.getCountNumber();
@@ -210,6 +212,9 @@ public class TrackStatisticsDTO {
             chartData.put(Translator.get("api_case"), 0);
             chartData.put(Translator.get("performance_case"), 0);
             chartData.put(Translator.get("scenario_case"), 0);
+            if (queryUI) {
+                chartData.put(Translator.get("ui_scenario_case"), 0);
+            }
         }
         this.chartData = chartData;
     }
