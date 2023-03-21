@@ -314,6 +314,7 @@ import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCase
 import RelateDemand from "@/business/case/components/RelateDemand";
 import TestPlanCaseStatusTableItem from "@/business/common/tableItems/TestPlanCaseStatusTableItem";
 import {
+  fileDownloadPost,
   generateColumnKey,
   getCustomFieldValueForTrack,
   getProjectMemberOption
@@ -1052,45 +1053,26 @@ export default {
       }
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       Object.assign(param, fieldParam);
-      let config = {};
-      let fileNameSuffix = "";
+      let fileNameSuffix;
+      let url;
       if (exportType === 'xmind') {
-        config = {
-          url: '/test/case/export/testcase/xmind',
-          method: 'post',
-          responseType: 'blob',
-          data: param
-        };
+        url = '/test/case/export/testcase/xmind';
         fileNameSuffix = ".xmind";
       } else {
-        config = {
-          url: '/test/case/export/testcase',
-          method: 'post',
-          responseType: 'blob',
-          data: param
-        };
+        url = '/test/case/export/testcase'
         fileNameSuffix = ".xlsx";
       }
       this.loading = true;
       store.isTestCaseExporting = true;
-
-      this.$request(config).then(response => {
-        this.loading = false;
-        const filename = "Metersphere_case_" + this.projectName + fileNameSuffix;
-        const blob = new Blob([response.data]);
-        if ("download" in document.createElement("a")) {
-          let aTag = document.createElement('a');
-          aTag.download = filename;
-          aTag.href = URL.createObjectURL(blob);
-          aTag.click();
-          URL.revokeObjectURL(aTag.href);
+      fileDownloadPost(url, param, "Metersphere_case_" + this.projectName + fileNameSuffix)
+        .then(() => {
+          this.loading = false;
           this.$emit('closeExport');
-        } else {
-          navigator.msSaveBlob(blob, filename);
-          this.$emit('closeExport');
-        }
-        store.isTestCaseExporting = false;
-      });
+          store.isTestCaseExporting = false;
+        }).catch(() => {
+          this.loading = false;
+          store.isTestCaseExporting = false;
+        });
     },
     batchEdit(form) {
       let ids = this.$refs.table.selectIds;

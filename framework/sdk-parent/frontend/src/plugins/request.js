@@ -225,10 +225,17 @@ export function downloadFile(method, url, data, fileName, processHandler) {
         fileName = fileName.replaceAll("\"", "");
         _downloadFile(fileName, res.data);
         resolve();
-      })
-      .catch((e) => {
-        $error(e.message);
-        reject(e);
+      }).catch((e) => {
+        // 报错后，将 blob 格式转成字符串，打印错误信息
+        let reader = new FileReader();
+        reader.readAsText(e.response.data, 'utf-8');
+        reader.onload = function (e) {
+          if (reader.result) {
+            let info = JSON.parse(reader.result);
+            reject(info);
+            $error(info.message);
+          }
+        }
       });
   });
 }
