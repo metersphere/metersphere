@@ -526,11 +526,13 @@ public class TestPlanApiCaseService {
         Map<String, List<String>> result = new LinkedHashMap<>();
         List<String> resourcePoolIds = new ArrayList<>();
         if (!CollectionUtils.isEmpty(resourceIds)) {
+            List<String> reportIdList = new ArrayList<>();
             List<ApiDefinitionExecResultWithBLOBs> execResults = apiDefinitionExecResultService.selectByResourceIdsAndMaxCreateTime(resourceIds);
             Map<String, List<String>> projectConfigMap = new HashMap<>();
             execResults.forEach(item -> {
                 String envConf = item.getEnvConfig();
                 String projectId = item.getProjectId();
+                reportIdList.add(item.getId());
                 if (projectConfigMap.containsKey(projectId)) {
                     projectConfigMap.get(projectId).add(envConf);
                 } else {
@@ -540,7 +542,9 @@ public class TestPlanApiCaseService {
                 }
             });
             result = apiDefinitionService.getProjectEnvNameByEnvConfig(projectConfigMap);
-            resourcePoolIds = extTestPlanApiCaseMapper.selectResourcePoolIdByTestPlanApiIds(resourceIds);
+            if (CollectionUtils.isNotEmpty(reportIdList)) {
+                resourcePoolIds = extTestPlanApiCaseMapper.selectResourcePoolIdByReportIds(reportIdList);
+            }
         }
         AutomationsRunInfoDTO returnDTO = new AutomationsRunInfoDTO();
         returnDTO.setProjectEnvMap(result);
