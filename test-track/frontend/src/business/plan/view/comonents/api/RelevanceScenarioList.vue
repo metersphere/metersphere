@@ -67,7 +67,7 @@
         prop="name"
         :label="$t('api_test.automation.scenario_name')"
         sortable="custom"
-        min-width="100px"
+        min-width="120px"
         show-overflow-tooltip
       />
       <el-table-column
@@ -86,7 +86,7 @@
         prop="level"
         :label="$t('api_test.automation.case_level')"
         sortable="custom"
-        min-width="100px"
+        min-width="120px"
         show-overflow-tooltip
       >
         <template v-slot:default="scope">
@@ -108,9 +108,12 @@
                 :key="index"
                 type="success"
                 effect="plain"
-                :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                :show-tooltip="
+                  scope.row.tags.length === 1 && itemName.length * 12 <= 100
+                "
                 :content="itemName"
-                style="margin-left: 0px; margin-right: 2px" />
+                style="margin-left: 0px; margin-right: 2px"
+              />
             </div>
           </el-tooltip>
         </template>
@@ -141,6 +144,7 @@
         prop="lastResult"
         :label="$t('api_test.automation.last_result')"
         sortable="custom"
+        min-width="120px"
       >
         <template v-slot:default="{ row }">
           <ms-api-report-status :status="row.lastResult" />
@@ -180,7 +184,10 @@ import {
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import { getProjectApplicationConfig } from "@/api/project-application";
 import { getApiScenarioEnvByProjectId } from "@/api/remote/api/api-automation";
-import { scenarioRelevanceList } from "@/api/remote/plan/test-plan-scenario";
+import {
+  scenarioRelevanceList,
+  scenarioRelevanceProjectIds,
+} from "@/api/remote/plan/test-plan-scenario";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
 import ApiReportStatus from "@/business/plan/view/comonents/report/detail/api/ApiReportStatus";
 import MsApiReportStatus from "@/business/plan/view/comonents/report/detail/api/ApiReportStatus";
@@ -214,7 +221,7 @@ export default {
   },
   data() {
     return {
-      result: {},
+      result: { loading: false },
       showConfigButtonWithOutPermission: false,
       condition: {
         components: TEST_PLAN_RELEVANCE_API_SCENARIO_CONFIGS,
@@ -236,7 +243,7 @@ export default {
       environmentType: ENV_TYPE.JSON,
       envGroupId: "",
       versionFilters: [],
-      pageRefresh: false
+      pageRefresh: false,
     };
   },
   computed: {
@@ -343,13 +350,26 @@ export default {
     initProjectIds() {
       this.projectIds.clear();
       this.map.clear();
-      this.selectRows.forEach((row) => {
-        getApiScenarioEnvByProjectId(row.id).then((res) => {
-          let data = res.data;
-          data.projectIds.forEach((d) => this.projectIds.add(d));
-          this.map.set(row.id, data.projectIds);
+      if (this.condition && this.condition.selectAll) {
+        this.result.loading = true;
+        scenarioRelevanceProjectIds(this.condition)
+          .then((rsp) => {
+            this.result.loading = false;
+            let projectIds = rsp.data;
+            projectIds.forEach((d) => this.projectIds.add(d));
+          })
+          .catch(() => {
+            this.result.loading = false;
+          });
+      } else {
+        this.selectRows.forEach((row) => {
+          getApiScenarioEnvByProjectId(row.id).then((res) => {
+            let data = res.data;
+            data.projectIds.forEach((d) => this.projectIds.add(d));
+            this.map.set(row.id, data.projectIds);
+          });
         });
-      });
+      }
     },
     checkEnv() {
       return this.$refs.envPopover.checkEnv();
@@ -374,13 +394,13 @@ export default {
     },
     getTagToolTips(tags) {
       try {
-        let showTips = '';
+        let showTips = "";
         tags.forEach((item) => {
-          showTips += item + ',';
+          showTips += item + ",";
         });
         return showTips.substr(0, showTips.length - 1);
       } catch (e) {
-        return '';
+        return "";
       }
     },
   },
