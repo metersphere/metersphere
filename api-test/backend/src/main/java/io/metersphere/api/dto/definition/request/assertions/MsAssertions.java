@@ -204,7 +204,7 @@ public class MsAssertions extends MsTestElement {
         }
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        assertion.setProperty("cacheKey", "true");
+        assertion.setProperty("cacheKey", "false");
         String scriptLanguage = assertionJSR223.getScriptLanguage();
         if (StringUtils.equals(scriptLanguage, "nashornScript")) {
             scriptLanguage = "nashorn";
