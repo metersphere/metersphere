@@ -12,7 +12,9 @@ public enum IssueStatus {
     status_in_progress("in_progress", "in_progress"),
     status_rejected("rejected", "rejected"),
     status_upcoming("upcoming", "upcoming"),
-    status_reopened("reopened", "reopened");
+    status_reopened("reopened", "reopened"),
+    status_verified("verified", "verified"),
+    status_suspended("suspended", "suspended");
 
     private String name;
     private String i18nKey;
