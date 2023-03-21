@@ -29,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.services.FileServer;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -90,15 +91,10 @@ public class ApiExecutionQueueService {
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
             initApi(runMap, resQueue, config, detailMap, queueDetails);
         }
-        // 初始化性能测试执行链
-        else if (StringUtils.equalsIgnoreCase(type, ApiRunMode.TEST_PLAN_PERFORMANCE_TEST.name())) {
-            Map<String, String> requests = (Map<String, String>) runObj;
-            initPerf(requests, resQueue, config, detailMap, queueDetails);
-        }
-        // 初始化场景/UI执行链
+        // 初始化场景
         else {
             Map<String, RunModeDataDTO> runMap = (Map<String, RunModeDataDTO>) runObj;
-            initScenario(runMap, resQueue, config, type, detailMap, queueDetails);
+            initScenario(runMap, resQueue, config, detailMap, queueDetails);
         }
         if (CollectionUtils.isNotEmpty(queueDetails)) {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
@@ -108,7 +104,7 @@ public class ApiExecutionQueueService {
         return resQueue;
     }
 
-    private void initScenario(Map<String, RunModeDataDTO> runMap, DBTestQueue resQueue, RunModeConfigDTO config, String type, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
+    private void initScenario(Map<String, RunModeDataDTO> runMap, DBTestQueue resQueue, RunModeConfigDTO config, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
         final int[] sort = {0};
         runMap.forEach((k, v) -> {
             String envMap = JSON.toJSONString(v.getPlanEnvMap());
@@ -151,21 +147,6 @@ public class ApiExecutionQueueService {
             detailMap.put(k, queue.getId());
         }
         resQueue.setDetailMap(detailMap);
-    }
-
-    private void initPerf(Map<String, String> requests, DBTestQueue resQueue, RunModeConfigDTO config, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
-        String envStr = JSON.toJSONString(config.getEnvMap());
-        int i = 0;
-        for (String testId : requests.keySet()) {
-            ApiExecutionQueueDetail queue = detail(requests.get(testId), testId, config.getMode(), i++, resQueue.getId(), envStr);
-            if (i == 1) {
-                resQueue.setDetail(queue);
-            }
-            queue.setRetryEnable(config.isRetryEnable());
-            queue.setRetryNumber(config.getRetryNum());
-            queueDetails.add(queue);
-            detailMap.put(testId, queue.getId());
-        }
     }
 
     protected ApiExecutionQueue getApiExecutionQueue(String poolId, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -462,6 +443,9 @@ public class ApiExecutionQueueService {
                         TestPlanReportStatus.RUNNING.name(), ApiReportStatus.PENDING.name()) && (report.getUpdateTime() < timeout)) {
                     report.setStatus(ApiReportStatus.ERROR.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+                    if (FileServer.getFileServer() != null) {
+                        FileServer.getFileServer().closeCsv(item.getReportId());
+                    }
                 }
             });
         }
@@ -489,6 +473,9 @@ public class ApiExecutionQueueService {
     }
 
     public void stop(String reportId) {
+        if (FileServer.getFileServer() != null) {
+            FileServer.getFileServer().closeCsv(reportId);
+        }
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andReportIdEqualTo(reportId);
         List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
@@ -512,6 +499,12 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isEmpty(reportIds)) {
             return;
         }
+        // 清理CSV
+        reportIds.forEach(item -> {
+            if (FileServer.getFileServer() != null) {
+                FileServer.getFileServer().closeCsv(item);
+            }
+        });
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andReportIdIn(reportIds);
         List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
