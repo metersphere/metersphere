@@ -1329,7 +1329,7 @@ const message = {
       title: "上傳jar包",
       jar_file: "jar包",
       jar_manage: "JAR包管理",
-      delete_tip: "刪除需重啟服務後生效",
+      delete_tip: "刪除插件需要重新啟動服務後生成效",
       file_exist: "該項目下已存在該jar包",
       delete_confirm: "確認刪除插件",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
