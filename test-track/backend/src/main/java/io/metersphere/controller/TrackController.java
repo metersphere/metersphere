@@ -9,10 +9,12 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
+import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.TrackService;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -105,7 +107,15 @@ public class TrackController {
 
         boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
         List<TrackCountResult> relevanceResults = trackService.countRelevance(projectId, queryUi);
-        statistics.countRelevance(relevanceResults);
+        long uiCountNum = 0L;
+        if (!queryUi) {
+            List<TrackCountResult> uiGroup =
+                    relevanceResults.stream().filter(relevanceResult -> StringUtils.equals(relevanceResult.getGroupField(), TrackCount.UI_AUTOMATION)).toList();
+            if (CollectionUtils.isNotEmpty(uiGroup)) {
+                uiCountNum = uiGroup.get(0).getCountNumber();
+            }
+        }
+        statistics.countRelevance(relevanceResults, queryUi);
 
         long size = trackService.countRelevanceCreatedThisWeek(projectId);
         statistics.setThisWeekAddedCount(size);
@@ -114,7 +124,7 @@ public class TrackController {
         long total = list.size();
         int coverage = trackService.countCoverage(projectId, queryUi);
         statistics.setCoverageCount(coverage);
-        statistics.setUncoverageCount(total - coverage);
+        statistics.setUncoverageCount(total - coverage - uiCountNum);
 
         if (total != 0) {
             float coverageRageNumber = (float) statistics.getCoverageCount() * 100 / total;

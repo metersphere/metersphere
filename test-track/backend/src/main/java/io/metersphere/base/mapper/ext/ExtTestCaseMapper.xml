@@ -668,8 +668,23 @@
                 and test_case.project_id = #{request.projectId}
             </if>
             <include refid="filters"/>
-            <if test="request.caseCoverage == 'uncoverage' ">
+            <if test="request.caseCoverage == 'uncoverage'">
                 and test_case.id not in (
+                SELECT test_case_id FROM test_case_test WHERE test_type = 'testCase' and test_id IN (select id FROM
+                api_test_case WHERE `STATUS` is null or status != 'Trash')
+                UNION
+                SELECT test_case_id FROM test_case_test WHERE test_type = 'performance' and test_id IN (select id from
+                load_test)
+                UNION
+                SELECT test_case_id FROM test_case_test WHERE test_type = 'automation' and test_id IN (select id FROM
+                api_scenario WHERE `STATUS` != 'Trash')
+                UNION
+                SELECT test_case_id FROM test_case_test WHERE test_type = 'uiAutomation' and test_id IN (select id FROM
+                ui_scenario WHERE `STATUS` != 'Trash')
+                )
+            </if>
+            <if test="!request.queryUi and request.caseCoverage == 'coverage'">
+                and test_case.id in (
                 SELECT test_case_id FROM test_case_test WHERE test_type = 'testCase' and test_id IN (select id FROM
                 api_test_case WHERE `STATUS` is null or status != 'Trash')
                 UNION
@@ -680,7 +695,7 @@
                 api_scenario WHERE `STATUS` != 'Trash')
                 )
             </if>
-            <if test="request.caseCoverage == 'coverage' ">
+            <if test="request.queryUi and request.caseCoverage == 'coverage'">
                 and test_case.id in (
                 SELECT test_case_id FROM test_case_test WHERE test_type = 'testCase' and test_id IN (select id FROM
                 api_test_case WHERE `STATUS` is null or status != 'Trash')
@@ -690,6 +705,9 @@
                 UNION
                 SELECT test_case_id FROM test_case_test WHERE test_type = 'automation' and test_id IN (select id FROM
                 api_scenario WHERE `STATUS` != 'Trash')
+                UNION
+                SELECT test_case_id FROM test_case_test WHERE test_type = 'uiAutomation' and test_id IN (select id FROM
+                ui_scenario WHERE `STATUS` != 'Trash')
                 )
             </if>
             <include refid="queryVersionCondition">
@@ -850,13 +868,11 @@
         FROM test_case_test
         WHERE test_type = 'automation'
           and test_id IN (select id FROM api_scenario WHERE `STATUS` != 'Trash')
-        <if test="queryUI">
         UNION
         SELECT test_case_id, test_id, test_type
         FROM test_case_test
         WHERE test_type = 'uiAutomation'
           and test_id IN (select id FROM ui_scenario WHERE `STATUS` != 'Trash')
-        </if>
         )
         test_case_test
         ON test_case.id = test_case_test.test_case_id
