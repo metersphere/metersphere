@@ -17,9 +17,11 @@ public class TestCaseReviewTestCaseUsersService {
     @Resource
     TestCaseReviewTestCaseUsersMapper testCaseReviewTestCaseUsersMapper;
 
-    public List<String> getUsersByCaseId(String caseId) {
+    public List<String> getUsersByCaseId(String caseId, String reviewId) {
         TestCaseReviewTestCaseUsersExample example = new TestCaseReviewTestCaseUsersExample();
-        example.createCriteria().andCaseIdEqualTo(caseId);
+        example.createCriteria()
+                .andCaseIdEqualTo(caseId)
+                .andReviewIdEqualTo(reviewId);
         return testCaseReviewTestCaseUsersMapper.selectByExample(example)
                 .stream()
                 .map(TestCaseReviewTestCaseUsers::getUserId)
