@@ -494,7 +494,9 @@ public class TestReviewTestCaseService {
 
             if (!request.getAppendTag()) {
                 // 如果不是追加，则先删除，然后批量新增
-                example.createCriteria().andCaseIdIn(subList);
+                example.createCriteria()
+                        .andCaseIdIn(subList)
+                        .andReviewIdEqualTo(request.getReviewId());
                 testCaseReviewTestCaseUsersMapper.deleteByExample(example);
 
                 subList.forEach(caseId ->
