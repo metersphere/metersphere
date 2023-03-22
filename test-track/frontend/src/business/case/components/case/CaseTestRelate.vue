@@ -40,6 +40,7 @@
         :data="data"
         :enable-selection="false"
         :operators="operators"
+        :max-height="'calc(100vh)'"
         @refresh="initTable"
       >
         <ms-table-column
