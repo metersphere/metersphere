@@ -162,14 +162,7 @@ public class TrackService {
         return bugStatistics;
     }
 
-    private int getPlanCaseSize(String planId) {
-        return extTestCaseMapper.getTestPlanCase(planId);
-
-    }
-
     private Map<String, Integer> getPlanBugSize(String projectId) {
-        CustomField customField = baseCustomFieldService.getCustomFieldByName(projectId, SystemCustomField.ISSUE_STATUS);
-        JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
         Map<String, Integer> bugSizeMap = new HashMap<>();
 
         List<String> issueIds = extIssuesMapper.getTestPlanIssue(projectId);
@@ -190,24 +183,6 @@ public class TrackService {
             issueIds = issueIds.stream()
                     .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
                     .collect(Collectors.toList());
-            Iterator<String> iterator = issueIds.iterator();
-            while (iterator.hasNext()) {
-                String unClosedId = iterator.next();
-                String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
-                IssueStatus statusEnum = IssueStatus.getEnumByName(status);
-                if (statusEnum == null) {
-                    boolean exist = false;
-                    for (int i = 0; i < statusArray.size(); i++) {
-                        JSONObject statusObj = (JSONObject) statusArray.get(i);
-                        if (StringUtils.equals(status, statusObj.get("value").toString())) {
-                            exist = true;
-                        }
-                    }
-                    if (!exist) {
-                        iterator.remove();
-                    }
-                }
-            }
         }
 
         bugSizeMap.put("unClosed", issueIds.size());
