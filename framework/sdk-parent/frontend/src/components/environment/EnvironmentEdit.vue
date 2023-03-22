@@ -209,7 +209,7 @@ export default {
           {max: 64, message: this.$t('commons.input_limit', [1, 64]), trigger: 'blur'}
         ],
         currentProjectId: [
-          {required: true, message: "", trigger: 'blur'},
+          {required: true, message: this.$t('workspace.env_group.please_select_project'), trigger: ['change', 'blur']},
         ],
       },
       headerSuggestions: REQUEST_HEADERS,
