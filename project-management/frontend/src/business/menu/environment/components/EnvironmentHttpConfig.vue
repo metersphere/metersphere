@@ -450,7 +450,7 @@ export default {
       try {
         url = new URL(urlStr);
       } catch (e) {
-        return false;
+        return true;
       }
       this.condition.domain = decodeURIComponent(url.hostname);
 
