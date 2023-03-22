@@ -79,7 +79,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/relevance/projectIds")
-    public List<String> relevanceProjectIds(@RequestBody ApiScenarioRequest request) {
+    public ScenarioProjectDTO relevanceProjectIds(@RequestBody ApiScenarioRequest request) {
         return testPlanScenarioCaseService.relevanceProjectIds(request);
     }
 

@@ -32,7 +32,6 @@
     </ms-search>
     <ms-table
       ref="scenarioTable"
-      v-loading="result.loading"
       :data="tableData"
       :condition="condition"
       :page-size="pageSize"
@@ -355,8 +354,15 @@ export default {
         scenarioRelevanceProjectIds(this.condition)
           .then((rsp) => {
             this.result.loading = false;
-            let projectIds = rsp.data;
-            projectIds.forEach((d) => this.projectIds.add(d));
+            if (rsp.data) {
+              let projectIds = rsp.data.projectIdList;
+              projectIds.forEach((d) => this.projectIds.add(d));
+              let scenarioProjectIdMap = rsp.data.scenarioProjectIdMap;
+              let scenarioIds = Object.keys(scenarioProjectIdMap);
+              scenarioIds.forEach((scenarioId) => {
+                this.map.set(scenarioId, scenarioProjectIdMap[scenarioId]);
+              });
+            }
           })
           .catch(() => {
             this.result.loading = false;
