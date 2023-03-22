@@ -2273,10 +2273,10 @@ public class TestCaseService {
 
     public TestCase edit(EditTestCaseRequest request) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
-        request.setNum(testCaseWithBLOBs.getNum());
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
+        request.setNum(testCaseWithBLOBs.getNum());
         this.setNode(request);
         return editTestCase(request);
     }
