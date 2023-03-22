@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="4">
         <div>
-          <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+          <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%" :popper-append-to-body="false"
                      @change="getResource(currentInstance)">
             <el-option
               v-for="item in instances"
@@ -212,7 +212,9 @@ export default {
                 this.showChart = true;
               });
             } else {
-              this.currentInstance = this.currentInstance || this.instances[0]?.ip + ":" + this.instances[0]?.port;
+              if (!this.currentInstance && this.instances[0]) {
+                this.currentInstance = this.instances[0]?.ip + ":" + this.instances[0]?.port;
+              }
             }
             this.handleChecked(this.currentInstance);
             getPerformanceMetricQuery(this.id).then(result => {
