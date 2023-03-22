@@ -45,6 +45,8 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -362,58 +364,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 if (isUrl()) {
-                    if (this.isCustomizeReq() && StringUtils.isNotEmpty(this.getUrl())) {
-                        url = this.getUrl();
-                        sampler.setProperty("HTTPSampler.path", url);
-                    }
-                    if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                        url = url.replace(this.getPort(), "10990");
-                    }
-                    try {
-                        URL urlObject = new URL(url);
-                        sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
-                        if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                            sampler.setProperty("HTTPSampler.port", this.getPort());
-                        } else if (urlObject.getPort() != -1) {
-                            sampler.setPort(urlObject.getPort());
-                        }
-                        sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(url, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
-                    } catch (Exception e) {
-                        LogUtil.error(e.getMessage(), e);
-                    }
+                    //  正常全路径
+                    fullPath(sampler, url);
                 } else {
-                    if (!isCustomizeReq() || isRefEnvironment) {
-                        if (isCustomizeReqCompleteUrl(this.path)) {
-                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                        }
-                        String envPath = "";
-                        if (!isCustomizeReqCompleteUrl(this.path) || isRefEnvironment) {
-                            URL urlObject = new URL(url);
-                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                            if (StringUtils.isNotBlank(this.getPath())) {
-                                envPath += this.getPath();
-                            }
-                            sampler.setPort(httpConfig.getPort());
-                            if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
-                                sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), StandardCharsets.UTF_8.name()));
-                                sampler.setProtocol(httpConfig.getProtocol());
-                            } else {
-                                sampler.setDomain("");
-                                sampler.setProtocol("");
-                                sampler.setPort(-1);
-                            }
-                        } else {
-                            URL urlObject = new URL(this.path);
-                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
-                            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
-                            sampler.setProtocol(urlObject.getProtocol());
-                        }
-                        if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
-                            envPath = "/" + envPath;
-                        }
-                        sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
-                    }
+                    useEnvironmentSample(httpConfig, sampler, url);
                 }
                 String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -447,6 +401,67 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
+        }
+    }
+
+    private void useEnvironmentSample(HttpConfig httpConfig, HTTPSamplerProxy sampler, String url) throws MalformedURLException, UnsupportedEncodingException {
+        if (!isCustomizeReq() || isRefEnvironment) {
+            if (isCustomizeReqCompleteUrl(this.path)) {
+                url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+            }
+            String envPath = "";
+            if (!isCustomizeReqCompleteUrl(this.path) || isRefEnvironment) {
+                try {
+                    URL urlObject = new URL(url);
+                    envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
+                    if (StringUtils.isNotBlank(this.getPath())) {
+                        envPath += this.getPath();
+                    }
+                    sampler.setPort(httpConfig.getPort());
+                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                        sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), StandardCharsets.UTF_8.name()));
+                        sampler.setProtocol(httpConfig.getProtocol());
+                    } else {
+                        sampler.setDomain("");
+                        sampler.setProtocol("");
+                        sampler.setPort(-1);
+                    }
+                } catch (Exception e) {
+                    envPath = StringUtils.isNotBlank(this.path) ? StringUtils.join(url, this.path) : url;
+                }
+            } else {
+                URL urlObject = new URL(this.path);
+                envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
+                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
+                sampler.setProtocol(urlObject.getProtocol());
+            }
+            if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
+                envPath = "/" + envPath;
+            }
+            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
+        }
+    }
+
+    private void fullPath(HTTPSamplerProxy sampler, String url) {
+        if (this.isCustomizeReq() && StringUtils.isNotEmpty(this.getUrl())) {
+            url = this.getUrl();
+            sampler.setProperty("HTTPSampler.path", url);
+        }
+        if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+            url = url.replace(this.getPort(), "10990");
+        }
+        try {
+            URL urlObject = new URL(url);
+            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
+            if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                sampler.setProperty("HTTPSampler.port", this.getPort());
+            } else if (urlObject.getPort() != -1) {
+                sampler.setPort(urlObject.getPort());
+            }
+            sampler.setProtocol(urlObject.getProtocol());
+            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(url, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
