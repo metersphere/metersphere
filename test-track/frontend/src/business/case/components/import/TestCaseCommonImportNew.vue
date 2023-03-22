@@ -304,6 +304,7 @@ export default {
   flex: none;
   order: 0;
   flex-grow: 0;
+  border-radius: 4px;
 }
 
 .download-tips-content {
