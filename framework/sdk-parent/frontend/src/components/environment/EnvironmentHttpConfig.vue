@@ -439,13 +439,13 @@ export default {
       }
     },
     validateSocket(socket) {
-      if (!socket) return true;
+      if (!socket) return false;
       let urlStr = this.condition.protocol + "://" + socket;
       let url = {};
       try {
         url = new URL(urlStr);
       } catch (e) {
-        return false;
+        return true;
       }
       this.condition.domain = decodeURIComponent(url.hostname);
 
