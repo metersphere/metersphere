@@ -2309,19 +2309,17 @@ public class ApiScenarioService {
         }
     }
 
-    public List<String> projectIdInlist(ApiScenarioRequest request) {
+    public ScenarioProjectDTO projectIdInlist(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<String> scenarioIdList = extApiScenarioMapper.selectIdByScenarioRequest(request);
         if (CollectionUtils.isNotEmpty(request.getUnSelectIds())) {
             scenarioIdList.removeAll(request.getUnSelectIds());
         }
-        List<String> projectIdList = BatchProcessingUtil.getProjectIdsByScenarioIdList(scenarioIdList, this::getProjectIdsByScenarioIdList);
-
-        return projectIdList;
+        return BatchProcessingUtil.getProjectIdsByScenarioIdList(scenarioIdList, this::getProjectIdsByScenarioIdList);
     }
 
-    public List<String> getProjectIdsByScenarioIdList(List<String> scenarioIdList) {
-        List<String> projectIdList = new ArrayList<>();
+    public ScenarioProjectDTO getProjectIdsByScenarioIdList(List<String> scenarioIdList) {
+        ScenarioProjectDTO returnDTO = new ScenarioProjectDTO();
         if (CollectionUtils.isNotEmpty(scenarioIdList)) {
             ApiScenarioExample example = new ApiScenarioExample();
             example.createCriteria().andIdIn(scenarioIdList);
@@ -2330,14 +2328,15 @@ public class ApiScenarioService {
                 ScenarioEnv scenarioEnv = apiScenarioEnvService.getApiScenarioEnv(scenario.getScenarioDefinition());
                 if (CollectionUtils.isNotEmpty(scenarioEnv.getProjectIds())) {
                     scenarioEnv.getProjectIds().forEach(projectId -> {
-                        if (!projectIdList.contains(projectId)) {
-                            projectIdList.add(projectId);
+                        if (!returnDTO.getProjectIdList().contains(projectId)) {
+                            returnDTO.getProjectIdList().add(projectId);
                         }
                     });
                 }
+                returnDTO.getScenarioProjectIdMap().put(scenario.getId(), new ArrayList<>(scenarioEnv.getProjectIds()));
             }
         }
-        return projectIdList;
+        return returnDTO;
     }
 
 
