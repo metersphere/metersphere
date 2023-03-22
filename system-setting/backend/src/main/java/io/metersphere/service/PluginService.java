@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -126,19 +127,26 @@ public class PluginService {
 
     public void addPlugin(MultipartFile file, String scenario) {
         checkPluginExist(file);
-        if (StringUtils.equalsIgnoreCase(scenario, PluginScenario.platform.name())) {
-            PluginWithBLOBs plugin = platformPluginService.addPlatformPlugin(file);
-            platformPluginService.notifiedPlatformPluginAdd(plugin.getId());
-        } else {
-            List<PluginWithBLOBs> plugins = apiPluginService.addApiPlugin(file);
-            plugins.forEach(this::addPlugin);
-            // 存入MinIO
-            if (CollectionUtils.isNotEmpty(plugins)) {
-                String pluginId = plugins.get(0).getPluginId();
-                FileRequest request = getRequest(pluginId);
-                fileManagerService.upload(file, request);
+        try {
+            if (StringUtils.equalsIgnoreCase(scenario, PluginScenario.platform.name())) {
+                PluginWithBLOBs plugin = platformPluginService.addPlatformPlugin(file);
+                platformPluginService.notifiedPlatformPluginAdd(plugin.getId());
+            } else {
+                List<PluginWithBLOBs> plugins = apiPluginService.addApiPlugin(file);
+                plugins.forEach(this::addPlugin);
+                // 存入MinIO
+                if (CollectionUtils.isNotEmpty(plugins)) {
+                    String pluginId = plugins.get(0).getPluginId();
+                    FileRequest request = getRequest(pluginId);
+                    fileManagerService.upload(file, request);
+                } else {
+                    MSException.throwException(Translator.get("plugin_parse_error"));
+                }
             }
+        } catch (Exception ex) {
+            MSException.throwException(Translator.get("plugin_parse_error"));
         }
+
     }
 
     private FileRequest getRequest(String pluginId) {
