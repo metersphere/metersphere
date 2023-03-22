@@ -808,13 +808,32 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         if (StringUtils.isNotBlank(type)) {
             if (StringUtils.equals(type, PropertyConstant.ARRAY)) {
-                JSONObject items = requestBody.optJSONObject(PropertyConstant.ITEMS);
+                JSONArray items = requestBody.optJSONArray(PropertyConstant.ITEMS);
+                JSONObject itemProperties = new JSONObject();
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.ARRAY);
-                JSONObject item = buildJsonSchema(items, required);
+                if (items != null) {
+                    JSONObject itemsObject = new JSONObject();
+                    if (items.length() > 0) {
+                        items.forEach(item -> {
+                            if (item instanceof JSONObject) {
+                                JSONObject itemJson = buildJsonSchema((JSONObject) item, required);
+                                if (itemJson != null) {
+                                    Set<String> keys = itemJson.keySet();
+                                    for (String key : keys) {
+                                        itemProperties.put(key, itemJson.get(key));
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    itemsObject.put(PropertyConstant.PROPERTIES, itemProperties);
+                    parsedParam.put(PropertyConstant.ITEMS, itemsObject.optJSONObject(PropertyConstant.PROPERTIES));
+                } else {
+                    parsedParam.put(PropertyConstant.ITEMS, new JSONObject());
+                }
                 if (StringUtils.isNotBlank(requestBody.optString("description"))) {
                     parsedParam.put("description", requestBody.optString("description"));
                 }
-                parsedParam.put(PropertyConstant.ITEMS, item);
             } else if (StringUtils.equals(type, PropertyConstant.OBJECT)) {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
                 JSONObject properties = requestBody.optJSONObject(PropertyConstant.PROPERTIES);
@@ -1004,8 +1023,23 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             property.put("description", obj.optString("description"));
             property.put(PropertyConstant.REQUIRED, obj.optString(PropertyConstant.REQUIRED));
             if (obj.optJSONObject(PropertyConstant.REQUIRED) != null) {
-                JSONObject properties1 = buildFormDataSchema(obj.optJSONObject(PropertyConstant.REQUIRED));
-                property.put(PropertyConstant.REQUIRED, properties1.optJSONObject(PropertyConstant.REQUIRED));
+                JSONObject childProperties = buildFormDataSchema(obj.optJSONObject(PropertyConstant.REQUIRED));
+                property.put(PropertyConstant.REQUIRED, childProperties.optJSONObject(PropertyConstant.REQUIRED));
+            }
+            if (obj.optJSONObject(PropertyConstant.PROPERTIES) != null) {
+                JSONObject childProperties = buildFormDataSchema(obj.optJSONObject(PropertyConstant.PROPERTIES));
+                property.put(PropertyConstant.PROPERTIES, childProperties.optJSONObject(PropertyConstant.PROPERTIES));
+            } else {
+                JSONObject childProperties = buildJsonSchema(obj, new JSONArray());
+                if (StringUtils.equalsIgnoreCase(obj.optString(PropertyConstant.TYPE), PropertyConstant.ARRAY)) {
+                    if (childProperties.optJSONObject(PropertyConstant.ITEMS) != null) {
+                        property.put(PropertyConstant.ITEMS, childProperties.optJSONObject(PropertyConstant.ITEMS));
+                    }
+                } else {
+                    if (childProperties.optJSONObject(PropertyConstant.PROPERTIES) != null) {
+                        property.put(PropertyConstant.PROPERTIES, childProperties.optJSONObject(PropertyConstant.PROPERTIES));
+                    }
+                }
             }
             properties.put(key, property);
         }
@@ -1146,9 +1180,16 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                                 required = jsonObject.optJSONArray(PropertyConstant.REQUIRED);
                             }
                             if (required == null) {
-                                JSONObject items = jsonObject.optJSONObject(PropertyConstant.ITEMS);
-                                if (items != null) {
-                                    required = items.optJSONArray(PropertyConstant.REQUIRED);
+                                JSONArray items = jsonObject.optJSONArray(PropertyConstant.ITEMS);
+                                if (items != null && items.length() > 0) {
+                                    JSONArray finalRequired = new JSONArray();
+                                    items.forEach(item -> {
+                                        if (item instanceof JSONObject) {
+                                            JSONObject itemRequired = ((JSONObject) item).optJSONObject(PropertyConstant.REQUIRED);
+                                            finalRequired.put(itemRequired);
+                                        }
+                                    });
+                                    required = finalRequired;
                                 }
                             }
                             bodyInfo = buildJsonSchema(jsonObject, required);
