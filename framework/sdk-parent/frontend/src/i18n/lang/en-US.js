@@ -1685,7 +1685,7 @@ const message = {
     environment: {
       id: "Environment ID",
       create: "Create environment",
-      name: "Environment Name",
+      name: "Name",
       socket: "Socket",
       condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
