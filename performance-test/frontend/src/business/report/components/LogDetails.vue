@@ -3,6 +3,7 @@
     <el-row :gutter="10">
       <el-col :span="4">
         <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+                   :popper-append-to-body="false"
                    @change="changeInstance(currentInstance)">
           <el-option
             v-for="item in resource"
