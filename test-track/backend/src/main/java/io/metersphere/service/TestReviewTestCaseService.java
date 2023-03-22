@@ -251,7 +251,7 @@ public class TestReviewTestCaseService {
         String reviewPassRule = testCaseReviewService.getTestReview(testCaseReviewTestCase.getReviewId())
                 .getReviewPassRule();
 
-        List<String> users = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
+        List<String> users = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getReviewId());
         Set<String> reviewerSet = users.stream().collect(Collectors.toSet());
 
         comments = filterAgainComments(comments);
@@ -292,7 +292,7 @@ public class TestReviewTestCaseService {
         String originStatus = originReviewTestCase.getStatus();
         String status = originStatus;
 
-        List<String> reviewers = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId());
+        List<String> reviewers = testCaseReviewTestCaseUsersService.getUsersByCaseId(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getReviewId());
 
         Set<String> reviewerSet = reviewers.stream().collect(Collectors.toSet());
 
