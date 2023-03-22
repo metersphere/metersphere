@@ -178,7 +178,7 @@ public class TestPlanScenarioCaseService {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
-    public List<String> relevanceProjectIds(ApiScenarioRequest request) {
+    public ScenarioProjectDTO relevanceProjectIds(ApiScenarioRequest request) {
         request.setNotInTestPlan(true);
         if (request.getAllowedRepeatCase()) {
             request.setNotInTestPlan(false);
