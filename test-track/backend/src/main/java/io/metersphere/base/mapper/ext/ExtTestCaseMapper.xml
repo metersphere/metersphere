@@ -651,9 +651,8 @@
                     #{id}
                 </foreach>
             </if>
-            <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
-                #{request.createTime})
+            <if test="request.relevanceCreateTime > 0">
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.relevanceCreateTime})
             </if>
             <if test="request.createTime >0">
                 and test_case.create_time >= #{request.createTime}

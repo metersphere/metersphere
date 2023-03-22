@@ -590,7 +590,8 @@ export default {
       editableState: false,
       isNameEdit: false,
       useUserStore: {},
-      priorityOptions: []
+      priorityOptions: [],
+      initLatestVersionId: ""
     };
   },
   props: {
@@ -742,7 +743,7 @@ export default {
           (r) => {
             let latestVersion = r.data.filter(version => version.latest);
             if (latestVersion && latestVersion.length === 1 && this.editable) {
-              this.initLatestVersionId = latestVersion[0].id;
+              this.initLatestVersionId = latestVersion[0].id
             }
           }
         );
@@ -1003,7 +1004,7 @@ export default {
         let user = JSON.parse(localStorage.getItem(TokenKey));
         this.form.maintainer = user.id;
         this.form.tags = [];
-        this.form.versionId = this.initLatestVersionId;
+        this.form.versionId = localStorage.getItem("latest-version") || this.initLatestVersionId;
         this.getSelectOptions();
         this.customFieldForm = parseCustomField(
           this.form,
@@ -1082,7 +1083,7 @@ export default {
           //复制的时候只复制当前版本
           testCase.id = getUUID();
           testCase.refId = null;
-          testCase.versionId = this.initLatestVersionId;
+          testCase.versionId = localStorage.getItem("latest-version") || this.initLatestVersionId;
           this.form.id = null;
           testCase.casePublic = false;
         }

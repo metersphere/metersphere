@@ -65,6 +65,10 @@ export default {
         getProjectVersions(projectId)
           .then(response => {
             this.versionOptions = response.data;
+            let latestVersions = this.versionOptions.filter(version => version.latest);
+            if (latestVersions && latestVersions.length === 1) {
+              localStorage.setItem("latest-version", latestVersions[0].id);
+            }
           });
       }
     },
