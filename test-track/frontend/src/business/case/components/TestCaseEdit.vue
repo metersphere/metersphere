@@ -1800,7 +1800,7 @@ export default {
             color: #646a73;
             align-items: center;
             margin-left: px2rem(8);
-            padding: 0.2rem;
+            padding: -1px 0.2rem;
 
             .version-icon {
               width: 20.17px;
