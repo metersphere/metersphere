@@ -1,31 +1,12 @@
 <template>
-  <div class="y-progress" :style="{'width':againPercent + '%','background-color':tip[3].fillStyle || '#ccc'}">
-    <a class="y-progress_text" :style="{'width':((again/total)*100)+'%'}">
-      <span class="y-tooltip" v-text="tip[3].text.replace('X',again>total?total:again)"></span>
-    </a>
+  <div class="y-progress" :style="{'width':'100%','background-color':tip[3].fillStyle || '#ccc'}">
+
     <div
+      v-for="(item, index) in statusCountItems"
+      :key="index"
       class="y-progress_bar"
-      :style="{'width':underwayPercent+ '%','background-color':tip[0].fillStyle || '#000'}"
+      :style="{'width':percent(statusCountItems,index) + '%','background-color':tip[index].fillStyle || '#ccc'}"
     >
-      <a class="y-progress_text" :style="{'width':((underway/total)*100)+'%'}">
-        <span class="y-tooltip" v-text="tip[0].text.replace('X',underway>total?total:underway)"></span>
-      </a>
-    </div>
-    <div
-      class="y-progress_bar"
-      :style="{'width':unPassPercent+'%','background-color':tip[2].fillStyle || '#080'}"
-    >
-      <a class="y-progress_text" :style="{'width':((unPass/total)*100)+'%'}">
-        <span class="y-tooltip" v-text="tip[2].text.replace('X',unPass>total?total:unPass)"></span>
-      </a>
-    </div>
-    <div
-      class="y-progress_bar"
-      :style="{'width':passPercent+'%','background-color':tip[1].fillStyle || '#9c3'}"
-    >
-      <a class="y-progress_text" :style="{'width':((pass/total)*100)+'%'}">
-        <span class="y-tooltip" v-text="tip[1].text.replace('X',pass>total?total:pass)"></span>
-      </a>
     </div>
   </div>
 </template>
@@ -42,52 +23,26 @@ export default {
       type: Number,
       default: 0
     },
-    pass: {
-      type: Number,
-      default: 0
-    },
     tip: {
       type: Array,
       default: () => []
     },
-    unPass: {
-      type: Number,
-      default: 0
+    statusCountItems: {
+      type: Array,
+      default: () => []
     },
-    again: {
-      type: Number,
-      default: 0
-    },
-    underway: {
-      type: Number,
-      default: 0
-    }
   },
-  computed: {
-    passPercent() {
-      if (this.pass >= this.total) {
-        return 1e2;
+  methods: {
+    percent(statusCountItems,index) {
+      var item = 0;
+      for (let i = statusCountItems.length - 1; i >= 0; i--) {
+        item += statusCountItems[i-index].value;
+        if(index===i){
+          var number = parseInt((item / this.total) * 100);
+          return number;
+        }
       }
-      return parseInt((this.pass / this.total) * 100);
-    },
-    unPassPercent() {
-      if (this.unPass >= this.total) {
-        return 1e2;
-      }
-      return parseInt(((this.unPass + this.pass)/this.total) * 100);
-    },
-    againPercent() {
-      if (this.again >= this.total) {
-        return 1e2;
-      }
-      return parseInt(((this.again + this.pass + this.unPass + this.underway)/ this.total) * 100);
-    },
-    underwayPercent() {
-      if (this.underway >= this.total) {
-        return 1e2;
-      }
-      return parseInt(((this.underway + this.pass + this.unPass)/ this.total) * 100);
-    },
+    }
   },
 };
 </script>

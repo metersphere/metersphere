@@ -55,10 +55,7 @@
               <el-tooltip :content="getResultTip(scope.row)"
                           placement="top" :enterable="false" class="item" effect="dark">
                 <ms-yan-progress :total="scope.row.caseCount"
-                               :pass="getResultCount(scope.row, 'Pass')"
-                               :unPass="getResultCount(scope.row, 'UnPass')"
-                               :underway="getResultCount(scope.row, 'Underway')"
-                               :again="getResultCount(scope.row, 'Again')"
+                               :statusCountItems="getResultCount(scope.row)"
                                :tip="tip"/>
               </el-tooltip>
             </template>
@@ -103,10 +100,10 @@ export default {
       pageSize: 5,
       total: 0,
       tip: [
+        {text: "X", fillStyle: '#FFD131'},
         {text: "X", fillStyle: '#AA4FBF'},//评审中
-        {text: "X", fillStyle: '#55B040'},//通过
         {text: "X", fillStyle: '#F76964'},//不通过
-        {text: "X", fillStyle: '#FFD131'}
+        {text: "X", fillStyle: '#55B040'},//通过
       ]
     }
   },
@@ -154,10 +151,16 @@ export default {
     },
     getResultCount(row, status) {
       if (row.statusCountItems) {
-        let result = row.statusCountItems.filter(item => status === item.key);
-        if (result && result.length > 0) {
-          return result[0].value;
-        }
+        let statusCount =
+          [{key: "Pass", value: 0}, {key: "UnPass", value: 0}, {key: "Underway", value: 0}, {key: "Again", value: 0}];
+        row.statusCountItems.forEach(item => {
+          statusCount.forEach(status => {
+            if(item.key===status.key) {
+              status.value = item.value
+            }
+          })
+        });
+        return statusCount;
       }
       return 0;
     },

@@ -26,21 +26,9 @@ let YanProgress1 = {
                     type: Number,
                     default: 0
                 },
-                "pass": {
-                    type: Number,
-                    default: 0
-                },
-                "unPass": {
-                    type: Number,
-                    default: 0
-                },
-                "again": {
-                  type: Number,
-                  default: 0
-                },
-                "underway": {
-                  type: Number,
-                  default: 0
+                "statusCountItems": {
+                  type: Array,
+                  default: () => []
                 },
                 "tip": {
                     type: Array,
