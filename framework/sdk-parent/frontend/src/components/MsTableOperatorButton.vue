@@ -111,7 +111,7 @@ export default {
 <style scoped>
 .text-btn {
   width: auto;
-  height: 22px;
+  height: 25px;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;

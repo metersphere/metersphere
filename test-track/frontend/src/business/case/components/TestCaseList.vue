@@ -85,7 +85,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
+            <a style="cursor:pointer"> {{ scope.row.num }} </a>
           </template>
         </ms-table-column>
 
@@ -98,7 +98,7 @@
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.customNum }} </a>
+            <a style="cursor:pointer"> {{ scope.row.customNum }} </a>
           </template>
         </ms-table-column>
 
@@ -110,7 +110,7 @@
           :label="$t('test_track.case.name')"
           min-width="120">
           <template v-slot:default="scope">
-            <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.name }} </a>
+            <a style="cursor:pointer"> {{ scope.row.name }} </a>
           </template>
         </ms-table-column>
 

@@ -24,7 +24,7 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       @row-click="handleRowClick"
-      :max-height="'calc(100vh - 287px)'"
+      :max-height="maxHeight"
       ref="table">
 
       <el-table-column
@@ -169,6 +169,12 @@ export default {
     };
   },
   props: {
+    maxHeight: {
+      type: String,
+      default() {
+        return 'calc(100vh - 287px)';
+      }
+    },
     screenHeight: {
       type: [String, Number],
       // default: 400,
