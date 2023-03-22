@@ -1249,6 +1249,7 @@ export default {
                 this.routerToEdit(response.data.id);
                 this.form.num = response.data.num;
                 this.form.customNum = response.data.customNum;
+                setTimeout(() => this.initEdit(), 500);
               }
             }
             this.createVersionId = null;
