@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.ApiDefinitionExecResult;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ExtApiDefinitionExecResultProvider {
                     .append("'")
                     .append(result.getId())
                     .append("','")
-                    .append(result.getName().replace("\'", "\\'"))
+                    .append(translate(result.getName()))
                     .append("','")
                     .append(result.getResourceId())
                     .append("','")
@@ -53,5 +54,13 @@ public class ExtApiDefinitionExecResultProvider {
             }
         }
         return sqlList.toString();
+    }
+
+    private String translate(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            name = StringUtils.replace(name, "\'", "\\'");
+            name = StringUtils.replace(name, "${", "$ {");
+        }
+        return name;
     }
 }
