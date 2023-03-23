@@ -444,7 +444,7 @@ export default {
       }
     },
     validateSocket(socket) {
-      if (!socket) return false;
+      if (!socket) return true;
       let urlStr = this.condition.protocol + "://" + socket;
       let url = {};
       try {
