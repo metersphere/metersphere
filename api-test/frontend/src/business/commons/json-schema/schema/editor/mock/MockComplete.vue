@@ -57,6 +57,14 @@ export default {
       mock: { mock: '' },
     };
   },
+  watch: {
+    schema: {
+      handler() {
+          this.schema.mock = this.mock;
+      },
+      deep: true,
+    },
+  },
   created() {
     if (
       this.schema.mock &&
