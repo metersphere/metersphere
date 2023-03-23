@@ -46,7 +46,6 @@
       :highlight-current-row="true"
       :refresh-by-search.sync="refreshBySearch"
       @handlePageChange="initTableData"
-      @handleRowClick="intoEdit"
       @order="initTableData"
       @filter="search"
       @callBackSelect="callBackSelect"
@@ -863,9 +862,6 @@ export default {
     },
     reloadTable() {
       this.$refs.table.resetHeader();
-    },
-    intoEdit(row) {
-      this.handleEdit(row);
     },
     handleEdit(testCase) {
       openCaseEdit({caseId: testCase.id}, this);
