@@ -69,6 +69,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -838,7 +839,7 @@ public class TestPlanService {
         return testPlanReportService.genTestPlanReportBySchedule(planReportId, planId, userId, triggerMode, runModeConfigDTO);
     }
 
-    public String run(String testPlanId, String projectId, String userId, String triggerMode, String planReportId, String executionWay, String apiRunConfig) {
+    public String runTestPlan(String testPlanId, String projectId, String userId, String triggerMode, String planReportId, String executionWay, String apiRunConfig) {
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSON.parseObject(apiRunConfig, RunModeConfigDTO.class);
@@ -920,13 +921,17 @@ public class TestPlanService {
                 LogUtil.error("测试计划执行查询UI用例失败!", e);
             }
         }
+        boolean haveApiCaseExec = false, haveScenarioCaseExec = false, haveLoadCaseExec = false, haveUICaseExec = false;
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
             //执行接口案例任务
             LoggerUtil.info("开始执行测试计划接口用例 " + planReportId);
             try {
                 Map<String, String> apiCaseReportMap = this.executeApiTestCase(triggerMode, planReportId, userId, testPlanId, runModeConfig);
-                for (TestPlanApiDTO dto : apiTestCases) {
-                    dto.setReportId(apiCaseReportMap.get(dto.getId()));
+                if (MapUtils.isNotEmpty(apiCaseReportMap)) {
+                    haveApiCaseExec = true;
+                    for (TestPlanApiDTO dto : apiTestCases) {
+                        dto.setReportId(apiCaseReportMap.get(dto.getId()));
+                    }
                 }
             } catch (Exception e) {
                 apiTestCases = null;
@@ -938,8 +943,11 @@ public class TestPlanService {
             LoggerUtil.info("开始执行测试计划场景用例 " + planReportId);
             try {
                 Map<String, String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
-                for (TestPlanScenarioDTO dto : scenarioCases) {
-                    dto.setReportId(scenarioReportMap.get(dto.getId()));
+                if (MapUtils.isNotEmpty(scenarioReportMap)) {
+                    haveScenarioCaseExec = true;
+                    for (TestPlanScenarioDTO dto : scenarioCases) {
+                        dto.setReportId(scenarioReportMap.get(dto.getId()));
+                    }
                 }
             } catch (Exception e) {
                 scenarioCases = null;
@@ -952,6 +960,9 @@ public class TestPlanService {
             LoggerUtil.info("开始执行测试计划性能用例 " + planReportId);
             try {
                 loadCaseReportMap = perfExecService.executeLoadCase(planReportId, runModeConfig, transformationPerfTriggerMode(triggerMode), reportInfoDTO.getPerformanceIdMap());
+                if (MapUtils.isNotEmpty(loadCaseReportMap)) {
+                    haveLoadCaseExec = true;
+                }
             } catch (Exception e) {
                 LoggerUtil.info("测试报告" + planReportId + "本次执行测试计划性能用例失败！ ", e);
             }
@@ -962,8 +973,11 @@ public class TestPlanService {
             LoggerUtil.info("开始执行测试计划 UI 场景用例 " + planReportId);
             try {
                 Map<String, String> uiScenarioReportMap = this.executeUiScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getUiScenarioIdMap());
-                for (TestPlanUiScenarioDTO dto : uiScenarios) {
-                    dto.setReportId(uiScenarioReportMap.get(dto.getId()));
+                if (MapUtils.isNotEmpty(uiScenarioReportMap)) {
+                    haveUICaseExec = true;
+                    for (TestPlanUiScenarioDTO dto : uiScenarios) {
+                        dto.setReportId(uiScenarioReportMap.get(dto.getId()));
+                    }
                 }
             } catch (Exception e) {
                 uiScenarios = null;
@@ -973,7 +987,20 @@ public class TestPlanService {
 
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiTestCases, scenarioCases, uiScenarios, loadCaseReportMap);
+        if (!haveApiCaseExec && !haveScenarioCaseExec && !haveLoadCaseExec && !haveUICaseExec) {
+            /**
+             *如果没有执行自动化用例，结束测试计划的执行。
+             * 使用异步操作的方式是为了更早的将执行信息回馈给前台。
+             * 不为前台直接返回【无法执行】的报错，是考虑到测试计划内会有功能用例、issue等信息可以进行统计。
+             */
+            this.syncFinishTestPlanExecute(planReportId);
+        }
         return planReportId;
+    }
+
+    @Async
+    void syncFinishTestPlanExecute(String planReportId) {
+        testPlanReportService.testPlanExecuteOver(planReportId, TestPlanReportStatus.COMPLETED.name());
     }
 
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
@@ -1682,7 +1709,7 @@ public class TestPlanService {
         runModeConfig.setTestPlanDefaultEnvMap(testplanRunRequest.getTestPlanDefaultEnvMap());
 
         String apiRunConfig = JSON.toJSONString(runModeConfig);
-        return this.run(testPlanId, testplanRunRequest.getProjectId(),
+        return this.runTestPlan(testPlanId, testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), testplanRunRequest.getExecutionWay(), apiRunConfig);
 
     }

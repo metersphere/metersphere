@@ -60,7 +60,7 @@ public class TestPlanTestJob extends MsScheduleJob {
 
         // 定时任务指定调用微服务的user
         HttpHeaderUtils.runAsUser(baseUserService.getUserDTO(runUserId));
-        testPlanService.run(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(), null, ExecutionWay.RUN.name(), config);
+        testPlanService.runTestPlan(runResourceId, runProjectId, runUserId, ReportTriggerMode.SCHEDULE.name(), null, ExecutionWay.RUN.name(), config);
         HttpHeaderUtils.clearUser();
     }
 
