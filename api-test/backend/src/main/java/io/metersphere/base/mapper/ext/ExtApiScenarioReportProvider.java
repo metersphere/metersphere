@@ -70,7 +70,7 @@ public class ExtApiScenarioReportProvider {
     private String translate(String name) {
         if (StringUtils.isNotBlank(name)) {
             name = StringUtils.replace(name, "\'", "\\'");
-            name = StringUtils.replace(name, "${", "$ {");
+            name = StringUtils.replace(name, "$", "$ ");
         }
         return name;
     }
