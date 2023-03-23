@@ -96,7 +96,7 @@ export default {
       requestArray: [
         {value: "HTTP", label: "HTTP"},
         {value: "TCP", label: "TCP"},
-        {value: "JDBC", label: "JDBC"},
+        {value: "JDBC", label: "SQL"},
         {value: "DUBBO", label: "DUBBO"},
       ],
       scriptExecSort: [],
