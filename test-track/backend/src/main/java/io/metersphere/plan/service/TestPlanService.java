@@ -156,10 +156,6 @@ public class TestPlanService {
     @Resource
     private ObjectMapper objectMapper;
     @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private TestPlanReportMapper testPlanReportMapper;
-    @Resource
     private ApiPoolDebugService apiPoolDebugService;
 
     public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
@@ -2112,4 +2108,14 @@ public class TestPlanService {
         return projectIds.stream().distinct().collect(Collectors.toList());
     }
 
+    public TestPlanReportDataStruct buildTestPlanReportStructByTestPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
+        TestPlanWithBLOBs testPlanWithBLOBs = this.testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
+        TestPlanReportDataStruct testPlanReportDataStruct = new TestPlanReportDataStruct();
+        try {
+            testPlanReportDataStruct = this.buildTestPlanReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent);
+        } catch (Exception e) {
+            LoggerUtil.error("统计测试计划数据出错！", e);
+        }
+        return testPlanReportDataStruct;
+    }
 }
