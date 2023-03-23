@@ -139,13 +139,29 @@ public class TestPlanReportService {
             } catch (Exception e) {
                 LogUtil.error("格式化查询请求参数出错!", e);
             }
-            return extTestPlanReportMapper.list(request);
 
             /*
-             2.8之前的逻辑中，会检查有没有查到成功率，没查到的话重新计算。
-             现在想来，如果没查到就没查到。 报告结束的时候会统计成功率。 报告没结束，也没必要查询成功率。
-             在2.10之前这么处理没有问题时，2.10将去掉这段注释。
+             2.8之前的逻辑中，会检查有没有查到成功率，没查到的话重新计算。 2.8之后成功率的计算和测试数据统计绑定在一起。
+             以下是针对旧数据的处理：如果存在已完成但0成功率为0的报告，进行通过率的计算
              */
+            List<TestPlanReportDTO> testPlanReportDTOList = extTestPlanReportMapper.list(request);
+            for (TestPlanReportDTO testPlanReportDTO : testPlanReportDTOList) {
+                if (StringUtils.equalsAnyIgnoreCase(
+                        testPlanReportDTO.getStatus(),
+                        TestPlanReportStatus.FAILED.name(),
+                        TestPlanReportStatus.COMPLETED.name(),
+                        TestPlanReportStatus.SUCCESS.name())
+                        && (testPlanReportDTO.getPassRate() == null || testPlanReportDTO.getPassRate() == 0)) {
+                    TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportDTO.getId());
+                    TestPlanReportContentWithBLOBs content = this.selectTestPlanReportContentByReportId(testPlanReportDTO.getId());
+                    TestPlanReportDataStruct testPlanReportCountData
+                            = testPlanService.buildTestPlanReportStructByTestPlanReport(testPlanReport, content);
+                    if (testPlanReportCountData != null) {
+                        testPlanReportDTO.setPassRate(testPlanReportCountData.getPassRate());
+                    }
+                }
+            }
+            return testPlanReportDTOList;
         }
     }
 
