@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getProjectId())
                     .append("','")
-                    .append(result.getName().replace("\'", "\\'"))
+                    .append(translate(result.getName()))
                     .append("',")
                     .append(result.getCreateTime())
                     .append(",")
@@ -31,7 +32,7 @@ public class ExtApiScenarioReportProvider {
                     .append("','")
                     .append(result.getExecuteType())
                     .append("','")
-                    .append(result.getScenarioName().replace("\'", "\\'"))
+                    .append(translate(result.getScenarioName()))
                     .append("','")
                     .append(result.getScenarioId())
                     .append("','")
@@ -55,5 +56,12 @@ public class ExtApiScenarioReportProvider {
             }
         }
         return sqlList.toString();
+    }
+    private String translate(String name) {
+        if (StringUtils.isNotBlank(name)) {
+            name = StringUtils.replace(name, "\'", "\\'");
+            name = StringUtils.replace(name, "${", "$ {");
+        }
+        return name;
     }
 }
