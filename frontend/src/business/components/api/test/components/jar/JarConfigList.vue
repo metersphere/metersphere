@@ -30,9 +30,9 @@
         <el-table-column prop="creator" :label="$t('report.user_name')" show-overflow-tooltip/>
         <el-table-column prop="modifier" :label="$t('commons.modifier')" show-overflow-tooltip/>
 
-        <el-table-column prop="scope" :label="$t('作用范围')" show-overflow-tooltip>
+        <el-table-column prop="scope" :label="$t('commons.valid_scope')" show-overflow-tooltip>
           <template v-slot:default="scope">
-            <span>{{ scope.row.resourceType === 'WORKSPACE' ? '工作空间' : '项目' }}</span>
+            <span>{{ scope.row.resourceType === 'WORKSPACE' ? $t('commons.workspace') : $t('commons.project') }}</span>
           </template>
         </el-table-column>
 
