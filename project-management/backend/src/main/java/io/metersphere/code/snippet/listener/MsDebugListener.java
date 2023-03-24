@@ -155,7 +155,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setReportId("send." + this.getName());
                 dto.setToReport(this.getName());
 
-                String console = FixedCapacityUtils.getJmeterLogger(this.getName(), false);
+                String console = FixedCapacityUtils.getJmeterLogger(this.getName());
                 if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         transactionResult.getResponseResult().setConsole(console);//解析误报内容
