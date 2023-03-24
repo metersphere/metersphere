@@ -101,7 +101,7 @@ export default {
           {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
         ],
         driver: [
-          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: ['change','blur']},
         ],
         password: [
           {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
