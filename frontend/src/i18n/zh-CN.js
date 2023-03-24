@@ -573,6 +573,15 @@ export default {
     option_check: '请添加选项值',
     option_value_check: '请填写完整选项值',
   },
+  custom_template: {
+    zentao: "禅道",
+    zentao_default_name: "禅道-默认模版",
+    tapd_default_name: "TAPD-默认模版",
+    jira_default_name: "JIRA-默认模版",
+    zentao_default_description: "禅道默认模版",
+    tapd_default_description: "TAPD默认模版",
+    jira_default_description: "JIRA默认模版"
+  },
   workspace: {
     id: '工作空间ID',
     create: '创建工作空间',

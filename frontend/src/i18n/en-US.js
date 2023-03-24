@@ -571,6 +571,15 @@ export default {
     option_check: 'Please add option values',
     option_value_check: 'Please fill in the full option values',
   },
+  custom_template: {
+    zentao: "Zentao",
+    zentao_default_name: "Zentao-Default Template",
+    tapd_default_name: "TAPD-Default Template",
+    jira_default_name: "JIRA-Default Template",
+    zentao_default_description: "zentao default template",
+    tapd_default_description: "tapd default template",
+    jira_default_description: "jira default template"
+  },
   workspace: {
     id: 'Workspace ID',
     create: 'Create Workspace',
