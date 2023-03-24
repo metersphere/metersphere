@@ -155,7 +155,7 @@ public class TestPlanReportService {
                     TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportDTO.getId());
                     TestPlanReportContentWithBLOBs content = this.selectTestPlanReportContentByReportId(testPlanReportDTO.getId());
                     TestPlanReportDataStruct testPlanReportCountData
-                            = testPlanService.buildTestPlanReportStructByTestPlanReport(testPlanReport, content);
+                            = testPlanService.buildAndUpdateReportStruct(testPlanReport, content);
                     if (testPlanReportCountData != null) {
                         testPlanReportDTO.setPassRate(testPlanReportCountData.getPassRate());
                     }
@@ -546,7 +546,7 @@ public class TestPlanReportService {
     }
 
     //更新测试计划报告的数据结构
-    private void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanReportDataStruct reportStruct) {
+    public void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanReportDataStruct reportStruct) {
         //更新BaseCount统计字段和通过率
         testPlanReportContentWithBLOBs.setPassRate(reportStruct.getPassRate());
         testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(reportStruct));

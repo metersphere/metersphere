@@ -2108,11 +2108,12 @@ public class TestPlanService {
         return projectIds.stream().distinct().collect(Collectors.toList());
     }
 
-    public TestPlanReportDataStruct buildTestPlanReportStructByTestPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
+    public TestPlanReportDataStruct buildAndUpdateReportStruct(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
         TestPlanWithBLOBs testPlanWithBLOBs = this.testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         TestPlanReportDataStruct testPlanReportDataStruct = new TestPlanReportDataStruct();
         try {
             testPlanReportDataStruct = this.buildTestPlanReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent);
+            testPlanReportService.updateReportStructInfo(testPlanReportContent, testPlanReportDataStruct);
         } catch (Exception e) {
             LoggerUtil.error("统计测试计划数据出错！", e);
         }
