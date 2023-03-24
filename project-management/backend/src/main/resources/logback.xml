@@ -263,7 +263,7 @@
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
-            <Pattern>%d [%thread] %-5level %logger{36} %line - %msg%n</Pattern>
+            <Pattern>%d %t %-5level %logger{36} %line - %msg%n</Pattern>
         </encoder>
     </appender>
     <appender name="runLogAppender" class="ch.qos.logback.classic.AsyncAppender">
