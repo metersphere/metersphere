@@ -67,7 +67,7 @@ public class ErrorReportLibraryUtil {
                 }
 
                 //根据配置来筛选断言、获取误报编码、获取接口状态是否是误报
-                AssertionFilterResult filterResult = filterAssertions(passedErrorReportAssertionMap,successAssertionMessageMap,errorAssertionMessageMap,higherThanSuccess,higherThanError);
+                AssertionFilterResult filterResult = filterAssertions(passedErrorReportAssertionMap,successAssertionMessageMap,errorAssertionMessageMap,result.isSuccess(),higherThanSuccess,higherThanError);
                 int filteredSuccessAssertionCount = unMatchErrorReportAssertions.size() + filterResult.filteredSuccessAssertionList.size();
                 unMatchErrorReportAssertions.addAll(filterResult.filteredSuccessAssertionList);
                 unMatchErrorReportAssertions.addAll(filterResult.filteredErrorAssertionList);
@@ -118,7 +118,7 @@ public class ErrorReportLibraryUtil {
     private static AssertionFilterResult filterAssertions(Map<String, List<ResponseAssertionResult>> errorReportAssertionMap,
                                                           Map<String, List<ResponseAssertionResult>> successAssertionMap,
                                                           Map<String, List<ResponseAssertionResult>> errorAssertionMap,
-                                                          boolean higherThanSuccess, boolean higherThanError) {
+                                                          boolean resultIsSuccess,boolean higherThanSuccess, boolean higherThanError) {
         AssertionFilterResult result = new AssertionFilterResult();
         if (MapUtils.isNotEmpty(errorReportAssertionMap)) {
             List<ResponseAssertionResult> removedSuccessList = removeAssertions(errorReportAssertionMap, successAssertionMap, higherThanSuccess);
@@ -144,14 +144,8 @@ public class ErrorReportLibraryUtil {
                 });
             }
 
-            if(MapUtils.isNotEmpty(errorReportAssertionMap)){
-                if (MapUtils.isNotEmpty(errorAssertionMap)) {
-                    if(higherThanError){
-                        result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
-                    }
-                }else if(higherThanSuccess){
-                    result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
-                }else if(MapUtils.isEmpty(successAssertionMap)){
+            if (CollectionUtils.isNotEmpty(result.errorCodeList)) {
+                if ((higherThanError && !resultIsSuccess) || (higherThanSuccess && resultIsSuccess)) {
                     result.requestStatus = ExecuteResult.ERROR_REPORT_RESULT.toString();
                 }
             }
