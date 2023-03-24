@@ -147,7 +147,7 @@ public class TestDataGenerator {
         if (object.has(MINLENGTH)) {
             minLength = object.get(MINLENGTH).getAsInt();
         }
-        String value = RandomStringUtils.randomAlphanumeric(minLength, maxLength);
+        String value = minLength > maxLength ? mockValue.toString() : RandomStringUtils.randomAlphanumeric(minLength, maxLength);
         Object enumObj = analyzeEnumProperty(object);
         String v = enumObj == null ? "" : String.valueOf(enumObj);
         value = StringUtils.isNotBlank(v) ? v : value;
@@ -174,7 +174,7 @@ public class TestDataGenerator {
         } catch (Exception e) {
             return value;
         }
-    } 
+    }
 
     public static Object analyzeInteger(JsonObject object) {
         // 先设置空值

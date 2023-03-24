@@ -58,7 +58,7 @@ export default {
     };
   },
   watch: {
-    schema: {
+    "schema.type": {
       handler() {
           this.schema.mock = this.mock;
       },
