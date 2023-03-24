@@ -466,7 +466,8 @@ export default {
       api_scenario: '未規劃場景',
       ui_element: '未規劃元素',
       ui_scenario: '未規劃場景'
-    }
+    },
+    valid_scope: '作用範圍',
   },
   login: {
     normal_Login: "普通登錄",

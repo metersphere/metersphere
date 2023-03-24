@@ -464,7 +464,8 @@ export default {
       api_scenario: 'default',
       ui_element: 'default',
       ui_scenario: 'default'
-    }
+    },
+    valid_scope: 'scope',
   },
   login: {
     normal_Login: "Normal Login",
