@@ -860,13 +860,33 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         if (StringUtils.isNotBlank(type)) {
             if (StringUtils.equals(type, "array")) {
-                JSONObject items = requestBody.getJSONObject("items");
+                JSONObject itemProperties = new JSONObject();
                 parsedParam.put("type", "array");
-                JSONObject item = buildJsonSchema(items, required);
+                JSONArray items = requestBody.getJSONArray("items");
+                if (items != null) {
+                    JSONObject itemsObject = new JSONObject();
+                    if (items.size() > 0) {
+                        items.forEach(item -> {
+                            if (item instanceof JSONObject) {
+                                JSONObject itemJson = buildJsonSchema((JSONObject) item, required);
+                                if (itemJson != null) {
+                                    Set<String> keys = itemJson.keySet();
+                                    for (String key : keys) {
+                                        itemProperties.put(key, itemJson.get(key));
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    itemsObject.put("properties", itemProperties);
+                    parsedParam.put("items", itemsObject.getJSONObject("properties"));
+                } else {
+                    parsedParam.put("items", new JSONObject());
+                }
+
                 if (StringUtils.isNotBlank(requestBody.getString("description"))) {
                     parsedParam.put("description", requestBody.getString("description"));
                 }
-                parsedParam.put("items", item);
             } else if (StringUtils.equals(type, "object")) {
                 parsedParam.put("type", "object");
                 JSONObject properties = requestBody.getJSONObject("properties");
@@ -1058,8 +1078,19 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             property.put("description", obj.getString("description"));
             property.put("required", obj.getString("required"));
             if (obj.getJSONObject("properties") != null) {
-                JSONObject properties1 = buildFormDataSchema(obj.getJSONObject("properties"));
-                property.put("properties", properties1.getJSONObject("properties"));
+                JSONObject childProperties = buildFormDataSchema(obj.getJSONObject("properties"));
+                property.put("properties", childProperties.getJSONObject("properties"));
+            } else {
+                JSONObject childProperties = buildJsonSchema(obj, new JSONArray());
+                if (StringUtils.equalsIgnoreCase(obj.getString("type"), "array")) {
+                    if (childProperties.getJSONObject("items") != null) {
+                        property.put("items", childProperties.getJSONObject("items"));
+                    }
+                } else {
+                    if (childProperties.getJSONObject("properties") != null) {
+                        property.put("properties", childProperties.getJSONObject("properties"));
+                    }
+                }
             }
             properties.put(key, property);
         }
@@ -1200,9 +1231,16 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                                 required = jsonObject.getJSONArray("required");
                             }
                             if (required == null) {
-                                JSONObject items = jsonObject.getJSONObject("items");
-                                if (items != null) {
-                                    required = items.getJSONArray("required");
+                                JSONArray items = jsonObject.getJSONArray("items");
+                                if (items != null && items.size() > 0) {
+                                    JSONArray finalRequired = new JSONArray();
+                                    items.forEach(item -> {
+                                        if (item instanceof JSONObject) {
+                                            JSONObject itemRequired = ((JSONObject) item).getJSONObject("required");
+                                            finalRequired.add(itemRequired);
+                                        }
+                                    });
+                                    required = finalRequired;
                                 }
                             }
                             bodyInfo = buildJsonSchema(jsonObject, required);
