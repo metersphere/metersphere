@@ -28,7 +28,14 @@ const message = {
     api_template: "Api Template",
     base_fields: 'Base fields',
     template_name: 'Template name',
-    selected_custom_fields: 'Custom fields to be selected'
+    selected_custom_fields: 'Custom fields to be selected',
+    zentao: "Zentao",
+    zentao_default_name: "Zentao-Default Template",
+    tapd_default_name: "TAPD-Default Template",
+    jira_default_name: "JIRA-Default Template",
+    zentao_default_description: "zentao default template",
+    tapd_default_description: "tapd default template",
+    jira_default_description: "jira default template"
   },
   pj_batch_delete: {
     error_library: "Confirm batch delete error library"
