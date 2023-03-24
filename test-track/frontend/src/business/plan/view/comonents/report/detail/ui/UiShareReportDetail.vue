@@ -38,6 +38,7 @@
                   :report="report"
                   :is-share="isShare"
                   :share-id="shareId"
+                  :is-ui="true"
                   v-on:requestResult="requestResult"
                   ref="resultsTree"
                 />
@@ -57,6 +58,7 @@
                   :treeData="fullTreeNodes"
                   ref="failsTree"
                   :errorReport="content.error"
+                  :is-ui="true"
                 />
               </el-tab-pane>
               <!--error step -->
@@ -75,6 +77,7 @@
                   :console="content.console"
                   :treeData="fullTreeNodes"
                   ref="errorReportTree"
+                  :is-ui="true"
                 />
               </el-tab-pane>
               <!-- Not performed step -->
@@ -93,6 +96,7 @@
                   :console="content.console"
                   :treeData="fullTreeNodes"
                   ref="unExecuteTree"
+                  :is-ui="true"
                 />
               </el-tab-pane>
               <!-- console -->
@@ -212,7 +216,7 @@ export default {
       } else if (this.activeName === "errorReport") {
         this.$refs.errorReportTree.filter("errorReport");
       } else if (this.activeName === "unExecute") {
-        this.$refs.unExecuteTree.filter("unexecute");
+        this.$refs.unExecuteTree.filter("PENDING");
       }
     },
     init() {

@@ -41,6 +41,10 @@ export default {
     isShare: Boolean,
     isTemplate: Boolean,
     shareId: String,
+    isUi: {
+      default: false,
+      type: Boolean
+    }
   },
   data() {
     return {
@@ -51,11 +55,6 @@ export default {
     if (this.$refs.resultsTree && this.$refs.resultsTree.root) {
       this.$refs.resultsTree.root.expanded = true;
     }
-  },
-  computed: {
-    isUi() {
-      return this.report && this.report.reportType && this.report.reportType.startsWith("UI");
-    },
   },
   methods: {
     filterNode(value, data) {
@@ -74,7 +73,17 @@ export default {
           }
         } else {
           if (this.isUi) {
-            return data.value.success === false && data.value.startTime > 0;
+            if (value === 'PENDING') {
+              if (data.value.status === 'PENDING') {
+                return true;
+              }
+            } else if (value === 'ERROR') {
+              if (data.value.status === 'ERROR') {
+                return true;
+              }
+            } else {
+              return data.value.success === false && data.value.startTime > 0;
+            }
           } else {
             return data.totalStatus !== 'errorReportResult' && data.value.error > 0;
           }
