@@ -22,7 +22,7 @@ const message = {
     delete: "Delete"
   },
   pj_app_manage: {
-    timing_clean_ui_report: "Regularly clean up ui report",
+    timing_clean_ui_report: "Regularly clean up report",
   },
   custom_template: {
     api_template: "Api Template",
