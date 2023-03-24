@@ -9,7 +9,7 @@
       </el-col>
       <el-col>
         <el-select :disabled="isReadOnly" v-model="jsonPath.option" class="ms-col-type" size="small"
-                   style="width:40%;margin-right: 10px" @change="reload">
+                   style="width:40%;margin-right: 10px" @change="setJSONPathDescription">
           <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
@@ -108,7 +108,8 @@ export default {
     },
     setJSONPathDescription() {
       this.showTip = !this.jsonPath || !this.jsonPath.expression || this.jsonPath.expression.length < 50;
-      this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
+      this.jsonPath.description = this.jsonPath.expression + " " + this.jsonPath.option + ": " + (this.jsonPath.expect ? this.jsonPath.expect : '');
+      this.reload();
     }
   }
 }
