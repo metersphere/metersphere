@@ -296,7 +296,7 @@ const message = {
     type: "Type",
     type_of_num: "Please enter an number type",
     type_of_integer: "Please enter an integer type",
-    validity_period: "Validity Period",
+    validity_period: "Validity",
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: "Dependencies",
@@ -1002,10 +1002,10 @@ const message = {
         can_not_move_repository_file: "Repository file can not move",
       },
     },
-    timing_clean_plan_report: "Regularly clean up test report",
-    timing_clean_api_report: "Regularly clean up api report",
-    timing_clean_load_report: "Regularly clean up performance report",
-    keep_recent: "Keep recent",
+    timing_clean_plan_report: "Regularly clean up report",
+    timing_clean_api_report: "Regularly clean up report",
+    timing_clean_load_report: "Regularly clean up report",
+    keep_recent: "Keep",
     please_select_cleaning_time: "please select cleaning time！",
   },
   member: {
