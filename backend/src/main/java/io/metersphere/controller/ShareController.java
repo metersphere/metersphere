@@ -317,4 +317,9 @@ public class ShareController {
         shareInfoService.validateExpired(shareId);
         return apiReportService.selectReportContent(stepId);
     }
+
+    @GetMapping("/api/definition/report/by/id/{reportId}")
+    public APIReportResult getApiReport(@PathVariable String reportId) {
+        return apiDefinitionService.getReportById(reportId);
+    }
 }

@@ -76,7 +76,7 @@ import {
 } from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {getApiReport, getShareApiReport} from "@/network/api";
+import {getApiReport, getShareApiReport, getShareApiReportByReportId} from "@/network/api";
 import MsRequestResultTail from "@/business/components/api/definition/components/response/RequestResultTail";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -178,12 +178,25 @@ export default {
           this.response = JSON.parse(row.response);
         }
       } else if (this.isShare) {
-        getShareApiReport(this.shareId, row.id, (data) => {
-          if (data && data.content) {
-            this.showResponse = true;
-            this.response = JSON.parse(data.content);
-          }
-        });
+        if (row.reportId) {
+          getShareApiReportByReportId(row.reportId, (data) => {
+            if (data && data.content) {
+              this.showResponse = true;
+              try {
+                this.response = JSON.parse(data.content);
+              } catch (e) {
+                this.response = {};
+              }
+            }
+          });
+        }else {
+          getShareApiReport(this.shareId, row.id, (data) => {
+            if (data && data.content) {
+              this.showResponse = true;
+              this.response = JSON.parse(data.content);
+            }
+          });
+        }
       } else {
         if (row.reportId) {
           let url = "/api/definition/report/get/" + row.reportId;
