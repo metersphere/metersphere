@@ -216,8 +216,8 @@ public class CustomFunctionService {
             LogUtil.error(e.getMessage());
             MSException.throwException(e.getMessage());
         }
-        if (!FixedCapacityUtils.jmeterLogTask.containsKey(reportId)) {
-            FixedCapacityUtils.jmeterLogTask.put(reportId, System.currentTimeMillis());
+        if (!FixedCapacityUtils.containsKey(reportId)) {
+            FixedCapacityUtils.put(reportId,new StringBuffer());
         }
         addDebugListener(reportId, hashTree);
         LocalRunner runner = new LocalRunner(hashTree);
@@ -231,9 +231,9 @@ public class CustomFunctionService {
         return (HashTree) field.get(scriptWrapper);
     }
 
-    private void addDebugListener(String testId, HashTree testPlan) {
+    private void addDebugListener(String reportId, HashTree testPlan) {
         MsDebugListener resultCollector = new MsDebugListener();
-        resultCollector.setName(testId);
+        resultCollector.setName(reportId);
         resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
@@ -242,6 +242,7 @@ public class CustomFunctionService {
         HashTree test = ArrayUtils.isNotEmpty(testPlan.getArray()) ? testPlan.getTree(testPlan.getArray()[0]) : null;
         if (test != null && ArrayUtils.isNotEmpty(test.getArray()) && test.getArray()[0] instanceof ThreadGroup) {
             ThreadGroup group = (ThreadGroup) test.getArray()[0];
+            group.setName(reportId);
             group.setProperty(BackendListenerConstants.MS_DEBUG.name(), true);
         }
         testPlan.add(testPlan.getArray()[0], resultCollector);
