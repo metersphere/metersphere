@@ -27,6 +27,9 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.ext.ExtProjectApplicationService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,9 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.InputSource;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
@@ -675,6 +675,21 @@ public class MockConfigService {
             }
             mockExpectConfigMapper.deleteByExample(example);
         }
+        mockConfigMapper.deleteByExample(configExample);
+    }
+
+    public void deleteMockConfigByApiIds(List<String> apiIds) {
+        MockConfigExample configExample = new MockConfigExample();
+        configExample.createCriteria().andApiIdIn(apiIds);
+        List<MockConfig> mockConfigList = mockConfigMapper.selectByExample(configExample);
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        List<String> mockConfigIds = mockConfigList.stream().map(MockConfig::getId).toList();
+        example.createCriteria().andMockConfigIdIn(mockConfigIds);
+        List<MockExpectConfigWithBLOBs> deleteBlobs = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+        for (MockExpectConfigWithBLOBs model : deleteBlobs) {
+            this.deleteMockExpectFiles(model);
+        }
+        mockExpectConfigMapper.deleteByExample(example);
         mockConfigMapper.deleteByExample(configExample);
     }
 

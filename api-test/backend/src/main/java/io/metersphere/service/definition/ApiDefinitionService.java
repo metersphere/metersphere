@@ -1219,9 +1219,19 @@ public class ApiDefinitionService {
         example.createCriteria().andRefIdIn(refIds);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         List<String> apiIds = apiDefinitions.stream().map(ApiDefinition::getId).collect(Collectors.toList());
-        //删除Api、ApiCase中resourceID被删除了的执行记录
-        apiTestCaseService.deleteBatchByDefinitionId(apiIds);
-        apiDefinitionMapper.deleteByExample(example);
+        if (CollectionUtils.isNotEmpty(apiIds)) {
+            //删除Api、ApiCase中resourceID被删除了的执行记录
+            apiTestCaseService.deleteBatchByDefinitionId(apiIds);
+            apiDefinitionMapper.deleteByExample(example);
+            // 删除附件关系
+            extFileAssociationService.deleteByResourceIds(apiIds);
+            // 删除自定义字段关联关系
+            customFieldApiService.deleteByResourceIds(apiIds);
+            // 删除关系图
+            relationshipEdgeService.delete(apiIds);
+            mockConfigService.deleteMockConfigByApiIds(apiIds);
+            deleteFollows(apiIds);
+        }
     }
 
     public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
