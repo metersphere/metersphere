@@ -153,11 +153,14 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         request.setProtocol(protocol);
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
-        request.setFilters(filters);
+        if (MapUtils.isEmpty(request.getFilters()) || !request.getFilters().containsKey(ApiTestConstants.STATUS)) {
+            request.setFilters(filters);
+        }
         request.setModuleIds(new ArrayList<>());
         if (StringUtils.isNotBlank(versionId)) {
             request.setVersionId(versionId);
         }
+        apiDefinitionService.checkFilterHasCoverage(request);
         List<ApiModuleDTO> countMNodes = extApiDefinitionMapper.moduleCountByCollection(request);
         return getNodeTrees(apiModules, getCountMap(countMNodes));
     }

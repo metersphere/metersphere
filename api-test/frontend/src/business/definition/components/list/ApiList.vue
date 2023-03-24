@@ -47,7 +47,7 @@
           :fields-width="fieldsWidth"
           v-if="this.trashEnable"
           :label="$t('commons.delete_user')"
-          min-width="120" />
+          min-width="120"/>
         <span v-for="item in fields" :key="item.key">
           <ms-table-column prop="num" label="ID" :field="item" min-width="100px" :fields-width="fieldsWidth" sortable>
             <template slot-scope="scope" v-if="!trashEnable">
@@ -65,7 +65,7 @@
             sortable="custom"
             :fields-width="fieldsWidth"
             min-width="120"
-            :field="item" />
+            :field="item"/>
 
           <ms-table-column
             prop="status"
@@ -77,7 +77,7 @@
             :label="$t('api_test.definition.api_status')">
             <template v-slot:default="scope">
               <span class="el-dropdown-link">
-                <api-status :value="scope.row.status" />
+                <api-status :value="scope.row.status"/>
               </span>
             </template>
           </ms-table-column>
@@ -110,13 +110,13 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.request.responsible')" />
+            :label="$t('api_test.definition.request.responsible')"/>
           <ms-table-column
             prop="path"
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_path')" />
+            :label="$t('api_test.definition.api_path')"/>
 
           <ms-table-column
             prop="tags"
@@ -136,10 +136,10 @@
                     effect="plain"
                     :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
                     :content="itemName"
-                    style="margin-left: 0px; margin-right: 2px" />
+                    style="margin-left: 0px; margin-right: 2px"/>
                 </div>
               </el-tooltip>
-              <span />
+              <span/>
             </template>
           </ms-table-column>
 
@@ -183,7 +183,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             min-width="100px"
-            :label="$t('api_test.definition.api_case_number')" />
+            :label="$t('api_test.definition.api_case_number')"/>
 
           <ms-table-column
             :field="item"
@@ -192,7 +192,7 @@
             min-width="100px"
             :label="$t('api_test.definition.api_case_status')">
             <template v-slot:default="{ row }">
-              <ms-api-report-status :status="row.caseStatus" />
+              <ms-api-report-status :status="row.caseStatus"/>
             </template>
           </ms-table-column>
 
@@ -220,9 +220,9 @@
         :change="initTable"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total" />
+        :total="total"/>
     </span>
-    <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList" />
+    <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit
       ref="batchEdit"
@@ -261,8 +261,8 @@ import {
   removeToGcByIds,
   removeToGcByParams,
 } from '@/api/definition';
-import { getMaintainer, getProject } from '@/api/project';
-import { getProjectVersions, versionEnableByProjectId } from '@/api/xpack';
+import {getMaintainer, getProject} from '@/api/project';
+import {getProjectVersions, versionEnableByProjectId} from '@/api/xpack';
 import MsTableHeader from 'metersphere-frontend/src/components/MsTableHeader';
 import MsTableOperator from 'metersphere-frontend/src/components/MsTableOperator';
 import MsTableOperatorButton from 'metersphere-frontend/src/components/MsTableOperatorButton';
@@ -275,16 +275,16 @@ import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import MsBottomContainer from '../BottomContainer';
 import MsBatchEdit from '../basis/BatchEdit';
-import { API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD } from '../../model/JsonData';
-import { downloadFile, operationConfirm } from 'metersphere-frontend/src/utils';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
-import { API_LIST } from 'metersphere-frontend/src/utils/constants';
+import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from '../../model/JsonData';
+import {downloadFile, operationConfirm} from 'metersphere-frontend/src/utils';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {hasLicense} from 'metersphere-frontend/src/utils/permission';
+import {API_LIST} from 'metersphere-frontend/src/utils/constants';
 import MsTableHeaderSelectPopover from 'metersphere-frontend/src/components/table/MsTableHeaderSelectPopover';
 import ApiStatus from '@/business/definition/components/list/ApiStatus';
 import MsTableAdvSearchBar from 'metersphere-frontend/src/components/search/MsTableAdvSearchBar';
-import { API_DEFINITION_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
-import { API_DEFINITION_CONFIGS_TRASH, getProtocolFilter } from '@/business/definition/api-definition';
+import {API_DEFINITION_CONFIGS} from 'metersphere-frontend/src/components/search/search-components';
+import {API_DEFINITION_CONFIGS_TRASH, getProtocolFilter} from '@/business/definition/api-definition';
 import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
 import CaseBatchMove from '@/business/definition/components/basis/BatchMove';
 import {
@@ -475,15 +475,15 @@ export default {
         },
       ],
 
-      statusFiltersTrash: [{ text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash' }],
+      statusFiltersTrash: [{text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'}],
 
       caseStatusFilters: [
         {
           text: this.$t('api_test.home_page.detail_card.unexecute'),
           value: '未执行',
         },
-        { text: this.$t('test_track.review.pass'), value: '通过' },
-        { text: this.$t('test_track.review.un_pass'), value: '未通过' },
+        {text: this.$t('test_track.review.pass'), value: '通过'},
+        {text: this.$t('test_track.review.un_pass'), value: '未通过'},
       ],
       methodFilters: [],
       userFilters: [],
@@ -560,7 +560,7 @@ export default {
     moduleOptionsNew() {
       let moduleOptions = [];
       this.moduleOptions.forEach((node) => {
-        buildNodePath(node, { path: '' }, moduleOptions);
+        buildNodePath(node, {path: ''}, moduleOptions);
       });
       return moduleOptions;
     },
@@ -571,23 +571,25 @@ export default {
     }
     if (this.trashEnable) {
       this.tableOperatorButtons = this.tableTrashOperatorButtons;
-      this.condition.filters = { status: ['Trash'] };
+      this.condition.filters = {status: ['Trash']};
     } else {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
-      this.condition.filters = { status: ['Prepare', 'Underway', 'Completed'] };
+      this.condition.filters = {status: ['Prepare', 'Underway', 'Completed']};
     }
     this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     // 切换tab之后版本查询
     this.condition.versionId = this.currentVersion;
     let protocol;
     if (this.$route && this.$route.params && this.$route.params.type) {
-       protocol = this.$route.params.type;
+      protocol = this.$route.params.type;
     }
     this.initTable(protocol);
     this.getMaintainerOptions();
     this.getVersionOptions();
     this.checkVersionEnable();
     this.getProtocolFilter();
+    //为了跳转的时候把参数传递到模块
+    this.$EventBus.$emit('apiConditionBus', this.condition);
 
     // 通知过来的数据跳转到编辑
     if (this.$route.query.resourceId) {
@@ -625,7 +627,7 @@ export default {
     trashEnable() {
       if (this.trashEnable) {
         this.tableOperatorButtons = this.tableTrashOperatorButtons;
-        this.condition.filters = { status: ['Trash'] };
+        this.condition.filters = {status: ['Trash']};
         this.condition.moduleIds = [];
       } else {
         this.tableOperatorButtons = this.tableUsualOperatorButtons;
@@ -642,7 +644,7 @@ export default {
     setAdvSearchParam() {
       let comp = this.condition.components.find((c) => c.key === 'moduleIds');
       if (comp) {
-        comp.options.params = { protocol: this.currentProtocol };
+        comp.options.params = {protocol: this.currentProtocol};
       }
       let method = this.condition.components.find((c) => c.key === 'method');
       if (method) {
@@ -699,7 +701,7 @@ export default {
       this.condition.projectId = this.projectId;
       if (currentProtocol && ["HTTP", "DUBBO", "SQL", "TCP"].includes(currentProtocol)) {
         this.condition.protocol = currentProtocol;
-      }else if (this.currentProtocol != null) {
+      } else if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
       this.enableOrderDrag = !(this.condition.orders && this.condition.orders.length > 0);
@@ -862,7 +864,7 @@ export default {
       getMaintainer().then((response) => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map((u) => {
-          return { text: u.name, value: u.id };
+          return {text: u.name, value: u.id};
         });
       });
     },
@@ -873,11 +875,11 @@ export default {
             this.versionFilters = response.data
               .filter((u) => u.id === currentVersion)
               .map((u) => {
-                return { text: u.name, value: u.id };
+                return {text: u.name, value: u.id};
               });
           } else {
             this.versionFilters = response.data.map((u) => {
-              return { text: u.name, value: u.id };
+              return {text: u.name, value: u.id};
             });
           }
         });
@@ -957,7 +959,7 @@ export default {
     },
     reductionApi(row) {
       let tmp = JSON.parse(JSON.stringify(row));
-      let rows = { ids: [tmp.id] };
+      let rows = {ids: [tmp.id]};
       rows.projectId = getCurrentProjectID();
       rows.protocol = this.currentProtocol;
       definitionReduction(rows).then(() => {
