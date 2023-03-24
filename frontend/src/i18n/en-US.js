@@ -261,7 +261,7 @@ export default {
     type: "Type",
     type_of_num: "Please enter an number type",
     type_of_integer: "Please enter an integer type",
-    validity_period: 'Validity Period',
+    validity_period: 'Validity',
     please_select_a_deadline: "Please select a deadline",
     relationship: {
       name: 'Dependencies',
@@ -829,11 +829,11 @@ export default {
       compare: 'Compare',
       change_latest_tip: 'This operation will modify the default display of the interface, scene, test case and other list pages, which may take some time. Please wait! '
     },
-    timing_clean_plan_report: "Regularly clean up test report",
-    timing_clean_api_report: "Regularly clean up api report",
-    timing_clean_load_report: "Regularly clean up performance report",
-    timing_clean_ui_report: "Regularly clean up ui report",
-    keep_recent: "Keep recent",
+    timing_clean_plan_report: "Regularly clean up report",
+    timing_clean_api_report: "Regularly clean up report",
+    timing_clean_load_report: "Regularly clean up report",
+    timing_clean_ui_report: "Regularly clean up report",
+    keep_recent: "Keep",
     please_select_cleaning_time: "please select cleaning time！"
   },
   member: {
