@@ -27,7 +27,10 @@
         :fields="fields"
         prop="name">
         <template v-slot="scope">
-          <span v-if="scope.row.system">{{ scope.row.name }}(默认模板)</span>
+          <span v-if="scope.row.system && scope.row.platform === 'Local'">{{ scope.row.name }}-{{ $t('custom_field.default_template') }}</span>
+          <span v-else-if="scope.row.system && scope.row.platform === 'Jira'">{{$t('custom_template.jira_default_name')}}</span>
+          <span v-else-if="scope.row.system && scope.row.platform === 'Zentao'">{{$t('custom_template.zentao_default_name')}}</span>
+          <span v-else-if="scope.row.system && scope.row.platform === 'Tapd'">{{$t('custom_template.tapd_default_name')}}</span>
           <span v-else>{{ scope.row.name }}</span>
         </template>
       </ms-table-column>
@@ -46,6 +49,12 @@
         :label="$t('commons.description')"
         :fields="fields"
         prop="description">
+        <template v-slot="scope">
+          <span v-if="scope.row.system && scope.row.platform === 'Jira'">{{$t('custom_template.jira_default_description')}}</span>
+          <span v-else-if="scope.row.system && scope.row.platform === 'Zentao'">{{$t('custom_template.zentao_default_description')}}</span>
+          <span v-else-if="scope.row.system && scope.row.platform === 'Tapd'">{{$t('custom_template.tapd_default_description')}}</span>
+          <span v-else>{{ scope.row.description }}</span>
+        </template>
       </ms-table-column>
 
       <ms-table-column
@@ -118,8 +127,9 @@ export default {
       issuePlatformMap: {
         Local: 'Metersphere',
         Tapd: 'Tapd',
-        Zentao: '禅道',
+        Zentao: this.$t('custom_template.zentao'),
         AzureDevops: 'Azure Devops',
+        Jira: 'Jira'
       },
       operators: [
         {

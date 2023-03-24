@@ -28,7 +28,14 @@ const message = {
     api_template: "接口模版",
     base_fields: '基础字段',
     template_name: '模版名称',
-    selected_custom_fields: '已选自定义字段'
+    selected_custom_fields: '已选自定义字段',
+    zentao: "禅道",
+    zentao_default_name: "禅道-默认模版",
+    tapd_default_name: "TAPD-默认模版",
+    jira_default_name: "JIRA-默认模版",
+    zentao_default_description: "禅道默认模版",
+    tapd_default_description: "TAPD默认模版",
+    jira_default_description: "JIRA默认模版"
   },
   pj_batch_delete: {
     error_library: "确定批量删除误报库"
