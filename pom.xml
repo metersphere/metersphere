@@ -54,7 +54,7 @@
         <json-lib.version>2.4</json-lib.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <xz.version>1.9</xz.version>
-        <springdoc-openapi-ui.version>2.0.2</springdoc-openapi-ui.version>
+        <springdoc-openapi-ui.version>2.0.4</springdoc-openapi-ui.version>
         <flatten.version>1.2.7</flatten.version>
         <jmeter.version>5.5</jmeter.version>
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
