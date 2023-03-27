@@ -82,6 +82,9 @@ export function parseCustomField(data, template, rules, oldFields) {
           try {
             if (item.type === "richText") {
               setDefaultValue(item, "\"" + customField.textValue + "\"");
+            } else if (item.type === "textarea")  {
+              // 文本框类型取值为textValue
+              setDefaultValue(item, customField.textValue);
             } else {
               setDefaultValue(item, customField.value);
             }
