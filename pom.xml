@@ -88,7 +88,6 @@
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
-        <bind-api-version>3.0.1</bind-api-version>
 
     </properties>
 
