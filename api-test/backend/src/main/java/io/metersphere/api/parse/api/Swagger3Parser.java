@@ -228,7 +228,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), pathParameter.getExample() != null ? String.valueOf(pathParameter.getExample()) : null,
+        rests.add(new KeyValue(pathParameter.getName(),
+                pathParameter.getExample() != null ? String.valueOf(pathParameter.getExample()) : null,
                 getDefaultStringValue(parameter.getDescription())));
     }
 
@@ -238,13 +239,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), cookieParameter.getExample() != null ? String.valueOf(cookieParameter.getExample()) : null,
+        addCookie(headers, cookieParameter.getName(),
+                cookieParameter.getExample() != null ? String.valueOf(cookieParameter.getExample()) : null,
                 getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), headerParameter.getExample() != null ? String.valueOf(headerParameter.getExample()) : null,
+        addHeader(headers, headerParameter.getName(),
+                headerParameter.getExample() != null ? String.valueOf(headerParameter.getExample()) : null,
                 getDefaultStringValue(headerParameter.getDescription()), StringUtils.EMPTY, parameter.getRequired());
     }
 
