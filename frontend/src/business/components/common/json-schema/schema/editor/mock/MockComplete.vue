@@ -13,7 +13,6 @@
       <i slot="suffix" v-if="!disabled && needMock" class="el-input__icon el-icon-edit pointer" @click="advanced(mock)"></i>
     </el-autocomplete>
     <ms-api-variable-advance :show-mock-vars="showMockVars" :scenario-definition="scenarioDefinition" :current-item="mock" ref="variableAdvance"/>
-
   </div>
 </template>
 
@@ -74,9 +73,11 @@
     methods: {
       funcSearch(queryString, cb) {
         let results = [];
-        if(!this.showMockVars){
-          let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-          results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        if(!this.disabled && this.needMock){
+          if(!this.showMockVars){
+            let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+            results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+          }
         }
         // 调用 callback 返回建议列表的数据
         cb(results);
