@@ -682,14 +682,16 @@ public class MockConfigService {
         MockConfigExample configExample = new MockConfigExample();
         configExample.createCriteria().andApiIdIn(apiIds);
         List<MockConfig> mockConfigList = mockConfigMapper.selectByExample(configExample);
-        MockExpectConfigExample example = new MockExpectConfigExample();
         List<String> mockConfigIds = mockConfigList.stream().map(MockConfig::getId).toList();
-        example.createCriteria().andMockConfigIdIn(mockConfigIds);
-        List<MockExpectConfigWithBLOBs> deleteBlobs = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
-        for (MockExpectConfigWithBLOBs model : deleteBlobs) {
-            this.deleteMockExpectFiles(model);
+        if (CollectionUtils.isNotEmpty(mockConfigIds)) {
+            MockExpectConfigExample example = new MockExpectConfigExample();
+            example.createCriteria().andMockConfigIdIn(mockConfigIds);
+            List<MockExpectConfigWithBLOBs> deleteBlobs = mockExpectConfigMapper.selectByExampleWithBLOBs(example);
+            for (MockExpectConfigWithBLOBs model : deleteBlobs) {
+                this.deleteMockExpectFiles(model);
+            }
+            mockExpectConfigMapper.deleteByExample(example);
         }
-        mockExpectConfigMapper.deleteByExample(example);
         mockConfigMapper.deleteByExample(configExample);
     }
 
