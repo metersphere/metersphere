@@ -7,9 +7,9 @@ import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
@@ -51,7 +51,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
             //注：有一特殊情况，swagger2.0 文件里如果在response的parameter参数下的properties的参数里存在 required 为string类型，
             //swagger2.0不会导入，需替换一下
-           sourceStr = replaceStr(sourceStr);
+            sourceStr = replaceStr(sourceStr);
 
             JSONObject jsonObject = JSONUtil.parseObject(sourceStr);
             if (jsonObject.opt("swagger") == null || jsonObject.opt("swagger") == "null" || jsonObject.opt("swagger") == StringUtils.SPACE) {
@@ -265,7 +265,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), getDefaultValue(pathParameter), getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
+        rests.add(new KeyValue(pathParameter.getName(),
+                pathParameter.getExample() != null ? String.valueOf(pathParameter.getExample()) : null,
+                getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
     }
 
     private String getDefaultValue(AbstractSerializableParameter parameter) {
@@ -281,12 +283,16 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), getDefaultValue(cookieParameter), getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(),
+                cookieParameter.getExample() != null ? String.valueOf(cookieParameter.getExample()) : null,
+                getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), getDefaultValue(headerParameter), getDefaultStringValue(headerParameter.getDescription()),
+        addHeader(headers, headerParameter.getName(),
+                headerParameter.getExample() != null ? String.valueOf(headerParameter.getExample()) : null,
+                getDefaultStringValue(headerParameter.getDescription()),
                 StringUtils.EMPTY, parameter.getRequired());
     }
 
