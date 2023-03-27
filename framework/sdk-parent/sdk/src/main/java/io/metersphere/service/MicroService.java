@@ -180,12 +180,12 @@ public class MicroService {
             ResponseEntity<ResultHolder> entity = restTemplate.exchange(chooseService(serviceId, url), HttpMethod.POST, httpEntity, ResultHolder.class);
             return entity.getBody();
         } catch (Exception e) {
+            String massage = "服务调用出错[serviceId:" + serviceId + ",url:" + url + "],错误信息:" + e.getMessage();
+            LogUtil.error(massage, e);
             if (e instanceof HttpServerErrorException) {
                 this.handleHttpServerErrorException((HttpServerErrorException) e);
                 return null;
             }
-            String massage = "服务调用出错[serviceId:" + serviceId + ",url:" + url + "],错误信息:" + e.getMessage();
-            LogUtil.error(massage, e);
             MSException.throwException(massage);
         }
         return null;
