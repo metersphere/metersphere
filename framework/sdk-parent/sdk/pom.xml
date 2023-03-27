@@ -260,6 +260,26 @@
             <artifactId>swagger-parser</artifactId>
             <version>${swagger-parser.version}</version>
         </dependency>
+        <dependency>
+            <artifactId>swagger-core</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <version>${swagger.version}</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <artifactId>swagger-models</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <version>${swagger.version}</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+        <dependency>
+            <artifactId>swagger-annotations</artifactId>
+            <groupId>io.swagger.core.v3</groupId>
+            <version>${swagger.version}</version>
+            <classifier>jakarta</classifier>
+        </dependency>
+
+
         <!-- 执行 js 代码依赖 -->
         <dependency>
             <groupId>org.mozilla</groupId>
