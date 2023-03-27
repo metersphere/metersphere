@@ -259,7 +259,18 @@
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
             <version>${swagger-parser.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>swagger-core</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>swagger-models</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <!-- 执行 js 代码依赖 -->
         <dependency>
             <groupId>org.mozilla</groupId>
