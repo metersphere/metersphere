@@ -313,8 +313,10 @@ export default {
         return this.contentObject.content.defaultValue;
       }
     },
-    getStoryPlatform() {
-      let demandOptions = this.contentObject.content.demandOptions || [];
+    getStoryPlatform(demandOptions) {
+      if (!demandOptions) {
+        demandOptions = this.contentObject.content.demandOptions || [];
+      }
       let optionPlatform = "";
       if (demandOptions.length > 0) {
         for (let i = 0; i < demandOptions.length; i++) {
@@ -323,7 +325,7 @@ export default {
             break;
           }
           if (demandOptions[i].children && demandOptions[i].children.length > 0) {
-            optionPlatform = this.findChilder(
+            optionPlatform = this.getStoryPlatform(
               demandOptions[i].children,
               this.contentObject.content.demandId,
             );
@@ -332,23 +334,10 @@ export default {
       }
       return optionPlatform;
     },
-    findChilder(data, demandId) {
-      let optionPlatform = "";
-      if (data.children && data.children.length > 0) {
-        this.findChilder(
-          data.children,
-          demandId
-        );
+    getStoryLabel(demandOptions) {
+      if (!demandOptions) {
+        demandOptions = this.contentObject.content.demandOptions || [];
       }
-      data.forEach((item) => {
-        if (item.value === demandId) {
-          optionPlatform = this.handleDemandOptionPlatform(item);
-        }
-      });
-      return optionPlatform;
-    },
-    getStoryLabel() {
-      let demandOptions = this.contentObject.content.demandOptions || [];
       let optionPlatform = "";
       if (demandOptions.length > 0) {
         for (let i = 0; i < demandOptions.length; i++) {
@@ -357,7 +346,7 @@ export default {
             break;
           }
           if (demandOptions[i].children && demandOptions[i].children.length > 0) {
-            optionPlatform = this.findDemandOptionLabelChilder(
+            optionPlatform = this.getStoryLabel(
               demandOptions[i].children,
               this.contentObject.content.demandId,
             );
@@ -367,21 +356,6 @@ export default {
           }
         }
       }
-      return optionPlatform;
-    },
-    findDemandOptionLabelChilder(data, demandId) {
-      let optionPlatform = "";
-      if (data.children && data.children.length > 0) {
-        this.findChilder(
-          data.children,
-          demandId
-        );
-      }
-      data.forEach((item) => {
-        if (item.value === demandId) {
-          optionPlatform = this.handleDemandOptionLabel(item);
-        }
-      });
       return optionPlatform;
     },
     handleDemandOptionPlatform(data) {
