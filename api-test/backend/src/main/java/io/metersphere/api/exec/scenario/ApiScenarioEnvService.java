@@ -32,13 +32,13 @@ import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.definition.ApiDefinitionService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -485,9 +485,18 @@ public class ApiScenarioEnvService {
                 String projectName = this.selectNameById(projectId);
                 List<String> envNameList = apiTestEnvironmentService.selectNameByIds(envIdList);
                 if (CollectionUtils.isNotEmpty(envNameList) && StringUtils.isNotEmpty(projectName)) {
-                    returnMap.put(projectName, new ArrayList<>() {{
-                        this.addAll(envNameList);
-                    }});
+                    //考虑到存在不同工作空间下有相同名称的项目，这里还是要检查一下项目名称是否已被记录
+                    if (returnMap.containsKey(projectName)) {
+                        envNameList.forEach(envName -> {
+                            if (!returnMap.get(projectName).contains(envName)) {
+                                returnMap.get(projectName).add(envName);
+                            }
+                        });
+                    } else {
+                        returnMap.put(projectName, new ArrayList<>() {{
+                            this.addAll(envNameList);
+                        }});
+                    }
                 }
             }
         }
@@ -569,7 +578,7 @@ public class ApiScenarioEnvService {
                     String envId = entry.getValue();
                     String projectName = this.selectNameById(projectId);
                     String envName = apiTestEnvironmentService.selectNameById(envId);
-                    if (StringUtils.isNoneEmpty(projectName, envName)) {
+                    if (StringUtils.isNoneEmpty(projectName, envName) && this.isProjectEnvMapNotContainsEnv(returnMap, projectName, envName)) {
                         returnMap.put(projectName, new ArrayList<>() {{
                             this.add(envName);
                         }});
@@ -579,6 +588,15 @@ public class ApiScenarioEnvService {
             }
         }
         return returnMap;
+    }
+
+    private boolean isProjectEnvMapNotContainsEnv(LinkedHashMap<String, List<String>> returnMap, String projectName, String envName) {
+        if (MapUtils.isNotEmpty(returnMap)) {
+            if (returnMap.containsKey(projectName) && CollectionUtils.isNotEmpty(returnMap.get(projectName)) && returnMap.get(projectName).contains(envName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String selectNameById(String projectId) {
