@@ -1,7 +1,7 @@
 <template>
   <div class="batch-operator-layout">
     <div v-if="showOperators && showOperators.length > 0" class="showBtnGroup">
-      <el-button size="small" v-for="(operator, index) in showOperators" :disabled="isDisable(operator)" v-if="isXPack(operator)" @click="click(operator)" :key="index" :class="{'is-delete': operator.isDelete}">
+      <el-button size="small" v-for="(operator, index) in showOperators" :disabled="isDisable(operator)" v-if="isXPack(operator)" v-prevent-re-click @click.native.stop="click(operator)" :key="index" :class="{'is-delete': operator.isDelete}">
         {{operator.name}}
       </el-button>
     </div>
