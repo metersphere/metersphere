@@ -2779,6 +2779,8 @@ public class TestCaseService {
             getTestCaseTestDaoList(TestCaseTestType.uiAutomation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
+        // 根据关联记录时间展示
+        Collections.sort(testCaseTestList, Comparator.comparingLong(TestCaseTestDao::getCreateTime));
         return testCaseTestList;
     }
 
