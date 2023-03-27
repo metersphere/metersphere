@@ -56,15 +56,9 @@
     </ms-aside-container>
     <ms-main-container v-loading="responseLoading">
       <div v-if="showResponse">
-        <micro-app
-          v-if="!isTemplate"
-          route-name="ApiReportView"
-          service="api"
-          :route-params="{
-            isTestPlan: showResponse,
-            response,
-          }"
-        />
+        <el-card v-if="!isTemplate">
+          <ms-request-result-tail :response="response" ref="showRspResult" />
+        </el-card>
         <el-card v-else>
           <ms-request-result-tail
             :response="response"
@@ -107,7 +101,6 @@ import {
   apiDefinitionReportGet,
   apiDefinitionReportGetDb,
 } from "@/api/remote/api/api-definition";
-import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 
 export default {
@@ -116,7 +109,6 @@ export default {
     MsTestPlanApiStatus,
     MsMainContainer,
     MsAsideContainer,
-    MicroApp,
     MsTableColumn,
     MsTable,
     StatusTableItem,
