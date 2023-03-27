@@ -23,7 +23,7 @@ export default {
         },
         legend: {
           orient: "vertical",
-          right: 50,
+          left: "60%",
           bottom: "40%",
           formatter: function (name) {
             return name;

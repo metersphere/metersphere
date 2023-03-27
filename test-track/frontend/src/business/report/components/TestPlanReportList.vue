@@ -47,7 +47,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.report.list.test_plan')"
-          min-width="100"
+          min-width="160"
         />
 
         <ms-table-column
@@ -62,6 +62,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           sortable
+          min-width="120"
           :label="$t('test_track.report.list.create_time')"
           :show-overflow-tooltip="true"
         >
@@ -74,6 +75,7 @@
           prop="triggerMode"
           :field="item"
           :fields-width="fieldsWidth"
+          min-width="120"
           sortable
           :label="$t('test_track.report.list.trigger_mode')"
         >
@@ -86,6 +88,7 @@
           prop="status"
           :field="item"
           :fields-width="fieldsWidth"
+          min-width="100"
           sortable
           :label="$t('commons.status')"
         >
@@ -121,6 +124,7 @@
           :fields-width="fieldsWidth"
           sortable="custom"
           :label="$t('test_track.report.list.run_time')"
+          min-width="120"
         >
           <template v-slot:default="scope">
             <span v-if="scope.row.endTime != null">{{

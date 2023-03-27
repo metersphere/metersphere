@@ -1,8 +1,11 @@
 <template>
   <div class="request-result" v-loading="loading">
-    <ms-request-metric v-if="showMetric" :response="response"/>
-    <ms-response-result :currentProtocol="currentProtocol" :response="response"
-                        :isTestPlan="isTestPlan"/>
+    <ms-request-metric v-if="showMetric" :response="response" />
+    <ms-response-result
+      :currentProtocol="currentProtocol"
+      :response="response"
+      :isTestPlan="isTestPlan"
+    />
   </div>
 </template>
 
@@ -12,7 +15,7 @@ import MsRequestMetric from "./RequestMetric";
 
 export default {
   name: "MsRequestResultTail",
-  components: {MsRequestMetric, MsResponseResult},
+  components: { MsRequestMetric, MsResponseResult },
   props: {
     response: Object,
     currentProtocol: String,
@@ -21,27 +24,22 @@ export default {
       type: Boolean,
       default() {
         return true;
-      }
+      },
     },
     isTestPlan: {
       type: Boolean,
       default() {
         return false;
-      }
-    }
-  },
-  watch: {
-    reportId: {
-      immediate: true,
+      },
     },
   },
   data() {
     return {
       loading: false,
       report: {},
-    }
+    };
   },
-}
+};
 </script>
 
 <style scoped>
@@ -52,13 +50,13 @@ export default {
 }
 
 .request-result .info {
-  background-color: #F9F9F9;
+  background-color: #f9f9f9;
   margin-left: 20px;
   cursor: pointer;
 }
 
 .request-result .method {
-  color: #1E90FF;
+  color: #1e90ff;
   font-size: 14px;
   font-weight: 500;
   line-height: 40px;
@@ -86,20 +84,19 @@ export default {
 }
 
 .sub-result .info {
-  background-color: #FFF;
+  background-color: #fff;
 }
 
 .sub-result .method {
-  border-left: 5px solid #1E90FF;
+  border-left: 5px solid #1e90ff;
   padding-left: 20px;
 }
 
 .sub-result:last-child {
-  border-bottom: 1px solid #EBEEF5;
+  border-bottom: 1px solid #ebeef5;
 }
 
 .request-result .icon.is-active {
   transform: rotate(90deg);
 }
-
 </style>
