@@ -180,18 +180,19 @@
                     <div class="title">{{ $t("case.added_to_public_case") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="copy-row sub-opt-row" @click="copyRow" :style="!hasCopyPermission ? 'cursor: not-allowed' : 'cursor: pointer'">
+                  <div class="copy-row sub-opt-row" @click="copyRow">
                     <div class="icon">
-                      <i class="el-icon-copy-document"></i>
+                      <img :src="!hasDeletePermission ? '/assets/module/figma/icon_copy_outlined_disable.svg' : '/assets/module/figma/icon_copy_outlined.svg'" alt=""/>
                     </div>
-                    <div class="title">{{ $t("commons.copy") }}</div>
+                    <div class="title" :style="!hasDeletePermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.copy") }}</div>
                   </div>
                   <div class="split"></div>
-                  <div class="delete-row sub-opt-row" @click="deleteRow" :style="!hasDeletePermission ? 'cursor: not-allowed' : 'cursor: pointer'">
+                  <div class="delete-row sub-opt-row" @click="deleteRow">
                     <div class="icon">
-                      <i class="el-icon-delete"></i>
+                      <img :src="!hasDeletePermission ? '/assets/module/figma/icon_delete-trash_outlined_disable.svg' :
+                      '/assets/module/figma/icon_delete-trash_outlined_red.svg'" alt=""/>
                     </div>
-                    <div class="title">{{ $t("commons.delete") }}</div>
+                    <div class="title" :style="!hasDeletePermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.delete") }}</div>
                   </div>
                 </div>
                 <div slot="reference">{{ $t("case.more") }}</div>
@@ -2234,38 +2235,18 @@ export default {
 }
 </style>
 <style>
-.attachment-popover {
-  padding: 0 !important;
-  height: 80px;
-  min-width: 120px !important;
-}
-
-.more-opt-item-popover .sub-opt-row .icon img {
-  width: 15px;
-  height: 15px;
-}
-
-.more-opt-item-popover .add-public-row .icon {
-  color: #646a73;
-  margin-top: 4px;
-}
-.more-opt-item-popover .add-public-row .title {
-  color: #1f2329;
-  margin-right: 10px;
-}
-.more-opt-item-popover .add-public-row:hover {
-  background-color: rgba(31, 35, 41, 0.1);
-}
-
+/* 用例编辑头部操作更多popover样式 */
 .more-opt-item-popover {
   padding: 0 !important;
   min-width: 118px !important;
 }
+
 .more-opt-item-popover .opt-row {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .more-opt-item-popover .sub-opt-row {
   display: flex;
   width: 100%;
@@ -2274,52 +2255,52 @@ export default {
   line-height: 32px;
   cursor: pointer;
 }
-.more-opt-item-popover .sub-opt-row .icon {
-  margin-left: 13px;
-  margin-right: 9.33px;
+
+.more-opt-item-popover .sub-opt-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);
 }
+
+.more-opt-item-popover .sub-opt-row .icon img {
+  width: 15px;
+  height: 15px;
+}
+
+.more-opt-item-popover .sub-opt-row .icon {
+  margin: 4px 9.33px 0 13px;
+}
+
 .more-opt-item-popover .sub-opt-row .title {
   font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  /* identical to box height, or 157% */
-
   display: flex;
   align-items: center;
   letter-spacing: -0.1px;
+  color: #1f2329;
+  margin-right: 10px;
 }
+
 .more-opt-item-popover .split {
   width: 170px;
   height: 1px;
   background-color: rgba(31, 35, 41, 0.15);
 }
 
-.more-opt-item-popover .copy-row:hover {
-  background-color: rgba(31, 35, 41, 0.1);;
+.more-opt-item-popover .delete-row {
+  background-color: transparent;
+  padding: 0;
 }
 
-.more-opt-item-popover .copy-row .icon {
-  color: #646a73;
-}
-.more-opt-item-popover .copy-row .title {
-  color: #1f2329;
-}
-
-.more-opt-item-popover .delete-row:hover {
-  background-color: rgba(31, 35, 41, 0.1)!important;
-}
-
-.more-opt-item-popover .delete-row .icon {
-  color: #f54a45;
-}
 .more-opt-item-popover .delete-row .title {
   color: #f54a45;
 }
 
-.more-opt-item-popover .delete-row {
-  background-color: transparent;
-  padding: 0;
+/* 附件上传popover样式 */
+.attachment-popover {
+  padding: 0 !important;
+  height: 80px;
+  min-width: 120px !important;
 }
 </style>
