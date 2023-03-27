@@ -3,25 +3,25 @@ package io.metersphere.api.parse.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.SwaggerApiExportResult;
-import io.metersphere.api.parse.api.swagger.SwaggerApiInfo;
-import io.metersphere.api.parse.api.swagger.SwaggerInfo;
-import io.metersphere.api.parse.api.swagger.SwaggerParams;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.JsonSchemaItem;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.commons.constants.RequestTypeConstants;
+import io.metersphere.api.parse.api.swagger.SwaggerApiInfo;
+import io.metersphere.api.parse.api.swagger.SwaggerInfo;
+import io.metersphere.api.parse.api.swagger.SwaggerParams;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.PropertyConstant;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.i18n.Translator;
 import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtil;
+import io.metersphere.i18n.Translator;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.headers.Header;
@@ -228,7 +228,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), String.valueOf(pathParameter.getExample()), getDefaultStringValue(parameter.getDescription())));
+        rests.add(new KeyValue(pathParameter.getName(),
+                pathParameter.getExample() != null ? String.valueOf(pathParameter.getExample()) : null,
+                getDefaultStringValue(parameter.getDescription())));
     }
 
     private String getDefaultStringValue(String val) {
@@ -237,12 +239,16 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), String.valueOf(cookieParameter.getExample()), getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(),
+                cookieParameter.getExample() != null ? String.valueOf(cookieParameter.getExample()) : null,
+                getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), String.valueOf(headerParameter.getExample()), getDefaultStringValue(headerParameter.getDescription()), StringUtils.EMPTY, parameter.getRequired());
+        addHeader(headers, headerParameter.getName(),
+                headerParameter.getExample() != null ? String.valueOf(headerParameter.getExample()) : null,
+                getDefaultStringValue(headerParameter.getDescription()), StringUtils.EMPTY, parameter.getRequired());
     }
 
     private HttpResponse parseResponse(ApiResponses responses) {
@@ -638,7 +644,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (queryParameter.getExample() != null) {
             return String.valueOf(queryParameter.getExample());
         } else {
-            if (jsonSchemaItem != null && jsonSchemaItem.getDefaultValue()!=null) {
+            if (jsonSchemaItem != null && jsonSchemaItem.getDefaultValue() != null) {
                 return String.valueOf(jsonSchemaItem.getDefaultValue());
             }
             return null;
