@@ -174,7 +174,9 @@ import {
   testPlanLoadCaseSelectAllTableRows, testPlanLoadCaseUpdate, testPlanLoadList
 } from "@/api/remote/plan/test-plan-load-case";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
+import {baseSocket} from "@/api/base-network";
 
+let refreshTable = undefined;
 
 export default {
   name: "TestPlanLoadCaseList",
@@ -278,6 +280,7 @@ export default {
   created() {
     this.initTable();
     this.refreshStatus();
+    this.initWebSocket();
   },
   watch: {
     selectProjectId() {
@@ -323,7 +326,6 @@ export default {
             let obj = {config: config, requests: runArr, userId: getCurrentUser().id};
             this._runBatch(obj);
             this.initTable();
-            this.refreshStatus();
           });
       } else {
         let runArr = [];
@@ -339,7 +341,6 @@ export default {
         let obj = {config: config, requests: runArr, userId: getCurrentUser().id};
         this._runBatch(obj);
         this.initTable();
-        this.refreshStatus();
       }
     },
     _runBatch(loadCases) {
@@ -347,8 +348,10 @@ export default {
       this.$success(this.$t('test_track.plan.load_case.exec'));
       this.$message(this.$t('commons.run_message'));
       this.$refs.taskCenter.open();
-      this.initTable();
-      this.refreshStatus();
+      // 批量执行，10s后刷新一次列表状态，后续执行结果由socket推送
+      refreshTable = window.setTimeout(() => {
+        this.initTable();
+      }, 10 * 1000);
     },
     search() {
       this.currentPage = 1;
@@ -518,9 +521,45 @@ export default {
       });
       window.open(performanceResolve.href, '_blank');
     },
+    initWebSocket() {
+      this.websocket = baseSocket("/plan/load/" + this.planId);
+      this.websocket.onmessage = this.onMessage;
+      this.websocket.onopen = this.onOpen;
+      this.websocket.onerror = this.onError;
+      this.websocket.onclose = this.onClose;
+    },
+    onOpen() {
+    },
+    onError() {
+    },
+    onMessage(e) {
+      if (e.data === 'CONN_SUCCEEDED') {
+        return;
+      }
+      try {
+        let obj = JSON.parse(e.data);
+        let {planCaseId, planCaseStatus, planCaseReportStatus, planCaseReportId} = obj;
+        let data = this.tableData.filter(d => d.id === planCaseId);
+        if (data.length > 0) {
+          data[0]['status'] = planCaseReportStatus;
+          data[0]['caseStatus'] = planCaseStatus;
+          data[0]['loadReportId'] = planCaseReportId;
+        }
+      } catch (ex) {
+        // nothing
+      }
+    },
+    onClose() {
+    },
   },
   beforeDestroy() {
     this.cancelRefresh();
+    if (refreshTable) {
+      window.clearTimeout(refreshTable);
+    }
+    if (this.websocket && this.websocket.close instanceof Function) {
+      this.websocket.close();
+    }
   },
 }
 </script>
