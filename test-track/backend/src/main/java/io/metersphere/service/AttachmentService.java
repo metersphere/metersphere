@@ -468,17 +468,18 @@ public class AttachmentService {
         return fileAttachmentMetadata;
     }
 
-    public FileAttachmentMetadata saveAttachmentByBytes(byte[] bytes, String attachmentType, String belongId, String attachmentName) {
+    public FileAttachmentMetadata saveAttachmentByBytes(InputStream in, String attachmentType, String belongId, String attachmentName) {
         String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
         File parentFile = new File(uploadPath);
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
         try (OutputStream os = new FileOutputStream(uploadPath + "/" + attachmentName)) {
-            InputStream in = new ByteArrayInputStream(bytes);
-            int len = 0;
+            int total = 0;
+            int len;
             byte[] buf = new byte[1024];
             while ((len = in.read(buf)) != -1) {
+                total += len;
                 os.write(buf, 0, len);
             }
             os.flush();
@@ -487,7 +488,7 @@ public class AttachmentService {
             fileAttachmentMetadata.setId(UUID.randomUUID().toString());
             fileAttachmentMetadata.setName(attachmentName);
             fileAttachmentMetadata.setType(getFileTypeWithoutEnum(attachmentName));
-            fileAttachmentMetadata.setSize(Integer.valueOf(bytes.length).longValue());
+            fileAttachmentMetadata.setSize(Integer.valueOf(total).longValue());
             fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
             fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
             fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());

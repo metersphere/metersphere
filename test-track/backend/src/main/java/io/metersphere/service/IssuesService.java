@@ -1135,17 +1135,19 @@ public class IssuesService {
                                               String fileName, String fileKey,
                                               AttachmentModuleRelationMapper batchAttachmentModuleRelationMapper) {
         try {
-            byte[] content = platform.getAttachmentContent(fileKey);
-            if (content == null) {
-                return;
-            }
-            FileAttachmentMetadata fileAttachmentMetadata = attachmentService
-                    .saveAttachmentByBytes(content, AttachmentType.ISSUE.type(), issueId, fileName);
-            AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
-            attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
-            attachmentModuleRelation.setRelationId(issueId);
-            attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
-            batchAttachmentModuleRelationMapper.insert(attachmentModuleRelation);
+            platform.getAttachmentContent(fileKey, (in) -> {
+                if (in == null) {
+                    return;
+                }
+                FileAttachmentMetadata fileAttachmentMetadata = attachmentService
+                        .saveAttachmentByBytes(in, AttachmentType.ISSUE.type(), issueId, fileName);
+                AttachmentModuleRelation attachmentModuleRelation = new AttachmentModuleRelation();
+                attachmentModuleRelation.setAttachmentId(fileAttachmentMetadata.getId());
+                attachmentModuleRelation.setRelationId(issueId);
+                attachmentModuleRelation.setRelationType(AttachmentType.ISSUE.type());
+                batchAttachmentModuleRelationMapper.insert(attachmentModuleRelation);
+            });
+
         } catch (Exception e) {
             LogUtil.error(e);
         }
