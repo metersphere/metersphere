@@ -9,8 +9,10 @@ import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanUiCaseMapper;
 import io.metersphere.dto.TestPlanCaseStatusDTO;
+import io.metersphere.dto.TestPlanLoadCaseStatusDTO;
 import io.metersphere.utils.JsonUtils;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.websocket.LoadCaseStatusHandleSocket;
 import io.metersphere.websocket.UICaseStatusHandleSocket;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
@@ -81,7 +83,21 @@ public class AutomationCaseExecOverService {
             } catch (Exception e) {
                 LoggerUtil.error("ui执行完成发送socket失败！", e);
             }
-
+        }
+        if (testPlanLoadCase != null) {
+            try {
+                String reportStatus = extTestPlanLoadCaseMapper.queryReportStatus(testPlanLoadCase.getLoadReportId());
+                TestPlanLoadCaseStatusDTO loadCaseStatusDTO = TestPlanLoadCaseStatusDTO
+                        .builder()
+                        .planCaseId(testPlanLoadCase.getId())
+                        .planCaseStatus(triggerCaseExecResult)
+                        .planCaseReportId(testPlanLoadCase.getLoadReportId())
+                        .planCaseReportStatus(reportStatus)
+                        .build();
+                LoadCaseStatusHandleSocket.sendMessageSingle(planId, JsonUtils.toJSONString(loadCaseStatusDTO));
+            } catch (Exception e) {
+                LoggerUtil.error("load执行完成发送socket失败！", e);
+            }
         }
     }
 }
