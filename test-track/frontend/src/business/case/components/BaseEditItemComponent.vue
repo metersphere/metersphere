@@ -315,30 +315,74 @@ export default {
     },
     getStoryPlatform() {
       let demandOptions = this.contentObject.content.demandOptions || [];
+      let optionPlatform = "";
       if (demandOptions.length > 0) {
-        let demand = demandOptions.find((item) => {
-          return item.value === this.contentObject.content.demandId;
-        });
-        if (demand) {
-          return this.handleDemandOptionPlatform(demand);
+        for (let i = 0; i < demandOptions.length; i++) {
+          if (demandOptions[i].value === this.contentObject.content.demandId) {
+            optionPlatform = this.handleDemandOptionPlatform(demandOptions[i]);
+            break;
+          }
+          if (demandOptions[i].children && demandOptions[i].children.length > 0) {
+            optionPlatform = this.findChilder(
+              demandOptions[i].children,
+              this.contentObject.content.demandId,
+            );
+          }
         }
       }
-      return "";
+      return optionPlatform;
+    },
+    findChilder(data, demandId) {
+      let optionPlatform = "";
+      if (data.children && data.children.length > 0) {
+        this.findChilder(
+          data.children,
+          demandId
+        );
+      }
+      data.forEach((item) => {
+        if (item.value === demandId) {
+          optionPlatform = this.handleDemandOptionPlatform(item);
+        }
+      });
+      return optionPlatform;
     },
     getStoryLabel() {
       let demandOptions = this.contentObject.content.demandOptions || [];
+      let optionPlatform = "";
       if (demandOptions.length > 0) {
-        let demand = demandOptions.find((item) => {
-          return item.value === this.contentObject.content.demandId;
-        });
-        if (demand) {
-          if (demand.value === "other") {
-            return this.$t("test_track.case.other");
+        for (let i = 0; i < demandOptions.length; i++) {
+          if (demandOptions[i].value === this.contentObject.content.demandId) {
+            optionPlatform = this.handleDemandOptionLabel(demandOptions[i]);
+            break;
           }
-          return this.handleDemandOptionLabel(demand);
+          if (demandOptions[i].children && demandOptions[i].children.length > 0) {
+            optionPlatform = this.findDemandOptionLabelChilder(
+              demandOptions[i].children,
+              this.contentObject.content.demandId,
+            );
+          }
+          if (demandOptions[i].value === "other") {
+            optionPlatform = this.$t("test_track.case.other");
+          }
         }
       }
-      return "";
+      return optionPlatform;
+    },
+    findDemandOptionLabelChilder(data, demandId) {
+      let optionPlatform = "";
+      if (data.children && data.children.length > 0) {
+        this.findChilder(
+          data.children,
+          demandId
+        );
+      }
+      data.forEach((item) => {
+        if (item.value === demandId) {
+          optionPlatform = this.handleDemandOptionLabel(item);
+        }
+      });
+      return optionPlatform;
     },
     handleDemandOptionPlatform(data) {
       if (data.platform) {
