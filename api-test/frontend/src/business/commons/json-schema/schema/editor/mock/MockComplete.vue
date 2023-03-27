@@ -58,9 +58,9 @@ export default {
     };
   },
   watch: {
-    "schema.type": {
+    'schema.type': {
       handler() {
-          this.schema.mock = this.mock;
+        this.schema.mock = this.mock;
       },
       deep: true,
     },
@@ -86,9 +86,11 @@ export default {
   methods: {
     funcSearch(queryString, cb) {
       let results = [];
-      if (!this.showMockVars) {
-        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
-        results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+      if (!this.disabled && this.needMock) {
+        if (!this.showMockVars) {
+          let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+          results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        }
       }
       // 调用 callback 返回建议列表的数据
       cb(results);
