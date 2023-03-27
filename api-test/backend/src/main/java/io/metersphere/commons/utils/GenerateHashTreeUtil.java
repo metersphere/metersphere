@@ -1,8 +1,10 @@
 package io.metersphere.commons.utils;
 
 
+import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.definition.request.controller.MsRetryLoopController;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
@@ -17,21 +19,26 @@ import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
+import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
+import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
+import org.apache.jmeter.samplers.Sampler;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GenerateHashTreeUtil {
+
+    private final static String RETRY = "MsRetry_";
+    private final static String MS_ID = "MS-ID";
+
     public static MsScenario parseScenarioDefinition(String scenarioDefinition) {
         if (StringUtils.isNotEmpty(scenarioDefinition)) {
             MsScenario scenario = JSON.parseObject(scenarioDefinition, MsScenario.class);
@@ -145,18 +152,6 @@ public class GenerateHashTreeUtil {
             testPlan.setProjectJarIds(jarsMap.keySet().stream().toList());
             testPlan.setPoolJarsMap(jarsMap);
             String data = definition;
-            // 失败重试
-            if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                try {
-                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), false);
-                    if (StringUtils.isNotBlank(retryData)) {
-                        data = retryData;
-                    }
-                } catch (Exception e) {
-                    LoggerUtil.error("失败重试脚本生成失败 ", runRequest.getReportId(), e);
-                }
-            }
 
             GenerateHashTreeUtil.parse(data, scenario);
 
@@ -172,6 +167,11 @@ public class GenerateHashTreeUtil {
             config.setReportType(runRequest.getReportType());
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
 
+            // 失败重试
+            if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                generateRetryHashTree(jmeterHashTree, runRequest.getRetryNum());
+            }
+
             LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
         } catch (Exception ex) {
             remakeException(runRequest, ex);
@@ -181,6 +181,36 @@ public class GenerateHashTreeUtil {
 
         LogUtil.info(testPlan.getJmx(jmeterHashTree));
         return jmeterHashTree;
+    }
+
+    public static void generateRetryHashTree(HashTree tree, long retryNum) {
+
+        for (Object key : tree.keySet()) {
+            if (key instanceof HTTPSamplerProxy ||
+                    key instanceof TCPSampler ||
+                    key instanceof JDBCSampler ||
+                    key instanceof DubboSample ||
+                    key instanceof JSR223Sampler) {
+                MsRetryLoopController loopController = new MsRetryLoopController();
+                loopController.setClazzName(MsRetryLoopController.class.getCanonicalName());
+                // 自定义请求才会有MS-ID  如果不加这个 会报错 ConcurrentModificationException
+                String resourceId = ((Sampler) key).getProperty(MS_ID).getStringValue();
+                if (StringUtils.isBlank(resourceId)) {
+                    continue;
+                }
+                loopController.setName(RETRY + resourceId);
+                loopController.setRetryNum(retryNum);
+                loopController.setEnable(true);
+                loopController.setResourceId(UUID.randomUUID().toString());
+                HashTree groupTree = loopController.controller(tree);
+                groupTree.add(key, tree.get(key));
+                tree.remove(key);
+            }
+            HashTree node = tree.get(key);
+            if (node != null && node.size() > 0) {
+                generateRetryHashTree(node, retryNum);
+            }
+        }
     }
 
     public static void remakeException(JmeterRunRequestDTO runRequest, Exception e) {

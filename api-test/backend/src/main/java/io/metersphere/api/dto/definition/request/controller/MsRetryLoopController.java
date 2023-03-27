@@ -73,7 +73,7 @@ public class MsRetryLoopController extends MsTestElement {
         return script;
     }
 
-    private HashTree controller(HashTree tree) {
+    public HashTree controller(HashTree tree) {
         String whileCondition = "${__jexl3(" + "\"${" + ms_current_timer + "}\" !=\"stop\")}";
         HashTree hashTree = tree.add(initWhileController(whileCondition));
         // 添加超时处理，防止死循环
