@@ -630,7 +630,7 @@ public class TestPlanReportService {
                 content.setApiBaseCount(null);
             }
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            TestPlanReportDataStruct apiBaseCountStruct = this.generateTestPlanReportStruct(testPlan, testPlanReport, content);
+            TestPlanReportDataStruct apiBaseCountStruct = this.genReportStruct(testPlan, testPlanReport, content, isRerunningTestPlan);
             if (apiBaseCountStruct.getPassRate() == 1) {
                 testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
             } else if (apiBaseCountStruct.getPassRate() < 1) {
@@ -685,11 +685,11 @@ public class TestPlanReportService {
     }
 
     //构建测试计划报告的数据结构
-    private TestPlanReportDataStruct generateTestPlanReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
+    private TestPlanReportDataStruct genReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent, boolean rebuildReport) {
         TestPlanReportDataStruct returnDTO = null;
         if (testPlanReport != null && reportContent != null) {
             try {
-                returnDTO = testPlanService.buildTestPlanReportStruct(testPlan, testPlanReport, reportContent);
+                returnDTO = testPlanService.buildReportStruct(testPlan, testPlanReport, reportContent, rebuildReport);
                 //查找运行环境
                 this.initRunInformation(returnDTO, testPlanReport);
             } catch (Exception e) {
@@ -1076,7 +1076,7 @@ public class TestPlanReportService {
         }
         if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            testPlanReportDTO = this.generateTestPlanReportStruct(testPlan, testPlanReport, testPlanReportContent);
+            testPlanReportDTO = this.genReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
         }
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
