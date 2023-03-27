@@ -2257,6 +2257,9 @@ public class TestCaseService {
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
+        if (StringUtils.equals(testCaseWithBLOBs.getStatus(), CommonConstants.TrashStatus)) {
+            MSException.throwException(Translator.get("edit_trash_case_error"));
+        }
         request.setNum(testCaseWithBLOBs.getNum());
         this.setNode(request);
         return editTestCase(request);
