@@ -1383,7 +1383,7 @@ public class TestPlanService {
      * @param testPlanReportContentWithBLOBs 测试计划报告内容
      * @return
      */
-    public TestPlanReportDataStruct buildTestPlanReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs) {
+    public TestPlanReportDataStruct buildReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, boolean rebuildReport) {
         TestPlanReportDataStruct testPlanReportStruct = null;
         if (ObjectUtils.allNotNull(testPlanReport, testPlanReportContentWithBLOBs)) {
             Map config = null;
@@ -1392,7 +1392,7 @@ public class TestPlanService {
             }
             testPlanReportStruct = this.getTestPlanReportStructByCreated(testPlanReportContentWithBLOBs);
             //检查是否有已经生成过的测试计划报告内容。如若没有则进行动态计算
-            if (testPlanReportStruct == null) {
+            if (rebuildReport || testPlanReportStruct == null) {
                 //查询测试计划内的用例信息，然后进行测试计划报告的结果统计
                 TestPlanCaseReportResultDTO testPlanExecuteReportDTO = testPlanReportService.selectCaseDetailByTestPlanReport(config, testPlan.getId(), testPlanReportContentWithBLOBs);
                 testPlanReportStruct = initTestPlanReportStructData(
@@ -2112,7 +2112,7 @@ public class TestPlanService {
         TestPlanWithBLOBs testPlanWithBLOBs = this.testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         TestPlanReportDataStruct testPlanReportDataStruct = new TestPlanReportDataStruct();
         try {
-            testPlanReportDataStruct = this.buildTestPlanReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent);
+            testPlanReportDataStruct = this.buildReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent, false);
         } catch (Exception e) {
             LoggerUtil.error("统计测试计划数据出错！", e);
         }
