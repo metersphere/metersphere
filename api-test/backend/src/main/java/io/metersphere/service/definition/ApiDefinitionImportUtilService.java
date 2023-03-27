@@ -422,7 +422,8 @@ public class ApiDefinitionImportUtilService {
             }
         }
         getUrlRepeatOptionMap(optionData, optionMap);
-        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
+        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName()
+                .concat(t.getMethod()).concat(t.getPath()).concat(StringUtils.isBlank(t.getModulePath()) ? "/未规划用例" : t.getModulePath())));
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
         //重复接口的case
         if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
