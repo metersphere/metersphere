@@ -10,21 +10,6 @@
     scene="TEST_CASE"
     ref="fieldTemplateEdit">
 
-    <template v-slot:base>
-      <el-form-item :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')" prop="type"
-                    :label-width="labelWidth">
-        <el-select :disabled="isSystem" filterable v-model="form.type"
-                   :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')">
-          <el-option
-            v-for="item in caseTypeOption"
-            :key="item.value"
-            :label="item.text"
-            :value="item.value">
-          </el-option>
-        </el-select>
-      </el-form-item>
-    </template>
-
     <template v-slot:default>
       <el-form-item :label="$t('test_track.case.name')" prop="caseName" :label-width="labelWidth">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
@@ -56,7 +41,6 @@ import draggable from 'vuedraggable';
 import TemplateComponentEditHeader
   from "./ext/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import {CASE_TYPE_OPTION} from "metersphere-frontend/src/utils/table-constants";
 import CustomFieldFormList from "./CustomFieldFormList";
 import CustomFieldRelateList from "./CustomFieldRelateList";
 import FieldTemplateEdit from "./FieldTemplateEdit";
@@ -107,9 +91,6 @@ export default {
     };
   },
   computed: {
-    caseTypeOption() {
-      return new CASE_TYPE_OPTION();
-    },
     isSystem() {
       return this.form.system;
     }
