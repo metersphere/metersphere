@@ -2,10 +2,14 @@ package io.metersphere.plan.dto;
 
 
 import io.metersphere.base.domain.TestPlanReportContent;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.dto.*;
+import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -62,4 +66,53 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
 
     List<TestPlanUiScenarioDTO> uiAllCases;
     List<TestPlanUiScenarioDTO> uiFailureCases;
+
+    public boolean hasRunningCase() {
+        //判断是否含有运行中的用例。  方法内针对集合不开流是为了不影响后续业务中使用stream
+        if (CollectionUtils.isNotEmpty(apiAllCases)) {
+            List<TestPlanApiDTO> runningCaseList =
+                    apiAllCases.stream().filter(
+                            dto -> StringUtils.equalsAnyIgnoreCase(dto.getExecResult(),
+                                    ApiReportStatus.PENDING.name(),
+                                    ApiReportStatus.RERUNNING.name(),
+                                    ApiReportStatus.RUNNING.name())).toList();
+            if (runningCaseList.size() > 0) {
+                return true;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(scenarioAllCases)) {
+            List<TestPlanScenarioDTO> runningCaseList =
+                    scenarioAllCases.stream().filter(
+                            dto -> StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),
+                                    ApiReportStatus.PENDING.name(),
+                                    ApiReportStatus.RERUNNING.name(),
+                                    ApiReportStatus.RUNNING.name())).toList();
+            if (runningCaseList.size() > 0) {
+                return true;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(loadAllCases)) {
+            List<TestPlanLoadCaseDTO> runningCaseList =
+                    loadAllCases.stream().filter(
+                            dto -> StringUtils.equalsAnyIgnoreCase(dto.getStatus(),
+                                    PerformanceTestStatus.Starting.name(),
+                                    PerformanceTestStatus.Running.name(),
+                                    PerformanceTestStatus.Reporting.name())).toList();
+            if (runningCaseList.size() > 0) {
+                return true;
+            }
+        }
+        if (CollectionUtils.isNotEmpty(uiAllCases)) {
+            List<TestPlanUiScenarioDTO> runningCaseList =
+                    uiAllCases.stream().filter(
+                            dto -> StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),
+                                    ApiReportStatus.PENDING.name(),
+                                    ApiReportStatus.RERUNNING.name(),
+                                    ApiReportStatus.RUNNING.name())).toList();
+            if (runningCaseList.size() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

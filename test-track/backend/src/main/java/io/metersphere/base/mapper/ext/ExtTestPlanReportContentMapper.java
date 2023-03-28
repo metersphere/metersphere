@@ -14,4 +14,6 @@ public interface ExtTestPlanReportContentMapper {
     boolean hasRunningReport(@Param("planId") String planId);
 
     boolean hasRunningReportByPlanIds(@Param("planIds") List<String> planIds);
+
+    boolean isApiBasicCountIsNull(String testPlanReportId);
 }
