@@ -369,6 +369,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
             request.setRepeatCase(true);
         }
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestPlanRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
@@ -378,6 +379,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setNodeIds(null);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestReviewRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         return getNodeTreeWithPruningTreeByCaseCount(testCaseNodes, getCountMap(countMNodes));
     }
 

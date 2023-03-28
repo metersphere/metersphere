@@ -975,6 +975,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> getTestCaseByNotInPlan(QueryTestCaseRequest request) {
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         return extTestCaseMapper.getTestCaseByNotInPlan(request);
     }
 
