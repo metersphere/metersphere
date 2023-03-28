@@ -21,5 +21,7 @@ public class ApiCaseExecutionInfo implements Serializable {
 
     private String version;
 
+    private String reportId;
+
     private static final long serialVersionUID = 1L;
 }

@@ -111,7 +111,7 @@ public class ApiHomeController {
         //本周创建、本周执行、总执行
         long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId, versionId);
         apiCountResult.setCreatedInWeek(dateCountByCreateInThisWeek);
-        long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId, versionId);
+        long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByExecutedInWeek(projectId, ExecutionExecuteTypeEnum.BASIC.name(), versionId);
         apiCountResult.setExecutedTimesInWeek(executedInThisWeekCountNumber);
         long executedCount = apiTestCaseService.countExecutedTimesByProjectId(projectId, ExecutionExecuteTypeEnum.BASIC.name(), versionId);
         apiCountResult.setExecutedTimes(executedCount);

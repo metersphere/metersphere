@@ -2,6 +2,7 @@ package io.metersphere.service.definition;
 
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.RequestResultExpandDTO;
+import io.metersphere.api.dto.automation.InsertExecutionInfoDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -324,7 +325,14 @@ public class ApiDefinitionExecResultService {
                                 String projectId = dto.getExtendedParameters().get("projectId").toString();
                                 ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
                                 String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
-                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), reportResult.getStatus(), triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
+                                InsertExecutionInfoDTO executionSaveDTO = new InsertExecutionInfoDTO(
+                                        apiCase.getId(),
+                                        reportResult.getStatus(),
+                                        triggerMode,
+                                        projectId,
+                                        ExecutionExecuteTypeEnum.TEST_PLAN.name(),
+                                        version, dto.getReportId());
+                                apiCaseExecutionInfoService.insertExecutionInfo(executionSaveDTO);
                             }
                             apiCase.setStatus(reportResult.getStatus());
                             apiCase.setUpdateTime(System.currentTimeMillis());
@@ -344,13 +352,13 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    public long countByTestCaseIDInProjectAndExecutedInThisWeek(String projectId, String version) {
+    public long countByExecutedInWeek(String projectId, String executeType, String version) {
         Date firstTime = DateUtils.getWeedFirstTimeAndLastTime(new Date()).get("firstTime");
         Date lastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date()).get("lastTime");
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, version, firstTime.getTime(), lastTime.getTime());
+            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, executeType, version, firstTime.getTime(), lastTime.getTime());
         }
     }
 

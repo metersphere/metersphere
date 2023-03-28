@@ -426,7 +426,7 @@ public class ApiScenarioReportService {
                 // 更新报告
                 apiScenarioReportMapper.updateByPrimaryKey(report);
                 //场景集合报告，按照集合报告的结果作为场景的最后执行结果
-                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode(), report.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name());
+                scenarioExecutionInfoService.insertExecutionInfoByScenarioIds(report.getScenarioId(), report.getStatus(), report.getTriggerMode(), report.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), report.getId());
                 isActuator = !StringUtils.equals(report.getActuator(), StorageConstants.LOCAL.name());
             }
         }

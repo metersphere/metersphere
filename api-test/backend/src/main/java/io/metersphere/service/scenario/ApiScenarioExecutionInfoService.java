@@ -1,5 +1,6 @@
 package io.metersphere.service.scenario;
 
+import io.metersphere.api.dto.automation.InsertExecutionInfoDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ScenarioExecutionInfoMapper;
@@ -31,19 +32,31 @@ public class ApiScenarioExecutionInfoService {
     private ExtApiScenarioMapper extApiScenarioMapper;
 
     @Lazy
-    public void insertExecutionInfo(String scenarioId, String result, String triggerMode, String projectId, String executeType, String version) {
-        if (StringUtils.isNotEmpty(scenarioId) && StringUtils.isNotEmpty(result)) {
-            ScenarioExecutionInfo executionInfo = new ScenarioExecutionInfo();
-            executionInfo.setResult(result);
-            executionInfo.setSourceId(scenarioId);
-            executionInfo.setId(UUID.randomUUID().toString());
-            executionInfo.setCreateTime(System.currentTimeMillis());
-            executionInfo.setTriggerMode(triggerMode);
-            executionInfo.setProjectId(projectId);
-            executionInfo.setExecuteType(executeType);
-            executionInfo.setVersion(version);
-            scenarioExecutionInfoMapper.insert(executionInfo);
+    public void insertExecutionInfo(InsertExecutionInfoDTO executionSaveDTO) {
+        if (StringUtils.isNotEmpty(executionSaveDTO.getSourceId())
+                && StringUtils.isNotEmpty(executionSaveDTO.getExecResult())
+                && StringUtils.isNotEmpty(executionSaveDTO.getExecReportId())) {
+            //通过场景ID和报告ID检查执行有没有被记录
+            if (!this.hasExecutionRecorded(executionSaveDTO.getSourceId(), executionSaveDTO.getExecReportId())) {
+                ScenarioExecutionInfo executionInfo = new ScenarioExecutionInfo();
+                executionInfo.setResult(executionSaveDTO.getExecResult());
+                executionInfo.setSourceId(executionSaveDTO.getSourceId());
+                executionInfo.setId(UUID.randomUUID().toString());
+                executionInfo.setCreateTime(System.currentTimeMillis());
+                executionInfo.setTriggerMode(executionSaveDTO.getTriggerMode());
+                executionInfo.setProjectId(executionSaveDTO.getProjectId());
+                executionInfo.setExecuteType(executionSaveDTO.getExecuteType());
+                executionInfo.setVersion(executionSaveDTO.getVersion());
+                executionInfo.setReportId(executionSaveDTO.getExecReportId());
+                scenarioExecutionInfoMapper.insert(executionInfo);
+            }
         }
+    }
+
+    public boolean hasExecutionRecorded(String sourceId, String reportId) {
+        ScenarioExecutionInfoExample example = new ScenarioExecutionInfoExample();
+        example.createCriteria().andSourceIdEqualTo(sourceId).andReportIdEqualTo(reportId);
+        return scenarioExecutionInfoMapper.countByExample(example) > 0;
     }
 
     @Lazy
@@ -52,26 +65,50 @@ public class ApiScenarioExecutionInfoService {
             return;
         }
         if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-            this.insertExecutionInfo(dto.getTestId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.TEST_PLAN.name(), apiScenario.getVersionId());
+            InsertExecutionInfoDTO saveDTO = new InsertExecutionInfoDTO(
+                    dto.getTestId(),
+                    scenarioReport.getStatus(),
+                    scenarioReport.getTriggerMode(),
+                    scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(),
+                    ExecutionExecuteTypeEnum.TEST_PLAN.name(),
+                    apiScenario.getVersionId(),
+                    scenarioReport.getId());
+            this.insertExecutionInfo(saveDTO);
         } else {
-            this.insertExecutionInfo(scenarioReport.getScenarioId(), scenarioReport.getStatus(), scenarioReport.getTriggerMode(), scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(), ExecutionExecuteTypeEnum.BASIC.name(), apiScenario.getVersionId());
+            InsertExecutionInfoDTO saveDTO = new InsertExecutionInfoDTO(
+                    scenarioReport.getScenarioId(),
+                    scenarioReport.getStatus(),
+                    scenarioReport.getTriggerMode(),
+                    scenarioReport.getProjectId() == null ? apiScenario.getProjectId() : scenarioReport.getProjectId(),
+                    ExecutionExecuteTypeEnum.BASIC.name(),
+                    apiScenario.getVersionId(),
+                    scenarioReport.getId());
+            this.insertExecutionInfo(saveDTO);
         }
     }
 
-    public void insertExecutionInfoByScenarioList(List<ApiScenario> apiScenarios, String status, String triggerMode, String projectId, String executeType) {
+    public void insertExecutionInfoByScenarioList(List<ApiScenario> apiScenarios, String status, String triggerMode, String projectId, String executeType, String reportId) {
         for (ApiScenario apiScenario : apiScenarios) {
-            this.insertExecutionInfo(apiScenario.getId(), status, triggerMode, projectId, executeType, apiScenario.getVersionId());
+            InsertExecutionInfoDTO saveDTO = new InsertExecutionInfoDTO(
+                    apiScenario.getId(),
+                    status,
+                    triggerMode,
+                    projectId,
+                    executeType,
+                    apiScenario.getVersionId(),
+                    reportId);
+            this.insertExecutionInfo(saveDTO);
         }
     }
 
-    public void insertExecutionInfoByScenarioIds(String scenarioIdJsonString, String status, String triggerMode, String projectId, String executeType) {
+    public void insertExecutionInfoByScenarioIds(String scenarioIdJsonString, String status, String triggerMode, String projectId, String executeType, String reportId) {
         try {
             List<String> scenarioIdList = JSON.parseArray(scenarioIdJsonString, String.class);
             if (CollectionUtils.isNotEmpty(scenarioIdList)) {
                 ApiScenarioExample example = new ApiScenarioExample();
                 example.createCriteria().andIdIn(scenarioIdList);
                 List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
-                this.insertExecutionInfoByScenarioList(apiScenarios, status, triggerMode, projectId, executeType);
+                this.insertExecutionInfoByScenarioList(apiScenarios, status, triggerMode, projectId, executeType, reportId);
             }
         } catch (Exception e) {
             LogUtil.error("解析场景ID的JSON" + scenarioIdJsonString + "失败！", e);

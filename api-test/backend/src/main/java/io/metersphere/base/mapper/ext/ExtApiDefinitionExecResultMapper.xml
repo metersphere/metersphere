@@ -30,6 +30,9 @@
         <if test="version != null">
             AND version = #{version}
         </if>
+        <if test="executeType != null">
+            AND execute_type = #{executeType}
+        </if>
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 

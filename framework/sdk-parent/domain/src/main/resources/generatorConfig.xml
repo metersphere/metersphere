@@ -63,7 +63,9 @@
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="custom_field"/>
+        <table tableName="api_execution_info"/>
+        <table tableName="api_case_execution_info"/>
+        <table tableName="scenario_execution_info"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
