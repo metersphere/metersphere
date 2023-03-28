@@ -1300,7 +1300,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private void removeSameData(Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap,
                                 List<ApiDefinitionWithBLOBs> optionDatas, Map<String, ApiModule> moduleMap, String versionId, List<ApiTestCaseWithBLOBs> optionDataCases) {
-
+        Map<String, ApiModule> parentIdModuleMap = new HashMap<>();
+        for (ApiModule value : moduleMap.values()) {
+            parentIdModuleMap.put(value.getParentId(), value);
+        }
         Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionDatas.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
@@ -1310,7 +1313,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 String modulePath = apiDefinitionWithBLOBs.getModulePath();
                 List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
                 if (moduleDatas != null && moduleDatas.size() <= 1) {
-                    moduleMap.remove(modulePath);
+                    ApiModule apiModule = moduleMap.get(modulePath);
+                    if (parentIdModuleMap.get(apiModule.getId()) == null) {
+                        moduleMap.remove(modulePath);
+                    }
                     moduleDatas.remove(apiDefinitionWithBLOBs);
                 }
                 //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
