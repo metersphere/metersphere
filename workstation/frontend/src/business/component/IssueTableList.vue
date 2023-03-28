@@ -394,29 +394,7 @@ export default {
         }
       }
       if (this.isToDo) {
-        let statusFieldId = null;
-        this.issueTemplate.customFields.forEach(field => {
-          if (field.name === '状态') {
-            statusFieldId = field.id;
-          }
-        });
-        if (statusFieldId) {
-          this.page.condition.combine.platformStatus = [
-            {
-              id: statusFieldId,
-              operator: 'not in',
-              value: [
-                'closed',
-                '已关闭',
-                'resolved',
-                'Done',
-                'verified'
-              ],
-              type: 'select'
-            }
-          ];
-        }
-        this.page.condition.combine.platformStatus = {
+        this.page.condition.combine.doneStatus = {
           operator: "not in",
           value: [
             'closed',

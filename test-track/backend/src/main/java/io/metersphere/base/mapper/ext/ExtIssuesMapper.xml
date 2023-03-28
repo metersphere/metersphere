@@ -339,6 +339,26 @@
                 <property name="object" value="${condition}.platformStatus"/>
             </include>
         </if>
+        <!--  我的待办中替换过滤条件platformStatus为doneStatus, 单独过滤出待办的缺陷-->
+        <if test="${condition}.doneStatus != null">
+            and (
+                (
+                    issues.platform != 'Local' and
+                    issues.platform_status
+                    <include refid="condition">
+                        <property name="object" value="${condition}.doneStatus"/>
+                    </include>
+                )
+                or
+                (
+                    issues.platform = 'Local' and
+                    issues.status
+                    <include refid="condition">
+                        <property name="object" value="${condition}.doneStatus"/>
+                    </include>
+                )
+            )
+        </if>
         <if test="${condition}.followPeople != null">
             and issues.id in (
             select issue_id from issue_follow where follow_id
