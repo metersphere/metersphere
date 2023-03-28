@@ -42,7 +42,7 @@ export default {
   props: {
     width: {
       type: Number,
-      default: 1200,
+      default: 1152,
     },
     dialogTitle: {
       type: String,
@@ -56,7 +56,7 @@ export default {
       if (!isNaN(this.width)) {
         //计算rem
         let remW = (this.width / 1440) * 100;
-        let standW = (1200 / 1440) * 100;
+        let standW = (1152 / 1440) * 100;
         return remW > standW ? remW : standW + "%";
       }
       return this.width;
