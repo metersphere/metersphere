@@ -277,8 +277,9 @@ export default {
 }
 
 .container {
-  padding: 0px !important;
+  padding: 0!important;
   height: calc(100vh);
+  background-color: #F5F6F7;
 }
 
 .ms-aside-left {

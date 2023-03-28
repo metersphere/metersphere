@@ -38,218 +38,232 @@
       <div class="tab-pane-wrap">
         <el-tabs v-model="caseActiveName" @tab-click="tabClick">
           <el-tab-pane :label="$t('case.use_case_detail')" name="detail">
-            <div class="content-conatiner">
-              <div class="case-name-row">
-                <div class="case-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">{{ $t("case.case_name") }}</div>
-                  <div class="required required-item"></div>
-                </div>
-                <div class="content-wrap">
-                  <div class="opt-row">
-                    <case-diff-text
-                      :diffInfo="contentDiffData.caseName"
-                    ></case-diff-text>
+            <el-scrollbar>
+              <div class="content-container">
+                <div class="case-name-row">
+                  <div class="case-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">{{ $t("case.case_name") }}</div>
+                    <div class="required required-item"></div>
+                  </div>
+                  <div class="content-wrap">
+                    <div class="opt-row">
+                      <case-diff-text
+                        :diffInfo="contentDiffData.caseName"
+                      ></case-diff-text>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <!-- pre condition -->
-              <div class="pre-condition-row">
-                <div class="condition-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">
-                    {{ $t("case.preconditions") }}
+                <!-- pre condition -->
+                <div class="pre-condition-row">
+                  <div class="condition-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">
+                      {{ $t("case.preconditions") }}
+                    </div>
+                  </div>
+                  <div class="content-wrap">
+                    <div class="opt-row">
+                      <case-diff-text
+                        :diffInfo="contentDiffData.prerequisite"
+                      ></case-diff-text>
+                    </div>
                   </div>
                 </div>
-                <div class="content-wrap">
-                  <div class="opt-row">
-                    <case-diff-text
-                      :diffInfo="contentDiffData.prerequisite"
-                    ></case-diff-text>
-                  </div>
-                </div>
-              </div>
 
-              <!-- step description -->
-              <div class="step-desc-row">
-                <!-- 类型切换 -->
-                <div class="step-desc-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">
-                    {{
-                      contentDiffData.stepModel === "TEXT"
-                        ? $t("test_track.case.text_describe")
-                        : $t("test_track.case.step_describe")
-                    }}
+                <!-- step description -->
+                <div class="step-desc-row">
+                  <!-- 类型切换 -->
+                  <div class="step-desc-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">
+                      {{
+                        contentDiffData.stepModel === "TEXT"
+                          ? $t("test_track.case.text_describe")
+                          : $t("test_track.case.step_describe")
+                      }}
+                    </div>
+                    <div class="update-type-row title-wrap"></div>
                   </div>
-                  <div class="update-type-row title-wrap"></div>
-                </div>
-                <!-- 文本描述 -->
-                <div class="content-wrap">
-                  <div class="opt-row">
-                    <case-diff-text
-                      :diffInfo="contentDiffData.stepDescription"
-                    ></case-diff-text>
+                  <!-- 文本描述 -->
+                  <div class="content-wrap">
+                    <div class="opt-row">
+                      <case-diff-text
+                        :diffInfo="contentDiffData.stepDescription"
+                      ></case-diff-text>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- expect -->
-              <div
-                class="expect-row"
-                v-if="contentDiffData.stepModel === 'TEXT'"
-              >
-                <div class="expect-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">
-                    {{ $t("test_track.case.expected_results") }}
+                <!-- expect -->
+                <div
+                  class="expect-row"
+                  v-if="contentDiffData.stepModel === 'TEXT'"
+                >
+                  <div class="expect-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">
+                      {{ $t("test_track.case.expected_results") }}
+                    </div>
+                  </div>
+                  <div class="content-wrap">
+                    <div class="opt-row">
+                      <case-diff-text
+                        :diffInfo="contentDiffData.expectedResult"
+                      ></case-diff-text>
+                    </div>
                   </div>
                 </div>
-                <div class="content-wrap">
-                  <div class="opt-row">
-                    <case-diff-text
-                      :diffInfo="contentDiffData.expectedResult"
-                    ></case-diff-text>
-                  </div>
-                </div>
-              </div>
 
-              <!-- remark -->
-              <div class="remark-row">
-                <div class="remark-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">{{ $t("commons.remark") }}</div>
-                </div>
-                <div class="content-wrap">
-                  <div class="opt-row">
-                    <case-diff-text
-                      :diffInfo="contentDiffData.remark"
-                    ></case-diff-text>
+                <!-- remark -->
+                <div class="remark-row">
+                  <div class="remark-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">{{ $t("commons.remark") }}</div>
+                  </div>
+                  <div class="content-wrap">
+                    <div class="opt-row">
+                      <case-diff-text
+                        :diffInfo="contentDiffData.remark"
+                      ></case-diff-text>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- 附件 -->
-              <div class="attachment-row">
-                <div class="attachment-name case-title-wrap case-content-wrap">
-                  <div class="name title-wrap">{{ $t("case.attachment") }}</div>
-                </div>
-                <div class="content-wrap">
-                  <!-- 添加附件 -->
-                  <!-- tip -->
-                  <div class="opt-btn">
-                    <div class="attachment-preview" v-if="showAttachment">
-                      <case-attachment-viewer
-                        :tableData="attachmentDiffData"
-                        :isCopy="false"
-                        :readOnly="true"
-                        :is-delete="false"
-                      ></case-attachment-viewer>
-                      <div v-if="!showAttachment">{{ $t("case.none") }}</div>
+                <!-- 附件 -->
+                <div class="attachment-row">
+                  <div class="attachment-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">{{ $t("case.attachment") }}</div>
+                  </div>
+                  <div class="content-wrap">
+                    <!-- 添加附件 -->
+                    <!-- tip -->
+                    <div class="opt-btn">
+                      <div class="attachment-preview" v-if="showAttachment">
+                        <case-attachment-viewer
+                          :tableData="attachmentDiffData"
+                          :isCopy="false"
+                          :readOnly="true"
+                          :is-delete="false"
+                        ></case-attachment-viewer>
+                        <div v-if="!showAttachment">{{ $t("case.none") }}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </el-scrollbar>
           </el-tab-pane>
           <!-- 关联测试用例 -->
           <el-tab-pane
             :label="$t('case.associate_test_cases')"
             name="associateTestCases"
           >
-            <div class="content-conatiner">
-              <case-diff-test-relate
-                :tableData="testCaseRelateData"
-              ></case-diff-test-relate>
-            </div>
+            <el-scrollbar>
+              <div class="content-container">
+                <case-diff-test-relate
+                  :tableData="testCaseRelateData"
+                ></case-diff-test-relate>
+              </div>
+            </el-scrollbar>
           </el-tab-pane>
           <!-- 关联缺陷 -->
           <el-tab-pane
             :label="$t('test_track.case.relate_issue')"
             name="associatedDefects"
           >
-            <div class="content-conatiner">
-              <case-diff-issue-relate
-                :tableData="issuesData"
-              ></case-diff-issue-relate>
-            </div>
+            <el-scrollbar>
+              <div class="content-container">
+                <case-diff-issue-relate
+                  :tableData="issuesData"
+                ></case-diff-issue-relate>
+              </div>
+            </el-scrollbar>
           </el-tab-pane>
           <!-- 依赖关系 -->
           <el-tab-pane :label="$t('case.dependencies')" name="dependencies">
-            <div class="content-conatiner">
-              <case-diff-relationship
-                :resourceId="caseId"
-                :preTableData="preTableData"
-                :postTableData="postTableData"
-              ></case-diff-relationship>
-            </div>
+            <el-scrollbar>
+              <div class="content-container">
+                <case-diff-relationship
+                  :resourceId="caseId"
+                  :preTableData="preTableData"
+                  :postTableData="postTableData"
+                ></case-diff-relationship>
+              </div>
+            </el-scrollbar>
           </el-tab-pane>
           <!-- 评论 -->
           <el-tab-pane :label="$t('case.comment')" name="comment">
-            <div class="content-conatiner">
-              <case-comment-viewer
-                :readOnly="true"
-                :comments="diffCommentsData"
-              ></case-comment-viewer>
-            </div>
+            <el-scrollbar>
+              <div class="content-container">
+                <case-comment-viewer
+                  :readOnly="true"
+                  :comments="diffCommentsData"
+                ></case-comment-viewer>
+              </div>
+            </el-scrollbar>
           </el-tab-pane>
           <!-- 变更记录 -->
           <!-- <el-tab-pane :label="$t('case.change_record')" name="changeRecord">
-            <div class="content-conatiner"></div>
+            <div class="content-container"></div>
           </el-tab-pane> -->
         </el-tabs>
       </div>
-      <div class="base-info-wrap">
-        <!-- 所属模块 -->
-        <div class="module-row">
-          <div class="case-title-wrap">
-            <div class="name title-wrap">
-              {{ $t("test_track.case.module") }}
+      <div class="content-base-info-wrap">
+        <el-scrollbar>
+          <div class="base-info-wrap">
+            <!-- 所属模块 -->
+            <div class="module-row">
+              <div class="case-title-wrap">
+                <div class="name title-wrap">
+                  {{ $t("test_track.case.module") }}
+                </div>
+                <div class="required required-item"></div>
+              </div>
+              <case-diff-text :diffInfo="baseInfoDiffData.modules"></case-diff-text>
             </div>
-            <div class="required required-item"></div>
-          </div>
-          <case-diff-text :diffInfo="baseInfoDiffData.modules"></case-diff-text>
-        </div>
-        <!-- 自定义字段 -->
-        <div
-          class="module-row item-row"
-          v-for="(item, index) in customDiffData"
-          :key="index"
-        >
-          <div class="case-title-wrap">
-            <div class="name title-wrap">
-              {{ item.key }}
+            <!-- 自定义字段 -->
+            <div
+              class="module-row item-row"
+              v-for="(item, index) in customDiffData"
+              :key="index"
+            >
+              <div class="case-title-wrap">
+                <div class="name title-wrap">
+                  {{ item.key }}
+                </div>
+                <div class="required required-item" v-if="item.required"></div>
+              </div>
+              <case-diff-text
+                :diffInfo="[{ diffArr: item.value }]"
+              ></case-diff-text>
             </div>
-            <div class="required required-item" v-if="item.required"></div>
-          </div>
-          <case-diff-text
-            :diffInfo="[{ diffArr: item.value }]"
-          ></case-diff-text>
-        </div>
-        <!-- 关联需求 -->
-        <div class="module-row item-row">
-          <div class="case-title-wrap">
-            <div class="name title-wrap">
-              {{ $t("test_track.related_requirements") }}
+            <!-- 关联需求 -->
+            <div class="module-row item-row">
+              <div class="case-title-wrap">
+                <div class="name title-wrap">
+                  {{ $t("test_track.related_requirements") }}
+                </div>
+                <div class="required required-item"></div>
+              </div>
+              <case-diff-text :diffInfo="baseInfoDiffData.story"></case-diff-text>
             </div>
-            <div class="required required-item"></div>
-          </div>
-          <case-diff-text :diffInfo="baseInfoDiffData.story"></case-diff-text>
-        </div>
-        <!-- 需求ID/名称 -->
-        <div class="module-row item-row">
-          <div class="case-title-wrap">
-            <div class="name title-wrap">
-              {{ $t("test_track.case.demand_name_id") }}
+            <!-- 需求ID/名称 -->
+            <div class="module-row item-row">
+              <div class="case-title-wrap">
+                <div class="name title-wrap">
+                  {{ $t("test_track.case.demand_name_id") }}
+                </div>
+                <div class="required required-item"></div>
+              </div>
+              <case-diff-text :diffInfo="baseInfoDiffData.storyId"></case-diff-text>
             </div>
-            <div class="required required-item"></div>
-          </div>
-          <case-diff-text :diffInfo="baseInfoDiffData.storyId"></case-diff-text>
-        </div>
-        <!-- 标签 -->
-        <div class="module-row item-row">
-          <div class="case-title-wrap">
-            <div class="name title-wrap">
-              {{ $t("commons.tag") }}
+            <!-- 标签 -->
+            <div class="module-row item-row">
+              <div class="case-title-wrap">
+                <div class="name title-wrap">
+                  {{ $t("commons.tag") }}
+                </div>
+              </div>
+              <case-diff-text :diffInfo="tagDiffData.tags"></case-diff-text>
             </div>
           </div>
-          <case-diff-text :diffInfo="tagDiffData.tags"></case-diff-text>
-        </div>
+        </el-scrollbar>
       </div>
     </div>
   </div>
@@ -914,6 +928,10 @@ export default {
   text-align: center;
   line-height: 16px;
 }
+
+.content-base-info-wrap {
+  height: calc(100vh - 110px);
+}
 </style>
 <style lang="scss" scoped>
 // 正文部分
@@ -934,22 +952,21 @@ export default {
     }
 
     :deep(.el-tabs__content) {
-      overflow: auto;
+      overflow: hidden;
     }
   }
   .base-info-wrap {
     width: px2rem(304);
-    height: calc(100vh - 130px);
-    overflow-y: scroll;
+    max-height: calc(70vh);
     padding: 24px;
     .item-row {
       margin-top: 21px;
     }
   }
-  .content-conatiner {
+  .content-container {
     padding-left: px2rem(24);
     padding-right: px2rem(24);
-    height: calc(100vh - 130px);
+    max-height: calc(70vh);
   }
 }
 .case-content-wrap {
@@ -977,9 +994,6 @@ export default {
 
 .attachment-preview :deep(.atta-box) {
   width: 25rem !important;
-}
-:deep(.atta-box .atta-container) {
-  width: 100% !important;
 }
 :deep(.atta-box .atta-container .icon) {
   // width: 100% !important;

@@ -152,8 +152,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
       {
         diffArr: DiffUtil.diffText(
           this.origin.prerequisite,
-          this.target.prerequisite,
-          true
+          this.target.prerequisite
         ),
       },
     ];
@@ -162,8 +161,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
       {
         diffArr: DiffUtil.diffText(
           this.origin.stepDescription,
-          this.target.stepDescription,
-          true
+          this.target.stepDescription
         ),
       },
     ];
@@ -172,8 +170,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
       {
         diffArr: DiffUtil.diffText(
           this.origin.expectedResult,
-          this.target.expectedResult,
-          true
+          this.target.expectedResult
         ),
       },
     ];
@@ -182,8 +179,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
       {
         diffArr: DiffUtil.diffText(
           this.origin.remark,
-          this.target.remark,
-          true
+          this.target.remark
         ),
       },
     ];

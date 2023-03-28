@@ -1802,7 +1802,7 @@ export default {
             color: #646a73;
             align-items: center;
             margin-left: px2rem(8);
-            padding: -1px 0.2rem;
+            padding: 0.1rem 0.4rem;
 
             .version-icon {
               width: 20.17px;
@@ -1897,7 +1897,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0.2rem 0.5rem 0.2rem 0;
+          padding: 0.1rem 0.4rem 0.1rem 0;
         }
 
         .next-public-row.head-opt {
@@ -1909,7 +1909,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0.2rem 0 0.2rem 0.5rem;
+          padding: 0.1rem 0 0.1rem 0.4rem;
         }
 
         .follow-row.head-opt {
@@ -1921,7 +1921,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(10);
-          padding: 0.2rem 0.5rem;
+          padding: 0.1rem 0.4rem;
         }
 
         .edit-public-row.head-opt {
@@ -1933,7 +1933,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0.2rem 0.5rem;
+          padding: 0.1rem 0.4rem;
         }
 
         .copy-public-row.head-opt {
@@ -1945,10 +1945,10 @@ export default {
           .label-row {
           }
           margin-right: px2rem(20.67);
-          padding: 0.2rem 0.5rem;
+          padding: 0.1rem 0.4rem;
         }
         .close-row.head-opt {
-          padding: 0.2rem;
+          padding: 0.15rem;
         }
         .add-public-row.head-opt {
           .icon-row {
@@ -1971,7 +1971,7 @@ export default {
           .label-row {
           }
           margin-right: px2rem(24);
-          padding: 0.2rem 0.5rem;
+          padding: 0.1rem 0.4rem;
         }
       }
     }
@@ -2012,6 +2012,7 @@ export default {
           font-size: 14px;
           color: #783887;
           cursor: pointer;
+          padding: 0.3rem;
         }
         .diff-latest:hover{
           background: rgba(120, 56, 135, 0.1);
@@ -2027,6 +2028,7 @@ export default {
           font-size: 14px;
           color: #783887;
           cursor: pointer;
+          padding: 0.3rem;
         }
       }
     }
