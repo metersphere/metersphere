@@ -68,6 +68,7 @@
         sortable
         prop="createTime"
         :label="$t('commons.create_time')"
+        min-width="120"
         show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | datetimeFormat }}</span>
@@ -76,6 +77,7 @@
       <el-table-column
         sortable
         prop="updateTime"
+        min-width="120"
         :label="$t('commons.update_time')"
         show-overflow-tooltip>
         <template v-slot:default="scope">
