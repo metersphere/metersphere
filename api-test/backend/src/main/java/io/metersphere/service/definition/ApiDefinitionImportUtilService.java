@@ -386,7 +386,7 @@ public class ApiDefinitionImportUtilService {
         ApiTestImportRequest request = apiImportParamDto.getRequest();
         List<ApiDefinitionWithBLOBs> optionData = apiImportParamDto.getOptionData();
         ApiModuleDTO chooseModule = apiImportParamDto.getChooseModule();
-        Map<String, String> idPathMap = apiImportParamDto.getIdPathMap();
+        Map<String, String> moduleIdPathMap = apiImportParamDto.getIdPathMap();
         Boolean fullCoverage = apiImportParamDto.getFullCoverage();
         List<ApiDefinitionWithBLOBs> toUpdateList = apiImportParamDto.getToUpdateList();
         List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
@@ -413,7 +413,7 @@ public class ApiDefinitionImportUtilService {
         if (chooseModule != null) {
             //如果有选中的模块，则在选中的模块下过滤 过滤规则是 选择的模块路径+名称+method+path
             String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-            String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
+            String chooseModulePath = getChooseModulePath(moduleIdPathMap, chooseModule, chooseModuleParentId);
             //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
             if (fullCoverage) {
                 removeHttpChooseModuleRepeat(optionData, chooseModulePath);
@@ -829,7 +829,7 @@ public class ApiDefinitionImportUtilService {
         ApiTestImportRequest request = apiImportParamDto.getRequest();
         List<ApiDefinitionWithBLOBs> optionData = apiImportParamDto.getOptionData();
         ApiModuleDTO chooseModule = apiImportParamDto.getChooseModule();
-        Map<String, String> idPathMap = apiImportParamDto.getIdPathMap();
+        Map<String, String> moduleIdPathMap = apiImportParamDto.getIdPathMap();
         Boolean fullCoverage = apiImportParamDto.getFullCoverage();
         List<ApiDefinitionWithBLOBs> toUpdateList = apiImportParamDto.getToUpdateList();
         List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
@@ -851,7 +851,7 @@ public class ApiDefinitionImportUtilService {
 
         if (chooseModule != null) {
             String chooseModuleParentId = getChooseModuleParentId(chooseModule);
-            String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
+            String chooseModulePath = getChooseModulePath(moduleIdPathMap, chooseModule, chooseModuleParentId);
             if (fullCoverage) {
                 List<ApiDefinitionWithBLOBs> singleOptionData = new ArrayList<>();
                 removeOtherChooseModuleRepeat(optionData, singleOptionData, chooseModulePath);
@@ -1090,7 +1090,10 @@ public class ApiDefinitionImportUtilService {
     private void removeSameData(Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap, Map<String, ApiDefinitionWithBLOBs> methodPathMap,
                                 List<ApiDefinitionWithBLOBs> optionData, Map<String, ApiModule> moduleMap,
                                 List<ApiTestCaseWithBLOBs> optionDataCases) {
-
+        Map<String, ApiModule> parentIdModuleMap = new HashMap<>();
+        for (ApiModule value : moduleMap.values()) {
+            parentIdModuleMap.put(value.getParentId(), value);
+        }
         Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
@@ -1100,7 +1103,10 @@ public class ApiDefinitionImportUtilService {
                 String modulePath = apiDefinitionWithBLOBs.getModulePath();
                 List<ApiDefinitionWithBLOBs> moduleData = moduleOptionData.get(modulePath);
                 if (moduleData != null && moduleData.size() <= 1) {
-                    moduleMap.remove(modulePath);
+                    ApiModule apiModule = moduleMap.get(modulePath);
+                    if (parentIdModuleMap.get(apiModule.getId()) == null) {
+                        moduleMap.remove(modulePath);
+                    }
                     moduleData.remove(apiDefinitionWithBLOBs);
                 }
                 //不覆盖同一接口不做更新 注意原接口的update时间不变
