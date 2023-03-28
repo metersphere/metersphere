@@ -314,6 +314,7 @@
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
+        ORDER BY tplc.order DESC
     </select>
 
     <select id="selectPlanIds" resultType="java.lang.String">
