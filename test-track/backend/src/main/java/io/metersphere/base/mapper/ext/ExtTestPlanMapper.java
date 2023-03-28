@@ -38,19 +38,19 @@ public interface ExtTestPlanMapper {
     int updateActualEndTimeIsNullById(String testPlanID);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds") Set<String> planIds);
+    Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds") List<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanApiCaseCount(@Param("planIds") Set<String> planIds);
+    Map<String, ParamsDTO> testPlanApiCaseCount(@Param("planIds") List<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanApiScenarioCount(@Param("planIds") Set<String> planIds);
+    Map<String, ParamsDTO> testPlanApiScenarioCount(@Param("planIds") List<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds") Set<String> planIds);
+    Map<String, ParamsDTO> testPlanLoadCaseCount(@Param("planIds") List<String> planIds);
 
     @MapKey("id")
-    Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds") Set<String> planIds);
+    Map<String, ParamsDTO> testPlanUiScenarioCount(@Param("planIds") List<String> planIds);
 
     List<TestPlanDTO> planListAll(@Param("request") QueryTestPlanRequest params);
 
