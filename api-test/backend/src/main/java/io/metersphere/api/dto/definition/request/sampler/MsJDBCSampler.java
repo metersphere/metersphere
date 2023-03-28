@@ -114,7 +114,14 @@ public class MsJDBCSampler extends MsTestElement {
             MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
         }
         JDBCSampler jdbcSampler = jdbcSampler(config);
-        final HashTree samplerHashTree = tree.add(jdbcSampler);
+        // 失败重试
+        HashTree samplerHashTree;
+        if (config.getRetryNum() > 0) {
+            final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
+            samplerHashTree = loopTree.add(jdbcSampler);
+        } else {
+            samplerHashTree = tree.add(jdbcSampler);
+        }
         tree.add(ElementUtil.jdbcDataSource(jdbcSampler.getDataSource(), this.dataSource));
         ElementUtil.jdbcArguments(this.getName(), this.getVariables(), tree);
 

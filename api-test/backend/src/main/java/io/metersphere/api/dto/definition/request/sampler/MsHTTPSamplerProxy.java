@@ -167,7 +167,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         }
-        final HashTree httpSamplerTree = tree.add(sampler);
+        // 失败重试
+        HashTree httpSamplerTree;
+        if (config.getRetryNum() > 0) {
+            final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
+            httpSamplerTree = loopTree.add(sampler);
+        } else {
+            httpSamplerTree = tree.add(sampler);
+        }
         // 注意顺序，放在config前面，会优先于环境的请求头生效
         if (httpConfig != null && httpConfig.isMock() && StringUtils.isNotEmpty(this.getId())) {
             //如果选择的是mock环境，则自动添加一个apiHeader。

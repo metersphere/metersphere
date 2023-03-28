@@ -71,7 +71,7 @@ public class ParameterConfig extends MsParameter {
      */
     private boolean isOperating;
     /**
-     * 导入/导出操作时取样器的testname值
+     * 导入/导出操作时取样器的testName值
      */
     private String operatingSampleTestName;
     /**
@@ -92,6 +92,10 @@ public class ParameterConfig extends MsParameter {
 
     private String browserLanguage;
     private boolean isApi;
+    /**
+     * 失败重试次数
+     */
+    private long retryNum;
     /**
      * 排除生成临界控制器的场景
      */

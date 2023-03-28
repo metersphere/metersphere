@@ -27,7 +27,7 @@ public class MsRetryLoopController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
-        final HashTree groupTree = controller(tree);
+        final HashTree groupTree = controller(tree, this.getName());
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -38,13 +38,13 @@ public class MsRetryLoopController extends MsTestElement {
         }
     }
 
-    private WhileController initWhileController(String condition) {
+    private WhileController initWhileController(String condition, String name) {
         if (StringUtils.isEmpty(condition)) {
             return null;
         }
         WhileController controller = new WhileController();
         controller.setEnabled(this.isEnable());
-        controller.setName("WhileController");
+        controller.setName(StringUtils.join("RetryWhile_", name));
         controller.setProperty(TestElement.TEST_CLASS, WhileController.class.getName());
         controller.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("WhileControllerGui"));
         controller.setCondition(condition);
@@ -73,9 +73,9 @@ public class MsRetryLoopController extends MsTestElement {
         return script;
     }
 
-    private HashTree controller(HashTree tree) {
+    public HashTree controller(HashTree tree, String name) {
         String whileCondition = "${__jexl3(" + "\"${" + ms_current_timer + "}\" !=\"stop\")}";
-        HashTree hashTree = tree.add(initWhileController(whileCondition));
+        HashTree hashTree = tree.add(initWhileController(whileCondition, name));
         // 添加超时处理，防止死循环
         JSR223Listener postProcessor = new JSR223Listener();
         postProcessor.setName("Retry-controller");
