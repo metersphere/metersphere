@@ -193,6 +193,17 @@ export default {
         // 去掉末尾 &
         return path.substring(0, path.length - 1);
       }
+      if (path.startsWith('/api/definition')) {
+        this.$route.params.dataSelectRange = '';
+        this.$route.params.projectId = getCurrentProjectID();
+        return '/api/definition';
+      }
+      if (path.startsWith('/api/automation')) {
+        this.$route.params.projectId = getCurrentProjectID();
+        this.$route.params.dataSelectRange = '';
+        return '/api/automation';
+      }
+
       return path;
     },
     change(projectId) {
