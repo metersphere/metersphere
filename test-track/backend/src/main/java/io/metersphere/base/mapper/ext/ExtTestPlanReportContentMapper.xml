@@ -37,4 +37,10 @@
         and status = 'RUNNING'
         order by create_time desc limit 1;
     </select>
+
+    <select id="isApiBasicCountIsNull" resultType="java.lang.Boolean">
+        SELECT (api_base_count IS NULL OR api_base_count = '') AS apiCountIsNull
+        FROM test_plan_report_content WHERE test_plan_report_id = #{0} limit 1
+    </select>
+
 </mapper>

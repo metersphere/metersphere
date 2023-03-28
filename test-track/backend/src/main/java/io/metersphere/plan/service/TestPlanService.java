@@ -1381,9 +1381,11 @@ public class TestPlanService {
     /**
      * @param testPlanReport                 测试计划报告
      * @param testPlanReportContentWithBLOBs 测试计划报告内容
-     * @return
      */
-    public TestPlanReportDataStruct buildReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, boolean rebuildReport) {
+    public TestPlanReportDataStruct generateReportStruct(TestPlanWithBLOBs testPlan,
+                                                         TestPlanReport testPlanReport,
+                                                         TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs,
+                                                         boolean rebuildReport) {
         TestPlanReportDataStruct testPlanReportStruct = null;
         if (ObjectUtils.allNotNull(testPlanReport, testPlanReportContentWithBLOBs)) {
             Map config = null;
@@ -1524,7 +1526,10 @@ public class TestPlanService {
             report.setApiResult(apiResult);
             report.setUiResult(uiResult);
             report.setStartTime(testPlanReport.getCreateTime());
-            if (testPlanReport.getCreateTime() != testPlanReport.getEndTime() && testPlanReport.getEndTime() != 0) {
+            if (!StringUtils.equals(
+                    DateUtils.getTimeString(testPlanReport.getCreateTime()),
+                    DateUtils.getTimeString(testPlanReport.getEndTime()))
+                    && testPlanReport.getEndTime() != 0) {
                 //防止测试计划报告非正常状态停止时造成的测试时间显示不对
                 report.setEndTime(testPlanReport.getEndTime());
             }
@@ -2108,11 +2113,15 @@ public class TestPlanService {
         return projectIds.stream().distinct().collect(Collectors.toList());
     }
 
-    public TestPlanReportDataStruct buildTestPlanReportStructByTestPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
+    public TestPlanReportDataStruct buildOldVersionTestPlanReport(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs testPlanReportContent) {
         TestPlanWithBLOBs testPlanWithBLOBs = this.testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         TestPlanReportDataStruct testPlanReportDataStruct = new TestPlanReportDataStruct();
         try {
-            testPlanReportDataStruct = this.buildReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent, false);
+            testPlanReportDataStruct = this.generateReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent, false);
+            if (StringUtils.isBlank(testPlanReportContent.getApiBaseCount()) && !testPlanReportDataStruct.hasRunningCase()) {
+                //旧版本的测试计划报告，没有重新统计过测试计划报告时，且当不存在运行中的用例，会将结果保存下来
+                testPlanReportService.updateReportStructInfo(testPlanReportContent, testPlanReportDataStruct);
+            }
         } catch (Exception e) {
             LoggerUtil.error("统计测试计划数据出错！", e);
         }

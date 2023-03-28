@@ -24,7 +24,6 @@ import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.request.ui.TestPlanUiExecuteReportDTO;
 import io.metersphere.plan.request.ui.UiPlanReportRequest;
 import io.metersphere.plan.service.remote.api.*;
-import io.metersphere.plan.service.remote.performance.PlanLoadTestReportService;
 import io.metersphere.plan.service.remote.performance.PlanTestPlanLoadCaseService;
 import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
@@ -69,8 +68,6 @@ public class TestPlanReportService {
     TestPlanReportDataMapper testPlanReportDataMapper;
     @Resource
     PlanTestPlanLoadCaseService planTestPlanLoadCaseService;
-    @Resource
-    PlanLoadTestReportService planLoadTestReportService;
     @Resource
     ExtTestPlanReportMapper extTestPlanReportMapper;
     @Resource
@@ -155,7 +152,7 @@ public class TestPlanReportService {
                     TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportDTO.getId());
                     TestPlanReportContentWithBLOBs content = this.selectTestPlanReportContentByReportId(testPlanReportDTO.getId());
                     TestPlanReportDataStruct testPlanReportCountData
-                            = testPlanService.buildTestPlanReportStructByTestPlanReport(testPlanReport, content);
+                            = testPlanService.buildOldVersionTestPlanReport(testPlanReport, content);
                     if (testPlanReportCountData != null) {
                         testPlanReportDTO.setPassRate(testPlanReportCountData.getPassRate());
                     }
@@ -546,20 +543,27 @@ public class TestPlanReportService {
     }
 
     //更新测试计划报告的数据结构
-    private void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanReportDataStruct reportStruct) {
+    public void updateReportStructInfo(TestPlanReportContentWithBLOBs testPlanReportContentWithBLOBs, TestPlanReportDataStruct reportStruct) {
         //更新BaseCount统计字段和通过率
         testPlanReportContentWithBLOBs.setPassRate(reportStruct.getPassRate());
         testPlanReportContentWithBLOBs.setApiBaseCount(JSON.toJSONString(reportStruct));
         testPlanReportContentMapper.updateByPrimaryKeySelective(testPlanReportContentWithBLOBs);
     }
 
-    public void testPlanExecuteOver(String testPlanReportId, String finishStatus) {
-        TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
+    private boolean isTestPlanCountOver(TestPlanReport testPlanReport) {
         if (testPlanReport != null && StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(),
                 "stopped",
                 TestPlanReportStatus.COMPLETED.name(),
                 TestPlanReportStatus.SUCCESS.name(),
                 TestPlanReportStatus.FAILED.name())) {
+            return !extTestPlanReportContentMapper.isApiBasicCountIsNull(testPlanReport.getId());
+        }
+        return false;
+    }
+
+    public void testPlanExecuteOver(String testPlanReportId, String finishStatus) {
+        TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
+        if (this.isTestPlanCountOver(testPlanReport)) {
             return;
         }
         boolean isSendMessage = false;
@@ -577,7 +581,7 @@ public class TestPlanReportService {
                 boolean isRerunningTestPlan = BooleanUtils.isTrue(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name()));
                 //测试计划报告结果数据初始化
                 testPlanReport.setStatus(finishStatus);
-                content = this.initTestPlanReportInfo(testPlanReport, isRerunningTestPlan);
+                content = this.countAndSaveTestPlanReport(testPlanReport, isRerunningTestPlan);
                 this.setReportExecuteResult(testPlanReport, finishStatus);
             } catch (Exception e) {
                 testPlanReport.setStatus(finishStatus);
@@ -605,7 +609,7 @@ public class TestPlanReportService {
     /**
      * 统计测试计划报告信息
      */
-    public TestPlanReportContentWithBLOBs initTestPlanReportInfo(TestPlanReport testPlanReport, boolean isRerunningTestPlan) throws Exception {
+    public TestPlanReportContentWithBLOBs countAndSaveTestPlanReport(TestPlanReport testPlanReport, boolean isRerunningTestPlan) {
         long endTime = System.currentTimeMillis();
         //原逻辑中要判断包含测试计划功能用例时才会赋予结束时间。执行测试计划产生的测试报告，它的结束时间感觉没有这种判断必要。
         testPlanReport.setEndTime(endTime);
@@ -620,7 +624,7 @@ public class TestPlanReportService {
                 content.setApiBaseCount(null);
             }
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            TestPlanReportDataStruct apiBaseCountStruct = this.genReportStruct(testPlan, testPlanReport, content, isRerunningTestPlan);
+            TestPlanReportDataStruct apiBaseCountStruct = testPlanService.generateReportStruct(testPlan, testPlanReport, content, isRerunningTestPlan);
             if (apiBaseCountStruct.getPassRate() == 1) {
                 testPlanReport.setStatus(TestPlanReportStatus.SUCCESS.name());
             } else if (apiBaseCountStruct.getPassRate() < 1) {
@@ -672,21 +676,6 @@ public class TestPlanReportService {
                 }
             }
         }
-    }
-
-    //构建测试计划报告的数据结构
-    private TestPlanReportDataStruct genReportStruct(TestPlanWithBLOBs testPlan, TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent, boolean rebuildReport) {
-        TestPlanReportDataStruct returnDTO = null;
-        if (testPlanReport != null && reportContent != null) {
-            try {
-                returnDTO = testPlanService.buildReportStruct(testPlan, testPlanReport, reportContent, rebuildReport);
-                //查找运行环境
-                this.initRunInformation(returnDTO, testPlanReport);
-            } catch (Exception e) {
-                LogUtil.error("计算测试计划报告信息出错!", e);
-            }
-        }
-        return returnDTO == null ? new TestPlanReportDataStruct() : returnDTO;
     }
 
     /**
@@ -1066,7 +1055,7 @@ public class TestPlanReportService {
         }
         if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
-            testPlanReportDTO = this.genReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
+            testPlanReportDTO = testPlanService.generateReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
         }
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
