@@ -26,7 +26,6 @@ import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -54,8 +53,6 @@ public class ApiCaseSerialService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
-    @Resource
-    private ApiRetryOnFailureService apiRetryOnFailureService;
 
     public void serial(DBTestQueue executionQueue) {
         ApiExecutionQueueDetail queue = executionQueue.getDetail();
@@ -148,21 +145,13 @@ public class ApiCaseSerialService {
                 JSONObject element = JSONUtil.parseObject(caseWithBLOBs.getRequest());
                 ElementUtil.dataFormatting(element);
                 parse(element, testId, envId, caseWithBLOBs.getProjectId());
-                String runData = element.toString();
-                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                    try {
-                        // 失败重试
-                        String retryData = apiRetryOnFailureService.retry(runData, runRequest.getRetryNum(), true);
-                        if (StringUtils.isNotBlank(retryData)) {
-                            runData = retryData;
-                        }
-                    } catch (Exception e) {
-                        LoggerUtil.error("失败重试脚本生成失败 ", runRequest.getReportId(), e);
-                    }
-                }
-                group.getHashTree().add(JSONUtil.parseObject(runData, MsTestElement.class));
+                group.getHashTree().add(JSONUtil.parseObject(element.toString(), MsTestElement.class));
                 testPlan.getHashTree().add(group);
-                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+                ParameterConfig config = new ParameterConfig();
+                if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                    config.setRetryNum(runRequest.getRetryNum());
+                }
+                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
                 LoggerUtil.info("用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
                 return jmeterHashTree;
             }

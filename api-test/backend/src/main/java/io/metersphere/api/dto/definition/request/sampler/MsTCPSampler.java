@@ -140,7 +140,14 @@ public class MsTCPSampler extends MsTestElement {
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         TCPSampler tcpSampler = tcpSampler(config);
-        tree.set(tcpSampler, samplerHashTree);
+        // 失败重试
+        if (config.getRetryNum() > 0) {
+            final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
+             loopTree.set(tcpSampler, samplerHashTree);
+        } else {
+             tree.set(tcpSampler, samplerHashTree);
+        }
+
         setUserParameters(samplerHashTree);
         if (tcpPreProcessor != null && StringUtils.isNotBlank(tcpPreProcessor.getScript())) {
             samplerHashTree.add(tcpPreProcessor.getShellProcessor());

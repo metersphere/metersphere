@@ -58,7 +58,14 @@ public class MsJSR223Processor extends MsTestElement {
         String resourceId = StringUtils.isNotEmpty(this.getId()) ? this.getId() : this.getResourceId();
         ElementUtil.setBaseParams(processor, this.getParent(), config, resourceId, this.getIndex());
 
-        final HashTree jsr223PreTree = tree.add(processor);
+        // 失败重试
+        HashTree jsr223PreTree;
+        if (config.getRetryNum() > 0) {
+            final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
+            jsr223PreTree = loopTree.add(processor);
+        } else {
+            jsr223PreTree = tree.add(processor);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(jsr223PreTree, el.getHashTree(), config);
