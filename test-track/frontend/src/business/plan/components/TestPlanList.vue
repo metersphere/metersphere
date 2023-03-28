@@ -193,8 +193,10 @@
         >
           <template v-slot:default="scope">
             <el-progress
+              v-if="scope.row.isMetricLoadOver"
               :percentage="scope.row.testRate ? scope.row.testRate : 0"
             ></el-progress>
+            <i v-else class="el-icon-loading" />
           </template>
         </ms-table-column>
         <ms-table-column
@@ -255,6 +257,12 @@
           :label="$t('commons.pass_rate')"
           min-width="120px"
         >
+          <template v-slot:default="scope">
+            <span v-if="scope.row.isMetricLoadOver">{{
+              scope.row.passRate
+            }}</span>
+            <i v-else class="el-icon-loading" />
+          </template>
         </ms-table-column>
         <ms-table-column
           prop="plannedStartTime"
@@ -492,6 +500,7 @@ import { operationConfirm } from "metersphere-frontend/src/utils";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {
+  batchDeletePlan,
   getPlanStageOption,
   testPlanCopy,
   testPlanDelete,
@@ -499,16 +508,14 @@ import {
   testPlanEditFollows,
   testPlanEditRunConfig,
   testPlanGetEnableScheduleCount,
-  testPlanGetFollow,
-  testPlanGetPrincipal,
   testPlanHaveExecCase,
   testPlanHaveUiCase,
   testPlanList,
+  testPlanMetric,
   testPlanRun,
   testPlanRunBatch,
   testPlanRunSave,
   testPlanUpdateScheduleEnable,
-  batchDeletePlan,
 } from "@/api/remote/plan/test-plan";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -716,7 +723,9 @@ export default {
         this.cardLoading = false;
         let data = response.data;
         this.total = data.itemCount;
+        let testPlanIds = [];
         data.listObject.forEach((item) => {
+          testPlanIds.push(item.id);
           if (item.tags) {
             item.tags = JSON.parse(item.tags);
             if (item.tags.length === 0) {
@@ -724,49 +733,120 @@ export default {
             }
           }
           item.passRate = item.passRate + "%";
-          testPlanGetPrincipal(item.id).then((res) => {
-            let data = res.data;
-            let principal = "";
-            let principalIds = data.map((d) => d.id);
-            if (data) {
-              data.forEach((d) => {
-                if (principal !== "") {
-                  principal = principal + "、" + d.name;
-                } else {
-                  principal = principal + d.name;
-                }
-              });
-            }
-            this.$set(item, "principalName", principal);
-            // 编辑时初始化id
-            this.$set(item, "principals", principalIds);
-          });
-          //关注人
-          testPlanGetFollow(item.id).then((res) => {
-            let data = res.data;
-            let follow = "";
-            let followIds = data.map((d) => d.id);
-            let showFollow = false;
-            if (data) {
-              data.forEach((d) => {
-                if (follow !== "") {
-                  follow = follow + "、" + d.name;
-                } else {
-                  follow = follow + d.name;
-                }
-                if (this.currentUser().id === d.id) {
-                  showFollow = true;
-                }
-              });
-            }
-            this.$set(item, "follow", follow);
-            // 编辑时初始化id
-            this.$set(item, "follows", followIds);
-            this.$set(item, "showFollow", showFollow);
-          });
         });
         this.tableData = data.listObject;
+        this.getTestPlanDetailData(testPlanIds);
       });
+    },
+    getTestPlanDetailData(testPlanIds) {
+      testPlanMetric(testPlanIds)
+        .then((res) => {
+          let metricDataList = res.data;
+          if (metricDataList) {
+            this.tableData.forEach((item) => {
+              let metricData = null;
+              metricDataList.forEach((metricItem) => {
+                if (item.id === metricItem.id) {
+                  metricData = metricItem;
+                }
+              });
+              if (metricData) {
+                this.$set(item, "isMetricLoadOver", true);
+                this.$set(item, "passRate", metricData.passRate);
+                this.$set(item, "testRate", metricData.testRate);
+                this.$set(item, "passed", metricData.passed);
+                this.$set(item, "tested", metricData.tested);
+                this.$set(item, "total", metricData.total);
+                this.$set(
+                  item,
+                  "testPlanTestCaseCount",
+                  metricData.testPlanTestCaseCount
+                );
+                this.$set(
+                  item,
+                  "testPlanApiCaseCount",
+                  metricData.testPlanApiCaseCount
+                );
+                this.$set(
+                  item,
+                  "testPlanApiScenarioCount",
+                  metricData.testPlanApiScenarioCount
+                );
+                this.$set(
+                  item,
+                  "testPlanUiScenarioCount",
+                  metricData.testPlanUiScenarioCount
+                );
+                this.$set(
+                  item,
+                  "testPlanLoadCaseCount",
+                  metricData.testPlanLoadCaseCount
+                );
+                if (metricData.principalUsers) {
+                  let data = metricData.principalUsers;
+                  let principal = "";
+                  let principalIds = data.map((d) => d.id);
+                  data.forEach((d) => {
+                    if (principal !== "") {
+                      principal = principal + "、" + d.name;
+                    } else {
+                      principal = principal + d.name;
+                    }
+                  });
+                  this.$set(item, "principalName", principal);
+                  this.$set(item, "principals", principalIds);
+                }
+                if (metricData.followUsers) {
+                  let data = metricData.followUsers;
+                  let follow = "";
+                  let followIds = data.map((d) => d.id);
+                  let showFollow = false;
+                  data.forEach((d) => {
+                    if (follow !== "") {
+                      follow = follow + "、" + d.name;
+                    } else {
+                      follow = follow + d.name;
+                    }
+                    if (this.currentUser().id === d.id) {
+                      showFollow = true;
+                    }
+                  });
+                  this.$set(item, "follow", follow);
+                  this.$set(item, "follows", followIds);
+                  this.$set(item, "showFollow", showFollow);
+                }
+              } else {
+                this.resetTestPlanRow(item);
+              }
+            });
+          }
+        })
+        .catch(() => {
+          this.tableData.forEach((item) => {
+            this.resetTestPlanRow(item);
+          });
+        });
+    },
+    resetTestPlanRow(item) {
+      if (!isMetricLoadOver) {
+        return;
+      }
+      this.$set(item, "isMetricLoadOver", true);
+      this.$set(item, "principalName", "");
+      this.$set(item, "follow", "");
+      this.$set(item, "principals", []);
+      this.$set(item, "follows", []);
+      this.$set(item, "showFollow", false);
+      this.$set(item, "passRate", 0);
+      this.$set(item, "testRate", 0);
+      this.$set(item, "passed", 0);
+      this.$set(item, "tested", 0);
+      this.$set(item, "total", 0);
+      this.$set(item, "testPlanTestCaseCount", 0);
+      this.$set(item, "testPlanApiCaseCount", 0);
+      this.$set(item, "testPlanApiScenarioCount", 0);
+      this.$set(item, "testPlanUiScenarioCount", 0);
+      this.$set(item, "testPlanLoadCaseCount", 0);
     },
     copyData(status) {
       return JSON.parse(JSON.stringify(this.dataMap.get(status)));
@@ -923,22 +1003,27 @@ export default {
         );
       }
 
-      operationConfirm(this, message, () => {
-        this.cardLoading = true;
-        testPlanUpdateScheduleEnable(param).then((response) => {
-          this.cardLoading = false;
-          if (row.scheduleOpen) {
-            row.scheduleStatus = "OPEN";
-            row.scheduleCorn = response.data.value;
-            row.scheduleExecuteTime = response.data.scheduleExecuteTime;
-          } else {
-            row.scheduleStatus = "SHUT";
-          }
-          this.$success(this.$t("commons.save_success"));
-        });
-      }, () => {
-        row.scheduleOpen = !row.scheduleOpen;
-      });
+      operationConfirm(
+        this,
+        message,
+        () => {
+          this.cardLoading = true;
+          testPlanUpdateScheduleEnable(param).then((response) => {
+            this.cardLoading = false;
+            if (row.scheduleOpen) {
+              row.scheduleStatus = "OPEN";
+              row.scheduleCorn = response.data.value;
+              row.scheduleExecuteTime = response.data.scheduleExecuteTime;
+            } else {
+              row.scheduleStatus = "SHUT";
+            }
+            this.$success(this.$t("commons.save_success"));
+          });
+        },
+        () => {
+          row.scheduleOpen = !row.scheduleOpen;
+        }
+      );
     },
     handleDelete(testPlan) {
       this.enableDeleteTip = testPlan.status === "Underway" ? true : false;

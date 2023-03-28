@@ -70,6 +70,12 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
     }
 
+    @PostMapping("/metric")
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
+    public List<TestPlanDTOWithMetric> selectTestPlanMetricById(@RequestBody List<String> ids) {
+        return testPlanService.selectTestPlanMetricById(ids);
+    }
+
     @PostMapping("/dashboard/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
     public Pager<List<TestPlanDTOWithMetric>> listByWorkspaceId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {

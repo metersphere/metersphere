@@ -72,6 +72,10 @@ export function testPlanGetPrincipal(id) {
   return get(BASE_URL + `principal/${id}`);
 }
 
+export function testPlanMetric(ids) {
+  return post(BASE_URL + "metric", ids);
+}
+
 export function testPlanHaveExecCase(id) {
   return get(BASE_URL + `have/exec/case/${id}`);
 }
