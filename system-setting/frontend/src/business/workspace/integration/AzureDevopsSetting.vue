@@ -189,7 +189,8 @@ export default {
     },
     testConnection() {
       if (this.form.pat) {
-        this.$parent.loading = authServiceIntegration(getCurrentWorkspaceId(), AZURE_DEVOPS).then(() => {
+        const {lastWorkspaceId} = getCurrentUser();
+        this.$parent.loading = authServiceIntegration(lastWorkspaceId, AZURE_DEVOPS).then(() => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {
