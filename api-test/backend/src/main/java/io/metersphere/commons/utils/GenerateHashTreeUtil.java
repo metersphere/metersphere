@@ -17,7 +17,6 @@ import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.ApiRetryOnFailureService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
@@ -144,22 +143,7 @@ public class GenerateHashTreeUtil {
             Map<String, List<ProjectJarConfig>> jarsMap = NewDriverManager.getJars(projectIds, runRequest.getPool());
             testPlan.setProjectJarIds(jarsMap.keySet().stream().toList());
             testPlan.setPoolJarsMap(jarsMap);
-            String data = definition;
-            // 失败重试
-            if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
-                try {
-                    ApiRetryOnFailureService apiRetryOnFailureService = CommonBeanFactory.getBean(ApiRetryOnFailureService.class);
-                    String retryData = apiRetryOnFailureService.retry(data, runRequest.getRetryNum(), false);
-                    if (StringUtils.isNotBlank(retryData)) {
-                        data = retryData;
-                    }
-                } catch (Exception e) {
-                    LoggerUtil.error("失败重试脚本生成失败 ", runRequest.getReportId(), e);
-                }
-            }
-
-            GenerateHashTreeUtil.parse(data, scenario);
-
+            GenerateHashTreeUtil.parse(definition, scenario);
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();
             scenarios.add(scenario);
@@ -170,6 +154,9 @@ public class GenerateHashTreeUtil {
             ParameterConfig config = new ParameterConfig();
             config.setScenarioId(item.getId());
             config.setReportType(runRequest.getReportType());
+            if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
+                config.setRetryNum(runRequest.getRetryNum());
+            }
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
 
             LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());

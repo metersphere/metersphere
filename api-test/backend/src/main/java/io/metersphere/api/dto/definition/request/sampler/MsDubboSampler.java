@@ -78,9 +78,14 @@ public class MsDubboSampler extends MsTestElement {
             }
             hashTree = this.getHashTree();
         }
-
-        final HashTree testPlanTree = tree.add(dubboSample(config));
-
+        // 失败重试
+        HashTree testPlanTree;
+        if (config.getRetryNum() > 0) {
+            final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
+            testPlanTree = loopTree.add(dubboSample(config));
+        } else {
+            testPlanTree = tree.add(dubboSample(config));
+        }
         //添加全局前后置脚本
         EnvironmentConfig envConfig = null;
         if (config.getConfig() != null) {

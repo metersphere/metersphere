@@ -107,6 +107,7 @@ public class MsScenario extends MsTestElement {
         ParameterConfig newConfig = new ParameterConfig();
         if (this.isEnvironmentEnable()) {
             this.setNewConfig(envConfig, newConfig);
+            newConfig.setRetryNum(config.getRetryNum());
         }
         if (config != null && StringUtils.equals(this.getId(), config.getScenarioId())) {
             config.setTransferVariables(this.variables);

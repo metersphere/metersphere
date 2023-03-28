@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
+import io.metersphere.api.dto.definition.request.controller.MsRetryLoopController;
 import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
@@ -1012,5 +1013,18 @@ public class ElementUtil {
         if (headerManager.getHeaders().size() > 0 && isAdd) {
             tree.add(headerManager);
         }
+    }
+
+    public static HashTree retryHashTree(String name, long retryNum, HashTree tree) {
+        if (StringUtils.isNotBlank(name) &&
+                (name.startsWith(ResultParseUtil.POST_PROCESS_SCRIPT) ||
+                        name.startsWith(ResultParseUtil.PRE_PROCESS_SCRIPT))) {
+            return tree;
+        }
+        MsRetryLoopController loopController = new MsRetryLoopController();
+        loopController.setClazzName(MsRetryLoopController.class.getCanonicalName());
+        loopController.setRetryNum(retryNum);
+        loopController.setEnable(true);
+        return loopController.controller(tree, name);
     }
 }
