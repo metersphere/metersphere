@@ -6,16 +6,17 @@
 </template>
 
 <script>
-    import BatchAddParameter from "./BatchAddParameter";
-    import {KeyValue} from "../../model/ApiTestModel";
-    export default {
+import BatchAddParameter from "./BatchAddParameter";
+import {KeyValue} from "../../model/ApiTestModel";
+
+export default {
       name: "BatchAddParameterButton",
       components: {BatchAddParameter},
       props: ['data'],
       methods: {
         batchSave(data) {
           if (data) {
-            let params = data.split("\n");
+            let params = data.split(/[(\r\n)\r\n]+/);
             let keyValues = [];
             params.forEach(item => {
               let line = item.split(/:|：/);

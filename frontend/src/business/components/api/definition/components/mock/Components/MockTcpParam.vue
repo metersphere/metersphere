@@ -21,12 +21,12 @@ import MsApiVariable from "@/business/components/api/definition/components/ApiVa
 import MsApiAssertions from "@/business/components/api/definition/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/definition/components/extract/ApiExtract";
 import {Body, KeyValue} from "@/business/components/api/definition/model/ApiTestModel";
-import {hasLicense, getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import BatchAddParameter from "@/business/components/api/definition/components/basis/BatchAddParameter";
 import MsApiAdvancedConfig from "@/business/components/api/definition/components/request/http/ApiAdvancedConfig";
 import MsJsr233Processor from "@/business/components/api/automation/scenario/component/Jsr233Processor";
-import ApiDefinitionStepButton from "@/business/components/api/definition/components/request/components/ApiDefinitionStepButton";
-import {hasPermission} from '@/common/js/utils';
+import ApiDefinitionStepButton
+  from "@/business/components/api/definition/components/request/components/ApiDefinitionStepButton";
 import Convert from "@/business/components/common/json-schema/convert/convert";
 import MockApiBody from "@/business/components/api/definition/components/mock/Components/MockApiBody";
 
@@ -210,7 +210,7 @@ export default {
     },
     batchSave(data) {
       if (data) {
-        let params = data.split("\n");
+        let params = data.split(/[(\r\n)\r\n]+/);
         let keyValues = [];
         params.forEach(item => {
           let line = item.split(/：|:/);

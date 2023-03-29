@@ -396,7 +396,7 @@ export default {
       this.$refs.batchAdd.open();
     },
     _handleBatchVars(data) {
-      let params = data.split("\n");
+      let params = data.split(/[(\r\n)\r\n]+/);
       let keyValues = [];
       params.forEach(item => {
         let line = item.split(/：|:/);
