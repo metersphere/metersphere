@@ -118,6 +118,19 @@
                 and test_case.demand_name like CONCAT('%', #{${condition}.demand.value},'%')
             </if>
         </if>
+        <if test="${condition}.planCaseStatus != null and ${condition}.planCaseStatus.value.contains('Prepare')">
+            and (test_case.last_execute_result
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.planCaseStatus"/>
+            </include> or test_case.last_execute_result is null
+            )
+        </if>
+        <if test="${condition}.planCaseStatus != null and !${condition}.planCaseStatus.value.contains('Prepare')">
+            and test_case.last_execute_result
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.planCaseStatus"/>
+            </include>
+        </if>
         <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
             <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
                 and test_case.id in (
@@ -220,11 +233,11 @@
         left join project_version on project_version.project_id = test_case.project_id and project_version.id =
         test_case.version_id
         <if test="!request.repeatCase">
-            left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
+            left join test_plan_test_case on test_case.id = test_plan_test_case.case_id and test_plan_test_case.plan_id = #{request.planId}
         </if>
         <include refid="notInQueryWhereCondition"/>
         <if test="!request.repeatCase">
-            and T2.case_id is null
+            and test_plan_test_case.case_id is null
         </if>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -336,12 +349,12 @@
         select tcn.id, count(*) as caseNum, test_case.project_id
         from test_case
         <if test="!request.repeatCase">
-            left join test_plan_test_case tptc on tptc.case_id = test_case.id and tptc.plan_id = #{request.planId}
+            left join test_plan_test_case on test_plan_test_case.case_id = test_case.id and test_plan_test_case.plan_id = #{request.planId}
         </if>
         left join test_case_node tcn on test_case.node_id = tcn.id
         <include refid="queryWhereCondition"/>
         <if test="!request.repeatCase">
-            and tptc.case_id is null
+            and test_plan_test_case.case_id is null
         </if>
         group by tcn.id
     </select>
