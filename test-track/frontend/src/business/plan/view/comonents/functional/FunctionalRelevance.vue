@@ -219,7 +219,6 @@ export default {
       this.getTestCases();
     },
     projectId(val) {
-      this.pushCustomFieldToCondition(val);
       this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
       this.page.condition.versionId = null;
@@ -243,6 +242,7 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.pushCustomFieldToCondition(this.projectId);
     },
     setConditionModuleIdParam() {
       this.page.condition.components.forEach(component => {
