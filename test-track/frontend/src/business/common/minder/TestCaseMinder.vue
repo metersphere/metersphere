@@ -367,8 +367,9 @@ export default {
             if (data.contextChanged && data.id !== 'root') {
               this.buildSaveModules(root, data, parent);
               root.children && root.children.forEach(i => {
+                i.data.changed = true;
+                i.data.originFlag = true;
                 if (isModuleNode(i)) {
-                  i.data.changed = true;
                   i.data.contextChanged = true; // 如果当前节点有变化，下面的模块节点也需要level也可能需要变化
                 }
               });
@@ -630,7 +631,7 @@ export default {
         resource: data.resource,
       };
       data.originId = data.id;
-      if (nodeData.id && nodeData.id.length > 20) {
+      if (nodeData.id && nodeData.id.length > 20 && !data.originFlag) {
         nodeData.isEdit = true; // 编辑
       } else {
         nodeData.isEdit = false; // 新增
