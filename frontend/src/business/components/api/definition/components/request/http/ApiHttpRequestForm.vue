@@ -177,13 +177,12 @@ import MsApiVariable from "../../ApiVariable";
 import MsApiAssertions from "../../assertion/ApiAssertions";
 import MsApiExtract from "../../extract/ApiExtract";
 import {Body, KeyValue} from "../../../model/ApiTestModel";
-import {hasLicense, getUUID} from "@/common/js/utils";
+import {getUUID, hasLicense, hasPermission} from "@/common/js/utils";
 import BatchAddParameter from "../../basis/BatchAddParameter";
 import MsApiAdvancedConfig from "./ApiAdvancedConfig";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
-import {hasPermission} from '@/common/js/utils';
 import Convert from "@/business/components/common/json-schema/convert/convert";
-import {stepCompute, hisDataProcessing} from "@/business/components/api/definition/api-definition";
+import {hisDataProcessing, stepCompute} from "@/business/components/api/definition/api-definition";
 
 export default {
   name: "MsApiHttpRequestForm",
@@ -430,7 +429,7 @@ export default {
     },
     batchSave(data) {
       if (data) {
-        let params = data.split("\n");
+        let params = data.split(/[(\r\n)\r\n]+/);
         let keyValues = [];
         params.forEach(item => {
           let line = item.split(/：|:/);
