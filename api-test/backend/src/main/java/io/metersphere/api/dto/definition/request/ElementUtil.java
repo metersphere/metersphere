@@ -770,6 +770,9 @@ public class ElementUtil {
 
     public static DatabaseConfig dataSource(String projectId, String dataSourceId, EnvironmentConfig envConfig) {
         try {
+            if (StringUtils.isBlank(dataSourceId)) {
+                return null;
+            }
             BaseEnvironmentService environmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
             List<ApiTestEnvironmentWithBLOBs> environment = environmentService.list(projectId);
             EnvironmentConfig dataConfig = null;
