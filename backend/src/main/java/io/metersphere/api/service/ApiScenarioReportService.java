@@ -940,20 +940,45 @@ public class ApiScenarioReportService {
 
     public void cleanUpReport(long time, String projectId) {
         List<String> ids = extApiScenarioReportMapper.selectByProjectIdAndLessThanTime(projectId, time);
-        if (CollectionUtils.isNotEmpty(ids)) {
-            APIReportBatchRequest request = new APIReportBatchRequest();
-            request.setIds(ids);
-            request.setSelectAllDate(false);
-            request.setCaseType(ReportTypeConstants.SCENARIO.name());
-            deleteAPIReportBatch(request);
+        int pageSize = 1000;
+        int total = ids.size();
+        long pages = Double.valueOf(Math.ceil(total / (double) pageSize)).longValue();
+        for (int i = 0; i < pages; i++) {
+            List<String> subIds;
+            if (i == pages - 1) {
+                // 最后一页
+                subIds = ids.subList(i * pageSize, (i * pageSize) + (total % pageSize));
+            } else {
+                subIds = ids.subList(i * pageSize, i * pageSize + pageSize);
+            }
+
+            if (CollectionUtils.isNotEmpty(subIds)) {
+                APIReportBatchRequest request = new APIReportBatchRequest();
+                request.setIds(subIds);
+                request.setSelectAllDate(false);
+                request.setCaseType(ReportTypeConstants.SCENARIO.name());
+                deleteAPIReportBatch(request);
+            }
         }
+
         List<String> definitionExecIds = extApiDefinitionExecResultMapper.selectByProjectIdAndLessThanTime(projectId, time);
-        if (CollectionUtils.isNotEmpty(definitionExecIds)) {
-            APIReportBatchRequest request = new APIReportBatchRequest();
-            request.setIds(definitionExecIds);
-            request.setSelectAllDate(false);
-            request.setCaseType(ReportTypeConstants.API.name());
-            deleteAPIReportBatch(request);
+        total = definitionExecIds.size();
+        pages = Double.valueOf(Math.ceil(total / (double) pageSize)).longValue();
+        for (int i = 0; i < pages; i++) {
+            List<String> subIds;
+            if (i == pages - 1) {
+                // 最后一页
+                subIds = ids.subList(i * pageSize, (i * pageSize) + (total % pageSize));
+            } else {
+                subIds = ids.subList(i * pageSize, i * pageSize + pageSize);
+            }
+            if (CollectionUtils.isNotEmpty(subIds)) {
+                APIReportBatchRequest request = new APIReportBatchRequest();
+                request.setIds(subIds);
+                request.setSelectAllDate(false);
+                request.setCaseType(ReportTypeConstants.API.name());
+                deleteAPIReportBatch(request);
+            }
         }
     }
 
