@@ -24,19 +24,11 @@
       </span>
       <br/>
 
-      <div v-if="!isImage" class="comment-desc" style="font-size: 10px;color: #303133">
-        <pre>{{ comment.description }}</pre>
-      </div>
-      <div v-if="isImage" class="demo-image__preview">
-        <pre>{{ imgDescription }}</pre>
-        <el-image
-          :z-index="imageIndex"
-          style="width: 100px; height: 100px;"
-          fit="contain"
-          :src="src"
-          :preview-src-list="srcList">
-        </el-image>
-      </div>
+      <ms-mark-down-text
+        class="rich-text"
+        prop="description"
+        :disabled="true"
+        :data="comment"/>
     </div>
 
     <el-dialog :visible.sync="visible"
@@ -87,7 +79,6 @@ export default {
       imageIndex: 99999,
       src: "",
       srcList: [],
-      imgNameList: [],
       description: "",
       imageMatchPattern: "(\\!\\[)\\S+]\\(\\S+\\)",
       toolbars: {
@@ -127,21 +118,11 @@ export default {
       }
     }
   },
-  computed: {
-    isImage() {
-      return this.checkImage(this.comment.description);
-    }
-  },
   methods: {
     deleteComment() {
       if (getCurrentUser().id !== this.comment.author) {
         this.$warning(this.$t('test_track.comment.cannot_delete'));
         return;
-      }
-      if (this.imgNameList.length > 0) {
-        this.imgNameList.forEach(imgName => {
-          this.$get('/resource/md/delete/' + imgName);
-        });
       }
       this.$get(this.apiUrl + "/comment/delete/" + this.comment.id, () => {
         this.$success(this.$t('commons.delete_success'));
@@ -156,100 +137,15 @@ export default {
       this.description = this.comment.description;
       this.visible = true;
     },
+    cancelComment() {
+      this.comment.description = this.description;
+    },
     editComment() {
       this.$post(this.apiUrl + "/comment/edit", {id: this.comment.id, description: this.comment.description}, () => {
         this.visible = false;
         this.$success(this.$t('commons.modify_success'));
         this.$emit("refresh");
       });
-    },
-    cancelComment() {
-      this.comment.description = this.description;
-    },
-    checkImage() {
-      this.srcList = [];
-      let param = this.comment.description;
-      let returnFlag = false;
-      if (param) {
-        let message = param + "";
-        let matchIndex = message.indexOf("](/resource/md/get");
-        if (matchIndex > 0) {
-          let messageSplitArr = message.split("](/resource/md/get");
-          for (let itemIndex = 0; itemIndex < messageSplitArr.length; itemIndex++) {
-            let itemStr = messageSplitArr[itemIndex];
-            let picNameIndex = itemStr.indexOf("![");
-            if (picNameIndex < 0) {
-              let endUrlIndex = itemStr.indexOf(")");
-              if (endUrlIndex > 0) {
-                let itemStrArr = itemStr.substr(0, endUrlIndex);
-                //if(imgNameList.)
-                if (this.imgNameList.indexOf(itemStrArr) < 0) {
-                  this.imgNameList.push(itemStrArr);
-                }
-
-                let imgUrl = "/resource/md/get" + itemStrArr;
-                this.src = imgUrl;
-                if (this.srcList.indexOf(itemStrArr) < 0) {
-                  this.srcList.push(imgUrl);
-                }
-              }
-            } else {
-              let inputStr = itemStr.substr(0, picNameIndex);
-              if (this.imgDescription === "") {
-                this.imgDescription = inputStr;
-              } else {
-                this.imgDescription = "\n" + inputStr;
-              }
-            }
-          }
-        } else {
-          let imgUrlIndex = message.indexOf("](http");
-          if (imgUrlIndex > 0) {
-            let imgUrlSplitArr = message.split("](http");
-            for (let itemIndex = 0; itemIndex < imgUrlSplitArr.length; itemIndex++) {
-              let itemStr = imgUrlSplitArr[itemIndex];
-              let picNameIndex = itemStr.indexOf("![");
-              if (picNameIndex < 0) {
-                let endUrlIndex = itemStr.indexOf(")");
-                if (endUrlIndex > 0) {
-                  let itemStrArr = itemStr.substr(0, endUrlIndex);
-                  //if(imgNameList.)
-                  if (this.imgNameList.indexOf(itemStrArr) < 0) {
-                    this.imgNameList.push(itemStrArr);
-                  }
-                  let imgUrl = "http" + itemStrArr;
-                  this.src = imgUrl;
-                  if (this.srcList.indexOf(itemStrArr) < 0) {
-                    this.srcList.push(imgUrl);
-                  }
-                }
-              } else {
-                let inputStr = itemStr.substr(0, picNameIndex);
-                if (this.imgDescription === "") {
-                  this.imgDescription = inputStr;
-                } else {
-                  this.imgDescription = "\n" + inputStr;
-                }
-              }
-            }
-          }
-        }
-        if (this.srcList.length > 0) {
-          returnFlag = true;
-        }
-      }
-      return returnFlag;
-    },
-    checkByUrls(url) {
-      let checkResultFlag = false;
-      if (this.imgNameList.length > 0) {
-        this.imgNameList.forEach(imgName => {
-          if (imgName === url) {
-            checkResultFlag = true;
-          }
-        });
-      }
-      return checkResultFlag;
     }
   }
 }
@@ -315,5 +211,13 @@ pre {
 .send-btn {
   margin-top: 5px;
   width: 100%;
+}
+
+.rich-text {
+  box-shadow: none !important;
+}
+
+.rich-text /deep/ .v-show-content p {
+  margin-bottom: 0;
 }
 </style>
