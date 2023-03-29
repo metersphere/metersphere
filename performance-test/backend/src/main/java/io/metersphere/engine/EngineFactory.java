@@ -120,9 +120,6 @@ public class EngineFactory {
                         }
                         if (values instanceof List) {
                             Object value = b.get("value");
-                            if (value == null) {
-                                MSException.throwException(Translator.get("load_configuration_value_is_null") + ", key:" + key);
-                            }
                             if ("TargetLevel".equals(key)) {
                                 switch (strategy) {
                                     default:
