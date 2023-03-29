@@ -267,7 +267,7 @@ public class ApiDefinitionImportUtilService {
             if (item.getVersionId() == null || (!item.getVersionId().equals("new") && !item.getVersionId().equals("update"))) {
                 item.setNum(num++);
             }
-            //如果EsbData需要存储,则需要进行接口是否更新的判断
+
             ApiDefinitionImportParamDTO apiDefinitionImportParam = new ApiDefinitionImportParamDTO(item, request, apiImport.getMocks(), toUpdateList, caseList);
             apiDefinitionImportParam.setRepeatList(sameRefIds);
             ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, apiDefinitionImportParam);
@@ -754,15 +754,11 @@ public class ApiDefinitionImportUtilService {
         if (CollectionUtils.isEmpty(repeatList)) {
             return;
         }
-        if (apiDefinition.getLatest()) {
-            for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
-                if (apiDefinitionWithBLOBs.getLatest() && !apiDefinition.getId().equalsIgnoreCase(apiDefinitionWithBLOBs.getId())) {
+        for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
+            if (!apiDefinition.getId().equalsIgnoreCase(apiDefinitionWithBLOBs.getId())) {
+                if (apiDefinition.getLatest() && apiDefinitionWithBLOBs.getLatest()) {
                     apiDefinitionWithBLOBs.setLatest(false);
                 }
-                batchMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
-            }
-        } else {
-            for (ApiDefinitionWithBLOBs apiDefinitionWithBLOBs : repeatList) {
                 batchMapper.updateByPrimaryKey(apiDefinitionWithBLOBs);
             }
         }
@@ -947,7 +943,9 @@ public class ApiDefinitionImportUtilService {
                                    Map<String, ApiDefinitionWithBLOBs> methodPathMap, Map<String, List<ApiDefinitionWithBLOBs>> repeatDataMap,
                                    String updateVersionId, List<ApiTestCaseWithBLOBs> optionDataCases,
                                    Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap) {
+        //要去覆盖接口的集合
         List<ApiDefinitionWithBLOBs> coverApiList = new ArrayList<>();
+        //记录已存在数据可以被更新的集合
         List<ApiDefinitionWithBLOBs> updateApiList = new ArrayList<>();
         repeatDataMap.forEach((k, v) -> {
             ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = methodPathMap.get(k);
@@ -956,11 +954,13 @@ public class ApiDefinitionImportUtilService {
                 Map<String, List<ApiTestCaseWithBLOBs>> definitionIdCaseMAp = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
                 Map<String, ApiTestCaseWithBLOBs> caseNameMap = getDistinctCaseNameMap(definitionIdCaseMAp, apiDefinitionWithBLOBs);
                 int i = 0;
+                //定义最新版本
                 ApiDefinitionWithBLOBs latestApi = null;
                 for (ApiDefinitionWithBLOBs definitionWithBLOBs : v) {
                     if (definitionWithBLOBs.getLatest()) {
                         latestApi = definitionWithBLOBs;
                     }
+                    //为了记录指定版本是否有数据
                     if (!definitionWithBLOBs.getVersionId().equals(updateVersionId)) {
                         i += 1;
                         continue;
