@@ -89,6 +89,11 @@ public class MsHashTreeService {
     private static final String AUTO_REDIRECTS = "autoRedirects";
     private static final String ALIAS = "alias";
     private static final String INDEX = "index";
+    private static final String QUERY = "query";
+    private static final String VARIABLE_NAMES = "variableNames";
+    private static final String DATASOURCEID = "dataSourceId";
+    private static final String RESULT_VARIABLE = "resultVariable";
+    private static final String ENV_Id = "environmentId";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -163,6 +168,14 @@ public class MsHashTreeService {
                     element.put(FOLLOW_REDIRECTS, refElement.opt(FOLLOW_REDIRECTS));
                     element.put(AUTO_REDIRECTS, refElement.opt(AUTO_REDIRECTS));
                     element.put(ALIAS, refElement.opt(ALIAS));
+                    if (StringUtils.equals(refElement.optString(TYPE), "JDBCSampler")) {
+                        element.put(QUERY, refElement.opt(QUERY));
+                        element.put(VARIABLE_NAMES, refElement.opt(VARIABLE_NAMES));
+                        element.put(DATASOURCEID, refElement.opt(DATASOURCEID));
+                        element.put(RESULT_VARIABLE, refElement.opt(RESULT_VARIABLE));
+                        element.put(ENV_Id, refElement.opt(ENV_Id));
+                    }
+
                     if (array != null) {
                         JSONArray sourceHashTree = element.optJSONArray(HASH_TREE);
                         Map<String, List<JSONObject>> groupMap = ElementUtil.group(sourceHashTree);
