@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="display: inline">
     <el-tag size="mini" type="primary" effect="plain" v-if="getStatus(status) === 'running'">
       {{ showStatus(status) }}
     </el-tag>
