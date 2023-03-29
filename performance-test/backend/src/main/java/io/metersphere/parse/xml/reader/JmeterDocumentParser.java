@@ -133,7 +133,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         String autoStopDelay = "30";
         if (autoStopDelays instanceof List) {
             Object o = ((List<?>) autoStopDelays).get(0);
-            autoStopDelay = o.toString();
+            if (o != null) {
+                autoStopDelay = o.toString();
+            }
         }
         // 清空child
         removeChildren(autoStopListener);
@@ -146,7 +148,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         String autoStop = "false";
         if (autoStops instanceof List) {
             Object o = ((List<?>) autoStops).get(0);
-            autoStop = o.toString();
+            if (o != null) {
+                autoStop = o.toString();
+            }
         }
         if (!BooleanUtils.toBoolean(autoStop)) {
             return;
@@ -166,7 +170,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         String serializeThreadGroup = "false";
         if (serializeThreadGroups instanceof List) {
             Object o = ((List<?>) serializeThreadGroups).get(0);
-            serializeThreadGroup = o.toString();
+            if (o != null) {
+                serializeThreadGroup = o.toString();
+            }
         }
         List<Element> childNodes = element.elements();
         for (Element item : childNodes) {
@@ -654,7 +660,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (tgTypes instanceof List) {
             Object o = ((List<?>) tgTypes).get(0);
             ((List<?>) tgTypes).remove(0);
-            tgType = o.toString();
+            if (o != null) {
+                tgType = o.toString();
+            }
         }
         if (StringUtils.equals(tgType, THREAD_GROUP)) {
             processBaseThreadGroup(threadGroup, THREAD_GROUP);
@@ -713,28 +721,36 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (targetLevels instanceof List) {
             Object o = ((List<?>) targetLevels).get(0);
             ((List<?>) targetLevels).remove(0);
-            threads = o.toString();
+            if (o != null) {
+                threads = o.toString();
+            }
         }
         Object rampUps = context.getProperty("RampUp");
         String rampUp = "1";
         if (rampUps instanceof List) {
             Object o = ((List<?>) rampUps).get(0);
             ((List<?>) rampUps).remove(0);
-            rampUp = o.toString();
+            if (o != null) {
+                rampUp = o.toString();
+            }
         }
         Object durations = context.getProperty("duration");
         String duration = "2";
         if (durations instanceof List) {
             Object o = ((List<?>) durations).get(0);
             ((List<?>) durations).remove(0);
-            duration = o.toString();
+            if (o != null) {
+                duration = o.toString();
+            }
         }
         Object onSampleErrors = context.getProperty("onSampleError");
         String onSampleError = "continue";
         if (onSampleErrors instanceof List) {
             Object o = ((List<?>) onSampleErrors).get(0);
             ((List<?>) onSampleErrors).remove(0);
-            onSampleError = o.toString();
+            if (o != null) {
+                onSampleError = o.toString();
+            }
         }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
@@ -746,14 +762,18 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (deleteds instanceof List) {
             Object o = ((List<?>) deleteds).get(0);
             ((List<?>) deleteds).remove(0);
-            deleted = o.toString();
+            if (o != null) {
+                deleted = o.toString();
+            }
         }
         Object enableds = context.getProperty("enabled");
         String enabled = "true";
         if (enableds instanceof List) {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
-            enabled = o.toString();
+            if (o != null) {
+                enabled = o.toString();
+            }
         }
 
         threadGroup.addAttribute("enabled", enabled);
@@ -814,35 +834,45 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (targetLevels instanceof List) {
             Object o = ((List<?>) targetLevels).get(0);
             ((List<?>) targetLevels).remove(0);
-            threads = o.toString();
+            if (o != null) {
+                threads = o.toString();
+            }
         }
         Object rampUps = context.getProperty("RampUp");
         String rampUp = "1";
         if (rampUps instanceof List) {
             Object o = ((List<?>) rampUps).get(0);
             ((List<?>) rampUps).remove(0);
-            rampUp = o.toString();
+            if (o != null) {
+                rampUp = o.toString();
+            }
         }
         Object steps = context.getProperty("Steps");
         String step = "2";
         if (steps instanceof List) {
             Object o = ((List<?>) steps).get(0);
             ((List<?>) steps).remove(0);
-            step = o.toString();
+            if (o != null) {
+                step = o.toString();
+            }
         }
         Object holds = context.getProperty("Hold");
         String hold = "2";
         if (holds instanceof List) {
             Object o = ((List<?>) holds).get(0);
             ((List<?>) holds).remove(0);
-            hold = o.toString();
+            if (o != null) {
+                hold = o.toString();
+            }
         }
         Object onSampleErrors = context.getProperty("onSampleError");
         String onSampleError = "continue";
         if (onSampleErrors instanceof List) {
             Object o = ((List<?>) onSampleErrors).get(0);
             ((List<?>) onSampleErrors).remove(0);
-            onSampleError = o.toString();
+            if (o != null) {
+                onSampleError = o.toString();
+            }
         }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
@@ -854,14 +884,18 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (deleteds instanceof List) {
             Object o = ((List<?>) deleteds).get(0);
             ((List<?>) deleteds).remove(0);
-            deleted = o.toString();
+            if (o != null) {
+                deleted = o.toString();
+            }
         }
         Object enableds = context.getProperty("enabled");
         String enabled = "true";
         if (enableds instanceof List) {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
-            enabled = o.toString();
+            if (o != null) {
+                enabled = o.toString();
+            }
         }
 
         threadGroup.addAttribute("enabled", enabled);
@@ -894,7 +928,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (tgTypes instanceof List) {
             Object o = ((List<?>) tgTypes).get(0);
             ((List<?>) tgTypes).remove(0);
-            tgType = o.toString();
+            if (o != null) {
+                tgType = o.toString();
+            }
         }
         if (StringUtils.equals(tgType, THREAD_GROUP)) {
             threadGroup.setName(THREAD_GROUP);
@@ -933,7 +969,9 @@ public class JmeterDocumentParser implements EngineSourceParser {
         String duration = "2";
         if (durations instanceof List) {
             Object o = ((List<?>) durations).remove(0);
-            duration = o.toString();
+            if (o != null) {
+                duration = o.toString();
+            }
         }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
@@ -956,42 +994,54 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (targetLevels instanceof List) {
             Object o = ((List<?>) targetLevels).get(0);
             ((List<?>) targetLevels).remove(0);
-            threads = o.toString();
+            if (o != null) {
+                threads = o.toString();
+            }
         }
         Object iterateNum = context.getProperty("iterateNum");
         String loops = "1";
         if (iterateNum instanceof List) {
             Object o = ((List<?>) iterateNum).get(0);
             ((List<?>) iterateNum).remove(0);
-            loops = o.toString();
+            if (o != null) {
+                loops = o.toString();
+            }
         }
         Object onSampleErrors = context.getProperty("onSampleError");
         String onSampleError = "continue";
         if (onSampleErrors instanceof List) {
             Object o = ((List<?>) onSampleErrors).get(0);
             ((List<?>) onSampleErrors).remove(0);
-            onSampleError = o.toString();
+            if (o != null) {
+                onSampleError = o.toString();
+            }
         }
         Object rampUps = context.getProperty("iterateRampUpTime");
         String rampUp = "10";
         if (rampUps instanceof List) {
             Object o = ((List<?>) rampUps).get(0);
             ((List<?>) rampUps).remove(0);
-            rampUp = o.toString();
+            if (o != null) {
+                rampUp = o.toString();
+            }
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
         if (deleteds instanceof List) {
             Object o = ((List<?>) deleteds).get(0);
             ((List<?>) deleteds).remove(0);
-            deleted = o.toString();
+            if (o != null) {
+                deleted = o.toString();
+            }
         }
         Object enableds = context.getProperty("enabled");
         String enabled = "true";
         if (enableds instanceof List) {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
-            enabled = o.toString();
+            if (o != null) {
+                enabled = o.toString();
+            }
         }
         threadGroup.addAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
