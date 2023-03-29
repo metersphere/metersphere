@@ -178,22 +178,21 @@
             align="center"
           >
             <template v-slot:default="scope">
-              <div v-loading="rowLoading === scope.row.id">
-                <el-link
-                  @click="getReportResult(scope.row)"
-                  :disabled="
+              <el-link
+                @click="getReportResult(scope.row)"
+                :disabled="
                     !scope.row.execResult || scope.row.execResult === 'PENDING'
                   "
-                >
-                  <ms-test-plan-api-status :status="scope.row.execResult" />
-                </el-link>
-                <div
-                  v-if="scope.row.id"
-                  style="color: #999999; font-size: 12px"
-                >
-                  <span> {{ scope.row.updateTime | datetimeFormat }}</span>
-                  {{ scope.row.updateUser }}
-                </div>
+              >
+                <ms-test-plan-api-status :status="scope.row.execResult" />
+                <i v-if="rowLoading === scope.row.id" class="el-icon-loading" style="margin-left: 10px"/>
+              </el-link>
+              <div
+                v-if="scope.row.id"
+                style="color: #999999; font-size: 12px"
+              >
+                <span> {{ scope.row.updateTime | datetimeFormat }}</span>
+                {{ scope.row.updateUser }}
               </div>
             </template>
           </ms-table-column>
