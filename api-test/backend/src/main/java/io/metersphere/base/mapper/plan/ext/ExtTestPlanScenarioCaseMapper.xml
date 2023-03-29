@@ -244,11 +244,19 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key == 'last_result'">
+                        <when test="key == 'last_result' and !values.contains('PENDING')">
                             and c.last_result in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
+                        </when>
+                        <when test="key == 'last_result' and values.contains('PENDING')">
+                            and (c.last_result in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                                or c.last_result is null or c.last_result = ''
+                            )
                         </when>
                         <when test="key == 'version_id'">
                             and c.version_id in
