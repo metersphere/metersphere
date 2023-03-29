@@ -60,7 +60,7 @@ export default {
       removeGoBackListener(this.handleClose);
     },
     confirm() {
-      let params = this.parameters.split("\n");
+      let params = this.parameters.split(/[(\r\n)\r\n]+/);
       let index = 1;
       let isNormal = true;
       params.forEach(item => {

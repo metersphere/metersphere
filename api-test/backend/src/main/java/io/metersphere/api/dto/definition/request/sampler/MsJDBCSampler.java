@@ -92,16 +92,20 @@ public class MsJDBCSampler extends MsTestElement {
                 }
                 this.dataSource = null;
                 envConfig = this.initDataSource();
+                
+                LoggerUtil.info(this.getName() + "：自选数据源结束   查找结果：" + (this.dataSource == null));
             } else {
                 // 取当前环境下默认的一个数据源
                 if (config.isEffective(this.getProjectId())) {
                     if (config.getConfig().get(this.getProjectId()) != null) {
                         envConfig = config.getConfig().get(this.getProjectId());
                         if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                            LoggerUtil.info(this.getName() + "：开始获取当前环境下默认数据源");
                             DatabaseConfig dataSourceOrg = ElementUtil.dataSource(getProjectId(), dataSourceId, envConfig);
                             if (dataSourceOrg != null) {
                                 this.dataSource = dataSourceOrg;
                             } else {
+                                LoggerUtil.info(this.getName() + "：获取当前环境下默认数据源结束！未查找到默认数据源");
                                 this.dataSource = envConfig.getDatabaseConfigs().get(0);
                             }
                         }
@@ -110,6 +114,7 @@ public class MsJDBCSampler extends MsTestElement {
             }
         }
         if (this.dataSource == null) {
+            LoggerUtil.info(this.getName() + "  当前项目id", this.getProjectId() + "  当前环境配置信息", JSONUtil.toJSONString(config));
             String message = "数据源为空请选择数据源";
             MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
         }
