@@ -121,7 +121,7 @@ import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchB
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import SwitchProject from "../../../case/components/SwitchProject";
-import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {TEST_REVIEW_RELEVANCE_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
 import elTableInfiniteScroll from 'el-table-infinite-scroll';
 import SelectMenu from "@/business/common/SelectMenu";
@@ -137,6 +137,8 @@ import {getTestCaseReviewRelevance, getTestCaseReviewsCasePage} from "@/api/test
 import {testCaseNodeListReviewRelate} from "@/api/test-case-node";
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {projectRelated} from "@/api/project";
+import {getTestTemplate} from "@/api/custom-field-template";
+import {initTestCaseConditionComponents} from "@/business/case/test-case";
 
 export default {
   name: "TestReviewRelevance",
@@ -182,7 +184,7 @@ export default {
       total: 0,
       lineStatus: true,
       condition: {
-        components: TEST_CASE_CONFIGS
+        components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS
       },
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -233,10 +235,18 @@ export default {
       this.getVersionOptions();
     }
   },
+  activated() {
+    this.loadConditionComponents();
+  },
   updated() {
     this.toggleSelection(this.testReviews);
   },
   methods: {
+    loadConditionComponents() {
+      getTestTemplate(this.projectId).then((template) => {
+        this.condition.components = initTestCaseConditionComponents(this.condition, template.customFields, false);
+      });
+    },
     fullScreen(){
       this.isFullScreen = !this.isFullScreen;
       this.screenHeight = this.isFullScreen ?'calc(100vh - 180px)' :'calc(100vh - 420px)'
@@ -317,6 +327,7 @@ export default {
       this.selectNodeNames = [];
       this.dialogFormVisible = false;
       this.condition.filters = {};
+      this.condition.combine = {};
       if(this.condition.projectId) {
         delete this.condition.projectId;
       }
@@ -368,6 +379,7 @@ export default {
     },
     changeProject(project) {
       this.projectId = project.id;
+      this.loadConditionComponents();
     },
     getProjectNode(projectId, condition) {
       return new Promise((resolve) => {

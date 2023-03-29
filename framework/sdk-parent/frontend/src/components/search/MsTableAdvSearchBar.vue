@@ -183,6 +183,7 @@ export default {
       } else {
         this.setModulesParam();
         this.refreshComponentOption();
+        this.handleCustomComponent();
       }
     },
     refreshComponentOption() {
@@ -193,6 +194,18 @@ export default {
     setModulesParam() {
       let comps = this.optional.components.filter(c => c.key === 'moduleIds' && c.options.type === 'POST');
       comps.forEach(comp => comp.options.params = {"projectId": this.condition.projectId});
+    },
+    handleCustomComponent() {
+      let newConfig = cloneDeep(this.condition);
+      newConfig.components.forEach(component => {
+        let operator = component.operator.value;
+        component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
+      })
+      this.newCustomFiled = newConfig.components.filter(co => co.custom);
+      for (let customField of this.newCustomFiled) {
+        this.$set(customField, 'disable', false)
+      }
+      this.config.components[1] = {label: this.$t('custom_field.name'), child: this.newCustomFiled};
     },
     addFilter() {
       const index = _findIndexByKey(this.optional.components, this.nullFilterKey);
