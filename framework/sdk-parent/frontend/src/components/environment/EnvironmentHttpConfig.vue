@@ -448,7 +448,10 @@ export default {
         return true;
       }
       this.condition.domain = decodeURIComponent(url.hostname);
-
+      if (socket.startsWith("${")){
+        let split = socket.split(":");
+        this.condition.domain = split[0];
+      }
       this.condition.port = url.port;
       let path = url.pathname === "/" ? "" : url.pathname;
       if (url.port) {
