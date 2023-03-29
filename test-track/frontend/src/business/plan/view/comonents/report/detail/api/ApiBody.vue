@@ -265,7 +265,7 @@ export default {
     },
     batchSave(data) {
       if (data) {
-        let params = data.split("\n");
+        let params = data.split(/[(\r\n)\r\n]+/);
         let keyValues = [];
         params.forEach(item => {
           if (item) {

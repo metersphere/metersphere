@@ -9,9 +9,11 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.vo.JDBCProcessorVO;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -67,13 +69,16 @@ public class MsJDBCPostProcessor extends MsTestElement {
                 this.environmentId = environmentConfig.getEnvironmentId();
             }
             this.dataSource = ElementUtil.initDataSource(this.environmentId, this.dataSourceId);
+            LoggerUtil.info(this.getName() + "：自选数据源结束   查找结果：" + (this.dataSource == null));
         } else {
             // 取当前环境下默认的一个数据源
             if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
+                LoggerUtil.info(this.getName() + "：开始获取当前环境下默认数据源");
                 DatabaseConfig dataSourceOrg = ElementUtil.dataSource(getProjectId(), dataSourceId, config.getConfig().get(this.getProjectId()));
                 if (dataSourceOrg != null) {
                     this.dataSource = dataSourceOrg;
                 } else {
+                    LoggerUtil.info(this.getName() + "：获取当前环境下默认数据源结束！未查找到默认数据源");
                     this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
                 }
             }
@@ -84,6 +89,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
                 this.dataSource = ElementUtil.initDataSource(this.environmentId, this.dataSourceId);
             }
             if (this.dataSource == null) {
+                LoggerUtil.info(this.getName() + "：  当前项目id", this.getProjectId() + "  当前环境配置信息", JSONUtil.toJSONString(config));
                 String message = "数据源为空请选择数据源";
                 MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
             }

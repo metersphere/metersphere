@@ -417,12 +417,13 @@ public class ApiDefinitionImportUtilService {
             //这样的过滤规则下可能存在重复接口，如果是覆盖模块，需要按照去重规则再次去重，否则就加上接口原有的模块
             if (fullCoverage) {
                 removeHttpChooseModuleRepeat(optionData, chooseModulePath);
-                //  optionData = singleOptionData;
-                // optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(chooseModulePath), api -> api));
             }
         }
         getUrlRepeatOptionMap(optionData, optionMap);
-        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getMethod()).concat(t.getPath()).concat(t.getModulePath())));
+        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName()
+                .concat(t.getMethod())
+                .concat(t.getPath())
+                .concat(StringUtils.isNotBlank(t.getModulePath()) ? t.getModulePath() : "/未规划用例")));
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap = new HashMap<>();
         //重复接口的case
         if (CollectionUtils.isNotEmpty(repeatApiDefinitionWithBLOBs)) {
