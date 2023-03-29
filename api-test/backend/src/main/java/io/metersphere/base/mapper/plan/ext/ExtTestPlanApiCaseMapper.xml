@@ -150,9 +150,15 @@
                             and a.version_id in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key == 'exec_result'">
+                        <when test="key == 'exec_result' and !values.contains('PENDING')">
                             and t.status in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key == 'exec_result' and values.contains('PENDING')">
+                            and (t.status in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                            or t.status is null
+                            )
                         </when>
                     </choose>
                 </if>
