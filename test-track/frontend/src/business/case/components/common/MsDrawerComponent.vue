@@ -2,7 +2,7 @@
   <el-drawer
     :close-on-click-modal="false"
     :visible.sync="visible"
-    :size="1100"
+    :size="size"
     @close="close"
     destroy-on-close
     ref="editFile"
@@ -108,6 +108,10 @@ export default {
   components: {},
   props: {
     title: String,
+    size: {
+      type: Number,
+      default: 1100,
+    },
     enablePagination: {
       type: Boolean,
       default: true,
