@@ -144,7 +144,9 @@ export default {
       selfEditable: false,
       hoverEditable: false,
       memberOptions: [],
-      isCustomNone: false
+      isCustomNone: false,
+      optionPlatform: '',
+      optionPlatformValue: ''
     };
   },
   props: {
@@ -317,46 +319,44 @@ export default {
       if (!demandOptions) {
         demandOptions = this.contentObject.content.demandOptions || [];
       }
-      let optionPlatform = "";
       if (demandOptions.length > 0) {
         for (let i = 0; i < demandOptions.length; i++) {
           if (demandOptions[i].value === this.contentObject.content.demandId) {
-            optionPlatform = this.handleDemandOptionPlatform(demandOptions[i]);
+            this.optionPlatform = this.handleDemandOptionPlatform(demandOptions[i]);
             break;
           }
           if (demandOptions[i].children && demandOptions[i].children.length > 0) {
-            optionPlatform = this.getStoryPlatform(
+            this.optionPlatform = this.getStoryPlatform(
               demandOptions[i].children,
               this.contentObject.content.demandId,
             );
           }
         }
       }
-      return optionPlatform;
+      return this.optionPlatform;
     },
     getStoryLabel(demandOptions) {
       if (!demandOptions) {
         demandOptions = this.contentObject.content.demandOptions || [];
       }
-      let optionPlatform = "";
       if (demandOptions.length > 0) {
         for (let i = 0; i < demandOptions.length; i++) {
           if (demandOptions[i].value === this.contentObject.content.demandId) {
-            optionPlatform = this.handleDemandOptionLabel(demandOptions[i]);
+            this.optionPlatformValue = this.handleDemandOptionLabel(demandOptions[i]);
             break;
           }
           if (demandOptions[i].children && demandOptions[i].children.length > 0) {
-            optionPlatform = this.getStoryLabel(
+            this.optionPlatformValue = this.getStoryLabel(
               demandOptions[i].children,
               this.contentObject.content.demandId,
             );
           }
-          if (demandOptions[i].value === "other") {
-            optionPlatform = this.$t("test_track.case.other");
-          }
+        }
+        if (this.optionPlatformValue === '') {
+          this.optionPlatformValue = this.$t("test_track.case.other");
         }
       }
-      return optionPlatform;
+      return this.optionPlatformValue;
     },
     handleDemandOptionPlatform(data) {
       if (data.platform) {
