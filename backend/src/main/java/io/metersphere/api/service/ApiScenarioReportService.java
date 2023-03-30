@@ -968,9 +968,9 @@ public class ApiScenarioReportService {
             List<String> subIds;
             if (i == pages - 1) {
                 // 最后一页
-                subIds = ids.subList(i * pageSize, (i * pageSize) + (total % pageSize));
+                subIds = definitionExecIds.subList(i * pageSize, (i * pageSize) + (total % pageSize));
             } else {
-                subIds = ids.subList(i * pageSize, i * pageSize + pageSize);
+                subIds = definitionExecIds.subList(i * pageSize, i * pageSize + pageSize);
             }
             if (CollectionUtils.isNotEmpty(subIds)) {
                 APIReportBatchRequest request = new APIReportBatchRequest();
