@@ -940,7 +940,7 @@ public class ApiScenarioReportService {
 
     public void cleanUpReport(long time, String projectId) {
         List<String> ids = extApiScenarioReportMapper.selectByProjectIdAndLessThanTime(projectId, time);
-        int pageSize = 1000;
+        int pageSize = 100;
         int total = ids.size();
         long pages = Double.valueOf(Math.ceil(total / (double) pageSize)).longValue();
         for (int i = 0; i < pages; i++) {
