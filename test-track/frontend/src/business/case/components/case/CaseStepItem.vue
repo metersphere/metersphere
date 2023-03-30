@@ -220,6 +220,10 @@ export default {
 </script>
 
 <style scoped>
+.el-table :deep(td:nth-child(1) .cell),
+.el-table :deep(td:nth-child(1)) {
+  padding-left: 8px;
+}
 .el-table :deep(td:nth-child(2) .cell),
 .el-table :deep(td:nth-child(2)),
 .el-table :deep(td:nth-child(3) .cell),
