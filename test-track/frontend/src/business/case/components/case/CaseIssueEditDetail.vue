@@ -1,5 +1,5 @@
 <template>
-  <div class="add-issue-box">
+  <div class="add-issue-box" v-loading="this.result.loading">
     <el-form
       :model="form"
       :rules="rules"
@@ -9,37 +9,40 @@
       ref="form"
     >
       <!-- 标题 -->
-      <div class="title-row" v-if="!(this.issueTemplate.platform === 'Local')">
-        <el-form-item :label="$t('commons.title')" prop="title">
-          <div slot="label" class="required-item">
-            {{ $t("commons.title") }}
-          </div>
-          <el-input
-            v-model="form.title"
-            autocomplete="off"
-            class="top-input-class"
-            maxlength="255"
-            show-word-limit
-          >
-          </el-input>
-        </el-form-item>
+      <div v-if="!enableThirdPartTemplate">
+        <div class="title-row" v-if="!(this.issueTemplate.platform === 'Local')">
+          <el-form-item :label="$t('commons.title')" prop="title">
+            <div slot="label" class="required-item">
+              {{ $t("commons.title") }}
+            </div>
+            <el-input
+              v-model="form.title"
+              autocomplete="off"
+              class="top-input-class"
+              maxlength="255"
+              show-word-limit
+            >
+            </el-input>
+          </el-form-item>
+        </div>
+
+        <div class="title-row" v-else>
+          <el-form-item :label="$t('commons.title')" prop="title">
+            <div slot="label" class="required-item">
+              {{ $t("commons.title") }}
+            </div>
+            <el-input
+              v-model="form.title"
+              autocomplete="off"
+              class="top-input-class"
+              maxlength="300"
+              show-word-limit
+            >
+            </el-input>
+          </el-form-item>
+        </div>
       </div>
 
-      <div class="title-row" v-else>
-        <el-form-item :label="$t('commons.title')" prop="title">
-          <div slot="label" class="required-item">
-            {{ $t("commons.title") }}
-          </div>
-          <el-input
-            v-model="form.title"
-            autocomplete="off"
-            class="top-input-class"
-            maxlength="300"
-            show-word-limit
-          >
-          </el-input>
-        </el-form-item>
-      </div>
       <!-- 自定义字段 -->
       <div class="custom-field-wrap">
         <el-form
@@ -351,15 +354,16 @@ export default {
         this.$refs.testCaseIssueList.clear();
         this.$refs.testCaseIssueList.isXpack = hasLicense();
       }
+
+      enableThirdPartTemplate(this.projectId).then((r) => {
+        this.enableThirdPartTemplate = r.data;
+      });
+
       this.$nextTick(() => {
         getIssuePartTemplateWithProject((template, project) => {
           this.currentProject = project;
           this.init(template, data);
           this.getDataInfoAsync(data);
-
-          enableThirdPartTemplate(this.currentProject.id).then((r) => {
-            this.enableThirdPartTemplate = r.data;
-          });
         });
       });
     },
