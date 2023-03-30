@@ -250,14 +250,10 @@ export default {
           .replaceAll('(', '\\(')
           .replaceAll(')', '\\)')
           .replaceAll('+', '\\+')
-          .replaceAll('[', '\\[')
-          .replaceAll(']', '\\]')
           .replaceAll('?', '\\?')
           .replaceAll('/', '\\/')
           .replaceAll('*', '\\*')
           .replaceAll('^', '\\^')
-          .replaceAll('{', '\\{')
-          .replaceAll('}', '\\}')
           .replaceAll('$', '\\$');
       }
       jsonItem.expect = expect;
