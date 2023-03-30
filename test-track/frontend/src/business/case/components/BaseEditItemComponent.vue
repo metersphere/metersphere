@@ -340,6 +340,10 @@ export default {
         demandOptions = this.contentObject.content.demandOptions || [];
       }
       if (demandOptions.length > 0) {
+        if (this.contentObject.content.demandId === 'other') {
+          this.optionPlatformValue = this.$t("test_track.case.other");
+          return this.optionPlatformValue;
+        }
         for (let i = 0; i < demandOptions.length; i++) {
           if (demandOptions[i].value === this.contentObject.content.demandId) {
             this.optionPlatformValue = this.handleDemandOptionLabel(demandOptions[i]);
@@ -351,9 +355,6 @@ export default {
               this.contentObject.content.demandId,
             );
           }
-        }
-        if (this.optionPlatformValue === '') {
-          this.optionPlatformValue = this.$t("test_track.case.other");
         }
       }
       return this.optionPlatformValue;
