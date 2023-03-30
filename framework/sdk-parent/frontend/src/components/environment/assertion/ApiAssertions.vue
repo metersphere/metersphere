@@ -224,10 +224,15 @@ export default {
       jsonItem.setJSONPathDescription();
       let expect = jsonItem.expect;
       if (expect) {
-        expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-          .replaceAll('+', "\\+").replaceAll('[', "\\[").replaceAll(']', "\\]")
-          .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
-          .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
+        expect = expect.replaceAll('\\', "\\\\")
+          .replaceAll('(', "\\(")
+          .replaceAll(')', "\\)")
+          .replaceAll('+', "\\+")
+          .replaceAll('?', "\\?")
+          .replaceAll('/', "\\/")
+          .replaceAll('*', "\\*")
+          .replaceAll('^', "\\^")
+          .replaceAll('$', "\\$");
       }
       jsonItem.expect = expect;
       jsonItem.enable = true;
