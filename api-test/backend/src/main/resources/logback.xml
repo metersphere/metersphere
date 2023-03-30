@@ -251,7 +251,7 @@
         <appender-ref ref="console"/>
     </root>
     <!--将JMETER日志单独输出的包路径-->
-    <logger name="org.apache.jmeter" additivity="false" level="${logger.level:INFO}">
+    <logger name="org.apache.jmeter" additivity="false" level="INFO">
         <appender-ref ref="JMETER_LOG"/>
     </logger>
     <logger name="io.metersphere" additivity="false">
