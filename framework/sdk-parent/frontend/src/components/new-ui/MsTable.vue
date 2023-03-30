@@ -172,7 +172,7 @@ export default {
     maxHeight: {
       type: String,
       default() {
-        return 'calc(100vh - 287px)';
+        return 'calc(100vh)';
       }
     },
     screenHeight: {

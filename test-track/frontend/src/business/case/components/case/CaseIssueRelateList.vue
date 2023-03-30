@@ -40,6 +40,7 @@
         :show-select-all="false"
         @handlePageChange="getIssues"
         @selectCountChange="setSelectCounts"
+        :max-height="maxHeight"
         @refresh="getIssues"
         class="relate-issue-table"
         ref="table"
@@ -193,6 +194,7 @@ export default {
       isThirdPart: false,
       selectCounts: null,
       screenHeight: 'calc(100vh - 185px)',
+      maxHeight: 'calc(100vh - 287px)',
       platformStatus: [],
       platformStatusMap: new Map(),
     };
