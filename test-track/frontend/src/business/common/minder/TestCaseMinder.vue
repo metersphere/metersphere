@@ -102,6 +102,7 @@ export default {
       needRefresh: false,
       noRefresh: false,
       noRefreshMinder: false,
+      noRefreshMinderForSelectNode: false,
       saveCases: [],
       saveModules: [],
       saveModuleNodeMap: new Map(),
@@ -143,6 +144,11 @@ export default {
   },
   watch: {
     selectNode() {
+      if (this.noRefreshMinderForSelectNode) {
+        // 如果是保存触发的刷新模块，则不刷新脑图
+        this.noRefreshMinderForSelectNode = false;
+        return;
+      }
       if (this.$refs.minder) {
         this.caseNum = this.selectNode.data.caseNum;
         this.$refs.minder.handleNodeSelect(this.selectNode);
@@ -340,6 +346,10 @@ export default {
             // 保存会刷新模块，刷新完模块，脑图也会自动刷新
             // 如果是保存触发的刷新模块，则不刷新脑图
             this.noRefreshMinder = true;
+            if (this.selectNode && this.selectNode.data) {
+              // 如果有选中的模块， 则不刷新 watch -> selectNode
+              this.noRefreshMinderForSelectNode = true;
+            }
           }
           // 由于模块修改刷新的脑图，不刷新模块
           this.noRefresh = false;
@@ -418,6 +428,15 @@ export default {
         this.pushDeleteNode(data);
         module.id = null;
         this.extraNodeChanged.push(data);
+        if (node.children) {
+          // 原本是临时节点，改成模块后，该节点的子节点需要生成新的临时节点
+          node.children.forEach((child) => {
+            if (child.data.isExtraNode) {
+              child.data.changed = true;
+              child.data.id = null;
+            }
+          });
+        }
       }
 
       if (data.type === 'case') {
