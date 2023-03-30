@@ -371,7 +371,7 @@ public class MockApiUtils {
             } catch (Exception e) {
                 LogUtil.error(e);
             }
-        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml")) {
+        } else if (StringUtils.startsWithIgnoreCase(request.getContentType(), "text/xml") || StringUtils.startsWithIgnoreCase(request.getContentType(), "application/xml")) {
             mockParams.setParamType(MockRequestType.XML.name());
             String xmlString = readXml(request);
             JSONObject xmlJsonObject = XMLUtil.xmlStringToJSONObject(xmlString);
