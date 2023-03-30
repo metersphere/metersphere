@@ -446,7 +446,18 @@ export default {
             border-radius: 4px;
             box-shadow: none !important;
           }
-
+          :deep(.content-input-wrapper){
+            width: 100%;
+            padding: 8px 25px 15px 15px;
+          }
+          :deep(.v-show-content){
+            width: 100%;
+            padding: 8px 25px 15px 15px;
+          }
+          :deep(.v-show-content-html){
+            width: 100%;
+            padding: 8px 25px 15px 15px;
+          }
           :deep(.v-note-show) {
             min-height: 65px;
           }
