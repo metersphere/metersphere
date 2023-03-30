@@ -482,7 +482,7 @@ export default {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
-      this.$refs.nodeTree.list();
+      this.$refs.nodeTree.list({ isForceSetCurrentKey: true });
     },
     toggleMinderFullScreen(isFullScreen) {
       this.enableAsideHidden = isFullScreen;
