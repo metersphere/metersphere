@@ -4,10 +4,12 @@ import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.SessionConstants;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
 import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.controller.handler.ResultHolder;
 import io.metersphere.dto.ServiceDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.gateway.service.AuthSourceService;
 import io.metersphere.gateway.service.BaseDisplayService;
 import io.metersphere.gateway.service.SystemParameterService;
@@ -27,6 +29,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import jakarta.annotation.Resource;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -67,6 +70,10 @@ public class LoginController {
                             if (StringUtils.isBlank(((User) r).getLastProjectId())) {
                                 ((User) r).setLastProjectId("no_such_project");
                             }
+                            // 使用数据库里的最新用户权限，不同的tab sessionId 不变
+                            UserDTO userDTO = userLoginService.getUserDTO(((User) r).getId());
+                            SessionUser sessionUser = SessionUser.fromUser(userDTO, sessionId);
+                            return ResultHolder.success(sessionUser);
                         }
                         return ResultHolder.success(r);
                     });
