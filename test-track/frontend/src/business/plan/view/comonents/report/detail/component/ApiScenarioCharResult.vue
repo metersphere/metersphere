@@ -104,11 +104,15 @@ export default {
       });
     },
     setFormatterFunc() {
-
       let dataCount = 0;
+      let yMax = 0;
       this.data.forEach(item => {
         dataCount += item.value;
       });
+
+      if (this.data && this.data.length === 1) {
+        yMax = dataCount;
+      }
 
       let formatterFuc = function (item) {
         return item.data.value + '/' + ((item.data.value / dataCount) * 100).toFixed(0) + '%';
@@ -121,7 +125,10 @@ export default {
       this.options.title.subtext = dataCount;
 
       this.options.legend.data = this.data.map(i => i.name);
-      this.options.yAxis.data = this.data.map(i => i.name);
+      this.options.xAxis.data = this.data.map(i => i.name);
+      if (yMax !== 0) {
+        this.options.xAxis.max = yMax;
+      }
     },
   }
 }
