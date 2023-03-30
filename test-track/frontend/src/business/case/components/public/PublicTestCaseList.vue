@@ -26,6 +26,7 @@
       :page-size.sync="page.pageSize"
       :operators="operators"
       :screen-height="screenHeight"
+      :max-height="maxHeight"
       :batch-operators="batchButtons"
       :remember-order="true"
       :disable-header-config="true"
@@ -288,6 +289,7 @@ export default {
       type: TEST_CASE_LIST,
       tableHeaderKey: "TRACK_PUBLIC_TEST_CASE",
       screenHeight: 'calc(100vh - 185px)',
+      maxHeight: 'calc(100vh - 287px)',
       loading: false,
       condition: {
         components: TEST_CASE_CONFIGS,

@@ -33,6 +33,7 @@
       :page-size.sync="page.pageSize"
       :operators="operators"
       :screen-height="screenHeight"
+      :max-height="maxHeight"
       :batch-operators="batchButtons"
       :remember-order="true"
       :enable-header-drag="true"
@@ -360,6 +361,7 @@ export default {
       tableHeaderKey: "TRACK_TEST_CASE",
       tableHeaderDragKey: "TRACK_TEST_CASE_DRAG",
       screenHeight: 'calc(100vh - 185px)',
+      maxHeight: 'calc(100vh - 287px)',
       enableOrderDrag: true,
       isMoveBatch: true,
       loading: false,
