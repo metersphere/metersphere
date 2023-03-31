@@ -95,7 +95,7 @@ export const REPORT_STATUS_MAP = new Map([
   [
     "RUNNING",
     {
-      name: i18n.t("api_test.home_page.detail_card.unexecute"),
+      name: i18n.t("api_test.home_page.detail_card.running"),
       itemStyle: { color: "#909399" },
     },
   ],
