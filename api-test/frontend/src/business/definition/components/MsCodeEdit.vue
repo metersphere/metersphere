@@ -113,7 +113,5 @@ export default {
 </script>
 
 <style scoped>
-:deep(.ace_text-layer){
-  padding:0px !important;
-}
+
 </style>
