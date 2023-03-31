@@ -1057,6 +1057,9 @@ public class TestPlanReportService {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
             testPlanReportDTO = testPlanService.generateReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
         }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getSummary())) {
+            testPlanReportDTO.setSummary(testPlanReportContent.getSummary());
+        }
         testPlanReportDTO.setId(reportId);
         testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;
