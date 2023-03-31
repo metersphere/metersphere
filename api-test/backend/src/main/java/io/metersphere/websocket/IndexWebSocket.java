@@ -1,22 +1,23 @@
 package io.metersphere.websocket;
 
+import com.fit2cloud.quartz.anno.QuartzScheduled;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.WebSocketUtil;
 import io.metersphere.utils.LoggerUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import java.io.IOException;
 
 @Slf4j
 @Component // 注册到spring
 @ServerEndpoint("/websocket/{reportId}") // 创建websocket服务
 public class IndexWebSocket {
+    private final long MAX_IDLE_TIMEOUT = 180000;
 
     /**
      * 连接成功响应
@@ -27,6 +28,7 @@ public class IndexWebSocket {
         RemoteEndpoint.Async async = session.getAsyncRemote();
         if (async != null) {
             async.sendText("CONN_SUCCEEDED");
+            session.setMaxIdleTimeout(MAX_IDLE_TIMEOUT);
         }
         LoggerUtil.info("客户端: [" + reportId + "] : 连接成功！" + WebSocketUtil.ONLINE_USER_SESSIONS.size(), reportId);
     }
@@ -65,7 +67,7 @@ public class IndexWebSocket {
     /**
      * 每一分钟群发一次心跳检查
      */
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @QuartzScheduled(cron = "0 0/1 * * * ?")
     public void heartbeatCheck() {
         WebSocketUtil.sendMessageAll("heartbeat check");
     }
