@@ -621,7 +621,10 @@ name: "TestCaseMinder",
       if (node.children) {
         nodeData.children = [];
         node.children.forEach(item => {
-          nodeData.children.push(this._buildExtraNode(item));
+          if (!isCaseNodeData(item.data) && !isModuleNodeData(item.data) && item.data.type !== 'tmp') {
+            // 子节点是临时节点才解析
+            nodeData.children.push(this._buildExtraNode(item));
+          }
         });
       }
       data.isExtraNode = true;
