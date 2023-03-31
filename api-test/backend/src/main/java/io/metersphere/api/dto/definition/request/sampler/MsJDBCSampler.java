@@ -92,8 +92,9 @@ public class MsJDBCSampler extends MsTestElement {
                 }
                 this.dataSource = null;
                 envConfig = this.initDataSource();
-                
-                LoggerUtil.info(this.getName() + "：自选数据源结束   查找结果：" + (this.dataSource == null));
+                if (dataSource == null && CollectionUtils.isNotEmpty(environmentConfig.getDatabaseConfigs())) {
+                    dataSource = environmentConfig.getDatabaseConfigs().get(0);
+                }
             } else {
                 // 取当前环境下默认的一个数据源
                 if (config.isEffective(this.getProjectId())) {
