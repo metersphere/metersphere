@@ -536,12 +536,15 @@ export default {
     openCustomHeader() {
       this.$refs.customTableHeader.open(this.fields);
     },
-    resetHeader() {
+    resetHeader(callback) {
       this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
       this.tableActive = false;
       this.$nextTick(() => {
         this.doLayout();
         this.tableActive = true;
+        if (callback) {
+          callback();
+        }
       });
       this.listenRowDrop();
     },
