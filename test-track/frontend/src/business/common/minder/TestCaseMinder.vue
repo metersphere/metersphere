@@ -100,7 +100,6 @@ export default {
       tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark'), this.$t('test_track.module.module')],
       result: {loading: false},
       needRefresh: false,
-      noRefresh: false,
       noRefreshMinder: false,
       noRefreshMinderForSelectNode: false,
       saveCases: [],
@@ -188,7 +187,6 @@ export default {
         this.noRefreshMinder = false;
         return;
       }
-      this.noRefresh = true;
       // 如果脑图没有修改直接刷新，有修改提示
       if (!useStore().isTestCaseMinderChanged) {
         if (this.$refs.minder) {
@@ -341,18 +339,22 @@ export default {
             item.isExtraNode = false;
           });
           this.extraNodeChanged = [];
-          if (!this.noRefresh) {
-            this.$emit('refresh');
+
+          this.$emit('refresh');
+
+          if (!this.noRefreshMinder) {
             // 保存会刷新模块，刷新完模块，脑图也会自动刷新
             // 如果是保存触发的刷新模块，则不刷新脑图
             this.noRefreshMinder = true;
+          }
+
+          if (!this.noRefreshMinderForSelectNode) {
             if (this.selectNode && this.selectNode.data) {
               // 如果有选中的模块， 则不刷新 watch -> selectNode
               this.noRefreshMinderForSelectNode = true;
             }
           }
-          // 由于模块修改刷新的脑图，不刷新模块
-          this.noRefresh = false;
+
           this.setIsChange(false);
           if (callback && callback instanceof Function) {
             callback();
