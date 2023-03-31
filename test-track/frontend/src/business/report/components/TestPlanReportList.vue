@@ -295,10 +295,18 @@ export default {
   watch: {
     $route(to, from) {},
   },
+  created() {
+    window.addEventListener("resize", this.resizeTable, false);
+  },
   activated() {
     this.init();
   },
   methods: {
+    resizeTable() {
+      if (this.$refs.testPlanReportTable) {
+        this.$refs.testPlanReportTable.doLayout();
+      }
+    },
     init() {
       this.projectId = this.$route.params.projectId;
       this.batchButtons = this.publicButtons;
