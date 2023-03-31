@@ -704,7 +704,7 @@ export default {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
-      this.$refs.nodeTree.list();
+      this.$refs.nodeTree.list({ isForceSetCurrentKey: true });
     },
     refreshPublic() {
       if (this.$refs.testCasePublicList) {

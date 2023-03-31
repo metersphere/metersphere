@@ -184,6 +184,14 @@ export default {
         this.expandedNode.push("root");
       }
     },
+    setCurrentKeyById(id) {
+      if (id) {
+        this.$nextTick(() => {
+          this.handleNodeSelect(this.$refs.tree.getNode(id));
+          this.$refs.tree.setCurrentKey(id);
+        })
+      }
+    },
     handleNodeSelect(node) {
       let nodeIds = [];
       let pNodes = [];
