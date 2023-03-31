@@ -9,7 +9,7 @@
       </el-tooltip>
 
       <el-tooltip v-if="rightButtonEnable" class="item" effect="dark" :content="rightTip" placement="bottom">
-        <el-button plain :class="{active: rightActive}" style="margin: 3px 3px 3px 0" @click="changeTab('right')">
+        <el-button plain :class="{active: rightActive}" style="margin: 3px 0 3px -2px" @click="changeTab('right')">
           <svg-icon :icon-class="rightActive ? rightIconActiveClass : rightIconClass"/>
         </el-button>
       </el-tooltip>
