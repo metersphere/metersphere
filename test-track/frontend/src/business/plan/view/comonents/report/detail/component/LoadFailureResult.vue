@@ -5,35 +5,44 @@
         row-key="id"
         @row-click="rowClick"
         :highlight-current-row="true"
-        :data="loadTestCases">
+        :data="loadTestCases"
+      >
         <el-table-column
           prop="num"
           :label="$t('commons.id')"
-          show-overflow-tooltip>
-          <template v-slot:default="{row}">
+          show-overflow-tooltip
+        >
+          <template v-slot:default="{ row }">
             {{ row.isCustomNum ? row.customNum : row.num }}
           </template>
         </el-table-column>
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
-          show-overflow-tooltip>
+          show-overflow-tooltip
+        >
         </el-table-column>
 
         <el-table-column
           prop="userName"
-          :label="$t('commons.create_user')">
+          :label="$t('custom_field.case_maintainer')"
+        >
         </el-table-column>
 
         <el-table-column
           prop="status"
           column-key="status"
-          :label="$t('test_track.plan_view.execute_result')">
-          <template v-slot:default="{row}">
+          :label="$t('test_track.plan_view.execute_result')"
+        >
+          <template v-slot:default="{ row }">
             <el-tag size="mini" type="danger" v-if="row.status === 'error'">
               {{ row.status }}
             </el-tag>
-            <el-tag size="mini" type="success" v-else-if="row.status === 'success'">
+            <el-tag
+              size="mini"
+              type="success"
+              v-else-if="row.status === 'success'"
+            >
               {{ row.status }}
             </el-tag>
             <el-tag size="mini" v-else-if="row.status === 'run'">
@@ -42,7 +51,7 @@
             <el-tag size="mini" v-else-if="row.status === 'Completed'">
               {{ row.status }}
             </el-tag>
-            <el-tag size="mini" v-else-if="!row.status || row.status === '' ">
+            <el-tag size="mini" v-else-if="!row.status || row.status === ''">
               Prepare
             </el-tag>
             <el-tag size="mini" v-else>
@@ -50,7 +59,6 @@
             </el-tag>
           </template>
         </el-table-column>
-
       </el-table>
     </el-scrollbar>
   </el-card>
@@ -64,12 +72,12 @@ import {
   getPlanLoadAllCase,
   getPlanLoadFailureCase,
   getSharePlanLoadAllCase,
-  getSharePlanLoadFailureCase
+  getSharePlanLoadFailureCase,
 } from "@/api/remote/plan/test-plan";
 
 export default {
   name: "LoadFailureResult",
-  components: {StatusTableItem, MethodTableItem, TypeTableItem},
+  components: { StatusTableItem, MethodTableItem, TypeTableItem },
   props: {
     planId: String,
     report: Object,
@@ -77,12 +85,12 @@ export default {
     isShare: Boolean,
     shareId: String,
     isAll: Boolean,
-    isDb: Boolean
+    isDb: Boolean,
   },
   data() {
     return {
-      loadTestCases: []
-    }
+      loadTestCases: [],
+    };
   },
   mounted() {
     this.getFailureTestCase();
@@ -90,41 +98,41 @@ export default {
   watch: {
     loadTestCases() {
       if (this.loadTestCases) {
-        this.$emit('setSize', this.loadTestCases.length);
+        this.$emit("setSize", this.loadTestCases.length);
       }
-    }
+    },
   },
   methods: {
     getFailureTestCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.loadTestCases = this.report.loadAllCases ? this.report.loadAllCases : [];
+          this.loadTestCases = this.report.loadAllCases
+            ? this.report.loadAllCases
+            : [];
         } else {
-          this.loadTestCases = this.report.loadFailureCases ? this.report.loadFailureCases : [];
+          this.loadTestCases = this.report.loadFailureCases
+            ? this.report.loadFailureCases
+            : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
-          getSharePlanLoadAllCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loadTestCases = r.data;
-            });
+          getSharePlanLoadAllCase(this.shareId, this.planId).then((r) => {
+            this.loadTestCases = r.data;
+          });
         } else {
-          getSharePlanLoadFailureCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loadTestCases = r.data;
-            });
+          getSharePlanLoadFailureCase(this.shareId, this.planId).then((r) => {
+            this.loadTestCases = r.data;
+          });
         }
       } else {
         if (this.isAll) {
-          getPlanLoadAllCase(this.planId)
-            .then((r) => {
-              this.loadTestCases = r.data;
-            });
+          getPlanLoadAllCase(this.planId).then((r) => {
+            this.loadTestCases = r.data;
+          });
         } else {
-          getPlanLoadFailureCase(this.planId)
-            .then((r) => {
-              this.loadTestCases = r.data;
-            });
+          getPlanLoadFailureCase(this.planId).then((r) => {
+            this.loadTestCases = r.data;
+          });
         }
       }
     },
@@ -136,11 +144,11 @@ export default {
     },
     rowClick(row) {
       if (this.isAll) {
-        this.$emit('rowClick', row);
+        this.$emit("rowClick", row);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
