@@ -415,10 +415,12 @@ export default {
       }
       getEnvironmentByProjectId(id).then((response) => {
         this.environments = response.data;
+        let hasEnvironment = false;
         this.environments.forEach((environment) => {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
           if (environment.id === this.request.environmentId && environment.id !== envId) {
+            hasEnvironment = true;
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
@@ -434,6 +436,9 @@ export default {
             }
           }
         });
+        if (!hasEnvironment) {
+          this.request.environmentId = "";
+        }
         this.initDataSource(envId, currentEnvironment, targetDataSourceName);
       });
     },
