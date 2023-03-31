@@ -39,6 +39,7 @@
           :show-operator="false"
           :public-total="publicTotal"
           :case-condition="condition"
+          :is-minder-mode="isMinderMode"
           @refreshTable="refresh"
           @setTreeNodes="setTreeNodes"
           @refreshAll="refreshAll"
@@ -101,12 +102,12 @@
             ref="testCaseList">
           </test-case-list>
           <test-case-minder
+            v-if="isMinderMode"
             :current-version="currentVersion"
             :tree-nodes="treeNodes"
             :project-id="projectId"
             :condition="condition"
             :active-name="activeName"
-            v-if="activeDom === 'right'"
             @refresh="minderSaveRefresh"
             @toggleMinderFullScreen="toggleMinderFullScreen"
             ref="minder"/>
@@ -320,6 +321,9 @@ export default {
     },
     moduleOptions() {
       return store.testCaseModuleOptions;
+    },
+    isMinderMode() {
+      return this.activeDom === 'right';
     }
   },
   methods: {

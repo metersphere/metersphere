@@ -142,6 +142,14 @@ export default {
     }
   },
   watch: {
+    // 刷新模块树触发
+    treeNodes(newVal, oldVal) {
+      if (newVal !== oldVal && this.activeName === 'default') {
+        // 模块刷新并且当前 tab 是用例列表时，提示是否刷新脑图
+        this.handleNodeUpdateForMinder();
+      }
+    },
+    // 点击模块触发
     selectNode() {
       if (this.noRefreshMinderForSelectNode) {
         // 如果是保存触发的刷新模块，则不刷新脑图
@@ -155,12 +163,6 @@ export default {
     },
     currentVersion() {
       this.$refs.minder.initData();
-    },
-    treeNodes(newVal, oldVal) {
-      if (newVal !== oldVal && this.activeName === 'default') {
-        // 模块刷新并且当前 tab 是用例列表时，提示是否刷新脑图
-        this.handleNodeUpdateForMinder();
-      }
     }
   },
   mounted() {
@@ -187,6 +189,13 @@ export default {
         this.noRefreshMinder = false;
         return;
       }
+
+      if (this.selectNode && this.selectNode.data) {
+        // 列表刷新会修改 selectNode，触发 selectNode watch
+        // 这里就不重复刷新了
+        return;
+      }
+
       // 如果脑图没有修改直接刷新，有修改提示
       if (!useStore().isTestCaseMinderChanged) {
         if (this.$refs.minder) {
