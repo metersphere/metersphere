@@ -38,6 +38,7 @@
         v-loading="result.loading"
         :show-select-all="false"
         :data="data"
+        :enable-max-height="false"
         :enable-selection="false"
         :operators="operators"
         @refresh="initTable"
