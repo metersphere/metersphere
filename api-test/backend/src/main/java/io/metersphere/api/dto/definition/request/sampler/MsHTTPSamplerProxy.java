@@ -425,10 +425,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         envPath += this.getPath();
                     }
                     sampler.setPort(httpConfig.getPort());
-                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                    if (httpConfig.getDomain().startsWith("${")){
+                        sampler.setProtocol(httpConfig.getProtocol());
+                        envPath = StringUtils.isNotBlank(this.path) ? StringUtils.join(httpConfig.getSocket(), this.path) : url;
+                    } else if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
                         sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), StandardCharsets.UTF_8.name()));
                         sampler.setProtocol(httpConfig.getProtocol());
-                    } else {
+                    }  else {
                         sampler.setDomain("");
                         sampler.setProtocol("");
                         sampler.setPort(-1);
