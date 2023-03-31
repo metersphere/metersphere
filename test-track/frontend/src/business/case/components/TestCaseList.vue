@@ -640,9 +640,12 @@ export default {
 
         this.$nextTick(() => {
           if (this.$refs.table) {
-            this.$refs.table.resetHeader();
+            this.$refs.table.resetHeader(() => {
+              this.loading = false;
+            });
+          } else {
+            this.loading = false;
           }
-          this.loading = false;
         });
       });
     },
