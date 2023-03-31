@@ -182,9 +182,9 @@
                   <div class="split"></div>
                   <div class="copy-row sub-opt-row" @click="copyRow">
                     <div class="icon">
-                      <img :src="!hasDeletePermission ? '/assets/module/figma/icon_copy_outlined_disable.svg' : '/assets/module/figma/icon_copy_outlined.svg'" alt=""/>
+                      <img :src="!hasCopyPermission ? '/assets/module/figma/icon_copy_outlined_disable.svg' : '/assets/module/figma/icon_copy_outlined.svg'" alt=""/>
                     </div>
-                    <div class="title" :style="!hasDeletePermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.copy") }}</div>
+                    <div class="title" :style="!hasCopyPermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.copy") }}</div>
                   </div>
                   <div class="split"></div>
                   <div class="delete-row sub-opt-row" @click="deleteRow">
