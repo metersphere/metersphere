@@ -13,7 +13,7 @@
         </el-tooltip>
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
-        <div class="show-more-btn-title">
+        <div class="show-more-btn-title" v-if="showSize">
           {{ $t('test_track.case.batch_handle', [size]) }}
         </div>
         <span v-for="(btn, index) in buttons" :key="index">
@@ -45,6 +45,10 @@ export default {
     row: Object,
     size: Number,
     hasShowed: Boolean,
+    showSize: {
+      type: Boolean,
+      default: true,
+    },
   },
   created() {
     if (this.trashEnable) {
