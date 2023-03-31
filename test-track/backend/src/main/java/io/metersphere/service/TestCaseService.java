@@ -1746,7 +1746,7 @@ public class TestCaseService {
     private void validateExportText(String name, String textValue) {
         // poi 导出的单个单元格最大字符数量为 32767 ，这里添加校验提示
         int maxLength = 32767;
-        if (textValue.length() > maxLength) {
+        if (StringUtils.isNotBlank(textValue) && textValue.length() > maxLength) {
             MSException.throwException(String.format(Translator.get("case_export_text_validate_tip"), name, maxLength));
         }
     }
