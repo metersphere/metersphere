@@ -34,6 +34,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -86,6 +87,7 @@ public class ApiCaseSerialService {
         }
     }
 
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
         ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
         if (execResult != null) {

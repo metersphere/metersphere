@@ -43,6 +43,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1029,5 +1030,45 @@ public class ElementUtil {
         loopController.setRetryNum(retryNum);
         loopController.setEnable(true);
         return loopController.controller(tree, name);
+    }
+
+    public static DatabaseConfig selectDataSourceFromJDBCProcessor(String processorName, String environmentId, String dataSourceId, String projectId, ParameterConfig config) {
+        if (config == null) {
+            return null;
+        }
+        DatabaseConfig dataSource = null;
+        // 自选了数据源
+        if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getDatabaseConfigs())
+                && isDataSource(dataSourceId, config.getConfig().get(projectId).getDatabaseConfigs())) {
+            EnvironmentConfig environmentConfig = config.getConfig().get(projectId);
+            if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getEnvironmentId())) {
+                environmentId = environmentConfig.getEnvironmentId();
+            }
+            dataSource = ElementUtil.initDataSource(environmentId, dataSourceId);
+            if (dataSource == null && CollectionUtils.isNotEmpty(environmentConfig.getDatabaseConfigs())) {
+                dataSource = environmentConfig.getDatabaseConfigs().get(0);
+            }
+        } else {
+            // 取当前环境下默认的一个数据源
+            if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getDatabaseConfigs())) {
+                LoggerUtil.info(processorName + "：开始获取当前环境下默认数据源");
+                DatabaseConfig dataSourceOrg = ElementUtil.dataSource(projectId, dataSourceId, config.getConfig().get(projectId));
+                if (dataSourceOrg != null) {
+                    dataSource = dataSourceOrg;
+                } else {
+                    LoggerUtil.info(processorName + "：获取当前环境下默认数据源结束！未查找到默认数据源");
+                    dataSource = config.getConfig().get(projectId).getDatabaseConfigs().get(0);
+                }
+            }
+        }
+        return dataSource;
+    }
+
+    private static boolean isDataSource(String dataSourceId, List<DatabaseConfig> databaseConfigs) {
+        List<String> ids = databaseConfigs.stream().map(DatabaseConfig::getId).collect(Collectors.toList());
+        if (StringUtils.isNotEmpty(dataSourceId) && ids.contains(dataSourceId)) {
+            return true;
+        }
+        return false;
     }
 }
