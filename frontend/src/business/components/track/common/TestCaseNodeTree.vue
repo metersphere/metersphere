@@ -181,7 +181,7 @@ export default {
       this.$emit('enablePublic', this.condition.publicEnable);
       this.$emit('toPublic', 'public');
     },
-    list() {
+    list({ isForceSetCurrentKey } = {}) {
       if (this.projectId) {
         this.result = getTestCaseNodes(this.projectId, data => {
           this.treeNodes = data;
@@ -193,13 +193,23 @@ export default {
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter(this.condition.filterText);
           }
-          this.setCurrentKey();
+          if (isForceSetCurrentKey) {
+            this.forceSetCurrentKey();
+          } else {
+            this.setCurrentKey();
+          }
         });
       }
     },
     setCurrentKey() {
       if (this.$refs.nodeTree) {
         this.$refs.nodeTree.setCurrentKey(this.currentNode);
+      }
+    },
+    // 重新获取 currentNode ，因为脑图更新完之后可能存在 currentNode 过时的情况
+    forceSetCurrentKey() {
+      if (this.$refs.nodeTree && this.currentNode) {
+        this.$refs.nodeTree.setCurrentKeyById(this.currentNode.data.id);
       }
     },
     increase(id) {
