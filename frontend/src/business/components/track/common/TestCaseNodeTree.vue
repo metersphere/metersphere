@@ -126,6 +126,11 @@ export default {
     showOperator: Boolean,
     total: Number,
     publicTotal: Number,
+    // 脑图模式
+    isMinderMode: {
+      type: Boolean,
+      default: false
+    },
   },
   watch: {
     treeNodes() {
@@ -181,7 +186,7 @@ export default {
       this.$emit('enablePublic', this.condition.publicEnable);
       this.$emit('toPublic', 'public');
     },
-    list({ isForceSetCurrentKey } = {}) {
+    list() {
       if (this.projectId) {
         this.result = getTestCaseNodes(this.projectId, data => {
           this.treeNodes = data;
@@ -193,7 +198,7 @@ export default {
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter(this.condition.filterText);
           }
-          if (isForceSetCurrentKey) {
+          if (this.isMinderMode) {
             this.forceSetCurrentKey();
           } else {
             this.setCurrentKey();
@@ -208,7 +213,7 @@ export default {
     },
     // 重新获取 currentNode ，因为脑图更新完之后可能存在 currentNode 过时的情况
     forceSetCurrentKey() {
-      if (this.$refs.nodeTree && this.currentNode) {
+      if (this.$refs.nodeTree && this.currentNode && this.currentNode.data) {
         this.$refs.nodeTree.setCurrentKeyById(this.currentNode.data.id);
       }
     },
