@@ -281,7 +281,6 @@
                     :empty-text="$t('api_test.scenario.step_info')"
                     highlight-current
                     :show-checkbox="isBatchProcess"
-                    @check-change="chooseHeadsUp"
                     @node-drag-end="nodeDragEnd"
                     @node-click="nodeClick"
                     draggable
@@ -315,8 +314,8 @@
                         <show-more-btn
                           :is-show="node.checked"
                           :buttons="batchOperators"
-                          :size="selectDataCounts"
                           v-show="data.checkBox"
+                          :show-size="false"
                           style="margin-right: 10px" />
                       </span>
                       <span style="width: calc(100% - 40px)">
@@ -760,27 +759,27 @@ export default {
         {
           name: this.$t('api_test.automation.bulk_activation_steps'),
           handleClick: this.enableAll,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
         {
           name: this.$t('api_test.automation.batch_disable_steps'),
           handleClick: this.disableAll,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
         {
           name: this.$t('api_test.automation.open_expansion'),
           handleClick: this.openExpansion,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
         {
           name: this.$t('api_test.automation.close_expansion'),
           handleClick: this.closeExpansion,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
         {
           name: this.$t('api_test.definition.request.batch_delete') + '步骤',
           handleClick: this.handleDeleteBatch,
-          permissions: ['PROJECT_API_SCENARIO:READ+DELETE'],
+          permissions: ['PROJECT_API_SCENARIO:READ+EDIT'],
         },
       ],
       reloadTree: '',
@@ -840,11 +839,6 @@ export default {
         if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
           this.recursiveSorting(arr[i].hashTree);
         }
-      }
-    },
-    chooseHeadsUp() {
-      if (this.$refs.stepTree) {
-        this.selectDataCounts = this.$refs.stepTree.getCheckedNodes().length;
       }
     },
     checkedAll(v) {
@@ -1417,6 +1411,7 @@ export default {
         return;
       }
       setComponent(type, this, plugin);
+      store.forceRerenderIndex = getUUID();
     },
     nodeClick(data, node) {
       if (
