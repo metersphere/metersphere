@@ -17,6 +17,7 @@
         :type="'edit'"
         :total='total'
         :public-total="publicTotal"
+        :is-minder-mode="isMinderMode"
         ref="nodeTree"
         @importChangeConfirm="importChangeConfirm"
       />
@@ -122,7 +123,7 @@
               :project-id="projectId"
               :condition="condition"
               :active-name="activeName"
-              v-if="activeDom === 'right'"
+              v-if="isMinderMode"
               @refresh="minderSaveRefresh"
               ref="minder"/>
           </ms-tab-button>
@@ -356,7 +357,9 @@ export default {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
     },
-
+    isMinderMode() {
+      return this.activeDom === 'right';
+    },
     projectId() {
       return getCurrentProjectID();
     },
