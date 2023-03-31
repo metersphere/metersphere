@@ -268,8 +268,14 @@ export default {
           ? this.contentObject.content.value
           : this.contentObject.content.defaultValue;
         if(!tempValue || Array.isArray(tempValue) && tempValue.length <= 0){
-          this.isCustomNone = true;
-          return this.$t("case.none");
+          let customVal = this.model[this.contentObject.content.name];
+          if (customVal) {
+            this.isCustomNone = false;
+            tempValue = customVal;
+          } else {
+            this.isCustomNone = true;
+            return this.$t("case.none");
+          }
         } else {
           this.isCustomNone = false;
         }
