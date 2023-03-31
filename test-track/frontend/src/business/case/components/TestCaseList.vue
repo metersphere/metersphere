@@ -796,7 +796,7 @@ export default {
           this.condition.caseCoverage = 'coverage';
           break;
         case 'notReviewed':
-          this.condition.filters.review_status = ['Prepare'];
+          this.condition.filters.review_status = ['Prepare', 'Underway'];
           break
         case 'reviewed':
           this.condition.filters.review_status = ['UnPass', 'Pass'];
