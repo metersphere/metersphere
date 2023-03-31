@@ -198,7 +198,9 @@ public class ApiDefinitionExecResultService {
                     user = userMapper.selectByPrimaryKey(result.getUserId());
                 }
             }
-
+            if (result.getUserId() == null && user != null) {
+                result.setUserId(user.getId());
+            }
             Map paramMap = new HashMap<>(beanMap);
             paramMap.put("operator", user != null ? user.getName() : result.getUserId());
             paramMap.put("status", result.getStatus());
