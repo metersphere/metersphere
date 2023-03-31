@@ -1127,6 +1127,10 @@ export default {
   margin-top: 10px;
 }
 
+:deep(.el-tabs__nav-wrap) {
+  width: calc(100% - 250px);
+}
+
 .ms-api-button {
   position: absolute;
   right: 10px;
