@@ -27,6 +27,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.utils.LoggerUtil;
@@ -312,7 +313,7 @@ public class MsJDBCSampler extends MsTestElement {
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
             variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+                    arguments.addArgument(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()), "=")
             );
             return arguments;
         }
