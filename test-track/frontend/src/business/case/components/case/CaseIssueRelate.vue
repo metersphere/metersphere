@@ -51,6 +51,7 @@
         :fields.sync="fields"
         :operators="operators"
         :enable-selection="false"
+        :enable-max-height="false"
         :max-height="'calc(100vh)'"
         ref="table"
         @refresh="getIssues"

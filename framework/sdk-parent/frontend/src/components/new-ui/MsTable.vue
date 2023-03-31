@@ -24,7 +24,7 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       @row-click="handleRowClick"
-      :max-height="maxHeight"
+      :max-height="enableMaxHeight ? maxHeight : 'auto'"
       ref="table">
 
       <el-table-column
@@ -169,6 +169,12 @@ export default {
     };
   },
   props: {
+    enableMaxHeight: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
     maxHeight: {
       type: String,
       default() {
@@ -712,6 +718,10 @@ export default {
 
 :deep(.el-table th, .el-table tr) {
   height: 46px;
+}
+
+:deep(tr.el-table__row) {
+  height: 40px;
 }
 
 .addition-info-title {
