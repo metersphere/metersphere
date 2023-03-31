@@ -151,7 +151,7 @@ export default {
       if(type === "com.mysql.jdbc.Driver"){
         this.currentConfig.dbUrl = "jdbc:mysql://127.0.0.1:3306/database";
       }else if(type === "com.microsoft.sqlserver.jdbc.SQLServerDriver"){
-        this.currentConfig.dbUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database";
+        this.currentConfig.dbUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database;encrypt=true;trustServerCertificate=true;";
       }else if(type === "org.postgresql.Driver"){
         this.currentConfig.dbUrl = "jdbc:postgresql://127.0.0.1:5432/database";
       }else if(type === "oracle.jdbc.OracleDriver"){
