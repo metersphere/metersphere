@@ -401,7 +401,12 @@ public class ApiScenarioReportStructureService {
             for (StepTreeDTO unListDTO : mergeList) {
                 int index = unListDTO.getIndex();
                 if (index > 0) {
-                    list.add(index - 1, unListDTO);
+                    if (list.size() < (index - 1)) {
+                        list.add(unListDTO);
+                    } else {
+                        list.add(index - 1, unListDTO);
+                    }
+
                 }
             }
             for (int index = 0; index < list.size(); index++) {
