@@ -16,6 +16,9 @@ import "metersphere-frontend/src/router/permission";
 import mavonEditor from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
 import VuePapaParse from "vue-papa-parse";
+import VueShepherd from 'vue-shepherd' // 新手引导
+import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css'
+import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
 Vue.config.productionTip = false;
 
 const pinia = createPinia();
@@ -33,6 +36,10 @@ Vue.use(directives);
 Vue.use(filters);
 Vue.use(PiniaVuePlugin);
 Vue.use(VuePapaParse);
+Vue.use(VueShepherd);
+
+Vue.prototype.gotoCancel = gotoCancel
+Vue.prototype.gotoNext = gotoNext
 
 let instance = null;
 

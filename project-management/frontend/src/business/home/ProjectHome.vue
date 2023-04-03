@@ -5,7 +5,7 @@
         <el-row type="flex" justify="space-around" :gutter="10">
           <el-col :xs="12" :sm="12" :md="11" :lg="11" :xl="10" class="card-col">
             <el-card class="project-info-card">
-              <div class="project-info-card-div">
+              <div class="project-info-card-div shepherd-project-name">
                 <span class="project-name">{{ project.name }}</span>
                 <i class="el-icon-edit project-edit" @click="edit" v-permission="['PROJECT_MANAGER:READ+EDIT']"></i>
                 <el-row class="project-item">

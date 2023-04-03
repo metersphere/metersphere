@@ -5,6 +5,7 @@
     <ms-header-ws/>
     <ms-task-center/>
     <ms-notification/>
+    <ms-guidance/>
   </div>
 </template>
 
@@ -14,6 +15,7 @@ import MsHeaderWs from "../../components/head/HeaderWs";
 import MsLanguageSwitch from "../../components/head/LanguageSwitch";
 import MsTaskCenter from "../../components/task/TaskCenter";
 import MsNotification from "../../components/notice/Notification";
+import MsGuidance from "../../components/guide/Guidance";
 
 
 export default {
@@ -24,7 +26,8 @@ export default {
     MsTaskCenter,
     MsLanguageSwitch,
     MsUser,
-    MsHeaderWs
+    MsHeaderWs,
+    MsGuidance
   },
   data() {
     return {}

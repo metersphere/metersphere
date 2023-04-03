@@ -511,6 +511,9 @@ const message = {
     template_delete: "模版删除",
     scope: "应用场景",
     other: "其他",
+    function_introduction: '功能介绍',
+    page_guidance: '页面指引',
+    novice_journey: '新手旅程'
   },
   login: {
     normal_Login: "普通登录",
@@ -3400,6 +3403,102 @@ const message = {
   envrionment: {
     export_variable_tip: "导出接口测试变量",
   },
+  shepherd: {
+    step1: {
+      title: '工作空间和项目',
+      text: 'MeterSphere 使用「工作空间」和「项目」来组织测试数据和人力资源。您可以在顶部菜单任意切换位置。'
+    },
+    step2: {
+      title: '功能主菜单',
+      text: '主菜单显示您所在的功能模块。'
+    },
+    step3: {
+      title: '一个空间可以创建多个项目',
+      text: '「项目」是一组用例和成员的集合。MeterSphere 上各种类型的测试均通过项目进行分权分域查看和管理。'
+    },
+    step4: {
+      title: '一级功能菜单',
+      text: '顶部一级功能菜单栏，支持在当前功能模块下切换细分功能。'
+    },
+    step5: {
+      title: "你在哪？",
+      text: "现在，您已默认加入了我们预置的演示空间，并成为演示项目的一员。就从这里开始你的测试之旅吧。"
+    },
+    exit:'跳过',
+    next:'下一步',
+    know:'知道啦',
+  },
+  guide: {
+    home: {
+      title: '欢迎来到 MeterSphere！',
+      desc: '通过一个快捷指引来了解 MeterSphere 究竟能为你做哪些事。',
+      button: '让我们开始吧'
+    },
+    test: {
+      title: '测试用例是测试任务的基石',
+      desc: '<span>使用在线编辑/文件导入/URL同步/多人评审的方式维护你的用例，</span><br> <span>将它们加入你的测试计划中，量化管理测试进度，记录结果，同步缺陷，</span><br> 留存/分享测试报告，覆盖整个测试生命周期。',
+      button: '下一个：接口测试'
+    },
+    api: {
+      title: '模拟真实场景 让接口自动化',
+      desc: '<span>通过手动/定时任务/插件触发接口测试，支持多种通信协议；</span><br> <span> 基于真实业务流程编排场景化用例集，支持添加多类型控制器/自定义脚本/断言，</span><br> 满足各种复杂场景所需。',
+      button: '下一个：UI测试'
+    },
+    ui: {
+      title: '可移植的 UI 元素库与指令集',
+      desc: '<span>基于可复用的元素库及指令快速编排场景化用例；</span><br> 将你常用的测试步骤组合成新的自定义指令，在自动化场景中灵活调用。<span>&nbsp;<br><br></span>',
+      button: '下一个：性能测试'
+    },
+    performance: {
+      title: '性能测试 一键就可以',
+      desc: '<span>提供分布式压测解决方案，支持物理机/虚拟机/k8s容器集群等多类型压测资源池；</span><br> <span>使用接口测试转性能一键发起，实时查看报告；</span><br> 提供差异配置下的报告对比，掌控性能瓶颈及调优。',
+      button: '完成！去创建你的第 1 条测试用例'
+    },
+    go_prev: '返回上一个'
+  },
+  side_task: {
+    test_tracking: {
+      title: "通关测试跟踪",
+      task_1: "加入一个项目",
+      task_2: "创建一条功能用例",
+      task_3: "发起一个评审计划",
+      task_4: "在评审中发布评论",
+      task_5: "发布一个测试计划",
+      task_6: "为测试计划添加用例",
+      task_7: "为测试用例关联缺陷",
+    },
+    api_test: {
+      title: "通关接口测试",
+      task_1: "创建一条接口定义",
+      task_2: "导入本地接口或接口用例",
+      task_3: "进行一次接口快捷调试",
+      task_4: "基于接口调试创建新用例",
+      task_5: "分享接口文档",
+      task_6: "创建一条场景自动化用例",
+      task_7: "以定时任务执行接口自动化测试",
+    },
+    performance_test: {
+      title: "通关性能测试",
+      task_1: "将接口场景用例转为性能测试",
+      task_2: "分享性能测试报告",
+    },
+    project_setting: {
+      title: "通关项目设置",
+      task_1: "创建一个新项目",
+      task_2: "添加一位项目成员",
+      task_3: "创建项目环境",
+    },
+    ui_test: {
+      title: "通关 UI 测试",
+      task_1: "创建一个元素",
+      task_2: "创建一个 UI 自动化场景",
+      task_3: "执行一个 UI 自动化场景",
+    },
+    next: "下一章",
+    prev: "上一章",
+    skip: "跳过",
+    novice_task: "新手旅程"
+  }
 };
 
 export default {

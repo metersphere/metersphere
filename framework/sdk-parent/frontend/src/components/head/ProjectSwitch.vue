@@ -1,5 +1,5 @@
 <template>
-  <el-menu class="header-menu" :unique-opened="true" mode="horizontal" default-active="1" router>
+  <el-menu class="header-menu  shepherd-project" :unique-opened="true" mode="horizontal" default-active="1" router>
     <!-- 不激活项目路由-->
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="2" popper-class="submenu">
@@ -24,6 +24,7 @@
         <span style="padding-left: 7px;">{{ $t('commons.show_all') }}</span>
       </el-menu-item>
     </el-submenu>
+    <ms-introduction ref="introduction"/>
   </el-menu>
 </template>
 
@@ -31,13 +32,15 @@
 import ProjectSearchList from "./ProjectSearchList";
 import {PROJECT_NAME} from "../../utils/constants";
 import {getCurrentProjectID} from "../../utils/token";
+import MsIntroduction from "../../components/guide/components/Introduction";
+
 
 export default {
   name: "ProjectSwitch",
   props: {
     projectName: String
   },
-  components: {ProjectSearchList},
+  components: {ProjectSearchList,MsIntroduction},
   watch: {
     currentProject() {
       sessionStorage.setItem(PROJECT_NAME, this.currentProject);

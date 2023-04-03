@@ -16,6 +16,7 @@ import JsPDF from "jspdf";
  * 如果编辑某一行，则只调整某一行，提升效率
  */
 import calcTextareaHeight from "element-ui/packages/input/src/calcTextareaHeight";
+import {saveStep} from "../api/novice";
 
 export function setCustomizeColor(color) {
   // 自定义主题风格
@@ -449,4 +450,33 @@ export function downloadPDF(ele, pdfName) {
     }
     //可动态生成
   });
+}
+
+export function goSkip(_this) {
+  _this.cancel()
+}
+
+export function gotoCancel(_this, cancel) {
+  if (cancel) {
+    _this.cancel()
+  } else {
+    _this.complete()
+  }
+  saveStep().then(res => {
+    localStorage.setItem('guide', '1')
+  }).catch(error => {
+    // 错误的信息
+    this.$error({
+      message: error.response.data.message
+    })
+  })
+}
+
+// 上一步，下一步
+export function gotoNext(_this, path, step) {
+  _this.next()
+  localStorage.setItem('step', step)
+  if (path) {
+    this.$router.push(path)
+  }
 }
