@@ -1146,7 +1146,9 @@ export default {
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = '';
     }
-    if (this.basisData.moduleId && this.basisData.moduleId === 'default-module') {
+    if (this.basisData.moduleId &&
+      this.basisData.moduleId === 'default-module' &&
+      this.moduleOptions) {
       this.basisData.moduleId = this.moduleOptions[0].id;
     }
     if (this.basisData.isCopy) {
