@@ -20,7 +20,7 @@
     <properties>
         <revision>main</revision>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.1</spring-cloud.version>
+        <spring-cloud.version>2022.0.2</spring-cloud.version>
         <dubbo.version>2.7.18</dubbo.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>1.11.0</shiro.version>
