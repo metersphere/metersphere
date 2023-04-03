@@ -64,5 +64,7 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanApiCase> selectByRefIds(@Param("ids") List<String> ids);
 
     List<String> selectResourcePoolIdByReportIds(@Param("ids") List<String> resourceIds);
+
+    void updateStatusStop(@Param("ids") List<String> testIds);
 }
 
