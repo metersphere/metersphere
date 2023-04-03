@@ -290,7 +290,7 @@ public class TestResultService {
             if (StringUtils.equals(dto.getRunMode(), ApiRunMode.API_PLAN.name())) {
                 TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                 if (testPlanApiCase != null) {
-                    testPlanApiCase.setStatus(ApiReportStatus.ERROR.name());
+                    testPlanApiCase.setStatus(result.getStatus());
                     testPlanApiCaseMapper.updateByPrimaryKey(testPlanApiCase);
                 }
             } else if (StringUtils.isNotEmpty(dto.getTestId())) {
