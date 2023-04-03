@@ -263,7 +263,7 @@ export default {
               if (!this.body.jsonSchema.type) {
                 this.body.jsonSchema.type = data.type;
               }
-              this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+              this.body.jsonSchema = JSON.parse(JSON.stringify(this.deepAssign(this.body.jsonSchema, data)));
             }
           } catch (e) {
             this.body.format = 'JSON';
