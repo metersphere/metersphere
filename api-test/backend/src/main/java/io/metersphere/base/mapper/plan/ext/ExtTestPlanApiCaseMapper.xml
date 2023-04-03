@@ -15,12 +15,10 @@
                #{request.createUser},
                #{request.order}
         FROM DUAL
-        WHERE NOT EXISTS(
-                SELECT id
-                FROM test_plan_api_case
-                WHERE test_plan_id = #{request.testPlanId}
-                  and api_case_id = #{request.apiCaseId}
-            )
+        WHERE NOT EXISTS(SELECT id
+                         FROM test_plan_api_case
+                         WHERE test_plan_id = #{request.testPlanId}
+                           and api_case_id = #{request.apiCaseId})
     </insert>
     <select id="getApiTestCaseById" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
         SELECT t.*
@@ -364,13 +362,11 @@
         select id, status
         from test_plan_api_case
         where test_plan_id = #{planId}
-          and api_case_id IN (
-            SELECT id
-            FROM api_test_case
-            where status is null
-               or status
-            != 'Trash'
-            )
+          and api_case_id IN (SELECT id
+                              FROM api_test_case
+                              where status is null
+                                 or status
+                                  != 'Trash')
     </select>
     <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanApiDTO">
         select
@@ -479,15 +475,18 @@
     </select>
 
     <select id="selectProjectId" resultType="java.lang.String">
-        SELECT project_id FROM test_plan WHERE id IN (
-            SELECT test_plan_id FROM  test_plan_api_case WHERE id = #{0}
-            )
+        SELECT project_id
+        FROM test_plan
+        WHERE id IN (SELECT test_plan_id
+                     FROM test_plan_api_case
+                     WHERE id = #{0})
     </select>
     <select id="selectTestPlanByRelevancy" resultType="io.metersphere.api.dto.automation.TestPlanDTO"
             parameterType="io.metersphere.api.dto.QueryReferenceRequest">
-        SELECT p.id , p.name, project.name as projectName , w.name as workspaceName ,p.workspace_id AS workspaceId, p.project_id AS projectId FROM test_plan p
+        SELECT p.id , p.name, project.name as projectName , w.name as workspaceName ,p.workspace_id AS workspaceId,
+        p.project_id AS projectId FROM test_plan p
         LEFT JOIN project ON p.project_id = project.id
-        LEFT JOIN `workspace` w ON  p.workspace_id = w.id
+        LEFT JOIN `workspace` w ON p.workspace_id = w.id
         <where>
             <if test="request.workspaceId != null">
                 and p.workspace_id = #{request.workspaceId}
@@ -555,7 +554,7 @@
         SELECT a.project_id, t.*
         FROM test_plan_api_case t
         INNER JOIN api_test_case a ON t.api_case_id = a.id
-        WHERE  t.id in
+        WHERE t.id in
         <foreach collection="planCaseIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -568,4 +567,10 @@
             #{id}
         </foreach>
     </select>
+    <update id="updateStatusStop" parameterType="java.util.List">
+        update test_plan_api_case set status="STOPPED" where id in
+        <foreach collection="ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+    </update>
 </mapper>
