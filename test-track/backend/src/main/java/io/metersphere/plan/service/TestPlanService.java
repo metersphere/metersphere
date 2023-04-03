@@ -1456,6 +1456,8 @@ public class TestPlanService {
                         testPlanReport,
                         testPlan, testPlanExecuteReportDTO);
             }
+            //查找运行环境
+            testPlanReportService.initRunInformation(testPlanReportStruct, testPlanReport);
         }
         return testPlanReportStruct == null ? new TestPlanReportDataStruct() : testPlanReportStruct;
     }
@@ -1635,11 +1637,7 @@ public class TestPlanService {
 
             report.setName(testPlan.getName());
             Project project = baseProjectService.getProjectById(testPlan.getProjectId());
-            if (project.getPlatform() != null && project.getPlatform().equals(IssuesManagePlatform.Local.name())) {
-                report.setIsThirdPartIssue(false);
-            } else {
-                report.setIsThirdPartIssue(true);
-            }
+            report.setIsThirdPartIssue(project.getPlatform() == null || !project.getPlatform().equals(IssuesManagePlatform.Local.name()));
         }
         return report;
     }

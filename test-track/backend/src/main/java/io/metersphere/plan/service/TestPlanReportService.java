@@ -339,7 +339,16 @@ public class TestPlanReportService {
             returnDTO.setUiScenarioIdMap(uiScenarioIdMap);
         }
 
-        if (testPlanReport == null) {
+        if (runInfoDTO != null && testPlanReport == null) {
+            if (!saveRequest.isApiCaseIsExecuting() && !saveRequest.isScenarioIsExecuting()) {
+                //如果没有接口用例以及场景运行，执行配置中所选的资源池配置置空，避免报告显示资源池时给用户造成困扰;
+                runModeConfigDTO.setResourcePoolId(null);
+                if (!saveRequest.isUiScenarioIsExecuting()) {
+                    //如果也没有ui运行，则运行环境也置空，避免显示了没用到的环境给用户造成困扰。
+                    runInfoDTO.setRequestEnvMap(new HashMap<>());
+                }
+            }
+
             runInfoDTO.setResourcePools(loadResourcePools);
             if (StringUtils.isNotEmpty(runModeConfigDTO.getResourcePoolId())) {
                 if (!runInfoDTO.getResourcePools().contains(runModeConfigDTO.getResourcePoolId())) {
@@ -1121,7 +1130,7 @@ public class TestPlanReportService {
     }
 
     public void initRunInformation(TestPlanReportDataStruct testPlanReportDTO, TestPlanReport testPlanReport) {
-        if (StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
+        if (ObjectUtils.isNotEmpty(testPlanReportDTO) && StringUtils.isNotEmpty(testPlanReport.getRunInfo())) {
             try {
                 TestPlanReportRunInfoDTO runInfoDTO = JSON.parseObject(testPlanReport.getRunInfo(), TestPlanReportRunInfoDTO.class);
                 this.setEnvironmentToDTO(testPlanReportDTO, runInfoDTO);
@@ -1198,7 +1207,9 @@ public class TestPlanReportService {
                         List<String> envNameList = new ArrayList<>();
                         for (String envId : envIdList) {
                             String envName = apiTestEnvironmentService.selectNameById(envId);
-                            envNameList.add(envName);
+                            if (StringUtils.isNoneBlank(envName)) {
+                                envNameList.add(envName);
+                            }
                         }
                         //考虑到存在不同工作空间下有相同名称的项目，这里还是要检查一下项目名称是否已被记录
                         if (projectEnvMap.containsKey(projectName)) {
