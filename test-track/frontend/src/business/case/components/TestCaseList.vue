@@ -626,6 +626,7 @@ export default {
         });
       let p2 = getTestTemplate();
       Promise.all([p1, p2]).then((data) => {
+        this.loading = false;
         let template = data[1];
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields, this.members);
@@ -637,16 +638,6 @@ export default {
           name: this.$t('commons.tag')
         })
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
-
-        this.$nextTick(() => {
-          if (this.$refs.table) {
-            this.$refs.table.resetHeader(() => {
-              this.loading = false;
-            });
-          } else {
-            this.loading = false;
-          }
-        });
       });
     },
     checkCurrentProject() {
