@@ -12,13 +12,17 @@
                 SELECT id FROM mock_config WHERE api_id = #{0}
             )
     </select>
-    <select id="selectByApiIdIn" resultType="io.metersphere.base.domain.MockExpectConfigWithBLOBs">
-        SELECT * FROM mock_expect_config WHERE mock_config_id IN
-        (
-        SELECT id FROM mock_config WHERE api_id IN
-        <foreach collection="values" item="value" separator="," open="(" close=")">
-            #{value}
-        </foreach>
+    <select id="selectByApiIdIn" resultType="io.metersphere.api.dto.mock.config.MockConfigImportDTO">
+        SELECT
+            mock_expect_config.*,
+            mock_config.api_id AS apiId
+        FROM
+            mock_expect_config
+        LEFT JOIN mock_config ON mock_expect_config.mock_config_id = mock_config.id
+        WHERE mock_config.api_id in (
+            <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+            </foreach>
         )
     </select>
 
