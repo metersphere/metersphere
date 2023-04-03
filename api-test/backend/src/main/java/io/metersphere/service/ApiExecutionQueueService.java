@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.TestPlanReportStatus;
@@ -56,6 +57,8 @@ public class ApiExecutionQueueService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
@@ -202,9 +205,13 @@ public class ApiExecutionQueueService {
             // 更新未执行的报告状态
             List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
             List<String> reportIds = details.stream().map(ApiExecutionQueueDetail::getReportId).collect(Collectors.toList());
+            List<String> testIds = details.stream().map(ApiExecutionQueueDetail::getTestId).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(reportIds)) {
                 extApiDefinitionExecResultMapper.update(reportIds);
                 extApiScenarioReportMapper.update(reportIds);
+            }
+            if (CollectionUtils.isNotEmpty(testIds)) {
+                extTestPlanApiCaseMapper.updateStatusStop(testIds);
             }
             // 清除队列
             executionQueueDetailMapper.deleteByExample(example);
