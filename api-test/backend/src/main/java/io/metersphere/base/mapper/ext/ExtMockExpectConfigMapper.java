@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
@@ -11,7 +12,7 @@ public interface ExtMockExpectConfigMapper {
 
     List<MockExpectConfigWithBLOBs> selectByApiId(String apiId);
 
-    List<MockExpectConfigWithBLOBs> selectByApiIdIn(@Param("values") List<String> apiIds);
+    List<MockConfigImportDTO> selectByApiIdIn(@Param("values") List<String> apiIds);
 
     List<String> selectExlectNumByMockConfigId(String mockConfigId);
 
