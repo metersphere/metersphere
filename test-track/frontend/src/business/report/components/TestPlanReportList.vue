@@ -169,18 +169,9 @@ import { TEST_PLAN_REPORT_CONFIGS } from "metersphere-frontend/src/components/se
 import ReportTriggerModeItem from "metersphere-frontend/src/components/tableItem/ReportTriggerModeItem";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
-import MsTableSelectAll from "metersphere-frontend/src/components/table/MsTableSelectAll";
 import {
-  _filter,
-  _handleSelect,
-  _handleSelectAll,
-  _sort,
   getLastTableSortField,
-  getSelectDataCounts,
   initCondition,
-  saveLastTableSortField,
-  setUnSelectIds,
-  toggleAllSelection,
   getCustomTableWidth,
   getCustomTableHeader,
 } from "metersphere-frontend/src/utils/tableUtils";
@@ -210,7 +201,6 @@ export default {
     ReportTriggerModeItem,
     MsTag,
     ShowMoreBtn,
-    MsTableSelectAll,
     MsTableColumn,
     MsTable,
     MsRenameReportDialog,
@@ -339,24 +329,6 @@ export default {
         this.tableData = data.listObject;
       });
     },
-    handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(
-        this.condition,
-        this.total,
-        this.selectRows
-      );
-    },
-    handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(
-        this.condition,
-        this.total,
-        this.selectRows
-      );
-    },
     handleDelete(testPlanReport) {
       this.$alert(
         this.$t("report.delete_confirm") + " " + testPlanReport.name + " ？",
@@ -401,19 +373,6 @@ export default {
       let ids = rowArray.map((s) => s.id);
       return ids;
     },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initTableData();
-    },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.saveSortField(this.tableHeaderKey, this.condition.orders);
-      this.initTableData();
-    },
     openReport(report) {
       if (report.id) {
         if (report.isNew) {
@@ -422,28 +381,6 @@ export default {
           this.$refs.testPlanReportView.open(report.id);
         }
       }
-    },
-    isSelectDataAll(data) {
-      this.condition.selectAll = data;
-      //设置勾选
-      toggleAllSelection(
-        this.$refs.testPlanReportTable,
-        this.tableData,
-        this.selectRows
-      );
-      //显示隐藏菜单
-      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
-      //设置未选择ID(更新)
-      this.condition.unSelectIds = [];
-      //更新统计信息
-      this.selectDataCounts = getSelectDataCounts(
-        this.condition,
-        this.total,
-        this.selectRows
-      );
-    },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
     },
     openReNameDialog($event) {
       this.$refs.renameDialog.open($event);
