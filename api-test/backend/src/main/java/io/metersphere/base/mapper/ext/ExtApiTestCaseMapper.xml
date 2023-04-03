@@ -415,8 +415,8 @@
         FROM
         api_test_case t1
         LEFT JOIN api_definition_exec_result t3 ON t1.last_result_id = t3.id
-        LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
         LEFT JOIN api_definition a ON t1.api_definition_id = a.id
+        LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
         LEFT JOIN project ON t1.project_id = project.id
         LEFT JOIN project_version ON project.id = project_version.project_id
         AND project_version.id = t1.version_id
