@@ -254,10 +254,17 @@ export default {
       this.$refs.relevanceDialog.selectCounts = data;
     },
     open() {
+
+      // 清空查询条件
+      this.page = getPageInfo({
+        components: TEST_CASE_RELEVANCE_ISSUE_LIST,
+      });
+
       this.getIssueTemplate();
       this.getIssues();
       this.visible = true;
       this.$refs.relevanceDialog.open();
+
       getPlatformOption()
         .then((r) => {
           setIssuePlatformComponent(r.data, this.page.condition.components);
