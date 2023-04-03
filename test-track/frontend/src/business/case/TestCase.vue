@@ -32,7 +32,11 @@
 
     <div style="display: flex; height: calc(100vh - 130px)" class = "test-case-aside-layout">
       <!-- case-aside-container  -->
-      <ms-aside-container v-show="isAsideHidden" :min-width="'0'" :enable-aside-hidden.sync="enableAsideHidden">
+      <ms-aside-container v-show="isAsideHidden"
+                          page-key="TEST_CASE_LIST"
+                          :enable-remember-width="true"
+                          :min-width="'0'"
+                          :enable-aside-hidden.sync="enableAsideHidden">
         <test-case-node-tree
           :type="'edit'"
           :total='total'

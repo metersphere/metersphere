@@ -1,5 +1,5 @@
 <template>
-  <el-aside :width="asideHidden ? '0' : width" class="ms-aside-container"
+  <el-aside :width="asideHidden ? '0' : defaultWidth" class="ms-aside-container"
             :id="id"
             :style="{
               // 'margin-left': !asideHidden ? 0 : '-' + asideHiddenMargin,
@@ -24,6 +24,16 @@ import {getUUID} from "../../utils";
 export default {
   name: "MsAsideContainer",
   components: {MsHorizontalDragBar},
+  data() {
+    return {
+      asideHidden: false,
+      hiddenBottomTop: null,
+      id: null,
+      asideHiddenMargin: '292px',
+      defaultWidth: '269px',
+      observer: null
+    }
+  },
   props: {
     width: {
       type: String,
@@ -52,6 +62,12 @@ export default {
       type: Number,
       default: null
     },
+    // 是否记住拖拽宽度
+    enableRememberWidth: Boolean,
+    pageKey: {
+      type: String,
+      default: null
+    }
   },
   watch: {
     asideHidden() {
@@ -75,13 +91,32 @@ export default {
     this.$nextTick(() => {
       this.setHiddenBottomTop();
     });
+
+    if (this.pageKey && this.enableRememberWidth) {
+      let rememberKey = 'WIDTH_' + this.pageKey;
+      let rememberWidth = localStorage.getItem(rememberKey);
+
+      if (rememberWidth) {
+        // 获取上次记住的宽度
+        this.defaultWidth = rememberWidth;
+      } else {
+        this.defaultWidth = this.width;
+      }
+
+      let element = document.getElementById(this.id);
+      let MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver
+      this.observer = new MutationObserver(() => {
+        // 监听元素的宽度变化，保存在 localStorage 中
+        localStorage.setItem(rememberKey, getComputedStyle(element).getPropertyValue('width'));
+      })
+      this.observer.observe(element, { attributes: true, attributeFilter: ['style'], attributeOldValue: true })
+    }
   },
-  data() {
-    return {
-      asideHidden: false,
-      hiddenBottomTop: null,
-      id: null,
-      asideHiddenMargin: '292px'
+  beforeDestroyed () {
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer.takeRecords()
+      this.observer = null
     }
   },
   methods: {
