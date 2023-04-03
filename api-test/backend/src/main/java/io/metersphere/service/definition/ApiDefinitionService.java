@@ -1438,6 +1438,7 @@ public class ApiDefinitionService {
 
     public ApiExportResult export(ApiBatchRequest request, String type) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
+        LogUtil.info("导出总量 ",request.getIds());
 
         List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
 
@@ -1450,6 +1451,7 @@ public class ApiDefinitionService {
             msApiExportResult.setProtocol(request.getProtocol());
             msApiExportResult.setProjectId(request.getProjectId());
             msApiExportResult.setVersion(System.getenv("MS_VERSION"));
+            LogUtil.info("导出数据组装完成 ",request.getIds());
             return msApiExportResult;
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
