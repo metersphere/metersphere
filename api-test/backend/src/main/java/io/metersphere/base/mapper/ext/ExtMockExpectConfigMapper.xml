@@ -14,16 +14,14 @@
     </select>
     <select id="selectByApiIdIn" resultType="io.metersphere.api.dto.mock.config.MockConfigImportDTO">
         SELECT
-            mock_expect_config.*,
-            mock_config.api_id AS apiId
+            mock_expect_config.*,mock_config.api_id AS apiId
         FROM
             mock_expect_config
         LEFT JOIN mock_config ON mock_expect_config.mock_config_id = mock_config.id
-        WHERE mock_config.api_id in (
-            <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-            </foreach>
-        )
+        WHERE mock_config.api_id in
+        <foreach collection="values" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
     </select>
 
     <select id="selectExlectNumByMockConfigId" resultType="java.lang.String">
