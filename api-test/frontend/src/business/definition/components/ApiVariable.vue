@@ -525,6 +525,7 @@ export default {
       this.storageKey = 'API_RESPONSE_PARAMS_SHOW_FIELD';
     }
     if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
+      //如果参数最后没有空白行，需要加入一个空白行
       this.parameters.push(
         new KeyValue({
           contentType: 'text/plain',
@@ -543,6 +544,24 @@ export default {
           value: null,
         })
       );
+    } else {
+      //检查最后一个空白行是否缺少参数，缺少参数会影响数据反显.(多存在于旧数据）
+      if (!this.parameters[this.parameters.length - 1].max) {
+        this.$set(this.parameters[this.parameters.length - 1], 'max', 0);
+      }
+      if (!this.parameters[this.parameters.length - 1].min) {
+        this.$set(this.parameters[this.parameters.length - 1], 'min', 0);
+      }
+      if (!this.parameters[this.parameters.length - 1].value) {
+        this.$set(this.parameters[this.parameters.length - 1], 'value', null);
+      }
+      if (!this.parameters[this.parameters.length - 1].uuid) {
+        this.$set(this.parameters[this.parameters.length - 1], 'uuid', this.uuid());
+      }
+      if (!this.parameters[this.parameters.length - 1].description) {
+        this.$set(this.parameters[this.parameters.length - 1], 'description', null);
+      }
+      this.$set(this.parameters[this.parameters.length - 1], 'files', null);
     }
     let savedApiParamsShowFields = getShowFields(this.storageKey);
     if (savedApiParamsShowFields) {
