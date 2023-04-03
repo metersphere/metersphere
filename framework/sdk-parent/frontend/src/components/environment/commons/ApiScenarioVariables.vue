@@ -431,7 +431,7 @@ export default {
       return this.items.length - 1 !== index;
     },
     _handleBatchVars(data) {
-      let params = data.split(/[(\r\n)\r\n]+/);
+      let params = data.split(/[\r\n]+/);
       let keyValues = [];
       params.forEach((item) => {
         if (item) {
