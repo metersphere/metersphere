@@ -1,9 +1,10 @@
 import axios from 'axios'
 import {$error} from "./message"
 import {getCurrentProjectID, getCurrentWorkspaceId} from "../utils/token";
-import {PROJECT_ID, TokenKey, WORKSPACE_ID} from "../utils/constants";
+import {PROJECT_ID, TokenKey, WORKSPACE_ID, TASK_PATH, TASK_DATA} from "../utils/constants";
 import packageJSON from '@/../package.json'
 import {getUrlParams, getUUID} from "../utils";
+import {initTaskData} from "../api/novice";
 import {Base64} from "js-base64";
 
 // baseURL 根据是否是独立运行修改
@@ -94,9 +95,17 @@ const checkPermission = response => {
   }
 }
 
+const checkTask = response => {
+  // 请根据实际需求修改
+  if (TASK_PATH.includes(response.config["url"]) && response.status === 200) {
+    initTaskData(response.config["url"]);
+  }
+}
+
 // 请根据实际需求修改
 instance.interceptors.response.use(response => {
   checkAuth(response);
+  checkTask(response);
   return response;
 }, error => {
   let msg;

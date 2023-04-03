@@ -67,7 +67,8 @@
     "vuedraggable": "^2.24.3",
     "xml-js": "^1.6.11",
     "yan-progress": "^1.0.3",
-    "js-file-download": "^0.4.12"
+    "vue-shepherd": "^0.3.0",
+    "shepherd.js": "^10.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

@@ -15,6 +15,9 @@ import "./router/permission";
 import "./micro-app";
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
+import VueShepherd from 'vue-shepherd' // 新手引导
+import './assets/shepherd/shepherd-theme.css'
+import { gotoCancel, gotoNext } from "./utils";
 
 Vue.config.productionTip = false
 
@@ -33,6 +36,10 @@ Vue.use(directives);
 Vue.use(filters);
 Vue.use(PiniaVuePlugin);
 Vue.use(mavonEditor);
+Vue.use(VueShepherd)
+
+Vue.prototype.gotoCancel = gotoCancel
+Vue.prototype.gotoNext = gotoNext
 
 new Vue({
   el: "#app",

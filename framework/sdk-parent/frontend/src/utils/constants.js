@@ -263,3 +263,103 @@ export const SECOND_LEVEL_ROUTE_PERMISSION_MAP = {
     }
   ]
 }
+
+export const TASK_PATH = [
+  "/test/case/add",
+  "/test/case/review/save",
+  "/test/case/review/comment/save",
+  "/test/plan/add",
+  "/test/plan/relevance",
+  "/issues/add",
+  "/api/definition/create",
+  "/api/definition/run/debug",
+  "/api/testcase/create",
+  "/share/info/generateApiDocumentShareInfo",
+  "/api/definition/import",
+  "/api/automation/create",
+  "/api/automation/schedule/update",
+  "/performance/save",
+  "/share/info/generateShareInfoWithExpired",
+  "/project/add",
+  "/project/member/add",
+  "/user/project/member/add",
+  "/api/environment/add",
+  "/ui/element/add",
+  "/ui/automation/create",
+  "/ui/automation/run/debug",
+];
+
+export const TASK_DATA = [
+  {
+    id: 1,
+    name: "track",
+    title: "side_task.test_tracking.title",
+    percentage: 14,
+    taskData: [
+      { id: 1, name: "side_task.test_tracking.task_1", status: 1, permission: ['PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_MANAGER:READ'], api: [''], path: '/setting/project/:type', url: "" },
+      { id: 2, name: "side_task.test_tracking.task_2", status: 0, permission: ['PROJECT_TRACK_CASE:READ+CREATE'], api: ["/test/case/add"], path: '/track/case/all', url: "/assets/guide/track/task-2.gif" },
+      { id: 3, name: "side_task.test_tracking.task_3", status: 0, permission: ['PROJECT_TRACK_REVIEW:READ+CREATE'], api: ["/test/case/review/save"], path: '/track/review/all', url: "/assets/guide/track/task-3.gif" },
+      { id: 4, name: "side_task.test_tracking.task_4", status: 0, permission: ['PROJECT_TRACK_REVIEW:READ+COMMENT'], api: ["/test/case/review/comment/save"], path: '/track/review/all', url: "/assets/guide/track/task-4.gif" },
+      { id: 5, name: "side_task.test_tracking.task_5", status: 0, permission: ['PROJECT_TRACK_PLAN:READ+CREATE'], api: ["/test/plan/add"], path: '/track/plan/all', url: "/assets/guide/track/task-5.gif" },
+      { id: 6, name: "side_task.test_tracking.task_6", status: 0, permission: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL'], api: ["/test/plan/relevance"], path: '/track/plan/all', url: "/assets/guide/track/task-6.gif" },
+      { id: 7, name: "side_task.test_tracking.task_7", status: 0, permission: ['PROJECT_TRACK_ISSUE:READ+CREATE'], api: ["/issues/add"], path: '/track/issue', url: "/assets/guide/track/task-7.gif" },
+    ],
+    rate: 1,
+    status: 0
+  },
+  {
+    id: 2,
+    name: "api",
+    title: 'side_task.api_test.title',
+    percentage: 0,
+    taskData: [
+      {id: 1, name: "side_task.api_test.task_1", status: 0, path: '/api/definition', permission: ['PROJECT_API_DEFINITION:READ+CREATE_API'], api: ["/api/definition/create"], url: "/assets/guide/api/task-1.gif" },
+      {id: 2, name: "side_task.api_test.task_2", status: 0, path: '/api/definition', permission: ['PROJECT_API_DEFINITION:READ+IMPORT_API'], api: ["/api/definition/import"], url: "/assets/guide/api/task-2.gif" },
+      {id: 3, name: "side_task.api_test.task_3", status: 0, path: '/api/definition', permission: ['PROJECT_API_DEFINITION:READ+DEBUG'], api: ["/api/definition/run/debug"], url: "/assets/guide/api/task-3.gif" },
+      {id: 4, name: "side_task.api_test.task_4", status: 0, path: '/api/definition', permission: ['PROJECT_API_DEFINITION:READ+CREATE_CASE'], api: ["/api/testcase/create"], url: "/assets/guide/api/task-4.gif" },
+      {id: 5, name: "side_task.api_test.task_5", status: 0, path: '/api/automation', permission: ['PROJECT_API_DEFINITION:READ'], api: ["/share/info/generateApiDocumentShareInfo"], url: "/assets/guide/api/task-5.gif" },
+      {id: 6, name: "side_task.api_test.task_6", status: 0, path: '/api/automation', permission: ['PROJECT_API_SCENARIO:READ+CREATE'], api: ["/api/automation/create"], url: "/assets/guide/api/task-6.gif" },
+      {id: 7, name: "side_task.api_test.task_7", status: 0, path: '/api/automation', permission: ['PROJECT_API_SCENARIO:READ+SCHEDULE'], api: ["/api/automation/schedule/update"], url: "/assets/guide/api/task-7.gif" },
+    ],
+    rate: 0,
+    status: 0
+  },
+  {
+    id: 3,
+    name: "performance",
+    title: 'side_task.performance_test.title',
+    percentage: 0,
+    taskData: [
+      {id: 1, name: 'side_task.performance_test.task_1', status: 0, path: '/performance/test/all', permission: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE',"PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH"], api: ["/performance/save"], url: "/assets/guide/performance/task-1.gif" },
+      {id: 2, name: 'side_task.performance_test.task_2', status: 0, path: '/performance/report/all', permission: ['PROJECT_PERFORMANCE_REPORT:READ'], api: ["/share/info/generateShareInfoWithExpired"], url: "/assets/guide/performance/task-2.gif" },
+    ],
+    rate: 0,
+    status: 0
+  },
+  {
+    id: 4,
+    name: "project",
+    title: 'side_task.project_setting.title',
+    percentage: 0,
+    taskData: [
+      {id: 1, name: 'side_task.project_setting.task_1', status: 0, permission: ['WORKSPACE_PROJECT_MANAGER:READ+CREATE'], api: ["/project/add"], path: '/setting/project/:type', url: "/assets/guide/project/task-1.gif" },
+      {id: 2, name: 'side_task.project_setting.task_2', status: 0, permission: ['PROJECT_USER:READ+CREATE'], api: ["/project/member/add","/user/project/member/add"], path: '/project/member', url: "/assets/guide/project/task-2.gif" },
+      {id: 3, name: 'side_task.project_setting.task_3', status: 0, permission: ['PROJECT_ENVIRONMENT:READ+CREATE'], api: ["/api/environment/add"], path: '/project/env', url: "/assets/guide/project/task-3.gif" },
+    ],
+    rate: 0,
+    status: 0
+  },
+  {
+    id: 5,
+    name: "ui",
+    title: 'side_task.ui_test.title',
+    percentage: 0,
+    taskData: [
+      {id: 1, name: 'side_task.ui_test.task_1', status: 0, permission: ['PROJECT_UI_ELEMENT:READ+CREATE'], api: ["/ui/element/add"], path: '/ui/element', url: "/assets/guide/ui/task-1.gif" },
+      {id: 2, name: 'side_task.ui_test.task_2', status: 0, permission: ['PROJECT_UI_ELEMENT:READ+CREATE'], api: ["/ui/automation/create"], path: '/ui/automation', url: "/assets/guide/ui/task-2.gif" },
+      {id: 2, name: 'side_task.ui_test.task_3', status: 0, permission: ['PROJECT_UI_SCENARIO:READ+RUN'], api: ["/ui/automation/run/debug"], path: '/ui/report', url: "/assets/guide/ui/task-3.gif" },
+    ],
+    rate: 0,
+    status: 0
+  },
+]

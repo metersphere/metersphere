@@ -519,6 +519,9 @@ const message = {
       ui_module: "default",
     },
     other: "Other",
+    function_introduction: 'Function introduction',
+    page_guidance: 'Page guidance',
+    novice_journey: 'Novice Journey'
   },
   login: {
     normal_Login: "Normal Login",
@@ -3529,6 +3532,102 @@ const message = {
     ui_title: "UI testing tasks",
     perf_title: "Perf testing tasks",
   },
+  shepherd: {
+    step1: {
+      title: 'A Workspaces and Projects',
+      text: 'MeterSphere uses "workspaces" and "projects" to organize test data and members. You can switch positions as you like in the top menu.'
+    },
+    step2: {
+      title: 'Side navigation menu',
+      text: 'The navigation menu shows which function module you are in.'
+    },
+    step3: {
+      title: 'One workspace holds multiple projects',
+      text: 'A "project" is a collection of use cases and members. Various types of tests on MeterSphere are viewed and managed through projects.'
+    },
+    step4: {
+      title: 'Top function menu',
+      text: 'The topl function menu supports switching subdivision functions under the current first-class module.'
+    },
+    step5: {
+      title: "Where are you?",
+      text: "Now, you have joined our preset workspace by default and become a member of the demo project. Please start your testing journey from here."
+    },
+    exit:'skip',
+    next: 'Next',
+    know:'know',
+  },
+  guide: {
+    home: {
+      title: 'Welcome to MeterSphere!',
+      desc: 'A quickstart guide to see what MeterSphere can do for you.',
+      button: 'Lets get started'
+    },
+    test: {
+      title: 'Test cases are the cornerstone of testing',
+      desc: '<span>Maintain your test cases through online editing/file import/URL synchronization/multi-person review,</span><br> <span>add them to your test plan,quantitatively manage test progress, record results, synchronize issues, </span><br> retain/share test reports, and cover the entire software testing life cycle. ',
+      button: 'Next: Interface Test'
+    },
+    api: {
+      title: 'Simulate real scenarios to automate API testing',
+      desc: '<span>API testing is triggered by manual/scheduled tasks/plug-ins, supporting multiple communication protocols; </span><br> <span> scenario case-sets are arranged based on real business processes,  </span><br> <span> and multi-type controllers/custom scripts/assertions are supported to meet various user needs. ',
+      button: 'Next: UI Test'
+    },
+    ui: {
+      title: 'Portable UI element library and instruction set',
+      desc: '<span>Arrange scenario cases based on reusable element libraries and instructions;</span><br> combine your commonly used test steps into new instructions, <br> <span> which can be flexibly called in automation scenarios. </span>',
+      button: 'Next: Performance Test'
+    },
+    performance: {
+      title: 'One-click launch performance testing',
+      desc: '<span>Provides a distributed performance testing solution, supporting multiple types of testing resource pools </span><br> <span>such as physical machines/virtual machines/k8s container clusters; </span><br> <span>One-click to initiate API scenario case to performance testing, and view real-time reports;</span><br> Provides report comparison under different configurations to control performance bottlenecks and optimize them. ',
+      button: 'To create your first test case'
+    },
+    go_prev: 'Return to previous'
+  },
+  side_task: {
+    test_tracking: {
+      title: "Challenging Test Track",
+      task_1: "Join a project",
+      task_2: "Create a functional test case",
+      task_3: "Create a review plan",
+      task_4: "Post a comment in a review",
+      task_5: "Create a test plan",
+      task_6: "Add test cases to test plan",
+      task_7: "Add ralated issue to test case",
+    },
+    api_test: {
+      title: "Challenging API Test",
+      task_1: "Create an API definition",
+      task_2: "Import local API definition or  API cases",
+      task_3: "Execute an API testing",
+      task_4: "Create a new test case based on API testing",
+      task_5: "Share API documents",
+      task_6: "Create an automation scenario case",
+      task_7: "Execute automated API testing with scheduled task ",
+    },
+    performance_test: {
+      title: "Challenging Performance Test",
+      task_1: "Convert API scenario case into performance testing",
+      task_2: "Share performance testing report",
+    },
+    project_setting: {
+      title: "Challenging Project Settings",
+      task_1: "create a new project",
+      task_2: "Add a project member",
+      task_3: "Create a project environment",
+    },
+    ui_test: {
+      title: "Challenging UI Test",
+      task_1: "Create an element",
+      task_2: "Create an automated UI  scenario case",
+      task_3: "Execute an automated UI  scenario case",
+    },
+    next: "Next",
+    prev: "Previous",
+    skip: "Skip",
+    novice_task: "Novice Task"
+  }
 };
 
 export default {

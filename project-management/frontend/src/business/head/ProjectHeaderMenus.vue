@@ -3,7 +3,7 @@
     <el-row type="flex">
       <project-switch :project-name="currentProject"/>
       <el-col :span="14">
-        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
+        <el-menu class="header-menu shepherd-project-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
           <el-menu-item :index="'/project/home'">
             {{ $t('project.info') }}
