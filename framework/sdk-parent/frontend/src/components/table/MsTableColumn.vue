@@ -8,7 +8,7 @@
                    :prop="prop"
                    :column-key="columnKey ? columnKey : prop"
                    :label="label"
-                   :sortable="sortable"
+                   :sortable="sortable ? 'custom' : false"
                    :filter-method="filterMethod"
                    :filtered-value="filteredValue	"
                    :render-header="renderHeader"
