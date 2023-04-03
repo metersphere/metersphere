@@ -95,17 +95,7 @@ public class MockConfigService {
 
     public List<MockConfigImportDTO> selectMockExpectConfigByApiIdIn(List<String> apiIds) {
         if (CollectionUtils.isNotEmpty(apiIds)) {
-            List<MockConfigImportDTO> returnDTO = new ArrayList<>();
-            for (String apiId : apiIds) {
-                List<MockExpectConfigWithBLOBs> mockExpectConfigWithBLOBsList = extMockExpectConfigMapper.selectByApiId(apiId);
-                for (MockExpectConfigWithBLOBs model : mockExpectConfigWithBLOBsList) {
-                    MockConfigImportDTO dto = new MockConfigImportDTO();
-                    BeanUtils.copyBean(dto, model);
-                    dto.setApiId(apiId);
-                    returnDTO.add(dto);
-                }
-            }
-            return returnDTO;
+           return extMockExpectConfigMapper.selectByApiIdIn(apiIds);
         } else {
             return new ArrayList<>();
         }

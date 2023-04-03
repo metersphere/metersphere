@@ -1441,8 +1441,7 @@ public class ApiDefinitionService {
 
         List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
 
-        if (StringUtils.equals(type, "MS")) { //  导出为 Metersphere 格式
-            MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
+        if (StringUtils.equals(type, "MS")) {
             MsApiExportResult msApiExportResult = new MsApiExportResult();
             msApiExportResult.setData(apiDefinitions);
             msApiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
@@ -1451,12 +1450,6 @@ public class ApiDefinitionService {
             msApiExportResult.setProtocol(request.getProtocol());
             msApiExportResult.setProjectId(request.getProjectId());
             msApiExportResult.setVersion(System.getenv("MS_VERSION"));
-            if (CollectionUtils.isNotEmpty((msApiExportResult).getData())) {
-                List<String> names = (msApiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
-                request.setName(String.join(",", names));
-                List<String> ids = msApiExportResult.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-                request.setId(JSON.toJSONString(ids));
-            }
             return msApiExportResult;
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
