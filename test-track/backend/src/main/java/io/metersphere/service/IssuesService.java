@@ -437,7 +437,7 @@ public class IssuesService {
     public List<IssuesDao> getIssues(String caseResourceId, String refType) {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setCaseResourceId(caseResourceId);
-        ServiceUtils.getDefaultOrder(issueRequest.getOrders());
+        issueRequest.setOrders(ServiceUtils.getDefaultOrder(issueRequest.getOrders(),"relate_time"));
         issueRequest.setRefType(refType);
         List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
         Map<String, User> userMap = getUserMap(issues);
