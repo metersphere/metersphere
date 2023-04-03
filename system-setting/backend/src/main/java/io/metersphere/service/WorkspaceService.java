@@ -89,9 +89,14 @@ public class WorkspaceService {
             projectService.deleteProject(projectId);
         });
 
+        projectIdList.add(workspaceId);
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andScopeIdIn(projectIdList);
+        groupMapper.deleteByExample(groupExample);
+
         // delete user group
         UserGroupExample userGroupExample = new UserGroupExample();
-        userGroupExample.createCriteria().andSourceIdEqualTo(workspaceId);
+        userGroupExample.createCriteria().andSourceIdIn(projectIdList);
         userGroupMapper.deleteByExample(userGroupExample);
         environmentGroupService.deleteByWorkspaceId(workspaceId);
 
