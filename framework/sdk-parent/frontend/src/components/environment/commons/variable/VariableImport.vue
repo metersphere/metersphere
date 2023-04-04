@@ -1,10 +1,10 @@
 <template>
   <el-dialog :visible="dialogVisible" :title="dialogTitle"
              @close="close" :close-on-click-modal="false" append-to-body
-             width="35%">
+             width="550px">
     <el-form :rules="rules" label-width="80px" v-model="modeId">
       <el-form-item prop="modeId" :label="$t('commons.import_mode')">
-        <el-select size="small" v-model="modeId">
+        <el-select size="small" v-model="modeId" style="width: 360px">
           <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>

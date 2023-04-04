@@ -85,6 +85,7 @@ export default {
         this.icon= ['fa', 'expand-alt'];
       }
       this.$emit("update:isFullScreen",bool);
+      this.$emit("fullScreen");
     },
   },
 };
