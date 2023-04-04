@@ -170,6 +170,9 @@ export default {
           this.reqMessages += 'Cookie :' + this.response.cookies + '\n';
         }
         this.reqMessages += 'Body:' + '\n' + this.response.body;
+        if (this.mode === BODY_FORMAT.JSON) {
+          this.msCodeReload();
+        }
       }
     },
   },
