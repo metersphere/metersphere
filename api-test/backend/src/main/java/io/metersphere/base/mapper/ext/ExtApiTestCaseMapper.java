@@ -110,4 +110,6 @@ public interface ExtApiTestCaseMapper {
     List<String> selectSourceIdByProjectIdIsNull();
 
     long countSourceIdByProjectIdIsNull();
+
+    String findPassRateById(String id);
 }

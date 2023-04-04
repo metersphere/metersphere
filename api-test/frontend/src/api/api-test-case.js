@@ -89,3 +89,7 @@ export function apiTestCaseCount(param) {
 export function getApiCaseEnvironments(param) {
   return post('/api/testcase/get/env', param);
 }
+
+export function getPassRateById(id) {
+  return get('/api/testcase/get/pass-rate/' + id);
+}
