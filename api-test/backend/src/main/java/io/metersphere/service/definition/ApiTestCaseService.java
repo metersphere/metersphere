@@ -1281,4 +1281,9 @@ public class ApiTestCaseService {
     public void updateByPrimaryKeySelective(ApiTestCaseWithBLOBs apiTestCase) {
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
     }
+
+    public String getPassRate(String id) {
+       return extApiTestCaseMapper.findPassRateById(id);
+
+    }
 }

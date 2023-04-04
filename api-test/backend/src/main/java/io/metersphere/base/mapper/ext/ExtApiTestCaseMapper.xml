@@ -1309,4 +1309,14 @@
         FROM api_case_execution_info
         WHERE project_id IS NULL
     </select>
+
+    <select id="findPassRateById" resultType="java.lang.String">
+        SELECT
+            CONCAT( FORMAT( SUM( IF ( t2.`status` = 'success', 1, 0 ))/ COUNT( t2.id )* 100, 2 ), '%' )
+            VALUE
+        FROM
+            api_definition_exec_result t2
+        WHERE
+            t2.resource_id = #{0}
+    </select>
 </mapper>

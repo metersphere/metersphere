@@ -663,7 +663,7 @@ export default {
     },
     storeCurrentApiCaseRefresh() {
       if (store.currentApiCase && store.currentApiCase.refresh) {
-        this.setStatus(store.currentApiCase.id, store.currentApiCase.status);
+        this.setStatus(store.currentApiCase.id, store.currentApiCase.status, store.currentApiCase.passRate);
       }
       store.currentApiCase = {};
     },
@@ -743,11 +743,12 @@ export default {
     customHeader() {
       this.$refs.caseTable.openCustomHeader();
     },
-    setStatus(id, status) {
+    setStatus(id, status, passRate) {
       this.tableData.forEach((item) => {
         if (id && id === item.id) {
           item.status = status;
           item.execResult = status;
+          item.passRate = passRate;
         }
       });
     },

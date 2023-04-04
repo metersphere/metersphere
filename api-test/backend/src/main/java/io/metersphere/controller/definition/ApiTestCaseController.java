@@ -82,6 +82,11 @@ public class ApiTestCaseController {
         return apiTestCaseService.listSimple(request);
     }
 
+    @GetMapping("/get/pass-rate/{id}")
+    public String  getPassRate(@PathVariable String id) {
+        return apiTestCaseService.getPassRate(id);
+    }
+
     @PostMapping("/get/request")
     public Map<String, String> listSimple(@RequestBody ApiTestCaseRequest request) {
         return apiTestCaseService.getRequest(request);

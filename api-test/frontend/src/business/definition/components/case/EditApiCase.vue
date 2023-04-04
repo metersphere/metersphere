@@ -60,7 +60,7 @@
   </div>
 </template>
 <script>
-import { apiTestCaseList, editApiCaseByParam, getCaseById } from '@/api/api-test-case';
+import {apiTestCaseList, editApiCaseByParam, getCaseById, getPassRateById} from '@/api/api-test-case';
 import { getMaintainer } from '@/api/project';
 import ApiCaseHeader from './ApiCaseHeader';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
@@ -425,11 +425,15 @@ export default {
       this.singleRunId = '';
       this.apiCaseList[0].active = true;
       if (data) {
-        let status = data.status === 'FAKE_ERROR' ? data.status : data.error > 0 ? 'Error' : 'Success';
-        this.apiCaseList[0].execResult = status;
-        this.apiCaseList[0].responseData = data;
-        this.$refs.apiCaseItem.runLoading = false;
-        store.currentApiCase = { refresh: true, id: data.id, status: status };
+        getPassRateById(data.id).then((response) => {
+          let passRate = response.data;
+          let status = data.status === 'FAKE_ERROR' ? data.status : data.error > 0 ? 'Error' : 'Success';
+          this.apiCaseList[0].execResult = status;
+          this.apiCaseList[0].responseData = data;
+          this.apiCaseList[0].passRate = passRate;
+          this.$refs.apiCaseItem.runLoading = false;
+          store.currentApiCase = {refresh: true, id: data.id, status: status, passRate: passRate};
+        })
       }
     },
     errorRefresh() {
