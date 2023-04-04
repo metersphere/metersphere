@@ -55,10 +55,10 @@
         SELECT COUNT(id) AS countNumber
         FROM `schedule`
         WHERE resource_id IN (
-            SELECT scene.id
-            FROM api_scenario scene
-            WHERE scene.project_id = #{projectId,jdbcType=VARCHAR}
-              AND scene.status != 'Trash'
+        SELECT scene.id
+        FROM api_scenario scene
+        WHERE scene.project_id = #{projectId,jdbcType=VARCHAR}
+        AND scene.status != 'Trash'
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -66,29 +66,29 @@
             AND latest = 1
         </if>
         )
-          AND create_time BETWEEN #{startTime} AND #{endTime}
+        AND create_time BETWEEN #{startTime} AND #{endTime}
     </select>
 
     <select id="findRunningTaskInfoByProjectID" resultType="io.metersphere.dto.TaskInfoResult">
         SELECT sch.id AS taskID,
-           sch.`name` AS `name`,
-           sch.`value`     AS rule,
-           sch.`enable`    AS `taskStatus`,
-           sch.update_time AS updateTime,
-           sch.id          AS taskID,
-           sch.`value`     AS rule,
-           sch.`enable`    AS `taskStatus`,
-           u.`name`        AS creator,
-           sch.update_time AS updateTime,
-           sch.type      AS taskType,
-           sch.`group`    AS taskGroup,
-           sch.resource_id  AS scenarioId
+        sch.`name` AS `name`,
+        sch.`value` AS rule,
+        sch.`enable` AS `taskStatus`,
+        sch.update_time AS updateTime,
+        sch.id AS taskID,
+        sch.`value` AS rule,
+        sch.`enable` AS `taskStatus`,
+        u.`name` AS creator,
+        sch.update_time AS updateTime,
+        sch.type AS taskType,
+        sch.`group` AS taskGroup,
+        sch.resource_id AS scenarioId
         FROM (
-          schedule sch left join user u
-          ON sch.user_id = u.id
+        schedule sch left join user u
+        ON sch.user_id = u.id
         )
         WHERE sch.`enable` = true
-          AND sch.project_id = #{projectId,jdbcType=VARCHAR}
+        AND sch.project_id = #{projectId,jdbcType=VARCHAR}
 
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
@@ -109,24 +109,23 @@
     <select id="findScenarioAndSwaggerRunningTaskInfoByProjectID" resultType="io.metersphere.dto.TaskInfoResult">
         SELECT sch.id AS taskID,
         sch.`name` AS `name`,
-        sch.`value`     AS rule,
-        sch.`enable`    AS `taskStatus`,
+        sch.`value` AS rule,
+        sch.`enable` AS `taskStatus`,
         sch.update_time AS updateTime,
-        sch.id          AS taskID,
-        sch.`value`     AS rule,
-        sch.`enable`    AS `taskStatus`,
-        u.`name`        AS creator,
+        sch.id AS taskID,
+        sch.`value` AS rule,
+        sch.`enable` AS `taskStatus`,
+        u.`name` AS creator,
         sch.update_time AS updateTime,
-        sch.type      AS taskType,
-        sch.`group`    AS taskGroup,
-        sch.resource_id  AS scenarioId
+        sch.type AS taskType,
+        sch.`group` AS taskGroup,
+        sch.resource_id AS scenarioId
         FROM (
         schedule sch left join user u
         ON sch.user_id = u.id
         )
         WHERE sch.`enable` = true
         AND sch.project_id = #{projectId,jdbcType=VARCHAR}
-
         <if test="versionId != null">
             AND (
             sch.group IN ('SWAGGER_IMPORT')
@@ -137,8 +136,11 @@
         <if test="versionId == null">
             AND sch.group IN ('API_SCENARIO_TEST','SWAGGER_IMPORT')
         </if>
+        ORDER BY sch.update_time DESC
     </select>
     <update id="updateNameByResourceID">
-        update schedule set name = #{name} where resource_id = #{resourceId}
+        update schedule
+        set name = #{name}
+        where resource_id = #{resourceId}
     </update>
 </mapper>
