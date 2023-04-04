@@ -235,6 +235,7 @@ export default {
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
         this.$refs.table.clear();
+        this.$refs.table.clearSort();
       }
       if (this.projectId) {
         this.getProjectNode(this.projectId);
