@@ -280,6 +280,7 @@ export default {
               }
               if (reportData.selectOption) {
                 let selectOptionObj = JSON.parse(reportData.selectOption);
+                this.options = selectOptionObj;
                 this.$refs.countFilter.initSelectOption(selectOptionObj);
               }
               this.loading = false;
