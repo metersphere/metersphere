@@ -427,6 +427,7 @@ export default {
               this.content.success = successCount;
               this.totalTime = report.totalTime;
             }
+            this.$emit('getReportOver');
             this.loading = false;
           }
         } else {
