@@ -49,6 +49,7 @@ import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
 import io.metersphere.plan.service.remote.ui.PlanUiAutomationService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
+import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ScheduleRequest;
 import io.metersphere.service.*;
 import io.metersphere.utils.DiscoveryUtil;
@@ -601,6 +602,15 @@ public class TestPlanService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         boolean isSelectAll = request.getRequest() != null && request.getRequest().isSelectAll();
         if (isSelectAll) {
+            List<OrderRequest> orders = request.getRequest().getOrders();
+            if (CollectionUtils.isNotEmpty(orders)) {
+                orders.forEach(order -> {
+                    order.setPrefix("test_case");
+                });
+            } else {
+                List<OrderRequest> defaultOrders = getDefaultOrders();
+                request.getRequest().setOrders(defaultOrders);
+            }
             List<TestCase> maintainerMap;
             if (BooleanUtils.isTrue(testPlan.getRepeatCase())) {
                 maintainerMap = extTestCaseMapper.getMaintainerMapForPlanRepeat(request.getRequest());
@@ -729,6 +739,16 @@ public class TestPlanService {
                 uiScenarioIds.add(l.getTestId());
             }
         }
+    }
+
+    private List<OrderRequest> getDefaultOrders() {
+        List<OrderRequest> orderRequests = new ArrayList<>();
+        OrderRequest orderRequest = new OrderRequest();
+        orderRequest.setPrefix("test_case");
+        orderRequest.setName("order");
+        orderRequest.setType("desc");
+        orderRequests.add(orderRequest);
+        return orderRequests;
     }
 
     public List<TestPlan> recentTestPlans(String projectId) {
