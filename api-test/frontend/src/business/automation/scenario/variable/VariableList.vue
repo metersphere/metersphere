@@ -148,7 +148,7 @@
                       {{ $t('commons.confirm') }}
                     </el-button>
                     <el-button size="small" style="margin-left: 10px" @click="cancelVariable"
-                      >{{ $t('commons.cancel') }}
+                    >{{ $t('commons.cancel') }}
                     </el-button>
                     <el-button v-if="showDelete" size="small" style="margin-left: 10px" @click="deleteVariable">
                       {{ $t('commons.delete') }}
@@ -167,7 +167,7 @@
               placement="top-start"
               slot="label">
               <span
-                >{{ $t('api_test.request.headers') }}
+              >{{ $t('api_test.request.headers') }}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length > 1">
                   <div class="el-step__icon-inner">
                     {{ headers.length - 1 }}
@@ -468,10 +468,10 @@ export default {
         if (messages !== '') {
           this.$alert(
             this.$t('api_test.scenario.variables') +
-              '【' +
-              messages.substr(0, messages.length - 1) +
-              '】' +
-              this.$t('load_test.param_is_duplicate')
+            '【' +
+            messages.substr(0, messages.length - 1) +
+            '】' +
+            this.$t('load_test.param_is_duplicate')
           );
         }
       });
@@ -485,6 +485,7 @@ export default {
       this.variables.forEach((item) => {
         item.hidden = undefined;
         if (item.name && item.name != '') {
+          item.showMore = false;
           saveVariables.push(item);
         }
       });
