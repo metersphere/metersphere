@@ -90,7 +90,7 @@
               v-if="!scope.row.scope || scope.row.scope == 'api'"
               :placeholder="$t('commons.please_select')"
               size="mini"
-            @change="changeType(scope.row)">
+              @change="changeType(scope.row)">
               <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
 
