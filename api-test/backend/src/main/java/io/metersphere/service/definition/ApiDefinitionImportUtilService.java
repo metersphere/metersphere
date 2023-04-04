@@ -241,8 +241,13 @@ public class ApiDefinitionImportUtilService {
             //这里把数据库里与该接口相同的所有接口筛选出来包括不同的版本
             //如果 sameRefIds 与 toUpdates 相同，就用  toUpdates 代替 sameRefIds，因为toUpdates 可能会修改模块路径
             if (CollectionUtils.isNotEmpty(repeatList)) {
-                sameRefIds = repeatList.stream().filter(t -> t.getRefId().equals(item.getRefId()) && t.getModuleId().equals(item.getModuleId())).collect(Collectors.toList());
+                if (urlRepeat) {
+                    sameRefIds = repeatList.stream().filter(t -> t.getRefId().equals(item.getRefId()) && t.getModuleId().equals(item.getModuleId())).collect(Collectors.toList());
+                } else {
+                    sameRefIds = repeatList.stream().filter(t -> t.getRefId().equals(item.getRefId())).collect(Collectors.toList());
+                }
                 List<String> repeatIds = sameRefIds.stream().map(ApiDefinition::getId).toList();
+
                 List<ApiDefinitionWithBLOBs> toUpdates = toUpdateList.stream().filter(t -> t.getRefId().equals(item.getRefId())).collect(Collectors.toList());
                 List<String> toUpDateIds = toUpdates.stream().map(ApiDefinition::getId).toList();
                 List<String> reduce1 = repeatIds.stream().filter(t -> !toUpDateIds.contains(t)).collect(Collectors.toList());
