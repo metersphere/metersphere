@@ -48,5 +48,6 @@ public interface ExtTestPlanApiCaseMapper {
 
     List<TestPlanApiCase> selectByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids);
 
+    int updateStatusByReportId(@Param("reportId")String reportId, @Param("status")String status,@Param("updateTime")long updateTime);
 }
 

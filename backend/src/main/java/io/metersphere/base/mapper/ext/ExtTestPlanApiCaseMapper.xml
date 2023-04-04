@@ -409,4 +409,11 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
     </sql>
+    <update id="updateStatusByReportId">
+        UPDATE test_plan_api_case SET `status` = #{status,jdbcType=VARCHAR}, update_time = #{updateTime,jdbcType=BIGINT}
+        WHERE id IN (
+            SELECT resource_id FROM api_definition_exec_result WHERE id = #{reportId,jdbcType=VARCHAR}
+        )
+    </update>
+
 </mapper>

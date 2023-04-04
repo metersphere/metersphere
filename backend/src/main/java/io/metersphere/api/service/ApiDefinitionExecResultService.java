@@ -7,6 +7,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExecuteResult;
@@ -48,6 +49,8 @@ public class ApiDefinitionExecResultService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
@@ -73,14 +76,25 @@ public class ApiDefinitionExecResultService {
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
-                if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")) {
-                    result.setResourceId(dto.getTestId());
-                    LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
-                    results.add(result);
+                if (result != null) {
+                    if(!StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")){
+                        result.setResourceId(dto.getTestId());
+                        LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
+                        results.add(result);
+                    }else if(StringUtils.equalsIgnoreCase(dto.getRunMode(),ApiRunMode.API_PLAN.name())){
+                        //更新测试计划内的接口用例执行结果
+                        this.updateTestPlanApiCaseStatus(dto.getReportId(),result.getStatus(),result.getEndTime());
+                    }
                 }
             }
         }
         return results;
+    }
+
+    private void updateTestPlanApiCaseStatus(String reportId, String status, long updateTime) {
+        if(StringUtils.isNoneBlank(reportId,status)){
+            extTestPlanApiCaseMapper.updateStatusByReportId(reportId,status,updateTime);
+        }
     }
 
     public Map<ResultDTO, List<ApiDefinitionExecResult>> batchSaveApiResult(List<ResultDTO> resultDTOS, boolean isSchedule) {
