@@ -1262,14 +1262,14 @@
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
-        order by test_case.`order` desc, test_case.sort desc
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="getMaintainerMapForPlanRepeat" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id as id, test_case.maintainer as maintainer
         from test_case as test_case
         <include refid="notInQueryWhereCondition"/>
-        order by test_case.`order` desc, test_case.sort desc
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="getForNodeEdit" resultType="io.metersphere.dto.TestCaseDTO">
