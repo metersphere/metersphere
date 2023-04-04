@@ -575,8 +575,11 @@
                         </when>
                         <when test="key=='last_execute_result'">
                             and (test_case.last_execute_result in
-                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
-                            or test_case.last_execute_result is null)
+                                <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                <if test="values.contains('Prepare')">
+                                    or test_case.last_execute_result is null
+                                </if>
+                            )
 
                         </when>
                         <when test="key=='status'">
