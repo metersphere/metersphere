@@ -488,8 +488,8 @@ export default {
     },
     runRefresh(data) {
       this.rowLoading = "";
+      setTimeout(this.initTable, 500)
       this.$success(this.$t('schedule.event_success'));
-      this.initTable();
     },
     singleRun(row) {
       this.runData = [];
