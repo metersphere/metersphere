@@ -29,10 +29,10 @@
       <span v-for="item in fields" :key="item.key">
         <ms-table-column
           prop="name"
+          sortable="custom"
           permission="PROJECT_TRACK_REPORT:READ+DELETE"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
           :label="$t('test_track.report.list.name')"
           :show-overflow-tooltip="false"
           :editable="true"
@@ -61,7 +61,7 @@
           prop="createTime"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
+          sortable="custom"
           :label="$t('test_track.report.list.create_time')"
           :show-overflow-tooltip="true"
         >
@@ -74,7 +74,7 @@
           prop="triggerMode"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
+          sortable="custom"
           :label="$t('test_track.report.list.trigger_mode')"
         >
           <template v-slot:default="scope">
@@ -86,7 +86,7 @@
           prop="status"
           :field="item"
           :fields-width="fieldsWidth"
-          sortable
+          sortable="custom"
           :label="$t('commons.status')"
         >
           <template v-slot:default="scope">
