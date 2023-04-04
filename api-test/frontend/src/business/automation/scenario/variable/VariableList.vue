@@ -90,23 +90,23 @@
                       @refresh="onChange"
                       ref="variableTable">
                       <span v-for="item in fields" :key="item.key">
-                        <ms-table-column
+                        <el-table-column
                           prop="num"
                           :field="item"
                           :fields-width="fieldsWidth"
                           sortable
                           label="ID"
                           min-width="60">
-                        </ms-table-column>
-                        <ms-table-column
+                        </el-table-column>
+                        <el-table-column
                           prop="name"
                           :field="item"
                           :fields-width="fieldsWidth"
                           :label="$t('api_test.variable_name')"
                           min-width="100"
                           sortable>
-                        </ms-table-column>
-                        <ms-table-column
+                        </el-table-column>
+                        <el-table-column
                           prop="type"
                           :field="item"
                           :fields-width="fieldsWidth"
@@ -116,22 +116,22 @@
                           <template v-slot:default="scope">
                             <span>{{ types.get(scope.row.type) }}</span>
                           </template>
-                        </ms-table-column>
-                        <ms-table-column
+                        </el-table-column>
+                        <el-table-column
                           prop="value"
                           :field="item"
                           :fields-width="fieldsWidth"
                           :label="$t('api_test.value')"
                           sortable>
-                        </ms-table-column>
-                        <ms-table-column
+                        </el-table-column>
+                        <el-table-column
                           prop="description"
                           :field="item"
                           :fields-width="fieldsWidth"
                           :label="$t('commons.description')"
                           min-width="70"
                           sortable>
-                        </ms-table-column>
+                        </el-table-column>
                       </span>
                     </ms-table>
                     <batch-add-parameter @batchSave="batchSaveParameter" ref="batchAddParameter" />

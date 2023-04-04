@@ -53,8 +53,8 @@
         :total="total"
         @refresh="onChange"
         ref="variableTable">
-        <ms-table-column prop="num" sortable label="ID" min-width="60" />
-        <ms-table-column
+        <el-table-column prop="num" sortable label="ID" min-width="60" />
+        <el-table-column
           prop="scope"
           sortable
           :label="$t('commons.scope')"
@@ -70,9 +70,9 @@
               <el-option v-for="item in scopeTypeFilters" :key="item.value" :label="item.text" :value="item.value" />
             </el-select>
           </template>
-        </ms-table-column>
+        </el-table-column>
 
-        <ms-table-column prop="name" :label="$t('api_test.variable_name')" min-width="200" sortable>
+        <el-table-column prop="name" :label="$t('api_test.variable_name')" min-width="200" sortable>
           <template slot-scope="scope">
             <el-input
               v-model="scope.row.name"
@@ -82,8 +82,8 @@
               show-word-limit
               @change="change" />
           </template>
-        </ms-table-column>
-        <ms-table-column prop="type" :label="$t('test_track.case.type')" min-width="140" sortable>
+        </el-table-column>
+        <el-table-column prop="type" :label="$t('test_track.case.type')" min-width="140" sortable>
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.type"
@@ -102,7 +102,7 @@
                 :value="item.value" />
             </el-select>
           </template>
-        </ms-table-column>
+        </el-table-column>
 
         <el-table-column prop="value" :label="$t('api_test.value')" min-width="200px" sortable show-overflow-tooltip>
           <template slot-scope="scope">
@@ -115,11 +115,11 @@
             <csv-file-upload :parameter="scope.row" v-if="scope.row.type === 'CSV'" />
           </template>
         </el-table-column>
-        <ms-table-column prop="description" :label="$t('commons.remark')" min-width="160" sortable>
+        <el-table-column prop="description" :label="$t('commons.remark')" min-width="160" sortable>
           <template slot-scope="scope">
             <el-input v-model="scope.row.description" size="mini" />
           </template>
-        </ms-table-column>
+        </el-table-column>
 
         <ms-table-column :label="$t('commons.operating')" width="150">
           <template v-slot:default="scope">
