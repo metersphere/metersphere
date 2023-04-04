@@ -30,7 +30,7 @@
     "nprogress": "^0.2.0",
     "pinia": "^2.0.14",
     "pinia-plugin-persistedstate": "^1.6.3",
-    "qiankun": "2.10.4",
+    "qiankun": "2.9.3",
     "shepherd.js": "^10.0.0",
     "vue": "^2.7.3",
     "vue-i18n": "^8.22.4",
