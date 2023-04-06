@@ -872,34 +872,19 @@ public class ApiScenarioService {
                 Map<String, String> envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                 scenario.setEnvironmentMap(envMap);
             }
-            // 针对导入的jmx 处理
-            boolean isUseElement = false;
-            if (CollectionUtils.isNotEmpty(scenario.getHashTree())) {
-                for (MsTestElement testElement : scenario.getHashTree()) {
-                    if (testElement instanceof MsJmeterElement) {
-                        isUseElement = true;
-                    }
-                }
-            }
-            if (isUseElement) {
-                scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
-                ElementUtil.accuracyHashTree(jmeterHashTree);
-                repositoryMetadata = ApiFileUtil.getRepositoryFileMetadata(jmeterHashTree);
-                jmx = scenario.getJmx(jmeterHashTree);
-            } else {
-                MsThreadGroup group = new MsThreadGroup();
-                group.setLabel(apiScenario.getName());
-                group.setName(apiScenario.getName());
-                group.setEnableCookieShare(scenario.isEnableCookieShare());
-                group.setOnSampleError(scenario.getOnSampleError());
-                group.setHashTree(new LinkedList<MsTestElement>() {{
-                    this.add(scenario);
-                }});
-                testPlan.getHashTree().add(group);
-                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
-                repositoryMetadata = ApiFileUtil.getRepositoryFileMetadata(jmeterHashTree);
-                jmx = testPlan.getJmx(jmeterHashTree);
-            }
+
+            MsThreadGroup group = new MsThreadGroup();
+            group.setLabel(apiScenario.getName());
+            group.setName(apiScenario.getName());
+            group.setEnableCookieShare(scenario.isEnableCookieShare());
+            group.setOnSampleError(scenario.getOnSampleError());
+            group.setHashTree(new LinkedList<MsTestElement>() {{
+                this.add(scenario);
+            }});
+            testPlan.getHashTree().add(group);
+            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+            repositoryMetadata = ApiFileUtil.getRepositoryFileMetadata(jmeterHashTree);
+            jmx = testPlan.getJmx(jmeterHashTree);
 
         } catch (Exception ex) {
             LogUtil.error(ex);
