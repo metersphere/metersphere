@@ -512,7 +512,7 @@ export default {
         params.forEach((item) => {
           if (item) {
             let line = item.split(/：|:/);
-            let values = item.substr(line[0].length +1);
+            let values = item.substr(line[0].length +1).trim();
 
             let required = false;
             keyValues.push(
