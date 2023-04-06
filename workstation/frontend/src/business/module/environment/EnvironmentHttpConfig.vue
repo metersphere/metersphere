@@ -453,12 +453,12 @@ export default {
       params.forEach(item => {
         if (item) {
           let line = item.split(/：|:/);
-          let values = item.split(line[0] + ":");
+          let values = item.substr(line[0].length +1).trim();
           let required = false;
           keyValues.push(new KeyValue({
             name: line[0],
             required: required,
-            value: values[1],
+            value: values,
             type: "text",
             valid: false,
             file: false,

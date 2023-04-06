@@ -270,8 +270,8 @@ export default {
         params.forEach(item => {
           if (item) {
             let line = [];
-            line[0] = item.substring(0, item.indexOf(":"));
-            line[1] = item.substring(item.indexOf(":") + 1, item.length);
+            line[0] = item.substring(0, item.indexOf(":")).trim();
+            line[1] = item.substring(item.indexOf(":") + 1, item.length).trim();
             let required = false;
             keyValues.push(new KeyValue({
               name: line[0],
