@@ -1,4 +1,0 @@
-/* 全局函数 */
-@function px2rem($px) {
-  @return calc($px / 16) * 1rem;
-}

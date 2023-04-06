@@ -20,7 +20,6 @@
     <properties>
         <revision>3.x</revision>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.2</spring-cloud.version>
         <dubbo.version>2.7.18</dubbo.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>1.11.0</shiro.version>
@@ -80,6 +79,10 @@
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+        <kubernetes-client.version>6.5.1</kubernetes-client.version>
+        <jgit.version>6.5.0.202303070854-r</jgit.version>
+        <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
@@ -91,14 +94,8 @@
     </properties>
 
     <modules>
-        <module>framework</module>
-        <module>api-test</module>
-        <module>performance-test</module>
-        <module>project-management</module>
-        <module>report-stat</module>
-        <module>system-setting</module>
-        <module>test-track</module>
-        <module>workstation</module>
+        <module>frontend</module>
+        <module>backend</module>
     </modules>
 
     <dependencies>
@@ -122,24 +119,8 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <build>
         <plugins>
             <plugin>
