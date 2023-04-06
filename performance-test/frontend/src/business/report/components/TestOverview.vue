@@ -299,7 +299,7 @@ export default {
       let yAxisListMax = this._getChartMax(yAxisList);
       resOption.yAxis = [
         {
-          name: 'Response Time',
+          name: 'Response Time (ms)',
           type: 'value',
           min: 0,
           max: yAxisListMax,
