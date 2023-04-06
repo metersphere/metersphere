@@ -1476,10 +1476,36 @@ public class TestPlanService {
                         testPlanReport,
                         testPlan, testPlanExecuteReportDTO);
             }
+            //处理旧数据
+            this.dealOldVersionData(testPlanReportStruct);
             //查找运行环境
             testPlanReportService.initRunInformation(testPlanReportStruct, testPlanReport);
         }
         return testPlanReportStruct == null ? new TestPlanReportDataStruct() : testPlanReportStruct;
+    }
+
+    /**
+     * 处理旧版本数据（例如版本升级过程中由于统一了状态字段的数据）
+     */
+    private void dealOldVersionData(TestPlanReportDataStruct testPlanReportStruct) {
+        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioAllCases())) {
+            //使用LinkedHashMap是为了确保reportId的一致性，同时保证顺序
+            Map<String, TestPlanScenarioDTO> errorScenarioDTOMap = new LinkedHashMap<>();
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioFailureCases())) {
+                testPlanReportStruct.getScenarioFailureCases().forEach(item -> {
+                    if (StringUtils.isNotBlank(item.getReportId())) {
+                        errorScenarioDTOMap.put(item.getReportId(), item);
+                    }
+                });
+
+            }
+            testPlanReportStruct.getScenarioAllCases().forEach(item -> {
+                if (StringUtils.equalsIgnoreCase(item.getLastResult(), "Fail")) {
+                    errorScenarioDTOMap.put(item.getReportId(), item);
+                }
+            });
+            testPlanReportStruct.setScenarioFailureCases(new ArrayList<>(errorScenarioDTOMap.values()));
+        }
     }
 
     //获取已生成过的测试计划报告内容
