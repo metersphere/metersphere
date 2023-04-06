@@ -527,9 +527,15 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof ArraySchema) {
             Schema items = ((ArraySchema) schema).getItems();
             item.setType(PropertyConstant.ARRAY);
-            item.setItems(new ArrayList<>());
             JsonSchemaItem arrayItem = parseSchema(items, refSet);
-            if (arrayItem != null) item.getItems().add(arrayItem);
+            Map<String, String> mock = new LinkedHashMap<>();
+            if (arrayItem != null) {
+                arrayItem.getProperties().forEach((k, v) -> {
+                    mock.put(k, StringUtils.isBlank(v.getMock().get(PropertyConstant.MOCK).toString()) ? v.getType() :
+                            v.getMock().get(PropertyConstant.MOCK).toString());
+                });
+            }
+            item.getMock().put(PropertyConstant.MOCK, JSONUtil.toJSONString(mock));
         } else if (schema instanceof ObjectSchema) {
             item.setType(PropertyConstant.OBJECT);
             item.setProperties(parseSchemaProperties(schema, refSet));
@@ -546,6 +552,8 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         if (schema.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, schema.getExample());
+        } else if (StringUtils.isNotBlank(item.getMock().get(PropertyConstant.MOCK).toString())){
+            item.getMock().put(PropertyConstant.MOCK, item.getMock().get(PropertyConstant.MOCK));
         } else {
             item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
         }
@@ -611,7 +619,17 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Schema schema = getSchema(parameter.getSchema());
         Set<String> refSet = new HashSet<>();
         JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
-        arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter, jsonSchemaItem), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired(), getMin(jsonSchemaItem), getMax(jsonSchemaItem)));
+        if (MapUtils.isEmpty(jsonSchemaItem.getProperties())) {
+            arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter, jsonSchemaItem), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired(), getMin(jsonSchemaItem), getMax(jsonSchemaItem)));
+        } else {
+            Map<String, JsonSchemaItem> properties = jsonSchemaItem.getProperties();
+            properties.forEach((key, value) -> {
+                arguments.add(new KeyValue(key, getDefaultValue(queryParameter, value),
+                        getDefaultStringValue(value.getDescription()),
+                        parameter.getRequired(),
+                        getMin(value), getMax(value)));
+            });
+        }
     }
 
     private Schema getSchema(Schema schema) {
@@ -644,6 +662,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (queryParameter.getExample() != null) {
             return String.valueOf(queryParameter.getExample());
         } else {
+            if (MapUtils.isNotEmpty(jsonSchemaItem.getMock())) {
+                return String.valueOf(jsonSchemaItem.getMock().get(PropertyConstant.MOCK));
+            }
             if (jsonSchemaItem != null && jsonSchemaItem.getDefaultValue() != null) {
                 return String.valueOf(jsonSchemaItem.getDefaultValue());
             }
