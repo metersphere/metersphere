@@ -13,7 +13,7 @@ import java.util.function.Function;
  */
 public class BatchProcessingUtil {
 
-    private static final int BATCH_PROCESS_QUANTITY = 2000;
+    private static final int BATCH_PROCESS_QUANTITY = 100;
 
     public static List<TestCaseTest> selectTestCaseTestByPrimaryKey(List<String> primaryKeyList, Function<TestCaseTestExample, List<TestCaseTest>> func) {
         List<TestCaseTest> returnList = new ArrayList<>();
