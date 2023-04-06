@@ -1244,6 +1244,7 @@ export default {
               this.close();
               if (this.saveType === 2) {
                 // 保存并创建
+                this.this.initLatestVersionId = param.versionId;
                 this.resetForm();
                 this.initEdit();
               } else {
