@@ -3498,6 +3498,7 @@ const message = {
     next: "下一章",
     prev: "上一章",
     skip: "跳過",
+    not_show: "不再顯示",
     novice_task: "新手旅程",
     over: {
       title: "恭喜通關！",
@@ -3505,6 +3506,13 @@ const message = {
       desc: "想繼續了解進階教程，請關注我們的技術博客和直播",
       blog_url: "博客地址",
       live_url: "直播間地址"
+    },
+    close: {
+      title: "關閉新手旅程",
+      subtitle: "關閉後，新手任務浮窗將會隱藏",
+      desc: '你可以在頂部" ? "下拉式功能表重新找到我們。',
+      continue_btn: "現在繼續",
+      close_btn: "仍然關閉",
     }
   }
 };

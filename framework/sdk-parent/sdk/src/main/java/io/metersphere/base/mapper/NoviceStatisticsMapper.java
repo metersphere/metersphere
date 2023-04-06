@@ -16,21 +16,15 @@ public interface NoviceStatisticsMapper {
 
     int insertSelective(NoviceStatistics record);
 
-    List<NoviceStatistics> selectByExampleWithBLOBs(NoviceStatisticsExample example);
-
     List<NoviceStatistics> selectByExample(NoviceStatisticsExample example);
 
     NoviceStatistics selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") NoviceStatistics record, @Param("example") NoviceStatisticsExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") NoviceStatistics record, @Param("example") NoviceStatisticsExample example);
-
     int updateByExample(@Param("record") NoviceStatistics record, @Param("example") NoviceStatisticsExample example);
 
     int updateByPrimaryKeySelective(NoviceStatistics record);
-
-    int updateByPrimaryKeyWithBLOBs(NoviceStatistics record);
 
     int updateByPrimaryKey(NoviceStatistics record);
 }

@@ -10,7 +10,7 @@
         <el-dropdown-item command="novice">{{ $t('commons.novice_journey') }}</el-dropdown-item>
       </el-dropdown-menu>
     </template>
-    <ms-introduction ref="introduction" @skipOpen="skipOpen"/>
+    <ms-introduction ref="introduction" @skipOpen="skipOpen" />
     <ms-side-menus ref="sideMenu"/>
   </el-dropdown>
 </template>
@@ -50,7 +50,7 @@ export default {
           }
           break;
         case "novice":
-          this.$refs.sideMenu.toggle();
+          this.$refs.sideMenu.toggle(2);
           break;
         default:
           break;
@@ -60,6 +60,7 @@ export default {
       getSideTask().then(res=> {
         if (res.data.length > 0 && res.data[0].guideStep) {
           localStorage.setItem('step', res.data[0].guideStep)
+          localStorage.setItem("noviceStatus", res.data[0].status)
         } else {
           localStorage.setItem('guide','0')
         }

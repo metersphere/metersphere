@@ -1,15 +1,9 @@
 package io.metersphere.novice.controller;
 
 import io.metersphere.base.domain.NoviceStatistics;
-import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.novice.request.StepRequest;
+import io.metersphere.novice.request.NoviceRequest;
 import io.metersphere.novice.service.NoviceService;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,12 +28,16 @@ public class NoviceController {
     }
 
     @PostMapping("/save/step")
-    public void saveStep(@RequestBody StepRequest stepRequest) {
-        noviceService.saveStep(stepRequest);
+    public void saveStep(@RequestBody NoviceRequest noviceRequest) {
+        noviceService.saveStep(noviceRequest);
     }
 
     @PostMapping("/save/task")
     public void saveTask(@RequestBody NoviceStatistics noviceStatistics) {
         noviceService.saveNoviceInfo(noviceStatistics);
+    }
+    @PostMapping("/status")
+    public void updateStatus(@RequestBody NoviceRequest noviceRequest) {
+        noviceService.updateStatus(noviceRequest);
     }
 }

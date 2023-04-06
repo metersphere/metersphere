@@ -4,13 +4,12 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.NoviceStatistics">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="guide_step" jdbcType="TINYINT" property="guideStep" />
-    <result column="guide_num" jdbcType="TINYINT" property="guideNum" />
+    <result column="guide_step" jdbcType="INTEGER" property="guideStep" />
+    <result column="guide_num" jdbcType="INTEGER" property="guideNum" />
+    <result column="data_option" jdbcType="VARCHAR" property="dataOption" />
+    <result column="status" jdbcType="INTEGER" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.NoviceStatistics">
-    <result column="data_option" jdbcType="LONGVARCHAR" property="dataOption" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,27 +70,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, guide_step, guide_num, create_time, update_time
+    id, user_id, guide_step, guide_num, data_option, `status`, create_time, update_time
   </sql>
-  <sql id="Blob_Column_List">
-    data_option
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.NoviceStatisticsExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from novice_statistics
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.NoviceStatisticsExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -106,11 +86,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from novice_statistics
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -125,11 +103,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.NoviceStatistics">
-    insert into novice_statistics (id, user_id, guide_step, guide_num,
-      create_time, update_time, data_option)
-    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{guideStep,jdbcType=TINYINT},
-            #{guideNum,jdbcType=INTEGER},#{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-            #{dataOption,jdbcType=LONGVARCHAR})
+    insert into novice_statistics (id, user_id, guide_step,
+                                   guide_num, data_option, `status`,
+                                   create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{guideStep,jdbcType=INTEGER},
+            #{guideNum,jdbcType=INTEGER}, #{dataOption,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+            #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.NoviceStatistics">
     insert into novice_statistics
@@ -146,14 +125,17 @@
       <if test="guideNum != null">
         guide_num,
       </if>
+      <if test="dataOption != null">
+        data_option,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="dataOption != null">
-        data_option,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -164,19 +146,22 @@
         #{userId,jdbcType=VARCHAR},
       </if>
       <if test="guideStep != null">
-        #{guideStep,jdbcType=TINYINT},
+        #{guideStep,jdbcType=INTEGER},
       </if>
       <if test="guideNum != null">
         #{guideNum,jdbcType=INTEGER},
+      </if>
+      <if test="dataOption != null">
+        #{dataOption,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="dataOption != null">
-        #{dataOption,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -196,10 +181,16 @@
         user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.guideStep != null">
-        guide_step = #{record.guideStep,jdbcType=TINYINT},
+        guide_step = #{record.guideStep,jdbcType=INTEGER},
       </if>
       <if test="record.guideNum != null">
         guide_num = #{record.guideNum,jdbcType=INTEGER},
+      </if>
+      <if test="record.dataOption != null">
+        data_option = #{record.dataOption,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -207,23 +198,7 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.dataOption != null">
-        data_option = #{record.dataOption,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update novice_statistics
-    set id = #{record.id,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      guide_step = #{record.guideStep,jdbcType=TINYINT},
-      guide_num = #{record.guideNum,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      data_option = #{record.dataOption,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -231,11 +206,13 @@
   <update id="updateByExample" parameterType="map">
     update novice_statistics
     set id = #{record.id,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      guide_step = #{record.guideStep,jdbcType=TINYINT},
-      guide_num = #{record.guideNum,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+    user_id = #{record.userId,jdbcType=VARCHAR},
+    guide_step = #{record.guideStep,jdbcType=INTEGER},
+    guide_num = #{record.guideNum,jdbcType=INTEGER},
+    data_option = #{record.dataOption,jdbcType=VARCHAR},
+    `status` = #{record.status,jdbcType=INTEGER},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    update_time = #{record.updateTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -247,10 +224,16 @@
         user_id = #{userId,jdbcType=VARCHAR},
       </if>
       <if test="guideStep != null">
-        guide_step = #{guideStep,jdbcType=TINYINT},
+        guide_step = #{guideStep,jdbcType=INTEGER},
       </if>
-      <if test="record.guideNum != null">
-        guide_num = #{record.guideNum,jdbcType=INTEGER},
+      <if test="guideNum != null">
+        guide_num = #{guideNum,jdbcType=INTEGER},
+      </if>
+      <if test="dataOption != null">
+        data_option = #{dataOption,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -258,29 +241,18 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="dataOption != null">
-        data_option = #{dataOption,jdbcType=LONGVARCHAR},
-      </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.NoviceStatistics">
-    update novice_statistics
-    set user_id = #{userId,jdbcType=VARCHAR},
-      guide_step = #{guideStep,jdbcType=TINYINT},
-      guide_num = #{record.guideNum,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      data_option = #{dataOption,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.NoviceStatistics">
     update novice_statistics
     set user_id = #{userId,jdbcType=VARCHAR},
-      guide_step = #{guideStep,jdbcType=TINYINT},
-      guide_num = #{record.guideNum,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+        guide_step = #{guideStep,jdbcType=INTEGER},
+        guide_num = #{guideNum,jdbcType=INTEGER},
+        data_option = #{dataOption,jdbcType=VARCHAR},
+        `status` = #{status,jdbcType=INTEGER},
+        create_time = #{createTime,jdbcType=BIGINT},
+        update_time = #{updateTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

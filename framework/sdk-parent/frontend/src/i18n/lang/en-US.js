@@ -3627,14 +3627,32 @@ const message = {
     next: "Next",
     prev: "Previous",
     skip: "Skip",
-    novice_task: "Novice Task",
+    not_show: "don't show again",
+    novice_task: "Novice Journey",
     over: {
       title: "Congratulations!",
       subtitle: "You have completed all the novice journey, full of energy",
       desc: "If you want to continue to learn about advanced tutorials, please follow our technical blog and live channel",
       blog_url: "Technical Blog",
       live_url: "Live Channel"
+    },
+    close: {
+      title: "Close the novice journey",
+      subtitle: "After closing, the novice task float button will be hidden.",
+      desc: 'You can still find us in the top "?" dropdown menu.',
+      continue_btn: "Continue",
+      close_btn: "Still Close",
     }
+
+
+
+
+
+
+
+
+
+
   }
 };
 

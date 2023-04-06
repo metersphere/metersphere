@@ -115,15 +115,19 @@ export default {
     },
     gotoTurn(){
       this.closeDialog()
-      let redirectUrl = sessionStorage.getItem("redirectUrl")
-      if(redirectUrl.includes("track")){
-        this.$emit("skipOpen", "/track/case/all")
-        this.$router.push("/track/case/all")
+      if(localStorage.getItem("noviceStatus") && localStorage.getItem("noviceStatus") === "1"){
+        let redirectUrl = sessionStorage.getItem("redirectUrl")
+        if(redirectUrl.includes("track")){
+          this.$emit("skipOpen", "/track/case/all")
+          this.$router.push("/track/case/all")
+        }else{
+          this.$router.push({
+            path: '/track/case/all',
+            query: { status: true },
+          })
+        }
       }else{
-        this.$router.push({
-          path: '/track/case/all',
-          query: { status: true },
-        })
+        this.$router.push("/track/case/all")
       }
     }
   }
@@ -141,12 +145,13 @@ export default {
   padding: 1px 5px 0 5px;
 }
 ::v-deep .api-import-next .el-dialog__body {
-  padding: 12px 5px 0 5px;
+  padding: 24px 5px 0 5px;
 }
 
 ::v-deep .api-import-next .el-dialog {
   margin-top: 10vh !important;
   border-radius: 8px;
+  padding-bottom: 1px !important;
   background-image: linear-gradient(to bottom, #783887 65%, #FFF 0);
 }
 

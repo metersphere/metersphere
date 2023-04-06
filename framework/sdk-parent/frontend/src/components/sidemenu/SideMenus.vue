@@ -1,21 +1,22 @@
 <template>
-  <div v-if="taskStatus">
+  <div v-show="taskStatus && noviceStatus">
     <!--    侧边任务按钮-->
-    <div class="parentBox" @click="toggle()">
+    <div :class="language === 'en-US' ? 'parentBox parentBox-en' : 'parentBox'" @click="toggle(1)">
       <div class="contentsBox">
-        <div :style="openBox ? 'right: 0;width:120px;cursor: auto;' : ''">
+        <div :style="openBox ? (language === 'en-US' ? 'right: 0;width:140px;cursor: auto;' :
+        'right: 0;width:100px;cursor: auto;') : ''" >
           <font-awesome-icon class="icon global focusing" :icon="['fas', 'compass']" spin style="color: #ffffff;" />
           <span :style="openBox ? 'display: block;color: #fff;cursor: pointer;' : ''">{{$t('side_task.novice_task')}}</span>
         </div>
       </div>
     </div>
-    <ms-site-task ref="siteTask" :taskData="taskData" @closeBox="closeBox"/>
+    <ms-site-task ref="siteTask" :taskData="taskData" @closeBox="closeBox" @closeNovice="closeNovice"/>
   </div>
 </template>
 
 <script>
 import MsSiteTask from "../../components/sidemenu/components/SiteTask";
-import {getSideTask} from "../../api/novice";
+import {getSideTask, updateStatus} from "../../api/novice";
 import {TASK_DATA} from "../../utils/constants";
 import {hasLicense, hasPermissions} from "../../utils/permission";
 
@@ -27,21 +28,30 @@ export default {
   data() {
     return {
       taskStatus: false,
+      noviceStatus: false,
       openBox:false,
       totalTask: 0,
-      taskData:[]
+      taskData:[],
+      language: localStorage.getItem('language'),
     };
   },
-  created() {
-    this.initTaskData()
+  mounted() {
+    this.initTaskData(1)
   },
   methods: {
-    initTaskData(){
+    initTaskData(status){
       getSideTask().then(res=>{
         if(res.data.length > 0 && res.data[0].dataOption){
           this.taskData = JSON.parse(res.data[0].dataOption)
+          this.noviceStatus = res.data[0].status === 1
         }else{
           this.taskData = TASK_DATA
+        }
+        if(status === 2 && res.data[0].status === 0){
+          updateStatus(1).then(res=>{
+            this.noviceStatus = true
+            localStorage.setItem("noviceStatus", "1")
+          })
         }
         let microApp = JSON.parse(sessionStorage.getItem("micro_apps"));
         let num = 0
@@ -67,16 +77,19 @@ export default {
         this.totalTask = num
       })
     },
-    toggle(){
+    toggle(status){
+      this.initTaskData(status)
       this.openBox = true
-      this.initTaskData()
       this.$refs.siteTask.open();
     },
     closeBox(status){
       this.openBox = status
     },
+    closeNovice(status){
+      this.noviceStatus = status
+    },
     skipOpen(path){
-      this.initTaskData()
+      this.initTaskData(1)
       this.$refs.siteTask.skipOpen(path);
     }
   }
@@ -114,14 +127,29 @@ export default {
 .parentBox .contentsBox div span:last-child {
   margin-left: 10px;
 }
+.parentBox-en .contentsBox div span:last-child {
+  margin-left: 5px;
+}
 .parentBox .contentsBox div:nth-child(1) {
   bottom: 125px;
 }
 .parentBox .contentsBox div:hover {
   right: 0;
   height: 28px;
-  width: 120px;
+  width: 100px;
   cursor: auto;
+}
+.parentBox-en .contentsBox div:hover {
+  right: 0;
+  height: 28px;
+  width: 140px;
+  cursor: auto;
+}
+.box {
+  width: 100px;
+}
+.box-en {
+  width: 140px;
 }
 
 .parentBox .contentsBox div:hover span {
