@@ -15,4 +15,9 @@ public interface ExtAttachmentModuleRelationMapper {
      * @param attachmentModuleRelations 附件关系记录
      */
     void batchInsert(@Param("attachmentModuleRelations") List<AttachmentModuleRelation> attachmentModuleRelations);
+
+    /**
+     * 批量更新test_case=>testcase
+     */
+    void batchUpdateErrRelationType();
 }

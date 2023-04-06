@@ -9,4 +9,8 @@
             (#{relation.relationId}, #{relation.relationType}, #{relation.attachmentId}, #{relation.fileMetadataRefId})
         </foreach>
     </insert>
+
+    <update id="batchUpdateErrRelationType">
+        UPDATE attachment_module_relation SET relation_type = 'testcase' where relation_type = 'test_case'
+    </update>
 </mapper>

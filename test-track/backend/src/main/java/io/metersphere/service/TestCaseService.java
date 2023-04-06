@@ -132,6 +132,8 @@ public class TestCaseService {
     TestCaseTestMapper testCaseTestMapper;
     @Resource
     AttachmentModuleRelationMapper attachmentModuleRelationMapper;
+    @Resource
+    ExtAttachmentModuleRelationMapper extAttachmentModuleRelationMapper;
     //    @Resource
     //    private LoadTestMapper loadTestMapper;
     //    @Resource
@@ -2816,6 +2818,8 @@ public class TestCaseService {
     }
 
     public void initAttachment() {
+        // 处理SQL升级attachment_module_relation类型错误问题
+        extAttachmentModuleRelationMapper.batchUpdateErrRelationType();
         // 用例有关附件处理
         AttachmentModuleRelationExample relationExample = new AttachmentModuleRelationExample();
         relationExample.createCriteria().andRelationTypeEqualTo(AttachmentType.TEST_CASE.type());
@@ -2832,7 +2836,7 @@ public class TestCaseService {
             List<FileMetadata> allCaseFileMetadatas = fileMetadataMapper.selectByExample(fileMetadataExample);
             FileContentExample fileContentExample = new FileContentExample();
             fileContentExample.createCriteria().andFileIdIn(fileIds);
-            List<FileContent> allCaseFileContents = fileContentMapper.selectByExample(fileContentExample);
+            List<FileContent> allCaseFileContents = fileContentMapper.selectByExampleWithBLOBs(fileContentExample);
             entry.getValue().stream().forEach(relation -> {
                 String filename = StringUtils.EMPTY;
                 List<FileMetadata> fileMetadatas = allCaseFileMetadatas.stream().filter(fileMetadata -> fileMetadata.getId().equals(relation.getAttachmentId()))
@@ -2850,6 +2854,8 @@ public class TestCaseService {
                     fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
                     AttachmentModuleRelation record = new AttachmentModuleRelation();
                     record.setAttachmentId(fileAttachmentMetadata.getId());
+                    record.setRelationId(relation.getRelationId());
+                    record.setRelationType(relation.getRelationType());
                     AttachmentModuleRelationExample example = new AttachmentModuleRelationExample();
                     example.createCriteria().andRelationIdEqualTo(relation.getRelationId())
                             .andAttachmentIdEqualTo(relation.getAttachmentId()).andRelationTypeEqualTo(relation.getRelationType());
