@@ -195,7 +195,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         List<Boolean> result = new ArrayList<>();
         for (Object subj : value.toArray()) {
             if (!StringUtils.equals(getOption(), "NOT_CONTAINS")) {
-                if (subj == null || isEquals(subj)) {
+                if (subj == null && this.isExpectNull() || isEquals(subj)) {
                     return true;
                 }
             } else {
