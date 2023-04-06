@@ -3497,7 +3497,14 @@ const message = {
     next: "下一章",
     prev: "上一章",
     skip: "跳過",
-    novice_task: "新手旅程"
+    novice_task: "新手旅程",
+    over: {
+      title: "恭喜通關！",
+      subtitle: "您已完成全部新手旅程 能量滿載～",
+      desc: "想繼續了解進階教程，請關注我們的技術博客和直播",
+      blog_url: "博客地址",
+      live_url: "直播間地址"
+    }
   }
 };
 

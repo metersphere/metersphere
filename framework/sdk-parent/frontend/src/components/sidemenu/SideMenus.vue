@@ -17,6 +17,7 @@
 import MsSiteTask from "../../components/sidemenu/components/SiteTask";
 import {getSideTask} from "../../api/novice";
 import {TASK_DATA} from "../../utils/constants";
+import {hasLicense, hasPermissions} from "../../utils/permission";
 
 
 export default {
@@ -46,7 +47,8 @@ export default {
         let num = 0
         let total = 0
         this.taskData.forEach(item =>{
-          if(!(microApp && microApp[item.name])){
+          if(!(microApp && microApp[item.name]) || (item.name === 'ui' && !hasLicense()) ||
+            !hasPermissions(...item.permission)){
             item.status = -1
             total++
           } else {
@@ -95,7 +97,7 @@ export default {
 .parentBox .contentsBox div {
   transition: all 1s;
   position: fixed;
-  right: 0;
+  right: 16px;
   width: 27px;
   border-radius: 50px;
   background-color: #783787;
@@ -113,7 +115,7 @@ export default {
   margin-left: 10px;
 }
 .parentBox .contentsBox div:nth-child(1) {
-  bottom: 100px;
+  bottom: 125px;
 }
 .parentBox .contentsBox div:hover {
   right: 0;

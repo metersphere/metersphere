@@ -1,6 +1,6 @@
 @import '~shepherd.js/dist/css/shepherd.css';
 .shepherd-has-title.shepherd-element {
-  width: 220px !important;
+  width: 220px;
 }
 .custom-width {
   width: 320px !important;

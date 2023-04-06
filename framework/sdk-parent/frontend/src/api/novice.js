@@ -1,5 +1,4 @@
 import {get, post} from "../plugins/request"
-import {getCurrentUserId} from "../utils/token";
 import {TASK_DATA} from "../utils/constants";
 
 
@@ -13,11 +12,6 @@ export function saveStep() {
 
 export function saveTask(data) {
   return post(`/novice/save/task`,{'dataOption': JSON.stringify(data)});
-}
-
-export function updateUserByResourceId(resourceId) {
-  let userId = getCurrentUserId();
-  return get(`/user/update/current-by-resource/${resourceId}`);
 }
 
 export function initTaskData(url){
