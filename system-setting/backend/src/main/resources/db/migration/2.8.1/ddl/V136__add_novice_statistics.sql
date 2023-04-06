@@ -1,7 +1,6 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-CREATE TABLE `novice_statistics`
-(
+CREATE TABLE IF NOT EXISTS `novice_statistics` (
     `id`            varchar(50) NOT NULL COMMENT 'ID',
     `user_id`       varchar(64) NOT NULL COMMENT '用户id',
     `guide_step`    tinyint NOT NULL DEFAULT '0' COMMENT '新手引导完成的步骤',
@@ -9,7 +8,6 @@ CREATE TABLE `novice_statistics`
     `data_option`   longtext DEFAULT NULL COMMENT 'data option (JSON format)',
     `create_time`   bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`   bigint(13)  NOT NULL COMMENT 'Update timestamp',
-
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
