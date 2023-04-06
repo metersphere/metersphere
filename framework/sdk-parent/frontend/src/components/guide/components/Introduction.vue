@@ -119,7 +119,6 @@ export default {
       if(redirectUrl.includes("track")){
         this.$emit("skipOpen", "/track/case/all")
         this.$router.push("/track/case/all")
-        // this.$router.go(0);
       }else{
         this.$router.push({
           path: '/track/case/all',

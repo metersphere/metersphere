@@ -3575,8 +3575,8 @@ const message = {
       button: 'Next: UI Test'
     },
     ui: {
-      title: 'Portable UI element library and instruction set',
-      desc: '<span>Arrange scenario cases based on reusable element libraries and instructions;</span><br> combine your commonly used test steps into new instructions, <br> <span> which can be flexibly called in automation scenarios. </span>',
+      title: 'Portable UI element library and command set',
+      desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br> combine your commonly used test steps into new command, <br> <span> which can be flexibly called in automation scenarios. </span>',
       button: 'Next: Performance Test'
     },
     performance: {
@@ -3588,7 +3588,7 @@ const message = {
   },
   side_task: {
     test_tracking: {
-      title: "Challenging Test Track",
+      title: "<span>Challenging</span><br><span>Test Track</span>",
       task_1: "Join a project",
       task_2: "Create a functional test case",
       task_3: "Create a review plan",
@@ -3598,36 +3598,43 @@ const message = {
       task_7: "Add ralated issue to test case",
     },
     api_test: {
-      title: "Challenging API Test",
+      title: "<span>Challenging</span><br><span>API Test</span>",
       task_1: "Create an API definition",
       task_2: "Import local API definition or  API cases",
       task_3: "Execute an API testing",
       task_4: "Create a new test case based on API testing",
       task_5: "Share API documents",
       task_6: "Create an automation scenario case",
-      task_7: "Execute automated API testing with scheduled task ",
+      task_7: "Execute automated API testing with scheduled task",
     },
     performance_test: {
-      title: "Challenging Performance Test",
+      title: "<span>Challenging</span><br><span>Performance Test</span>",
       task_1: "Convert API scenario case into performance testing",
       task_2: "Share performance testing report",
     },
     project_setting: {
-      title: "Challenging Project Settings",
-      task_1: "create a new project",
+      title: "<span>Challenging</span><br><span>Project Settings</span>",
+      task_1: "Create a new project",
       task_2: "Add a project member",
       task_3: "Create a project environment",
     },
     ui_test: {
-      title: "Challenging UI Test",
+      title: "<span>Challenging</span><br><span>UI Test</span>",
       task_1: "Create an element",
-      task_2: "Create an automated UI  scenario case",
-      task_3: "Execute an automated UI  scenario case",
+      task_2: "Create an automated UI scenario case",
+      task_3: "Execute an automated UI scenario case",
     },
     next: "Next",
     prev: "Previous",
     skip: "Skip",
-    novice_task: "Novice Task"
+    novice_task: "Novice Task",
+    over: {
+      title: "Congratulations!",
+      subtitle: "You have completed all the novice journey, full of energy",
+      desc: "If you want to continue to learn about advanced tutorials, please follow our technical blog and live channel",
+      blog_url: "Technical Blog",
+      live_url: "Live Channel"
+    }
   }
 };
 

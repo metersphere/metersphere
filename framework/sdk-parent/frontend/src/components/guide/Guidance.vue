@@ -62,16 +62,23 @@ export default {
           localStorage.setItem('step', res.data[0].guideStep)
         } else {
           localStorage.setItem('guide','0')
-          localStorage.removeItem('step')
         }
         let microApps = JSON.parse(sessionStorage.getItem("micro_apps"));
         if(localStorage.getItem("guide") === '0' && microApps && microApps['project']) {
-          localStorage.setItem("step", '1')
-          this.initStep()
+          let step = localStorage.getItem("step") ? localStorage.getItem("step") : "1"
+          localStorage.setItem("step", step)
+
+          if(step !== '3'){
+            if(this.$route.path.includes('/project/home')){
+              this.initStepAll()
+            }else{
+              this.initStep()
+            }
+          }
         }
       })
     },
-    initStep() {
+    initStepAll() {
       const _this = this
       _this.$nextTick(() => {
         const tour = _this.$shepherd({
@@ -216,11 +223,84 @@ export default {
         tour.start()
       })
     },
+    initStep() {
+      const _this = this
+      _this.$nextTick(() => {
+        const tour = _this.$shepherd({
+          useModalOverlay: true,
+          exitOnEsc: false,
+          keyboardNavigation: false,
+          defaultStepOptions: {
+            scrollTo: {
+              behavior: 'smooth',
+              block: 'center'
+            },
+            canClickTarget: false,
+            // 高亮元素四周要填充的空白像素
+            modalOverlayOpeningPadding: 0,
+            // 空白像素的圆角
+            modalOverlayOpeningRadius: 4
+          }
+        })
+        tour.addSteps([
+          {
+            attachTo: {
+              element: document.querySelector('.shepherd-workspace'),
+              on: 'bottom-start'
+            },
+            buttons: [
+              {
+                action: function() {
+                  _this.$refs.introduction.resVisible = localStorage.getItem("step") > 1
+                  return _this.gotoCancel(this, true)
+                },
+                classes: 'close-btn',
+                text: _this.$t("shepherd.exit")
+              },
+              {
+                action: function() {
+                  return _this.gotoNext(this, null, 2)
+                },
+                classes: 'shep-btn',
+                text: _this.$t("shepherd.next")
+              }
+            ],
+            title: _this.$t("shepherd.step1.title"),
+            text: _this.$t("shepherd.step1.text")
+          },
+          {
+            attachTo: {
+              element: document.querySelector('.shepherd-menu'),
+              on: 'right'
+            },
+            buttons: [
+              {
+                action: function() {
+                  _this.$refs.introduction.resVisible = localStorage.getItem("step") > 1
+                  return _this.gotoCancel(this, true)
+                },
+                classes: 'close-btn',
+                text: _this.$t("shepherd.exit")
+              },
+              {
+                action: function() {
+                  return _this.gotoNext(this, '/project/home', 3)
+                },
+                classes: 'shep-btn',
+                text: _this.$t("shepherd.next")
+              }
+            ],
+            title: _this.$t("shepherd.step2.title"),
+            text: _this.$t("shepherd.step2.text")
+          },
+        ])
+        tour.start()
+      })
+    },
     skipOpen(path){
       if(path){
         this.$refs.sideMenu.skipOpen(path);
       }
-
     }
   }
 };

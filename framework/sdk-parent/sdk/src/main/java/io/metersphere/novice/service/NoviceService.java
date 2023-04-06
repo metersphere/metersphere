@@ -9,7 +9,6 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,7 +52,6 @@ public class NoviceService {
         long systemTime = System.currentTimeMillis();
         if(noviceInfo != null && noviceInfo.size() > 0){
             NoviceStatistics noviceStatistics = noviceInfo.get(0);
-            noviceStatistics.setGuideStep(stepRequest.getGuideStep());
             noviceStatistics.setGuideNum(noviceStatistics.getGuideNum() + 1);
             noviceStatistics.setUpdateTime(systemTime);
             NoviceStatisticsExample example = new NoviceStatisticsExample();
@@ -65,7 +63,7 @@ public class NoviceService {
             noviceStatistics.setId(UUID.randomUUID().toString());
             noviceStatistics.setUserId(SessionUtils.getUserId());
             noviceStatistics.setGuideStep(stepRequest.getGuideStep());
-            noviceStatistics.setGuideStep(1);
+            noviceStatistics.setGuideNum(1);
             noviceStatistics.setCreateTime(systemTime);
             noviceStatistics.setUpdateTime(systemTime);
 

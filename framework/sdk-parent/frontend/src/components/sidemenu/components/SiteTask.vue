@@ -1,13 +1,52 @@
 <template>
   <div>
-    <div class="csat-popup" v-if="cardVisible">
+    <div class="csat-popup over" v-if="cardVisible && taskInfo.length === completeNum">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix over-header">
+          <span style="float: right; padding: 5px 0;" class="moon"  @click="open()">
+            <font-awesome-icon :icon="['fa', 'times']" class="icon"/>
+          </span>
+          <img src="/assets/guide/talent-requirements.png" class="image" alt="MS">
+        </div>
+        <div class="text" :style="language === 'en-US' ? 'text-align: center;height: 200px' :
+         'text-align: center;height: 165px'">
+          <span class="title" >
+            <img src="../../../assets/guide/flower.png" alt="MS">
+            {{ $t("side_task.over.title") }}
+          </span>
+          <p class="text">
+            <img v-for="num in completeNum" src="../../../assets/guide/moon-dark.png" class="over-moon" alt="MS" :key="num
+             + 'd'">
+            {{ $t("side_task.over.subtitle") }}
+          </p>
+          <p class="text">{{ $t("side_task.over.desc") }}</p>
+          <p class="desc">
+            <a href="https://blog.fit2cloud.com/categories/metersphere" target="_blank">
+              {{ $t("side_task.over.blog_url") }}
+            </a>
+          </p>
+          <p class="desc">
+            <a href="https://space.bilibili.com/510493147/channel/collectiondetail?sid=40439" target="_blank">
+              {{ $t("side_task.over.live_url") }}
+            </a>
+          </p>
+        </div>
+        <div class="footer">
+          <el-button style="float: right; padding: 15px 0;color:#8C8C8C" type="text" @click="skip()">
+            {{$t('side_task.skip')}}
+          </el-button>
+        </div>
+      </el-card>
+    </div>
+    <div class="csat-popup" v-else-if="cardVisible && taskInfo.length > 0">
       <template v-for="(item,index) in taskInfo" >
-        <el-card :key="item.id" v-if="(index + 1) === taskIndex" class="box-card" >
+        <el-card :key="item.id" v-if="(index + 1) === taskIndex && checkPermissions(item.permission)"
+                 class="box-card" >
           <div slot="header" class="clearfix">
-            <span class="text-header">{{$t(item.title)}}</span>
             <el-button style="float: right; padding: 5px 0;" class="moon" type="text" @click="open()">
               <font-awesome-icon :icon="['fa', 'chevron-down']" class="icon"/>
             </el-button>
+            <span class="text-header" v-html="$t(item.title)" />
             <el-button style="float: right; padding: 3px 0;margin-right: 25px" type="text" >
               <img v-for="num in completeNum" src="../../../assets/guide/moon-dark.png"
                    class="moon" alt="MS" :key="num + 'd'">
@@ -16,11 +55,13 @@
               <img v-for="num in incompleteNum" src="../../../assets/guide/moon.png"
                    class="moon" alt="MS" :key="num">
             </el-button>
-            <el-progress :percentage="item.percentage" color="#783787" class="progress-card"></el-progress>
+
+            <el-progress :percentage="item.percentage" color="#783787"
+                         :class="language === 'en-US' ? 'progress-card-en' : 'progress-card-zh'"></el-progress>
           </div>
           <div style="height: 220px">
             <template v-for="(val,i) in item.taskData">
-              <div class="text item" v-permission="val.permission" :key="i">
+              <div class="text item" v-if="checkPermissions(val.permission)" :key="i">
                 <p v-if="val.status === 1">
                     <font-awesome-icon :icon="['far', 'check-circle']" style="color:#783887" />
                   <label> {{$t(val.name)}}</label>
@@ -40,13 +81,14 @@
             <el-button v-if="taskIndex > 1" style="float: right;margin-left: 10px; padding: 15px 0" type="text" @click="prev()">
               {{$t('side_task.prev')}}
             </el-button>
-            <el-button style="float: right; padding: 15px 0;color:#8C8C8C" type="text" @click="skip()">
+            <el-button style="float: left; padding: 15px 0;color:#8C8C8C" type="text" @click="skip()">
               {{$t('side_task.skip')}}
             </el-button>
           </div>
         </el-card>
       </template>
     </div>
+
     <div class="csat-popup-gif" v-if="gifVisible">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
@@ -54,17 +96,18 @@
             <font-awesome-icon :icon="['fa', 'times']" class="icon"/>
           </span>
         </div>
-        <div class="text" style="text-align: center;height: 210px">
+        <div class="text" :style="language === 'en-US' ? 'text-align: center;height: 230px' :
+         'text-align: center;height: 216px'">
           <el-image
-            style="width: 340px;border-radius: 4px;"
+            style="width: 340px;border-radius: 8px;"
             :src="gifData.url"
             :preview-src-list="[gifData.url]" lazy>
             <div slot="placeholder" class="image-slot">
-              加载中<span class="dot">...</span>
+              loading<span class="dot">...</span>
             </div>
           </el-image>
         </div>
-        <div class="gif-footer">
+        <div :class="language === 'en-US' ? 'gif-footer-en' : 'gif-footer'">
           <el-button type="primary" round size="small" class="is-plain" @click="gotoPath(gifData.path)">
             {{$t(gifData.name)}}
           </el-button>
@@ -75,9 +118,7 @@
 </template>
 
 <script>
-import {hasLicense} from "../../../utils/permission";
-import {TASK_DATA, TASK_MODULE} from "../../../utils/constants";
-import {getSideTask} from "../../../api/novice";
+import {hasPermissions} from "../../../utils/permission";
 
 export default {
   name: "SiteTask",
@@ -95,7 +136,8 @@ export default {
       completeNum: 0,
       ongoingNum: 0,
       incompleteNum: 0,
-      totalNum:0,
+      totalNum: 0,
+      language: localStorage.getItem('language'),
       status: this.$route.query.status
     }
   },
@@ -104,8 +146,6 @@ export default {
   },
 
   created() {
-    console.log("this.status")
-    console.log(this.status)
     if(this.status){
       this.skipOpen("/track/case/all")
     }
@@ -116,7 +156,7 @@ export default {
       let completeNum = 0
       let ongoingNum = 0
       this.taskInfo = []
-      // status -1 服务未启动 0服务启动，任务未开始  1完成 2进行中
+      // status -1 服务未启动或没有访问权限 0服务启动，任务未开始  1完成 2进行中
       this.taskData.forEach(item=>{
         if(item.status === 1){
           completeNum++;
@@ -177,15 +217,28 @@ export default {
           })
         })
       }
+    },
+    checkPermissions(permission) {
+      return hasPermissions(...permission);
     }
   }
 }
 </script>
 
 <style scoped>
-
+.title {
+  font-size: 24px;
+  font-weight: 500;
+}
 .text {
   font-size: 16px;
+  font-weight: 300;
+}
+.desc {
+  color:#783887;
+  text-align: left;
+  margin: 3px 6px;
+  font-size: 12px;
   font-weight: 300;
 }
 
@@ -223,7 +276,12 @@ export default {
   color:#783887;
 }
 
-.progress-card {
+.progress-card-en {
+  margin-top: 10px;
+  margin-right: 20px;
+}
+
+.progress-card-zh {
   margin-top: 10px;
   margin-right: 40px;
 }
@@ -236,6 +294,12 @@ export default {
 .gif-footer {
   width: 100%;
   margin: 10px 0 30px;
+  text-align: center;
+}
+
+.gif-footer-en {
+  width: 100%;
+  margin: 10px 0 44px;
   text-align: center;
 }
 
@@ -255,7 +319,7 @@ export default {
 .csat-popup {
   position: fixed;
   right: 16px;
-  bottom: 160px;
+  bottom: 170px;
   width: 400px;
   border-radius: 8px;
   overflow: hidden;
@@ -271,7 +335,7 @@ export default {
 .csat-popup-gif {
   position: fixed;
   right: 426px;
-  bottom: 160px;
+  bottom: 170px;
   width: 400px;
   border-radius: 8px;
   overflow: hidden;
@@ -293,15 +357,37 @@ export default {
   height: 20px;
 }
 
-.circle {
+.over-moon {
+  vertical-align: bottom;
   width: 12px;
   height: 12px;
-  margin-right: 5px;
+}
+.image {
+  width: 160px;
+  height: 120px;
+}
+
+.over-header {
+  text-align: center;
+}
+
+::v-deep .over .el-card {
+  border-radius: 8px;
+  background-image: linear-gradient(to bottom, #f4f4f4 44%, #FFF 0);
+}
+
+::v-deep .el-card__body {
+  padding: 0 10px;
 }
 
 ::v-deep .csat-popup .el-card__header {
   border-bottom: none;
   padding: 20px 24px 10px 24px;
+}
+
+::v-deep .over .el-card__header {
+  border-bottom: none;
+  padding: 20px 24px 0px 24px;
 }
 
 ::v-deep .csat-popup-gif .el-card__header {

@@ -136,6 +136,7 @@
         </el-row>
       </el-card>
 
+      <ms-introduction ref="introduction"/>
       <edit-project ref="editProject" :is-show-app="isShowApp"/>
     </ms-main-container>
   </ms-container>
@@ -149,10 +150,11 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getProject, getProjectMemberSize} from "../../api/project";
 import EditProject from "./EditProject";
+import MsIntroduction from "metersphere-frontend/src/components/guide/components/Introduction";
 
 export default {
   name: "ProjectHome",
-  components: {MsMainContainer, MsContainer, EditProject},
+  components: {MsMainContainer, MsContainer, EditProject, MsIntroduction},
   data() {
     return {
       project: {
@@ -164,6 +166,12 @@ export default {
       memberSize: 0,
       result: {},
       isShowApp: false
+    }
+  },
+  mounted() {
+    this.$refs.introduction.resVisible = false
+    if(localStorage.getItem("step") === '3') {
+      this.initStep()
     }
   },
   methods: {
@@ -178,7 +186,102 @@ export default {
     },
     edit() {
       this.$refs.editProject.edit(this.project);
-    }
+    },
+    initStep() {
+      const _this = this
+      _this.$nextTick(() => {
+        const tour = _this.$shepherd({
+          useModalOverlay: true,
+          exitOnEsc: false,
+          keyboardNavigation: false,
+          defaultStepOptions: {
+            scrollTo: {
+              behavior: 'smooth',
+              block: 'center'
+            },
+            canClickTarget: false,
+            // 高亮元素四周要填充的空白像素
+            modalOverlayOpeningPadding: 0,
+            // 空白像素的圆角
+            modalOverlayOpeningRadius: 4
+          }
+        })
+        tour.addSteps([
+          {
+            attachTo: {
+              element: document.querySelector('.shepherd-project'),
+              on: 'bottom-end'
+            },
+            classes: "custom-width",
+            buttons: [
+              {
+                action: function() {
+                  _this.$refs.introduction.resVisible = true
+                  return _this.gotoCancel(this, true)
+                },
+                classes: 'close-btn',
+                text: _this.$t("shepherd.exit")
+              },
+              {
+                action: function() {
+                  return _this.gotoNext(this, null, 4)
+                },
+                classes: 'shep-btn',
+                text: _this.$t("shepherd.next")
+              }
+            ],
+            title: _this.$t("shepherd.step3.title"),
+            text: _this.$t("shepherd.step3.text")
+          },
+          {
+            attachTo: {
+              element: document.querySelector('.shepherd-project-menu'),
+              on: 'bottom-start'
+            },
+            buttons: [
+              {
+                action: function() {
+                  _this.$refs.introduction.resVisible = true
+                  return _this.gotoCancel(this, true)
+                },
+                classes: 'close-btn',
+                text: _this.$t("shepherd.exit")
+              },
+              {
+                action: function() {
+                  return _this.gotoNext(this, null, 5)
+                },
+                classes: 'shep-btn',
+                text: _this.$t("shepherd.next")
+              }
+            ],
+            title: _this.$t("shepherd.step4.title"),
+            text: _this.$t("shepherd.step4.text")
+          },
+          {
+            arrow:true,
+            modalOverlayOpeningPadding: 8,
+            attachTo: {
+              element: document.querySelector('.shepherd-project-name'),
+              on: 'right'
+            },
+            buttons: [
+              {
+                action: function() {
+                  _this.$refs.introduction.resVisible = true
+                  return _this.gotoCancel(this, false)
+                },
+                classes: 'close-btn',
+                text: _this.$t("shepherd.know")
+              }
+            ],
+            title: _this.$t("shepherd.step5.title"),
+            text: _this.$t("shepherd.step5.text")
+          }
+        ])
+        tour.start()
+      })
+    },
   },
   computed: {
     projectId() {
@@ -195,6 +298,7 @@ export default {
       .then(res => {
         this.memberSize = res.data;
       })
+
   }
 }
 </script>
