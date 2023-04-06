@@ -7,7 +7,11 @@ export function getSideTask() {
 }
 
 export function saveStep() {
-  return post(`/novice/save/step`,{'guideStep': localStorage.getItem('step')});
+  return post(`/novice/save/step`,{'guideStep': localStorage.getItem('step'), 'dataOption': JSON.stringify(TASK_DATA)});
+}
+
+export function updateStatus(status) {
+  return post(`/novice/status`,{'status': status, 'dataOption': JSON.stringify(TASK_DATA)});
 }
 
 export function saveTask(data) {

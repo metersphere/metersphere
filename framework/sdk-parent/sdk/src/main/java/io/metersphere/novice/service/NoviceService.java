@@ -4,7 +4,7 @@ import io.metersphere.base.domain.NoviceStatistics;
 import io.metersphere.base.domain.NoviceStatisticsExample;
 import io.metersphere.base.mapper.NoviceStatisticsMapper;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.novice.request.StepRequest;
+import io.metersphere.novice.request.NoviceRequest;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class NoviceService {
     public List<NoviceStatistics> getNoviceInfo() {
         NoviceStatisticsExample example = new NoviceStatisticsExample();
         example.createCriteria().andUserIdEqualTo(SessionUtils.getUserId());
-        return noviceStatisticsMapper.selectByExampleWithBLOBs(example);
+        return noviceStatisticsMapper.selectByExample(example);
     }
 
     public void saveNoviceInfo(NoviceStatistics noviceStatistics) {
@@ -41,13 +41,14 @@ public class NoviceService {
         }else{
             noviceStatistics.setId(UUID.randomUUID().toString());
             noviceStatistics.setUserId(SessionUtils.getUserId());
+            noviceStatistics.setStatus(1);
             noviceStatistics.setCreateTime(systemTime);
             noviceStatistics.setUpdateTime(systemTime);
             noviceStatisticsMapper.insertSelective(noviceStatistics);
         }
     }
 
-    public void saveStep(StepRequest stepRequest){
+    public void saveStep(NoviceRequest noviceRequest){
         List<NoviceStatistics> noviceInfo = getNoviceInfo();
         long systemTime = System.currentTimeMillis();
         if(noviceInfo != null && noviceInfo.size() > 0){
@@ -58,18 +59,45 @@ public class NoviceService {
             example.createCriteria().andUserIdEqualTo(SessionUtils.getUserId()).andIdEqualTo(noviceStatistics.getId());
 
             noviceStatisticsMapper.updateByExampleSelective(noviceStatistics, example);
-        } else{
+        } else {
             NoviceStatistics noviceStatistics = new NoviceStatistics();
             noviceStatistics.setId(UUID.randomUUID().toString());
             noviceStatistics.setUserId(SessionUtils.getUserId());
-            noviceStatistics.setGuideStep(stepRequest.getGuideStep());
+            noviceStatistics.setGuideStep(noviceRequest.getGuideStep());
             noviceStatistics.setGuideNum(1);
+            noviceStatistics.setStatus(1);
+            noviceStatistics.setDataOption(noviceRequest.getDataOption());
             noviceStatistics.setCreateTime(systemTime);
             noviceStatistics.setUpdateTime(systemTime);
 
             noviceStatisticsMapper.insertSelective(noviceStatistics);
         }
+    }
 
+    public void updateStatus(NoviceRequest noviceRequest){
+        List<NoviceStatistics> noviceInfo = getNoviceInfo();
+        long systemTime = System.currentTimeMillis();
+        if(noviceInfo != null && noviceInfo.size() > 0){
+            NoviceStatistics noviceStatistics = noviceInfo.get(0);
+            noviceStatistics.setStatus(noviceRequest.getStatus());
+            noviceStatistics.setUpdateTime(systemTime);
+            NoviceStatisticsExample example = new NoviceStatisticsExample();
+            example.createCriteria().andUserIdEqualTo(SessionUtils.getUserId()).andIdEqualTo(noviceStatistics.getId());
+
+            noviceStatisticsMapper.updateByExampleSelective(noviceStatistics, example);
+        } else {
+            NoviceStatistics noviceStatistics = new NoviceStatistics();
+            noviceStatistics.setId(UUID.randomUUID().toString());
+            noviceStatistics.setUserId(SessionUtils.getUserId());
+            noviceStatistics.setGuideStep(1);
+            noviceStatistics.setGuideNum(1);
+            noviceStatistics.setStatus(1);
+            noviceStatistics.setDataOption(noviceRequest.getDataOption());
+            noviceStatistics.setCreateTime(systemTime);
+            noviceStatistics.setUpdateTime(systemTime);
+
+            noviceStatisticsMapper.insertSelective(noviceStatistics);
+        }
     }
 }
 

@@ -32,8 +32,8 @@
           </p>
         </div>
         <div class="footer">
-          <el-button style="float: right; padding: 15px 0;color:#8C8C8C" type="text" @click="skip()">
-            {{$t('side_task.skip')}}
+          <el-button style="float: right; padding: 15px 0;color:#8C8C8C" type="text" @click="notShow()">
+            {{$t('side_task.not_show')}}
           </el-button>
         </div>
       </el-card>
@@ -81,8 +81,8 @@
             <el-button v-if="taskIndex > 1" style="float: right;margin-left: 10px; padding: 15px 0" type="text" @click="prev()">
               {{$t('side_task.prev')}}
             </el-button>
-            <el-button style="float: left; padding: 15px 0;color:#8C8C8C" type="text" @click="skip()">
-              {{$t('side_task.skip')}}
+            <el-button style="float: left; padding: 15px 0;color:#8C8C8C" type="text" @click="notShow()">
+              {{$t('side_task.not_show')}}
             </el-button>
           </div>
         </el-card>
@@ -114,16 +114,43 @@
         </div>
       </el-card>
     </div>
+
+    <div :class="language === 'en-US' ? 'csat-popup-gif close close-en' : 'csat-popup-gif close'" v-if="noviceVisible">
+      <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span style="float: right; padding: 5px 0;" class="moon"  @click="closeGif()">
+            <font-awesome-icon :icon="['fa', 'times']" class="icon"/>
+          </span>
+          <span class="text-header" v-html="$t('side_task.close.title')" />
+        </div>
+        <div style="height: 40px">
+          <p class="close-desc">
+            {{ $t("side_task.close.subtitle") }}
+          </p>
+          <p class="close-desc">{{ $t("side_task.close.desc") }}</p>
+        </div>
+        <div class="gif-footer-close">
+          <el-button type="primary" round size="mini" @click="closeGif()">
+            {{ $t("side_task.close.continue_btn") }}
+          </el-button>
+          <el-button type="primary" round size="mini" @click="goContinue()">
+            {{ $t("side_task.close.close_btn") }}
+          </el-button>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 
 <script>
 import {hasPermissions} from "../../../utils/permission";
+import {updateStatus} from "../../../api/novice";
 
 export default {
   name: "SiteTask",
   data() {
     return {
+      noviceVisible: false,
       cardVisible: false,
       gifVisible: false,
       gifData:'',
@@ -145,7 +172,7 @@ export default {
     taskData: Array
   },
 
-  created() {
+  mounted() {
     if(this.status){
       this.skipOpen("/track/case/all")
     }
@@ -181,13 +208,16 @@ export default {
       this.cardVisible = !this.cardVisible;
       this.$emit("closeBox", this.cardVisible)
       this.gifVisible = this.cardVisible ? this.gifVisible : this.cardVisible;
+      this.noviceVisible = this.cardVisible ? false : this.cardVisible;
     },
     openGif(gif) {
       this.gifVisible = true
+      this.noviceVisible = false
       this.gifData = gif
     },
     closeGif(){
       this.gifVisible = false
+      this.noviceVisible = false
     },
     prev() {
       this.taskIndex = this.taskIndex - 1
@@ -197,8 +227,18 @@ export default {
       this.taskIndex = this.taskIndex + 1
       this.taskIndex = this.taskIndex > this.taskData.length ? this.taskData.length : this.taskIndex
     },
-    skip() {
-      this.open()
+    notShow() {
+      this.noviceVisible = true
+      this.gifVisible = false
+
+    },
+    goContinue () {
+      updateStatus(0).then(res=>{
+        this.$success(this.$t('commons.save_success'));
+        this.cardVisible = false
+        localStorage.setItem("noviceStatus", "0")
+        this.$emit("closeNovice", false)
+      })
     },
     gotoPath(path){
       this.$router.push(path)
@@ -212,6 +252,7 @@ export default {
               this.taskNum()
               this.cardVisible = true
               this.$emit("closeBox", this.cardVisible)
+              this.$emit("closeNovice", true)
               this.openGif(item)
             }
           })
@@ -239,6 +280,13 @@ export default {
   text-align: left;
   margin: 3px 6px;
   font-size: 12px;
+  font-weight: 300;
+}
+
+.close-desc {
+  text-align: left;
+  margin: 3px 0;
+  font-size: 14px;
   font-weight: 300;
 }
 
@@ -297,6 +345,16 @@ export default {
   text-align: center;
 }
 
+.gif-footer-close {
+  width: 100%;
+  margin: 10px 0 15px;
+  text-align: right;
+}
+
+.image-slot {
+  padding-top: 100px;
+}
+
 .gif-footer-en {
   width: 100%;
   margin: 10px 0 44px;
@@ -347,6 +405,13 @@ export default {
   -webkit-transition: .3s;
   transition: .3s;
 }
+.close {
+  bottom: 362px;
+}
+
+.close-en {
+  bottom: 388px;
+}
 
 .text-header {
   font-weight: 700;
@@ -388,6 +453,10 @@ export default {
 ::v-deep .over .el-card__header {
   border-bottom: none;
   padding: 20px 24px 0px 24px;
+}
+
+::v-deep .close .el-card__body {
+  padding: 0 24px;
 }
 
 ::v-deep .csat-popup-gif .el-card__header {

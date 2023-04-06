@@ -13,11 +13,13 @@ public class NoviceStatistics implements Serializable {
 
     private Integer guideNum;
 
+    private String dataOption;
+
+    private Integer status;
+
     private Long createTime;
 
     private Long updateTime;
-
-    private String dataOption;
 
     private static final long serialVersionUID = 1L;
 }
