@@ -85,11 +85,11 @@ CREATE TABLE IF NOT EXISTS `api_case_execution_info`
 
 CREATE TABLE IF NOT EXISTS `scenario_execution_info`
 (
-    `id`           varchar(50) NOT NULL,
+    `id`           varchar(50)  NOT NULL,
     `source_id`    varchar(255) NOT NULL COMMENT 'api scenario id',
-    `result`       varchar(50) NOT NULL,
+    `result`       varchar(50)  NOT NULL,
     `trigger_mode` varchar(50),
-    `create_time`  BIGINT(13)  NOT NULL COMMENT 'Create timestamp',
+    `create_time`  BIGINT(13)   NOT NULL COMMENT 'Create timestamp',
     PRIMARY KEY (`id`) USING BTREE,
     INDEX `source_id` (`source_id`) USING BTREE
 ) ENGINE = InnoDB
@@ -179,8 +179,18 @@ CREATE TABLE IF NOT EXISTS `file_attachment_metadata`
   COLLATE = utf8mb4_general_ci;
 
 -- V129_2-0-0_test_case_report_api_base_count
-ALTER TABLE `test_plan_report_content`
-    ADD COLUMN `api_base_count` LONGTEXT COMMENT 'request (JSON format)';
+SELECT IF(EXISTS(SELECT DISTINCT COLUMN_NAME
+                 FROM information_schema.columns
+                 WHERE table_schema = DATABASE()
+                   AND table_name = 'test_plan_report_content'
+                   AND COLUMN_NAME = 'api_base_count'),
+          'select 1',
+          'ALTER TABLE `test_plan_report_content` ADD COLUMN `api_base_count` LONGTEXT')
+INTO @add_api_base_count;
+PREPARE stmt_add_api_base_count FROM @add_api_base_count;
+EXECUTE stmt_add_api_base_count;
+DEALLOCATE PREPARE stmt_add_api_base_count;
+
 --
 -- V1_2-0-0_load_test_remember_environment
 ALTER TABLE `load_test`
@@ -229,27 +239,28 @@ ALTER TABLE test_case_comment
 --
 -- v2_api_add_to_update_time
 ALTER TABLE `api_definition`
-    ADD to_be_update_Time bigint(13)   DEFAULT NULL COMMENT '需要同步的开始时间';
+    ADD to_be_update_Time bigint(13) DEFAULT NULL COMMENT '需要同步的开始时间';
 
 --
 -- v2_api_case_add_to_update_time
 ALTER TABLE `api_test_case`
-    ADD to_be_update_Time bigint(13)   DEFAULT NULL COMMENT '需要同步的开始时间';
+    ADD to_be_update_Time bigint(13) DEFAULT NULL COMMENT '需要同步的开始时间';
 
 --
 -- 新增附件关系表
 -- v2_init_attachment_module_relation
 CREATE TABLE IF NOT EXISTS `attachment_module_relation`
 (
-    `relation_id` varchar(64) NOT NULL COMMENT 'RELATION ID',
+    `relation_id`   varchar(64) NOT NULL COMMENT 'RELATION ID',
     `relation_type` varchar(64) NOT NULL COMMENT 'RELATION TYPE',
     `attachment_id` varchar(64) NOT NULL COMMENT 'ATTACHMENT ID',
-    INDEX `attachment_module_index`(`relation_id`, `relation_type`) USING BTREE
+    INDEX `attachment_module_index` (`relation_id`, `relation_type`) USING BTREE
 ) ENGINE = InnoDB
   CHARACTER SET = utf8mb4
   COLLATE = utf8mb4_general_ci;
 
-ALTER TABLE test_plan_report_content ADD COLUMN `ui_all_cases` LONGTEXT COMMENT 'ui all cases (JSON format)';
+ALTER TABLE test_plan_report_content
+    ADD COLUMN `ui_all_cases` LONGTEXT COMMENT 'ui all cases (JSON format)';
 
 
 --
@@ -511,9 +522,12 @@ WHERE `type` = '';
 
 --
 -- 初始化attachment_module_relation数据
-INSERT INTO attachment_module_relation SELECT case_id, 'test_case', file_id FROM test_case_file;
+INSERT INTO attachment_module_relation
+SELECT case_id, 'test_case', file_id
+FROM test_case_file;
 -- 清空test_case_file表数据
-DELETE FROM test_case_file;
+DELETE
+FROM test_case_file;
 
 
 --
@@ -526,10 +540,13 @@ VALUES (UUID(), 'project_member', 'PROJECT_TRACK_CASE:READ+BATCH_LINK_DEMAND', '
 
 --
 -- V127__2-0-1_add_test_plan_ui_fail_cases
-ALTER TABLE test_plan_report_content ADD COLUMN `ui_failure_cases` LONGTEXT COMMENT 'ui failure cases (JSON format)';
+ALTER TABLE test_plan_report_content
+    ADD COLUMN `ui_failure_cases` LONGTEXT COMMENT 'ui failure cases (JSON format)';
 
 --
 -- V128__2-0-1_update_api_scenario_last_result
-UPDATE api_scenario set last_result='' where last_result IS NULL;
+UPDATE api_scenario
+set last_result=''
+where last_result IS NULL;
 
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
