@@ -15,7 +15,7 @@ import java.util.function.Function;
  */
 public class BatchProcessingUtil {
 
-    private static final int BATCH_PROCESS_QUANTITY = 1000;
+    private static final int BATCH_PROCESS_QUANTITY = 100;
 
     public static ScenarioProjectDTO getProjectIdsByScenarioIdList(List<String> scenarioIdList, Function<List<String>, ScenarioProjectDTO> func) {
         ScenarioProjectDTO returnDTO = new ScenarioProjectDTO();

@@ -1475,9 +1475,10 @@ public class TestPlanService {
                         config,
                         testPlanReport,
                         testPlan, testPlanExecuteReportDTO);
+            } else {
+                //针对已经保存过的数据结构，增加对旧版本数据的支持
+                this.dealOldVersionData(testPlanReportStruct);
             }
-            //处理旧数据
-            this.dealOldVersionData(testPlanReportStruct);
             //查找运行环境
             testPlanReportService.initRunInformation(testPlanReportStruct, testPlanReport);
         }
@@ -1485,27 +1486,207 @@ public class TestPlanService {
     }
 
     /**
-     * 处理旧版本数据（例如版本升级过程中由于统一了状态字段的数据）
+     * 处理旧版本数据（例如版本升级过程中由于统一了状态字段的数据） 或者是由旧版本fastJson解析的，无法被Jackson解析出来的数据
      */
     private void dealOldVersionData(TestPlanReportDataStruct testPlanReportStruct) {
-        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioAllCases())) {
-            //使用LinkedHashMap是为了确保reportId的一致性，同时保证顺序
-            Map<String, TestPlanScenarioDTO> errorScenarioDTOMap = new LinkedHashMap<>();
-            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioFailureCases())) {
-                testPlanReportStruct.getScenarioFailureCases().forEach(item -> {
-                    if (StringUtils.isNotBlank(item.getReportId())) {
-                        errorScenarioDTOMap.put(item.getReportId(), item);
+        List<TestPlanScenarioDTO> validScenarioList = this.getValidScenarioList(testPlanReportStruct);
+        testPlanReportStruct.setScenarioAllCases(validScenarioList);
+        List<TestPlanScenarioDTO> errorScenarioList = this.getScenarioListByStatus(testPlanReportStruct, "error");
+        List<TestPlanScenarioDTO> fakeErrorScenarioList = this.getScenarioListByStatus(testPlanReportStruct, "fakeError");
+        List<TestPlanScenarioDTO> unExecuteScenarioList = this.getScenarioListByStatus(testPlanReportStruct, "unExecute");
+        testPlanReportStruct.setScenarioFailureCases(errorScenarioList);
+        testPlanReportStruct.setErrorReportScenarios(fakeErrorScenarioList);
+        testPlanReportStruct.setUnExecuteScenarios(unExecuteScenarioList);
+
+        List<TestPlanApiDTO> validApiList = this.getValidApiList(testPlanReportStruct);
+        testPlanReportStruct.setApiAllCases(validApiList);
+        List<TestPlanApiDTO> errorApiList = this.getApiListByStatus(testPlanReportStruct, "error");
+        List<TestPlanApiDTO> fakeErrorApiList = this.getApiListByStatus(testPlanReportStruct, "fakeError");
+        List<TestPlanApiDTO> unExecuteApiList = this.getApiListByStatus(testPlanReportStruct, "unExecute");
+        testPlanReportStruct.setApiFailureCases(errorApiList);
+        testPlanReportStruct.setErrorReportCases(fakeErrorApiList);
+        testPlanReportStruct.setUnExecuteCases(unExecuteApiList);
+    }
+
+    private List<TestPlanApiDTO> getValidApiList(TestPlanReportDataStruct testPlanReportStruct) {
+        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getApiAllCases())) {
+            List<TestPlanApiDTO> allApiList = new ArrayList<>(testPlanReportStruct.getApiAllCases().stream().filter(item -> item.getReportId() != null).toList());
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getApiFailureCases())) {
+                for (TestPlanApiDTO item : testPlanReportStruct.getApiFailureCases()) {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isApiListContainsByReportId(allApiList, item)) {
+                        allApiList.add(item);
+                    }
+                }
+            }
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getErrorReportCases())) {
+                testPlanReportStruct.getErrorReportCases().forEach(item -> {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isApiListContainsByReportId(allApiList, item)) {
+                        allApiList.add(item);
                     }
                 });
-
             }
-            testPlanReportStruct.getScenarioAllCases().forEach(item -> {
-                if (StringUtils.equalsIgnoreCase(item.getLastResult(), "Fail")) {
-                    errorScenarioDTOMap.put(item.getReportId(), item);
-                }
-            });
-            testPlanReportStruct.setScenarioFailureCases(new ArrayList<>(errorScenarioDTOMap.values()));
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getUnExecuteScenarios())) {
+                testPlanReportStruct.getUnExecuteCases().forEach(item -> {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isApiListContainsByReportId(allApiList, item)) {
+                        allApiList.add(item);
+                    }
+                });
+            }
+            return allApiList;
+        } else {
+            return new ArrayList<>(0);
         }
+    }
+
+    private List<TestPlanScenarioDTO> getValidScenarioList(TestPlanReportDataStruct testPlanReportStruct) {
+        //旧版本fastJson解析的数据结构不会保存所有的数据，内存地址相同的数据它会做一个引用。这里要补全数据结构
+        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioAllCases())) {
+            List<TestPlanScenarioDTO> allTestPlanScenariODTOList = new ArrayList<>(testPlanReportStruct.getScenarioAllCases().stream().filter(item -> item.getReportId() != null).toList());
+
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioFailureCases())) {
+                testPlanReportStruct.getScenarioFailureCases().forEach(item -> {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isScenarioListContainsByReportId(allTestPlanScenariODTOList, item)) {
+                        allTestPlanScenariODTOList.add(item);
+                    }
+                });
+            }
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getErrorReportScenarios())) {
+                testPlanReportStruct.getErrorReportScenarios().forEach(item -> {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isScenarioListContainsByReportId(allTestPlanScenariODTOList, item)) {
+                        allTestPlanScenariODTOList.add(item);
+                    }
+                });
+            }
+            if (CollectionUtils.isNotEmpty(testPlanReportStruct.getUnExecuteScenarios())) {
+                testPlanReportStruct.getUnExecuteScenarios().forEach(item -> {
+                    if (StringUtils.isNotEmpty(item.getReportId()) && !this.isScenarioListContainsByReportId(allTestPlanScenariODTOList, item)) {
+                        allTestPlanScenariODTOList.add(item);
+                    }
+                });
+            }
+            return allTestPlanScenariODTOList;
+        } else {
+            return new ArrayList<>(0);
+        }
+    }
+
+    private List<TestPlanApiDTO> getApiListByStatus(TestPlanReportDataStruct testPlanReportStruct, String status) {
+        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getApiAllCases())) {
+            //使用LinkedHashMap是为了确保reportId的一致性，同时保证顺序
+            Map<String, TestPlanApiDTO> errorApiDTOMap = new LinkedHashMap<>();
+            List<String> checkStatusList;
+            List<TestPlanApiDTO> statusApiList = null;
+
+            if (StringUtils.equalsIgnoreCase(status, "fakeError")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("errorReport".toLowerCase());
+                    this.add("errorReportResult".toLowerCase());
+                }};
+                statusApiList = testPlanReportStruct.getErrorReportCases().stream().filter(item -> item.getReportId() != null).toList();
+            } else if (StringUtils.equalsIgnoreCase(status, "unExecute")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("stop".toLowerCase());
+                    this.add("unExecute".toLowerCase());
+                }};
+                statusApiList = testPlanReportStruct.getUnExecuteCases().stream().filter(item -> item.getReportId() != null).toList();
+            } else if (StringUtils.equalsIgnoreCase(status, "error")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("Error".toLowerCase());
+                }};
+                statusApiList = testPlanReportStruct.getApiFailureCases().stream().filter(item -> item.getReportId() != null).toList();
+            } else {
+                checkStatusList = null;
+                statusApiList = new ArrayList<>();
+            }
+            if (CollectionUtils.isNotEmpty(statusApiList)) {
+                statusApiList.forEach(item -> {
+                    if (StringUtils.isNotBlank(item.getReportId())) {
+                        errorApiDTOMap.put(item.getReportId(), item);
+                    }
+                });
+            }
+            if (CollectionUtils.isNotEmpty(checkStatusList)) {
+                testPlanReportStruct.getApiAllCases().forEach(item -> {
+                    if (checkStatusList.contains(item.getExecResult().toLowerCase())) {
+                        errorApiDTOMap.put(item.getReportId(), item);
+                    }
+                });
+            }
+            return new ArrayList<>(errorApiDTOMap.values());
+        } else {
+            return new ArrayList<>(0);
+        }
+    }
+
+    private List<TestPlanScenarioDTO> getScenarioListByStatus(TestPlanReportDataStruct testPlanReportStruct, String status) {
+        if (CollectionUtils.isNotEmpty(testPlanReportStruct.getScenarioAllCases())) {
+            //使用LinkedHashMap是为了确保reportId的一致性，同时保证顺序
+            Map<String, TestPlanScenarioDTO> statusScenarioDTOMap = new LinkedHashMap<>();
+            List<String> checkStatusList;
+            List<TestPlanScenarioDTO> statusScenarioList = null;
+
+            if (StringUtils.equalsIgnoreCase(status, "fakeError")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("errorReport".toLowerCase());
+                    this.add("errorReportResult".toLowerCase());
+                }};
+                statusScenarioList = testPlanReportStruct.getErrorReportScenarios().stream().filter(item -> item.getReportId() != null).toList();
+            } else if (StringUtils.equalsIgnoreCase(status, "unExecute")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("unExecute".toLowerCase());
+                    this.add("stop".toLowerCase());
+                }};
+                statusScenarioList = testPlanReportStruct.getUnExecuteScenarios().stream().filter(item -> item.getReportId() != null).toList();
+            } else if (StringUtils.equalsIgnoreCase(status, "error")) {
+                checkStatusList = new ArrayList<>() {{
+                    this.add("Fail".toLowerCase());
+                    this.add("Error".toLowerCase());
+                }};
+                statusScenarioList = testPlanReportStruct.getScenarioFailureCases().stream().filter(item -> item.getReportId() != null).toList();
+            } else {
+                checkStatusList = null;
+                statusScenarioList = new ArrayList<>();
+            }
+            if (CollectionUtils.isNotEmpty(statusScenarioList)) {
+                statusScenarioList.forEach(item -> {
+                    if (StringUtils.isNotBlank(item.getReportId())) {
+                        statusScenarioDTOMap.put(item.getReportId(), item);
+                    }
+                });
+            }
+            if (CollectionUtils.isNotEmpty(checkStatusList)) {
+                testPlanReportStruct.getScenarioAllCases().forEach(item -> {
+                    if (checkStatusList.contains(item.getLastResult().toLowerCase())) {
+                        statusScenarioDTOMap.put(item.getReportId(), item);
+                    }
+                });
+            }
+            return new ArrayList<>(statusScenarioDTOMap.values());
+        } else {
+            return new ArrayList<>(0);
+        }
+    }
+
+    private boolean isApiListContainsByReportId(List<TestPlanApiDTO> list, TestPlanApiDTO checkItem) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (TestPlanApiDTO item : list) {
+                if (StringUtils.equals(item.getReportId(), checkItem.getReportId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isScenarioListContainsByReportId(List<TestPlanScenarioDTO> list, TestPlanScenarioDTO checkItem) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            for (TestPlanScenarioDTO item : list) {
+                if (StringUtils.equals(item.getReportId(), checkItem.getReportId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //获取已生成过的测试计划报告内容
