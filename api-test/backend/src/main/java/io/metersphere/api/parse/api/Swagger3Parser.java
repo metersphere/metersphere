@@ -542,7 +542,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof BooleanSchema) {
             item.setType(PropertyConstant.BOOLEAN);
         } else {
-            return null;
+            item.setType("null");
         }
         if (schema.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, schema.getExample());
@@ -698,7 +698,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             swaggerApiInfo.setRequestBody(JSONUtil.parseObjectNode(requestBody.toString()));
             //  设置响应体
             JSONObject responseObject = JSONUtil.parseObject(apiDefinition.getResponse());
-            JSONObject jsonObject = buildResponseBody(responseObject);
+            JSONObject jsonObject = buildResponseBody(responseObject, schemas);
             swaggerApiInfo.setResponses(JSONUtil.parseObjectNode(jsonObject.toString()));
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
@@ -1109,7 +1109,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
     */
-    private JSONObject buildResponseBody(JSONObject response) {
+    private JSONObject buildResponseBody(JSONObject response, List<JSONObject> schemas) {
         if (response == null) {
             return new JSONObject();
         }
@@ -1137,7 +1137,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             for (int i = 0; i < statusCode.length(); i++) {
                 JSONObject statusCodeInfo = new JSONObject();
                 statusCodeInfo.put("headers", headers);
-                statusCodeInfo.put("content", buildContent(response, null));
+                statusCodeInfo.put("content", buildContent(response, schemas));
                 statusCodeInfo.put("description", StringUtils.EMPTY);
                 JSONObject jsonObject = statusCode.getJSONObject(i);
                 if (jsonObject.optString("value") != null) {
