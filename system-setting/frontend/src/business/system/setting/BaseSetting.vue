@@ -17,7 +17,7 @@
           </el-form-item>
           <el-form-item :label="$t('system_config.selenium_docker_url')" prop="seleniumDockerUrl">
             <el-input v-model="formInline.seleniumDockerUrl" :placeholder="$t('system_config.selenium_docker.url_tip')"/>
-            <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
+            <i>({{ $t('commons.examples') }}:http://selenium-hub:4444)</i>
           </el-form-item>
           <el-form-item :label="$t('commons.help_documentation')" prop="docUrl">
             <el-input v-model="formInline.docUrl" placeholder="https://metersphere.io/docs/index.html"/>
