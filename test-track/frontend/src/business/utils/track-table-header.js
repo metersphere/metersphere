@@ -157,14 +157,15 @@ const TRACK_HEADER = {
   TEST_CASE_REVIEW_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
     {id: 'name', key: '2', label: 'commons.name'},
-    {id: 'versionId', key: 'b', label: 'commons.version'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
+    {id: 'tags', key: '4', label: 'commons.tag'},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
     {id: 'projectName', key: '6', label: 'test_track.review.review_project'},
     {id: 'reviewerName', key: '7', label: 'test_track.review.reviewer'},
     {id: 'reviewStatus', key: '8', label: 'test_track.case.status'},
     {id: 'updateTime', key: '9', label: 'commons.update_time'},
     {id: 'maintainerName', key: 'a', label: 'custom_field.case_maintainer'},
+    {id: 'versionId', key: 'b', label: 'commons.version'}
   ],
 }
 
