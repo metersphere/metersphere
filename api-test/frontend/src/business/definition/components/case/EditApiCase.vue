@@ -1,6 +1,12 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom" ref="testCaseDrawer" class="ms-drawer-case-header">
+    <ms-drawer
+      :size="60"
+      @close="apiCaseClose"
+      @changeScreen="changeScreen"
+      direction="bottom"
+      ref="testCaseDrawer"
+      class="ms-drawer-case-header">
       <template v-slot:header>
         <api-case-header
           :api="api"
@@ -32,6 +38,7 @@
                 @showHistory="showHistory"
                 @reLoadCase="reLoadCase"
                 :environment="environment"
+                :case-item-height="caseItemHeight"
                 @setSelectedCaseId="setSelectedCaseId"
                 :is-case-edit="isCaseEdit"
                 :api="api"
@@ -60,7 +67,7 @@
   </div>
 </template>
 <script>
-import {apiTestCaseList, editApiCaseByParam, getCaseById, getPassRateById} from '@/api/api-test-case';
+import { apiTestCaseList, editApiCaseByParam, getCaseById, getPassRateById } from '@/api/api-test-case';
 import { getMaintainer } from '@/api/project';
 import ApiCaseHeader from './ApiCaseHeader';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
@@ -105,6 +112,7 @@ export default {
       apiCaseList: [],
       batchLoadingIds: [],
       singleLoading: false,
+      caseItemHeight: 100,
       singleRunId: '',
       runData: [],
       reportId: '',
@@ -155,6 +163,9 @@ export default {
     },
   },
   methods: {
+    changeScreen(height) {
+      this.caseItemHeight = height;
+    },
     getMaintainerOptions() {
       getMaintainer().then((response) => {
         this.maintainerOptions = response.data;
@@ -432,8 +443,8 @@ export default {
           this.apiCaseList[0].responseData = data;
           this.apiCaseList[0].passRate = passRate;
           this.$refs.apiCaseItem.runLoading = false;
-          store.currentApiCase = {refresh: true, id: data.id, status: status, passRate: passRate};
-        })
+          store.currentApiCase = { refresh: true, id: data.id, status: status, passRate: passRate };
+        });
       }
     },
     errorRefresh() {
@@ -677,6 +688,7 @@ export default {
 .ms-drawer-case-header :deep(.ms-drawer-header) {
   margin-left: 0px;
 }
+
 fieldset {
   padding: 0px;
   margin: 0px;
