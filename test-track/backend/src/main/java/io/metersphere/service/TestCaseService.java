@@ -802,6 +802,7 @@ public class TestCaseService {
         if (request.getFilters() != null && !request.getFilters().containsKey("status")) {
             request.getFilters().put("status", new ArrayList<>(0));
         }
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestCaseDTO> list = extTestCaseMapper.list(request);
         if (!isSampleInfo) {
             buildUserInfo(list);
@@ -977,6 +978,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> getTestCaseByNotInPlan(QueryTestCaseRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         return extTestCaseMapper.getTestCaseByNotInPlan(request);
     }
@@ -1023,6 +1025,7 @@ public class TestCaseService {
 
     public List<TestCaseDTO> getReviewCase(QueryTestCaseRequest request) {
         setDefaultOrder(request);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         request.getOrders().forEach(order -> {
             order.setPrefix("test_case");
         });

@@ -113,18 +113,18 @@
                 <property name="object" value="${condition}.executor"/>
             </include>
         </if>
-        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
-            and (test_case.tags is null or test_case.tags
-            <include refid="condition">
-                <property name="object" value="${condition}.tags"/>
-            </include>
+        <if test='${condition}.tags != null and ${objectKey}.value.size() > 0 and ${objectKey}.operator == "not like"'>
+            and ( test_case.tags is null or
+            <foreach collection="${objectKey}.value" item="tag" separator="and" open="(" close=")">
+                test_case.tags not like concat('%', #{tag},'%')
+            </foreach>
             )
         </if>
-        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
-            and test_case.tags
-            <include refid="condition">
-                <property name="object" value="${condition}.tags"/>
-            </include>
+        <if test='${condition}.tags != null and ${objectKey}.value.size() > 0 and ${objectKey}.operator == "like"'>
+            and
+            <foreach collection="${objectKey}.value" item="tag" separator="or" open="(" close=")">
+                test_case.tags like concat('%', #{tag},'%')
+            </foreach>
         </if>
         <if test='${condition}.planCaseStatus != null'>
             and test_plan_test_case.status

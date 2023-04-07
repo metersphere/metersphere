@@ -254,6 +254,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
@@ -272,6 +273,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setPlanId(planId);
         request.setProjectId(null);
         request.setNodeIds(null);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestCaseNodeDTO> countModules = extTestPlanTestCaseMapper.getTestPlanCountNodes(request);
         return getNodeTreeWithPruningTree(countModules);
     }
@@ -366,6 +368,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getRelatePlanNodes(QueryTestCaseRequest request) {
         request.setNodeIds(null);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         if (testPlanService.isAllowedRepeatCase(request.getPlanId())) {
             request.setRepeatCase(true);
         }
@@ -377,6 +380,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getRelateReviewNodes(QueryTestCaseRequest request) {
         request.setNodeIds(null);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getTestReviewRelateCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(request.getProjectId());
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
