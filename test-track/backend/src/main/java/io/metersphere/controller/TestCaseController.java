@@ -377,7 +377,7 @@ public class TestCaseController {
 
     @PostMapping("/minder/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_UPDATE, project = "#request.projectId", beforeEvent = "#msClass.getCaseLogDetails(#request)", content = "#msClass.getCaseLogDetails(#request)", msClass = TestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.MINDER_OPERATION, project = "#request.projectId", beforeEvent = "#msClass.getCaseLogDetails(#request)", content = "#msClass.getCaseLogDetails(#request)", msClass = TestCaseService.class)
     public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
         testCaseService.minderEdit(request);
     }

@@ -521,7 +521,8 @@ const message = {
     other: "Other",
     function_introduction: 'Function introduction',
     page_guidance: 'Page guidance',
-    novice_journey: 'Novice Journey'
+    novice_journey: 'Novice Journey',
+    minder_operation: 'Minder Operation'
   },
   login: {
     normal_Login: "Normal Login",
