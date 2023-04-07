@@ -105,6 +105,7 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         Map<String, List<CustomFieldDao>> fieldMap =
                 customFieldTestCaseService.getMapByResourceIds(list.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList()));

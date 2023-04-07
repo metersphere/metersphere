@@ -490,6 +490,17 @@ public class ServiceUtils {
         }
     }
 
+    public static void buildCombineTagsToSupportMultiple(BaseQueryRequest request) {
+        if (request.getCombine() != null && request.getCombine().containsKey("tags")) {
+            Map<String, Object> tagsMap = (Map<String, Object>) request.getCombine().get("tags");
+            Object tagVal = tagsMap.get("value");
+            if (tagVal != null) {
+                List<String> tagList = Arrays.asList(tagVal.toString().split(StringUtils.SPACE));
+                tagsMap.put("value", tagList);
+            }
+        }
+    }
+
     private static void buildCustomNumInfo(Map<String, String> customNumMap, Object data) {
         Class<?> clazz = data.getClass();
         try {
