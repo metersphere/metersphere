@@ -165,17 +165,10 @@ export default {
       incompleteNum: 0,
       totalNum: 0,
       language: localStorage.getItem('language'),
-      status: this.$route.query.status
     }
   },
   props: {
     taskData: Array
-  },
-
-  mounted() {
-    if(this.status){
-      this.skipOpen("/track/case/all")
-    }
   },
   methods: {
     taskNum() {
@@ -230,7 +223,6 @@ export default {
     notShow() {
       this.noviceVisible = true
       this.gifVisible = false
-
     },
     goContinue () {
       updateStatus(0).then(res=>{
@@ -243,11 +235,14 @@ export default {
     gotoPath(path){
       this.$router.push(path)
     },
-    skipOpen(path){
-      if(path){
-        this.taskData.forEach(val=>{
-          val.taskData.forEach(item=>{
-            if(item.path === path){
+    skipOpen(data, path){
+      if(data) {
+        this.taskData = data
+      }
+      if(path) {
+        this.taskData.forEach(val => {
+          val.taskData.forEach(item => {
+            if (item.path === path) {
               this.taskIndex = 1
               this.taskNum()
               this.cardVisible = true
