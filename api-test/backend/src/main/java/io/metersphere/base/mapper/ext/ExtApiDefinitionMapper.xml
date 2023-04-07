@@ -706,6 +706,72 @@
         GROUP BY module_id
     </select>
 
+    <select id="moduleCaseCountByCollection" resultType="io.metersphere.api.dto.definition.ApiModuleDTO">
+        select ad.module_id AS id, count(atc.id) AS caseNum
+        from api_test_case atc join api_definition ad on atc.api_definition_id = ad.id
+        where (atc.status is null or atc.status != 'Trash')
+        <if test="request.protocol != null and request.protocol!=''">
+            and ad.protocol = #{request.protocol}
+        </if>
+        <if test="request.projectId != null and request.projectId!=''">
+            and ad.project_id = #{request.projectId}
+        </if>
+        <if test="request.name != null and request.name!=''">
+            and (atc.name like CONCAT('%', #{request.name},'%')
+            or atc.tags like CONCAT('%', #{request.name},'%')
+            or atc.num like CONCAT('%', #{request.name},'%'))
+        </if>
+        <if test="request.notInIds != null and request.notInIds.size() > 0">
+            and atc.id not in
+            <foreach collection="request.notInIds" item="notInId" separator="," open="(" close=")">
+                #{notInId}
+            </foreach>
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and ad.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.combine != null">
+            <include refid="relevanceApiCombine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="objectKey" value="request.combine.tags"/>
+            </include>
+        </if>
+        <include refid="relevanceApiVersionCondition">
+            <property name="versionTable" value="ad"/>
+        </include>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and atc.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and atc.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='version_id'">
+                            and atc.version_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        GROUP BY module_id
+    </select>
+
     <sql id="filter">
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
@@ -1215,4 +1281,57 @@
         </where>
     </sql>
 
+    <sql id="relevanceApiCombine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and atc.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and atc.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and atc.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.priority != null">
+            and atc.priority
+            <include refid="condition">
+                <property name="object" value="${condition}.priority"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and atc.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and atc.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and atc.create_user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <sql id="relevanceApiVersionCondition">
+        <if test="request.versionId != null">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId == null and request.id == null">
+            and ${versionTable}.latest = 1
+        </if>
+    </sql>
 </mapper>

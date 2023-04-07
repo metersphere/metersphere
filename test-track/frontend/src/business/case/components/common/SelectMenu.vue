@@ -73,16 +73,14 @@ export default {
 }
 .select-menu :deep(.el-input__inner) {
   border: none;
-  padding-left: 0px !important;
+  padding-left: 0 !important;
   display: inline-block !important;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  width: px2rem(80);
+  max-width: px2rem(200);
 }
-.select-menu :deep(.el-select--small) {
-  width: px2rem(80) !important;
-}
+
 .select-menu :deep(.el-input__suffix-inner .el-select__caret::before) {
   color: #646a73;
 }

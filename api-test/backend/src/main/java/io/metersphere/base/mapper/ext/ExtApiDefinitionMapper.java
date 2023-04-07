@@ -48,6 +48,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiModuleDTO> moduleCountByCollection(@Param("request") ApiDefinitionRequest request);
 
+    List<ApiModuleDTO> moduleCaseCountByCollection(@Param("request") ApiDefinitionRequest request);
+
     int checkOriginalStatusByIds(@Param("ids") List<String> ids);
 
     List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);

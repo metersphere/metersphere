@@ -63,6 +63,11 @@ public class EnvironmentRelateController {
         return microService.getForData(MicroServiceName.API_TEST, "/api/module/list/" + projectId + "/" + protocol);
     }
 
+    @PostMapping("/api/module/relevance/list/{projectId}/{protocol}")
+    public Object getRelevanceNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol, @RequestBody Object request) {
+        return microService.postForData(MicroServiceName.API_TEST, "/api/module/relevance/list/" + projectId + "/" + protocol, request);
+    }
+
     @PostMapping("/custom/func/list/{goPage}/{pageSize}")
     public Object query(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody Object request) {
         return microService.postForData(MicroServiceName.PROJECT_MANAGEMENT, String.format("/custom/func/list/%s/%s", goPage, pageSize), request);

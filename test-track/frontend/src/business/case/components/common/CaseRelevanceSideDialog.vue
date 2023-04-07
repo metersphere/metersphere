@@ -70,7 +70,6 @@
             <select-menu
               :data="projects"
               v-if="multipleProject"
-              width="155px"
               :current-data="currentProject"
               :title="$t('case.project') + ':'"
               @dataChange="changeProject"
