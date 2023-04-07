@@ -203,17 +203,15 @@ public class UserController {
      */
     @PostMapping("/ws/member/add")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.CREATE, title = "添加工作空间成员")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_USER_READ_CREATE)
     public void addMember(@RequestBody AddMemberRequest request) {
-
-        String wsId = request.getWorkspaceId();
-//        workspaceService.checkWorkspaceOwner(wsId);
         userService.addMember(request);
     }
 
     @PostMapping("/project/member/add")
-//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, title = "添加项目成员成员")
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ_CREATE)
+    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MEMBER, type = OperLogConstants.CREATE, title = "添加项目成员成员")
     public void addProjectMember(@RequestBody AddMemberRequest request) {
-//        workspaceService.checkWorkspaceOwner(wsId);
         userService.addProjectMember(request);
     }
 
