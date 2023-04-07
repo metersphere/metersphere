@@ -337,7 +337,7 @@ export default {
     runTest() {},
     itselfEnvironment(environmentId) {
       let id = this.request.projectId ? this.request.projectId : this.projectId;
-      getEnvironmentByProjectId(this.projectId).then((response) => {
+      getEnvironmentByProjectId(id).then((response) => {
         this.environments = response.data;
         let targetDataSourceName = undefined;
         let currentEnvironment = undefined;
