@@ -1,6 +1,6 @@
 <template>
   <span class="adv-search-bar">
-    <el-button size="mini" @click="open" ref="filter-btn">
+    <el-button size="mini" @click="open" ref="filter-btn" :class="conditionNum === 0 ? '' : 'btn-active'">
       <svg-icon :icon-class="conditionNum === 0 ? 'icon-filter' : 'icon-filter-active'"/>
       <span class="condition-num">{{conditionNum === 0 ? "" : "(" +  conditionNum  + ")" }}</span>
     </el-button>
@@ -409,7 +409,7 @@ export default {
 
 span.condition-num {
   width: 18px;
-  height: 22px;
+  height: 10px;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
@@ -428,7 +428,7 @@ span.condition-num {
   letter-spacing: -0.1px;
   color: #783887;
   position: relative;
-  top: -19px;
+  top: -25px;
   left: 12px;
 }
 
@@ -511,5 +511,9 @@ span.condition-num {
   min-width: 80px;
   height: 32px;
   border-radius: 4px;
+}
+
+.btn-active {
+  border: 1px solid #783887!important;
 }
 </style>

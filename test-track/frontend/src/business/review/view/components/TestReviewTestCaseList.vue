@@ -93,6 +93,31 @@
         </ms-table-column>
 
         <ms-table-column
+          prop="tags"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="180"
+          :show-overflow-tooltip="false"
+          :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+              <el-tooltip class="item" effect="dark" placement="top">
+                <div v-html="getTagToolTips(scope.row.tags)" slot="content"></div>
+                <div class="oneLine">
+                  <ms-single-tag
+                    v-for="(itemName, index) in parseColumnTag(scope.row.tags)"
+                    :key="index"
+                    type="success"
+                    effect="plain"
+                    :show-tooltip="scope.row.tags.length === 1 && itemName.length * 12 <= 100"
+                    :content="itemName"
+                    style="margin-left: 0; margin-right: 2px"/>
+                </div>
+              </el-tooltip>
+              <span/>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
           prop="maintainerName"
           :field="item"
           :fields-width="fieldsWidth"
@@ -178,6 +203,7 @@ import StatusEdit from "@/business/plan/view/comonents/StatusEdit";
 import ExecutorEdit from "@/business/plan/view/comonents/ExecutorEdit";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
+import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag";
 import NodeBreadcrumb from "@/business/common/NodeBreadcrumb";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
@@ -186,30 +212,28 @@ import MsTablePagination from 'metersphere-frontend/src/components/pagination/Ta
 import {TEST_CASE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/case/components/ReviewStatus";
-import {
-  _handleSelectAll, buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField, getSelectDataCounts,
-  getTableHeaderWithCustomFields, initCondition, toggleAllSelection, getCustomFieldBatchEditOption} from "metersphere-frontend/src/utils/tableUtils";
 import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom";
 import {Test_Case_Review_Case_List} from "@/business/model/JsonData";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
-import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
-import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import TestCaseReviewStatusTableItem from "@/business/common/tableItems/TestCaseReviewStatusTableItem";
-import {getProjectConfig} from "@/api/project";
-import {
-  batchDeleteTestReviewCase, batchEditTestReviewCaseReviewer,
-  batchEditTestReviewCaseStatus,
-  deleteTestReviewCase, getTesReviewById
-} from "@/api/test-review";
+import {TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
 import {useStore} from "@/store";
+import {getProjectConfig} from "@/api/project";
+import {parseTag} from "metersphere-frontend/src/utils"
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
-import {TEST_REVIEW_CASE} from "metersphere-frontend/src/components/search/search-components";
 import {getProjectApplicationConfig} from "@/api/project-application";
+import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
+import {
+  _handleSelectAll, buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField, getSelectDataCounts,
+  getTableHeaderWithCustomFields, initCondition, toggleAllSelection, getCustomFieldBatchEditOption } from "metersphere-frontend/src/utils/tableUtils";
+import {batchDeleteTestReviewCase, batchEditTestReviewCaseReviewer, batchEditTestReviewCaseStatus, deleteTestReviewCase, getTesReviewById} from "@/api/test-review";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -223,7 +247,7 @@ export default {
     NodeBreadcrumb, MsTableButton, ShowMoreBtn, BatchEdit,
     MsTablePagination, ReviewStatus, MsTableHeaderSelectPopover,
     MsTableColumn,
-    MsTable,
+    MsTable, MsSingleTag
   },
   data() {
     return {
@@ -409,14 +433,14 @@ export default {
         this.condition.reviewId = this.reviewId;
       }
       if (this.clickType) {
-        if (this.status == 'default') {
+        if (this.status === 'default') {
           this.condition.status = this.clickType;
         } else {
           this.condition.status = null;
         }
         this.status = 'all';
       }
-      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) <= 0;
 
       this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
@@ -426,6 +450,7 @@ export default {
             this.total = response.data.itemCount;
             this.pageCount = Math.ceil(this.total / this.pageSize);
             this.tableData = response.data.listObject;
+            parseTag(this.tableData);
             this.getPreData();
             if (callback && callback instanceof Function) {
               callback();
@@ -630,6 +655,12 @@ export default {
             this.customNum = false;
           }
         });
+    },
+    getTagToolTips(tags) {
+      return getTagToolTips(tags);
+    },
+    parseColumnTag(tags) {
+      return parseColumnTag(tags);
     },
   }
 };
