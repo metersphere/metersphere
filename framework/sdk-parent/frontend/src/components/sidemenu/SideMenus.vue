@@ -33,22 +33,23 @@ export default {
       totalTask: 0,
       taskData:[],
       language: localStorage.getItem('language'),
+      status: this.$route.query.status
     };
   },
-  mounted() {
+  created() {
     this.initTaskData(1)
   },
   methods: {
-    initTaskData(status){
-      getSideTask().then(res=>{
-        if(res.data.length > 0 && res.data[0].dataOption){
+    initTaskData(status) {
+      getSideTask().then(res => {
+        if (res.data.length > 0 && res.data[0].dataOption) {
           this.taskData = JSON.parse(res.data[0].dataOption)
           this.noviceStatus = res.data[0].status === 1
-        }else{
+        } else {
           this.taskData = TASK_DATA
         }
-        if(status === 2 && res.data[0].status === 0){
-          updateStatus(1).then(res=>{
+        if (status === 2 && res.data[0].status === 0) {
+          updateStatus(1).then(res => {
             this.noviceStatus = true
             localStorage.setItem("noviceStatus", "1")
           })
@@ -56,30 +57,47 @@ export default {
         let microApp = JSON.parse(sessionStorage.getItem("micro_apps"));
         let num = 0
         let total = 0
-        this.taskData.forEach(item =>{
-          if(!(microApp && microApp[item.name]) || (item.name === 'ui' && !hasLicense()) ||
-            !hasPermissions(...item.permission)){
+        this.taskData.forEach(item => {
+          item.rate = 0
+          let subRTask = 0
+          item.taskData.forEach(res => {
+            if(hasPermissions(...res.permission) ){
+              subRTask += 1
+              if(res.status === 1){
+                item.rate += 1
+              }
+            }
+          });
+
+          if (!(microApp && microApp[item.name]) || (item.name === 'ui' && !hasLicense()) ||
+            !hasPermissions(...item.permission)) {
             item.status = -1
             total++
           } else {
-            item.percentage = Math.floor(item.rate / item.taskData.length * 100)
-            if(item.percentage === 100){
+            item.percentage = Math.floor(item.rate / subRTask * 100)
+            if (item.percentage === 100) {
               item.status = 1
-            }else if(100 > item.percentage && item.percentage > 0){
+            } else if (100 > item.percentage && item.percentage > 0) {
               item.status = 2
             }
             num += item.rate
           }
         })
-        if(total < this.taskData.length){
+        if (total < this.taskData.length) {
           this.taskStatus = true
         }
         this.totalTask = num
+
+        if (this.status) {
+          this.$refs.siteTask.skipOpen(this.taskData,"/track/case/all");
+        }
       })
     },
     toggle(status){
-      this.initTaskData(status)
-      this.openBox = true
+      this.openBox = !this.openBox
+      if(this.openBox || status === 2){
+        this.initTaskData(status)
+      }
       this.$refs.siteTask.open();
     },
     closeBox(status){
@@ -90,7 +108,7 @@ export default {
     },
     skipOpen(path){
       this.initTaskData(1)
-      this.$refs.siteTask.skipOpen(path);
+      this.$refs.siteTask.skipOpen(null,path);
     }
   }
 
@@ -155,6 +173,7 @@ export default {
 .parentBox .contentsBox div:hover span {
   display: block;
   color: #fff;
+  white-space: nowrap;
   cursor: pointer;
 }
 .parentBox .contentsBox div:not(:last-child) {

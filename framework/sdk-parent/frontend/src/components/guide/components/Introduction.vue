@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import {hasPermissions} from "../../../utils/permission";
+
 export default {
   name: "MsIntroduction",
   data() {
@@ -115,9 +117,8 @@ export default {
     },
     gotoTurn(){
       this.closeDialog()
-      if(localStorage.getItem("noviceStatus") && localStorage.getItem("noviceStatus") === "1"){
-        let redirectUrl = sessionStorage.getItem("redirectUrl")
-        if(redirectUrl.includes("track")){
+      if(localStorage.getItem("noviceStatus") && localStorage.getItem("noviceStatus") === "1"  && hasPermissions("PROJECT_TRACK_CASE:READ+CREATE")){
+        if(this.$route.path.includes("track")){
           this.$emit("skipOpen", "/track/case/all")
           this.$router.push("/track/case/all")
         }else{
