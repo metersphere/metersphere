@@ -9,12 +9,12 @@
     <template v-slot:aside>
       <ms-api-module
         :relevance-project-id="projectId"
-        :show-case-num="false"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
+        :case-condition="condition"
         ref="nodeTree"
       />
     </template>
@@ -26,6 +26,7 @@
       :not-in-ids="notInIds"
       :versionEnable="versionEnable"
       @selectCountChange="setSelectCounts"
+      @setCondition="setCondition"
       ref="apiCaseList"
     />
   </test-case-relevance-base>
@@ -73,7 +74,6 @@ export default {
       }
     },
     open() {
-      this.init();
       this.$refs.baseRelevance.open();
       if (this.$refs.apiCaseList) {
         this.$refs.apiCaseList.clear();
@@ -112,6 +112,10 @@ export default {
     },
     setSelectCounts(data) {
       this.$refs.baseRelevance.selectCounts = data;
+    },
+    setCondition(data) {
+      this.condition = data;
+      this.$refs.nodeTree.list(this.projectId);
     },
   },
 };

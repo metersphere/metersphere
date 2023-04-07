@@ -142,10 +142,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol, String versionId) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
-        return getNodeTreeByCondition(projectId, protocol, versionId, request);
+        return getNodeTreeByCondition(projectId, protocol, versionId, request, false);
     }
 
-    public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request) {
+    public List<ApiModuleDTO> getNodeTreeByCondition(String projectId, String protocol, String versionId, ApiDefinitionRequest request, boolean isCaseRelevance) {
         List<ApiModuleDTO> apiModules = getApiModulesByProjectAndPro(projectId, protocol);
         LogUtil.info("当前API模块节点：", apiModules.size());
 
@@ -153,7 +153,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         request.setProtocol(protocol);
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
-        if (MapUtils.isEmpty(request.getFilters()) || !request.getFilters().containsKey(ApiTestConstants.STATUS)) {
+        if ((MapUtils.isEmpty(request.getFilters()) || !request.getFilters().containsKey(ApiTestConstants.STATUS)) && !isCaseRelevance) {
             request.setFilters(filters);
         }
         request.setModuleIds(new ArrayList<>());
@@ -161,7 +161,12 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             request.setVersionId(versionId);
         }
         apiDefinitionService.checkFilterHasCoverage(request);
-        List<ApiModuleDTO> countMNodes = extApiDefinitionMapper.moduleCountByCollection(request);
+        List<ApiModuleDTO> countMNodes;
+        if (isCaseRelevance) {
+            countMNodes = extApiDefinitionMapper.moduleCaseCountByCollection(request);
+        } else {
+            countMNodes = extApiDefinitionMapper.moduleCountByCollection(request);
+        }
         return getNodeTrees(apiModules, getCountMap(countMNodes));
     }
 

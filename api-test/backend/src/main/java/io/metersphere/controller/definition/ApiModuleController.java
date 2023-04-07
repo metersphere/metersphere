@@ -30,6 +30,13 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId, protocol, null);
     }
 
+    @PostMapping("/relevance/list/{projectId}/{protocol}")
+    public List<ApiModuleDTO> getRelevanceNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol, @RequestBody ApiDefinitionRequest request) {
+        String userId = SessionUtils.getUserId();
+        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
+        return apiModuleService.getNodeTreeByCondition(projectId, protocol, null, request, true);
+    }
+
     @GetMapping("/list/{projectId}/{protocol}/{versionId}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol,
                                                  @PathVariable String versionId) {
@@ -42,7 +49,7 @@ public class ApiModuleController {
     public List<ApiModuleDTO> searchNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol, @RequestBody ApiDefinitionRequest request) {
         String userId = SessionUtils.getUserId();
         ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
-        return apiModuleService.getNodeTreeByCondition(projectId, protocol, null, request);
+        return apiModuleService.getNodeTreeByCondition(projectId, protocol, null, request, false);
     }
 
     @GetMapping("/trash/list/{projectId}/{protocol}/{versionId}")

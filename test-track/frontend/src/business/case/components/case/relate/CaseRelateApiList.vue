@@ -173,6 +173,7 @@ export default {
     },
   },
   created: function () {
+    this.$emit('setCondition', this.condition);
     this.initTable();
     this.getVersionOptions();
   },
@@ -186,8 +187,8 @@ export default {
     projectId() {
       this.condition.versionId = null;
       this.getVersionOptions();
-      this.initTable();
-    },
+      this.initTable(this.projectId);
+    }
   },
   computed: {
     selectRows() {
@@ -218,6 +219,7 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
       this.condition.notInIds = this.notInIds; // 查询排除哪些用例
+      this.$emit('setCondition', this.condition);
       getTestCaseRelevanceApiList(
         this.currentPage,
         this.pageSize,

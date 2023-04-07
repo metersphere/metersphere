@@ -55,7 +55,7 @@
   import ApiModuleHeader from "metersphere-frontend/src/components/environment/snippet/ext/module/ApiModuleHeader";
   import {buildTree} from "metersphere-frontend/src//model/NodeTree";
   import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-  import {getModuleByUrl, getUserDefaultApiType} from "metersphere-frontend/src/api/environment";
+  import {getModuleByUrl, getUserDefaultApiType, getCaseRelateModuleByCondition} from "metersphere-frontend/src/api/environment";
 
   export default {
     name: 'MsApiModule',
@@ -111,7 +111,8 @@
         default() {
           return OPTIONS;
         }
-      }
+      },
+      caseCondition: Object
     },
     computed: {
       isPlanModel() {
@@ -212,22 +213,18 @@
       },
       list(projectId) {
         let url = undefined;
-        if (this.isPlanModel) {
-          url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
-        } else if (this.isRelevanceModel) {
-          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
-        } else if (this.isTrashData) {
-          url = "/api/module/trash/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+        if (this.isRelevanceModel) {
+          url = "/api/module/relevance/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
             (this.currentVersion ? '/' + this.currentVersion : '');
         } else {
-          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
+          url = "/api/module/relevance/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol +
             (this.currentVersion ? '/' + this.currentVersion : '');
           if (!this.projectId) {
             return;
           }
         }
-        this.loading = getModuleByUrl(url).then(response => {
+
+        this.loading = getCaseRelateModuleByCondition(url, this.caseCondition).then(response => {
           if (response.data) {
             this.data = response.data;
             this.data.forEach(node => {
@@ -236,10 +233,7 @@
             });
             this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
-            this.$emit("nodeSelectEvent", null, []);
-            if (this.$refs.nodeTree) {
-              this.$refs.nodeTree.filter(this.condition.filterText);
-            }
+            this.setCurrentNode();
           }
         });
       },
@@ -262,47 +256,14 @@
         } else {
           this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
         }
-        this.nohupReloadTree(node.data.id);
+        this.setCurrentNode(node.data.id);
       },
-      nohupReloadTree(selectNodeId) {
-        let url = undefined;
-        if (this.isPlanModel) {
-          url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
-        } else if (this.isRelevanceModel) {
-          url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
-        } else if (this.isTrashData) {
-          if (!this.projectId) {
-            return;
-          }
-          url = "/api/module/trash/list/" + this.projectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
+      setCurrentNode(selectNodeId) {
+        if (selectNodeId) {
+          this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
         } else {
-          if (!this.projectId) {
-            return;
-          }
-          url = "/api/module/list/" + this.projectId + "/" + this.condition.protocol +
-            (this.currentVersion ? '/' + this.currentVersion : '');
+          this.$refs.nodeTree.justSetCurrentKey(this.currentModule.id);
         }
-        getModuleByUrl(url).then(response => {
-          if (response.data) {
-            let treeData = response.data;
-            treeData.forEach(node => {
-              node.name = node.name === '未规划接口' ? this.$t('api_test.definition.unplanned_api') : node.name
-              buildTree(node, {path: ''});
-            });
-            this.data = treeData;
-
-            this.$nextTick(() => {
-              if (this.$refs.nodeTree) {
-                this.$refs.nodeTree.filter(this.condition.filterText);
-                if (selectNodeId) {
-                  this.$refs.nodeTree.justSetCurrentKey(selectNodeId);
-                }
-              }
-            })
-          }
-        })
       },
       //创建根目录的模块---供父类使用
       createRootModel() {

@@ -149,6 +149,10 @@ export function getModuleByUrl(url) {
   return get('/environment/relate' + url);
 }
 
+export function getCaseRelateModuleByCondition(url, params) {
+  return post('/environment/relate' + url, params)
+}
+
 export function getCodeSnippetPages(goPage, pageSize, params) {
   if (currentModuleName === 'project') {
     return post(`/custom/func/list/${goPage}/${pageSize}`, params);
