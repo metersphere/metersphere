@@ -24,6 +24,7 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.ext.ExtApiTaskService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.task.dto.TaskRequestDTO;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -34,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +55,12 @@ public class ApiScenarioController {
         // 查询场景环境
         request.setSelectEnvironment(true);
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
+    }
+
+    @PostMapping("/scenario/schedule")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public Map<String, ScheduleDTO> scenarioScheduleInfo(@RequestBody List<String> scenarioIds) {
+        return apiAutomationService.selectScheduleInfo(scenarioIds);
     }
 
     @PostMapping("/list")

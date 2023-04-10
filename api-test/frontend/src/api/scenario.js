@@ -14,6 +14,11 @@ export function getScenarioList(currentPage, pageSize, condition) {
   return post(url, condition);
 }
 
+export function getScheduleDetail(scenarioIds) {
+  let url = '/api/automation/scenario/schedule';
+  return post(url, scenarioIds);
+}
+
 export function getScenarioByTrash(condition) {
   return post('/api/automation/list/all/trash', condition);
 }
