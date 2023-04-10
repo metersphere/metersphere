@@ -47,7 +47,7 @@
       <template v-slot:footer>
         <el-button @click="close" size="small">{{ $t('commons.cancel') }}</el-button>
         <el-button v-prevent-re-click :type="!currentKey ? 'info' : 'primary'" @click="save"
-                   @keydown.enter.native.prevent size="small" :disabled="!currentKey" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
+                   @keydown.enter.native.prevent size="small" :disabled="!currentKey || btnDisable" style="margin-left: 12px">{{ $t('commons.confirm') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -74,7 +74,8 @@ export default {
       result: {},
       isMoveBatch: false,
       selectNum: 0,
-      contentTitle:""
+      contentTitle:"",
+      btnDisable: false
     }
   },
   props: {
@@ -100,8 +101,10 @@ export default {
       this.contentTitle = this.$t(this.isMoveBatch ? 'test_track.case.batch_move_to' : 'test_track.case.batch_copy_to', [this.moveCaseTitle, this.selectNum]);
     },
     save() {
+      this.btnDisable = true;
       if (!this.currentKey) {
         this.$warning(this.$t('test_track.case.input_module'), false);
+        this.btnDisable = false;
         return;
       }
       let param = {};
