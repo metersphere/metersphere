@@ -163,7 +163,8 @@ public class UserController {
     }
 
     @PostMapping("/project/member/add")
-    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ_CREATE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_USER_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_ADD_USER}, logical = Logical.OR)
+
     public void addProjectMember(@RequestBody AddMemberRequest request) {
         userService.addProjectMember(request);
     }
