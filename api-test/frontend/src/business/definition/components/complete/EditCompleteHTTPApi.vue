@@ -250,10 +250,7 @@ export default {
             required: true,
             message: this.$t('api_test.definition.request.path_info'),
             trigger: 'blur',
-          },
-          {
             validator: validateURL,
-            trigger: 'blur',
           },
         ],
         userId: [

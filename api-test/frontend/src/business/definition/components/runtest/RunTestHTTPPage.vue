@@ -145,6 +145,12 @@ export default {
     ApiSyncCaseConfig,
   },
   data() {
+    let validateURL = (rule, value, callback) => {
+      if (!this.api.request.path.startsWith('/')) {
+        callback(this.$t('api_test.definition.request.path_valid_info'));
+      }
+      callback();
+    };
     return {
       visible: false,
       api: {},
@@ -170,6 +176,7 @@ export default {
             required: true,
             message: this.$t('api_test.definition.request.path_info'),
             trigger: 'blur',
+            validator: validateURL,
           },
         ],
       },
