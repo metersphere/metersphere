@@ -270,7 +270,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), getDefaultValue(pathParameter), getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
+        rests.add(new KeyValue(pathParameter.getName(),
+                pathParameter.getExample() != null ? String.valueOf(pathParameter.getExample()) : null,
+                getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
     }
 
     private String getDefaultValue(AbstractSerializableParameter parameter) {
@@ -286,13 +288,17 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), getDefaultValue(cookieParameter), getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(),
+                cookieParameter.getExample() != null ? String.valueOf(cookieParameter.getExample()) : null,
+                getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), getDefaultValue(headerParameter), getDefaultStringValue(headerParameter.getDescription()),
-                "", parameter.getRequired());
+        addHeader(headers, headerParameter.getName(),
+                headerParameter.getExample() != null ? String.valueOf(headerParameter.getExample()) : null,
+                getDefaultStringValue(headerParameter.getDescription()),
+                StringUtils.EMPTY, parameter.getRequired());
     }
 
     private HttpResponse parseResponse(Operation operation, Map<String, Response> responses) {
