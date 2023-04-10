@@ -147,8 +147,9 @@ public class TestReviewTestCaseService {
             TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
             testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(testCaseReviewTestCase.getCaseId());
             testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
+            testCaseCommentService.deleteByBelongIdAndCaseId(testCaseReviewTestCase.getCaseId(), request.getReviewId());
+            rollBackCaseReviewStatus(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getId());
         }
-        testCaseCommentService.deleteByBelongIdAndCaseId(testCaseReviewTestCase.getCaseId(), request.getReviewId());
         return testCaseReviewTestCaseMapper.deleteByPrimaryKey(request.getId());
     }
 
@@ -165,6 +166,31 @@ public class TestReviewTestCaseService {
         TestCaseReviewTestCase record = new TestCaseReviewTestCase();
         record.setIsDel(isDel);
         return testCaseReviewTestCaseMapper.updateByExampleSelective(record, example);
+    }
+
+    private void rollBackCaseReviewStatus(String caseId, String relevanceId) {
+        TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
+        example.createCriteria().andCaseIdEqualTo(caseId);
+        List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(example);
+        List<String> remainReviewCaseStatusOrderByUpdate = testCaseReviewTestCases.stream()
+                .filter(item -> !StringUtils.equals(item.getId(), relevanceId))
+                .sorted(Comparator.comparing(TestCaseReviewTestCase::getUpdateTime).reversed())
+                .map(TestCaseReviewTestCase::getStatus)
+                .toList();
+        if (remainReviewCaseStatusOrderByUpdate.size() > 0) {
+            // 回退到最近的一次评审状态
+            String latestStatus = remainReviewCaseStatusOrderByUpdate.get(0);
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            testCase.setReviewStatus(latestStatus);
+            testCase.setId(caseId);
+            testCaseMapper.updateByPrimaryKeySelective(testCase);
+        } else {
+            // 回退到初始状态(未评审)
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+            testCase.setId(caseId);
+            testCaseMapper.updateByPrimaryKeySelective(testCase);
+        }
     }
 
     private void checkReviewer(String reviewId) {
@@ -194,6 +220,9 @@ public class TestReviewTestCaseService {
             TestCaseReviewTestCaseUsersExample testCaseReviewTestCaseUsersExample = new TestCaseReviewTestCaseUsersExample();
             testCaseReviewTestCaseUsersExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdIn(caseIds);
             testCaseReviewTestCaseUsersMapper.deleteByExample(testCaseReviewTestCaseUsersExample);
+            testCaseReviewTestCases.forEach(testCaseReviewTestCase -> {
+                rollBackCaseReviewStatus(testCaseReviewTestCase.getCaseId(), testCaseReviewTestCase.getId());
+            });
         }
         testCaseReviewTestCaseMapper.deleteByExample(example);
     }
