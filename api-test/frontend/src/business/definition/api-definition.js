@@ -240,7 +240,7 @@ export function mergeDocumentData(originalData, childMap, rootData) {
       item.include = rootData.include;
       item.conditions = rootData.conditions;
     }
-    if (childMap && childMap.size !== 0 && childMap.has(item.id)) {
+    if (childMap && childMap.size !== 0 && childMap instanceof Map && childMap.has(item.id)) {
       let sourceData = JSON.parse(JSON.stringify(item.children));
       item.children = JSON.parse(JSON.stringify(childMap.get(item.id)));
       item.children.forEach((target) => {

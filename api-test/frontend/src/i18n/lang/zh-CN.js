@@ -35,6 +35,7 @@ const message = {
     request: {
       auto_redirects: '自动重定向',
     },
+    document_tooltip: '仅对已展示的参数生效',
   },
   home: {
     dashboard: {
