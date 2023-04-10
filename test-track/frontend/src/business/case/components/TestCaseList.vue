@@ -1192,6 +1192,7 @@ export default {
       this.loading = true;
       func(param)
         .then(() => {
+          this.$refs.testBatchMove.btnDisable = false;
           this.$success(this.$t('commons.save_success'), false);
           this.$refs.testBatchMove.close();
           this.refresh();
