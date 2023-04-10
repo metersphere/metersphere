@@ -50,9 +50,9 @@
 
       <el-table-column
         prop="include"
-        width="78"
+        width="85"
         :label="$t('api_test.request.assertions.must_contain')"
-        :scoped-slot="renderHeader">
+        :render-header="renderHeader">
         <template slot-scope="scope">
           <el-checkbox
             v-model="scope.row.include"
@@ -63,9 +63,9 @@
 
       <el-table-column
         prop="typeVerification"
-        width="100"
+        width="115"
         :label="$t('api_test.request.assertions.type_verification')"
-        :scoped-slot="renderHeaderType">
+        :render-header="renderHeaderType">
         <template slot-scope="scope">
           <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked" />
         </template>
@@ -445,30 +445,61 @@ export default {
       });
       return value;
     },
-    renderHeader(h, { column }) {
-      return h('span', [
+    renderHeader(h, {column}) {
+      return h('div', [
+        h('span', column.label),
         h('el-checkbox', {
-          style: 'margin-right:5px;',
+          style: 'margin-left:5px;',
           disabled: this.checked,
           on: {
             change: this.handleCheckAllChange,
           },
         }),
-        h('span', column.label),
+        h(
+          'el-tooltip',
+          {
+            props: {
+              content: this.$t('api_definition.document_tooltip'),
+              placement: 'top' // 悬停内容展示的位置
+            }
+          },
+          [
+            h('i', {
+              class: 'el-icon-question',
+              style: 'margin-left:2px;'
+            })
+          ]
+        )
       ]);
     },
-    renderHeaderType(h, { column }) {
-      return h('span', [
+    renderHeaderType(h, {column}) {
+      return h('div', [
+        h('span', column.label),
         h('el-checkbox', {
-          style: 'margin-right:5px;',
+          style: 'margin-left:5px;',
           disabled: this.checked,
           on: {
             change: this.handleType,
           },
         }),
-        h('span', column.label),
+        h(
+          'el-tooltip',
+          {
+            props: {
+              content: this.$t('api_definition.document_tooltip'),
+              placement: 'top' // 悬停内容展示的位置
+            }
+          },
+          [
+            h('i', {
+              class: 'el-icon-question',
+              style: 'margin-left:2px;'
+            })
+          ]
+        )
       ]);
     },
+
     renderHeaderArray(h, { column }) {
       return h('span', [
         h('el-checkbox', {
@@ -513,16 +544,34 @@ export default {
         }
         this.childrenChecked(item.children, 1, val);
       });
+      this.mapData.forEach((value, key) => {
+        if (value && value.length > 0) {
+          value.forEach((item) => {
+            item.include = val;
+            if (item.type === 'array') {
+              item.include = false;
+            } else {
+              item.include = val;
+            }
+          });
+        }
+      });
     },
     handleType(val) {
       if (this.checked) {
         return;
       }
-      this.originalData.forEach((item) => {
+      this.tableData.forEach((item) => {
         item.typeVerification = val;
         this.childrenChecked(item.children, 2, val);
       });
-      this.tableDataList(this.originalData);
+      this.mapData.forEach((value, key) => {
+        if (value && value.length > 0) {
+          value.forEach((item) => {
+            item.typeVerification = val;
+          });
+        }
+      });
     },
     handleArray(val) {
       if (this.checked) {
