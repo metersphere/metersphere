@@ -110,6 +110,15 @@
                       @blur="save"
                     />
                   </el-form-item>
+
+                  <el-form-item
+                    v-if="isRepositoryFile()"
+                    :label="$t('project.project_file.file.branch')"
+                    prop="type"
+                  >
+                    <span>{{ fileBranch }}</span>
+                  </el-form-item>
+
                   <el-form-item :label="$t('load_test.file_type')" prop="type">
                     <span>{{ data.type }}</span>
                   </el-form-item>
@@ -243,6 +252,7 @@ export default {
       isPullBtnLoading: false,
       showPanel: "baseInfo",
       results: [],
+      fileBranch: "",
       moduleObj: {
         id: "id",
         label: "name",
@@ -381,6 +391,12 @@ export default {
       this.data = data;
       this.results = this.metadataArray;
       this.visible = true;
+      if (this.isRepositoryFile() && data.attachInfo) {
+        let attachInfoObj = JSON.parse(data.attachInfo);
+        this.fileBranch = attachInfoObj.branch;
+      } else {
+        this.fileBranch = "";
+      }
     },
     isRepositoryFile() {
       return this.data.storage === "GIT";
