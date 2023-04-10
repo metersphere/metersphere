@@ -1,5 +1,6 @@
 package io.metersphere.service.ext;
 
+import io.metersphere.api.dto.ScheduleDTO;
 import io.metersphere.api.dto.ScheduleRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ScheduleMapper;
@@ -22,6 +23,8 @@ import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.ScheduleManager;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.ServiceUtils;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -29,10 +32,10 @@ import org.quartz.TriggerKey;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import jakarta.annotation.Resource;
 import java.util.stream.Collectors;
 
 @Service
@@ -232,5 +235,13 @@ public class ExtApiScheduleService {
             return StringUtils.EMPTY;
         }
 
+    }
+
+    public List<ScheduleDTO> selectByResourceIds(List<String> scenarioIds) {
+        if (CollectionUtils.isNotEmpty(scenarioIds)) {
+            return extScheduleMapper.selectByResourceIds(scenarioIds);
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

@@ -73,7 +73,6 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
             List<TestPlanApiDTO> runningCaseList =
                     apiAllCases.stream().filter(
                             dto -> StringUtils.equalsAnyIgnoreCase(dto.getExecResult(),
-                                    ApiReportStatus.PENDING.name(),
                                     ApiReportStatus.RERUNNING.name(),
                                     ApiReportStatus.RUNNING.name())).toList();
             if (runningCaseList.size() > 0) {
@@ -84,7 +83,6 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
             List<TestPlanScenarioDTO> runningCaseList =
                     scenarioAllCases.stream().filter(
                             dto -> StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),
-                                    ApiReportStatus.PENDING.name(),
                                     ApiReportStatus.RERUNNING.name(),
                                     ApiReportStatus.RUNNING.name())).toList();
             if (runningCaseList.size() > 0) {
@@ -95,8 +93,6 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
             List<TestPlanLoadCaseDTO> runningCaseList =
                     loadAllCases.stream().filter(
                             dto -> StringUtils.equalsAnyIgnoreCase(dto.getStatus(),
-                                    PerformanceTestStatus.Starting.name(),
-                                    PerformanceTestStatus.Running.name(),
                                     PerformanceTestStatus.Reporting.name())).toList();
             if (runningCaseList.size() > 0) {
                 return true;
@@ -106,7 +102,6 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
             List<TestPlanUiScenarioDTO> runningCaseList =
                     uiAllCases.stream().filter(
                             dto -> StringUtils.equalsAnyIgnoreCase(dto.getLastResult(),
-                                    ApiReportStatus.PENDING.name(),
                                     ApiReportStatus.RERUNNING.name(),
                                     ApiReportStatus.RUNNING.name())).toList();
             if (runningCaseList.size() > 0) {
