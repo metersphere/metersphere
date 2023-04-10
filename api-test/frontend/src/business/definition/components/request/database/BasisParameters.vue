@@ -42,7 +42,7 @@
                   </el-select>
                 </el-form-item>
               </el-col>
-              <el-col :span="7">
+              <el-col :span="6">
                 <el-form-item
                   :label="$t('api_test.request.sql.dataSource')"
                   prop="dataSourceId"
@@ -67,7 +67,7 @@
                     :min="0" />
                 </el-form-item>
               </el-col>
-              <el-col :span="3">
+              <el-col :span="4">
                 <el-checkbox
                   v-if="request.referenced === 'Created' && scenarioId !== ''"
                   v-model="request.isRefEnvironment"
