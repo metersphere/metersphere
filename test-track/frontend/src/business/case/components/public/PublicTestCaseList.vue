@@ -596,6 +596,7 @@ export default {
       testCasePublicBatchCopy(param)
         .then(() => {
           this.loading = false;
+          this.$refs.testBatchMove.btnDisable = false;
           this.$success(this.$t('commons.save_success'), false);
           this.$refs.testBatchMove.close();
           this.refresh();
