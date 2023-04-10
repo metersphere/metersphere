@@ -261,6 +261,7 @@ export default {
           filters: this.platformFilters
         },
         platformStatus: {
+          sortable: true,
           minWidth: 110,
         },
         creatorName: {
