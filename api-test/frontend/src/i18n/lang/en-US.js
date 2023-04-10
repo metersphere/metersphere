@@ -37,6 +37,7 @@ const message = {
     request: {
       auto_redirects: 'Auto redirects',
     },
+    document_tooltip: 'Only valid for displayed parameters',
   },
   home: {
     dashboard: {

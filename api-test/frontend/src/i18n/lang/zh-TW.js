@@ -35,6 +35,7 @@ const message = {
     request: {
       auto_redirects: '自動重定向',
     },
+    document_tooltip: '僅對已顯示的參與數據生成效率',
   },
   home: {
     dashboard: {
