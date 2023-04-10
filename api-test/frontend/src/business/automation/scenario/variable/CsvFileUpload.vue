@@ -22,11 +22,11 @@
                   :on-exceed="exceed"
                   :beforeUpload="uploadValidate"
                   ref="uploadLocal">
-                  <el-button type="text"> {{ $t('permission.project_file.local_upload') }}</el-button>
+                  <el-button type="text" v-if="!disabled"> {{ $t('permission.project_file.local_upload') }}</el-button>
                   <span slot="file" />
                 </el-upload>
               </div>
-              <el-button type="text" @click="associationFile">{{
+              <el-button type="text" @click="associationFile" v-if="!disabled">{{
                 $t('permission.project_file.associated_files')
               }}</el-button>
               <i class="el-icon-plus" slot="reference" />
@@ -75,7 +75,6 @@ export default {
   name: 'MsCsvFileUpload',
   data() {
     return {
-      disabled: false,
       loading: false,
     };
   },
@@ -87,6 +86,10 @@ export default {
     parameter: Object,
     default() {
       return {};
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
   methods: {
