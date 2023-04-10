@@ -529,7 +529,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             item.setType(PropertyConstant.ARRAY);
             JsonSchemaItem arrayItem = parseSchema(items, refSet);
             Map<String, String> mock = new LinkedHashMap<>();
-            if (arrayItem != null) {
+            if (arrayItem != null && MapUtils.isNotEmpty(arrayItem.getProperties())) {
                 arrayItem.getProperties().forEach((k, v) -> {
                     mock.put(k, StringUtils.isBlank(v.getMock().get(PropertyConstant.MOCK).toString()) ? v.getType() :
                             v.getMock().get(PropertyConstant.MOCK).toString());
