@@ -9,7 +9,6 @@ import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioParamDTO;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
@@ -71,6 +70,10 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.CronExpression;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -2325,4 +2328,26 @@ public class ApiScenarioService {
     }
 
 
+    public Map<String, ScheduleDTO> selectScheduleInfo(List<String> scenarioIds) {
+        if (CollectionUtils.isNotEmpty(scenarioIds)) {
+            List<ScheduleDTO> scheduleInfoList = scheduleService.selectByResourceIds(scenarioIds);
+            for (ScheduleDTO schedule : scheduleInfoList) {
+                schedule.setScheduleExecuteTime(this.getNextTriggerTime(schedule.getValue()));
+            }
+            return scheduleInfoList.stream().collect(Collectors.toMap(Schedule::getResourceId, item -> item));
+        } else {
+            return new HashMap<>();
+        }
+    }
+
+    //获取下次执行时间（getFireTimeAfter，也可以下下次...）
+    private long getNextTriggerTime(String cron) {
+        if (!CronExpression.isValidExpression(cron)) {
+            return 0;
+        }
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        Date time0 = trigger.getStartTime();
+        Date time1 = trigger.getFireTimeAfter(time0);
+        return time1 == null ? 0 : time1.getTime();
+    }
 }
