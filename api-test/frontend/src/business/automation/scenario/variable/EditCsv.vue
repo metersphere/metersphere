@@ -22,7 +22,7 @@
             <span>{{ $t('variables.add_file') }}</span>
           </el-col>
           <el-col :span="19">
-            <ms-csv-file-upload :parameter="editData" />
+            <ms-csv-file-upload :parameter="editData"  :disabled="disabled"/>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -90,6 +90,10 @@ export default {
   },
   props: {
     editData: {},
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
@@ -111,11 +115,6 @@ export default {
         ],
       },
     };
-  },
-  computed: {
-    disabled() {
-      return !(this.editData.name && this.editData.name !== '');
-    },
   },
   watch: {
     'editData.name': {
