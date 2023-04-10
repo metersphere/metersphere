@@ -661,7 +661,7 @@ export default {
       if (this.showCaseNum && data.caseNum) {
         return " (" + data.caseNum + ")";
       } else {
-        return "";
+        return " (0) ";
       }
     }
   }
