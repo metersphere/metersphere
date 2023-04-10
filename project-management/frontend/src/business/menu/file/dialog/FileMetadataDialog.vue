@@ -22,7 +22,10 @@
         :label="$t('project.project_file.file.path')"
         prop="repositoryPath"
       >
-        <el-input v-model="metadataForm.repositoryPath"></el-input>
+        <el-input
+          :placeholder="$t('file.file_path_placeholder')"
+          v-model="metadataForm.repositoryPath"
+        ></el-input>
       </el-form-item>
     </el-form>
 
