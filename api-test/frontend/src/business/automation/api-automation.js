@@ -52,10 +52,23 @@ export function getBodyUploadFiles(obj, scenarioDefinition) {
   return bodyUploadFiles;
 }
 
-function getScenarioFiles(obj) {
+function getScenarioFiles(obj, scenarioDefinition) {
   let scenarioFiles = [];
   obj.scenarioFileIds = [];
   // 场景变量csv 文件
+  if (obj.variables) {
+    setVariablesFiles(obj, scenarioFiles, obj.scenarioFileIds);
+  }
+  //场景步骤的场景文件
+  scenarioDefinition.forEach((item) => {
+    if (item.variables && item.type === 'scenario' && item.referenced === 'Copy') {
+      setVariablesFiles(item, scenarioFiles, obj.scenarioFileIds);
+    }
+  });
+  return scenarioFiles;
+}
+
+function setVariablesFiles(obj, scenarioFiles, scenarioFileIds) {
   if (obj.variables) {
     obj.variables.forEach((param) => {
       if (param.type === 'CSV' && param.files) {
@@ -66,14 +79,13 @@ function getScenarioFiles(obj) {
               item.name = item.file.name;
               item.id = fileId;
             }
-            obj.scenarioFileIds.push(item.id);
+            scenarioFileIds.push(item.id);
             scenarioFiles.push(item.file);
           }
         });
       }
     });
   }
-  return scenarioFiles;
 }
 async function checkFile(scenarioFiles) {
   return new Promise((resolve, reject) => {
@@ -104,8 +116,7 @@ export async function saveScenario(url, scenario, scenarioDefinition, _this, suc
       }
     });
   }
-
-  let scenarioFiles = getScenarioFiles(scenario);
+  let scenarioFiles = getScenarioFiles(scenario, scenarioDefinition);
   let fileName = await checkFile(scenarioFiles);
   fileName = fileName || (await checkFile(bodyFiles));
   if (fileName) {
