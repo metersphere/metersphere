@@ -19,6 +19,7 @@ import VuePapaParse from "vue-papa-parse";
 import VueShepherd from 'vue-shepherd' // 新手引导
 import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css'
 import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
+
 Vue.config.productionTip = false;
 
 const pinia = createPinia();

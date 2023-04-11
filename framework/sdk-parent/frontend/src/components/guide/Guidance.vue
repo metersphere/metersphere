@@ -59,7 +59,8 @@ export default {
     checkStep(){
       getSideTask().then(res=> {
         if (res.data.length > 0 && res.data[0].guideStep) {
-          localStorage.setItem('step', res.data[0].guideStep)
+          let localStep = localStorage.getItem("step") ? localStorage.getItem("step") : res.data[0].guideStep
+          localStorage.setItem('step', localStep)
           localStorage.setItem("noviceStatus", res.data[0].status)
         } else {
           localStorage.setItem('guide','0')
