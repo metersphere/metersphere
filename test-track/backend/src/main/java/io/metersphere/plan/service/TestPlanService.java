@@ -1477,8 +1477,13 @@ public class TestPlanService {
                         testPlan, testPlanExecuteReportDTO);
             } else {
                 //针对已经保存过的数据结构，增加对旧版本数据的支持
-                testPlanReportStruct.setStartTime(testPlanReportContentWithBLOBs.getStartTime());
-                testPlanReportStruct.setEndTime(testPlanReportContentWithBLOBs.getEndTime());
+                if (testPlanReportContentWithBLOBs.getStartTime() != null && testPlanReportContentWithBLOBs.getStartTime() > 0) {
+                    testPlanReportStruct.setStartTime(testPlanReportContentWithBLOBs.getStartTime());
+                }
+                if (testPlanReportContentWithBLOBs.getEndTime() != null && testPlanReportContentWithBLOBs.getEndTime() > 0) {
+                    testPlanReportStruct.setEndTime(testPlanReportContentWithBLOBs.getEndTime());
+                }
+
                 this.dealOldVersionData(testPlanReportStruct);
             }
             //查找运行环境
