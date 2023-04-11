@@ -348,10 +348,10 @@ export default {
       this.$success(this.$t('test_track.plan.load_case.exec'));
       this.$message(this.$t('commons.run_message'));
       this.$refs.taskCenter.open();
-      // 批量执行，10s后刷新一次列表状态，后续执行结果由socket推送
+      // 批量执行，15s后刷新一次列表状态，后续执行结果由socket推送
       refreshTable = window.setTimeout(() => {
         this.initTable();
-      }, 10 * 1000);
+      }, 15 * 1000);
     },
     search() {
       this.currentPage = 1;
@@ -539,12 +539,21 @@ export default {
       try {
         let obj = JSON.parse(e.data);
         let {planCaseId, planCaseStatus, planCaseReportStatus, planCaseReportId} = obj;
-        let data = this.tableData.filter(d => d.id === planCaseId);
-        if (data.length > 0) {
-          data[0]['status'] = planCaseReportStatus;
-          data[0]['caseStatus'] = planCaseStatus;
-          data[0]['loadReportId'] = planCaseReportId;
-        }
+        this.tableData.forEach(d => {
+          if (d.id === planCaseId) {
+            d.status = planCaseReportStatus;
+            if (planCaseReportStatus === 'Completed') {
+              d.caseStatus = 'success';
+            } else if (planCaseReportStatus === 'Error') {
+              d.caseStatus = 'error';
+            } else {
+              d.caseStatus = planCaseStatus;
+            }
+            d.loadReportId = planCaseReportId;
+          }
+        });
+
+
       } catch (ex) {
         // nothing
       }
