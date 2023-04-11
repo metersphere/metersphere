@@ -63,7 +63,7 @@ const TRACK_HEADER = {
     {id: 'userName', key: '4', label: 'load_test.user_name'},
     {id: 'createTime', key: '5', label: 'commons.create_time'},
     {id: 'status', key: '6', label: 'commons.status'},
-    {id: 'caseStatus', key: '7', label: 'test_track.plan.load_case.execution_status'},
+    // {id: 'caseStatus', key: '7', label: 'test_track.plan.load_case.execution_status'},
     {id: 'loadReportId', key: '8', label: 'test_track.plan.load_case.report'},
   ],
   //测试计划-场景用例
