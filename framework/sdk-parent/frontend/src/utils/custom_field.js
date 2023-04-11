@@ -197,11 +197,13 @@ export function sortCustomFields(customFields) {
   let total = 0; //定义total用于控制循环结束
   for (let i = 0; total < customFields.length; total++) {
     if (
-      (typeof customFields[i].defaultValue === "string" ||
-      customFields[i].defaultValue instanceof String) && customFields[i].defaultValue !== '{}' && customFields[i].defaultValue !== '[]'
+      (typeof customFields[i].defaultValue === "string" || customFields[i].defaultValue instanceof String)
+      && customFields[i].defaultValue !== '{}' && customFields[i].defaultValue !== '[]'
     ) {
       try {
-        customFields[i].defaultValue = JSON.parse(customFields[i].defaultValue);
+        if (typeof JSON.parse(customFields[i].defaultValue) !== "object") {
+          customFields[i].defaultValue = JSON.parse(customFields[i].defaultValue);
+        }
       } catch (e) {
         // nothing
       }

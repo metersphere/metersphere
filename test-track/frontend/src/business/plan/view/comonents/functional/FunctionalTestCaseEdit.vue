@@ -512,7 +512,9 @@ export default {
         );
         this.testCaseTemplate.customFields.forEach((item) => {
           try {
-            item.defaultValue = JSON.parse(item.defaultValue);
+            if (typeof JSON.parse(item.defaultValue) !== "object") {
+              item.defaultValue = JSON.parse(item.defaultValue);
+            }
           } catch (e) {
             // nothing
           }
