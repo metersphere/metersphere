@@ -404,7 +404,7 @@ public class ApiDefinitionImportUtilService {
         if (StringUtils.isBlank(request.getModuleId())) {
             request.setModuleId(null);
         }
-        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, request.getModuleId());
+        List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = extApiDefinitionMapper.selectRepeatByBLOBsSameUrl(optionData, projectId, null);
 
         //如果系统内，没有重复数据，要把文件重复的数据改成接口的case
         if (CollectionUtils.isEmpty(repeatApiDefinitionWithBLOBs)) {
