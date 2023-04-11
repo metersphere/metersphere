@@ -38,8 +38,10 @@
               </span>
 
               <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
+                <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
               </el-tooltip>
+
+              <span class="case-num">{{getCaseNum(data)}}</span>
 
               <span v-if="!disabled" class="node-operate child">
                 <el-tooltip
@@ -128,9 +130,11 @@
           </span>
 
           <el-tooltip class="item" effect="dark" :content="data.name" placement="top-start" :open-delay="1000">
-            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name" :case-num="getCaseNum(data)"/>
+            <span v-if="!data.isEdit" class="node-title" v-text="isDefault(data) ? getLocalDefaultName() : data.name"/>
           </el-tooltip>
 
+
+          <span class="case-num">{{getCaseNum(data)}}</span>
 
           <span v-if="!disabled" class="node-operate child">
             <el-tooltip
@@ -140,7 +144,7 @@
               v-permission="addPermission"
               v-if="data.id && !isDefault(data) && !hideNodeOperator"
               :content="$t('test_track.module.add_submodule')"
-              placement="top">
+              placement="top" :case-num="getCaseNum(data)">
               <el-button class="node-operate-btn" @click.stop="append(node, data)" icon="el-icon-plus"/>
             </el-tooltip>
 
@@ -714,22 +718,21 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1 1 auto;
-  padding: 0 9px;
+  padding: 0 0 0 9px;
   overflow: hidden;
   font-family: 'PingFang SC';
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
-  line-height: 22px;
   display: flex;
   align-items: center;
   color: #1F2329;
+  margin-right: 11px;
 }
 
-.node-title:after {
+.case-num {
   color: #8F959E;
-  content: attr(case-num);
-  margin-left: 10px;
+  margin-right: 3px;
 }
 
 .count-title {
@@ -788,7 +791,7 @@ export default {
   font-weight: 500;
 }
 
-:deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content  .el-tooltip.node-title.item:after) {
+:deep(.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content  .case-num) {
   color: #783887;
   font-weight: 500;
 }
