@@ -15,6 +15,9 @@ import filters from "metersphere-frontend/src/filters";
 import chart from "metersphere-frontend/src/chart";
 import "metersphere-frontend/src/router/permission";
 import VueClipboard from "vue-clipboard2";
+import VueShepherd from 'vue-shepherd'; // 新手引导
+import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css';
+import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
 
 Vue.config.productionTip = false
 
@@ -33,6 +36,10 @@ Vue.use(filters);
 Vue.use(chart);
 Vue.use(PiniaVuePlugin);
 Vue.use(VueClipboard);
+Vue.use(VueShepherd);
+
+Vue.prototype.gotoCancel = gotoCancel;
+Vue.prototype.gotoNext = gotoNext;
 
 let instance = null;
 
