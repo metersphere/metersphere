@@ -1891,6 +1891,9 @@ export default {
                     this.currentScenario.refId = response.data.refId;
                   }
                 }
+                if (this.scenarioDefinition !== null) {
+                  this.dataProcessing(this.scenarioDefinition);
+                }
                 // 保存成功后刷新历史版本
                 this.getVersionHistory();
                 if (this.currentScenario.tags instanceof String) {
