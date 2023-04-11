@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.constants.RunModeConstants;
@@ -102,6 +103,8 @@ public class PerfQueueService {
                 RunTestPlanRequest request = new RunTestPlanRequest();
                 request.setTestPlanLoadId(executionQueue.getDetail().getTestId());
                 request.setReportId(executionQueue.getDetail().getReportId());
+                // 串行执行trigger_mode 是 null
+                request.setTriggerMode(TriggerMode.BATCH.name());
                 try {
                     perfModeExecService.serial(request);
                 } catch (Exception e) {
