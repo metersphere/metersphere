@@ -17,6 +17,9 @@ import "metersphere-frontend/src/router/permission";
 import mavonEditor from 'mavon-editor';
 import chart from "metersphere-frontend/src/chart";
 import 'mavon-editor/dist/css/index.css';
+import VueShepherd from 'vue-shepherd' // 新手引导
+import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css'
+import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
 
 Vue.config.productionTip = false
 
@@ -36,6 +39,10 @@ Vue.use(filters);
 Vue.use(PiniaVuePlugin);
 Vue.use(mavonEditor);
 Vue.use(chart);
+Vue.use(VueShepherd);
+
+Vue.prototype.gotoCancel = gotoCancel;
+Vue.prototype.gotoNext = gotoNext;
 
 let instance = null;
 

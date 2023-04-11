@@ -22,12 +22,15 @@ import vueMinderEditor from 'vue-minder-editor-plus'
 import VueClipboard from 'vue-clipboard2'
 import VueFab from 'vue-float-action-button';
 import CKEditor from '@ckeditor/ckeditor5-vue';
+import VueShepherd from 'vue-shepherd'; // 新手引导
+import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css';
+import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
 
 Vue.config.productionTip = false
 
 function calcFontSize(){
   const w = document.body.clientWidth
-  document.documentElement.style.fontSize = 16 * (w / 1440) + 'px' 
+  document.documentElement.style.fontSize = 16 * (w / 1440) + 'px'
 }
 calcFontSize()
 window.addEventListener('resize',calcFontSize)
@@ -54,6 +57,10 @@ Vue.use(mavonEditor);
 Vue.use(VueFab);
 Vue.use(VueClipboard);
 Vue.use(CKEditor);
+Vue.use(VueShepherd);
+
+Vue.prototype.gotoCancel = gotoCancel;
+Vue.prototype.gotoNext = gotoNext;
 
 let instance = null;
 Vue.prototype._i18n = i18n;

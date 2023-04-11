@@ -24,7 +24,6 @@
         <span style="padding-left: 7px;">{{ $t('commons.show_all') }}</span>
       </el-menu-item>
     </el-submenu>
-    <ms-introduction ref="introduction"/>
   </el-menu>
 </template>
 
@@ -32,7 +31,6 @@
 import ProjectSearchList from "./ProjectSearchList";
 import {PROJECT_NAME} from "../../utils/constants";
 import {getCurrentProjectID} from "../../utils/token";
-import MsIntroduction from "../../components/guide/components/Introduction";
 
 
 export default {
@@ -40,7 +38,7 @@ export default {
   props: {
     projectName: String
   },
-  components: {ProjectSearchList,MsIntroduction},
+  components: {ProjectSearchList},
   watch: {
     currentProject() {
       sessionStorage.setItem(PROJECT_NAME, this.currentProject);
