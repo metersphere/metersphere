@@ -16,7 +16,7 @@
       <slot name="headerBtn"></slot>
     </el-header>
 
-    <el-container class="main-content">
+    <el-container v-if="dialogVisible" class="main-content">
       <el-aside class="tree-aside" width="250px">
         <slot name="aside"></slot>
       </el-aside>
