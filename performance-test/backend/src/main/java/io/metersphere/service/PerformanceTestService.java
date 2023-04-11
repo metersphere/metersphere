@@ -586,7 +586,7 @@ public class PerformanceTestService {
         // copy test
         String copyName = copy.getName() + "_" + RandomStringUtils.randomAlphanumeric(5);
 
-        if (StringUtils.length(copyName) > 30) {
+        if (StringUtils.length(copyName) > 255) {
             MSException.throwException(Translator.get("load_test_name_length"));
         }
         copy.setId(UUID.randomUUID().toString());
