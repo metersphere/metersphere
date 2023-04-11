@@ -350,14 +350,14 @@ export default {
       this.$refs.taskCenter.open();
       // 批量执行，15s后刷新一次列表状态，后续执行结果由socket推送
       refreshTable = window.setTimeout(() => {
-        this.initTable();
+        this.initTable(false);
       }, 15 * 1000);
     },
     search() {
       this.currentPage = 1;
       this.initTable();
     },
-    initTable() {
+    initTable(showLoading = true) {
       this.autoCheckStatus();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -375,7 +375,7 @@ export default {
         this.status = 'all';
       }
       this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
-      this.loading = true;
+      this.loading = showLoading;
       if (this.planId) {
         this.condition.testPlanId = this.planId;
         testPlanLoadList({pageNum: this.currentPage, pageSize: this.pageSize}, this.condition)
@@ -537,23 +537,10 @@ export default {
         return;
       }
       try {
-        let obj = JSON.parse(e.data);
-        let {planCaseId, planCaseStatus, planCaseReportStatus, planCaseReportId} = obj;
-        this.tableData.forEach(d => {
-          if (d.id === planCaseId) {
-            d.status = planCaseReportStatus;
-            if (planCaseReportStatus === 'Completed') {
-              d.caseStatus = 'success';
-            } else if (planCaseReportStatus === 'Error') {
-              d.caseStatus = 'error';
-            } else {
-              d.caseStatus = planCaseStatus;
-            }
-            d.loadReportId = planCaseReportId;
-          }
-        });
-
-
+        // 收到消息刷新页面
+        refreshTable = window.setTimeout(() => {
+          this.initTable(false);
+        }, 10 * 1000);
       } catch (ex) {
         // nothing
       }
