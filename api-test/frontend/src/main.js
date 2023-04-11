@@ -21,6 +21,9 @@ import formCreate from '@form-create/element-ui';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import VuePapaParse from 'vue-papa-parse';
+import VueShepherd from 'vue-shepherd'; // 新手引导
+import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css';
+import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
 
 Vue.config.productionTip = false;
 
@@ -44,6 +47,10 @@ Vue.use(JSONPathPicker);
 Vue.use(mavonEditor);
 Vue.use(formCreate);
 Vue.use(VuePapaParse);
+Vue.use(VueShepherd);
+
+Vue.prototype.gotoCancel = gotoCancel;
+Vue.prototype.gotoNext = gotoNext;
 
 let instance = null;
 
