@@ -29,8 +29,8 @@ export default {
     };
   },
   mounted() {
-    this.$refs.introduction.resVisible = localStorage.getItem("introduction") !== 'false' &&
-      (localStorage.getItem("guide") === '1' || localStorage.getItem("step") > 1);
+    this.$refs.introduction.resVisible = localStorage.getItem("introduction") && localStorage.getItem("introduction")
+    !== 'false' && (localStorage.getItem("guide") === 'true' || localStorage.getItem("step") > 1);
     this.checkStep()
   },
   methods: {
@@ -40,7 +40,8 @@ export default {
           this.$refs.introduction.openNext();
           break;
         case "guidance":
-          localStorage.setItem("guide", 0)
+          localStorage.setItem("resetGuide", 'true')
+          localStorage.setItem("guide", 'false')
           localStorage.removeItem('step')
           if(this.$route.path.includes('project')){
             this.$router.push('/project/home')
@@ -59,15 +60,15 @@ export default {
     checkStep(){
       getSideTask().then(res=> {
         if (res.data.length > 0 && res.data[0].guideStep) {
-          let localStep = localStorage.getItem("step") ? localStorage.getItem("step") : res.data[0].guideStep
-          localStorage.setItem('step', localStep)
+          localStorage.setItem('step', res.data[0].guideStep)
           localStorage.setItem("noviceStatus", res.data[0].status)
         } else {
-          localStorage.setItem('guide','0')
+          localStorage.setItem('guide','false')
         }
         let microApps = JSON.parse(sessionStorage.getItem("micro_apps"));
-        if(localStorage.getItem("guide") === '0' && microApps && microApps['project']) {
-          let step = localStorage.getItem("step") ? localStorage.getItem("step") : "1"
+        if(localStorage.getItem("guide") === 'false' && microApps && microApps['project']) {
+          let step = localStorage.getItem("step") && localStorage.getItem("resetGuide") !== 'true' ?
+            localStorage.getItem("step") : "1"
           localStorage.setItem("step", step)
 
           if(step !== '3'){
