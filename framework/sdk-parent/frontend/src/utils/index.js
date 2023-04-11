@@ -457,13 +457,14 @@ export function goSkip(_this) {
 }
 
 export function gotoCancel(_this, cancel) {
+  localStorage.setItem('resetGuide', 'false')
   if (cancel) {
     _this.cancel()
   } else {
     _this.complete()
   }
   saveStep().then(res => {
-    localStorage.setItem('guide', '1')
+    localStorage.setItem('guide', 'true')
   }).catch(error => {
     // 错误的信息
     this.$error({
@@ -475,6 +476,7 @@ export function gotoCancel(_this, cancel) {
 // 上一步，下一步
 export function gotoNext(_this, path, step) {
   _this.next()
+  localStorage.setItem('resetGuide', 'false')
   localStorage.setItem('step', step)
   if (path) {
     this.$router.push(path)

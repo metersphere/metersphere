@@ -170,7 +170,7 @@ export default {
   },
   mounted() {
     this.$refs.introduction.resVisible = false
-    if(localStorage.getItem("step") === '3') {
+    if(localStorage.getItem("guide") === 'false' && localStorage.getItem("step") === '3') {
       this.initStep()
     }
   },
