@@ -569,7 +569,6 @@ export default {
     },
     clearSort() {
       this.defaultSort = {};
-      this.setDefaultOrders();
     },
     getSelectRows() {
       return this.selectRows;
