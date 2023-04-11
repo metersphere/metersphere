@@ -514,10 +514,6 @@ WHERE status IN ('UnPass', 'Pass');
 
 UPDATE test_case_comment
 SET `type` = 'PLAN'
-WHERE status IN ('Prepare', 'Underway', 'Failure', 'Blocking', 'Skip');
-
-UPDATE test_case_comment
-SET `type` = 'CASE'
 WHERE `type` = '';
 
 --
