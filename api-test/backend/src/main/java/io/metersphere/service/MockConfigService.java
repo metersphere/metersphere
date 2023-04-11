@@ -828,7 +828,7 @@ public class MockConfigService {
         String urlPrefix = "/mock/" + projectId + "/";
         String requestUri = request.getRequestURI();
         String[] urlParamArr = requestUri.split(urlPrefix);
-        return urlParamArr[urlParamArr.length - 1];
+        return urlParamArr.length == 0 ? "" : urlParamArr[urlParamArr.length - 1];
     }
 
     public MockConfigResponse findByApiId(String id) {
