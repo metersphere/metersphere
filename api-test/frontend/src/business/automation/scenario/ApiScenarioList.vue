@@ -198,6 +198,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
+          :filters="!trashEnable ? scheduleFilters : null"
           prop="schedule">
           <template v-slot:default="scope">
             <schedule-info-in-table
@@ -552,6 +553,11 @@ export default {
       condition: {
         components: this.trashEnable ? API_SCENARIO_CONFIGS_TRASH : API_SCENARIO_CONFIGS,
       },
+      scheduleFilters: [
+        { text: this.$t('filters.schedule.open'), value: 'open' },
+        { text: this.$t('filters.schedule.close'), value: 'close' },
+        { text: this.$t('filters.schedule.unset'), value: 'unset' },
+      ],
       projectId: '',
       scenarioId: '',
       isMoveBatch: true,
