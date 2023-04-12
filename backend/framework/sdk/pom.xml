@@ -193,7 +193,7 @@
             </exclusions>
         </dependency>
 
-        <!-- ms-jmeter-core -->
+        <!-- jmeter -->
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>jmeter</artifactId>

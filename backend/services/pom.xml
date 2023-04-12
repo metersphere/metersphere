@@ -13,5 +13,15 @@
     <artifactId>services</artifactId>
     <version>${revision}</version>
 
+    <modules>
+        <module>api-test</module>
+        <module>load-test</module>
+        <module>project-management</module>
+        <module>system-setting</module>
+        <module>test-plan</module>
+        <module>test-track</module>
+        <module>ui-test</module>
+        <module>workstation</module>
+    </modules>
 
 </project>

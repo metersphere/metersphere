@@ -16,6 +16,7 @@
     <modules>
         <module>framework</module>
         <module>services</module>
+        <module>app</module>
     </modules>
 
 </project>
