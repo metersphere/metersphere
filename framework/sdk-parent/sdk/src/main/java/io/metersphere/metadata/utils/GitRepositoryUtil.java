@@ -118,8 +118,8 @@ public class GitRepositoryUtil {
         InMemoryRepository repo = null;
         try {
             repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
-            ObjectId fileCommitId = repo.resolve("refs/heads/" + branch);
-            RevCommit commit = this.getRevTreeByRepositoryAndCommitId(repo, fileCommitId);
+            ObjectId lastCommitId = repo.resolve("refs/heads/" + branch);
+            RevCommit commit = this.getRevTreeByRepositoryAndCommitId(repo, lastCommitId);
             RevTree tree = commit.getTree();
             TreeWalk treeWalk = new TreeWalk(repo);
             treeWalk.addTree(tree);
@@ -130,7 +130,11 @@ public class GitRepositoryUtil {
             } else {
                 ObjectId objectId = treeWalk.getObjectId(0);
                 ObjectLoader loader = repo.open(objectId);
-                attachInfo = new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileCommitId.getName(), filePath, commit.getFullMessage(), loader.getSize());
+                String fileLastCommitId = this.getFileLastCommitId(lastCommitId, filePath);
+                if (StringUtils.isEmpty(fileLastCommitId)) {
+                    fileLastCommitId = lastCommitId.getName();
+                }
+                attachInfo = new RemoteFileAttachInfo(repositoryUrl, userName, token, branch, fileLastCommitId, filePath, commit.getFullMessage(), loader.getSize());
                 return attachInfo;
             }
         } catch (Exception e) {
@@ -138,6 +142,14 @@ public class GitRepositoryUtil {
             MSException.throwException("Connect repository error!  " + e.getLocalizedMessage());
         } finally {
             this.closeConnection(repo);
+        }
+        return null;
+    }
+
+    private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {
+        Iterable<RevCommit> logs = git.log().add(objectId).addPath(filePath).call();
+        for (RevCommit rev : logs) {
+            return rev.getName();
         }
         return null;
     }
