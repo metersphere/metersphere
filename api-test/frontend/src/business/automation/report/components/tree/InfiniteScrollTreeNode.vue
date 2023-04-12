@@ -156,7 +156,7 @@ export default {
       oldIndeterminate: null,
       childrenLength: 0,
       infiniteScrollTreeNodes: [],
-      infiniteScrollSize: 1000
+      infiniteScrollSize: 500
     };
   },
 
