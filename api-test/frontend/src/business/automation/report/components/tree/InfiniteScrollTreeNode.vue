@@ -75,7 +75,7 @@
             v-infinite-scroll="loadInfiniteScrollTreeNode"
             infinite-scroll-distance="50"
             infinite-scroll-delay="0"
-            style="height: 400px; overflow: auto">
+            style="height: 400px; margin-top: 5px; margin-bottom: 5px; overflow: auto">
             <infinite-scroll-tree-node
               :render-content="renderContent"
               v-for="child in infiniteScrollTreeNodes"

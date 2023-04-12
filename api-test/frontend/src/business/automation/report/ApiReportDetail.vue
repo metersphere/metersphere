@@ -38,13 +38,13 @@
                 <!-- fail step -->
                 <el-tab-pane name="fail">
                   <template slot="label"> Error</template>
-                  <ms-scenario-results
+                  <ms-infinite-scroll-scenario-results
                     v-on:requestResult="requestResult"
                     :console="content.console"
                     :report="report"
                     :is-share="isShare"
                     :share-id="shareId"
-                    :treeData="fullTreeNodes"
+                    :treeData="errorTreeNodes"
                     ref="failsTree"
                     :errorReport="content.error" />
                 </el-tab-pane>
@@ -53,13 +53,13 @@
                   <template slot="label">
                     <span class="fail" style="color: #f6972a"> FakeError </span>
                   </template>
-                  <ms-scenario-results
+                  <ms-infinite-scroll-scenario-results
                     v-on:requestResult="requestResult"
                     :report="report"
                     :is-share="isShare"
                     :share-id="shareId"
                     :console="content.console"
-                    :treeData="fullTreeNodes"
+                    :treeData="fakeErrorTreeNodes"
                     ref="errorReportTree" />
                 </el-tab-pane>
                 <!-- Not performed step -->
@@ -67,13 +67,13 @@
                   <template slot="label">
                     <span class="fail" style="color: #9c9b9a"> Pending </span>
                   </template>
-                  <ms-scenario-results
+                  <ms-infinite-scroll-scenario-results
                     v-on:requestResult="requestResult"
                     :report="report"
                     :is-share="isShare"
                     :share-id="shareId"
                     :console="content.console"
-                    :treeData="fullTreeNodes"
+                    :treeData="unExecuteTreeNodes"
                     ref="unExecuteTree" />
                 </el-tab-pane>
                 <!-- console -->
@@ -164,6 +164,9 @@ export default {
       reportExportVisible: false,
       requestType: undefined,
       fullTreeNodes: [],
+      errorTreeNodes: [],
+      unExecuteTreeNodes: [],
+      fakeErrorTreeNodes: [],
       showRerunButton: false,
       stepFilter: new STEP(),
       exportReportIsOk: false,
@@ -210,12 +213,67 @@ export default {
   methods: {
     filter(index) {
       if (index === '1') {
-        this.$refs.failsTree.filter(index);
+        //查询失败的步骤
+        this.initFilterTreeNodes('ERROR');
       } else if (this.activeName === 'errorReport') {
-        this.$refs.errorReportTree.filter('FAKE_ERROR');
+        this.initFilterTreeNodes('FAKE_ERROR');
       } else if (this.activeName === 'unExecute') {
-        this.$refs.unExecuteTree.filter('PENDING');
+        this.initFilterTreeNodes('UN_EXECUTE');
       }
+    },
+    initFilterTreeNodes(status) {
+      if (this.fullTreeNodes.length > 0) {
+        let filteredTreeNodeArr = [];
+        for (let i = 0; i < this.fullTreeNodes.length; i++) {
+          let node = this.filterNodes(this.fullTreeNodes[i], status);
+          if (node) {
+            filteredTreeNodeArr.push(node);
+          }
+        }
+        if (status === 'ERROR') {
+          this.errorTreeNodes = filteredTreeNodeArr;
+        } else if (status === 'FAKE_ERROR') {
+          this.fakeErrorTreeNodes = filteredTreeNodeArr;
+        } else if (status === 'UN_EXECUTE') {
+          this.unExecuteTreeNodes = filteredTreeNodeArr;
+        }
+      }
+    },
+    filterNodes(node, status) {
+      if (status === 'ERROR' || status === 'FAKE_ERROR' || status === 'UN_EXECUTE') {
+        let data = { ...node };
+        if (!data.value && (!data.children || data.children.length === 0)) {
+          return null;
+        }
+        if (data.children.length > 0) {
+          let filteredChildren = [];
+          for (let i = 0; i < data.children.length; i++) {
+            let filteredNode = this.filterNodes(data.children[i], status);
+            if (filteredNode) {
+              filteredChildren.push(filteredNode);
+            }
+          }
+          data.children = filteredChildren;
+        }
+        if (data.children.length > 0) {
+          return data;
+        } else {
+          if (status === 'FAKE_ERROR') {
+            if (data.errorCode && data.errorCode !== '' && data.value.status === 'FAKE_ERROR') {
+              return data;
+            }
+          } else if (status === 'UN_EXECUTE') {
+            if (data.value.status === 'PENDING') {
+              return data;
+            }
+          } else if (status === 'ERROR') {
+            if (data.totalStatus !== 'FAKE_ERROR' && data.value && data.value.error > 0) {
+              return data;
+            }
+          }
+        }
+      }
+      return null;
     },
     init() {
       this.loading = true;
