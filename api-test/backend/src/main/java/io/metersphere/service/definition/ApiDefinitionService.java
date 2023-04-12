@@ -1682,14 +1682,8 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionResult getById(String id) {
-        ApiDefinitionRequest request = new ApiDefinitionRequest();
-        request.setId(id);
-        List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
-        ApiDefinitionResult result = null;
-        if (CollectionUtils.isNotEmpty(list)) {
-            result = list.get(0);
-        }
-        return result;
+        ApiDefinitionResult list = extApiDefinitionMapper.getApiDetail(id);
+        return list;
     }
 
 

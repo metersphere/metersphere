@@ -899,63 +899,72 @@ export default {
     },
 
     editApi(row) {
-      this.$emit('editApiModule', row);
+      getDefinitionById(row.id).then((response) => {
+        row = response.data;
+        this.$emit('editApiModule', row);
+      });
     },
     handleCopy(row) {
-      let obj = JSON.parse(JSON.stringify(row));
-      obj.isCopy = true;
-      obj.sourceId = row.id;
-      delete obj.id;
-      this.$emit('copyApi', obj);
+      getDefinitionById(row.id).then((response) => {
+        row = response.data;
+        let obj = JSON.parse(JSON.stringify(row));
+        obj.isCopy = true;
+        obj.sourceId = row.id;
+        delete obj.id;
+        this.$emit('copyApi', obj);
+      });
     },
     runApi(row) {
-      let request;
-      if (typeof row.request === 'string') {
-        request = row ? JSON.parse(row.request) : {};
-      } else {
-        request = row ? row.request : {};
-      }
-      let response = '';
-      if (row.response != null && row.response != 'null' && row.response != undefined) {
-        if (
-          Object.prototype.toString
-            .call(row.response)
-            .match(/\[object (\w+)\]/)[1]
-            .toLowerCase() === 'object'
-        ) {
-          response = row.response;
+      getDefinitionById(row.id).then((res) => {
+        row = res.data;
+        let request;
+        if (typeof row.request === 'string') {
+          request = row ? JSON.parse(row.request) : {};
         } else {
-          try {
-            response = JSON.parse(row.response);
-          } catch (e) {
-            response = {};
+          request = row ? row.request : {};
+        }
+        let response = '';
+        if (row.response != null && row.response != 'null' && row.response != undefined) {
+          if (
+            Object.prototype.toString
+              .call(row.response)
+              .match(/\[object (\w+)\]/)[1]
+              .toLowerCase() === 'object'
+          ) {
+            response = row.response;
+          } else {
+            try {
+              response = JSON.parse(row.response);
+            } catch (e) {
+              response = {};
+            }
           }
+        } else {
+          response = {
+            headers: [],
+            body: new Body(),
+            statusCode: [],
+            type: 'HTTP',
+          };
         }
-      } else {
-        response = {
-          headers: [],
-          body: new Body(),
-          statusCode: [],
-          type: 'HTTP',
-        };
-      }
-      if (response.body) {
-        let body = new Body();
-        Object.assign(body, response.body);
-        if (!body.binary) {
-          body.binary = [];
+        if (response.body) {
+          let body = new Body();
+          Object.assign(body, response.body);
+          if (!body.binary) {
+            body.binary = [];
+          }
+          if (!body.kvs) {
+            body.kvs = [];
+          }
+          if (!body.binary) {
+            body.binary = [];
+          }
+          response.body = body;
         }
-        if (!body.kvs) {
-          body.kvs = [];
-        }
-        if (!body.binary) {
-          body.binary = [];
-        }
-        response.body = body;
-      }
-      row.request = request;
-      row.response = response;
-      this.$emit('runTest', row);
+        row.request = request;
+        row.response = response;
+        this.$emit('runTest', row);
+      });
     },
     reductionApi(row) {
       let tmp = JSON.parse(JSON.stringify(row));
