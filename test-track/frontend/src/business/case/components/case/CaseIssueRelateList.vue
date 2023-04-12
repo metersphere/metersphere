@@ -25,12 +25,7 @@
       </div>
     </div>
     <div slot="content">
-      <div v-if="page.data.length === 0" class="none-data-tip">
-        <img src="/assets/module/figma/icon_none.svg" style="height: 100px;width: 100px;margin-bottom: 8px"/>
-        <span class="none-data-content">{{$t('test_track.issue.list_none_tips')}}</span>
-      </div>
       <ms-table
-        v-if="page.data.length > 0"
         :screen-height="screenHeight"
         v-loading="page.loading"
         :data="page.data"
@@ -75,6 +70,10 @@
               :label="field.name"
               :prop="field.name"
               v-if="field.name === '状态'"
+              :sortable="true"
+              type="select"
+              :filters="item.filters"
+              :column-key="item.columnKey"
             >
               <template v-slot="scope">
                 <span>
@@ -89,6 +88,9 @@
             :label="$t('test_track.issue.platform_status')"
             v-if="isThirdPart"
             prop="platformStatus"
+            :sortable="true"
+            type="select"
+            :filters="getPlatformStatusFilte"
           >
             <template v-slot="scope">
               <span v-if="scope.row.platform === 'Tapd'">
@@ -209,6 +211,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    getPlatformStatusFilte() {
+      return this.getPlatformStatusFiltes();
+    },
   },
   props: {
     caseId: String,
@@ -303,6 +308,23 @@ export default {
         this.$emit("refresh", this.$refs.table.selectRows);
         this.$success(this.$t('commons.relate_success'), false)
       });
+    },
+    getPlatformStatusFiltes() {
+      let options = [];
+      getPlatformStatus({
+        projectId: getCurrentProjectID(),
+        workspaceId: getCurrentWorkspaceId()
+      }).then((r) => {
+        this.platformStatus = r.data;
+        if (this.platformStatus) {
+          this.platformStatus.forEach(item => {
+            options.push({"text":item.label,"value":item.value,"system": false});
+          });
+          return options;
+        }
+        return options;
+      });
+      return options;
     },
   },
 };

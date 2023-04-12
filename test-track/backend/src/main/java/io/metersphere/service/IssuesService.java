@@ -1510,8 +1510,7 @@ public class IssuesService {
                         platformStatusDTO.setLabel(item.getLabel());
                         platformStatusDTO.setValue(item.getValue());
                         return platformStatusDTO;
-                    })
-                    .collect(Collectors.toList());
+                    }).collect(Collectors.collectingAndThen(Collectors.toCollection(()->new TreeSet<>(Comparator.comparing(PlatformStatusDTO::getValue))),ArrayList::new));
         } else {
             List<String> platforms = getPlatforms(project);
             if (CollectionUtils.isEmpty(platforms)) {
