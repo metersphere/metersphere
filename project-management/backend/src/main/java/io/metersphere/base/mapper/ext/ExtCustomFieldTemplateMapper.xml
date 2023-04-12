@@ -24,6 +24,7 @@
         select id, field_id fieldId, template_id templateId, scene, required, `order`, default_value defaultValue, custom_data customData, `key`
         from custom_field_template
         where custom_field_template.template_id = #{templateId}
+        order by `order` asc
     </select>
     <select id="getCustomFieldByTemplateId" resultType="io.metersphere.dto.CustomFieldDao">
         select
