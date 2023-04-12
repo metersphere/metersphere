@@ -97,17 +97,26 @@ public class FileMetadataService {
         return result;
     }
 
-    private void validateGitFile(FileMetadataCreateRequest fileMetadata) {
-        if (StringUtils.isEmpty(fileMetadata.getModuleId())) {
+    private void validateGitFile(FileMetadataCreateRequest validateModel) {
+        if (StringUtils.isEmpty(validateModel.getModuleId())) {
             MSException.throwException(Translator.get("test_case_module_not_null"));
         } else {
             FileMetadataExample example = new FileMetadataExample();
-            example.createCriteria().andModuleIdEqualTo(fileMetadata.getModuleId())
-                    .andStorageEqualTo(fileMetadata.getStorage())
-                    .andPathEqualTo(fileMetadata.getRepositoryPath())
-                    .andIdNotEqualTo(fileMetadata.getId());
-            if (fileMetadataMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("project_file_already_exists"));
+            example.createCriteria().andModuleIdEqualTo(validateModel.getModuleId())
+                    .andStorageEqualTo(validateModel.getStorage())
+                    .andPathEqualTo(validateModel.getRepositoryPath())
+                    .andIdNotEqualTo(validateModel.getId());
+            List<FileMetadataWithBLOBs> fileMetadataWithBLOBsList = fileMetadataMapper.selectByExampleWithBLOBs(example);
+            for (FileMetadataWithBLOBs fileMetadataWithBlobs : fileMetadataWithBLOBsList) {
+                RemoteFileAttachInfo gitFileInfo = null;
+                try {
+                    gitFileInfo = JSON.parseObject(fileMetadataWithBlobs.getAttachInfo(), RemoteFileAttachInfo.class);
+                } catch (Exception e) {
+                    LogUtil.error("解析git信息失败!", e);
+                }
+                if (StringUtils.equals(gitFileInfo.getBranch(), validateModel.getRepositoryBranch())) {
+                    MSException.throwException(Translator.get("project_file_already_exists"));
+                }
             }
         }
     }
