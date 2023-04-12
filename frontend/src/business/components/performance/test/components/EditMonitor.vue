@@ -58,6 +58,7 @@
 
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import MonitorKeyValue from "@/business/components/performance/test/components/MonitorKeyValue";
+import {KeyValue} from "@/business/components/api/test/model/ScenarioModel";
 
 export default {
   name: "EditMonitor",
@@ -92,6 +93,9 @@ export default {
         }
         this.form = copy;
       }
+      if (this.monitorList.length === 0) {
+        this.monitorList.push(new KeyValue({enable: true}));
+      }
       if (index !== '' && index !== undefined) {
         this.index = index;
       }
@@ -99,6 +103,7 @@ export default {
     closeFunc() {
       this.form = {};
       this.dialogVisible = false;
+      this.monitorList = [];
     },
     update() {
       this.$refs.monitorForm.validate(valid => {
