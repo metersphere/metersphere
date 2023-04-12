@@ -32,7 +32,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDataCountResult> countStateByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
-    List<ApiDataCountResult> countApiCoverageByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
+    List<ApiDataCountResult> countApiHasNotCaseByProjectID(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     ApiDefinition getNextNum(@Param("projectId") String projectId);
 
