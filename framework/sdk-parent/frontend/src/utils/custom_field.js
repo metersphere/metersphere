@@ -208,12 +208,7 @@ export function sortCustomFields(customFields) {
         // nothing
       }
     }
-    if (customFields[i].type === "richText") {
-      //循环到是0的位置就删除该元素0并且在arr末尾push进这个元素0，由于splice删除了该位置元素，所以i不用+1，下次循环仍然检查i位置的元素
-      customFields.push(customFields.splice(i, 1)[0]);
-    } else {
-      i++; //循环到不是0的位置就继续往后循环
-    }
+    i++; //循环到不是0的位置就继续往后循环
   }
   return customFields;
 }

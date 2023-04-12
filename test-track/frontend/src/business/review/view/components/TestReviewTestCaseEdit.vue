@@ -37,15 +37,11 @@
               <el-form ref="customFieldForm"
                        v-if="isCustomFiledActive"
                        class="case-form">
-                <el-row>
-                  <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                    <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name"
-                                  :prop="item.name"
-                                  :label-width="formLabelWidth">
-                      <custom-filed-component v-if="!loading" :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
-                    </el-form-item>
-                  </el-col>
-                </el-row>
+                <custom-field-form-items
+                  :form-label-width="formLabelWidth"
+                  :fields="testCaseTemplate.customFields"
+                  :loading="loading"
+                  :system-name-map="systemNameMap"/>
               </el-form>
 
               <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
@@ -132,10 +128,12 @@ import TestReviewTestCaseEditOperationBar from "@/business/review/view/component
 import TestReviewTestCaseEditHeaderBar from "@/business/review/view/components/TestReviewTestCaseEditHeaderBar";
 import CommentHistory from "@/business/review/view/components/commnet/CommentHistory";
 import {resetCaseSystemField} from "@/business/case/test-case";
+import CustomFieldFormItems from "@/business/common/CustomFieldFormItems";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    CustomFieldFormItems,
     CommentHistory,
     TestReviewTestCaseEditHeaderBar,
     TestReviewTestCaseEditOperationBar,
@@ -349,7 +347,10 @@ export default {
         );
         this.testCaseTemplate.customFields.forEach((item) => {
           try {
-            item.defaultValue = JSON.parse(item.defaultValue);
+            let v = JSON.parse(item.defaultValue);
+            if (!(v instanceof Object) || ['multipleSelect', 'checkbox', 'multipleMember', 'multipleInput'].indexOf(item.type) > -1) {
+              item.defaultValue = v;
+            }
           } catch (e) {
             // nothing
           }
