@@ -47,7 +47,7 @@ export function getBodyUploadFiles(obj, scenarioDefinition) {
   return bodyUploadFiles;
 }
 
-function getScenarioFiles(obj) {
+function getScenarioFiles(obj,scenarioDefinition) {
   let scenarioFiles = [];
   obj.scenarioFileIds = [];
   // 场景变量csv 文件
@@ -113,7 +113,7 @@ export async function saveScenario(url, scenario, scenarioDefinition, _this, suc
       }
     });
   }
-  let scenarioFiles = getScenarioFiles(scenario);
+  let scenarioFiles = getScenarioFiles(scenario, scenarioDefinition);
   let fileName = await checkFile(scenarioFiles);
   fileName = fileName || (await checkFile(bodyFiles));
   if (fileName) {
