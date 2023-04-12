@@ -38,6 +38,7 @@ import io.metersphere.service.plan.TestPlanApiCaseService;
 import io.metersphere.xpack.api.service.ApiCaseBatchSyncService;
 import io.metersphere.xpack.api.service.ApiTestCaseSyncService;
 import io.metersphere.xpack.version.service.ProjectVersionService;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -54,9 +55,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static io.metersphere.commons.utils.ShareUtil.getTimeMills;
@@ -1098,8 +1098,22 @@ public class ApiTestCaseService {
         return null;
     }
 
-    public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(String projectId, String versionId) {
-        return extApiTestCaseMapper.selectExecuteResultByProjectId(projectId, versionId);
+    public List<ExecuteResultCountDTO> selectExecuteResultByProjectId(long allApiCaseNum, String projectId, String versionId) {
+        //之前的查询方式采用的Left join,通过关联字段为null来判断是不是未执行过的用例。优化为查询执行过的用例最新状态，最后使用总数进行相减计算
+        List<ExecuteResultCountDTO> executeResultCountDTOList = extApiTestCaseMapper.selectExecuteResultByProjectId(projectId, versionId);
+        AtomicLong executedCaseCountLong = new AtomicLong();
+        executeResultCountDTOList.forEach(item -> {
+            executedCaseCountLong.addAndGet(item.getCount());
+        });
+        long executedCaseCount = executedCaseCountLong.get();
+        if (allApiCaseNum > executedCaseCount) {
+            //补足未执行的用例状态
+            ExecuteResultCountDTO notExecuteCountDTO = new ExecuteResultCountDTO();
+            notExecuteCountDTO.setExecResult(StringUtils.EMPTY);
+            notExecuteCountDTO.setCount(allApiCaseNum - executedCaseCount);
+            executeResultCountDTOList.add(notExecuteCountDTO);
+        }
+        return executeResultCountDTOList;
     }
 
     /**
@@ -1283,7 +1297,7 @@ public class ApiTestCaseService {
     }
 
     public String getPassRate(String id) {
-       return extApiTestCaseMapper.findPassRateById(id);
+        return extApiTestCaseMapper.findPassRateById(id);
 
     }
 }
