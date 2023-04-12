@@ -26,7 +26,7 @@
               <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1200px">
                 <!-- all step-->
                 <el-tab-pane label="All" name="total">
-                  <ms-scenario-results
+                  <ms-infinite-scroll-scenario-results
                     :treeData="fullTreeNodes"
                     :console="content.console"
                     :report="report"
@@ -37,7 +37,7 @@
                 </el-tab-pane>
                 <!-- fail step -->
                 <el-tab-pane name="fail">
-                  <template slot="label"> Error </template>
+                  <template slot="label"> Error</template>
                   <ms-scenario-results
                     v-on:requestResult="requestResult"
                     :console="content.console"
@@ -118,15 +118,15 @@ import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsApiReportExport from './ApiReportExport';
 import MsApiReportViewHeader from './ApiReportViewHeader';
+import MsInfiniteScrollScenarioResults from '@/business/automation/report/components/InfiniteScrollScenarioResults.vue';
 import { RequestFactory } from '../../definition/model/ApiTestModel';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { downloadPDF, getUUID } from 'metersphere-frontend/src/utils';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
+import { getUUID } from 'metersphere-frontend/src/utils';
 import {
   getScenarioReport,
   getScenarioReportDetail,
-  getShareScenarioReport,
   getSharePlanScenarioReport,
+  getShareScenarioReport,
   reportReName,
 } from '../../../api/scenario-report';
 import { STEP } from '../../automation/scenario/Setting';
@@ -146,6 +146,7 @@ export default {
     MsMetricChart,
     MsScenarioResult,
     MsRequestResult,
+    MsInfiniteScrollScenarioResults,
   },
   data() {
     return {
