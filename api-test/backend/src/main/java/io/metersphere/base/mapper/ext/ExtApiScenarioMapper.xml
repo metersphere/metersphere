@@ -208,6 +208,10 @@
         left join user u2 on api_scenario.principal = u2.id
         left join project_version on api_scenario.project_id = project_version.project_id AND project_version.id =
         api_scenario.version_id
+        <if test="request.filters != null and request.filters.schedule != null">
+            LEFT JOIN schedule ON schedule.resource_id = api_scenario.id
+        </if>
+
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -357,6 +361,20 @@
                             and api_scenario.user_id in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='schedule'">
+                            and
+                            <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                <if test="value == 'open'">
+                                    schedule.`enable` = 1
+                                </if>
+                                <if test="value == 'close'">
+                                    schedule.`enable` = 0
+                                </if>
+                                <if test="value == 'unset' ">
+                                    schedule.id is null
+                                </if>
                             </foreach>
                         </when>
                         <when test="key=='level'">
