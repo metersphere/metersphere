@@ -261,7 +261,7 @@ public class MockApiUtils {
                     }
                 }
             } catch (Exception e) {
-                MSException.throwException(e);
+                LogUtil.error(e.getMessage());
             }
         }
         return responseDTO;
