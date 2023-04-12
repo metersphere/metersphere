@@ -1032,6 +1032,18 @@ public class ElementUtil {
         return loopController.controller(tree, name);
     }
 
+    public static boolean isLoop(MsTestElement sampler) {
+        if (sampler != null ) {
+            if (StringUtils.equals(sampler.getType(), "LoopController")) {
+                return true;
+            }
+            if (sampler.getParent() != null) {
+                return isLoop(sampler.getParent());
+            }
+        }
+        return false;
+    }
+
     public static DatabaseConfig selectDataSourceFromJDBCProcessor(String processorName, String environmentId, String dataSourceId, String projectId, ParameterConfig config) {
         if (config == null) {
             return null;
