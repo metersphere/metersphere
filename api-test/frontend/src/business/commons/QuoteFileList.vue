@@ -28,6 +28,23 @@
         @refresh="getProjectFiles"
         ref="table">
         <ms-table-column prop="name" show-overflow-tooltip :min-width="150" :label="$t('load_test.file_name')">
+          <template v-slot="scope">
+            <span v-if="scope.row.storage !== 'GIT'">
+              {{ scope.row.name }}
+            </span>
+            <div v-else>
+              <span>
+                {{ scope.row.name }}
+              </span>
+              <ms-tag effect="plain" class="ms-tags" :content="parseGitBranch(scope.row.attachInfo)" />
+            </div>
+          </template>
+        </ms-table-column>
+        <ms-table-column
+          prop="moduleName"
+          show-overflow-tooltip
+          :min-width="150"
+          :label="$t('project.project_file.file_module_type.module')">
         </ms-table-column>
         <ms-table-column
           sortable
@@ -37,7 +54,7 @@
           :label="$t('load_test.file_type')">
         </ms-table-column>
 
-        <ms-table-column prop="description" :min-width="100" :label="$t('group.description')"> </ms-table-column>
+        <ms-table-column prop="description" :min-width="100" :label="$t('group.description')"></ms-table-column>
 
         <ms-table-column prop="tags" width="100px" :show-overflow-tooltip="false" :label="$t('commons.tag')">
           <template v-slot:default="scope">
@@ -60,7 +77,7 @@
 
         <ms-table-column sortable prop="createUser" :min-width="100" :label="$t('commons.create_user')">
         </ms-table-column>
-        <ms-table-column sortable prop="updateUser" :min-width="100" :label="$t('ui.update_user')"> </ms-table-column>
+        <ms-table-column sortable prop="updateUser" :min-width="100" :label="$t('ui.update_user')"></ms-table-column>
 
         <ms-table-column sortable :label="$t('commons.update_time')" :min-width="150" fixed="right" prop="updateTime">
           <template v-slot="scope">
@@ -136,6 +153,11 @@ export default {
   },
   created() {},
   methods: {
+    parseGitBranch(attachInfo) {
+      let branch = 'master';
+      branch = JSON.parse(attachInfo)['branch'];
+      return branch;
+    },
     submit() {
       if (this.$refs.table.selectRows && this.$refs.table.selectRows.size > 0) {
         this.$emit('checkRows', this.$refs.table.selectRows);

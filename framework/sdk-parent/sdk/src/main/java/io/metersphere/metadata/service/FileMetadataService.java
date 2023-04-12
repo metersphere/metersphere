@@ -16,6 +16,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.AttachmentBodyFile;
 import io.metersphere.dto.FileInfoDTO;
+import io.metersphere.dto.FileMetadataDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -163,6 +164,18 @@ public class FileMetadataService {
         FileMetadataWithBLOBs fileMetadata = new FileMetadataWithBLOBs();
         fileMetadata.setProjectId(projectId);
         return saveFile(file, fileMetadata);
+    }
+
+    public List<FileMetadataDTO> getFileMetadataByProject(String projectId, QueryProjectFileRequest request) {
+        if (CollectionUtils.isEmpty(request.getOrders())) {
+            OrderRequest req = new OrderRequest();
+            req.setName("update_time");
+            req.setType("desc");
+            request.setOrders(new ArrayList<>() {{
+                this.add(req);
+            }});
+        }
+        return baseFileMetadataMapper.getFileMetadataByProject(projectId, request);
     }
 
     public List<FileMetadataWithBLOBs> getProjectFiles(String projectId, QueryProjectFileRequest request) {
