@@ -8,7 +8,7 @@
         <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion" />
       </el-tooltip>
     </div>
-    <el-tree
+    <infinite-scroll-tree
       :data="treeData"
       :expand-on-click-node="false"
       :default-expand-all="defaultExpand"
@@ -25,7 +25,7 @@
           :is-share="isShare"
           :share-id="shareId" />
       </span>
-    </el-tree>
+    </infinite-scroll-tree>
   </el-card>
 </template>
 <script>
@@ -33,7 +33,7 @@ import MsScenarioResult from './ScenarioResult';
 import InfiniteScrollTree from '@/business/automation/report/components/tree/InfiniteScrollTree.vue';
 
 export default {
-  name: 'MsScenarioResults',
+  name: 'MsInfiniteScrollScenarioResults',
   components: { MsScenarioResult, InfiniteScrollTree },
   props: {
     scenarios: Array,
