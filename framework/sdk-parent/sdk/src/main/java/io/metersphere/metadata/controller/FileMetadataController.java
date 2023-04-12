@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.dto.FileMetadataDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.vo.DownloadRequest;
@@ -15,13 +16,13 @@ import io.metersphere.metadata.vo.DumpFileRequest;
 import io.metersphere.metadata.vo.FileMetadataCreateRequest;
 import io.metersphere.metadata.vo.MoveFIleMetadataRequest;
 import io.metersphere.request.QueryProjectFileRequest;
+import jakarta.annotation.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RequestMapping("/file/metadata")
@@ -36,11 +37,11 @@ public class FileMetadataController {
     }
 
     @PostMapping("/project/{projectId}/{goPage}/{pageSize}")
-    public Pager<List<FileMetadataWithBLOBs>> getProjectFiles(@PathVariable String projectId,
-                                                              @PathVariable int goPage, @PathVariable int pageSize,
-                                                              @RequestBody QueryProjectFileRequest request) {
+    public Pager<List<FileMetadataDTO>> getProjectFiles(@PathVariable String projectId,
+                                                        @PathVariable int goPage, @PathVariable int pageSize,
+                                                        @RequestBody QueryProjectFileRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, fileMetadataService.getProjectFiles(projectId, request));
+        return PageUtils.setPageInfo(page, fileMetadataService.getFileMetadataByProject(projectId, request));
     }
 
     @PostMapping(value = "/create")
