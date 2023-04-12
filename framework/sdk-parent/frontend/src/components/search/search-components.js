@@ -876,6 +876,20 @@ export const ID = {
   }
 }
 
+// 平台状态
+export const PLATFORM_STATUS = {
+  key: "platformStatus",
+  name: 'MsTableSearchSelect',
+  label: "平台状态",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [],
+  props: {
+    multiple: true
+  }
+}
+
 function _getModuleTree(options) {
   return {
     key: "moduleIds",
@@ -991,7 +1005,7 @@ export const TEST_CASE_RELEVANCE_LOAD_CASE = [NAME, STATUS, CREATE_TIME, UPDATE_
 
 
 // 测试跟踪-缺陷管理-缺陷列表
-export const TEST_TRACK_ISSUE_LIST = [NAME, PLATFORM, CREATE_TIME, UPDATE_TIME, CREATOR];
+export const TEST_TRACK_ISSUE_LIST = [NAME, PLATFORM, CREATE_TIME, UPDATE_TIME, CREATOR,PLATFORM_STATUS];
 
 // 测试跟踪-测试用例-关联缺陷
 export const TEST_CASE_RELEVANCE_ISSUE_LIST = [NAME, PLATFORM, CREATE_TIME, CREATOR];

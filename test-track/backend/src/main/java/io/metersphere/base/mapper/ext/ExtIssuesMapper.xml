@@ -275,6 +275,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='platform_status'">
+                                and issues.platform_status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <when test="key == 'platform'">
                                 AND issues.platform IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">

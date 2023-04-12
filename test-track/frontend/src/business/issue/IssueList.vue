@@ -263,6 +263,8 @@ export default {
         platformStatus: {
           sortable: true,
           minWidth: 110,
+          type: 'select',
+          filters: this.getPlatformStatusFiltes(),
         },
         creatorName: {
           columnKey: 'creator',
@@ -328,6 +330,14 @@ export default {
         this.platformStatus.forEach(item => {
           this.platformStatusMap.set(item.value, item.label);
         });
+        this.page.condition.components.forEach(item => {
+          if (item.key === 'platformStatus') {
+            item.options =[];
+            this.platformStatus.forEach(option => {
+              item.options.push({label: option.label, value: option.value});
+            });
+          }
+        });
       }
     });
   },
@@ -364,6 +374,23 @@ export default {
     tableDoLayout() {
       if (this.$refs.table) this.$refs.table.doLayout();
     },
+    getPlatformStatusFiltes() {
+      let options = [];
+      getPlatformStatus({
+        projectId: getCurrentProjectID(),
+        workspaceId: getCurrentWorkspaceId()
+      }).then((r) => {
+        this.platformStatus = r.data;
+        if (this.platformStatus) {
+          this.platformStatus.forEach(item => {
+            options.push({"text":item.label,"value":item.value,"system": false});
+          });
+          return options;
+        }
+        return options;
+      });
+      return options;
+    },
     getCustomFieldValue(row, field, defaultVal) {
       let value = getCustomFieldValue(row, field, this.members);
       return value ? value : defaultVal;
@@ -388,6 +415,13 @@ export default {
         // 如果不是三方平台则移除备选字段中的平台状态
         let removeField = {id: 'platformStatus', name: 'platformStatus', remove: true};
         template.customFields.push(removeField);
+        for (let i = 0; i < this.page.condition.components.length; i++) {
+          if (this.page.condition.components[i].key === 'platformStatus') {
+            this.page.condition.components.splice(i, 1);
+            break;
+          }
+        }
+
       }
       this.issueTemplate = template;
       fields.forEach(item => {
