@@ -717,8 +717,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JSONObject requestBody = buildRequestBody(requestObject, schemas);
 
             swaggerApiInfo.setRequestBody(JSONUtil.parseObjectNode(requestBody.toString()));
-            //  设置响应体
-            JSONObject responseObject = JSONUtil.parseObject(apiDefinition.getResponse());
+            JSONObject responseObject = new JSONObject();
+            try {
+                //  设置响应体
+                responseObject = JSONUtil.parseObject(apiDefinition.getResponse());
+            } catch (Exception e) {
+                responseObject = new JSONObject(new ApiResponse());
+            }
             JSONObject jsonObject = buildResponseBody(responseObject, schemas);
             swaggerApiInfo.setResponses(JSONUtil.parseObjectNode(jsonObject.toString()));
             //  设置请求参数列表

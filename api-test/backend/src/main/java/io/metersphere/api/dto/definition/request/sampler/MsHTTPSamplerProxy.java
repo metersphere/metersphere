@@ -169,7 +169,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         // 失败重试
         HashTree httpSamplerTree;
-        if (config.getRetryNum() > 0) {
+        if (config.getRetryNum() > 0 && !ElementUtil.isLoop(this.getParent())) {
             final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
             httpSamplerTree = loopTree.add(sampler);
         } else {
