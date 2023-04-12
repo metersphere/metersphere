@@ -93,4 +93,6 @@ public interface ExtApiDefinitionMapper {
     List<String> selectApiIdInExecutionInfoByProjectIdIsNull();
 
     long countSourceIdByProjectIdIsNull();
+
+    ApiDefinitionResult getApiDetail(String id);
 }
