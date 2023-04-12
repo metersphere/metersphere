@@ -63,6 +63,71 @@
             </foreach>
         </if>
     </select>
+
+    <select id="getFileMetadataByProject" resultType="io.metersphere.dto.FileMetadataDTO">
+        SELECT file_metadata.*,file_module.name AS moduleName FROM file_metadata
+            INNER JOIN file_module  ON file_metadata.module_id = file_module.id
+        WHERE file_metadata.project_id = #{projectId,jdbcType=VARCHAR} AND file_metadata.type != 'RSA_KEY' AND file_metadata.latest IS TRUE
+        <if test="request.name != null and request.name !=''">
+            AND ( file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
+            OR file_metadata.tags LIKE CONCAT('%', #{request.name}, '%')
+            OR file_metadata.description LIKE CONCAT('%', #{request.name}, '%')
+            OR file_metadata.create_user LIKE CONCAT('%', #{request.name}, '%'))
+        </if>
+        <if test="request.moduleId != null and request.moduleId !=''">
+            AND file_metadata.module_id = #{request.moduleId}
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='type'">
+                            and file_metadata.type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='createUser'">
+                            and file_metadata.create_user in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='moduleIds'">
+                            and file_metadata.module_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <if test="order.name == 'name'">
+                    file_metadata.name ${order.type}
+                </if>
+                <if test="order.name == 'type'">
+                    file_metadata.type ${order.type}
+                </if>
+                <if test="order.name == 'create_user'">
+                    file_metadata.create_user ${order.type}
+                </if>
+                <if test="order.name == 'update_user'">
+                    file_metadata.update_user ${order.type}
+                </if>
+                <if test="order.name == 'create_time'">
+                    file_metadata.create_time ${order.type}
+                </if>
+                <if test="order.name == 'update_time'">
+                    file_metadata.update_time ${order.type}
+                </if>
+            </foreach>
+        </if>
+    </select>
+
     <select id="getTypes" resultType="java.lang.String">
         SELECT type
         FROM file_metadata
