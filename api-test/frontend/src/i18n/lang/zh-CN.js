@@ -37,6 +37,13 @@ const message = {
     },
     document_tooltip: '仅对已展示的参数生效',
   },
+  filters: {
+    schedule: {
+      open: '已开启',
+      close: '已关闭',
+      unset: '未设置',
+    },
+  },
   home: {
     dashboard: {
       public: {
