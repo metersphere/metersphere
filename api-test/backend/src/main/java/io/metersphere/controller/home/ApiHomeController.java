@@ -106,6 +106,7 @@ public class ApiHomeController {
     public ApiDataCountDTO apiCaseCount(@PathVariable String projectId, @PathVariable String versionId) {
         versionId = this.initializationVersionId(versionId);
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+        //todo 性能优化
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId, versionId);
         apiCountResult.countProtocol(countResultList);
         //本周创建、本周执行、总执行
@@ -125,7 +126,7 @@ public class ApiHomeController {
             apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
         }
         //计算用例的通过率和执行率
-        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(projectId, versionId);
+        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(allCount, projectId, versionId);
         apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
         if (apiCountResult.getExecutedCount() > 0) {
             //通过率

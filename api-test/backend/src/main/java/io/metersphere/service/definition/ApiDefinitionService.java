@@ -78,6 +78,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -1195,7 +1196,29 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId, String versionId) {
-        return extApiDefinitionMapper.countApiCoverageByProjectID(projectId, versionId);
+        ApiDefinitionExample countApiExample = new ApiDefinitionExample();
+        ApiDefinitionExample.Criteria apiCountCriteria = countApiExample.createCriteria();
+        apiCountCriteria.andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
+        if (StringUtils.isNotEmpty(versionId)) {
+            apiCountCriteria.andVersionIdEqualTo(versionId);
+        } else {
+            apiCountCriteria.andLatestEqualTo(true);
+        }
+        long apiCount = apiDefinitionMapper.countByExample(countApiExample);
+
+        //之前的方法使用left join来判断api下有无case。 数据量大了之后sql就变得比较慢。  现在改为先查询出没有case的api，然后用减法操作
+        List<ApiDataCountResult> apiDataCountResultList = extApiDefinitionMapper.countApiHasNotCaseByProjectID(projectId, versionId);
+
+        AtomicLong unCoveredAtomicLong = new AtomicLong();
+        apiDataCountResultList.forEach(item -> {
+            unCoveredAtomicLong.addAndGet(item.getCountNumber());
+        });
+        long coveredLong = apiCount - unCoveredAtomicLong.get();
+        ApiDataCountResult coveredResult = new ApiDataCountResult();
+        coveredResult.setGroupField("covered");
+        coveredResult.setCountNumber(coveredLong < 0 ? 0 : coveredLong);
+        apiDataCountResultList.add(coveredResult);
+        return apiDataCountResultList;
     }
 
     public void deleteByParams(ApiBatchRequest request) {
@@ -1438,7 +1461,7 @@ public class ApiDefinitionService {
 
     public ApiExportResult export(ApiBatchRequest request, String type) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
-        LogUtil.info("导出总量 ",request.getIds());
+        LogUtil.info("导出总量 ", request.getIds());
 
         List<ApiDefinitionWithBLOBs> apiDefinitions = getByIds(request.getIds());
 
@@ -1451,7 +1474,7 @@ public class ApiDefinitionService {
             msApiExportResult.setProtocol(request.getProtocol());
             msApiExportResult.setProjectId(request.getProjectId());
             msApiExportResult.setVersion(System.getenv("MS_VERSION"));
-            LogUtil.info("导出数据组装完成 ",request.getIds());
+            LogUtil.info("导出数据组装完成 ", request.getIds());
             return msApiExportResult;
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();

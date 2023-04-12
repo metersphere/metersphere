@@ -119,7 +119,8 @@
 
     <select id="selectByIdsAndStatusIsNotTrash" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
         SELECT t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal,
-        SUM(case when t2.status ='SUCCESS' then 1 else 0 end) as SUCCESS ,SUM(case when t2.status in ('ERROR','FAKE_ERROR') then 1 else 0
+        SUM(case when t2.status ='SUCCESS' then 1 else 0 end) as SUCCESS ,SUM(case when t2.status in
+        ('ERROR','FAKE_ERROR') then 1 else 0
         end) as ERROR,
         CONCAT(FORMAT(SUM(IF (t2.`status`='SUCCESS',1,0))/COUNT(t1.id)*100,2),'%') passRate
         FROM api_test_case t1
@@ -400,7 +401,7 @@
         SELECT id,name,method,protocol,path,create_time
         FROM api_definition
         WHERE project_id = #{projectId}
-          AND `status` != 'Trash'
+        AND `status` != 'Trash'
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -412,7 +413,7 @@
         SELECT status AS groupField, count(id) AS countNumber
         FROM api_definition
         WHERE project_id = #{projectId}
-          AND `status` != 'Trash'
+        AND `status` != 'Trash'
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -422,30 +423,25 @@
         GROUP BY status
     </select>
 
-    <select id="countApiCoverageByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
-        SELECT count(api.id)                                                         AS countNumber,
-               if(test_case_api.api_definition_id is null, "unCovered", "covered") AS groupField
-        FROM api_definition api
-                 left Join (SELECT DISTINCT api_definition_id
-                            FROM api_test_case
-                            WHERE status is null
-                               or status != 'Trash') test_case_api
-                           ON api.id = test_case_api.api_definition_id
+    <select id="countApiHasNotCaseByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
+        SELECT count(api.id) AS countNumber, 'unCovered' AS groupField FROM api_definition api
         WHERE api.project_id = #{projectId}
-          and api.`status` != 'Trash'
+        AND api.`status` != 'Trash'
+        AND api.id NOT IN ( SELECT DISTINCT api_definition_id FROM api_test_case WHERE STATUS IS NULL OR STATUS !=
+        'Trash' )
         <if test="versionId != null">
             and api.version_id = #{versionId}
         </if>
         <if test="versionId == null">
             and api.latest = 1
         </if>
-        GROUP BY groupField
     </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiDefinition">
         SELECT *
         FROM api_definition
         WHERE api_definition.project_id = #{projectId}
-        ORDER BY num DESC LIMIT 1;
+        ORDER BY num DESC
+        LIMIT 1;
     </select>
 
     <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
@@ -659,7 +655,7 @@
         select id, path, method, protocol
         from api_definition
         WHERE project_id = #{projectId}
-          AND status != 'Trash'
+        AND status != 'Trash'
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -675,7 +671,7 @@
         AND `status` != 'Trash'
         AND
         id IN (
-            SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
+        SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
         )
         <if test="versionId != null">
             AND version_id = #{versionId}
@@ -689,7 +685,7 @@
         select id, path, method, protocol
         from api_definition
         WHERE project_id = #{projectId}
-          AND status != 'Trash'
+        AND status != 'Trash'
         <if test="versionId != null">
             AND version_id = #{versionId}
         </if>
@@ -1088,13 +1084,10 @@
         and api_definition.status != 'Trash';
     </select>
     <select id="scenarioList" resultType="io.metersphere.base.domain.ApiScenario">
-        SELECT DISTINCT
-            t1.id
-        FROM
-            api_scenario t1
-                JOIN api_scenario_reference_id t2 ON t1.id = t2.api_scenario_id  AND t1.`status` != 'Trash'
-        WHERE
-            t2.reference_id = #{apiDefinitionId}
+        SELECT DISTINCT t1.id
+        FROM api_scenario t1
+                 JOIN api_scenario_reference_id t2 ON t1.id = t2.api_scenario_id AND t1.`status` != 'Trash'
+        WHERE t2.reference_id = #{apiDefinitionId}
     </select>
     <select id="countByIds" resultType="java.lang.Integer">
         select count(id) from api_definition
@@ -1133,36 +1126,34 @@
 
     <update id="addLatestVersion">
         UPDATE api_definition
-            INNER JOIN ((
-            SELECT tmp.id
-            FROM api_definition tmp
-            JOIN project_version
-            ON tmp.project_id = project_version.project_id AND
-            tmp.version_id = project_version.id AND project_version.latest = TRUE
-            WHERE ref_id = #{refId,jdbcType=VARCHAR} and tmp.status != 'Trash'
-            LIMIT 1
-            )
-            UNION ALL
-            (
-            SELECT tmp.id
-            FROM api_definition tmp
-            JOIN project_version
-            ON tmp.project_id = project_version.project_id AND
-            tmp.version_id = project_version.id
-            AND NOT EXISTS (SELECT ref_id
-            FROM api_definition tmp2
-            JOIN project_version
-            ON tmp2.project_id =
-            project_version.project_id AND
-            version_id =
-            project_version.id AND
-            project_version.latest = TRUE
-            WHERE tmp.ref_id = tmp2.ref_id)
-            WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
-            ORDER BY tmp.update_time DESC
-            LIMIT 1)) AS t
-        ON api_definition.id = t.id
-            SET api_definition.latest = TRUE
+            INNER JOIN ((SELECT tmp.id
+                         FROM api_definition tmp
+                                  JOIN project_version
+                                       ON tmp.project_id = project_version.project_id AND
+                                          tmp.version_id = project_version.id AND project_version.latest = TRUE
+                         WHERE ref_id = #{refId,jdbcType=VARCHAR}
+                           and tmp.status != 'Trash'
+                         LIMIT 1)
+                        UNION ALL
+                        (SELECT tmp.id
+                         FROM api_definition tmp
+                                  JOIN project_version
+                                       ON tmp.project_id = project_version.project_id AND
+                                          tmp.version_id = project_version.id
+                                           AND NOT EXISTS (SELECT ref_id
+                                                           FROM api_definition tmp2
+                                                                    JOIN project_version
+                                                                         ON tmp2.project_id =
+                                                                            project_version.project_id AND
+                                                                            version_id =
+                                                                            project_version.id AND
+                                                                            project_version.latest = TRUE
+                                                           WHERE tmp.ref_id = tmp2.ref_id)
+                         WHERE tmp.ref_id = #{refId,jdbcType=VARCHAR}
+                         ORDER BY tmp.update_time DESC
+                         LIMIT 1)) AS t
+            ON api_definition.id = t.id
+        SET api_definition.latest = TRUE
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
@@ -1252,7 +1243,8 @@
     </select>
 
     <select id="selectApiIdInExecutionInfoByProjectIdIsNull" resultType="java.lang.String">
-        SELECT DISTINCT source_id FROM api_execution_info
+        SELECT DISTINCT source_id
+        FROM api_execution_info
         WHERE project_id IS NULL
     </select>
 
