@@ -3,6 +3,7 @@ package io.metersphere.api.parse.api;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -111,6 +112,14 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             requestObj.put("url", StringUtils.EMPTY);
             apiDefinition.setRequest(requestObj.toString());
         }
+        JSONObject responseObject = new JSONObject();
+        try {
+            //  设置响应体
+            responseObject = JSONUtil.parseObject(apiDefinition.getResponse());
+        } catch (Exception e) {
+            responseObject = new JSONObject(new HttpResponse());
+        }
+        apiDefinition.setResponse(responseObject.toString());
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());
         apiDefinition.setDeleteUserId(null);

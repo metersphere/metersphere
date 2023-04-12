@@ -141,7 +141,7 @@ public class MsTCPSampler extends MsTestElement {
         samplerHashTree.add(tcpConfig());
         TCPSampler tcpSampler = tcpSampler(config);
         // 失败重试
-        if (config.getRetryNum() > 0) {
+        if (config.getRetryNum() > 0 && !ElementUtil.isLoop(this.getParent())) {
             final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
              loopTree.set(tcpSampler, samplerHashTree);
         } else {

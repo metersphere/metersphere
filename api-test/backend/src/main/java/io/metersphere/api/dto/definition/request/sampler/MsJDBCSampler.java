@@ -122,7 +122,7 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler jdbcSampler = jdbcSampler(config);
         // 失败重试
         HashTree samplerHashTree;
-        if (config.getRetryNum() > 0) {
+        if (config.getRetryNum() > 0 && !ElementUtil.isLoop(this.getParent())) {
             final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
             samplerHashTree = loopTree.add(jdbcSampler);
         } else {
