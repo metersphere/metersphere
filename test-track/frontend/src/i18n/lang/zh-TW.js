@@ -102,6 +102,7 @@ const message = {
     upload_at: "上傳於",
     relate_at: "關聯於",
     add_steps: "添加步骤",
+    insert_steps: "插入步驟",
     copy_this_step: "複製該步驟",
     more: "更多",
     follow: "關注",
