@@ -115,6 +115,7 @@ export let CUSTOM_TABLE_HEADER = {
     { id: "lastResult", key: "a", label: "api_test.automation.last_result" },
     { id: "passRate", key: "b", label: "api_test.automation.passing_rate" },
     { id: "createTime", key: "c", label: "commons.create_time" },
+    { id: "schedule", key: "g", label: "commons.trigger_mode.schedule" },
   ],
   //自定义指令
   UI_CUSTOM_COMMAND: [
