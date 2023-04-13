@@ -1,5 +1,6 @@
 package io.metersphere.security;
 
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +41,9 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
                     try {
                         if (StringUtils.isEmpty(projectId) && isExistField(argument, "projectId")) {
                             projectId = (String) MethodUtils.invokeMethod(argument, "getProjectId");
+                        }
+                        if (StringUtils.equals(parameters[i].getName(), "project") && argument instanceof Project) {
+                            projectId = ((Project) argument).getId();
                         }
                         if (StringUtils.isEmpty(workspaceId) && isExistField(argument, "workspaceId")) {
                             workspaceId = (String) MethodUtils.invokeMethod(argument, "getWorkspaceId");
