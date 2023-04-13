@@ -116,6 +116,7 @@ const jsondiffpatch = require('jsondiffpatch');
           ['BATCH_RESTORE', "批量恢复"],
           ['BATCH_GC', "批量回收"],
           ['UN_ASSOCIATE_CASE', this.$t('test_track.case.unlink')],
+          ['MINDER_OPERATION', this.$t('commons.minder_operation')],
         ]),
         timeDates: ["plannedStartTime", "plannedEndTime", "startTime", "endTime"],
         loading: false
