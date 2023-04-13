@@ -102,6 +102,7 @@ const message = {
     upload_at: "upload",
     relate_at: "relate",
     add_steps: "Add Steps",
+    insert_steps: "Insert Steps",
     copy_this_step: "Copy step",
     more: "More",
     follow: "Follow",
