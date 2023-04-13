@@ -81,6 +81,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -649,37 +650,41 @@ public class TestPlanService {
         // 尽量保持与用例顺序一致
         Collections.reverse(testCaseIds);
 
-        Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanTestCaseMapper::getLastOrder);
-        for (String caseId : testCaseIds) {
-            TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
-            testPlanTestCase.setId(UUID.randomUUID().toString());
-            testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-            String maintainer = userMap.get(caseId);
-            if (StringUtils.isBlank(maintainer) || !projectMemberSet.contains(maintainer)) {
-                maintainer = SessionUtils.getUserId();
+        AtomicReference<Long> nextOrder = new AtomicReference<>(ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanTestCaseMapper::getLastOrder));
+        try {
+            SubListUtil.dealForSubList(testCaseIds, 1000, (subList) -> {
+                for (Object caseId : subList) {
+                    TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+                    testPlanTestCase.setId(UUID.randomUUID().toString());
+                    testPlanTestCase.setCreateUser(SessionUtils.getUserId());
+                    String maintainer = userMap.get(caseId);
+                    if (StringUtils.isBlank(maintainer) || !projectMemberSet.contains(maintainer)) {
+                        maintainer = SessionUtils.getUserId();
+                    }
+                    testPlanTestCase.setExecutor(maintainer);
+                    testPlanTestCase.setCaseId(caseId.toString());
+                    testPlanTestCase.setCreateTime(System.currentTimeMillis());
+                    testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+                    testPlanTestCase.setPlanId(request.getPlanId());
+                    testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
+                    testPlanTestCase.setIsDel(false);
+                    testPlanTestCase.setOrder(nextOrder.get());
+                    nextOrder.updateAndGet(v -> v + ServiceUtils.ORDER_STEP);
+                    batchMapper.insert(testPlanTestCase);
+                }
+                sqlSession.flushStatements();
+                caseTestRelevance(request, subList);
+            });
+        } catch (Exception e) {
+            sqlSession.rollback();
+            throw new RuntimeException(e);
+        }finally {
+            if (sqlSession != null && sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
-            testPlanTestCase.setExecutor(maintainer);
-            testPlanTestCase.setCaseId(caseId);
-            testPlanTestCase.setCreateTime(System.currentTimeMillis());
-            testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-            testPlanTestCase.setPlanId(request.getPlanId());
-            testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
-            testPlanTestCase.setIsDel(false);
-            testPlanTestCase.setOrder(nextOrder);
-            nextOrder += ServiceUtils.ORDER_STEP;
-            batchMapper.insert(testPlanTestCase);
-        }
-
-        sqlSession.flushStatements();
-
-        caseTestRelevance(request, testCaseIds);
-
-        resetStatus(testPlan.getId());
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
 
     public void caseTestRelevance(PlanCaseRelevanceRequest request, List<String> testCaseIds) {
         //同步添加关联的接口和测试用例
