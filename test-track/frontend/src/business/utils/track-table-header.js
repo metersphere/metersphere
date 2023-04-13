@@ -130,7 +130,7 @@ const TRACK_HEADER = {
   ISSUE_LIST: [
     {id: 'num', key: '1', label: 'test_track.issue.id'},
     {id: 'title', key: '2', label: 'test_track.issue.title'},
-    {id: 'platformStatus', key: '3', label: 'test_track.issue.platform_status'},
+    {id: 'platformStatus', key: '3', label: 'test_track.issue.platform_status', width: 120},
     {id: 'platform', key: '4', label: 'test_track.issue.platform'},
     {id: 'creatorName', key: '5', label: 'custom_field.issue_creator'},
     {id: 'resourceName', key: '6', label: 'test_track.issue.issue_resource'},
