@@ -83,7 +83,65 @@
             </resource>
         </resources>
         <plugins>
-
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>org.apache.jmeter</groupId>
+                            <artifactId>ApacheJMeter_functions</artifactId>
+                            <version>${jmeter.version}</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>ApacheJMeter_functions.jar</destFileName>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>io.metersphere</groupId>
+                            <artifactId>metersphere-jmeter-functions</artifactId>
+                            <version>${metersphere-jmeter-functions.version}</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>metersphere-jmeter-functions.jar</destFileName>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>org.python</groupId>
+                            <artifactId>jython-standalone</artifactId>
+                            <version>${jython.version}</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>jython-standalone.jar</destFileName>
+                        </artifactItem>
+                    </artifactItems>
+                    <outputDirectory>${project.build.directory}/wars</outputDirectory>
+                    <overWriteReleases>false</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
