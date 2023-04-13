@@ -11,7 +11,6 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.parse.postman.*;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
-import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
@@ -35,7 +34,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         PostmanUrl url = requestDesc.getUrl();
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? StringUtils.EMPTY : url.getRaw(), requestDesc.getMethod(),
                 (requestDesc.getBody() == null || requestDesc.getBody().get("jsonSchema") == null) ? StringUtils.EMPTY : requestDesc.getBody().get("jsonSchema").textValue());
-        request.setRest(parseKeyValue(requestDesc.getUrl().getVariable()));
+        request.setRest(parseKeyValue(url != null && CollectionUtils.isNotEmpty(url.getVariable()) ?
+                url.getVariable() : new ArrayList<>()));
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
             path = parseVariable(path);
