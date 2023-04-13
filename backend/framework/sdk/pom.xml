@@ -7,7 +7,7 @@
         <artifactId>framework</artifactId>
         <version>${revision}</version>
     </parent>
-    <artifactId>sdk</artifactId>
+    <artifactId>metersphere-sdk</artifactId>
     <version>${revision}</version>
     <name>sdk</name>
     <description>sdk</description>
@@ -16,8 +16,28 @@
     <dependencies>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>domain</artifactId>
+            <artifactId>metersphere-domain</artifactId>
             <version>${revision}</version>
+        </dependency>
+        <!-- jmeter -->
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-jmeter-core</artifactId>
+            <version>${revision}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>netty</artifactId>
+                    <groupId>io.netty</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>mail</artifactId>
+                    <groupId>javax.mail</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>javax.activation</artifactId>
+                    <groupId>com.sun.activation</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -193,26 +213,6 @@
             </exclusions>
         </dependency>
 
-        <!-- jmeter -->
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>jmeter</artifactId>
-            <version>${revision}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>netty</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>javax.activation</artifactId>
-                    <groupId>com.sun.activation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>

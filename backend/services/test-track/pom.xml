@@ -7,7 +7,7 @@
         <artifactId>services</artifactId>
         <version>${revision}</version>
     </parent>
-    <artifactId>test-track</artifactId>
+    <artifactId>metersphere-test-track</artifactId>
     <version>${revision}</version>
     <name>test-track</name>
     <properties>
@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
 

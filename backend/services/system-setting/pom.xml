@@ -7,7 +7,7 @@
         <artifactId>services</artifactId>
         <version>${revision}</version>
     </parent>
-    <artifactId>system-setting</artifactId>
+    <artifactId>metersphere-system-setting</artifactId>
     <version>${revision}</version>
     <name>system-setting</name>
     <properties>
@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
 

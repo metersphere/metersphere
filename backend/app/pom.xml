@@ -15,48 +15,48 @@
     <dependencies>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>sdk</artifactId>
+            <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>api-test</artifactId>
+            <artifactId>metersphere-api-test</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>load-test</artifactId>
+            <artifactId>metersphere-load-test</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>project-management</artifactId>
+            <artifactId>metersphere-project-management</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>system-setting</artifactId>
+            <artifactId>metersphere-system-setting</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>test-plan</artifactId>
+            <artifactId>metersphere-test-plan</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>test-track</artifactId>
+            <artifactId>metersphere-test-track</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>ui-test</artifactId>
+            <artifactId>metersphere-ui-test</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>workstation</artifactId>
+            <artifactId>metersphere-workstation</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>
