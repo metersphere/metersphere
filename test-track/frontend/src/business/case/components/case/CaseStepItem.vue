@@ -64,6 +64,17 @@
           >
             <div class="opt-row">
               <div
+                class="add-row sub-opt-row"
+                :class="{'disable-row' : readOnly}"
+                @click="handleAddStep(scope.$index, scope.row)"
+              >
+                <div class="icon">
+                  <i class="el-icon-plus"></i>
+                </div>
+                <div class="title">{{ $t("case.insert_steps") }}</div>
+              </div>
+              <div class="split"></div>
+              <div
                 class="copy-row sub-opt-row"
                 :class="{'disable-row' : readOnly}"
                 @click="handleCopyStep(scope.$index, scope.row)"
@@ -379,6 +390,19 @@ i.el-icon-more:hover {
 .case-step-item-popover .delete-row .title {
   color: #f54a45;
 }
+
+
+.case-step-item-popover .add-row:hover {
+  background-color: rgba(31, 35, 41, 0.1);
+}
+
+.case-step-item-popover .add-row .icon {
+  color: #646a73;
+}
+.case-step-item-popover .add-row .title {
+  color: #1f2329;
+}
+
 
 .case-step-item-popover .delete-row {
   background-color: transparent;
