@@ -30,6 +30,7 @@ import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndServ
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -42,6 +43,7 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
+import io.metersphere.commons.constants.VariableTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -49,8 +51,10 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
+import org.apache.jmeter.config.Argument;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
 import org.apache.jmeter.control.LoopController;
@@ -75,6 +79,7 @@ import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.testelement.property.JMeterProperty;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.threads.ThreadGroup;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -102,7 +107,26 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
 
             MsScenario scenario = new MsScenario();
             scenario.setReferenced("IMPORT");
-            jmterHashTree(testPlan, scenario);
+            TestPlan plan = (TestPlan) testPlan.getArray()[0];
+            if (plan.getArguments() != null) {
+                List<ScenarioVariable> variables = new LinkedList<>();
+                plan.getArguments().forEach(item -> {
+                    ScenarioVariable scenarioVariable = new ScenarioVariable();
+                    scenarioVariable.setId(UUID.randomUUID().toString());
+                    scenarioVariable.setName(item.getName());
+                    if (ObjectUtils.isNotEmpty(item.getObjectValue())) {
+                        Argument arg = (Argument) item.getObjectValue();
+                        scenarioVariable.setValue(arg.getValue());
+                    }
+                    scenarioVariable.setType(VariableTypeConstants.CONSTANT.name());
+                    variables.add(scenarioVariable);
+                });
+                scenario.setVariables(variables);
+            }
+            if (CollectionUtils.isEmpty(scenario.getHashTree())) {
+                scenario.setHashTree(new LinkedList<>());
+            }
+            jmterHashTree(testPlan.getTree(plan), scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(parseObj(scenario, request));
@@ -717,11 +741,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             }
             // 测试计划
             if (key instanceof TestPlan) {
-                scenario.setName(((TestPlan) key).getName());
-                elementNode = new MsJmeterElement();
-                elementNode.setName(((TestPlan) key).getName());
-                ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
-                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
+                continue;
             }
             // 线程组
             else if (key instanceof ThreadGroup) {

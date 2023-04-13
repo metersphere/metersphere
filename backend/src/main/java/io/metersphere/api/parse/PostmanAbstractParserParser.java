@@ -30,7 +30,8 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod(), Optional.ofNullable(requestDesc.getBody()).orElse(new JSONObject()).getString("jsonSchema"));
-        request.setRest(parseKeyValue(requestDesc.getUrl().getVariable()));
+        request.setRest(parseKeyValue(url != null && CollectionUtils.isNotEmpty(url.getVariable()) ?
+                url.getVariable() : new ArrayList<>()));
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
             path = parseVariable(path);

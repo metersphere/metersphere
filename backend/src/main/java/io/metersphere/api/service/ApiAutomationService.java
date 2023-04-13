@@ -16,7 +16,6 @@ import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
 import io.metersphere.api.exec.scenario.ApiScenarioExecuteService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
@@ -426,7 +425,7 @@ public class ApiAutomationService {
         JSONObject element = JSON.parseObject(scenario.getScenarioDefinition(), Feature.DisableSpecialKeyDetect);
         JSONArray hashTree = element.getJSONArray("hashTree");
         ApiScenarioImportUtil.formatHashTree(hashTree);
-        setReferenced(hashTree,  scenario.getProjectId(),scenario.getVersionId(), apiScenarioParamDto);
+        setReferenced(hashTree, scenario.getProjectId(), scenario.getVersionId(), apiScenarioParamDto);
         scenario.setScenarioDefinition(JSONObject.toJSONString(element));
 
     }
@@ -876,32 +875,18 @@ public class ApiAutomationService {
                 Map<String, String> envMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
                 scenario.setEnvironmentMap(envMap);
             }
-            // 针对导入的jmx 处理
-            boolean isUseElement = false;
-            if (CollectionUtils.isNotEmpty(scenario.getHashTree())) {
-                for (MsTestElement testElement : scenario.getHashTree()) {
-                    if (testElement instanceof MsJmeterElement) {
-                        isUseElement = true;
-                    }
-                }
-            }
-            if (isUseElement) {
-                scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
-                ElementUtil.accuracyHashTree(jmeterHashTree);
-                return scenario.getJmx(jmeterHashTree);
-            } else {
-                MsThreadGroup group = new MsThreadGroup();
-                group.setLabel(apiScenario.getName());
-                group.setName(apiScenario.getName());
-                group.setEnableCookieShare(scenario.isEnableCookieShare());
-                group.setOnSampleError(scenario.getOnSampleError());
-                group.setHashTree(new LinkedList<MsTestElement>() {{
-                    this.add(scenario);
-                }});
-                testPlan.getHashTree().add(group);
-            }
+            MsThreadGroup group = new MsThreadGroup();
+            group.setLabel(apiScenario.getName());
+            group.setName(apiScenario.getName());
+            group.setEnableCookieShare(scenario.isEnableCookieShare());
+            group.setOnSampleError(scenario.getOnSampleError());
+            group.setHashTree(new LinkedList<MsTestElement>() {{
+                this.add(scenario);
+            }});
+            testPlan.getHashTree().add(group);
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
-        } catch (Exception ex) {
+        } catch (
+                Exception ex) {
             LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
         }
