@@ -59,6 +59,7 @@
             :sortable="item.sortable"
             :min-width="item.minWidth"
             :column-key="item.columnKey"
+            :width="item.width"
             :fields-width="fieldsWidth"
             :filters="item.filters"
           >
