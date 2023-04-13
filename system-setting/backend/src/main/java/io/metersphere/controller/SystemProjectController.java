@@ -98,10 +98,10 @@ public class SystemProjectController {
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = BaseProjectService.class)
+    @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MANAGER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#project.id)", content = "#msClass.getLogDetails(#project.id)", msClass = BaseProjectService.class)
     @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT, PermissionConstants.PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
-    public void updateProject(@RequestBody AddProjectRequest Project) {
-        systemProjectService.updateProject(Project);
+    public void updateProject(@RequestBody AddProjectRequest project) {
+        systemProjectService.updateProject(project);
     }
 
     @PostMapping("/member/update")
