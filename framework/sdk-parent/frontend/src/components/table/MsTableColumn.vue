@@ -2,7 +2,7 @@
   <el-table-column class-name="msTableColumn"
                    v-if="active && (!field || field.id === prop)"
                    :min-width="minWidth"
-                   :width="fieldsWidth ? fieldsWidth[prop] : width"
+                   :width="displayWidth"
                    :fixed="fixed"
                    :filters="filters"
                    :prop="prop"
@@ -90,6 +90,11 @@ export default {
   },
   mounted() {
     this.active = true;
+  },
+  computed: {
+    displayWidth() {
+      return (this.fieldsWidth && this.fieldsWidth[this.prop]) ? this.fieldsWidth[this.prop] : this.width;
+    },
   },
   methods: {
     renderHeader(h, data) {
