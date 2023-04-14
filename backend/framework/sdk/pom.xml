@@ -342,8 +342,8 @@
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-plugin-core</artifactId>
-            <version>${metersphere-plugin-core.version}</version>
+            <artifactId>plugin-sdk</artifactId>
+            <version>${version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>log4j-slf4j-impl</artifactId>
