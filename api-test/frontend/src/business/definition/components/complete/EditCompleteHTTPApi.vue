@@ -50,6 +50,7 @@
             type="primary"
             size="small"
             @click="saveApi"
+            v-prevent-re-click
             title="ctrl + s"
             v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
             >{{ $t('commons.save') }}
