@@ -792,7 +792,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         JSONObject schema = new JSONObject();
         schema.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
         JSONObject properties = buildSchema(requestBody);
-        schema.put(PropertyConstant.REQUIRED, properties);
+        schema.put(PropertyConstant.PROPERTIES, properties);
         return schema;
     }
 
@@ -806,7 +806,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             Object example = requestBody.get(0);
             if (example instanceof JSONObject) {
                 items.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
-                items.put(PropertyConstant.REQUIRED, buildSchema((JSONObject) example));
+                items.put(PropertyConstant.PROPERTIES, buildSchema((JSONObject) example));
             } else if (example instanceof String) {
                 items.put(PropertyConstant.TYPE, PropertyConstant.STRING);
             } else if (example instanceof Integer) {
@@ -1227,10 +1227,13 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                             bodyInfo = buildJsonSchema(jsonObject, required);
                         }
                     } else {
-                        try {    //  若请求体是一个 object
-                            bodyInfo = buildRequestBodyJsonInfo(body.optJSONArray("raw"));
-                        } catch (Exception e) {
-                            bodyInfo = buildRequestBodyJsonInfo(body.optJSONObject("raw"));
+                        String raw = body.optString("raw");
+                        if (StringUtils.isNotBlank(raw)) {
+                            if (StringUtils.startsWith(raw, "[") && StringUtils.endsWith(raw, "]")) {
+                                bodyInfo = buildRequestBodyJsonInfo(JSONUtil.parseArray(raw));
+                            } else {
+                                bodyInfo = buildRequestBodyJsonInfo(JSONUtil.parseObject(raw));
+                            }
                         }
                     }
                 } catch (Exception e1) {    //  若请求体 json 不合法，则忽略错误，原样字符串导出/导入
