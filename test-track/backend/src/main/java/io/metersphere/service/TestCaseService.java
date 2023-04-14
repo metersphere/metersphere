@@ -4,6 +4,7 @@ package io.metersphere.service;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.enums.CellExtraTypeEnum;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
@@ -67,14 +68,12 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -206,6 +205,11 @@ public class TestCaseService {
     private ExtTestAnalysisMapper extTestAnalysisMapper;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
+
+    // 导出CASE的最大值
+    private static final int EXPORT_CASE_MAX_COUNT = 1000;
+
+    private static final String EXPORT_CASE_TMP_DIR = "tmp";
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -1502,26 +1506,110 @@ public class TestCaseService {
         return list;
     }
 
-    public void testCaseExport(HttpServletResponse response, TestCaseExportRequest request) {
-        String projectId = request.getProjectId();
+    public void exportTestCaseZip(HttpServletResponse response, TestCaseExportRequest request) {
+        // zip, response stream
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        File tmpDir = null;
+
+        try {
+            tmpDir = new File(this.getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() +
+                    EXPORT_CASE_TMP_DIR + File.separatorChar + EXPORT_CASE_TMP_DIR + "_" + UUID.randomUUID().toString());
+            // 生成tmp随机目录
+            FileUtils.deleteDir(tmpDir.getPath());
+            tmpDir.mkdirs();
+            // 生成EXCEL
+            List<File> batchExcels = generateCaseExportExcel(tmpDir.getPath(), request);
+            if (batchExcels.size() > 1) {
+                // EXCEL -> ZIP (EXCEL数目大于1)
+                File zipFile = CompressUtils.zipFilesToPath(tmpDir.getPath() + File.separatorChar + "caseExport.zip", batchExcels);
+                response.setContentType("application/octet-stream");
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + URLEncoder.encode("caseExport.zip", StandardCharsets.UTF_8.name()));
+                bis = new BufferedInputStream(new FileInputStream(zipFile.getPath()));
+                os = response.getOutputStream();
+                int len;
+                byte[] bytes = new byte[1024 * 2];
+                while ((len = bis.read(bytes)) != -1) {
+                    os.write(bytes, 0, len);
+                }
+            } else {
+                // EXCEL (EXCEL数目等于1)
+                File singeFile = batchExcels.get(0);
+                response.setContentType("application/vnd.ms-excel");
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + URLEncoder.encode("caseExport.xlsx", StandardCharsets.UTF_8.name()));
+                bis = new BufferedInputStream(new FileInputStream(singeFile.getPath()));
+                os = response.getOutputStream();
+                int len;
+                byte[] bytes = new byte[1024 * 2];
+                while ((len = bis.read(bytes)) != -1) {
+                    os.write(bytes, 0, len);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException("export case zip error");
+        } finally {
+            try {
+                if (bis != null) {
+                    bis.close();
+                }
+                if (os != null) {
+                    os.close();
+                }
+                FileUtils.deleteDir(tmpDir.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private List<File> generateCaseExportExcel(String tmpZipPath, TestCaseExportRequest request) {
+        List<File> tmpExportExcelList = new ArrayList<>();
+        // 初始化ExcelHead
         request.getCondition().setStatusIsNot(CommonConstants.TrashStatus);
-        TestCaseBatchRequest batchRequest = new TestCaseBatchRequest();
-        BeanUtils.copyBean(batchRequest, request);
-        List<TestCaseDTO> testCases = getExportData(batchRequest);
         List<List<String>> headList = getTestcaseExportHeads(request);
+        boolean isUseCustomId = trackProjectService.useCustomNum(request.getProjectId());
+        // 设置导出参数
+        TestCaseBatchRequest initParam = new TestCaseBatchRequest();
+        BeanUtils.copyBean(initParam, request);
+        TestCaseBatchRequest batchRequest = setTestCaseExportParamIds(initParam);
+        // 1000条截取一次, 生成EXCEL
+        AtomicInteger i = new AtomicInteger(0);
+        SubListUtil.dealForSubList(batchRequest.getIds(), EXPORT_CASE_MAX_COUNT, (subIds) -> {
+            i.getAndIncrement();
+            batchRequest.setIds(subIds);
+            // 生成writeHandler
+            Map<Integer, Integer> rowMergeInfo = new HashMap<>();
+            FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, headList);
+            Map<String, List<String>> caseLevelAndStatusValueMap = trackTestCaseTemplateService.getCaseLevelAndStatusMapByProjectId(request.getProjectId());
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(true, headList, caseLevelAndStatusValueMap);
+            List<TestCaseDTO> exportData = getExportData(batchRequest);
+            List<TestCaseExcelData> excelData = parseCaseData2ExcelData(exportData, rowMergeInfo, isUseCustomId, request.getOtherHeaders());
+            List<List<Object>> data = parseExcelData2List(headList, excelData);
+            File createFile = new File(tmpZipPath + File.separatorChar + "caseExport_" + i.get() + ".xlsx");
+            if (!createFile.exists()) {
+                try {
+                    createFile.createNewFile();
+                } catch (IOException e) {
+                    MSException.throwException(e);
+                }
+            }
+            //生成临时EXCEL
+            EasyExcel.write(createFile)
+                    .head(Optional.ofNullable(headList).orElse(new ArrayList<>()))
+                    .registerWriteHandler(handler)
+                    .registerWriteHandler(writeHandler)
+                    .excelType(ExcelTypeEnum.XLSX).sheet(Translator.get("test_case_import_template_sheet")).doWrite(data);
+            tmpExportExcelList.add(createFile);
+        });
+        return tmpExportExcelList;
+    }
 
-        Map<Integer, Integer> rowMergeInfo = new HashMap<>();
-        FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, headList);
-        boolean isUseCustomId = trackProjectService.useCustomNum(projectId);
-
-        Map<String, List<String>> caseLevelAndStatusValueMap = trackTestCaseTemplateService.getCaseLevelAndStatusMapByProjectId(projectId);
-        FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(true, headList, caseLevelAndStatusValueMap);
-
-        List<TestCaseExcelData> excelData = parseCaseData2ExcelData(testCases, rowMergeInfo, isUseCustomId, request.getOtherHeaders());
-        List<List<Object>> data = parseExcelData2List(headList, excelData);
-        new EasyExcelExporter(new TestCaseExcelDataFactory().getTestCaseExcelDataLocal().getClass())
-                .exportByCustomWriteHandler(response, headList, data, Translator.get("test_case_import_template_name"),
-                        Translator.get("test_case_import_template_sheet"), handler, writeHandler);
+    public void cleanUpTmpDirOfClassPath() {
+        File tmpDir = new File(this.getClass().getClassLoader().getResource(StringUtils.EMPTY).getPath() + EXPORT_CASE_TMP_DIR);
+        if (tmpDir.exists()) {
+            FileUtils.deleteDir(tmpDir.getPath());
+        }
     }
 
     @NotNull
@@ -1678,16 +1766,22 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> getExportData(TestCaseBatchRequest request) {
-        ServiceUtils.getSelectAllIds(request, request.getCondition(),
-                (query) -> extTestCaseMapper.selectIds(query));
-        this.initRequest(request.getCondition(), true);
-        setDefaultOrder(request.getCondition());
-        Map<String, List<String>> filters = request.getCondition().getFilters();
+        return extTestCaseMapper.listByTestCaseIds(request);
+    }
+
+    private TestCaseBatchRequest setTestCaseExportParamIds(TestCaseBatchRequest param) {
+        boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
+        param.getCondition().setQueryUi(queryUi);
+        this.initRequest(param.getCondition(), true);
+        setDefaultOrder(param.getCondition());
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(param.getCondition());
+        Map<String, List<String>> filters = param.getCondition().getFilters();
         if (filters != null && !filters.containsKey("status")) {
             filters.put("status", new ArrayList<>(0));
         }
-        List<TestCaseDTO> testCaseList = extTestCaseMapper.listByTestCaseIds(request);
-        return testCaseList;
+        ServiceUtils.getSelectAllIds(param, param.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        return param;
     }
 
     private List<TestCaseExcelData> parseCaseData2ExcelData(List<TestCaseDTO> testCaseList, Map<Integer, Integer> rowMergeInfo,

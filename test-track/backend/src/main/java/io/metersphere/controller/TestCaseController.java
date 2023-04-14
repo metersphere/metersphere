@@ -277,7 +277,7 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public void testCaseExport(HttpServletResponse response, @RequestBody TestCaseExportRequest request) {
-        testCaseService.testCaseExport(response, request);
+        testCaseService.exportTestCaseZip(response, request);
     }
 
     @PostMapping("/export/testcase/xmind")
