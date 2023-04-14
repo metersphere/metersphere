@@ -387,6 +387,11 @@ export default {
           this.$warning(this.$t('api_test.automation.csv_warning'));
           return;
         }
+        this.variables.forEach((item) => {
+          if (item.id === this.editData.id) {
+            item.files = this.editData.files;
+          }
+        });
       }
       // 更新场景，修改左边数据
       if (this.showDelete) {
