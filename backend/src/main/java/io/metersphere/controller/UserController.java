@@ -210,8 +210,7 @@ public class UserController {
 
     @PostMapping("/project/member/add")
     @RequiresPermissions(value={PermissionConstants.PROJECT_USER_READ_CREATE,
-            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_CREATE,
-            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
+            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_ADD_USER}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MEMBER, type = OperLogConstants.CREATE, title = "添加项目成员成员")
     public void addProjectMember(@RequestBody AddMemberRequest request) {
         userService.addProjectMember(request);
