@@ -46,7 +46,7 @@
             @create="create"
             @setLatest="setLatest"
             @del="del" />
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-prevent-re-click>{{ $t('commons.save') }}</el-button>
         </div>
       </el-col>
     </el-row>
