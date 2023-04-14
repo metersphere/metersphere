@@ -14,6 +14,7 @@
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
         <include refid="queryWhereCondition"/>
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
@@ -377,6 +378,12 @@
             and issues.create_time
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
                 <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and issues.update_time
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
         <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
