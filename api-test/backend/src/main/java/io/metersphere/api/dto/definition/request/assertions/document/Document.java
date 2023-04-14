@@ -25,6 +25,8 @@ public class Document {
     private List<DocumentElement> json;
     private List<DocumentElement> xml;
     private String assertionName;
+    private boolean include = false;
+    private boolean typeVerification = false;
 
     private static final String delimiter = "split==";
 
