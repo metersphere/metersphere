@@ -2000,6 +2000,11 @@ public class TestPlanService {
         RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
         runModeConfig.setTestPlanDefaultEnvMap(testplanRunRequest.getTestPlanDefaultEnvMap());
 
+        if (!testplanRunRequest.isRunWithinResourcePool()) {
+            //未勾选资源池运行时，将资源池ID赋空
+            runModeConfig.setResourcePoolId(null);
+        }
+        
         String apiRunConfig = JSON.toJSONString(runModeConfig);
         return this.runTestPlan(testPlanId, testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), testplanRunRequest.getExecutionWay(), apiRunConfig);

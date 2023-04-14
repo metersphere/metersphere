@@ -119,6 +119,14 @@
                     <span>{{ fileBranch }}</span>
                   </el-form-item>
 
+                  <el-form-item
+                    v-if="isRepositoryFile()"
+                    :label="$t('project.project_file.file.path')"
+                    prop="type"
+                  >
+                    <span>{{ data.path }}</span>
+                  </el-form-item>
+
                   <el-form-item :label="$t('load_test.file_type')" prop="type">
                     <span>{{ data.type }}</span>
                   </el-form-item>
