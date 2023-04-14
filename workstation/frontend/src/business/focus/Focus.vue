@@ -1,28 +1,34 @@
 <template>
-  <workstation-detail :is-focus="true" :current-todo-name="currentTodo"/>
+  <workstation-detail
+    :is-focus="true"
+    v-if="projectId !== '' && projectId !== 'no_such_project'"
+    :current-todo-name="currentTodo"
+  />
 </template>
 <script>
 import WorkstationDetail from "@/business/detail/WorkstationDetail";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
 
 export default {
-  name: 'Focus',
+  name: "Focus",
   components: {
-    WorkstationDetail
+    WorkstationDetail,
   },
   data() {
     return {
-      currentTodo:'',
-    }
+      currentTodo: "",
+      projectId: getCurrentProjectID(),
+    };
   },
   methods: {},
   created() {
     if (this.$route.query.name) {
-      this.currentTodo = this.$route.query.name
+      this.currentTodo = this.$route.query.name;
     } else {
-      this.currentTodo = 'track_case'
+      this.currentTodo = "track_case";
     }
-  }
-}
+  },
+};
 </script>
 <style scoped>
 .workstation-card {
