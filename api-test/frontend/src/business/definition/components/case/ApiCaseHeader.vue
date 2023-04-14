@@ -49,6 +49,7 @@
             type="primary"
             size="small"
             @click="saveTestCase"
+            v-prevent-re-click
             @command="handleCommand">
             {{ $t('commons.save') }}
             <el-dropdown-menu slot="dropdown">
