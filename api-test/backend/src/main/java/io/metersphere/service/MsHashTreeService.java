@@ -281,15 +281,16 @@ public class MsHashTreeService {
         }
         try {
             if (orgElement.has(HASH_TREE)) {
-                JSONArray orgJSONArray = orgElement.optJSONArray(HASH_TREE);
-                JSONArray targetJSONArray = targetElement.optJSONArray(HASH_TREE);
-                if (orgJSONArray != null && targetJSONArray != null) {
-                    orgJSONArray.forEach(obj -> {
-                        JSONObject orgJsonObject = (JSONObject) obj;
-                        targetJSONArray.forEach(targetObj -> {
-                            JSONObject targetJsonObject = (JSONObject) targetObj;
-                            if (StringUtils.equals(orgJsonObject.optString(RESOURCE_ID), targetJsonObject.optString(RESOURCE_ID))) {
-                                setRefEnable(targetJsonObject, orgJsonObject);
+                JSONArray org = orgElement.optJSONArray(HASH_TREE);
+                JSONArray target = targetElement.optJSONArray(HASH_TREE);
+                if (org != null && target != null) {
+                    org.forEach(obj -> {
+                        JSONObject childOrg = (JSONObject) obj;
+                        target.forEach(targetObj -> {
+                            JSONObject childTarget = (JSONObject) targetObj;
+                            if (StringUtils.equals(childOrg.optString(ID), childTarget.optString(ID))
+                            && StringUtils.equals(childOrg.optString(INDEX), childTarget.optString(INDEX))) {
+                                setRefEnable(childTarget, childOrg);
                             }
                         });
                     });
