@@ -25,6 +25,15 @@ public class TestCaseBatchRequest extends TestCaseWithBLOBs {
      */
     private Boolean exportAll = false;
 
+    /**
+     * v2.9 大批量导出分页参数
+     * pageStart: 偏移量
+     * pageCount: 数目
+     */
+    private int pageStart = 0;
+
+    private int pageCount = 0;
+
     @Getter
     @Setter
     public static class CustomFiledRequest {
