@@ -1052,7 +1052,7 @@ export default {
         fileNameSuffix = ".xmind";
       } else {
         url = '/test/case/export/testcase'
-        fileNameSuffix = ".xlsx";
+        fileNameSuffix = this.selectCounts > 1000 ? ".zip" : ".xlsx";
       }
       this.loading = true;
       store.isTestCaseExporting = true;
