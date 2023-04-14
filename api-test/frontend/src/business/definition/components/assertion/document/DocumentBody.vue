@@ -399,6 +399,12 @@ export default {
             this.tableDataList(this.document.data.xml);
           }
         }
+        if (!this.document.data.include) {
+          this.document.data.include = false;
+        }
+        if (!this.document.data.typeVerification) {
+          this.document.data.typeVerification = false;
+        }
         this.reload();
       }
     },
@@ -454,6 +460,9 @@ export default {
           on: {
             change: this.handleCheckAllChange,
           },
+          props: {
+            checked: this.document.data.include
+          },
         }),
         h(
           'el-tooltip',
@@ -480,6 +489,9 @@ export default {
           disabled: this.checked,
           on: {
             change: this.handleType,
+          },
+          props: {
+            checked: this.document.data.typeVerification
           },
         }),
         h(
@@ -534,6 +546,7 @@ export default {
       }
     },
     handleCheckAllChange(val) {
+      this.document.data.include = val;
       if (this.checked) {
         return;
       }
@@ -558,6 +571,7 @@ export default {
       });
     },
     handleType(val) {
+      this.document.data.typeVerification = val;
       if (this.checked) {
         return;
       }
