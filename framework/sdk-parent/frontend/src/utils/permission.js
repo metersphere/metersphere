@@ -3,6 +3,9 @@ import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "./toke
 
 export function hasPermission(permission) {
   let user = getCurrentUser();
+  if (!user || !user.groups) {
+    return false;
+  }
   let index = user.groups.findIndex(g => g.id === SUPER_GROUP);
   if (index !== -1) {
     return true;
