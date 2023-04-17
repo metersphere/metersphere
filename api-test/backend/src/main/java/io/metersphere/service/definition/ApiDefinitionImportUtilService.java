@@ -1325,7 +1325,6 @@ public class ApiDefinitionImportUtilService {
             createCase = true;
         }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
-        msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSON.toJSONString(msHTTPSamplerProxy));
         return createCase;
     }
@@ -1344,7 +1343,6 @@ public class ApiDefinitionImportUtilService {
             createCase = true;
         }
         tcpSampler.setId(apiDefinition.getId());
-        tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSON.toJSONString(tcpSampler));
         return createCase;
     }
