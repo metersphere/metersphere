@@ -281,16 +281,17 @@
     </select>
     <select id="getCountFollow" resultType="java.lang.Integer">
         select count(*) from api_test_case ac where
-        ac.id in (select af.case_id from api_test_case_follow  af where  af.follow_id = #{userId,jdbcType=VARCHAR})
+        ac.id in (select af.case_id from api_test_case_follow af where af.follow_id = #{userId,jdbcType=VARCHAR})
         and
-        ac.project_id  in
+        ac.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         and (ac.status is null or ac.status != 'Trash');
     </select>
     <select id="getUpdateCount" resultType="java.lang.Integer">
-        select count(*) from api_test_case ac where ac.project_id = #{projectId,jdbcType=VARCHAR} and ac.create_user_id = #{userId,jdbcType=VARCHAR}
+        select count(*) from api_test_case ac where ac.project_id = #{projectId,jdbcType=VARCHAR} and ac.create_user_id
+        = #{userId,jdbcType=VARCHAR}
         and case_status in ('Prepare', 'Underway', 'Completed')
         <if test="statusList !=null and statusList.size() > 0">
             and ( ac.to_be_updated = 'true' or ac.status
@@ -306,7 +307,7 @@
             <foreach collection="statusList" item="value" separator="," open="(" close=")">
                 #{value}
             </foreach>
-         ))
+            ))
         </if>
         <if test="toBeUpdateTime !=null and (statusList ==null or statusList.size() == 0)">
             and ac.to_be_update_time >= #{toBeUpdateTime}
@@ -314,7 +315,7 @@
     </select>
     <select id="getCountUpcoming" resultType="java.lang.Integer">
         select count(*) from api_test_case ac where
-        ac.project_id  in
+        ac.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
@@ -399,6 +400,9 @@
             </if>
             <if test="request.filters == null || request.filters.size() == 0 ">
                 and (api_test_case.status is null or api_test_case.status != 'Trash')
+            </if>
+            <if test="request.createTime >0 ">
+                AND api_test_case.create_time >= #{request.createTime}
             </if>
         </where>
     </sql>
