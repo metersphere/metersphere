@@ -25,8 +25,9 @@ public class RequestMockParams {
 
     private JSONObject xmlToJsonParam;
 
-
     private String raw;
+
+    private String tcpParam;
 
 
     public boolean isEmpty() {
