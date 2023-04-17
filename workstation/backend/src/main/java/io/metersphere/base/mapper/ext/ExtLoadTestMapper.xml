@@ -154,13 +154,16 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
+            <if test="request.createTime >0 ">
+                AND load_test.create_time >= #{request.createTime}
+            </if>
         </where>
     </select>
     <select id="getCountFollow" resultType="java.lang.Integer">
         select count(*) from load_test lt where
-        lt.id in (select lf.test_id from load_test_follow  lf where  lf.follow_id = #{userId,jdbcType=VARCHAR})
+        lt.id in (select lf.test_id from load_test_follow lf where lf.follow_id = #{userId,jdbcType=VARCHAR})
         and
-        lt.project_id  in
+        lt.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
@@ -168,7 +171,7 @@
     </select>
     <select id="getCountUpcoming" resultType="java.lang.Integer">
         select count(*) from load_test lt where
-        lt.project_id  in
+        lt.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
