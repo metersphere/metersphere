@@ -2,7 +2,7 @@ package io.metersphere.plugin.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.metersphere.plugin.util.LogUtil;
+import io.metersphere.plugin.util.PluginLogUtils;
 import lombok.Data;
 
 import org.apache.jmeter.save.SaveService;
@@ -66,8 +66,7 @@ public abstract class TestElementDTO {
             SaveService.saveTree(hashTree, bas);
             return bas.toString();
         } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
+            PluginLogUtils.error("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;
     }

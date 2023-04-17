@@ -3,11 +3,7 @@ package io.metersphere.plugin.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-public class LogUtil {
+public class PluginLogUtils {
     public static final String DEBUG = "DEBUG";
     public static final String INFO = "INFO";
     public static final String WARN = "WARN";
@@ -19,27 +15,27 @@ public class LogUtil {
      * @return
      */
     public static Logger getLogger() {
-        return LoggerFactory.getLogger(LogUtil.getLogClass());
+        return LoggerFactory.getLogger(PluginLogUtils.getLogClass());
     }
 
     public static void writeLog(Object msg, String level) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
 
         if (DEBUG.equals(level)) {
             if (logger != null && logger.isDebugEnabled()) {
-                logger.debug(LogUtil.getMsg(msg));
+                logger.debug(PluginLogUtils.getMsg(msg));
             }
         } else if (INFO.equals(level)) {
             if (logger != null && logger.isInfoEnabled()) {
-                logger.info(LogUtil.getMsg(msg));
+                logger.info(PluginLogUtils.getMsg(msg));
             }
         } else if (WARN.equals(level)) {
             if (logger != null && logger.isWarnEnabled()) {
-                logger.warn(LogUtil.getMsg(msg));
+                logger.warn(PluginLogUtils.getMsg(msg));
             }
         } else if (ERROR.equals(level)) {
             if (logger != null && logger.isErrorEnabled()) {
-                logger.error(LogUtil.getMsg(msg));
+                logger.error(PluginLogUtils.getMsg(msg));
             }
         } else {
             if (logger != null && logger.isErrorEnabled()) {
@@ -49,122 +45,122 @@ public class LogUtil {
     }
 
     public static void info(Object msg) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isInfoEnabled()) {
-            logger.info(LogUtil.getMsg(msg));
+            logger.info(PluginLogUtils.getMsg(msg));
             System.out.println(msg);
         }
     }
 
     public static void info(Object msg, Object o1) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isInfoEnabled()) {
-            logger.info(LogUtil.getMsg(msg), o1);
+            logger.info(PluginLogUtils.getMsg(msg), o1);
         }
     }
 
     public static void info(Object msg, Object o1, Object o2) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isInfoEnabled()) {
-            logger.info(LogUtil.getMsg(msg), o1, o2);
+            logger.info(PluginLogUtils.getMsg(msg), o1, o2);
         }
     }
 
     public static void info(Object msg, Object[] obj) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isInfoEnabled()) {
-            logger.info(LogUtil.getMsg(msg), obj);
+            logger.info(PluginLogUtils.getMsg(msg), obj);
         }
     }
 
     public static void debug(Object msg) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isDebugEnabled()) {
-            logger.debug(LogUtil.getMsg(msg));
+            logger.debug(PluginLogUtils.getMsg(msg));
         }
     }
 
     public static void debug(Object msg, Object o) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isDebugEnabled()) {
-            logger.debug(LogUtil.getMsg(msg), o);
+            logger.debug(PluginLogUtils.getMsg(msg), o);
         }
     }
 
     public static void debug(Object msg, Object o1, Object o2) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isDebugEnabled()) {
-            logger.debug(LogUtil.getMsg(msg), o1, o2);
+            logger.debug(PluginLogUtils.getMsg(msg), o1, o2);
         }
     }
 
     public static void debug(Object msg, Object[] obj) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isDebugEnabled()) {
-            logger.debug(LogUtil.getMsg(msg), obj);
+            logger.debug(PluginLogUtils.getMsg(msg), obj);
         }
     }
 
     public static void warn(Object msg) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isWarnEnabled()) {
-            logger.warn(LogUtil.getMsg(msg));
+            logger.warn(PluginLogUtils.getMsg(msg));
         }
     }
 
     public static void warn(Object msg, Object o) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isWarnEnabled()) {
-            logger.warn(LogUtil.getMsg(msg), o);
+            logger.warn(PluginLogUtils.getMsg(msg), o);
         }
     }
 
     public static void warn(Object msg, Object o1, Object o2) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isWarnEnabled()) {
-            logger.warn(LogUtil.getMsg(msg), o1, o2);
+            logger.warn(PluginLogUtils.getMsg(msg), o1, o2);
         }
     }
 
     public static void warn(Object msg, Object[] obj) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isWarnEnabled()) {
-            logger.warn(LogUtil.getMsg(msg), obj);
+            logger.warn(PluginLogUtils.getMsg(msg), obj);
         }
     }
 
     public static void error(Object msg) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isErrorEnabled()) {
-            logger.error(LogUtil.getMsg(msg));// 并追加方法名称
+            logger.error(PluginLogUtils.getMsg(msg));// 并追加方法名称
         }
     }
 
     public static void error(Object msg, Object o) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isErrorEnabled()) {
-            logger.error(LogUtil.getMsg(msg), o);
+            logger.error(PluginLogUtils.getMsg(msg), o);
         }
     }
 
     public static void error(Object msg, Object o1, Object o2) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isErrorEnabled()) {
-            logger.error(LogUtil.getMsg(msg), o1, o2);
+            logger.error(PluginLogUtils.getMsg(msg), o1, o2);
         }
     }
 
     public static void error(Object msg, Object[] obj) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isErrorEnabled()) {
-            logger.error(LogUtil.getMsg(msg), obj);
+            logger.error(PluginLogUtils.getMsg(msg), obj);
         }
     }
 
     public static void error(Object msg, Throwable ex) {
-        Logger logger = LogUtil.getLogger();
+        Logger logger = PluginLogUtils.getLogger();
         if (logger != null && logger.isErrorEnabled()) {
-            logger.error(LogUtil.getMsg(msg), ex);
+            logger.error(PluginLogUtils.getMsg(msg), ex);
         }
     }
 
@@ -172,9 +168,9 @@ public class LogUtil {
         String str = "";
 
         if (msg != null) {
-            str = LogUtil.getLogMethod() + "[" + msg.toString() + "]";
+            str = PluginLogUtils.getLogMethod() + "[" + msg.toString() + "]";
         } else {
-            str = LogUtil.getLogMethod() + "[null]";
+            str = PluginLogUtils.getLogMethod() + "[null]";
         }
         if (ex != null) {
             str += "[" + ex.getMessage() + "]";
@@ -184,7 +180,7 @@ public class LogUtil {
     }
 
     public static String getMsg(Object msg) {
-        return LogUtil.getMsg(msg, null);
+        return PluginLogUtils.getMsg(msg, null);
     }
 
     /**
@@ -219,41 +215,5 @@ public class LogUtil {
         }
 
         return str;
-    }
-
-    public static String toString(Throwable e) {
-        StringWriter sw = null;
-        PrintWriter pw = null;
-        try {
-            sw = new StringWriter();
-            pw = new PrintWriter(sw);
-            //将出错的栈信息输出到printWriter中
-            e.printStackTrace(pw);
-            pw.flush();
-            sw.flush();
-        } finally {
-            if (sw != null) {
-                try {
-                    sw.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-            if (pw != null) {
-                pw.close();
-            }
-        }
-        return sw.toString();
-    }
-
-    public static String getExceptionDetailsToStr(Exception e) {
-        StringBuilder sb = new StringBuilder(e.toString());
-        StackTraceElement[] stackElements = e.getStackTrace();
-        for (StackTraceElement stackTraceElement : stackElements) {
-            sb.append(stackTraceElement.toString());
-            sb.append("\n");
-        }
-        sb.append("\n");
-        return sb.toString();
     }
 }
