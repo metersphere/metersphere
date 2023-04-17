@@ -1880,6 +1880,9 @@ export default {
                 }
               }
               this.isPreventReClick = true;
+              if (this.currentScenario.scenarioDefinitionOrg){
+               delete this.currentScenario['scenarioDefinitionOrg'];
+              }
               await saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
                 this.isPreventReClick = false;
@@ -2014,6 +2017,16 @@ export default {
                 }
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
+                this.$nextTick(()=>{
+                  let data = this.scenarioDefinition;
+                  if (data.hashTree) {
+                    this.sort(data.hashTree);
+                    let domainMap = new Map();
+                    this.getEnvDomain(data.hashTree, domainMap);
+                    this.margeDomain(this.scenarioDefinition, domainMap);
+                    this.cancelBatchProcessing();
+                  }
+                })
               }
             }
             if (this.currentScenario.copy) {

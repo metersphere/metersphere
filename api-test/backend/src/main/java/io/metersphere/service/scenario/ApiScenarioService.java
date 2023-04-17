@@ -732,6 +732,16 @@ public class ApiScenarioService {
             ElementUtil.dataFormatting(element);
             scenarioWithBLOBs.setScenarioDefinition(element.toString());
         }
+        if (StringUtils.isNotBlank(scenarioWithBLOBs.getEnvironmentJson())) {
+            ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
+            request.setEnvironmentEnable(false);
+            request.setDefinition(scenarioWithBLOBs.getScenarioDefinition());
+            request.setEnvironmentMap( JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
+            request.setEnvironmentType(scenarioWithBLOBs.getEnvironmentType());
+            request.setEnvironmentGroupId(scenarioWithBLOBs.getEnvironmentGroupId());
+            request.setId(scenarioWithBLOBs.getId());
+            scenarioWithBLOBs.setScenarioDefinition(this.setDomain(request));
+        }
         return scenarioWithBLOBs;
     }
 
