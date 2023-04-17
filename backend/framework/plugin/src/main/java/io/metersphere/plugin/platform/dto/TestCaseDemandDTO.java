@@ -1,12 +1,11 @@
 package io.metersphere.plugin.platform.dto;
 
-import io.metersphere.base.domain.TestCaseWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class TestCaseDemandDTO extends TestCaseWithBLOBs {
+public class TestCaseDemandDTO {
 
     /**
      * 修改前的需求ID
