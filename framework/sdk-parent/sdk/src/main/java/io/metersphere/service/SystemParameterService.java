@@ -1,17 +1,18 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.SystemHeaderMapper;
-import io.metersphere.base.mapper.SystemParameterMapper;
-import io.metersphere.base.mapper.UserHeaderMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseSystemParameterMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ParamConstants;
+import io.metersphere.commons.constants.ProjectApplicationType;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.LdapInfo;
@@ -24,10 +25,15 @@ import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.MailNoticeSender;
 import io.metersphere.request.HeaderRequest;
+import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +42,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -55,6 +62,15 @@ public class SystemParameterService {
     private BaseEnvironmentService baseEnvironmentService;
     @Resource
     private MicroService microService;
+    @Resource
+    private BaseTestResourcePoolService baseTestResourcePoolService;
+    @Resource
+    private BaseProjectService baseProjectService;
+    @Resource
+    private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+
 
     public String searchEmail() {
         return baseSystemParameterMapper.email();
@@ -245,6 +261,62 @@ public class SystemParameterService {
         return baseSystemConfigDTO;
     }
 
+    public TestResourcePoolDTO getTestResourcePool() {
+        QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
+        resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
+        List<TestResourcePoolDTO> poolDTOS = baseTestResourcePoolService.listResourcePools(resourcePoolRequest);
+        if (CollectionUtils.isNotEmpty(poolDTOS)) {
+            List<TestResourcePoolDTO> localPools = poolDTOS.stream().filter(item ->
+                    StringUtils.equals(item.getName(), "LOCAL")).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(localPools)) {
+                return localPools.get(0);
+            } else {
+                return poolDTOS.get(0);
+            }
+        }
+        return null;
+    }
+
+    public void saveProjectApplication(List<String> projectIds, String poolId, ProjectApplicationMapper batchMapper) {
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            List<String> appProjectIds = baseProjectApplicationService.getProjectIds(projectIds);
+            projectIds.removeAll(appProjectIds);
+            // 添加
+            projectIds.forEach(item -> {
+                ProjectApplication application = new ProjectApplication();
+                application.setProjectId(item);
+                application.setType(ProjectApplicationType.POOL_ENABLE.name());
+                application.setTypeValue(String.valueOf(true));
+                batchMapper.insert(application);
+
+                ProjectApplication applicationValue = new ProjectApplication();
+                applicationValue.setProjectId(item);
+                applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
+                applicationValue.setTypeValue(poolId);
+                batchMapper.insert(applicationValue);
+            });
+        }
+    }
+
+    public void saveProjectApp(String poolId, long size) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ProjectApplicationMapper batchMapper = sqlSession.getMapper(ProjectApplicationMapper.class);
+        final long pageSize = 500;
+        long pageTotal = size / pageSize;
+        pageTotal = pageTotal > 0 ? pageTotal : 1;
+        for (int i = 0; i < pageTotal; i++) {
+            long pageNum = i * pageSize;
+            List<String> projectIds = baseProjectService.getPage(pageNum, pageSize);
+            if (CollectionUtils.isNotEmpty(projectIds)) {
+                saveProjectApplication(projectIds, poolId, batchMapper);
+            }
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
 
@@ -260,6 +332,14 @@ public class SystemParameterService {
                     } catch (Exception e) {
                         MSException.throwException("并发数设置不规范，请重新设置");
                     }
+                }
+            }
+            // 启用资源池
+            if (param.getParamKey().equals("base.run.mode") && param.getParamValue().equals("POOL")) {
+                TestResourcePoolDTO poolDTO = getTestResourcePool();
+                if (poolDTO != null) {
+                    long size = baseProjectService.count();
+                    saveProjectApp(poolDTO.getId(), size);
                 }
             }
             // 去掉路径最后的 /

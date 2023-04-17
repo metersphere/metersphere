@@ -51,4 +51,6 @@ public interface BaseProjectMapper {
     List<String> getThirdPartProjectIds();
 
     Project selectOne();
+
+    List<String> selectPage(long pageNum, long pageSize);
 }
