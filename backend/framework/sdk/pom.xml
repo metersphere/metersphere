@@ -342,7 +342,7 @@
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>plugin-sdk</artifactId>
+            <artifactId>metersphere-plugin-sdk</artifactId>
             <version>${version}</version>
             <exclusions>
                 <exclusion>
