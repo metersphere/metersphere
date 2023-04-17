@@ -3,6 +3,8 @@ package io.metersphere.api.dto.definition.request.sampler;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -143,9 +145,9 @@ public class MsTCPSampler extends MsTestElement {
         // 失败重试
         if (config.getRetryNum() > 0 && !ElementUtil.isLoop(this.getParent())) {
             final HashTree loopTree = ElementUtil.retryHashTree(this.getName(), config.getRetryNum(), tree);
-             loopTree.set(tcpSampler, samplerHashTree);
+            loopTree.set(tcpSampler, samplerHashTree);
         } else {
-             tree.set(tcpSampler, samplerHashTree);
+            tree.set(tcpSampler, samplerHashTree);
         }
 
         setUserParameters(samplerHashTree);
@@ -164,6 +166,9 @@ public class MsTCPSampler extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             hashTree.forEach(el -> {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor) {
+                    el.setParent(this);
+                }
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }

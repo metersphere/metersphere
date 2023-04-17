@@ -53,6 +53,10 @@ public class MsJDBCPreProcessor extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
+        //检查projectId 旧数据
+        if (StringUtils.isBlank(this.getProjectId()) && this.getParent() != null) {
+            this.setProjectId(this.getParent().getProjectId());
+        }
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
