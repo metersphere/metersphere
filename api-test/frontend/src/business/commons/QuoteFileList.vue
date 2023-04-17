@@ -53,7 +53,7 @@
           :filters="typeFilters"
           :label="$t('load_test.file_type')">
         </ms-table-column>
-
+        <ms-table-column :min-width="120" :label="$t('project.project_file.file.path')" prop="path" />
         <ms-table-column prop="description" :min-width="100" :label="$t('group.description')"></ms-table-column>
 
         <ms-table-column prop="tags" width="100px" :show-overflow-tooltip="false" :label="$t('commons.tag')">
