@@ -159,54 +159,6 @@ public class CompressUtils {
         return b;
     }
 
-    /**
-     * GZip压缩
-     *
-     * @param data 待压缩数据
-     * @return 压缩后数
-     */
-    public static Object gzip(Object data) {
-        if (!(data instanceof byte[])) {
-            return data;
-        }
-        byte[] bytes = (byte[]) data;
-        try (ByteArrayOutputStream obj = new ByteArrayOutputStream(); GZIPOutputStream gzip = new GZIPOutputStream(obj)) {
-            gzip.write(bytes);
-            gzip.flush();
-            gzip.finish();
-            return obj.toByteArray();
-        } catch (Exception e) {
-            return data;
-        }
-    }
-
-    /**
-     * GZip解压
-     *
-     * @param data 待解压数据
-     * @return 解压后数据
-     */
-    public static Object unGzip(Object data) {
-        if (!(data instanceof byte[])) {
-            return data;
-        }
-        byte[] bytes = (byte[]) data;
-        if (bytes.length == 0) {
-            return bytes;
-        }
-        try (GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes)); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = gis.read(buffer)) > 0) {
-                baos.write(buffer, 0, len);
-            }
-            baos.flush();
-            return baos.toByteArray();
-        } catch (Exception e) {
-            return data;
-        }
-    }
-
     public static Object zipString(Object data) {
         if (!(data instanceof String)) {
             return data;
