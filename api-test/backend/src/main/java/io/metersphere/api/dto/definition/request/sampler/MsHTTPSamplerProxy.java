@@ -6,7 +6,9 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.mock.MockApiHeaders;
 import io.metersphere.api.dto.scenario.Body;
@@ -237,6 +239,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree = ElementUtil.order(hashTree);
             for (MsTestElement el : hashTree) {
+                if (el instanceof MsJDBCPreProcessor || el instanceof MsJDBCPostProcessor) {
+                    el.setParent(this);
+                }
                 if (el.getEnvironmentId() == null) {
                     if (this.getEnvironmentId() == null) {
                         el.setEnvironmentId(useEnvironment);
@@ -425,13 +430,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         envPath += this.getPath();
                     }
                     sampler.setPort(httpConfig.getPort());
-                    if (httpConfig.getDomain().startsWith("${")){
+                    if (httpConfig.getDomain().startsWith("${")) {
                         sampler.setProtocol(httpConfig.getProtocol());
                         envPath = StringUtils.isNotBlank(this.path) ? StringUtils.join(httpConfig.getSocket(), this.path) : url;
                     } else if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
                         sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), StandardCharsets.UTF_8.name()));
                         sampler.setProtocol(httpConfig.getProtocol());
-                    }  else {
+                    } else {
                         sampler.setDomain("");
                         sampler.setProtocol("");
                         sampler.setPort(-1);
