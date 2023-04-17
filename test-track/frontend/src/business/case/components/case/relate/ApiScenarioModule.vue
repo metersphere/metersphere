@@ -41,7 +41,7 @@ import MsNodeTree from "metersphere-frontend/src/components/new-ui/MsNodeTree";
 import { buildTree } from "metersphere-frontend/src/model/NodeTree";
 import MsSearchBar from "metersphere-frontend/src/components/search/MsSearchBar";
 import { getCurrentProjectID } from "@/business/utils/sdk-utils";
-import { apiAutomationModuleProjectList } from "@/api/remote/api/api-automation-module";
+import { getAutomationModuleListByParam } from "@/api/remote/api/api-automation-module";
 import { apiAutomationModulePlanList } from "@/api/remote/plan/test-plan-scenario";
 
 export default {
@@ -75,6 +75,7 @@ export default {
         return getCurrentProjectID();
       },
     },
+    caseCondition: Object
   },
   computed: {
     isPlanModel() {
@@ -132,13 +133,12 @@ export default {
           this.getData(response);
         });
       } else if (this.isRelevanceModel) {
-        apiAutomationModuleProjectList(this.relevanceProjectId).then(
-          (response) => {
+        getAutomationModuleListByParam(this.relevanceProjectId, this.caseCondition).then((response) => {
             this.getData(response);
           }
         );
       } else {
-        apiAutomationModuleProjectList(projectId).then((response) => {
+        getAutomationModuleListByParam(projectId, this.caseCondition).then((response) => {
           this.getData(response);
         });
       }
@@ -176,7 +176,7 @@ export default {
           this.getNohupReloadData(response, selectNodeId);
         });
       } else if (this.isRelevanceModel) {
-        apiAutomationModuleProjectList(this.relevanceProjectId).then(
+        getAutomationModuleListByParam(this.relevanceProjectId, this.caseCondition).then(
           (response) => {
             this.getNohupReloadData(response, selectNodeId);
           }
