@@ -179,6 +179,7 @@ export default {
     testCaseId: String,
   },
   created: function () {
+    this.$emit('setCondition', this.condition);
     this.getVersionOptions();
     this.initTable();
   },
@@ -216,6 +217,7 @@ export default {
       }
       this.condition.notInIds = this.notInIds;
       this.condition.testCaseId = this.testCaseId;
+      this.$emit('setCondition', this.condition);
       getTestCaseRelevanceScenarioList(
         this.currentPage,
         this.pageSize,
