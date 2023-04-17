@@ -1,11 +1,12 @@
 package io.metersphere.api.tcp.server;
 
 import io.metersphere.api.dto.mock.MockExpectConfigDTO;
+import io.metersphere.api.dto.mock.RequestMockParams;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.JSONUtil;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.service.MockConfigService;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
@@ -66,7 +67,9 @@ public class TCPService {
                     if (respResultObj.has("usePostScript")) {
                         useScript = respResultObj.getBoolean("usePostScript");
                     }
-                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), StringUtils.EMPTY, null, null, useScript);
+                    RequestMockParams requestMockParams = new RequestMockParams();
+                    requestMockParams.setTcpParam(message);
+                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), StringUtils.EMPTY, null, requestMockParams, useScript);
                 }
                 try {
                     if (respResultObj.has("delayed")) {

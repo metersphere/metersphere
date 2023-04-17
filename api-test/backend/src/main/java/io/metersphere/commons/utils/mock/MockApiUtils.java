@@ -9,7 +9,6 @@ import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.MockParamConditionEnums;
 import io.metersphere.commons.enums.MockRequestType;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import jakarta.servlet.http.HttpServletRequest;
