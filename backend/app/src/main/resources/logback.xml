@@ -16,14 +16,10 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <File>${logging.file.path}/debug.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/debug.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/debug.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -37,14 +33,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/info.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/info.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/info.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -61,14 +53,10 @@
         </filter>
 
         <File>${logging.file.path}/error.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/error.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/error.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -84,14 +72,10 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <File>${logging.file.path}/warn.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/warn.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/warn.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -148,14 +132,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/api-test.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/api-test.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/api-test.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -169,8 +149,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="apiAppender"/>
     </appender>
-    <logger name="api-test" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="api-test" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="apiTestAppender"/>
     </logger>
 
@@ -181,14 +160,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/load-test.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/load-test.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/load-test.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -202,8 +177,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="loadAppender"/>
     </appender>
-    <logger name="load-test" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="load-test" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="loadTestAppender"/>
     </logger>
 
@@ -214,14 +188,11 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/project.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/project.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -235,8 +206,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="projectAppender"/>
     </appender>
-    <logger name="project-management" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="project-management" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="projectManagementAppender"/>
     </logger>
 
@@ -248,14 +218,11 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/system-setting.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/system-setting.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -269,8 +236,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="systemAppender"/>
     </appender>
-    <logger name="system-setting" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="system-setting" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="systemSettingAppender"/>
     </logger>
 
@@ -281,14 +247,11 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/test-plan.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <FileNamePattern>${logging.file.path}/history/test-plan.%d{yyyyMMdd}-%i.log
             </FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -302,8 +265,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="testPlanAppender"/>
     </appender>
-    <logger name="test-plan" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="test-plan" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="testPlanRefAppender"/>
     </logger>
 
@@ -314,14 +276,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/test-track.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/test-track.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/test-track.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -335,8 +293,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="testTrackAppender"/>
     </appender>
-    <logger name="test-track" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="test-track" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="testTrackRefAppender"/>
     </logger>
 
@@ -348,14 +305,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/ui-test.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/ui-test.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/ui-test.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -369,8 +322,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="uiTestAppender"/>
     </appender>
-    <logger name="ui-test" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="ui-test" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="uiTestRefAppender"/>
     </logger>
 
@@ -382,14 +334,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/workstation.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/workstation.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/workstation.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -403,8 +351,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="workstationAppender"/>
     </appender>
-    <logger name="workstation" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="workstation" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="workstationRefAppender"/>
     </logger>
 
@@ -415,14 +362,10 @@
             <level>INFO</level>
         </filter>
         <File>${logging.file.path}/ms-jmeter-run.log</File>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/ms-jmeter-run-log.%d{yyyyMMdd}-%i.log
-            </FileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logging.file.path}/history/ms-jmeter-run-log.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
-            <TimeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
-            </TimeBasedFileNamingAndTriggeringPolicy>
+            <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
@@ -436,8 +379,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="apiRunLogAppender"/>
     </appender>
-    <logger name="ms-jmeter-run-log" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="ms-jmeter-run-log" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="runLogAppender"/>
     </logger>
 
@@ -452,8 +394,7 @@
     <logger name="org.apache.jmeter" additivity="false" level="INFO">
         <appender-ref ref="JMETER_LOG"/>
     </logger>
-    <logger name="io.metersphere" additivity="false">
-        <level value="${logger.level:INFO}"/>
+    <logger name="io.metersphere" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="infoAsyncAppender"/>
         <appender-ref ref="warnAsyncAppender"/>
         <appender-ref ref="errorAsyncAppender"/>
