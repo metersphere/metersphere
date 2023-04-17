@@ -146,7 +146,7 @@ export default {
   },
   data() {
     let validateURL = (rule, value, callback) => {
-      if (!this.api.request.path.startsWith('/')) {
+      if (!this.api.request.path || !this.api.request.path.startsWith('/')) {
         callback(this.$t('api_test.definition.request.path_valid_info'));
       }
       callback();
