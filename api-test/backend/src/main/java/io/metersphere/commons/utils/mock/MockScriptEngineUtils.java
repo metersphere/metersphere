@@ -89,6 +89,14 @@ public class MockScriptEngineUtils {
         return engine;
     }
 
+    private String escapeString(String str) {
+        if (str == null) {
+            return str;
+        } else {
+            return StringUtils.replace(str, "\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+        }
+    }
+
     private String genBeanshellPreScript(String url, Map<String, String> headerMap, RequestMockParams requestMockParams) {
         StringBuilder preScriptBuffer = new StringBuilder();
         preScriptBuffer.append("Map vars = new HashMap();\n");
@@ -105,6 +113,11 @@ public class MockScriptEngineUtils {
         }
 
         if (requestMockParams != null) {
+            //判断是否含有tcpParam
+            if (StringUtils.isNotEmpty(requestMockParams.getTcpParam())) {
+                String value = this.escapeString(requestMockParams.getTcpParam());
+                preScriptBuffer.append("vars.put(\"tcpParam\",\"").append(value).append("\");\n");
+            }
             //写入body参数
             if (requestMockParams.isPost()) {
                 if (requestMockParams.getQueryParamsObj() != null) {
@@ -175,6 +188,12 @@ public class MockScriptEngineUtils {
             preScriptBuffer.append("vars[\"header.").append(headerKey).append("\"]=\"").append(headerValue).append("\";\n");
         }
         if (requestMockParams != null) {
+            //判断是否含有tcpParam
+            if (StringUtils.isNotEmpty(requestMockParams.getTcpParam())) {
+                String value = requestMockParams.getTcpParam();
+                value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
+                preScriptBuffer.append("vars[\"bodyRaw\"]=\"").append(value).append("\";\n");
+            }
             //写入body参数
             if (requestMockParams.isPost()) {
                 if (requestMockParams.getQueryParamsObj() != null) {
