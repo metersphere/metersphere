@@ -22,7 +22,7 @@ ENV JAVA_CLASSPATH=/app:/app/lib/ms-jmeter-core.jar:/opt/jmeter/lib/ext/*:/app/l
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
-ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true -Dpolyglot.js.nashorn-compat=true -Dpolyglot.log.file=/opt/metersphere/logs/ui-test/info.log --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED -Dnashorn.args=--no-deprecation-warning"
+ENV JAVA_OPTIONS="-Dfile.encoding=utf-8 -Djava.awt.headless=true -Dpolyglot.js.nashorn-compat=true -Dpolyglot.log.file=/opt/metersphere/logs/metersphere/info.log --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED -Dnashorn.args=--no-deprecation-warning"
 
 
 CMD ["/deployments/run-java.sh"]
