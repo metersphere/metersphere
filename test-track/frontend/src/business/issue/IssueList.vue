@@ -56,7 +56,7 @@
             :label="item.label"
             :prop="item.id"
             :field="item"
-            :sortable="item.sortable"
+            :sortable="item.sortable ? 'custom' : item.sortable"
             :min-width="item.minWidth"
             :column-key="item.columnKey"
             :width="item.width"
