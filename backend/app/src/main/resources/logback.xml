@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
-    <property resource="application.properties"/>
     <property resource="commons.properties"/>
     <property file="/opt/metersphere/conf/metersphere.properties"/>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
