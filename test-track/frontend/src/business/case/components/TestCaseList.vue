@@ -56,7 +56,7 @@
 
       <ms-table-column
         prop="deleteTime"
-        sortable
+        sortable="custom"
         v-if="this.trashEnable"
         :fields-width="fieldsWidth"
         :label="$t('commons.delete_time')"
@@ -81,7 +81,7 @@
           :fields-width="fieldsWidth"
           :column-key="'num'"
           :prop="'num'"
-          sortable
+          sortable="custom"
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
@@ -94,7 +94,7 @@
           :fields-width="fieldsWidth"
           :column-key="'customNum'"
           prop="customNum"
-          sortable
+          sortable="custom"
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
@@ -104,7 +104,7 @@
 
         <ms-table-column
           prop="name"
-          sortable
+          sortable="custom"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.name')"
@@ -121,7 +121,7 @@
         </ms-table-column>
 
         <ms-table-column
-          sortable
+          sortable="custom"
           prop="createUser"
           min-width="120"
           :field="item"
