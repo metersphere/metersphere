@@ -123,10 +123,8 @@ import MsSingleTag from "metersphere-frontend/src/components/new-ui/MsSingleTag"
 import { TEST_CASE_RELEVANCE_API_CASE_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
 import { getVersionFilters } from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
-import {
-  getTestCaseRelevanceScenarioList,
-  getTestCaseRelevanceUiScenarioList,
-} from "@/api/testCase";
+import { getTestCaseRelevanceUiScenarioList } from "@/api/testCase";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
 
 export default {
@@ -177,6 +175,7 @@ export default {
     testCaseId: String,
   },
   created: function () {
+    this.$emit('setCondition', this.condition);
     this.getVersionOptions();
     this.initTable();
   },
@@ -216,6 +215,7 @@ export default {
 
       this.condition.notInIds = this.notInIds;
       this.condition.testCaseId = this.testCaseId;
+      this.$emit('setCondition', this.condition);
       getTestCaseRelevanceUiScenarioList(
         this.currentPage,
         this.pageSize,
