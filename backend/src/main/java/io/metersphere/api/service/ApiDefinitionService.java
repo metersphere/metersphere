@@ -1223,7 +1223,6 @@ public class ApiDefinitionService {
             createCase = true;
         }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
-        msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
         return createCase;
     }
@@ -1242,7 +1241,6 @@ public class ApiDefinitionService {
             createCase = true;
         }
         tcpSampler.setId(apiDefinition.getId());
-        tcpSampler.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
         return createCase;
     }
