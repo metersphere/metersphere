@@ -224,6 +224,7 @@ export default {
     refresh() {
       this.myFiles();
       this.list(getCurrentProjectID());
+      this.$emit("nodeSelectEvent", { data: { id: "root" } }, [], null);
     },
     myFile() {
       this.$nextTick(() => {
