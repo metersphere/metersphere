@@ -629,7 +629,8 @@ public class TestPlanReportService {
             if (!isRerunningTestPlan) {
                 content.setStartTime(testPlanReport.getStartTime());
                 content.setEndTime(endTime);
-                //重跑的报告要重新生成统计数据
+            } else {
+                //重跑的测试计划需要重新统计报告信息
                 content.setApiBaseCount(null);
             }
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
