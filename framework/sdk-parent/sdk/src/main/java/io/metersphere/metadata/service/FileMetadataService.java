@@ -353,8 +353,8 @@ public class FileMetadataService {
         }
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         fileMetadata.setUpdateUser(SessionUtils.getUserId());
-        // 历史数据的路径不做更新
-        if (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
+        // 历史数据和Git数据的路径不做更新
+        if (!StringUtils.equalsIgnoreCase(StorageConstants.GIT.name(), fileMetadata.getStorage()) && (StringUtils.isNotEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType()))) {
             fileMetadata.setPath(FileUtils.getFilePath(fileMetadata));
         }
         //latest字段只能在git/pull时更新
@@ -365,6 +365,13 @@ public class FileMetadataService {
     public boolean isFileChanged(FileMetadataWithBLOBs newFile) {
         FileMetadataWithBLOBs oldFile = this.getFileMetadataById(newFile.getId());
         if (oldFile != null) {
+            if (StringUtils.equals("[]", oldFile.getTags())) {
+                oldFile.setTags(null);
+            }
+            if (StringUtils.equals("[]", newFile.getTags())) {
+                newFile.setTags(null);
+            }
+
             return !StringUtils.equals(newFile.getDescription(), oldFile.getDescription())
                     || !StringUtils.equals(newFile.getAttachInfo(), oldFile.getAttachInfo())
                     || !StringUtils.equals(newFile.getName(), oldFile.getName())
