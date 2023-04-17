@@ -15,17 +15,15 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -192,4 +190,16 @@ public class BaseProjectApplicationService {
         return projectApplications.size() > 0;
     }
 
+
+    public List<String> getProjectIds(List<String> projectIds) {
+        if(CollectionUtils.isEmpty(projectIds)){
+            return new ArrayList<>();
+        }
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria()
+                .andProjectIdIn(projectIds)
+                .andTypeEqualTo(ProjectApplicationType.POOL_ENABLE.name());
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        return  projectApplications.stream().map(ProjectApplication::getProjectId).collect(Collectors.toList());
+    }
 }

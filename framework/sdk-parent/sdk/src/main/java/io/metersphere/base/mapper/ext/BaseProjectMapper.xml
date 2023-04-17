@@ -438,4 +438,8 @@
     <select id="selectOne" resultType="io.metersphere.base.domain.Project">
         SELECT * FROM project LIMIT 1
     </select>
+    <select id="selectPage" resultType="java.lang.String">
+        SELECT id FROM project LIMIT #{pageNum}, #{pageSize}
+    </select>
+
 </mapper>

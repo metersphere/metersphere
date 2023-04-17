@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -377,5 +378,13 @@ public class BaseProjectService {
 
     public Project selectOne() {
         return baseProjectMapper.selectOne();
+    }
+
+    public long count() {
+        return projectMapper.countByExample(new ProjectExample());
+    }
+
+    public List<String> getPage(long pageNum, long pageSize) {
+        return baseProjectMapper.selectPage(pageNum, pageSize);
     }
 }
