@@ -220,7 +220,7 @@ export default {
   },
   data() {
     let validateURL = (rule, value, callback) => {
-      if (!this.httpForm.path.startsWith('/')) {
+      if (!this.httpForm.path || !this.httpForm.path.startsWith('/')) {
         callback(this.$t('api_test.definition.request.path_valid_info'));
       }
       callback();
