@@ -14,8 +14,8 @@
 
     <dependencies>
         <dependency>
+            <artifactId>mybatis-plus-annotation</artifactId>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
             <version>${mybatis-plus-starter.version}</version>
             <scope>provided</scope>
         </dependency>

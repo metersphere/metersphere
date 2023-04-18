@@ -43,6 +43,12 @@
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-jmeter-functions</artifactId>
             <version>${metersphere-jmeter-functions.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>rhino-engine</artifactId>
+                    <groupId>org.mozilla</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- 基础包 -->
         <dependency>
@@ -409,6 +415,10 @@
                 <exclusion>
                     <artifactId>mailapi</artifactId>
                     <groupId>com.sun.mail</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>rhino</artifactId>
+                    <groupId>org.mozilla</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
