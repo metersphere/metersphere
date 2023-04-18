@@ -182,7 +182,7 @@
 </template>
 <script>
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { REPORT_CASE_CONFIGS, REPORT_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
+import { REPORT_CASE_CONFIGS, REPORT_SCENARIO_CONFIGS } from 'metersphere-frontend/src/components/search/search-components';
 import { _filter, _sort } from 'metersphere-frontend/src/utils/tableUtils';
 import MsRenameReportDialog from 'metersphere-frontend/src/components/report/MsRenameReportDialog';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
@@ -219,7 +219,7 @@ export default {
       reportId: '',
       debugVisible: false,
       condition: {
-        components: REPORT_CONFIGS,
+        components: REPORT_SCENARIO_CONFIGS,
       },
       tableData: [],
       multipleSelection: [],
@@ -496,7 +496,7 @@ export default {
       if (tabType === 'right') {
         this.condition.components = REPORT_CASE_CONFIGS;
       } else {
-        this.condition.components = REPORT_CONFIGS;
+        this.condition.components = REPORT_SCENARIO_CONFIGS;
       }
       this.loadIsOver = false;
       this.$nextTick(() => {
