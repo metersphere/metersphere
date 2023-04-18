@@ -73,6 +73,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -145,6 +146,9 @@ public class IssuesService {
     private UserService userService;
     @Resource
     private BasePluginService basePluginService;
+    @Resource
+    @Lazy
+    private IssuesService issuesService;
 
     private static final String SYNC_THIRD_PARTY_ISSUES_KEY = "ISSUE:SYNC";
 
@@ -872,7 +876,8 @@ public class IssuesService {
         List<String> projectIds = trackProjectService.getThirdPartProjectIds();
         projectIds.forEach(id -> {
             try {
-                syncThirdPartyIssues(id);
+                // 使用代理对象调用，防止事务注解失效
+                issuesService.syncThirdPartyIssues(id);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -915,6 +920,7 @@ public class IssuesService {
         stringRedisTemplate.delete(SYNC_THIRD_PARTY_ISSUES_KEY + ":" + projectId);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean syncThirdPartyIssues(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             String syncValue = getSyncKey(projectId);
