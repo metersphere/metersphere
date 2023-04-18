@@ -27,15 +27,6 @@ public interface Platform {
     MsIssueDTO addIssue(PlatformIssuesUpdateRequest issuesRequest);
 
     /**
-     * 项目设置中选项，从平台获取下拉框选项
-     * frontend.json 中选项值配置了 optionMethod ，项目设置时调用
-     * @return 返回下拉列表
-     *  该接口后续版本将废弃，替换为 getFormOptions
-     */
-    @Deprecated
-    List<SelectOption> getProjectOptions(GetOptionRequest request);
-
-    /**
      * 项目设置和缺陷表单中，调用接口获取下拉框选项
      * 配置文件的表单中选项值配置了 optionMethod ，则调用获取表单的选项值
      * @return 返回下拉列表
