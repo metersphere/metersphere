@@ -472,13 +472,16 @@ export default {
           scenarioDefinition: t.currentScenario.scenarioDefinition,
         };
         let v3 = JSON.parse(JSON.stringify(v2));
-        if (v1.scenarioDefinition) {
+        if (v1 && v1.scenarioDefinition) {
           this.deleteResourceIds(v1.scenarioDefinition);
         }
-        if (v3.scenarioDefinition) {
+        if (v3 && v3.scenarioDefinition) {
           this.deleteResourceIds(v3.scenarioDefinition);
         }
-        let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+        let delta;
+        if (v1 && v3) {
+          delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+        }
         if (delta) {
           this.isSave = true;
         }
