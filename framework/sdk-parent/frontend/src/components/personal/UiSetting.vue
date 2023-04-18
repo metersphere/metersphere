@@ -30,7 +30,6 @@
 </template>
 
 <script>
-import {getCurrentUserId} from "../../utils/token";
 import {getUserInfo, updateSeleniumServer} from "../../api/user";
 
 export default {
@@ -57,8 +56,7 @@ export default {
       this.$emit("confirm");
     },
     async getUserSeleniumServer() {
-      let userId = getCurrentUserId();
-      let res = await getUserInfo(userId);
+      let res = await getUserInfo();
       if (res.data) {
         this.seleniumServer = res.data.seleniumServer || "";
       }
