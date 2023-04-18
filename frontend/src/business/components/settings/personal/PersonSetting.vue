@@ -273,7 +273,7 @@ export default {
       });
     },
     initTableData() {
-      this.result = this.$get("/user/info/" + encodeURIComponent(this.currentUser().id), response => {
+      this.result = this.$get("/user/info", response => {
         let data = response.data;
         this.isLocalUser = response.data.source === 'LOCAL';
         let dataList = [];

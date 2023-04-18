@@ -142,9 +142,9 @@ public class UserController {
         return SessionUtils.getUser();
     }
 
-    @GetMapping("/info/{userId}")
-    public UserDTO getUserInfo(@PathVariable(value = "userId") String userId) {
-        return userService.getUserInfo(userId);
+    @GetMapping("/info")
+    public UserDTO getUserInfo() {
+        return userService.getUserInfo(SessionUtils.getUserId());
     }
 
     /**

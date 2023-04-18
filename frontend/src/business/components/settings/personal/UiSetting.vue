@@ -54,8 +54,7 @@ export default {
       this.$emit("confirm");
     },
     async getUserSeleniumServer() {
-      let userId = getCurrentUserId();
-      let res = await this.$get(`/user/info/${userId}`);
+      let res = await this.$get(`/user/info`);
       if (res.data) {
         this.seleniumServer = res.data.data.seleniumServer || "";
       }
