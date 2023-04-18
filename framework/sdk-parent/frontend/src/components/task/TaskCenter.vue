@@ -585,6 +585,10 @@ export default {
   font-size: 13px;
 }
 
+:deep(.el-tabs__nav-wrap) {
+  width: calc(100% - 125px);
+}
+
 :deep(.el-badge__content.is-fixed) {
   transform: translateY(-10%) translateX(100%);
 }
