@@ -147,13 +147,14 @@ export const STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: 'Running', value: 'Running'},
-    {label: 'Success', value: 'Success'},
-    {label: 'Stopped', value: 'stop'},
-    {label: 'NotExecute', value: 'unexecute'},
-    {label: 'Error', value: 'Error'},
-    {label: "FakeError", value: 'errorReportResult'},
-    {label: 'Rerunning', value: 'Rerunning'},
+    { label: 'Pending', value: 'PENDING' },
+    { label: 'Running', value: 'RUNNING' },
+    { label: 'Rerunning', value: 'RERUNNING' },
+    { label: 'Success', value: 'SUCCESS' },
+    { label: 'Error', value: 'ERROR' },
+    { label: 'FakeError', value: 'FAKE_ERROR' },
+    { label: 'Stopped', value: 'STOPPED' },
+
   ],
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
@@ -950,6 +951,8 @@ export const UI_CUSTOM_COMMAND_TRASH_MODULE_TREE = _getModuleTree({
 export const TEST_CONFIGS = [ID, NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR, FOLLOW_PEOPLE];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
+
+export const REPORT_SCENARIO_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, PERFORMANCE_REPORT_STATUS, CREATOR, TRIGGER_MODE];
 
