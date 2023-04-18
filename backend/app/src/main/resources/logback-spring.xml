@@ -399,7 +399,7 @@
         <appender-ref ref="warnAsyncAppender"/>
         <appender-ref ref="errorAsyncAppender"/>
     </logger>
-
+    <!--  包名不支持通配符 * ，这里需要每个模块固定好mapper  -->
     <logger name="io.metersphere.sdk.mapper" level="${logger.sql.level}">
         <appender-ref ref="console"/>
     </logger>
