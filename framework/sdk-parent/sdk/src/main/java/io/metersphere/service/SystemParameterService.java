@@ -1,7 +1,10 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ProjectApplicationMapper;
+import io.metersphere.base.mapper.SystemHeaderMapper;
+import io.metersphere.base.mapper.SystemParameterMapper;
+import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.BaseSystemParameterMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ParamConstants;
@@ -24,6 +27,7 @@ import io.metersphere.notice.domain.MailInfo;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.MailNoticeSender;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.HeaderRequest;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
@@ -38,10 +42,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -63,7 +64,10 @@ public class SystemParameterService {
     @Resource
     private MicroService microService;
     @Resource
+    private BaseQuotaService baseQuotaService;
+    @Resource
     private BaseTestResourcePoolService baseTestResourcePoolService;
+
     @Resource
     private BaseProjectService baseProjectService;
     @Resource
@@ -262,44 +266,51 @@ public class SystemParameterService {
         return baseSystemConfigDTO;
     }
 
-    public TestResourcePoolDTO getTestResourcePool() {
+    public List<TestResourcePoolDTO> getTestResourcePool() {
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
         resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
-        List<TestResourcePoolDTO> poolDTOS = baseTestResourcePoolService.listResourcePools(resourcePoolRequest);
-        if (CollectionUtils.isNotEmpty(poolDTOS)) {
-            List<TestResourcePoolDTO> localPools = poolDTOS.stream().filter(item ->
-                    StringUtils.equals(item.getName(), "LOCAL")).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(localPools)) {
-                return localPools.get(0);
-            } else {
-                return poolDTOS.get(0);
-            }
+        return baseTestResourcePoolService.listResourcePools(resourcePoolRequest);
+    }
+
+    private String filterQuota(List<TestResourcePoolDTO> list, String projectId) {
+        Set<String> pools = baseQuotaService.getQuotaResourcePools(projectId);
+        List<TestResourcePoolDTO> poolList = new ArrayList<>();
+        if (!pools.isEmpty()) {
+            poolList = list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
+        }
+        if (CollectionUtils.isNotEmpty(poolList)) {
+            return poolList.get(0).getId();
+        } else if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0).getId();
         }
         return null;
     }
 
-    public void batchSaveApp(List<String> projectIds, String poolId, ProjectApplicationMapper batchMapper) {
+    public void batchSaveApp(List<String> projectIds, List<TestResourcePoolDTO> poolList, ProjectApplicationMapper batchMapper) {
         if (CollectionUtils.isNotEmpty(projectIds)) {
             List<String> appProjectIds = baseProjectApplicationService.getProjectIds(projectIds);
             projectIds.removeAll(appProjectIds);
             // 添加
             projectIds.forEach(item -> {
-                ProjectApplication application = new ProjectApplication();
-                application.setProjectId(item);
-                application.setType(ProjectApplicationType.POOL_ENABLE.name());
-                application.setTypeValue(String.valueOf(true));
-                batchMapper.insert(application);
+                String id = filterQuota(poolList, item);
+                if (StringUtils.isNotBlank(id)) {
+                    ProjectApplication application = new ProjectApplication();
+                    application.setProjectId(item);
+                    application.setType(ProjectApplicationType.POOL_ENABLE.name());
+                    application.setTypeValue(String.valueOf(true));
+                    batchMapper.insert(application);
 
-                ProjectApplication applicationValue = new ProjectApplication();
-                applicationValue.setProjectId(item);
-                applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
-                applicationValue.setTypeValue(poolId);
-                batchMapper.insert(applicationValue);
+                    ProjectApplication applicationValue = new ProjectApplication();
+                    applicationValue.setProjectId(item);
+                    applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
+                    applicationValue.setTypeValue(id);
+                    batchMapper.insert(applicationValue);
+                }
             });
         }
     }
 
-    public void batchSaveProjectApp(String poolId, long size) {
+    public void batchSaveProjectApp(List<TestResourcePoolDTO> poolList, long size) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ProjectApplicationMapper batchMapper = sqlSession.getMapper(ProjectApplicationMapper.class);
         final long pageSize = 500;
@@ -308,7 +319,7 @@ public class SystemParameterService {
             long pageNum = i * pageSize;
             List<String> projectIds = baseProjectService.getPage(pageNum, pageSize);
             if (CollectionUtils.isNotEmpty(projectIds)) {
-                batchSaveApp(projectIds, poolId, batchMapper);
+                batchSaveApp(projectIds, poolList, batchMapper);
             }
         }
         sqlSession.flushStatements();
@@ -320,12 +331,13 @@ public class SystemParameterService {
     public void saveProjectApplication(String projectId) {
         BaseSystemConfigDTO config = getBaseInfo();
         if (config != null && StringUtils.equals(config.getRunMode(), "POOL")) {
-            TestResourcePoolDTO poolDTO = getTestResourcePool();
-            if (poolDTO != null) {
+            List<TestResourcePoolDTO> poolList = getTestResourcePool();
+            String id = filterQuota(poolList, projectId);
+            if (StringUtils.isNotBlank(id)) {
                 ProjectApplication applicationValue = new ProjectApplication();
                 applicationValue.setProjectId(projectId);
                 applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
-                applicationValue.setTypeValue(poolDTO.getId());
+                applicationValue.setTypeValue(id);
                 projectApplicationMapper.insert(applicationValue);
 
                 ProjectApplication application = new ProjectApplication();
@@ -356,10 +368,10 @@ public class SystemParameterService {
             }
             // 启用资源池
             if (param.getParamKey().equals("base.run.mode") && param.getParamValue().equals("POOL")) {
-                TestResourcePoolDTO poolDTO = getTestResourcePool();
                 long size = baseProjectService.count();
-                if (poolDTO != null && size > 0) {
-                    batchSaveProjectApp(poolDTO.getId(), size);
+                List<TestResourcePoolDTO> poolList = getTestResourcePool();
+                if (CollectionUtils.isNotEmpty(poolList) && size > 0) {
+                    batchSaveProjectApp(poolList, size);
                 }
             }
             // 去掉路径最后的 /
