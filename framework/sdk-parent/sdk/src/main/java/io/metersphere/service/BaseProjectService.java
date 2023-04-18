@@ -381,7 +381,7 @@ public class BaseProjectService {
     }
 
     public long count() {
-        return projectMapper.countByExample(new ProjectExample());
+        return baseProjectMapper.count();
     }
 
     public List<String> getPage(long pageNum, long pageSize) {
