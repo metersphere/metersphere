@@ -115,30 +115,30 @@
         <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
             <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
                 and test_case.id ${custom.operator} (
-                    select resource_id from custom_field_test_case where field_id = #{custom.id}
-                    <choose>
-                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
-                            and ${custom.value}
-                        </when>
-                        <when test="custom.type == 'date' or custom.type == 'datetime'">
-                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
-                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </when>
-                        <when test="custom.type == 'richText' or custom.type == 'textarea'">
-                            and text_value
-                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </when>
-                        <otherwise>
-                            and trim(both '"' from value)
-                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </otherwise>
-                    </choose>
+                select resource_id from custom_field_test_case where field_id = #{custom.id}
+                <choose>
+                    <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                        and ${custom.value}
+                    </when>
+                    <when test="custom.type == 'date' or custom.type == 'datetime'">
+                        and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </when>
+                    <when test="custom.type == 'richText' or custom.type == 'textarea'">
+                        and text_value
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </when>
+                    <otherwise>
+                        and trim(both '"' from value)
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </otherwise>
+                </choose>
                 )
             </foreach>
         </if>
@@ -188,9 +188,9 @@
     </select>
     <select id="getCountFollow" resultType="java.lang.Integer">
         select count(*) from test_case tc where
-        tc.id in (select tf.case_id from test_case_follow  tf where  tf.follow_id = #{userId,jdbcType=VARCHAR})
-                                    and
-        tc.project_id  in
+        tc.id in (select tf.case_id from test_case_follow tf where tf.follow_id = #{userId,jdbcType=VARCHAR})
+        and
+        tc.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
@@ -198,13 +198,13 @@
     </select>
     <select id="getCountUpcoming" resultType="java.lang.Integer">
         select count(*) from test_case tc where
-        tc.project_id  in
+        tc.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         and tc.review_status in ('Prepare','Pass','UnPass')
         and tc.create_user = #{userId,jdbcType=VARCHAR}
-        and (tc.status is null or tc.status != 'Trash');
+        and (tc.status is null or tc.status Not IN ('Trash','Completed'));
     </select>
 
     <sql id="queryPublicCaseWhere">
@@ -303,14 +303,16 @@
                         </when>
                         <when test="key.startsWith('custom_single')">
                             and test_case.id in (
-                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) = #{key}
+                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) =
+                            #{key}
                             and trim(both '"' from value) in
                             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                             )
                         </when>
                         <when test="key.startsWith('custom_multiple')">
                             and test_case.id in (
-                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) = #{key}
+                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) =
+                            #{key}
                             and
                             <foreach collection="values" item="value" separator="or" open="(" close=")">
                                 JSON_CONTAINS(value, #{value})
