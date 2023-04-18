@@ -732,7 +732,7 @@ public class ApiScenarioService {
             ElementUtil.dataFormatting(element);
             scenarioWithBLOBs.setScenarioDefinition(element.toString());
         }
-        if (StringUtils.isNotBlank(scenarioWithBLOBs.getEnvironmentJson())) {
+        if (scenarioWithBLOBs != null && StringUtils.isNotBlank(scenarioWithBLOBs.getEnvironmentJson())) {
             ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
             request.setEnvironmentEnable(false);
             request.setDefinition(scenarioWithBLOBs.getScenarioDefinition());
