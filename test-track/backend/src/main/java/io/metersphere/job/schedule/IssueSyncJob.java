@@ -1,6 +1,7 @@
 package io.metersphere.job.schedule;
 
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.sechedule.MsScheduleJob;
 import io.metersphere.service.IssuesService;
 import io.metersphere.xpack.license.dto.LicenseDTO;
@@ -27,9 +28,12 @@ public class IssueSyncJob extends MsScheduleJob {
     public void businessExecute(JobExecutionContext context) {
         LicenseDTO licenseDTO = licenseService.validate();
         if (licenseDTO != null && licenseDTO.getLicense() != null) {
+            LogUtil.info("sync all issue start");
             xpackIssueService.syncThirdPartyIssues();
         } else {
+            LogUtil.info("sync issue start");
             issuesService.syncThirdPartyIssues();
         }
+        LogUtil.info("sync issue end");
     }
 }
