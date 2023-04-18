@@ -152,6 +152,7 @@ export default {
                     name: keyValues[0],
                     required: false,
                     value: keyValues[1],
+                    isEdit: false,
                   })
                 );
               }
