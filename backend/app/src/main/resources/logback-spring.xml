@@ -400,7 +400,7 @@
         <appender-ref ref="errorAsyncAppender"/>
     </logger>
 
-    <logger name="io.metersphere.base.mapper" level="${logger.sql.level}">
+    <logger name="io.metersphere.sdk.mapper" level="${logger.sql.level}">
         <appender-ref ref="console"/>
     </logger>
 

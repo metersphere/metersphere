@@ -12,4 +12,13 @@
     <name>domain</name>
     <description>domain</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus-starter.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -1,10 +1,12 @@
 package io.metersphere.domain;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
+@TableName(value = "user", autoResultMap = true)
 public class User implements Serializable {
     private String id;
 
