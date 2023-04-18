@@ -104,12 +104,20 @@
             width="150"
             show-overflow-tooltip
             :filters="userFilters" />
-          <el-table-column prop="createTime" min-width="120" :label="$t('commons.create_time')" sortable>
+          <el-table-column
+            prop="createTime"
+            min-width="125"
+            :label="$t('commons.create_time')"
+            sortable>
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | datetimeFormat }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="endTime" min-width="120" :label="$t('report.test_end_time')" sortable>
+          <el-table-column
+            prop="endTime"
+            min-width="125"
+            :label="$t('report.test_end_time')"
+            sortable>
             <template v-slot:default="scope">
               <span v-if="scope.row.endTime && scope.row.endTime > 0">
                 {{ scope.row.endTime | datetimeFormat }}
