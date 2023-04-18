@@ -1,5 +1,6 @@
 package io.metersphere.xpack.resourcepool.service;
 
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
@@ -23,9 +24,9 @@ public class ValidQuotaResourcePoolService {
     public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return filterQuota(listValidResourcePools());
     }
-
     private List<TestResourcePoolDTO> filterQuota(List<TestResourcePoolDTO> list) {
-        Set<String> pools = baseQuotaService.getQuotaResourcePools();
+        String projectId = SessionUtils.getCurrentProjectId();
+        Set<String> pools = baseQuotaService.getQuotaResourcePools(projectId);
         if (!pools.isEmpty()) {
             return list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
         }

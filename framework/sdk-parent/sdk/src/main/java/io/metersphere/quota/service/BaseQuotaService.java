@@ -10,11 +10,13 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
-
 import io.metersphere.i18n.Translator;
-import io.metersphere.quota.dto.*;
+import io.metersphere.quota.dto.CountDto;
+import io.metersphere.quota.dto.QuotaConstants;
+import io.metersphere.quota.dto.ReportTimeInfo;
+import io.metersphere.quota.dto.TestOverview;
 import io.metersphere.request.TestPlanRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -220,9 +221,8 @@ public class BaseQuotaService {
      * 获取可用资源池集合
      * @return 资源池名称Set集合
      */
-    public Set<String> getQuotaResourcePools() {
+    public Set<String> getQuotaResourcePools(String  projectId) {
         Set<String> pools = new HashSet<>();
-        String projectId = SessionUtils.getCurrentProjectId();
         Quota pjQuota = quotaManagementService.getProjectQuota(projectId);
         if (pjQuota != null) {
             if (isValid(pjQuota, pjQuota.getResourcePool())) {
