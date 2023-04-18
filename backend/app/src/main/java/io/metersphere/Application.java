@@ -1,5 +1,6 @@
 package io.metersphere;
 
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
@@ -11,7 +12,8 @@ import org.springframework.context.annotation.PropertySource;
 @SpringBootApplication(exclude = {
         QuartzAutoConfiguration.class,
         LdapAutoConfiguration.class,
-        Neo4jAutoConfiguration.class
+        Neo4jAutoConfiguration.class,
+        MybatisAutoConfiguration.class
 })
 @PropertySource(value = {
         "classpath:commons.properties",
