@@ -73,8 +73,8 @@ export function checkLdapOpen() {
   return get('/ldap/open')
 }
 
-export function getUserInfo(userId) {
-  return get(`/user/info/${userId}`);
+export function getUserInfo() {
+  return get(`/user/info`);
 }
 
 export function getWsAndPj(userId) {

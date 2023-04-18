@@ -184,7 +184,7 @@ export default {
         .then((r) => {
           this.platformAccountConfigs = r.data;
         });
-      this.result = getUserInfo(encodeURIComponent(this.currentUser().id))
+      this.result = getUserInfo()
         .then(response => {
           let data = response.data;
           this.isLocalUser = response.data.source === 'LOCAL';

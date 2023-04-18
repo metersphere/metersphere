@@ -73,9 +73,9 @@ public class BaseUserController {
         return baseUserService.getProjectMemberList(request);
     }
 
-    @GetMapping("/info/{userId}")
-    public UserDTO getUserInfo(@PathVariable(value = "userId") String userId) {
-        return baseUserService.getUserDTO(userId);
+    @GetMapping("/info")
+    public UserDTO getUserInfo() {
+        return baseUserService.getUserDTO(SessionUtils.getUserId());
     }
 
     /**
