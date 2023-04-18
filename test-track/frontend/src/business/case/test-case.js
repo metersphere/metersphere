@@ -4,6 +4,8 @@ import i18n from "@/i18n";
 export function initTestCaseConditionComponents(condition, customFields, trashEnable) {
   let conditionComponents = condition.components;
   conditionComponents = conditionComponents.filter(item => item.custom !== true);
+  // 当condition中已存在自定义字段值, 会先过滤掉, 同时getAdvSearchCustomField中无法取到
+  condition.components = conditionComponents;
   let comp = getAdvSearchCustomField(condition, customFields);
   let statusOption = null;
   let priorityOption = null;
