@@ -215,9 +215,6 @@ export default {
     },
   },
   watch: {
-    selectNodeIds() {
-      this.getTestCases();
-    },
     projectId(val) {
       this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
@@ -298,6 +295,7 @@ export default {
       this.$refs.table.condition.selectAll = false;
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
+      this.getTestCases();
     },
     close() {
       this.selectNodeIds = [];
