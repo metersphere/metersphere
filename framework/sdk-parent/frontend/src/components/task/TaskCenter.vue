@@ -586,7 +586,7 @@ export default {
 }
 
 :deep(.el-tabs__nav-wrap) {
-  width: calc(100% - 125px);
+  width: calc(100%);
 }
 
 :deep(.el-badge__content.is-fixed) {
