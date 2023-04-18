@@ -45,11 +45,7 @@ public class MybatisConfig {
     public MybatisInterceptor dbInterceptor() {
         MybatisInterceptor interceptor = new MybatisInterceptor();
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
-//        configList.add(new MybatisInterceptorConfig(FileContent.class, "file", CompressUtils.class, "zip", "unZip"));
-//        configList.add(new MybatisInterceptorConfig(ApiTestReportDetail.class, "content", CompressUtils.class, "gzip", "unGzip"));
-//        configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration"));
-//        configList.add(new MybatisInterceptorConfig(AuthSource.class, "configuration"));
-//        configList.add(new MybatisInterceptorConfig(LoadTestReportLog.class, "content", CompressUtils.class, "zipString", "unZipString"));
+//        configList.add(new MybatisInterceptorConfig(FileContent.class, "file", CompressUtils.class, "zip", "unzip"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
     }

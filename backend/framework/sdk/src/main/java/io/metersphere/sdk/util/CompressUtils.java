@@ -132,7 +132,7 @@ public class CompressUtils {
      * @param data 待解压数据
      * @return 解压后数据
      */
-    public static Object unZip(Object data) {
+    public static Object unzip(Object data) {
         if (!(data instanceof byte[])) {
             return data;
         }
@@ -173,7 +173,7 @@ public class CompressUtils {
         }
     }
 
-    public static Object unZipString(Object data) {
+    public static Object unzipString(Object data) {
         if (!(data instanceof String)) {
             return data;
         }
