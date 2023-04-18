@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseProjectMapper;
-import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
 import io.metersphere.base.mapper.ext.BaseUserGroupMapper;
 import io.metersphere.base.mapper.ext.BaseUserMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
@@ -61,7 +60,7 @@ public class SystemProjectService {
     @Value("${tcp.mock.port}")
     private String tcpMockPorts;
     @Resource
-    private BaseProjectVersionMapper baseProjectVersionMapper;
+    private SystemParameterService systemParameterService;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
     @Resource
@@ -102,6 +101,8 @@ public class SystemProjectService {
         // 初始化项目默认节点
         kafkaTemplate.send(KafkaTopicConstants.PROJECT_CREATED_TOPIC, project.getId());
         LogUtil.info("send create_project message, project id: " + project.getId());
+        // 初始化项目资源池
+        systemParameterService.saveProjectApplication(project.getId());
         return project;
     }
 

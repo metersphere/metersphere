@@ -53,4 +53,6 @@ public interface BaseProjectMapper {
     Project selectOne();
 
     List<String> selectPage(long pageNum, long pageSize);
+
+    long count();
 }
