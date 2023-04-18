@@ -1,6 +1,7 @@
 package io.metersphere.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,8 +9,9 @@ import java.io.Serializable;
 @Data
 @TableName(value = "user", autoResultMap = true)
 public class User implements Serializable {
+    @NotBlank(message = "id不能为空")
     private String id;
-
+    @NotBlank(message = "用户名不能为空")
     private String name;
 
     private String email;
