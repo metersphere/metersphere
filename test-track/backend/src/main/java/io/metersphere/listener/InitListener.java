@@ -1,5 +1,6 @@
 package io.metersphere.listener;
 
+import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
 import io.metersphere.service.*;
@@ -25,11 +26,15 @@ public class InitListener implements ApplicationRunner {
     private CustomFieldResourceCompatibleService customFieldResourceCompatibleService;
     @Resource
     private PlatformPluginService platformPluginService;
+    @Resource
+    private BaseScheduleService scheduleService;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
         this.initOnceOperate();
         platformPluginService.loadPlatFormPlugins();
+
+        scheduleService.startEnableSchedules(ScheduleGroup.ISSUE_SYNC);
     }
 
     /**
