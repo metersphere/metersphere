@@ -70,7 +70,8 @@ public class SystemParameterService {
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
-
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
     public String searchEmail() {
         return baseSystemParameterMapper.email();
@@ -277,7 +278,7 @@ public class SystemParameterService {
         return null;
     }
 
-    public void saveProjectApplication(List<String> projectIds, String poolId, ProjectApplicationMapper batchMapper) {
+    public void batchSaveApp(List<String> projectIds, String poolId, ProjectApplicationMapper batchMapper) {
         if (CollectionUtils.isNotEmpty(projectIds)) {
             List<String> appProjectIds = baseProjectApplicationService.getProjectIds(projectIds);
             projectIds.removeAll(appProjectIds);
@@ -298,22 +299,41 @@ public class SystemParameterService {
         }
     }
 
-    public void saveProjectApp(String poolId, long size) {
+    public void batchSaveProjectApp(String poolId, long size) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ProjectApplicationMapper batchMapper = sqlSession.getMapper(ProjectApplicationMapper.class);
         final long pageSize = 500;
-        long pageTotal = size / pageSize;
-        pageTotal = pageTotal > 0 ? pageTotal : 1;
-        for (int i = 0; i < pageTotal; i++) {
+        int pageTotal = (int) Math.ceil(size / pageSize);
+        for (int i = 0; i <= pageTotal; i++) {
             long pageNum = i * pageSize;
             List<String> projectIds = baseProjectService.getPage(pageNum, pageSize);
             if (CollectionUtils.isNotEmpty(projectIds)) {
-                saveProjectApplication(projectIds, poolId, batchMapper);
+                batchSaveApp(projectIds, poolId, batchMapper);
             }
         }
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    public void saveProjectApplication(String projectId) {
+        BaseSystemConfigDTO config = getBaseInfo();
+        if (config != null && StringUtils.equals(config.getRunMode(), "POOL")) {
+            TestResourcePoolDTO poolDTO = getTestResourcePool();
+            if (poolDTO != null) {
+                ProjectApplication applicationValue = new ProjectApplication();
+                applicationValue.setProjectId(projectId);
+                applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
+                applicationValue.setTypeValue(poolDTO.getId());
+                projectApplicationMapper.insert(applicationValue);
+
+                ProjectApplication application = new ProjectApplication();
+                application.setProjectId(projectId);
+                application.setType(ProjectApplicationType.POOL_ENABLE.name());
+                application.setTypeValue(String.valueOf(true));
+                projectApplicationMapper.insert(application);
+            }
         }
     }
 
@@ -339,7 +359,7 @@ public class SystemParameterService {
                 TestResourcePoolDTO poolDTO = getTestResourcePool();
                 if (poolDTO != null) {
                     long size = baseProjectService.count();
-                    saveProjectApp(poolDTO.getId(), size);
+                    batchSaveProjectApp(poolDTO.getId(), size);
                 }
             }
             // 去掉路径最后的 /
