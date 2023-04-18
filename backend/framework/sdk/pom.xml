@@ -355,28 +355,6 @@
             <artifactId>plexus-utils</artifactId>
             <version>${plexus.version}</version>
         </dependency>
-        <!-- selenium包  -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>${selenium.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jakarta.activation</artifactId>
-                    <groupId>com.sun.activation</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>async-http-client</artifactId>
-                    <groupId>org.asynchttpclient</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-http-jdk-client</artifactId>
-            <version>${selenium.version}</version>
-        </dependency>
-
 
         <!--随机数据生成API-->
         <dependency>
