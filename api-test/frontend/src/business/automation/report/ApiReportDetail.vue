@@ -263,7 +263,7 @@ export default {
               return data;
             }
           } else if (status === 'UN_EXECUTE') {
-            if (data.value.status === 'PENDING') {
+            if (data.value && data.value.status === 'PENDING') {
               return data;
             }
           } else if (status === 'ERROR') {
