@@ -5,6 +5,7 @@ import io.metersphere.config.KafkaProperties;
 import io.metersphere.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
@@ -13,6 +14,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(exclude = {
+        DataSourceAutoConfiguration.class,
         QuartzAutoConfiguration.class,
         LdapAutoConfiguration.class,
         Neo4jAutoConfiguration.class
