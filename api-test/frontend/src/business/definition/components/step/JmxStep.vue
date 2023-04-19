@@ -39,6 +39,7 @@
             :draggable="true"
             :title="$t('api_test.definition.request.pre_script')"
             :jsr223-processor="data"
+            :key="data.id"
             color="#B8741A"
             background-color="#F9F1EA" />
           <!--前置SQL-->
@@ -76,6 +77,7 @@
             :jsr223-processor="data"
             :draggable="true"
             color="#783887"
+            :key="data.id"
             background-color="#F2ECF3" />
 
           <!--后置SQL-->
