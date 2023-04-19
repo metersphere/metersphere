@@ -63,7 +63,6 @@ public class CommonsDatabaseConfig {
     @Bean
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    @ConditionalOnMissingBean
     public DataSource dataSource(DataSourceProperties properties) {
         return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
                 .driverClassName(properties.determineDriverClassName())
@@ -76,7 +75,6 @@ public class CommonsDatabaseConfig {
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource.quartz.hikari")
     @QuartzDataSource
-    @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = "quartz", value = "enabled", havingValue = "true")
     public DataSource quartzDataSource(DataSourceProperties properties) {
         return DataSourceBuilder.create(properties.getClassLoader()).type(HikariDataSource.class)
