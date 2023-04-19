@@ -19,12 +19,12 @@ import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.dto.TaskRequestDTO;
 import io.metersphere.task.dto.TaskStatisticsDTO;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -130,17 +130,31 @@ public class TaskService {
     }
 
     public void stop(List<TaskRequestDTO> reportIds) {
+
+
         if (CollectionUtils.isNotEmpty(reportIds)) {
             // 任务中心单条停止/全部停止
             Map<String, TaskRequestDTO> taskRequestMap = reportIds.stream().collect(Collectors.toMap(TaskRequestDTO::getType, taskRequest -> taskRequest));
             if (taskRequestMap.containsKey(API) || taskRequestMap.containsKey(SCENARIO)) {
-                microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
+                try {
+                    microService.postForData(MicroServiceName.API_TEST, "/api/automation/stop/batch", reportIds);
+                } catch (Exception e) {
+                    LogUtil.error("接口测试批量关闭失败!", e);
+                }
             }
             if (taskRequestMap.containsKey(PERF)) {
-                microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+                try {
+                    microService.postForData(MicroServiceName.PERFORMANCE_TEST, "/performance/stop/batch", taskRequestMap.get(PERF));
+                } catch (Exception e) {
+                    LogUtil.error("性能测试批量关闭失败!", e);
+                }
             }
             if (taskRequestMap.containsKey(UI)) {
-                microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
+                try {
+                    microService.postForData(MicroServiceName.UI_TEST, "/ui/automation/stop/batch", reportIds);
+                } catch (Exception e) {
+                    LogUtil.error("ui测试批量关闭失败!", e);
+                }
             }
         }
     }
