@@ -158,6 +158,7 @@ export default {
       failsTreeNodes: [],
       totalTime: 0,
       isRequestResult: false,
+      descFlag: false,
       request: {},
       isActive: false,
       scenarioName: null,
@@ -179,6 +180,7 @@ export default {
   },
   activated() {
     this.isRequestResult = false;
+    this.descFlag = false;
   },
   props: {
     reportId: String,
@@ -558,7 +560,7 @@ export default {
         this.report = data;
         if (this.report.reportVersion && this.report.reportVersion > 1) {
           this.report.status = data.status;
-          if (!this.isNotRunning) {
+          if ('RUNNING' === data.status && !this.descFlag) {
             setTimeout(this.getReport, 2000);
           } else {
             if (data.content) {
@@ -867,6 +869,7 @@ export default {
   },
 
   created() {
+    this.descFlag = false;
     this.showCancel = this.showCancelButton;
     this.getReport();
     if (this.$EventBus) {
@@ -874,6 +877,7 @@ export default {
     }
   },
   destroyed() {
+    this.descFlag = true;
     if (this.$EventBus) {
       this.$EventBus.$off('projectChange', this.handleProjectChange);
     }
