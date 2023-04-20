@@ -1059,9 +1059,7 @@ export default {
     async scheduleTask(row) {
       row.redirectFrom = "testPlan";
       this.currentPlanId = row.id;
-      this.haveUIScenario().then(() => {
-        this.$refs.scheduleMaintain.open(row);
-      });
+      this.$refs.scheduleMaintain.open(row);
     },
     saveSortField(key, orders) {
       saveLastTableSortField(key, JSON.stringify(orders));
