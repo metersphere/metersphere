@@ -9,6 +9,7 @@ import jakarta.annotation.Resource;
 @RestController
 @RequestMapping(path = {
         "issues",
+        "case/node",
         "/test/case",
         "/test/plan"
 })
