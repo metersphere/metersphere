@@ -583,7 +583,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 try {
                     String value = keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
                             ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value, ")}") : value;
+                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value.replace(",", "\\,"), ")}") : value;
                     keyValueMap.put(keyValue.getName(), value);
                 } catch (Exception e) {
                     LogUtil.error(e);
@@ -618,7 +618,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (keyValue.getValue() != null) {
                 try {
                     String value = keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue();
-                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value, ")}") : value;
+                    value = keyValue.isUrlEncode() ? StringUtils.join("${__urlencode(", value.replace(",", "\\,"), ")}") : value;
                     if (StringUtils.isNotEmpty(value) && value.contains(StringUtils.CR)) {
                         value = value.replaceAll(StringUtils.CR, StringUtils.EMPTY);
                     }
