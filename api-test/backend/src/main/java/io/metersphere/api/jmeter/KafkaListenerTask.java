@@ -56,13 +56,16 @@ public class KafkaListenerTask implements Runnable {
             LoggerUtil.info("KAFKA解析结果任务开始解析结果", String.valueOf(record.key()));
             ResultDTO dto = this.formatResult();
             if (dto == null) {
+                LoggerUtil.info("未获取到执行结果", String.valueOf(record.key()));
                 return;
             }
-            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
 
             if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey(ExtendedParameter.TEST_END)
                     && (Boolean) dto.getArbitraryData().get(ExtendedParameter.TEST_END)) {
+                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
                 resultDTOS.add(dto);
+                // 全局并发队列
+                PoolExecBlockingQueueUtil.offer(dto.getReportId());
                 LoggerUtil.info("KAFKA消费结果处理状态：" + dto.getArbitraryData().get(ExtendedParameter.TEST_END), String.valueOf(record.key()));
             }
             // 携带结果
@@ -71,7 +74,7 @@ public class KafkaListenerTask implements Runnable {
                 if (assortMap.containsKey(key)) {
                     assortMap.get(key).add(dto);
                 } else {
-                    assortMap.put(key, new LinkedList<ResultDTO>() {{
+                    assortMap.put(key, new LinkedList<>() {{
                         this.add(dto);
                     }});
                 }
@@ -88,8 +91,6 @@ public class KafkaListenerTask implements Runnable {
                     testResultService.testEnded(testResult);
                     LoggerUtil.info("执行队列处理：" + testResult.getQueueId(), testResult.getReportId());
                     apiExecutionQueueService.queueNext(testResult);
-                    // 全局并发队列
-                    PoolExecBlockingQueueUtil.offer(testResult.getReportId());
                     // 更新测试计划报告
                     LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId(), testResult.getReportId());
                     apiExecutionQueueService.checkTestPlanCaseTestEnd(testResult.getTestId(), testResult.getRunMode(), testResult.getTestPlanReportId());

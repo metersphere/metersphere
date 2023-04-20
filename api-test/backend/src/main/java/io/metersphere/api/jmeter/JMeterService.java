@@ -191,14 +191,16 @@ public class JMeterService {
         }
     }
 
-    private synchronized void nodeDebug(JmeterRunRequestDTO request) {
+    private void nodeDebug(JmeterRunRequestDTO request) {
         try {
+            LoggerUtil.info("获取调试资源池", request.getReportId());
             List<TestResource> resources = GenerateHashTreeUtil.setPoolResource(request.getPoolId());
             if (request.getHashTree() != null) {
                 // 过程变量处理
                 this.fileProcessing(request);
                 request.setHashTree(null);
             }
+            LoggerUtil.info("调用资源池开始执行", request.getReportId());
             apiPoolDebugService.run(request, resources);
         } catch (Exception e) {
             LoggerUtil.error(e);
@@ -208,7 +210,7 @@ public class JMeterService {
         }
     }
 
-    private synchronized void send(JmeterRunRequestDTO request) {
+    private void send(JmeterRunRequestDTO request) {
         try {
             if (redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()) != null) {
                 long index = Long.parseLong(redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()).toString());
