@@ -114,7 +114,7 @@
           </template>
         </ms-table-column>
           <ms-table-column
-            sortable
+            sortable="custom"
             prop="createTime"
             :field="item"
             :fields-width="fieldsWidth"
@@ -222,7 +222,7 @@
         </ms-table-column>
 
         <ms-table-column
-          sortable
+          sortable="custom"
           prop="updateTime"
           :field="item"
           :fields-width="fieldsWidth"
