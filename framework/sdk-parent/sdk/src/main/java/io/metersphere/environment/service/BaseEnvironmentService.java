@@ -531,7 +531,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         return baseApiTestEnvironmentMapper.selectNameById(id);
     }
 
-    public synchronized ApiTestEnvironmentWithBLOBs getMockEnvironmentByProjectId(String projectId) {
+    public ApiTestEnvironmentWithBLOBs getMockEnvironmentByProjectId(String projectId) {
 
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
