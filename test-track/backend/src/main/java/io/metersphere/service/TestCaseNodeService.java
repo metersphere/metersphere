@@ -169,36 +169,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public int editNode(DragNodeRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
-        if (!CollectionUtils.isEmpty(request.getNodeIds())) {
-            List<TestCaseDTO> testCases = extTestCaseMapper.getForNodeEdit(request.getNodeIds());
-            testCases.forEach(testCase -> {
-                StringBuilder path = new StringBuilder(testCase.getNodePath());
-                List<String> pathLists = Arrays.asList(path.toString().split("/"));
-                pathLists.set(request.getLevel(), request.getName());
-                path.delete(0, path.length());
-                for (int i = 1; i < pathLists.size(); i++) {
-                    path = path.append("/").append(pathLists.get(i));
-                }
-                testCase.setNodePath(path.toString());
-            });
-            batchUpdateTestCase(testCases);
-        }
         return testCaseNodeMapper.updateByPrimaryKeySelective(request);
-    }
-
-    /**
-     * 修改用例的 nodePath
-     *
-     * @param editNodeIds
-     * @param projectId
-     */
-    public void editCasePathForMinder(List<String> editNodeIds, String projectId) {
-        if (!CollectionUtils.isEmpty(editNodeIds)) {
-            List<TestCaseNodeDTO> nodeTrees = getNodeTrees(extTestCaseNodeMapper.getNodeTreeByProjectId(projectId));
-            List<TestCaseDTO> testCases = extTestCaseMapper.getForNodeEdit(editNodeIds);
-            nodeTrees.forEach(nodeTree -> buildUpdateTestCase(nodeTree, testCases, null, "/", "0", 1));
-            batchUpdateTestCase(testCases);
-        }
     }
 
     public int deleteNode(List<String> nodeIds) {
@@ -399,6 +370,24 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return this.createNodes(nodePaths, projectId);
     }
 
+    public Map<String, String> getNodePathMap(String projectId) {
+        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(getNodeTreeByProjectId(projectId));
+        Map<String, String> pathMap = new HashMap<>();
+        buildPathMap(nodeTrees, pathMap, "");
+        return pathMap;
+    }
+
+    private void buildPathMap(List<TestCaseNodeDTO> nodeTrees, Map<String, String> pathMap, String rootPath) {
+        for (TestCaseNodeDTO nodeTree : nodeTrees) {
+            String currentPath = rootPath + "/" + nodeTree.getName();
+            pathMap.put(nodeTree.getId(), currentPath);
+            List<TestCaseNodeDTO> children = nodeTree.getChildren();
+            if (!CollectionUtils.isEmpty(children)) {
+                buildPathMap(children, pathMap, currentPath);
+            }
+        }
+    }
+
     public Map<String, String> createNodes(List<String> nodePaths, String projectId) {
         List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
         Map<String, String> pathMap = new HashMap<>();
@@ -457,8 +446,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
         List<String> nodeIds = request.getNodeIds();
 
-        List<TestCaseDTO> testCases = QueryTestCaseByNodeIds(nodeIds);
-
         TestCaseNodeDTO nodeTree = request.getNodeTree();
 
         if (nodeTree == null) {
@@ -467,15 +454,13 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
         List<TestCaseNode> updateNodes = new ArrayList<>();
 
-        buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", "0", 1);
+        buildUpdateTestCase(nodeTree, updateNodes,  "0", 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
                 .collect(Collectors.toList());
 
         batchUpdateTestCaseNode(updateNodes);
-
-        batchUpdateTestCase(testCases);
     }
 
     private void batchUpdateTestCaseNode(List<TestCaseNode> updateNodes) {
@@ -490,31 +475,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
     }
 
-    private void batchUpdateTestCase(List<TestCaseDTO> testCases) {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestCaseMapper testCaseMapper = sqlSession.getMapper(TestCaseMapper.class);
-        testCases.forEach((value) -> {
-            testCaseMapper.updateByPrimaryKeySelective(value);
-        });
-        sqlSession.flushStatements();
-        if (sqlSession != null && sqlSessionFactory != null) {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-        }
-    }
-
-    private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
-        QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
-        testCaseRequest.setNodeIds(nodeIds);
-        if (testCaseRequest.getFilters() != null && !testCaseRequest.getFilters().containsKey("status")) {
-            testCaseRequest.getFilters().put("status", new ArrayList<>(0));
-        }
-        return extTestCaseMapper.list(testCaseRequest);
-    }
-
-    private void buildUpdateTestCase(TestCaseNodeDTO rootNode, List<TestCaseDTO> testCases,
-                                     List<TestCaseNode> updateNodes, String rootPath, String pId, int level) {
-
-        rootPath = rootPath + rootNode.getName();
+    private void buildUpdateTestCase(TestCaseNodeDTO rootNode,
+                                     List<TestCaseNode> updateNodes, String pId, int level) {
 
         if (level > 8) {
             MSException.throwException(Translator.get("node_deep_limit"));
@@ -528,16 +490,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             updateNodes.add(testCaseNode);
         }
 
-        for (TestCaseDTO item : testCases) {
-            if (StringUtils.equals(item.getNodeId(), rootNode.getId())) {
-                item.setNodePath(rootPath);
-            }
-        }
-
         List<TestCaseNodeDTO> children = rootNode.getChildren();
         if (children != null && children.size() > 0) {
             for (int i = 0; i < children.size(); i++) {
-                buildUpdateTestCase(children.get(i), testCases, updateNodes, rootPath + '/', rootNode.getId(), level + 1);
+                buildUpdateTestCase(children.get(i), updateNodes, rootNode.getId(), level + 1);
             }
         }
     }
@@ -715,8 +671,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                     addNode(testCaseNode);
                 }
             }
-
-            editCasePathForMinder(editNodeIds, request.getProjectId());
         }
     }
 

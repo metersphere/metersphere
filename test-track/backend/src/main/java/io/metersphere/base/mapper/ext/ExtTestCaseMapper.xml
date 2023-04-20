@@ -1327,14 +1327,6 @@
         WHERE ref_id = #{refId,jdbcType=VARCHAR}
     </update>
 
-    <update id="updateVersionModule">
-        UPDATE test_case
-        SET node_id   = #{moduleId},
-            node_path = #{modulePath}
-        WHERE ref_id = #{refId}
-          AND version_id != #{versionId}
-    </update>
-
     <update id="bathUpdateByCondition">
         update test_case
         <set>

@@ -113,10 +113,6 @@ public class TestCaseService {
 
     @Resource
     TestCaseNodeService testCaseNodeService;
-
-    //    @Resource
-    //    ApiTestCaseMapper apiTestCaseMapper;
-
     @Resource
     TestCaseIssueService testCaseIssueService;
     @Resource
@@ -133,10 +129,6 @@ public class TestCaseService {
     AttachmentModuleRelationMapper attachmentModuleRelationMapper;
     @Resource
     ExtAttachmentModuleRelationMapper extAttachmentModuleRelationMapper;
-    //    @Resource
-    //    private LoadTestMapper loadTestMapper;
-    //    @Resource
-    //    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
@@ -149,15 +141,6 @@ public class TestCaseService {
     private RelevanceLoadCaseService relevanceLoadCaseService;
     @Resource
     private RelevanceUiCaseService relevanceUiCaseService;
-    //    @Resource
-    //    @Lazy
-    //    private ApiTestCaseService apiTestCaseService;
-    //    @Resource
-    //    @Lazy
-    //    private ApiAutomationService apiAutomationService;
-    //    @Resource
-    //    @Lazy
-    //    private PerformanceTestService performanceTestService;
     @Resource
     private TestCaseFollowMapper testCaseFollowMapper;
     @Resource
@@ -218,7 +201,6 @@ public class TestCaseService {
             List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(nodes)) {
                 testCase.setNodeId(nodes.get(0).getId());
-                testCase.setNodePath("/" + nodes.get(0).getName());
             }
         }
     }
@@ -523,14 +505,6 @@ public class TestCaseService {
         if (StringUtils.equalsIgnoreCase(testCase.getVersionId(), defaultVersion)) {
             checkAndSetLatestVersion(testCase.getRefId());
         }
-        if (StringUtils.isNotBlank(testCase.getNodePath())) {
-            //同步修改所有版本的模块路径
-            updateOtherVersionModule(testCase);
-        }
-    }
-
-    private void updateOtherVersionModule(EditTestCaseRequest testCase) {
-        extTestCaseMapper.updateVersionModule(testCase.getRefId(), testCase.getVersionId(), testCase.getNodeId(), testCase.getNodePath());
     }
 
     /**
@@ -604,28 +578,12 @@ public class TestCaseService {
 
         // 全部字段值相同才判断为用例存在
         if (testCase != null) {
-
-            /*
-            例如对于“/模块5”，用户的输入可能为“模块5”或者“/模块5/”或者“模块5/”。
-            不这样处理的话，下面进行判断时就会用用户输入的错误格式进行判断，而模块名为“/模块5”、
-            “模块5”、“/模块5/”、“模块5/”时，它们应该被认为是同一个模块。
-            数据库存储的node_path都是“/模块5”这种格式的
-             */
-            String nodePath = testCase.getNodePath();
-            if (!nodePath.startsWith("/")) {
-                nodePath = "/" + nodePath;
-            }
-            if (nodePath.endsWith("/")) {
-                nodePath = nodePath.substring(0, nodePath.length() - 1);
-            }
-
             TestCaseExample example = new TestCaseExample();
             TestCaseExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
-                    .andNodePathEqualTo(nodePath)
-                    .andTypeEqualTo(testCase.getType())
-                    .andStatusNotEqualTo("Trash");
+                    .andNodePathEqualTo(testCase.getNodeId())
+                    .andStatusNotEqualTo(CommonConstants.TrashStatus);
             if (StringUtils.isNotBlank(testCase.getPriority())) {
                 criteria.andPriorityEqualTo(testCase.getPriority());
             }
@@ -1403,7 +1361,6 @@ public class TestCaseService {
                         testCase.setCustomNum(dbCase.getCustomNum());
                         testCase.setNum(dbCase.getNum());
                         testCase.setLatest(false);
-                        testCase.setType(dbCase.getType());
                         if (StringUtils.isBlank(testCase.getStatus())) {
                             testCase.setStatus(TestCaseReviewStatus.Prepare.name());
                         }
@@ -1575,6 +1532,9 @@ public class TestCaseService {
         TestCaseBatchRequest batchRequest = setTestCaseExportParamIds(initParam);
         // 1000条截取一次, 生成EXCEL
         AtomicInteger i = new AtomicInteger(0);
+
+        Map<String, String> nodePathMap = testCaseNodeService.getNodePathMap(request.getProjectId());
+
         SubListUtil.dealForSubList(batchRequest.getIds(), EXPORT_CASE_MAX_COUNT, (subIds) -> {
             i.getAndIncrement();
             batchRequest.setIds(subIds);
@@ -1583,9 +1543,12 @@ public class TestCaseService {
             FunctionCaseMergeWriteHandler writeHandler = new FunctionCaseMergeWriteHandler(rowMergeInfo, headList);
             Map<String, List<String>> caseLevelAndStatusValueMap = trackTestCaseTemplateService.getCaseLevelAndStatusMapByProjectId(request.getProjectId());
             FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(true, headList, caseLevelAndStatusValueMap);
+
             List<TestCaseDTO> exportData = getExportData(batchRequest);
+            exportData.forEach(item -> item.setNodePath(nodePathMap.get(item.getNodeId())));
             List<TestCaseExcelData> excelData = parseCaseData2ExcelData(exportData, rowMergeInfo, isUseCustomId, request.getOtherHeaders());
             List<List<Object>> data = parseExcelData2List(headList, excelData);
+
             File createFile = new File(tmpZipPath + File.separatorChar + "caseExport_" + i.get() + ".xlsx");
             if (!createFile.exists()) {
                 try {
@@ -2056,22 +2019,6 @@ public class TestCaseService {
             BeanUtils.copyBean(batchEdit, request);
             batchEdit.setUpdateTime(System.currentTimeMillis());
             bathUpdateByCondition(request, batchEdit);
-            //批量修改选中数据其他版本的模块路径
-            if (request != null && (request.getIds() != null || !request.getIds().isEmpty())) {
-                request.getIds().forEach(testCaseId -> {
-                    TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
-                    if (testCaseWithBLOBs == null) {
-                        return;
-                    }
-                    if (StringUtils.isNotEmpty(request.getNodeId()) && StringUtils.isNotEmpty(request.getNodePath())) {
-                        testCaseWithBLOBs.setNodeId(request.getNodeId());
-                        testCaseWithBLOBs.setNodePath(request.getNodePath());
-                        EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
-                        BeanUtils.copyBean(editTestCaseRequest, testCaseWithBLOBs);
-                        updateOtherVersionModule(editTestCaseRequest);
-                    }
-                });
-            }
         }
     }
 
@@ -2184,7 +2131,7 @@ public class TestCaseService {
                 batchCopy.setMaintainer(SessionUtils.getUserId());
                 batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                 batchCopy.setStatus(TestCaseReviewStatus.Prepare.name());
-                batchCopy.setNodePath(request.getNodePath());
+                batchCopy.setNodePath(StringUtils.EMPTY);
                 batchCopy.setNodeId(request.getNodeId());
                 batchCopy.setCasePublic(false);
                 batchCopy.setRefId(id);
@@ -2753,24 +2700,6 @@ public class TestCaseService {
         return null;
     }
 
-    //    public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
-    //        List<ApiTestCaseDTO> apiTestCaseDTOS = testCaseTestMapper.relevanceApiList(request);
-    //        ServiceUtils.buildVersionInfo(apiTestCaseDTOS);
-    //        return apiTestCaseDTOS;
-    //    }
-    //
-    //    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
-    //        List<ApiScenarioDTO> apiScenarioDTOS = testCaseTestMapper.relevanceScenarioList(request);
-    //        ServiceUtils.buildVersionInfo(apiScenarioDTOS);
-    //        return apiScenarioDTOS;
-    //    }
-    //
-    //    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
-    //        List<LoadTestDTO> loadTestDTOS = testCaseTestMapper.relevanceLoadList(request);
-    //        ServiceUtils.buildVersionInfo(loadTestDTOS);
-    //        return loadTestDTOS;
-    //    }
-
     public void relateTest(String type, String caseId, List<String> apiIds) {
         apiIds.forEach(testId -> {
             TestCaseTest testCaseTest = new TestCaseTest();
@@ -3147,7 +3076,7 @@ public class TestCaseService {
                     testCase.setName(testCase.getName().substring(0, 250) + testCase.getName().substring(testCase.getName().length() - 5));
                 }
                 testCase.setNodeId(request.getNodeId());
-                testCase.setNodePath(request.getNodePath());
+                testCase.setNodePath(StringUtils.EMPTY);
                 testCase.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
                 testCase.setCustomNum(String.valueOf(nextNum));
                 testCase.setNum(nextNum++);

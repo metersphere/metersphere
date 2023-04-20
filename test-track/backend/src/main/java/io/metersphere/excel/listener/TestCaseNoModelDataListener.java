@@ -299,7 +299,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             testCase.setProjectId(request.getProjectId());
             String steps = getSteps(data);
             testCase.setSteps(steps);
-            testCase.setType(TestCaseConstants.Type.Functional.getValue());
 
             boolean dbExist = testCaseService.exist(testCase);
             boolean excelExist = false;
@@ -614,7 +613,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         //将标签设置为前端可解析的格式
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
-        testCase.setType(TestCaseConstants.Type.Functional.getValue());
         data.setStatus(data.getStatus());
 
         // todo 这里要获取模板的自定义字段再新建关联关系
