@@ -256,27 +256,27 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReportWithBLOBs editReport(String reportType, String reportId, String status, String runMode) {
-        ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
-        if (report == null) {
-            report = new ApiScenarioReportWithBLOBs();
-            report.setId(reportId);
+    public ApiScenarioReport editReport(String reportType, String reportId, String status, String runMode) {
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+        if (report != null) {
+            if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())
+                    || StringUtils.equals(report.getStatus(), ApiReportStatus.STOPPED.name())) {
+                return report;
+            }
+            ApiScenarioReportWithBLOBs bloBs = new ApiScenarioReportWithBLOBs();
+            if (StringUtils.equals(runMode, CommonConstants.CASE)) {
+                bloBs.setTriggerMode(TriggerMode.MANUAL.name());
+            }
+            bloBs.setId(reportId);
+            bloBs.setStatus(status);
+            bloBs.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+            bloBs.setEndTime(System.currentTimeMillis());
+            bloBs.setUpdateTime(System.currentTimeMillis());
+            if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals(CommonConstants.CASE)) {
+                bloBs.setTriggerMode(TriggerMode.MANUAL.name());
+            }
+            apiScenarioReportMapper.updateByPrimaryKeySelective(bloBs);
         }
-        if (StringUtils.equals(reportType, RunModeConstants.SET_REPORT.toString())
-                || StringUtils.equals(report.getStatus(), ApiReportStatus.STOPPED.name())) {
-            return report;
-        }
-        if (StringUtils.equals(runMode, CommonConstants.CASE)) {
-            report.setTriggerMode(TriggerMode.MANUAL.name());
-        }
-        report.setStatus(status);
-        report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-        report.setEndTime(System.currentTimeMillis());
-        report.setUpdateTime(System.currentTimeMillis());
-        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals(CommonConstants.CASE)) {
-            report.setTriggerMode(TriggerMode.MANUAL.name());
-        }
-        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
     }
 
@@ -340,7 +340,7 @@ public class ApiScenarioReportService {
         List<String> testPlanReportIdList = new ArrayList<>();
 
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
-        ApiScenarioReportWithBLOBs report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());

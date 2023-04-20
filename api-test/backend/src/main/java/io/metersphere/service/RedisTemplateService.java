@@ -1,6 +1,6 @@
 package io.metersphere.service;
 
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class RedisTemplateService {
         try {
             return redisTemplate.opsForValue().setIfAbsent(key, value);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LoggerUtil.error(key, e);
             return true;
         }
     }
@@ -26,7 +26,7 @@ public class RedisTemplateService {
         try {
             return redisTemplate.expire(key, TIME_OUT, TimeUnit.MINUTES);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LoggerUtil.error(key, e);
             return false;
         }
     }
@@ -35,7 +35,7 @@ public class RedisTemplateService {
         try {
             return redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LoggerUtil.error(key, e);
         }
         return null;
     }
@@ -44,7 +44,7 @@ public class RedisTemplateService {
         try {
             return redisTemplate.delete(key);
         } catch (Exception e) {
-            LogUtil.error(e);
+            LoggerUtil.error(key, e);
             return false;
         }
     }
