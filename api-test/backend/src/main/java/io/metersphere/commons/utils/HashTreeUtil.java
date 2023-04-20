@@ -98,7 +98,7 @@ public class HashTreeUtil {
         return returnMap;
     }
 
-    public synchronized Map<String, List<String>> getEnvParamsMapByHashTree(HashTree hashTree) {
+    public Map<String, List<String>> getEnvParamsMapByHashTree(HashTree hashTree) {
         Map<String, List<String>> returnMap = new HashMap<>();
         if (hashTree != null) {
             for (Object hashTreeKey : hashTree.keySet()) {
@@ -116,8 +116,8 @@ public class HashTreeUtil {
                         JSR223Sampler processor = (JSR223Sampler) hashTreeKey;
                         scriptValue = processor.getPropertyAsString(SCRIPT);
                     }
-                } catch (Exception ignored) {
-                    LogUtil.error(ignored);
+                } catch (Exception e) {
+                    LogUtil.error(e);
                 }
 
                 if (StringUtils.isNotEmpty(scriptValue)) {
