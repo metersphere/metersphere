@@ -160,7 +160,7 @@ public class TestPlanService {
     @Resource
     private ApiPoolDebugService apiPoolDebugService;
 
-    public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
+    public TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
@@ -678,7 +678,7 @@ public class TestPlanService {
         } catch (Exception e) {
             sqlSession.rollback();
             throw new RuntimeException(e);
-        }finally {
+        } finally {
             if (sqlSession != null && sqlSessionFactory != null) {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
@@ -2009,7 +2009,7 @@ public class TestPlanService {
             //未勾选资源池运行时，将资源池ID赋空
             runModeConfig.setResourcePoolId(null);
         }
-        
+
         String apiRunConfig = JSON.toJSONString(runModeConfig);
         return this.runTestPlan(testPlanId, testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), testplanRunRequest.getExecutionWay(), apiRunConfig);

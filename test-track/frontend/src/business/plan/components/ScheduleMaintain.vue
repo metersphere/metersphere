@@ -86,12 +86,12 @@
               <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
               <el-radio-group v-model="runConfig.mode" @change="changeMode">
                 <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
-                <el-radio label="parallel">{{
-                  $t("run_mode.parallel")
-                }}</el-radio>
+                <el-radio label="parallel"
+                  >{{ $t("run_mode.parallel") }}
+                </el-radio>
               </el-radio-group>
             </div>
-            <div style="margin-top: 10px" v-if="haveUICase">
+            <div style="margin-top: 10px">
               <span class="ms-mode-span">{{ $t("浏览器") }}：</span>
               <el-select
                 size="mini"
@@ -214,16 +214,16 @@
               <el-row>
                 <el-col :span="18" :offset="3">
                   <div>
-                    <el-checkbox v-model="runConfig.onSampleError">{{
-                      $t("api_test.fail_to_stop")
-                    }}</el-checkbox>
+                    <el-checkbox v-model="runConfig.onSampleError"
+                      >{{ $t("api_test.fail_to_stop") }}
+                    </el-checkbox>
                   </div>
                 </el-col>
               </el-row>
             </div>
-            <div v-if="haveUICase">
+            <div>
               <el-row>
-                <el-col :span="3"> &nbsp; </el-col>
+                <el-col :span="3"> &nbsp;</el-col>
                 <el-col :span="18">
                   <div style="margin-top: 10px">
                     <el-checkbox v-model="runConfig.headlessEnabled">

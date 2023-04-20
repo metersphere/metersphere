@@ -22,7 +22,7 @@ public class ChromeUtil {
         return chromeUtils;
     }
 
-    private synchronized WebDriver genWebDriver(String seleniumUrl, String language) {
+    private WebDriver genWebDriver(String seleniumUrl, String language) {
         if (StringUtils.isEmpty(seleniumUrl)) {
             LogUtil.error("Headless request is null! " + seleniumUrl);
             return null;
@@ -52,7 +52,7 @@ public class ChromeUtil {
         return driver;
     }
 
-    public synchronized Map<String, String> getImageInfo(HeadlessRequest request, String langurage) {
+    public Map<String, String> getImageInfo(HeadlessRequest request, String langurage) {
         Map<String, String> returnMap = new HashMap<>();
         if (request.isEmpty()) {
             return returnMap;
