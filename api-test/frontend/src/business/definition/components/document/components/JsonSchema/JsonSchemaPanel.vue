@@ -15,6 +15,19 @@
           :value="pickKey"
           @blur="onInputName"
           size="small" />
+        <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
+          <input
+            type="checkbox"
+            :disabled="disabled || (!isObject && !isArray(pickValue))"
+            class="ms-col-name-required"/>
+        </el-tooltip>
+        <el-tooltip v-else :content="$t('schema.required')" placement="top">
+          <input
+            type="checkbox"
+            :disabled="disabled || isItem"
+            :checked="checked"
+            class="ms-col-name-required"/>
+        </el-tooltip>
       </el-col>
       <el-col class="ms-col-name" style="width: 120px; padding: 0 5px">
         <el-select
