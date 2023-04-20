@@ -12,18 +12,21 @@ public class TestCase implements Serializable {
 
     private String testId;
 
+    @Deprecated
     private String nodePath;
 
     private String projectId;
 
     private String name;
 
+    @Deprecated
     private String type;
 
     private String maintainer;
 
     private String priority;
 
+    @Deprecated
     private String method;
 
     private Long createTime;

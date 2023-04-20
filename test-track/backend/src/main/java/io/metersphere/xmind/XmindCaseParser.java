@@ -1,6 +1,5 @@
 package io.metersphere.xmind;
 
-import com.google.common.collect.ImmutableMap;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
@@ -106,7 +105,6 @@ public class XmindCaseParser {
         return this.nodePaths;
     }
 
-    private final Map<String, String> caseTypeMap = ImmutableMap.of("功能测试", "functional", "性能测试", "performance", "接口测试", "api");
     private final List<String> priorityList = Arrays.asList("P0", "P1", "P2", "P3");
 
     /**
@@ -188,19 +186,10 @@ public class XmindCaseParser {
             }
         }
 
-        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
-            validatePass = false;
-            process.add(Translator.get("functional_method_tip"), nodePath + data.getName());
-        }
-
         // 用例等级和用例性质处理
         if (!priorityList.contains(data.getPriority())) {
             validatePass = false;
             process.add(Translator.get("test_case_priority") + Translator.get("incorrect_format"), nodePath + data.getName());
-        }
-        if (data.getType() == null) {
-            validatePass = false;
-            process.add(Translator.get("test_case_type") + Translator.get("incorrect_format"), nodePath + data.getName());
         }
 
         // 重复用例校验
@@ -274,8 +263,8 @@ public class XmindCaseParser {
     /**
      * 递归处理案例数据
      */
-    private void recursion(Attached parent, int level, List<Attached> attacheds) {
-        for (Attached item : attacheds) {
+    private void recursion(Attached parent, int level, List<Attached> attachedList) {
+        for (Attached item : attachedList) {
             if (isAvailable(item.getTitle(), TC_REGEX)) {
                 item.setParent(parent);
                 // 格式化一个用例
@@ -354,8 +343,6 @@ public class XmindCaseParser {
         testCase.setProjectId(request.getProjectId());
         testCase.setMaintainer(request.getUserId());
         testCase.setPriority(priorityList.get(0));
-        testCase.setMethod("manual");
-        testCase.setType("functional");
 
         String tc = title.replace("：", ":");
         String[] tcArrs = tc.split(":");
@@ -375,8 +362,6 @@ public class XmindCaseParser {
                     continue;
                 } else if (item.toUpperCase().startsWith("P")) {
                     testCase.setPriority(item.toUpperCase());
-                } else {
-                    testCase.setType(caseTypeMap.get(item));
                 }
             }
         }

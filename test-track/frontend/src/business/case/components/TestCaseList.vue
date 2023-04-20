@@ -187,6 +187,9 @@
           :fields-width="fieldsWidth"
           :label="$t('test_track.case.module')"
           min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
+          </template>
         </ms-table-column>
 
         <ms-update-time-column :field="item"
@@ -526,7 +529,16 @@ export default {
       selectNode: 'testCaseSelectNode',
       moduleOptions: 'testCaseModuleOptions',
       customNum: 'currentProjectIsCustomNum'
-    })
+    }),
+    nodePathMap() {
+      let map = new Map();
+      if (this.moduleOptions) {
+        this.moduleOptions.forEach((item) => {
+          map.set(item.id, item.path);
+        });
+      }
+      return map;
+    }
   },
   created: function () {
     this.checkCurrentProject();
@@ -824,12 +836,8 @@ export default {
             parseCustomFilesForList(this.page.data);
             parseTag(this.page.data);
             this.page.data.forEach(item => {
-              let nodePath = item.nodePath;
               if (item.customFields) {
                 item.customFields = JSON.parse(item.customFields);
-              }
-              if (nodePath.startsWith("/未规划用例", "0")) {
-                item.nodePath = nodePath.replaceAll("/未规划用例", "/" + this.$t('api_test.unplanned_case'));
               }
             });
             this.updateTestCaseNodeCount();
