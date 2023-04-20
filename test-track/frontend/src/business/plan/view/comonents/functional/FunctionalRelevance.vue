@@ -216,6 +216,9 @@ export default {
   },
   watch: {
     projectId(val) {
+      if (!this.projectId) {
+        return;
+      }
       this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
       this.page.condition.versionId = null;
@@ -233,9 +236,6 @@ export default {
       if (this.$refs.table) {
         this.$refs.table.clear();
         this.$refs.table.clearSort();
-      }
-      if (this.projectId) {
-        this.getProjectNode(this.projectId);
       }
     },
     setProject(projectId) {
@@ -300,6 +300,7 @@ export default {
     close() {
       this.selectNodeIds = [];
       this.selectNodeNames = [];
+      this.projectId = '';
       this.$refs.table.clear();
     },
     getProjectNode(projectId, condition) {
