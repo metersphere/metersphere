@@ -4,6 +4,7 @@ import test_track from "./track/zh-TW";
 
 const message = {
   commons: {
+    insert: "插入",
     pre_page: "上一頁",
     next_page: "下一頁",
     already_pre_page: "已經是第一頁",
