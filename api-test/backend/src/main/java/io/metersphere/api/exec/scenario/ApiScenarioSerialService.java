@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -98,7 +99,7 @@ public class ApiScenarioSerialService {
             runRequest.getExtendedParameters().put("projectId", queue.getProjectIds());
             jMeterService.run(runRequest);
         } catch (Exception e) {
-            RequestParamsUtil.rollback(runRequest, e);
+            LoggerUtil.error("串行执行失败", e);
         }
     }
 
