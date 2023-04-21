@@ -28,8 +28,6 @@ public class RemakeReportService {
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
             String consoleMsg = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), true);
             dto.setConsole(consoleMsg + StringUtils.LF + errorMsg);
-            // 整体执行结束更新资源状态
-            CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
 
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
