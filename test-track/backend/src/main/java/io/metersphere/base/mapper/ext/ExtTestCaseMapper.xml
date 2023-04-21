@@ -874,7 +874,7 @@
 
     <select id="countRelevance" resultType="io.metersphere.dto.TrackCountResult">
         SELECT test_case_test.test_type           AS groupField,
-               count(test_case_test.test_case_id) AS countNumber
+               count(DISTINCT test_case_test.test_id ) AS countNumber
         FROM test_case
                  INNER JOIN (SELECT test_case_id, test_id, test_type
                              FROM test_case_test
