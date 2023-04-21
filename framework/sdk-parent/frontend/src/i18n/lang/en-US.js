@@ -4,6 +4,7 @@ import test_track from "./track/en-US";
 
 const message = {
   commons: {
+    insert: "Insert",
     pre_page: "Pre page",
     next_page: "Next page",
     already_pre_page: "It's already page one",
