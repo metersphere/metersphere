@@ -129,13 +129,13 @@ public class BaseScheduleService {
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
-    private void removeJob(String resourceId, String group) {
-        scheduleManager.removeJob(new JobKey(resourceId, ScheduleGroup.PERFORMANCE_TEST.name()), new TriggerKey(resourceId, group));
+    private void removeJob(String key, String group) {
+        scheduleManager.removeJob(new JobKey(key, group), new TriggerKey(key, group));
     }
 
-    public List<Schedule> getEnableSchedule(ScheduleGroup group) {
+    public List<Schedule> getScheduleByGroup(ScheduleGroup group) {
         ScheduleExample example = new ScheduleExample();
-        example.createCriteria().andEnableEqualTo(true)
+        example.createCriteria()
                 .andGroupEqualTo(group.name());
         return scheduleMapper.selectByExample(example);
     }
@@ -149,17 +149,19 @@ public class BaseScheduleService {
     }
 
     public void startEnableSchedules(ScheduleGroup group) {
-        List<Schedule> Schedules = getEnableSchedule(group);
-
+        List<Schedule> Schedules = getScheduleByGroup(group);
         Schedules.forEach(schedule -> {
             try {
+                // 兼容历史数据
+                jobConvert(schedule, group);
                 if (schedule.getEnable()) {
-                    // 兼容历史数据
-                    jobConvert(schedule, group);
                     LogUtil.info("初始化任务：" + JSON.toJSONString(schedule));
                     scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
                             new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(),
                             scheduleManager.getDefaultJobDataMap(schedule, schedule.getValue(), schedule.getUserId()));
+                } else {
+                    // 删除关闭的job
+                    removeJob(schedule.getKey(), group.toString());
                 }
             } catch (Exception e) {
                 LogUtil.error("初始化任务失败", e);
