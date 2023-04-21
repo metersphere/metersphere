@@ -13,10 +13,12 @@ import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.ProjectJarConfig;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.ApiExecutionQueueService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
@@ -161,21 +163,13 @@ public class GenerateHashTreeUtil {
 
             LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
         } catch (Exception ex) {
-            remakeException(runRequest, ex);
             LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
-            return null;
+            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+            remakeReportService.testEnded(runRequest, ex.getMessage());
         }
 
         LogUtil.info(testPlan.getJmx(jmeterHashTree));
         return jmeterHashTree;
-    }
-
-    public static void remakeException(JmeterRunRequestDTO runRequest, Exception e) {
-        RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-        remakeReportService.testEnded(runRequest, e.getMessage());
-        ResultDTO dto = new ResultDTO();
-        BeanUtils.copyBean(dto, runRequest);
-        CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
     }
 
     public static boolean isSetReport(RunModeConfigDTO config) {
