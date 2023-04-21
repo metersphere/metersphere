@@ -27,14 +27,15 @@ public class InitListener implements ApplicationRunner {
     @Resource
     private PlatformPluginService platformPluginService;
     @Resource
-    private BaseScheduleService scheduleService;
+    private BaseScheduleService baseScheduleService;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
         this.initOnceOperate();
         platformPluginService.loadPlatFormPlugins();
 
-        scheduleService.startEnableSchedules(ScheduleGroup.ISSUE_SYNC);
+        baseScheduleService.startEnableSchedules(ScheduleGroup.ISSUE_SYNC);
+        baseScheduleService.startEnableSchedules(ScheduleGroup.TEST_PLAN_TEST);
     }
 
     /**
