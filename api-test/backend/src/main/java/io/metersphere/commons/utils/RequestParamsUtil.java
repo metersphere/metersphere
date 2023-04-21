@@ -1,15 +1,11 @@
 package io.metersphere.commons.utils;
 
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.RemakeReportService;
 import io.metersphere.base.domain.ApiExecutionQueue;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.ResultDTO;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.utils.LoggerUtil;
 
 public class RequestParamsUtil {
 
@@ -27,14 +23,5 @@ public class RequestParamsUtil {
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, queue.getId()));
         return runRequest;
-    }
-
-    public static void rollback(JmeterRunRequestDTO runRequest, Exception e) {
-        RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-        remakeReportService.testEnded(runRequest, e.getMessage());
-        ResultDTO dto = new ResultDTO();
-        BeanUtils.copyBean(dto, runRequest);
-        CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-        LoggerUtil.error("执行队列[" + runRequest.getQueueId() + "]入队列失败：", runRequest.getReportId(), e);
     }
 }

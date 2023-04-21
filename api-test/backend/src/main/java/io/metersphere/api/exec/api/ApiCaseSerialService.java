@@ -83,7 +83,7 @@ public class ApiCaseSerialService {
             runRequest.getExtendedParameters().put(PROJECT_ID, queue.getProjectIds());
             jMeterService.run(runRequest);
         } catch (Exception e) {
-            RequestParamsUtil.rollback(runRequest, e);
+            LoggerUtil.error("串行执行用例失败", e);
         }
     }
 
