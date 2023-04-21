@@ -18,7 +18,18 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        and ss.status = 'new'
+        <!-- 过滤出非完成状态的issue(目前第三方平台的状态写死, 和列表页面一致, 后续插件可优化扩展) -->
+        and (
+            (
+                ss.platform != 'Local' and
+                ss.platform_status not in ('closed','已关闭','已完成','完成','拒绝','已拒绝','rejected','delete','resolved','Done','verified','已验证')
+            )
+            or
+            (
+                ss.platform = 'Local' and
+                ss.status not in ('closed','已关闭','已完成','完成','拒绝','已拒绝','rejected','delete','resolved','Done','verified','已验证')
+            )
+        )
         and ss.creator = #{userId,jdbcType=VARCHAR}
     </select>
     <select id="getCountCreat" resultType="java.lang.Integer">
