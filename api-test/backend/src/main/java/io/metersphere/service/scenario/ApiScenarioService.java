@@ -2077,8 +2077,6 @@ public class ApiScenarioService {
     public void deleteApiScenarioByVersion(String refId, String version) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andRefIdEqualTo(refId).andVersionIdEqualTo(version);
-        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
-        List<String> scenarioIds = apiScenarios.stream().map(ApiScenario::getId).collect(toList());
 
         apiScenarioMapper.deleteByExample(example);
         scheduleService.deleteByResourceId(refId, ScheduleGroup.API_SCENARIO_TEST.name());
