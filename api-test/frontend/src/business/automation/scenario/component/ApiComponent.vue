@@ -277,7 +277,8 @@ export default {
       if (this.node.parent && this.node.parent.data && this.node.parent.data.length > 1) {
         this.request.projectId = getCurrentProjectID();
       }else {
-        this.request.projectId = this.node.parent.data[0].projectId;
+        this.request.projectId =
+          this.node.parent.data instanceof Array ? this.node.parent.data[0].projectId : this.node.parent.data.projectId;
       }
     }
     if (this.currentScenario) {
