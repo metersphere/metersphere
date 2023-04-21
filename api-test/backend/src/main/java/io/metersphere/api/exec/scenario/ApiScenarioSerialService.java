@@ -18,6 +18,7 @@ import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.RequestParamsUtil;
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.utils.LoggerUtil;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -60,6 +62,7 @@ public class ApiScenarioSerialService {
             reportId = queue.getReportId();
         }
         JmeterRunRequestDTO runRequest = RequestParamsUtil.init(executionQueue, queue, reportId);
+        runRequest.setRunType(RunModeConstants.SERIAL.toString());
         // 更新报告状态
         updateReportToRunning(queue, runRequest);
         try {
@@ -98,7 +101,7 @@ public class ApiScenarioSerialService {
             runRequest.getExtendedParameters().put("projectId", queue.getProjectIds());
             jMeterService.run(runRequest);
         } catch (Exception e) {
-            RequestParamsUtil.rollback(runRequest, e);
+            LoggerUtil.error("串行执行失败", e);
         }
     }
 
