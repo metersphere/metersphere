@@ -138,6 +138,7 @@ public class ApiJMeterFileService {
             if (detail != null) {
                 runRequest.setRetryEnable(detail.getRetryEnable());
                 runRequest.setRetryNum(detail.getRetryNumber());
+                runRequest.setRunType(detail.getType());
             }
             Map<String, String> processEnvMap = new LinkedHashMap<>();
             if (detail != null && StringUtils.isNotEmpty(detail.getEvnMap())) {
@@ -165,7 +166,6 @@ public class ApiJMeterFileService {
         } catch (Exception e) {
             remakeReportService.testEnded(runRequest, "生成执行脚本异常:" + e.getMessage());
         }
-        remakeReportService.testEnded(runRequest, "未找到测试资源【" + remoteTestId + "】,资源类型：" + runMode);
         return new byte[0];
     }
 
