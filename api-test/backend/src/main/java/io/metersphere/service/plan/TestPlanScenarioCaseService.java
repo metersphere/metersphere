@@ -34,10 +34,7 @@ import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.request.ResetOrderRequest;
-import io.metersphere.service.BaseProjectApplicationService;
-import io.metersphere.service.BaseProjectService;
-import io.metersphere.service.BaseUserService;
-import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.*;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.plan.remote.TestPlanService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
@@ -111,18 +108,45 @@ public class TestPlanScenarioCaseService {
     @Lazy
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
+    @Resource
+    private EnvironmentService environmentService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
-        List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
-        if (CollectionUtils.isEmpty(apiTestCases)) {
-            return apiTestCases;
+        List<ApiScenarioDTO> scenarioDTOList = extTestPlanScenarioCaseMapper.list(request);
+        if (CollectionUtils.isEmpty(scenarioDTOList)) {
+            return scenarioDTOList;
         }
-        buildProjectInfo(apiTestCases);
-        buildUserInfo(apiTestCases);
-        return apiTestCases;
+        buildProjectInfo(scenarioDTOList);
+        buildUserInfo(scenarioDTOList);
+        return buildEnvironment(scenarioDTOList);
     }
+
+    private List<ApiScenarioDTO> buildEnvironment(List<ApiScenarioDTO> scenarioDTOList) {
+        List<ApiScenarioDTO> returnData = new ArrayList<>();
+
+        scenarioDTOList.forEach(scenario -> {
+            if (StringUtils.equalsIgnoreCase(scenario.getEnvironmentType(), EnvironmentType.GROUP.name())) {
+                if (StringUtils.isNotEmpty(scenario.getEnvironmentGroupId())) {
+                    Map<String, String> map = environmentService.getEnvNameMap(scenario.getEnvironmentGroupId());
+                    scenario.setTableShowEnv(map);
+                }
+            } else if (StringUtils.equalsIgnoreCase(scenario.getEnvironmentType(), EnvironmentType.JSON.name())) {
+                try {
+                    if (StringUtils.isNotEmpty(scenario.getEnvironment())) {
+                        Map<String, String> environmentMap = this.getScenarioCaseEnv(JSON.parseMap(scenario.getEnvironment()));
+                        scenario.setTableShowEnv(environmentMap);
+                    }
+                } catch (Exception e) {
+                    LogUtil.error("测试计划场景环境解析报错!", e);
+                }
+            }
+            returnData.add(scenario);
+        });
+        return returnData;
+    }
+
 
     public void buildProjectInfo(List<? extends ApiScenarioDTO> apiTestCases) {
         List<String> projectIds = apiTestCases.stream()
