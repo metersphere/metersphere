@@ -89,6 +89,18 @@ public class ExtApiScheduleService {
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
+    public void closeByResourceId(String resourceId, String group) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
+        removeJob(resourceId, group);
+        List<Schedule> list = scheduleMapper.selectByExample(scheduleExample);
+        for (Schedule schedule : list) {
+            schedule.setEnable(false);
+            scheduleMapper.updateByPrimaryKey(schedule);
+        }
+
+    }
+
     public int deleteByProjectId(String projectId) {
         ScheduleExample scheduleExample = new ScheduleExample();
         scheduleExample.createCriteria().andProjectIdEqualTo(projectId);
