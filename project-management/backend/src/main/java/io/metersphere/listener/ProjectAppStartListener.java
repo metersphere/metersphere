@@ -1,6 +1,9 @@
 package io.metersphere.listener;
 
+import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.service.BaseScheduleService;
+import jakarta.annotation.Resource;
 import org.apache.jmeter.util.JMeterUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -13,6 +16,10 @@ import java.util.Objects;
 
 @Component
 public class ProjectAppStartListener implements ApplicationListener<ApplicationReadyEvent> {
+
+    @Resource
+    private BaseScheduleService baseScheduleService;
+
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         LogUtil.info("================= PROJECT 应用启动 =================");
@@ -21,6 +28,8 @@ public class ProjectAppStartListener implements ApplicationListener<ApplicationR
 
         LogUtil.info("导入内置python包处理");
         this.initPythonEnv();
+
+        baseScheduleService.startEnableSchedules(ScheduleGroup.CLEAN_UP_REPORT);
     }
 
     private void initJmeterHome() {
