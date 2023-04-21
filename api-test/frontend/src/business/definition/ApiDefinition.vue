@@ -1093,6 +1093,8 @@ export default {
     },
     changeTab(active) {
       this.activeDom = active;
+      this.$EventBus.$emit('apiConditionBus', {});
+      this.$refs.nodeTree.list();
     },
   },
 };
