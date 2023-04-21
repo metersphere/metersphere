@@ -617,7 +617,7 @@ public class ApiScenarioService {
             return;
         }
         List<String> scenarioIds = apiScenarioVersions.stream().map(ApiScenario::getId).collect(toList());
-        scenarioIds.forEach(scenarioId -> scheduleService.deleteByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name()));
+        scenarioIds.forEach(scenarioId -> scheduleService.closeByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name()));
 
         ApiScenarioExampleWithOperation example = new ApiScenarioExampleWithOperation();
         example.createCriteria().andRefIdIn(refIds);
@@ -736,7 +736,7 @@ public class ApiScenarioService {
             ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
             request.setEnvironmentEnable(false);
             request.setDefinition(scenarioWithBLOBs.getScenarioDefinition());
-            request.setEnvironmentMap( JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
+            request.setEnvironmentMap(JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
             request.setEnvironmentType(scenarioWithBLOBs.getEnvironmentType());
             request.setEnvironmentGroupId(scenarioWithBLOBs.getEnvironmentGroupId());
             request.setId(scenarioWithBLOBs.getId());
