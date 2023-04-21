@@ -35,4 +35,6 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private String creator;
     private String workspaceName;
     private String workspaceId;
+    //用于测试计划场景表格中环境展示
+    private Map<String, String> tableShowEnv;
 }
