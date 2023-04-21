@@ -850,17 +850,7 @@ export default {
     updateTestCaseNodeCount() {
       if (this.selectNode && this.treeNodes && this.selectNode.data
         && this.selectNode.data.caseNum !== this.page.total) {
-
-        let updateCount = this.page.total - this.selectNode.data.caseNum;
-        let node = this.selectNode;
         this.selectNode.data.caseNum = this.page.total;
-        while (node) {
-          node = node.parent;
-          if (node && node.data) {
-            node.data.caseNum += updateCount;
-          }
-        }
-
       }
     },
     search() {
