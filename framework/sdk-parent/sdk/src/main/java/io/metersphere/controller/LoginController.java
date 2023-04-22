@@ -52,7 +52,7 @@ public class LoginController {
 
 
     @GetMapping(value = "/is-login")
-    public ResultHolder isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId) throws Exception {
+    public ResultHolder isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId, HttpServletResponse response) throws Exception {
         RsaKey rsaKey = RsaUtil.getRsaKey();
         Object user = redisIndexedSessionRepository.getSessionRedisOperations().opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user");
         if (user != null) {
@@ -69,6 +69,8 @@ public class LoginController {
             }
             return ResultHolder.success(sessionUser);
         }
+        // 没登录状态码返回401
+        response.setStatus(401);
         return ResultHolder.error(rsaKey.getPublicKey());
     }
 
