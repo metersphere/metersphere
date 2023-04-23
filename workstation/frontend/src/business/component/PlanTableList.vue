@@ -343,6 +343,7 @@ export default {
           item.tags = JSON.parse(item.tags);
         }
         item.passRate = item.passRate + '%';
+        item.testRate = item.testRate ? item.testRate : 0;
         getPrincipalById(item.id).then(res => {
           let data = res.data;
           let principal = "";
