@@ -184,22 +184,21 @@ export function syncIssues() {
 }
 
 // 轮询同步状态
-export function checkSyncIssues(loading, isNotFirst) {
+export function checkSyncIssues(loading, isNotFirst, callback) {
   let url = 'issues/sync/check/' + getCurrentProjectID() + "?stamp=" + getUUID();
   return get(url)
     .then((response) => {
-      if (response.data === false) {
+      if (response.data.syncComplete === false) {
         if (loading === true) {
           if (!isNotFirst) {
             // 第一次才提示
-            $warning(i18n.t('test_track.issue.issue_sync_tip'));
+            $warning(i18n.t('test_track.issue.issue_sync_tip'), false);
           }
-          setTimeout(() => checkSyncIssues(loading, true), 1000);
+          setTimeout(() => checkSyncIssues(loading, true, callback), 1000);
         }
       } else {
         if (loading === true) {
-          $success(i18n.t('test_track.issue.sync_complete'));
-          loading = false;
+          callback(response.data);
         }
       }
     });
