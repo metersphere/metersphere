@@ -732,7 +732,21 @@ export default {
               item.tags = null;
             }
           }
-          item.passRate = item.passRate + "%";
+
+          if (item.principalUsers) {
+            let data = item.principalUsers;
+            let principal = "";
+            let principalIds = data.map((d) => d.id);
+            data.forEach((d) => {
+              if (principal !== "") {
+                principal = principal + "、" + d.name;
+              } else {
+                principal = principal + d.name;
+              }
+            });
+            this.$set(item, "principalName", principal);
+            this.$set(item, "principals", principalIds);
+          }
         });
         this.tableData = data.listObject;
         this.getTestPlanDetailData(testPlanIds);
@@ -754,7 +768,7 @@ export default {
                 this.$set(item, "isMetricLoadOver", true);
                 this.$set(item, "passRate", metricData.passRate);
                 this.$set(item, "testRate", metricData.testRate);
-                this.$set(item, "passed", metricData.passed);
+                this.$set(item, "passed", metricData.passed + "%");
                 this.$set(item, "tested", metricData.tested);
                 this.$set(item, "total", metricData.total);
                 this.$set(
@@ -782,20 +796,6 @@ export default {
                   "testPlanLoadCaseCount",
                   metricData.testPlanLoadCaseCount
                 );
-                if (metricData.principalUsers) {
-                  let data = metricData.principalUsers;
-                  let principal = "";
-                  let principalIds = data.map((d) => d.id);
-                  data.forEach((d) => {
-                    if (principal !== "") {
-                      principal = principal + "、" + d.name;
-                    } else {
-                      principal = principal + d.name;
-                    }
-                  });
-                  this.$set(item, "principalName", principal);
-                  this.$set(item, "principals", principalIds);
-                }
                 if (metricData.followUsers) {
                   let data = metricData.followUsers;
                   let follow = "";
@@ -839,7 +839,7 @@ export default {
       this.$set(item, "showFollow", false);
       this.$set(item, "passRate", 0);
       this.$set(item, "testRate", 0);
-      this.$set(item, "passed", 0);
+      this.$set(item, "passed", 0 + "%");
       this.$set(item, "tested", 0);
       this.$set(item, "total", 0);
       this.$set(item, "testPlanTestCaseCount", 0);

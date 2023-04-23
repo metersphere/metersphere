@@ -503,6 +503,10 @@ public class TestPlanService {
                 } else {
                     item.setScheduleStatus(ScheduleStatus.NOTSET.name());
                 }
+
+                //关注人这里查出来。 是因为编辑的时候需要有这个字段。
+                List<User> planPrincipal = this.getPlanPrincipal(item.getId());
+                item.setPrincipalUsers(planPrincipal);
             });
         }
         return testPlanList;
@@ -524,9 +528,7 @@ public class TestPlanService {
             testPlanMetric.setTestPlanUiScenarioCount(planUiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planUiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planUiScenarioMap.get(testPlanMetric.getId()).getValue()));
             testPlanMetric.setTestPlanLoadCaseCount(planLoadCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planLoadCaseMap.get(testPlanMetric.getId()).getValue()));
 
-            List<User> planPrincipal = this.getPlanPrincipal(testPlanMetric.getId());
             List<User> followUsers = this.getPlanFollow(testPlanMetric.getId());
-            testPlanMetric.setPrincipalUsers(planPrincipal);
             testPlanMetric.setFollowUsers(followUsers);
         }
         return testPlanMetricList;
