@@ -307,7 +307,7 @@
             <foreach collection="statusList" item="value" separator="," open="(" close=")">
                 #{value}
             </foreach>
-            ))
+            and ac.update_time >= #{toBeUpdateTime} ))
         </if>
         <if test="toBeUpdateTime !=null and (statusList ==null or statusList.size() == 0)">
             and ac.to_be_update_time >= #{toBeUpdateTime}
