@@ -473,8 +473,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setPort(urlObject.getPort());
             }
             sampler.setProtocol(urlObject.getProtocol());
-            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(url, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
+            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(urlObject.getPath(), StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
         } catch (Exception e) {
+            sampler.setProperty("HTTPSampler.path", url);
             LogUtil.error(e.getMessage(), e);
         }
     }
