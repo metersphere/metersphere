@@ -840,27 +840,9 @@ export default {
                 item.customFields = JSON.parse(item.customFields);
               }
             });
-            this.updateTestCaseNodeCount();
           });
         this.$emit("getTrashList");
         this.$emit("getPublicList")
-      }
-    },
-    // 如果在其他tab页创建用例，会导致模块数量显示和列表不一致，这里重新更新下模块的用例数
-    updateTestCaseNodeCount() {
-      if (this.selectNode && this.treeNodes && this.selectNode.data
-        && this.selectNode.data.caseNum !== this.page.total) {
-
-        let updateCount = this.page.total - this.selectNode.data.caseNum;
-        let node = this.selectNode;
-        this.selectNode.data.caseNum = this.page.total;
-        while (node) {
-          node = node.parent;
-          if (node && node.data) {
-            node.data.caseNum += updateCount;
-          }
-        }
-
       }
     },
     search() {
