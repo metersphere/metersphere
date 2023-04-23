@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.IssueSyncCheckResult;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.base.domain.Project;
@@ -157,17 +158,17 @@ public class IssuesController {
     }
 
     @GetMapping("/sync/{projectId}")
-    public boolean syncThirdPartyIssues(@PathVariable String projectId) {
-        return issuesService.syncThirdPartyIssues(projectId);
+    public void syncThirdPartyIssues(@PathVariable String projectId) {
+        issuesService.syncThirdPartyIssues(projectId);
     }
 
     @PostMapping("/sync/all")
-    public boolean syncThirdPartyAllIssues(@RequestBody IssueSyncRequest request) {
-        return issuesService.syncThirdPartyAllIssues(request);
+    public void syncThirdPartyAllIssues(@RequestBody IssueSyncRequest request) {
+        issuesService.syncThirdPartyAllIssues(request);
     }
 
     @GetMapping("/sync/check/{projectId}")
-    public boolean checkSync(@PathVariable String projectId) {
+    public IssueSyncCheckResult checkSync(@PathVariable String projectId) {
         return issuesService.checkSync(projectId);
     }
 
