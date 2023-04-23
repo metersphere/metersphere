@@ -195,12 +195,12 @@ export default {
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
-    list(projectId) {
+    list(projectId, targetName) {
       if (this.isRelevanceModel) {
         this.result = getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
           this.setData(response);
         });
-      } else if (this.isTrashData) {
+      } else if (this.isTrashData && !targetName) {
         this.result = postModuleByTrash(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
@@ -288,7 +288,7 @@ export default {
       } else {
         this.$emit('nodeSelectEvent', node, nodeIds, pNodes);
       }
-     // this.nohupReloadTree(node.data.id);
+      // this.nohupReloadTree(node.data.id);
     },
     //后台更新节点数据
     nohupReloadTree(selectNodeId) {
@@ -351,6 +351,10 @@ export default {
     },
     enableTrash() {
       this.condition.trashEnable = true;
+      this.param.trashEnable = true;
+      this.result = postModuleByTrash(this.projectId, this.param).then((response) => {
+        this.setData(response);
+      });
     },
     removeModuleId(nodeIds) {
       if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {
