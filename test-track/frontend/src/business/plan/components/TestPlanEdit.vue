@@ -282,8 +282,7 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (param.name === '') {
-            this.$warning(this.$t('test_track.plan.input_plan_name'));
+          if (!this.validate(param)) {
             return;
           }
           param.workspaceId = getCurrentWorkspaceId();
