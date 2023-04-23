@@ -3,6 +3,7 @@
     :width="width"
     :title="dialogTitle"
     ref="relevanceDialog"
+    @close="handleCloseEven"
     :full-screen="isFullScreen"
   >
     <!-- todo -->
@@ -155,7 +156,9 @@ export default {
     close() {
       this.$refs.relevanceDialog.close();
     },
-
+    handleCloseEven() {
+      this.$emit("close");
+    },
     open() {
       this.workspaceId = getCurrentWorkspaceId();
       this.getProject();

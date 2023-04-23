@@ -60,6 +60,7 @@
       },
       close() {
         this.dialogVisible = false;
+        this.$emit("close");
       },
     }
   }

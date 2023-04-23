@@ -4,6 +4,7 @@
     @setProject="setProject"
     @save="saveCaseRelevance"
     :enable-full-screen="false"
+    @close="close"
     :flag="isTestPlan"
     :multiple-project="multipleProject"
     :is-saving="isSaving"
@@ -237,6 +238,10 @@ export default {
       if (this.$refs.table) {
         this.$refs.table.clear();
         this.$refs.table.clearSort();
+      }
+      if (this.projectId) {
+        this.getProjectNode(this.projectId);
+        this.getTestCases();
       }
     },
     setProject(projectId) {
