@@ -53,7 +53,7 @@ public class HttpHeaderUtils {
 
 
         User user = sessionUserThreadLocal.get();
-        if (user != null) {
+        if (user != null && SessionUtils.getUser() == null) {
             UserDTO userDTO = new UserDTO();
             BeanUtils.copyProperties(user, userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, UUID.randomUUID().toString());
