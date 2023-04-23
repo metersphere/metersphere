@@ -1053,6 +1053,10 @@ public class ApiDefinitionService {
             this.batchEditDefinitionTags(request);
             return;
         }
+        if (StringUtils.isNotBlank(request.getMethod())) {
+            this.batchEditDefinitionMethod(request);
+            return;
+        }
         //name在这里只是查询参数
         request.setName(null);
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
@@ -1107,6 +1111,29 @@ public class ApiDefinitionService {
         }
     }
 
+    private void batchEditDefinitionMethod(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiDefinitionMapper.selectIds(query));
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionMapper mapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiDefinitionWithBLOBs> apiDefinitions = apiDefinitionMapper.selectByExampleWithBLOBs(example);
+        for (ApiDefinitionWithBLOBs apiDefinition : apiDefinitions) {
+            apiDefinition.setMethod(request.getMethod());
+            JSONObject jsonObject = JSONUtil.parseObject(apiDefinition.getRequest());
+            jsonObject.put("method", request.getMethod());
+            apiDefinition.setRequest(jsonObject.toString());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            mapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+        }
+        sqlSession.flushStatements();
+        if (sqlSession != null && sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
     private void batchEditDefinitionTags(ApiBatchRequest request) {
         if (request.getTagList().isEmpty()) {
             return;
