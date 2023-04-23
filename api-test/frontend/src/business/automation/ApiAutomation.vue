@@ -618,6 +618,7 @@ export default {
       if (targetName === 'trash') {
         this.selectNodeIds = [];
         this.trashEnable = false;
+        this.$refs.nodeTree.list(this.projectId, targetName);
       } else {
         let message = '';
         this.tabs.forEach((tab) => {
