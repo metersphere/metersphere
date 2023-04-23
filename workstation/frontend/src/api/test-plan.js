@@ -19,3 +19,7 @@ export function getPlanList(goPage, pageSize,param) {
 export function editPlan(param) {
   return post('/test/plan/edit',param);
 }
+
+export function getTestPlanMetricDataList(ids) {
+  return post('/test/plan/metric', ids);
+}
