@@ -12,11 +12,13 @@
               <span v-if="isThirdPart && hasPermission('PROJECT_TRACK_ISSUE:READ+CREATE')">
                 <ms-table-button
                   v-if="hasLicense"
+                  :disabled="syncDisable"
                   icon="el-icon-refresh"
                   :content="$t('test_track.issue.sync_bugs')"
                   @click="syncAllIssues"/>
                 <ms-table-button
                   v-if="!hasLicense"
+                  :disabled="syncDisable"
                   icon="el-icon-refresh"
                   :content="$t('test_track.issue.sync_bugs')"
                   @click="syncIssues"/>
@@ -248,6 +250,7 @@ export default {
       platformStatus: [],
       platformStatusMap: new Map(),
       hasLicense: false,
+      syncDisable: false,
       columns: {
         num: {
           sortable: true,
@@ -589,38 +592,48 @@ export default {
     },
     syncConfirm(data) {
       this.loading = true;
+      this.syncDisable = true;
       let param = {
         "projectId": getCurrentProjectID(),
         "createTime": data.createTime.getTime(),
         "pre": data.preValue
       }
       syncAllIssues(param)
-        .then((response) => {
-          if (response.data === false) {
-            checkSyncIssues(this.loading);
-          } else {
-            this.$success(this.$t('test_track.issue.sync_complete'));
-
-            this.getIssues();
-          }
+        .then(() => {
+          checkSyncIssues(this.loading, false, (errorData) => {
+            this.loading = false;
+            this.syncDisable = false;
+            if (errorData.syncResult && errorData.syncResult !== '') {
+              this.$error(errorData.syncResult, false);
+            } else {
+              this.$success(this.$t('test_track.issue.sync_complete'), false);
+              this.getIssues();
+            }
+          });
         })
-      .catch(() => {
-        this.loading = false;
-      });
+        .catch(() => {
+          this.loading = false;
+          this.syncDisable = false;
+        });
     },
     syncIssues() {
       this.loading = true;
+      this.syncDisable = false;
       syncIssues()
-        .then((response) => {
-          if (response.data === false) {
-            checkSyncIssues(this.loading);
-          } else {
-            this.$success(this.$t('test_track.issue.sync_complete'));
+        .then(() => {
+          checkSyncIssues(this.loading, false, (errorData) => {
             this.loading = false;
-            this.getIssues();
-          }
+            this.syncDisable = false;
+            if (errorData.syncResult && errorData.syncResult !== '') {
+              this.$error(errorData.syncResult, false);
+            } else {
+              this.$success(this.$t('test_track.issue.sync_complete'), false);
+              this.getIssues();
+            }
+          });
         }).catch(() => {
           this.loading = false;
+          this.syncDisable = false;
         });
     },
     editParam() {
