@@ -164,7 +164,7 @@ public class ApiJMeterFileService {
                 return zipFilesToByteArray((reportId + "_" + remoteTestId), reportId, hashTree);
             }
         } catch (Exception e) {
-            remakeReportService.testEnded(runRequest, "生成执行脚本异常:" + e.getMessage());
+            LoggerUtil.error("生成脚本失败", reportId, e);
         }
         return new byte[0];
     }

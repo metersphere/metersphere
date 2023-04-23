@@ -20,6 +20,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.enums.ApiReportStatus;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -54,15 +55,12 @@ public class ApiCaseSerialService {
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void serial(DBTestQueue executionQueue) {
         ApiExecutionQueueDetail queue = executionQueue.getDetail();
         JmeterRunRequestDTO runRequest = RequestParamsUtil.init(executionQueue, queue, queue.getReportId());
-        // 判断触发资源对象是用例
-        if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
-                || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            updateDefinitionExecResultToRunning(queue, runRequest);
-        }
         try {
             if (StringUtils.isEmpty(executionQueue.getPoolId())) {
                 Map<String, String> map = new LinkedHashMap<>();
@@ -81,10 +79,17 @@ public class ApiCaseSerialService {
             }
             // 开始执行
             runRequest.getExtendedParameters().put(PROJECT_ID, queue.getProjectIds());
-            jMeterService.run(runRequest);
         } catch (Exception e) {
-            LoggerUtil.error("串行执行用例失败", e);
+            LoggerUtil.error("脚本处理失败", runRequest.getReportId(), e);
+            remakeReportService.testEnded(runRequest, e.getMessage());
+            return;
         }
+        // 判断触发资源对象是用例
+        if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
+                || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
+            updateDefinitionExecResultToRunning(queue, runRequest);
+        }
+        jMeterService.run(runRequest);
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -158,9 +163,9 @@ public class ApiCaseSerialService {
                 return jmeterHashTree;
             }
         } catch (Exception ex) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            remakeReportService.testEnded(runRequest, ex.getMessage());
-            LoggerUtil.error("用例资源：" + testId + ", 生成执行脚本失败", runRequest.getReportId(), ex);
+            String errorMsg = StringUtils.join("用例资源：", testId + ", 生成执行脚本失败");
+            LoggerUtil.error(errorMsg, runRequest.getReportId(), ex);
+            MSException.throwException(errorMsg);
         }
         return null;
     }

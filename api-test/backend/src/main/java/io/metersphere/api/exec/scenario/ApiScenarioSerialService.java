@@ -21,7 +21,9 @@ import io.metersphere.commons.utils.RequestParamsUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -29,8 +31,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.annotation.Resource;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,6 +54,8 @@ public class ApiScenarioSerialService {
     private BaseEnvironmentService apiTestEnvironmentService;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void serial(DBTestQueue executionQueue) {
         ApiExecutionQueueDetail queue = executionQueue.getDetail();
@@ -63,8 +65,6 @@ public class ApiScenarioSerialService {
         }
         JmeterRunRequestDTO runRequest = RequestParamsUtil.init(executionQueue, queue, reportId);
         runRequest.setRunType(RunModeConstants.SERIAL.toString());
-        // 更新报告状态
-        updateReportToRunning(queue, runRequest);
         try {
             if (StringUtils.isEmpty(executionQueue.getPoolId())) {
                 if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
@@ -99,10 +99,14 @@ public class ApiScenarioSerialService {
             }
             // 开始执行
             runRequest.getExtendedParameters().put("projectId", queue.getProjectIds());
-            jMeterService.run(runRequest);
         } catch (Exception e) {
-            LoggerUtil.error("串行执行失败", e);
+            remakeReportService.testEnded(runRequest, e.getMessage());
+            LoggerUtil.error("脚本处理失败", runRequest.getReportId(), e);
+            return;
         }
+        // 更新报告状态
+        updateReportToRunning(queue, runRequest);
+        jMeterService.run(runRequest);
     }
 
     /**
