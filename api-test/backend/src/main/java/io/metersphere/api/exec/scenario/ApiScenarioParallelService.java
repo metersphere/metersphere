@@ -3,21 +3,22 @@ package io.metersphere.api.exec.scenario;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
-import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.Map;
 
 @Service
@@ -29,6 +30,8 @@ public class ApiScenarioParallelService {
     protected SystemParameterService systemParameterService;
     @Resource
     protected RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId, DBTestQueue executionQueue) {
         // 初始化分配策略
@@ -43,16 +46,24 @@ public class ApiScenarioParallelService {
                 break;
             }
             RunModeDataDTO dataDTO = executeQueue.get(reportId);
-            JmeterRunRequestDTO runRequest = getJmeterRunRequestDTO(request, serialReportId, executionQueue, baseInfo, reportId, dataDTO);
-            runRequest.setPool(pool);
-            runRequest.setPoolId(request.getConfig().getResourcePoolId());
-
-            // 本地执行生成hashTree
-            if (!pool.isPool()) {
-                runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
+            JmeterRunRequestDTO runRequest = getJmeterRunRequestDTO(request, serialReportId,
+                    executionQueue, baseInfo, reportId, dataDTO);
+            try {
+                runRequest.setPool(pool);
+                runRequest.setPoolId(request.getConfig().getResourcePoolId());
+                // 本地执行生成hashTree
+                if (!pool.isPool()) {
+                    runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(),
+                            dataDTO.getPlanEnvMap(), runRequest));
+                }
+                runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
+                LoggerUtil.info("进入并行模式，准备执行场景：[ " +
+                        executeQueue.get(reportId).getReport().getName() + " ]", reportId);
+            } catch (Exception e) {
+                remakeReportService.testEnded(runRequest, e.getMessage());
+                LoggerUtil.error("脚本处理失败", runRequest.getReportId(), e);
+                continue;
             }
-            runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
-            LoggerUtil.info("进入并行模式，准备执行场景：[ " + executeQueue.get(reportId).getReport().getName() + " ]", reportId);
             jMeterService.run(runRequest);
         }
     }
