@@ -1883,6 +1883,7 @@ export default {
               if (this.currentScenario.scenarioDefinitionOrg){
                delete this.currentScenario['scenarioDefinitionOrg'];
               }
+              this.currentScenario.name = this.currentScenario.name.trim();
               await saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
                 this.$success(this.$t('commons.save_success'));
                 this.isPreventReClick = false;
