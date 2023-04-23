@@ -193,6 +193,10 @@ export function getTestCaseNodesByCaseFilter(projectId, param) {
   return post('/case/node/list/' + projectId, param);
 }
 
+export function getTestCaseNodesCountMap(projectId, param) {
+  return post('/case/node/count/' + projectId, param);
+}
+
 export function getTestPlanCaseNodesByCaseFilter(planId, param) {
   return post('/case/node/list/plan/' + planId, param);
 }

@@ -50,7 +50,7 @@ import MsSearchBar from "metersphere-frontend/src/components/new-ui/MsSearchBar"
 import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import ModuleTrashButton from "metersphere-frontend/src/components/ModuleTrashButton";
-import {getTestCaseNodesByCaseFilter} from "@/api/testCase";
+import {getTestCaseNodesByCaseFilter, getTestCaseNodesCountMap} from "@/api/testCase";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import ModulePublicButton from "metersphere-frontend/src/components/module/ModulePublicButton";
 import {useStore} from "@/store";
@@ -296,8 +296,16 @@ export default {
       this.currentNode = node;
 
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
-      // 只在TAB页切换时才刷新树
-      // this.nohupReloadTree(node.data.id);
+      // 刷新模块用例数
+      this.updateNodeCount();
+    },
+    updateNodeCount() {
+      getTestCaseNodesCountMap(this.projectId, this.caseCondition)
+        .then((r) => {
+          if (this.$refs.nodeTree) {
+            this.$refs.nodeTree.updateNodeCount(r.data);
+          }
+        });
     },
     nohupReloadTree(selectNodeId) {
       if (this.projectId) {

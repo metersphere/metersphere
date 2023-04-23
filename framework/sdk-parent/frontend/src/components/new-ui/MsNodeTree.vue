@@ -292,10 +292,7 @@ export default {
       return hasPermissions(permission[0]);
     },
     init() {
-      let num = 0;
-      this.treeNodes.forEach(t => {
-        num += t.caseNum;
-      });
+      let num = this.getTotalCount();
       this.extendTreeNodes = [];
       this.extendTreeNodes.unshift({
         "id": "root",
@@ -307,6 +304,31 @@ export default {
       if (this.expandedNode.length === 0) {
         this.expandedNode.push("root");
       }
+    },
+    getTotalCount() {
+      let num = 0;
+      this.treeNodes.forEach(t => {
+        num += t.caseNum;
+      });
+      return num;
+    },
+    updateNodeCount(countMap) {
+      // countMap 是对应模块下的用例数，这里根据模块的层级结构，计算模块及其子模块的用例数
+      this.doUpdateNodeCount(this.treeNodes, countMap);
+      // 更新 root 节点，用例数量
+      this.$refs.tree.root.childNodes[0].data.caseNum = this.getTotalCount();
+    },
+    doUpdateNodeCount(treeNodes, countMap) {
+      treeNodes.forEach(item => {
+        let children = item.children;
+        if (children && children.length > 0) {
+          this.doUpdateNodeCount(children, countMap);
+          item.caseNum = countMap[item.id] + children.map(i => i.caseNum)
+            .reduce((pre, curr) => pre + curr, 0);
+        } else {
+          item.caseNum = countMap[item.id];
+        }
+      });
     },
     handleNodeSelect(node) {
       let nodeIds = [];

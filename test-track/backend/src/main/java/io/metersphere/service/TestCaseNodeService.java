@@ -18,7 +18,6 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.NodeNumDTO;
-import io.metersphere.dto.TestCaseDTO;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.exception.ExcelException;
@@ -225,11 +224,27 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
+        request.setOrders(null);
         ServiceUtils.buildCombineTagsToSupportMultiple(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
-        List<TestCaseNodeDTO> countMNodes = extTestCaseMapper.getCountNodes(request);
+        List<TestCaseNodeDTO> countNodes = extTestCaseMapper.getCountNodes(request);
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
-        return getNodeTrees(testCaseNodes, getCountMap(countMNodes));
+        return getNodeTrees(testCaseNodes, getCountMap(countNodes));
+    }
+
+
+
+    public Map<String, Integer> getNodeCountMapByProjectId(String projectId, QueryTestCaseRequest request) {
+        request.setProjectId(projectId);
+        request.setUserId(SessionUtils.getUserId());
+        request.setNodeIds(null);
+        request.setOrders(null);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
+        List<TestCaseNodeDTO> countNodes = extTestCaseMapper.getCountNodes(request);
+        Map<String, Integer> countMap = getCountMap(countNodes);
+        countMap.remove(null); // 脏数据，没有模块 ID 的会有 null 的清空
+        return countMap;
     }
 
     /**
