@@ -189,7 +189,7 @@ import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import MsTablePagination from 'metersphere-frontend/src/components/pagination/TablePagination';
 import {TEST_PLAN_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {getCustomTableHeaderByXpack} from "@/business/component/js/table-head-util";
-import {editPlan, getDashboardPlanList, getPlanList, getPlanStageOption, getPrincipalById} from "@/api/test-plan";
+import {editPlan, getDashboardPlanList, getPlanList, getPlanStageOption, getPrincipalById, getTestPlanMetricDataList} from "@/api/test-plan";
 
 export default {
   name: "PlanTableList",
@@ -338,12 +338,12 @@ export default {
     dealResponseData(data){
       this.total = data.itemCount;
       this.tableData = data.listObject;
+      let testPlanIds = [];
       this.tableData.forEach(item => {
+        testPlanIds.push(item.id);
         if (item.tags && item.tags.length > 0) {
           item.tags = JSON.parse(item.tags);
         }
-        item.passRate = item.passRate + '%';
-        item.testRate = item.testRate ? item.testRate : 0;
         getPrincipalById(item.id).then(res => {
           let data = res.data;
           let principal = "";
@@ -362,6 +362,37 @@ export default {
           this.$set(item, "principals", principalIds);
         })
       });
+      console.log(testPlanIds)
+      this.getTestPlanDetailData(testPlanIds);
+    },
+    getTestPlanDetailData(testPlanIds) {
+      getTestPlanMetricDataList(testPlanIds)
+        .then((res) => {
+          let metricDataList = res.data;
+          if (metricDataList && metricDataList.length > 0) {
+            this.tableData.forEach((item) => {
+              let metricData = null;
+              metricDataList.forEach((metricItem) => {
+                if (item.id === metricItem.id) {
+                  metricData = metricItem;
+                }
+              });
+              if (metricData) {
+                this.$set(item, "passRate", metricData['passRate'] + '%');
+                this.$set(item, "testRate", metricData['testRate']);
+              } else {
+                this.$set(item, "passRate", 0);
+                this.$set(item, "testRate", 0);
+              }
+            });
+          }
+        })
+        .catch(() => {
+          this.tableData.forEach((item) => {
+            this.$set(item, "passRate", 0);
+            this.$set(item, "testRate", 0);
+          });
+        });
     },
     statusChange(data) {
       if (!hasPermission('PROJECT_TRACK_PLAN:READ+EDIT')) {
