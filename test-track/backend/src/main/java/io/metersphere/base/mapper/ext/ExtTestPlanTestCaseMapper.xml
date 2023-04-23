@@ -689,11 +689,11 @@
                   FROM
                       test_plan_test_case testPlanTestCase
                           INNER JOIN test_plan testPlan ON testPlan.id = testPlanTestCase.plan_id
+                  WHERE testPlan.project_id = #{projectId}
               ) testCasePlan ON testCasePlan.id = executionInfo.source_id
                   INNER JOIN test_case testCase ON testCase.id = testCasePlan.case_id
           WHERE
-              testCase.project_id = #{projectId}
-            AND testCase.`status` != 'Trash'
+            testCase.`status` != 'Trash'
             AND ( executionInfo.result = 'Failure' )
             AND executionInfo.create_time >= #{startTimestamp}
           GROUP BY testCase.id

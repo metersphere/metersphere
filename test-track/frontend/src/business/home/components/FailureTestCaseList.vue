@@ -183,7 +183,7 @@ export default {
           .then((r) => {
             this.loading = false;
             this.loadError = false;
-            this.total = 10;
+            this.total = r.data.itemCount;
             this.tableData = r.data.listObject;
           })
           .catch(() => {
