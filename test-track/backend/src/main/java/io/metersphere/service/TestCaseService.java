@@ -582,8 +582,11 @@ public class TestCaseService {
             TestCaseExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
-                    .andNodePathEqualTo(testCase.getNodeId())
                     .andStatusNotEqualTo(CommonConstants.TrashStatus);
+
+            if (StringUtils.isNotBlank(testCase.getNodeId())) {
+                criteria.andNodeIdEqualTo(testCase.getNodeId());
+            }
             if (StringUtils.isNotBlank(testCase.getPriority())) {
                 criteria.andPriorityEqualTo(testCase.getPriority());
             }
