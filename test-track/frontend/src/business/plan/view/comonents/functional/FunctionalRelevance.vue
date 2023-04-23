@@ -3,6 +3,7 @@
   <test-case-relevance-base
     @setProject="setProject"
     @save="saveCaseRelevance"
+    :enable-full-screen="false"
     :flag="isTestPlan"
     :multiple-project="multipleProject"
     :is-saving="isSaving"
