@@ -198,7 +198,6 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
-          v-if="!trashEnable"
           :filters="!trashEnable ? scheduleFilters : null"
           prop="schedule">
           <template v-slot:default="scope">
@@ -208,6 +207,7 @@
               @scheduleChange="scheduleStatusChange"
               @refreshTable="nodeChange"
               :scenario="scope.row"
+              :has-permission="trashEnable"
               :request="runRequest"
               :schedule="scope.row.scheduleObj" />
             <i v-else class="el-icon-loading" />
