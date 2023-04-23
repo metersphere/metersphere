@@ -54,7 +54,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column :label="$t('commons.operating')" min-width="12%">
+      <el-table-column :label="$t('commons.operating')" width="150px">
         <template v-slot:default="scope">
           <el-link type="primary" :disabled="readOnly" class="opt-item" :underline="false" @click="handleAddStep(scope.$index, scope.row)">{{ $t("commons.insert") }}</el-link>
           <el-link type="primary" :disabled="readOnly" class="opt-item" :underline="false" @click="handleCopyStep(scope.$index, scope.row)">{{ $t("commons.copy") }}</el-link>
