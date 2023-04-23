@@ -148,10 +148,12 @@
     <select id="listRelate" resultType="io.metersphere.dto.TestReviewDTOWithMetric">
         select distinct test_case_review.*, project.name as projectName from test_case_review
         inner join project on project.id = test_case_review.project_id
-        inner join test_case_review_test_case_users on test_case_review_test_case_users.review_id = test_case_review.id
+        <if test="request.creator == null">
+            inner join test_case_review_test_case_users on test_case_review_test_case_users.review_id = test_case_review.id
+        </if>
         <where>
             project.workspace_id = #{request.workspaceId}
-            <if test="request.reviewerId != null">
+            <if test="request.reviewerId != null and request.creator == null">
                 and test_case_review_test_case_users.user_id = #{request.reviewerId}
             </if>
             <if test="request.projectId != null">
