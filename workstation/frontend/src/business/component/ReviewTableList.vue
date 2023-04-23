@@ -211,7 +211,7 @@ export default {
         this.condition.combine= { creator: {operator: "current user", value: "current user",}}
       } else {
         if(!this.condition.filters){
-          this.condition.filters={status: ["Prepare", "Underway","Finished"]}
+          this.condition.filters={status: ["Prepare", "Underway"]}
         }
         if(!this.condition.reviewerId){
           this.condition.reviewerId = "currentUserId"
