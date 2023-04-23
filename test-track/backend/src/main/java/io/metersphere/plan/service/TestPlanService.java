@@ -1015,8 +1015,16 @@ public class TestPlanService {
                 Map<String, String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
                 if (MapUtils.isNotEmpty(scenarioReportMap)) {
                     haveScenarioCaseExec = true;
+                    List<TestPlanScenarioDTO> removeDTO = new ArrayList<>();
                     for (TestPlanScenarioDTO dto : scenarioCases) {
-                        dto.setReportId(scenarioReportMap.get(dto.getId()));
+                        if (scenarioReportMap.containsKey(dto.getId())) {
+                            dto.setReportId(scenarioReportMap.get(dto.getId()));
+                        } else {
+                            removeDTO.add(dto);
+                        }
+                    }
+                    if (CollectionUtils.isNotEmpty(removeDTO)) {
+                        scenarioCases.removeAll(removeDTO);
                     }
                 }
             } catch (Exception e) {
