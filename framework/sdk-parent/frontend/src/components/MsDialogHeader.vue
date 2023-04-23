@@ -4,7 +4,7 @@
       title
     }}</span>
 
-    <div style="top: 20px; right: 50px; position: absolute">
+    <div style="top: 20px; right: 50px; position: absolute" v-if="enableFullScreen">
       <el-tooltip
         effect="dark"
         :content="$t('commons.full_screen_editing')"
@@ -61,7 +61,13 @@ export default {
     hideButton: Boolean,
     enableCancel: Boolean,
     isButtonSaving: Boolean,
-    isFullScreen:Boolean,
+    isFullScreen: Boolean,
+    enableFullScreen: {
+      type: Boolean,
+      default() {
+        return true;
+      },
+    },
   },
   created(){
     if(this.isFullScreen) {

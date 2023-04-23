@@ -19,7 +19,8 @@
         @confirm="save"
         btn-size="mini"
         @fullScreen="isFullScreen = !isFullScreen"
-        :is-full-screen.sync="isFullScreen"
+        :enable-full-screen="false"
+        :is-full-screen.sync="enableFullScreen"
       >
         <template #other>
           <table-select-count-bar
@@ -134,6 +135,12 @@ export default {
     multipleProject: {
       type: Boolean,
       default: true,
+    },
+    enableFullScreen: {
+      type: Boolean,
+      default() {
+        return true;
+      },
     },
   },
   methods: {
