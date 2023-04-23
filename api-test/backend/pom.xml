@@ -113,9 +113,7 @@
                                         <include name="*.html"/>
                                     </fileset>
                                 </copy>
-                                <copy todir="src/main/resources/static/assets">
-                                    <fileset dir="../../framework/sdk-parent/frontend/src/assets"/>
-                                </copy>
+
                             </target>
                         </configuration>
                         <goals>
