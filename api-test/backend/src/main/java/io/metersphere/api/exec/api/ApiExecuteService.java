@@ -150,7 +150,7 @@ public class ApiExecuteService {
                 }
                 jMeterService.run(runRequest);
             } catch (Exception ex) {
-                remakeReportService.testEnded(runRequest, ex.getMessage());
+                remakeReportService.updateReport(runRequest, ex.getMessage());
                 LogUtil.error(ex.getMessage(), ex);
             }
         }

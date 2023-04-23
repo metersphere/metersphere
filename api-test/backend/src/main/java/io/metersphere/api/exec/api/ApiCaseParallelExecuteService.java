@@ -11,6 +11,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
@@ -20,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +33,8 @@ public class ApiCaseParallelExecuteService {
     private JMeterService jMeterService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
+    @Resource
+    private  RemakeReportService remakeReportService;
     public void parallel(Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId());
         // 初始化分配策略
@@ -47,30 +50,36 @@ public class ApiCaseParallelExecuteService {
             ApiDefinitionExecResultWithBLOBs result = executeQueue.get(testId);
             String reportId = result.getId();
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode);
-            runRequest.setPool(pool);
-            runRequest.setTestPlanReportId(executionQueue.getReportId());
-            runRequest.setPoolId(config.getResourcePoolId());
-            runRequest.setReportType(executionQueue.getReportType());
-            runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-            runRequest.setQueueId(executionQueue.getId());
+            try {
+                runRequest.setPool(pool);
+                runRequest.setTestPlanReportId(executionQueue.getReportId());
+                runRequest.setPoolId(config.getResourcePoolId());
+                runRequest.setReportType(executionQueue.getReportType());
+                runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                runRequest.setQueueId(executionQueue.getId());
 
-            runRequest.setRetryNum(config.getRetryNum());
-            runRequest.setRetryEnable(config.isRetryEnable());
+                runRequest.setRetryNum(config.getRetryNum());
+                runRequest.setRetryEnable(config.isRetryEnable());
 
-            Map<String, Object> extendedParameters = new HashMap<>();
-            extendedParameters.put(CommonConstants.USER_ID, result.getUserId());
-            runRequest.setExtendedParameters(extendedParameters);
-            if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
-                runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
+                Map<String, Object> extendedParameters = new HashMap<>();
+                extendedParameters.put(CommonConstants.USER_ID, result.getUserId());
+                runRequest.setExtendedParameters(extendedParameters);
+                if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
+                    runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
+                }
+                if (!pool.isPool()) {
+                    HashTree hashTree = apiCaseSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
+                    runRequest.setHashTree(hashTree);
+                }
+                // 开始执行
+                runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
+
+                LoggerUtil.info("进入并行模式，开始执行用例：[" + result.getName() + "] 报告ID [" + reportId + "]");
+            } catch (Exception e) {
+                remakeReportService.testEnded(runRequest, e.getMessage());
+                LoggerUtil.error("脚本处理失败", runRequest.getReportId(), e);
+                continue;
             }
-            if (!pool.isPool()) {
-                HashTree hashTree = apiCaseSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
-                runRequest.setHashTree(hashTree);
-            }
-            // 开始执行
-            runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
-
-            LoggerUtil.info("进入并行模式，开始执行用例：[" + result.getName() + "] 报告ID [" + reportId + "]");
             jMeterService.run(runRequest);
         }
     }

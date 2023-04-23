@@ -28,6 +28,7 @@ public class KubernetesTestEngine extends AbstractEngine {
     private final String DEBUG_ERROR = "DEBUG_ERROR";
     private final String EXEC_URL = "api/start";
     private final String DEBUG_URL = "debug";
+    private final String LOCAL_URL = "http://127.0.0.1:8082/jmeter/";
 
     // 初始化API调用
     public KubernetesTestEngine(JmeterRunRequestDTO runRequest) {
@@ -53,6 +54,7 @@ public class KubernetesTestEngine extends AbstractEngine {
     }
 
     private void runApi(TestResource resource) {
+        boolean isDebug = runRequest.getHashTree() != null;
         try {
             ClientCredential clientCredential = JSON.parseObject(resource.getConfiguration(), ClientCredential.class);
             KubernetesProvider kubernetesProvider = ConstructorUtils.invokeConstructor(providerClass, clientCredential);
@@ -65,7 +67,6 @@ public class KubernetesTestEngine extends AbstractEngine {
                     .append(JSON.toJSONString(pod.getMetadata())).append(" 】");
             LoggerUtil.info(logMsg);
 
-            boolean isDebug = runRequest.getHashTree() != null;
             if (isDebug) {
                 ElementUtil.coverArguments(runRequest.getHashTree());
                 if (runRequest.isDebug() && !StringUtils.equalsAny(runRequest.getRunMode(), ApiRunMode.DEFINITION.name())) {
@@ -83,20 +84,23 @@ public class KubernetesTestEngine extends AbstractEngine {
             command.append(StringUtils.SPACE).append("--connect-timeout 30");  // 设置连接超时时间为30S
             command.append(StringUtils.SPACE).append("--max-time 120");  // 设置请求超时时间为120S
             command.append(StringUtils.SPACE).append("--retry 3");  // 设置重试次数3次
-            command.append(StringUtils.SPACE).append("http://127.0.0.1:8082/jmeter/").append(isDebug ? DEBUG_URL : EXEC_URL);
+            command.append(StringUtils.SPACE).append(LOCAL_URL).append(isDebug ? DEBUG_URL : EXEC_URL);
             KubernetesApiExec.newExecWatch(client, clientCredential.getNamespace(), pod.getMetadata().getName(), command.toString(), runRequest);
         } catch (Exception e) {
-            MsgDTO dto = new MsgDTO();
-            dto.setExecEnd(false);
-            dto.setContent(DEBUG_ERROR);
-            dto.setReportId("send." + runRequest.getReportId());
-            dto.setToReport(runRequest.getReportId());
-            LoggerUtil.debug("send. " + runRequest.getReportId());
-            WebSocketUtil.sendMessageSingle(dto);
-            WebSocketUtil.onClose(runRequest.getReportId());
-
             RemakeReportService remake = CommonBeanFactory.getBean(RemakeReportService.class);
-            remake.testEnded(runRequest, StringUtils.join("K8s执行异常：", e.getMessage()));
+            if (isDebug) {
+                MsgDTO dto = new MsgDTO();
+                dto.setExecEnd(false);
+                dto.setContent(DEBUG_ERROR);
+                dto.setReportId("send." + runRequest.getReportId());
+                dto.setToReport(runRequest.getReportId());
+                LoggerUtil.debug("send. " + runRequest.getReportId());
+                WebSocketUtil.sendMessageSingle(dto);
+                WebSocketUtil.onClose(runRequest.getReportId());
+                remake.updateReport(runRequest, StringUtils.join("K8s执行异常：", e.getMessage()));
+            }else {
+                remake.testEnded(runRequest, StringUtils.join("K8s执行异常：", e.getMessage()));
+            }
             LoggerUtil.error("当前报告：【" + runRequest.getReportId() + "】资源：【" + runRequest.getTestId() + "】CURL失败：", e);
         }
     }
