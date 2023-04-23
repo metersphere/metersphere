@@ -46,6 +46,18 @@
                 </el-input-number>
               </el-row>
             </el-tab-pane>
+            <el-tab-pane v-if="isTcp" :label="$t('commons.encode')" name="rsp_encode" class="pane">
+              <el-row>
+                <el-col :span="2" />
+                <el-col :span="20">
+                  <el-select v-model="response.rsp_encode" size="mini" class="mode-row" style="width: 200px">
+                    <el-option v-for="item in encodeArr" :key="item.id" :label="item.name" :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-col>
+                <el-col :span="2" />
+              </el-row>
+            </el-tab-pane>
           </el-tabs>
         </el-collapse-transition>
       </el-form>
@@ -119,6 +131,20 @@ export default {
       isMsCodeEditShow: true,
       reqMessages: '',
       headerSuggestions: REQUEST_HEADERS,
+      encodeArr: [
+        {
+          id: 'UTF-8',
+          name: 'UTF-8',
+        },
+        {
+          id: 'GBK',
+          name: 'GBK',
+        },
+        {
+          id: 'ISO-8859-1',
+          name: 'ISO-8859-1',
+        },
+      ],
     };
   },
   watch: {

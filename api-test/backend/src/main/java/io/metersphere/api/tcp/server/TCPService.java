@@ -1,5 +1,6 @@
 package io.metersphere.api.tcp.server;
 
+import io.metersphere.api.dto.TCPMockReturnDTO;
 import io.metersphere.api.dto.mock.MockExpectConfigDTO;
 import io.metersphere.api.dto.mock.RequestMockParams;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -27,15 +28,19 @@ public class TCPService {
 
     public void run() {
         byte[] b = new byte[1024];
-        String returnMsg = StringUtils.EMPTY;
-        String message = StringUtils.EMPTY;
         try {
             is = s.getInputStream();
             os = s.getOutputStream();
             int len = is.read(b);
-            message = new String(b, 0, len);
-            returnMsg = this.getReturnMsg(message);
-            os.write(returnMsg.getBytes());
+            String message = new String(b, 0, len);
+            TCPMockReturnDTO returnDTO = this.getReturnMsg(message);
+
+            if (StringUtils.isNotEmpty(returnDTO.getEncode())) {
+                os.write(returnDTO.getReturnMessage().getBytes(returnDTO.getEncode()));
+            } else {
+                os.write(returnDTO.getReturnMessage().getBytes());
+            }
+
         } catch (Exception e) {
             LogUtil.error(e);
         } finally {
@@ -43,13 +48,14 @@ public class TCPService {
         }
     }
 
-    private String getReturnMsg(String message) {
+    private TCPMockReturnDTO getReturnMsg(String message) {
         LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message);
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
-        MockExpectConfigDTO matchdMockExpectDTO = mockConfigService.matchTcpMockExpect(message, this.port);
-        String returnMsg = StringUtils.EMPTY;
-        if (matchdMockExpectDTO != null && matchdMockExpectDTO.getMockExpectConfig() != null) {
-            String response = matchdMockExpectDTO.getMockExpectConfig().getResponse();
+        MockExpectConfigDTO matchMockExpectDTO = mockConfigService.matchTcpMockExpect(message, this.port);
+        TCPMockReturnDTO returnDTO = new TCPMockReturnDTO();
+        returnDTO.setReturnMessage(StringUtils.EMPTY);
+        if (matchMockExpectDTO != null && matchMockExpectDTO.getMockExpectConfig() != null) {
+            String response = matchMockExpectDTO.getMockExpectConfig().getResponse();
             JSONObject responseObj = JSONUtil.parseObject(response);
             int delayed = 0;
             try {
@@ -69,7 +75,15 @@ public class TCPService {
                     }
                     RequestMockParams requestMockParams = new RequestMockParams();
                     requestMockParams.setTcpParam(message);
-                    returnMsg = mockApiUtils.getResultByResponseResult(matchdMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), StringUtils.EMPTY, null, requestMockParams, useScript);
+                    returnDTO.setReturnMessage(
+                            mockApiUtils.getResultByResponseResult(matchMockExpectDTO.getProjectId(), respResultObj.optJSONObject("body"), StringUtils.EMPTY, null, requestMockParams, useScript)
+                    );
+                }
+                if (respResultObj.has("rsp_encode")) {
+                    String encode = respResultObj.getString("rsp_encode");
+                    if (StringUtils.isNotBlank(encode)) {
+                        returnDTO.setEncode(encode);
+                    }
                 }
                 try {
                     if (respResultObj.has("delayed")) {
@@ -79,7 +93,7 @@ public class TCPService {
                     LogUtil.error(e);
                 }
             } else {
-                returnMsg = responseObj.optString("body");
+                returnDTO.setReturnMessage(responseObj.optString("body"));
             }
 
             try {
@@ -88,8 +102,8 @@ public class TCPService {
                 LogUtil.error(e);
             }
         }
-        LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message + "; response:" + returnMsg);
-        return returnMsg;
+        LogUtil.info("TCP-Mock start. port: " + this.port + "; Message:" + message + "; response:" + returnDTO.getReturnMessage());
+        return returnDTO;
     }
 
     public void close() {
