@@ -70,7 +70,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -1059,20 +1058,14 @@ public class TestPlanService {
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiTestCases, scenarioCases, uiScenarios, loadCaseReportMap);
         if (!haveApiCaseExec && !haveScenarioCaseExec && !haveLoadCaseExec && !haveUICaseExec) {
-            /**
-             *如果没有执行自动化用例，结束测试计划的执行。
-             * 使用异步操作的方式是为了更早的将执行信息回馈给前台。
-             * 不为前台直接返回【无法执行】的报错，是考虑到测试计划内会有功能用例、issue等信息可以进行统计。
-             */
-            this.syncFinishTestPlanExecute(planReportId);
+            //            如果没有执行自动化用例，结束测试计划的执行。
+            //            使用异步操作的方式是为了更早的将执行信息回馈给前台。
+            //            不为前台直接返回【无法执行】的报错，是考虑到测试计划内会有功能用例、issue等信息可以进行统计。
+            testPlanReportService.syncFinishTestPlanExecute(planReportId);
         }
         return planReportId;
     }
 
-    @Async
-    void syncFinishTestPlanExecute(String planReportId) {
-        testPlanReportService.testPlanExecuteOver(planReportId, TestPlanReportStatus.COMPLETED.name());
-    }
 
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
         // 检查是否禁用了本地执行
