@@ -2236,6 +2236,13 @@ export default {
     }
   }
 }
+
+:deep(.el-button--small span) {
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+}
 </style>
 <style>
 /* 用例编辑头部操作更多popover样式 */
