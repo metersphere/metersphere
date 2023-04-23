@@ -111,6 +111,13 @@ input.el-input__inner {
   border-radius: 4px;
 }
 
+.custom-confirm-delete .el-message-box__btns button span{
+  font-family: 'PingFang SC';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+}
+
 .el-message-box__btns .el-button--small {
   min-width: 80px;
 }
