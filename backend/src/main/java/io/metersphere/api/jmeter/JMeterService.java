@@ -169,7 +169,7 @@ public class JMeterService {
         }
     }
 
-    private void send(JmeterRunRequestDTO request) {
+    private synchronized void send(JmeterRunRequestDTO request) {
         try {
             if (redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()) != null) {
                 long index = Long.parseLong(redisTemplate.opsForValue().get(SmoothWeighted.EXEC_INDEX + request.getPoolId()).toString());
@@ -199,7 +199,7 @@ public class JMeterService {
         }
     }
 
-    private void nodeDebug(JmeterRunRequestDTO request) {
+    private synchronized void nodeDebug(JmeterRunRequestDTO request) {
         ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
         if (apiPoolDebugService != null) {
             apiPoolDebugService.run(request);
