@@ -17,7 +17,7 @@ public class RemakeReportService {
     @Resource
     private RedisTemplateService redisTemplateService;
 
-    public void testEnded(JmeterRunRequestDTO request, String errorMsg) {
+    public void queueNext(JmeterRunRequestDTO request, String errorMsg) {
         try {
             ResultDTO dto = new ResultDTO();
             BeanUtils.copyBean(dto, request);
@@ -26,9 +26,7 @@ public class RemakeReportService {
             LoggerUtil.info("进入异常结果处理：" + dto.getRunMode() + " 整体处理完成", dto.getReportId());
             // 全局并发队列
             PoolExecBlockingQueueUtil.offer(dto.getReportId());
-            String consoleMsg = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), true);
-            dto.setConsole(consoleMsg + StringUtils.LF + errorMsg);
-
+            LoggerUtil.error("执行异常处理：" + errorMsg, request.getReportId());
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
             }
@@ -41,5 +39,20 @@ public class RemakeReportService {
             redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
             redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
         }
+    }
+
+    public void updateReport(JmeterRunRequestDTO request, String errorMsg) {
+        ResultDTO dto = new ResultDTO();
+        BeanUtils.copyBean(dto, request);
+        dto.setQueueId(request.getQueueId());
+        dto.setTestId(request.getTestId());
+        String consoleMsg = FixedCapacityUtil.getJmeterLogger(dto.getReportId(), true);
+        dto.setConsole(consoleMsg + StringUtils.LF + errorMsg);
+        CommonBeanFactory.getBean(TestResultService.class).testEnded(dto);
+    }
+
+    public void testEnded(JmeterRunRequestDTO request, String errorMsg) {
+        updateReport(request, errorMsg);
+        queueNext(request, errorMsg);
     }
 }
