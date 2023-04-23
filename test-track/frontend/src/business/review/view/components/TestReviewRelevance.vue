@@ -9,7 +9,10 @@
 
       <template slot="title" :slot-scope="$t('test_track.review_view.relevance_case')" v-if="!$slots.headerBtn">
         <ms-dialog-header :title="$t('test_track.review_view.relevance_case')" @cancel="dialogFormVisible = false"
-                          @confirm="saveReviewRelevance" @fullScreen="fullScreen" :is-full-screen.sync="isFullScreen">
+                          @confirm="saveReviewRelevance"
+                          @fullScreen="fullScreen"
+                          :enable-full-screen="false"
+                          :is-full-screen.sync="isFullScreen">
           <template #other>
             <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px;"/>
           </template>

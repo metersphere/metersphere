@@ -12,6 +12,7 @@
         :enable-cancel="false"
         @confirm="save"
         btn-size="mini"
+        :enable-full-screen="false"
         @fullScreen="isFullScreen = !isFullScreen">
         <template #other>
           <table-select-count-bar :count="selectCounts" style="float: left; margin: 5px" />
