@@ -516,7 +516,6 @@ export default {
   font-weight: 400;
   font-size: 14px;
   color: #1f2329;
-  overflow-y: scroll;
 }
 // .select:hover {
 //   background: rgba(31, 35, 41, 0.1);
