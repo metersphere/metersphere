@@ -44,7 +44,15 @@ public class TestCaseNodeController {
             projectId = request.getProjectId();
         }
         baseCheckPermissionService.checkProjectOwner(projectId);
-        return testCaseNodeService.getNodeTreeByProjectId(projectId, Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
+        return testCaseNodeService.getNodeTreeByProjectId(projectId,
+                Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
+    }
+
+    @PostMapping("/count/{projectId}")
+    public Map<String, Integer> getNodeCountMapByProjectId(@PathVariable String projectId, @RequestBody(required = false) QueryTestCaseRequest request) {
+        baseCheckPermissionService.checkProjectOwner(projectId);
+        return testCaseNodeService.getNodeCountMapByProjectId(projectId,
+                Optional.ofNullable(request).orElse(new QueryTestCaseRequest()));
     }
 
     @PostMapping("/minder/extraNode/count")
