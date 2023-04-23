@@ -62,10 +62,10 @@
             SELECT testPlanScenario.id, testPlanScenario.api_scenario_id, testPlan.id AS testPlanId, testPlan.`name` AS testPlanName
             FROM test_plan_api_scenario testPlanScenario
             INNER JOIN test_plan testPlan ON testPlan.id = testPlanScenario.test_plan_id
+            WHERE testPlan.project_id = #{projectId}
         ) apiScene ON apiScene.id = executionInfo.source_id
         INNER JOIN api_scenario scene ON scene.id = apiScene.api_scenario_id
-        WHERE scene.project_id = #{projectId}
-        AND scene.`status` != 'Trash'
+        WHERE scene.`status` != 'Trash'
         AND ( executionInfo.result = 'ERROR' )
         AND executionInfo.create_time >= #{startTimestamp}
         <if test="versionId != null">

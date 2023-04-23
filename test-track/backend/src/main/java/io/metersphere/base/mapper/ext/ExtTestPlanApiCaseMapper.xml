@@ -55,7 +55,7 @@
         INNER JOIN api_definition on api_definition.id = apiCase.api_definition_id
         WHERE
         (apiCase.`status` IS NULL OR apiCase.`status` != 'Trash')
-        AND apiCase.project_id = #{projectId}
+        AND testPlan.project_id = #{projectId}
         ) testCase
         INNER JOIN (SELECT executionInfo.source_id AS sourceId,
         COUNT(executionInfo.id) AS dataCountNumber
