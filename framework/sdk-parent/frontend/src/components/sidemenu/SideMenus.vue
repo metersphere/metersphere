@@ -3,14 +3,14 @@
     <!--    侧边任务按钮-->
     <div :class="language === 'en-US' ? 'parentBox parentBox-en' : 'parentBox'" @click="toggle(1)">
       <div class="contentsBox">
-        <div :style="openBox ? (language === 'en-US' ? 'right: 0;width:140px;cursor: auto;' :
-        'right: 0;width:100px;cursor: auto;') : ''" >
+        <div :style="openBox ? (language === 'en-US' ? 'right: 0;width:140px;cursor: auto;white-space: nowrap;' :
+        'right: 0;width:100px;cursor: auto;white-space: nowrap;') : ''" >
           <font-awesome-icon class="icon global focusing" :icon="['fas', 'compass']" spin style="color: #ffffff;" />
           <span :style="openBox ? 'display: block;color: #fff;cursor: pointer;' : ''">{{$t('side_task.novice_task')}}</span>
         </div>
       </div>
     </div>
-    <ms-site-task ref="siteTask" :taskData="taskData" @closeBox="closeBox" @closeNovice="closeNovice"/>
+    <ms-site-task ref="siteTask"  @closeBox="closeBox" @closeNovice="closeNovice"/>
   </div>
 </template>
 
@@ -87,6 +87,11 @@ export default {
           this.taskStatus = true
         }
         this.totalTask = num
+        this.$refs.siteTask.taskData = this.taskData
+
+        if(this.openBox){
+          this.$refs.siteTask.open();
+        }
 
         if (this.status) {
           this.$refs.siteTask.skipOpen(this.taskData,"/track/case/all");
@@ -97,13 +102,15 @@ export default {
       this.openBox = !this.openBox
       if(this.openBox || status === 2){
         this.initTaskData(status)
+      }else{
+        this.$refs.siteTask.open();
       }
-      this.$refs.siteTask.open();
     },
     closeBox(status){
       this.openBox = status
     },
     closeNovice(status){
+      this.openBox = false
       this.noviceStatus = status
     },
     skipOpen(path){
