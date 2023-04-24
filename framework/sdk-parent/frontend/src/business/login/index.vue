@@ -198,6 +198,10 @@ export default {
           setLanguage(lang);
           this.rules = this.getDefaultRules();
         }
+        let url = localStorage.getItem('oidcLoginUrl');
+        if (url) {
+          window.location.href = url;
+        }
       });
 
   },
@@ -208,10 +212,6 @@ export default {
       if (authenticate === 'LOCAL' || authenticate === 'LDAP') {
         this.form.authenticate = authenticate;
       }
-    }
-    let url = localStorage.getItem('oidcLoginUrl');
-    if (url) {
-      window.location.href = url;
     }
   },
 
