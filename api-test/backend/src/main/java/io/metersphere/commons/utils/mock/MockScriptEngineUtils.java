@@ -192,7 +192,7 @@ public class MockScriptEngineUtils {
             if (StringUtils.isNotEmpty(requestMockParams.getTcpParam())) {
                 String value = requestMockParams.getTcpParam();
                 value = StringUtils.replace(value, "\\", "\\\\").replace("\"", "\\\"");
-                preScriptBuffer.append("vars[\"bodyRaw\"]=\"").append(value).append("\";\n");
+                preScriptBuffer.append("vars[\"tcpParam\"]=\"").append(value).append("\";\n");
             }
             //写入body参数
             if (requestMockParams.isPost()) {
