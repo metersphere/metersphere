@@ -4,6 +4,8 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.mapper.OperatingLogMapper;
+import io.metersphere.base.mapper.OperatingLogResourceMapper;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,14 +21,11 @@ public class ApiDefinitionImportParamDTO {
     private List<ApiTestCaseWithBLOBs> caseList;
 
     private List<ApiDefinitionWithBLOBs> repeatList;
+    private String importType;
+    private String scheduleId;
 
-
-
-
-
-
-    public ApiDefinitionImportParamDTO() {
-    }
+    private OperatingLogMapper operatingLogMapper;
+    private OperatingLogResourceMapper operatingLogResourceMapper;
 
     public ApiDefinitionImportParamDTO(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest apiTestImportRequest, List<MockConfigImportDTO> mocks, List<ApiDefinitionWithBLOBs> updateList, List<ApiTestCaseWithBLOBs> caseList) {
         this.apiDefinition = apiDefinition;

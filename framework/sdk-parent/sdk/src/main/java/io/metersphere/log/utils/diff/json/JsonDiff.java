@@ -340,7 +340,7 @@ public class JsonDiff {
         if (childKey.startsWith("-")) {
             instruction.key = childKey.substring(1);
             //如果是删除多列  diff数据的key都是-1 ，会把数据给覆盖，所以这里 ke+下标 做新的index
-            instruction.index = isIndexed(instruction.key) == 1 ? isIndexed(instruction.key) + i : isIndexed(instruction.key);
+            instruction.index = isIndexed(instruction.key) == 1 ? isIndexed(instruction.key) : isIndexed(instruction.key) + i;
             instruction.oper = Oper.DELETE;
         } else if (childKey.startsWith("+")) {
             instruction.key = childKey.substring(1);
