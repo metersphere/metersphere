@@ -568,6 +568,8 @@ export default {
     batch_delete_issue: "批量刪除",
     import_type_tips:
       "覆蓋模式:<br>1.缺陷ID已存在,則覆蓋系統原缺陷;<br>2.缺陷ID不存在或爲空缺失,則新增缺陷;<br>不覆蓋模式:<br>1.缺陷ID已存在,則不作變更;<br>2.缺陷ID不存在或爲空缺失,則新增缺陷;",
+    status_suspended: "挂起",
+    status_verified: "已驗證",
   },
   report: {
     name: "測試計劃報告",
