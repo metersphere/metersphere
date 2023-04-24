@@ -1880,7 +1880,10 @@ public class IssuesService {
     public void setFilterIds(IssuesRequest request) {
         List<String> issueIds;
         if (request.getThisWeekUnClosedTestPlanIssue()) {
-            issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId());
+            Map<String, Date> weedFirstTimeAndLastTime = io.metersphere.commons.utils.DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date firstDay = weedFirstTimeAndLastTime.get("firstTime");
+            Date lastDay = weedFirstTimeAndLastTime.get("lastTime");
+            issueIds = extIssuesMapper.getTestPlanThisWeekIssue(request.getProjectId(), firstDay.getTime(), lastDay.getTime());
         } else if (request.getAllTestPlanIssue() || request.getUnClosedTestPlanIssue()) {
             issueIds = extIssuesMapper.getTestPlanIssue(request.getProjectId());
         } else {
