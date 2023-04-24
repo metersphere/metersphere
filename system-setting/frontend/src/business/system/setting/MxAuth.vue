@@ -169,6 +169,21 @@
           </el-row>
           <el-row>
             <el-col>
+              <el-form-item prop="configuration.loginUrl">
+                <template v-slot:label>
+                  Login Endpoint
+                  <el-tooltip content="Login URL: https://cloud2.metersphere.com, 输入后将自动转到第三方登录页面"
+                              effect="light"
+                              trigger="hover">
+                    <i class="el-icon-info"></i>
+                  </el-tooltip>
+                </template>
+                <el-input v-model="form.configuration.loginUrl"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col>
               <el-form-item label="Secret"
                             :rules="requiredRules" prop="configuration.secret">
                 <el-input type="password" v-model="form.configuration.secret" show-password autocomplete="new-password"
