@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.log.utils.ApiDefinitionDiffUtil;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -17,6 +18,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,11 +96,12 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
 
     private static void diffHttp(MsHTTPSamplerProxy httpNew, MsHTTPSamplerProxy httpOld, JsonDiff jsonDiff, Map<String, String> diffMap) {
         // 请求头对比 old/new
-        if (CollectionUtils.isNotEmpty(httpNew.getHeaders()) && CollectionUtils.isNotEmpty(httpOld.getHeaders())) {
-            httpNew.getHeaders().remove(httpNew.getHeaders().size() - 1);
-            httpOld.getHeaders().remove(httpOld.getHeaders().size() - 1);
+        if (CollectionUtils.isNotEmpty(httpNew.getHeaders())) {
+            removeSpaceName(httpNew.getHeaders());
         }
-
+        if (CollectionUtils.isNotEmpty(httpOld.getHeaders())) {
+            removeSpaceName(httpOld.getHeaders());
+        }
         String headerNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getHeaders()), JSON_END);
         String headerOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getHeaders()), JSON_END);
         if (!StringUtils.equals(headerNew, headerOld)) {
@@ -109,9 +112,11 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             }
         }
         // 对比QUERY参数
-        if (CollectionUtils.isNotEmpty(httpNew.getArguments()) && CollectionUtils.isNotEmpty(httpOld.getArguments())) {
-            httpNew.getArguments().remove(httpNew.getArguments().size() - 1);
-            httpOld.getArguments().remove(httpOld.getArguments().size() - 1);
+        if (CollectionUtils.isNotEmpty(httpNew.getArguments())) {
+            removeSpaceName(httpNew.getArguments());
+        }
+        if (CollectionUtils.isNotEmpty(httpOld.getArguments())) {
+            removeSpaceName(httpOld.getArguments());
         }
         String queryNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getArguments()), JSON_END);
         String queryOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getArguments()), JSON_END);
@@ -123,9 +128,11 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             }
         }
         // 对比REST参数
-        if (CollectionUtils.isNotEmpty(httpNew.getRest()) && CollectionUtils.isNotEmpty(httpOld.getRest())) {
-            httpNew.getRest().remove(httpNew.getRest().size() - 1);
-            httpOld.getRest().remove(httpOld.getRest().size() - 1);
+        if (CollectionUtils.isNotEmpty(httpNew.getRest())) {
+            removeSpaceName(httpNew.getRest());
+        }
+        if (CollectionUtils.isNotEmpty(httpOld.getRest())) {
+            removeSpaceName(httpOld.getRest());
         }
         String restNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getRest()), JSON_END);
         String restOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getRest()), JSON_END);
@@ -142,21 +149,23 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             String bodyOld = JSON.toJSONString(httpOld.getBody());
             if (!StringUtils.equals(bodyNew, bodyOld)) {
                 String patch = jsonDiff.diff(bodyOld, bodyNew);
-                String diff = jsonDiff.apply(bodyNew, patch);
+                String diff = jsonDiff.apply(bodyOld, patch);
                 if (StringUtils.isNotEmpty(diff)) {
                     diffMap.put(BODY, diff);
                 }
             }
             // 对比BODY-FORM参数
-            if (CollectionUtils.isNotEmpty(httpNew.getBody().getKvs()) && CollectionUtils.isNotEmpty(httpOld.getBody().getKvs())) {
-                httpNew.getBody().getKvs().remove(httpNew.getBody().getKvs().size() - 1);
-                httpOld.getBody().getKvs().remove(httpOld.getBody().getKvs().size() - 1);
+            if (CollectionUtils.isNotEmpty(httpNew.getBody().getKvs())) {
+                removeSpaceName(httpNew.getBody().getKvs());
+            }
+            if (CollectionUtils.isNotEmpty(httpOld.getBody().getKvs())) {
+                removeSpaceName(httpOld.getBody().getKvs());
             }
             String bodyFormNew = StringUtils.join(JSON_START, JSON.toJSONString(httpNew.getBody().getKvs()), JSON_END);
             String bodyFormOld = StringUtils.join(JSON_START, JSON.toJSONString(httpOld.getBody().getKvs()), JSON_END);
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
-                String diff = jsonDiff.apply(bodyFormNew, patch);
+                String diff = jsonDiff.apply(bodyFormOld, patch);
                 if (StringUtils.isNotEmpty(diff)) {
                     diffMap.put(BODY_FORM, diff);
                 }
@@ -190,6 +199,16 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             List<DetailColumn> diffColumns = getColumn(columns, columnsOld);
             if (CollectionUtils.isNotEmpty(diffColumns)) {
                 diffMap.put("body_config", JSON.toJSONString(diffColumns));
+            }
+        }
+    }
+
+    private static void removeSpaceName(List<KeyValue> keyValues) {
+        Iterator<KeyValue> iterator = keyValues.iterator();
+        while (iterator.hasNext()) {
+            KeyValue next = iterator.next();
+            if (StringUtils.isBlank(next.getName())) {
+                iterator.remove();
             }
         }
     }

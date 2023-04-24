@@ -134,7 +134,7 @@ class Leaf implements Comparable<Leaf> {
                 String key = child.parent.toString();
                 String reIndexedKey = key;
                 if (child.parent instanceof ArrNode) {
-                    ((ArrNode) child.parent).index = i - deletes;
+                    //((ArrNode) child.parent).index = i - deletes;
                     reIndexedKey = child.parent.toString();
                 }
                 JzonObject insert = factory.createJsonObject();
