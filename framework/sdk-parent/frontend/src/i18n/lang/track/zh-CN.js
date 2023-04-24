@@ -569,6 +569,8 @@ export default {
     batch_delete_issue: "批量删除",
     import_type_tips:
       "覆盖模式:<br>1.缺陷ID已存在,则覆盖系统原缺陷;<br>2.缺陷ID不存在或为空缺失,则新增缺陷;<br>不覆盖模式:<br>1.缺陷ID已存在,则不作变更;<br>2.缺陷ID不存在或为空缺失,则新增缺陷;",
+    status_suspended: "挂起",
+    status_verified: "已验证",
   },
   report: {
     name: "测试计划报告",

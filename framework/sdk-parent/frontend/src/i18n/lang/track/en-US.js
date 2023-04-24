@@ -602,6 +602,8 @@ export default {
     batch_delete_issue: "Batch delete issues",
     import_type_tips:
       "Cover mode :<br>1. If the defect ID already exists, the original defect of the system will be overwritten. <br>2. If the defect ID does not exist or is missing, a new defect is added; <br> Not cover mode :<br>1. If the defect ID already exists, it will not be changed; <br>2. If the defect ID does not exist or is missing, a new defect is added;",
+    status_suspended: "suspended",
+    status_verified: "verified",
   },
   report: {
     name: "Test Plan Report",

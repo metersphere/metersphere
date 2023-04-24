@@ -100,6 +100,8 @@ export default {
       nameMap.set('in_progress', this.$t('test_track.issue.status_in_progress'));
       nameMap.set('正在进行', this.$t('test_track.issue.status_in_progress'));
       nameMap.set('接受/处理', this.$t('test_track.issue.status_in_progress'));
+      nameMap.set('suspended', this.$t('test_track.issue.status_suspended'));
+      nameMap.set('verified', this.$t('test_track.issue.status_verified'));
       return nameMap;
     },
     toCreatIssue() {
