@@ -113,7 +113,6 @@ export default {
       this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0);
     },
     openExpansion() {
-      this.isActive = true;
       this.expandAll = true;
       // 改变每个节点的状态
       this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0);
