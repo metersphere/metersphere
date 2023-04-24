@@ -8,20 +8,22 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.mock.config.MockConfigImportDTO;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionMapper;
-import io.metersphere.base.mapper.ApiModuleMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseProjectVersionMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.BaseProjectApplicationService;
@@ -36,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
@@ -76,6 +79,8 @@ public class ApiDefinitionImportUtilService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private BaseUserService baseUserService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
 
     public void checkUrl(ApiTestImportRequest request, Project project) {
@@ -198,7 +203,8 @@ public class ApiDefinitionImportUtilService {
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ExtApiDefinitionMapper extApiDefinitionMapper = sqlSession.getMapper(ExtApiDefinitionMapper.class);
         ApiModuleMapper apiModuleMapper = sqlSession.getMapper(ApiModuleMapper.class);
-
+        OperatingLogMapper operatingLogMapper = sqlSession.getMapper(OperatingLogMapper.class);
+        OperatingLogResourceMapper operatingLogResourceMapper = sqlSession.getMapper(OperatingLogResourceMapper.class);
         //系统内需要做更新操作的数据
         List<ApiDefinitionWithBLOBs> toUpdateList = new ArrayList<>();
         //与当前导入接口重复的系统内所有数据
@@ -275,6 +281,10 @@ public class ApiDefinitionImportUtilService {
 
             ApiDefinitionImportParamDTO apiDefinitionImportParam = new ApiDefinitionImportParamDTO(item, request, apiImport.getMocks(), toUpdateList, caseList);
             apiDefinitionImportParam.setRepeatList(sameRefIds);
+            apiDefinitionImportParam.setImportType(request.getType());
+            apiDefinitionImportParam.setScheduleId(request.getResourceId());
+            apiDefinitionImportParam.setOperatingLogMapper(operatingLogMapper);
+            apiDefinitionImportParam.setOperatingLogResourceMapper(operatingLogResourceMapper);
             ApiImportSendNoticeDTO apiImportSendNoticeDTO = importCreate(batchMapper, apiDefinitionImportParam);
             if (apiImportSendNoticeDTO != null) {
                 apiImportSendNoticeDTOS.add(apiImportSendNoticeDTO);
@@ -1267,6 +1277,8 @@ public class ApiDefinitionImportUtilService {
                 apiDefinition.setOrder(existApi.getOrder());
                 reSetImportMocksApiId(mocks, originId, apiDefinition.getId(), apiDefinition.getNum());
                 batchMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+                //记录导入使得数据产生变更的操作记录
+                setOperatingLog(existApi, apiDefinition, apiDefinitionImportParamDTO);
                 ApiDefinitionResult apiDefinitionResult = ApiDefinitionImportUtil.getApiDefinitionResult(apiDefinition, true);
                 apiImportSendNoticeDTO.setApiDefinitionResult(apiDefinitionResult);
                 List<ApiTestCaseDTO> apiTestCaseDTOS = importCase(apiDefinition, caseList);
@@ -1277,6 +1289,58 @@ public class ApiDefinitionImportUtilService {
         /*extApiDefinitionMapper.clearLatestVersion(apiDefinition.getRefId());
         extApiDefinitionMapper.addLatestVersion(apiDefinition.getRefId());*/
         return apiImportSendNoticeDTO;
+    }
+
+    private void setOperatingLog(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionImportParamDTO apiDefinitionImportParamDTO) {
+        OperatingLogWithBLOBs msOperLog = new OperatingLogWithBLOBs();
+        msOperLog.setId(UUID.randomUUID().toString());
+        msOperLog.setProjectId(existApi.getProjectId());
+        msOperLog.setOperTitle(existApi.getName());
+        msOperLog.setOperType(OperLogConstants.UPDATE.toString());
+        setOperAndCreateUser(apiDefinitionImportParamDTO, msOperLog);
+        msOperLog.setOperModule(OperLogModule.API_DEFINITION);
+        msOperLog.setOperMethod("io.metersphere.api.controller.ApiDefinitionController.testCaseImport");
+        msOperLog.setOperPath("/api/definition/import");
+        OperatingLogDetails newDetails = getOperatingLogDetails(existApi, apiDefinition);
+        msOperLog.setOperContent(JSON.toJSONString(newDetails));
+        msOperLog.setCreateUser(newDetails.getCreateUser());
+        msOperLog.setOperTime(System.currentTimeMillis());
+        OperatingLogResource operatingLogResource = new OperatingLogResource();
+        operatingLogResource.setOperatingLogId(msOperLog.getId());
+        operatingLogResource.setId(UUID.randomUUID().toString());
+        operatingLogResource.setSourceId(existApi.getId());
+        apiDefinitionImportParamDTO.getOperatingLogResourceMapper().insert(operatingLogResource);
+        apiDefinitionImportParamDTO.getOperatingLogMapper().insert(msOperLog);
+    }
+
+    private void setOperAndCreateUser(ApiDefinitionImportParamDTO apiDefinitionImportParamDTO, OperatingLogWithBLOBs msOperLog) {
+        if (StringUtils.equals(apiDefinitionImportParamDTO.getImportType(), SCHEDULE)) {
+            ScheduleExample schedule = new ScheduleExample();
+            schedule.createCriteria().andResourceIdEqualTo(apiDefinitionImportParamDTO.getScheduleId());
+            List<Schedule> list = scheduleMapper.selectByExample(schedule);
+            if (list.size() > 0) {
+                User user = baseUserService.getUserDTO(list.get(0).getUserId());
+                msOperLog.setOperUser(user.getName() + Translator.get("timing_synchronization"));
+                msOperLog.setCreateUser(user.getId());
+            } else {
+                msOperLog.setOperUser(Translator.get("timing_synchronization"));
+            }
+        } else {
+            SessionUser user = SessionUtils.getUser();
+            msOperLog.setOperUser(user.getName() + Translator.get("import_file"));
+            msOperLog.setCreateUser(user.getId());
+        }
+    }
+
+    @NotNull
+    private static OperatingLogDetails getOperatingLogDetails(ApiDefinitionWithBLOBs existApi, ApiDefinitionWithBLOBs apiDefinition) {
+        List<DetailColumn> oldColumns = ReflexObjectUtil.getColumns(existApi, DefinitionReference.definitionColumns);
+        OperatingLogDetails oldDetails = new OperatingLogDetails(JSON.toJSONString(existApi.getId()), existApi.getProjectId(), existApi.getName(), existApi.getCreateUser(), oldColumns);
+        List<DetailColumn> newColumns = ReflexObjectUtil.getColumns(apiDefinition, DefinitionReference.definitionColumns);
+        OperatingLogDetails newDetails = new OperatingLogDetails(JSON.toJSONString(apiDefinition.getId()), apiDefinition.getProjectId(), apiDefinition.getName(), apiDefinition.getCreateUser(), newColumns);
+        List<DetailColumn> columns = ReflexObjectUtil.compared(oldDetails, newDetails, OperLogModule.API_DEFINITION);
+        newDetails.setColumns(columns);
+        return newDetails;
     }
 
 
