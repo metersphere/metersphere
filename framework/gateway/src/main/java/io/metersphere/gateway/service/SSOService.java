@@ -164,6 +164,9 @@ public class SSOService {
         Optional<SessionUser> userOptional = userLoginService.login(loginRequest, session, locale);
         session.getAttributes().put("authenticate", authSource.getType());
         session.getAttributes().put("authId", authSource.getId());
+        if (StringUtils.isNotEmpty((String) config.get("loginUrl"))) {
+            userOptional.get().setLoginUrl((String) config.get("loginUrl"));
+        }
         return userOptional;
     }
 
