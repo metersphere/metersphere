@@ -83,7 +83,7 @@ const checkAuth = response => {
     clearLocalStorage();
     return;
   }
-  if (response.headers["authentication-status"] === "invalid") {
+  if (response.headers["authentication-status"] === "invalid" || response.status === 401) {
     clearLocalStorage();
   }
 }
@@ -110,13 +110,6 @@ instance.interceptors.response.use(response => {
 }, error => {
   let msg;
   if (error.response && error.response.headers) {
-    // 仅处理 /is-login
-    if (error.response.status === 401
-      && error.response.data.success === false
-      && error.response.request.responseURL.endsWith("/is-login")) {
-      return Promise.reject(error.response.data);
-    }
-
     // 判断错误标记
     if (error.response.status === 402) {
       if (error.response.headers['redirect']) {
