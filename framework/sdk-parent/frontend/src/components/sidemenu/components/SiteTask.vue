@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="csat-popup over" v-if="cardVisible && taskInfo.length === completeNum">
+    <div class="csat-popup over" v-if="cardVisible && taskInfo.length === completeNum && taskInfo.length !== 0">
       <el-card class="box-card">
         <div slot="header" class="clearfix over-header">
           <span style="float: right; padding: 5px 0;" class="moon"  @click="open()">
@@ -63,13 +63,16 @@
             <template v-for="(val,i) in item.taskData">
               <div class="text item" v-if="checkPermissions(val.permission)" :key="i">
                 <p v-if="val.status === 1">
-                    <font-awesome-icon :icon="['far', 'check-circle']" style="color:#783887" />
-                  <label> {{$t(val.name)}}</label>
+                  <font-awesome-icon :icon="['far', 'check-circle']" style="color:#783887" />
+                  <label :style="language === 'en-US' ? 'font-size: 14px' : ''">{{$t(val.name)}}</label>
                 </p>
-                <p v-else @click="openGif(val)">
-                  <font-awesome-icon :icon="['far', 'circle']" class="title-icon" />
-                  <span>  {{$t(val.name)}}
-                </span>
+                <p v-else @click="openGif(val)" :class="checked === val.id ? 'check-p' : ''">
+                  <font-awesome-icon :icon="checked === val.id ? ['fas', 'circle-notch'] : ['far', 'circle']"
+                                     class="title-icon" rotation='90' />
+                  <span :style="language === 'en-US' ? 'font-size: 14px' : ''"
+                        :class="checked === val.id ? 'checked' : ''">
+                    {{$t(val.name)}}
+                  </span>
                 </p>
               </div>
             </template>
@@ -165,10 +168,9 @@ export default {
       incompleteNum: 0,
       totalNum: 0,
       language: localStorage.getItem('language'),
+      taskData: [],
+      checked: ""
     }
-  },
-  props: {
-    taskData: Array
   },
   methods: {
     taskNum() {
@@ -188,6 +190,7 @@ export default {
           this.taskInfo.push(item)
         }
       })
+
       let incompleteNum = totalNum - completeNum - ongoingNum
       this.completeNum = completeNum
       this.ongoingNum = ongoingNum
@@ -197,28 +200,34 @@ export default {
 
     open() {
       this.taskIndex = 1
-      this.taskNum()
       this.cardVisible = !this.cardVisible;
+      if(this.cardVisible){
+        this.taskNum()
+      }
       this.$emit("closeBox", this.cardVisible)
       this.gifVisible = this.cardVisible ? this.gifVisible : this.cardVisible;
       this.noviceVisible = this.cardVisible ? false : this.cardVisible;
     },
     openGif(gif) {
+      this.checked = gif.id
       this.gifVisible = true
       this.noviceVisible = false
       this.gifData = gif
     },
     closeGif(){
+      this.checked = ""
       this.gifVisible = false
       this.noviceVisible = false
     },
     prev() {
       this.taskIndex = this.taskIndex - 1
       this.taskIndex = this.taskIndex < 1 ? 1 : this.taskIndex
+      this.closeGif()
     },
     next() {
       this.taskIndex = this.taskIndex + 1
       this.taskIndex = this.taskIndex > this.taskData.length ? this.taskData.length : this.taskIndex
+      this.closeGif()
     },
     notShow() {
       this.noviceVisible = true
@@ -226,7 +235,7 @@ export default {
     },
     goContinue () {
       updateStatus(0).then(res=>{
-        this.$success(this.$t('commons.save_success'));
+        this.$success(this.$t('side_task.save_success'));
         this.cardVisible = false
         localStorage.setItem("noviceStatus", "0")
         this.$emit("closeNovice", false)
@@ -287,7 +296,7 @@ export default {
 
 .item {
   margin-bottom: 10px;
-  margin-left: 35px;
+  margin-left: 20px;
 }
 
 .item p {
@@ -303,7 +312,8 @@ export default {
   padding: 3px 6px;
 }
 .title-icon {
-  color: #303133
+  color: #303133;
+  margin-right: 3px;
 }
 .item p:hover {
   color:#783887;
@@ -317,6 +327,24 @@ export default {
 }
 .item p:hover .title-icon {
   color:#783887;
+}
+.item p:hover span {
+  border-radius: 15px;
+  background-color:#f3f3f3;
+}
+
+.check-p {
+  color:#783887;
+  cursor:pointer;
+}
+
+.check-p .title-icon {
+  color:#783887;
+}
+
+.checked {
+  border-radius: 15px;
+  background-color:#f3f3f3;
 }
 
 .progress-card-en {

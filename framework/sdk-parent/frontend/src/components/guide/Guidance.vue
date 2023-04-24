@@ -109,7 +109,7 @@ export default {
             buttons: [
               {
                 action: function() {
-                  _this.$refs.introduction.resVisible = localStorage.getItem("step") > 1
+                  _this.$refs.introduction.resVisible = true
                   return _this.gotoCancel(this, true)
                 },
                 classes: 'close-btn',
@@ -254,7 +254,7 @@ export default {
             buttons: [
               {
                 action: function() {
-                  _this.$refs.introduction.resVisible = localStorage.getItem("step") > 1
+                  _this.$refs.introduction.resVisible = localStorage.getItem("step") > 0
                   return _this.gotoCancel(this, true)
                 },
                 classes: 'close-btn',
