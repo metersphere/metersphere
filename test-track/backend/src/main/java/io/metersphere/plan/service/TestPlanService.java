@@ -512,21 +512,18 @@ public class TestPlanService {
     }
 
     public List<TestPlanDTOWithMetric> selectTestPlanMetricById(List<String> idList) {
-
         List<TestPlanDTOWithMetric> testPlanMetricList = this.calcTestPlanRateByIdList(idList);
-
+        Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(idList);
+        Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(idList);
+        Map<String, ParamsDTO> planApiScenarioMap = extTestPlanMapper.testPlanApiScenarioCount(idList);
+        Map<String, ParamsDTO> planUiScenarioMap = extTestPlanMapper.testPlanUiScenarioCount(idList);
+        Map<String, ParamsDTO> planLoadCaseMap = extTestPlanMapper.testPlanLoadCaseCount(idList);
         for (TestPlanDTOWithMetric testPlanMetric : testPlanMetricList) {
-            Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(idList);
-            Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(idList);
-            Map<String, ParamsDTO> planApiScenarioMap = extTestPlanMapper.testPlanApiScenarioCount(idList);
-            Map<String, ParamsDTO> planUiScenarioMap = extTestPlanMapper.testPlanUiScenarioCount(idList);
-            Map<String, ParamsDTO> planLoadCaseMap = extTestPlanMapper.testPlanLoadCaseCount(idList);
             testPlanMetric.setTestPlanTestCaseCount(planTestCaseCountMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planTestCaseCountMap.get(testPlanMetric.getId()).getValue()));
             testPlanMetric.setTestPlanApiCaseCount(planApiCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiCaseMap.get(testPlanMetric.getId()).getValue()));
             testPlanMetric.setTestPlanApiScenarioCount(planApiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiScenarioMap.get(testPlanMetric.getId()).getValue()));
             testPlanMetric.setTestPlanUiScenarioCount(planUiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planUiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planUiScenarioMap.get(testPlanMetric.getId()).getValue()));
             testPlanMetric.setTestPlanLoadCaseCount(planLoadCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planLoadCaseMap.get(testPlanMetric.getId()).getValue()));
-
             List<User> followUsers = this.getPlanFollow(testPlanMetric.getId());
             testPlanMetric.setFollowUsers(followUsers);
         }
@@ -1015,8 +1012,16 @@ public class TestPlanService {
                 Map<String, String> scenarioReportMap = this.executeScenarioCase(planReportId, testPlanId, projectId, runModeConfig, triggerMode, userId, reportInfoDTO.getPlanScenarioIdMap());
                 if (MapUtils.isNotEmpty(scenarioReportMap)) {
                     haveScenarioCaseExec = true;
+                    List<TestPlanScenarioDTO> removeDTO = new ArrayList<>();
                     for (TestPlanScenarioDTO dto : scenarioCases) {
-                        dto.setReportId(scenarioReportMap.get(dto.getId()));
+                        if (scenarioReportMap.containsKey(dto.getId())) {
+                            dto.setReportId(scenarioReportMap.get(dto.getId()));
+                        } else {
+                            removeDTO.add(dto);
+                        }
+                    }
+                    if (CollectionUtils.isNotEmpty(removeDTO)) {
+                        scenarioCases.removeAll(removeDTO);
                     }
                 }
             } catch (Exception e) {
@@ -1058,10 +1063,8 @@ public class TestPlanService {
         LoggerUtil.info("开始生成测试计划报告内容 " + planReportId);
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiTestCases, scenarioCases, uiScenarios, loadCaseReportMap);
         if (!haveApiCaseExec && !haveScenarioCaseExec && !haveLoadCaseExec && !haveUICaseExec) {
-            //            如果没有执行自动化用例，结束测试计划的执行。
-            //            使用异步操作的方式是为了更早的将执行信息回馈给前台。
-            //            不为前台直接返回【无法执行】的报错，是考虑到测试计划内会有功能用例、issue等信息可以进行统计。
-            testPlanReportService.syncFinishTestPlanExecute(planReportId);
+            //如果没有执行的自动化用例，调用结束测试计划的方法。 因为方法中包含着测试计划执行队列的处理逻辑。
+            testPlanReportService.testPlanExecuteOver(planReportId, TestPlanReportStatus.COMPLETED.name());
         }
         return planReportId;
     }

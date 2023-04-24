@@ -327,25 +327,27 @@ public class ApiScenarioEnvService {
         return projectEnvMap;
     }
 
+    //检查测试计划场景的环境，没有环境的场景从执行队列中移除
     public void checkPlanScenarioEnv(RunScenarioRequest request) {
-        StringBuilder builder = new StringBuilder();
         if (request.getProcessVO() != null &&
                 MapUtils.isNotEmpty(request.getProcessVO().getTestPlanScenarioMap())
                 && MapUtils.isNotEmpty(request.getProcessVO().getTestPlanScenarioMap())) {
+            List<String> noEnvScenarioIds = new ArrayList<>();
             for (String key : request.getProcessVO().getTestPlanScenarioMap().keySet()) {
                 try {
                     TestPlanApiScenarioInfoDTO dto = request.getProcessVO().getTestPlanScenarioMap().get(key);
                     ApiScenarioWithBLOBs apiScenarioWithBLOBs = request.getProcessVO().getScenarioMap().get(dto.getApiScenarioId());
                     boolean haveEnv = this.verifyPlanScenarioEnv(apiScenarioWithBLOBs, dto);
                     if (!haveEnv) {
-                        builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                        noEnvScenarioIds.add(key);
                     }
                 } catch (Exception e) {
-                    MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
+                    LogUtil.error("解析测试计划场景环境出错!", e);
+                    noEnvScenarioIds.add(key);
                 }
             }
-            if (builder.length() > 0) {
-                MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
+            if (CollectionUtils.isNotEmpty(noEnvScenarioIds)) {
+                noEnvScenarioIds.forEach(id -> request.getProcessVO().getTestPlanScenarioMap().remove(id));
             }
         }
     }

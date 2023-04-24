@@ -47,7 +47,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -569,12 +568,6 @@ public class TestPlanReportService {
             return !extTestPlanReportContentMapper.isApiBasicCountIsNull(testPlanReport.getId());
         }
         return false;
-    }
-
-
-    @Async
-    void syncFinishTestPlanExecute(String planReportId) {
-        this.testPlanExecuteOver(planReportId, TestPlanReportStatus.COMPLETED.name());
     }
 
     public void testPlanExecuteOver(String testPlanReportId, String finishStatus) {
