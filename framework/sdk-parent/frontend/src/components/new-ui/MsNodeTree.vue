@@ -323,10 +323,10 @@ export default {
         let children = item.children;
         if (children && children.length > 0) {
           this.doUpdateNodeCount(children, countMap);
-          item.caseNum = countMap[item.id] + children.map(i => i.caseNum)
+          item.caseNum = (countMap[item.id] ? countMap[item.id] : 0) + children.map(i => i.caseNum)
             .reduce((pre, curr) => pre + curr, 0);
         } else {
-          item.caseNum = countMap[item.id];
+          item.caseNum = countMap[item.id] ? countMap[item.id] : 0;
         }
       });
     },
