@@ -129,7 +129,9 @@ public class OperatingLogService {
                 if (CollectionUtils.isEmpty(logWithBLOB.getDetails().getColumns())) {
                     dtos.add(logWithBLOB);
                 }
-
+                if (StringUtils.isBlank(logWithBLOB.getUserName()) && StringUtils.isNotBlank(logWithBLOB.getOperUser())) {
+                    logWithBLOB.setUserName(logWithBLOB.getOperUser());
+                }
             }
         }
         if (CollectionUtils.isNotEmpty(dtos)) {
