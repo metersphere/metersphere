@@ -182,7 +182,10 @@ public class TrackService {
 
         int thisWeekCount = 0;
         if (CollectionUtils.isNotEmpty(issueIds)) {
-            thisWeekCount = extTestCaseMapper.getTestPlanThisWeekBugCount(projectId, issueIds).intValue();
+            Map<String, Date> weedFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date firstDay = weedFirstTimeAndLastTime.get("firstTime");
+            Date lastDay = weedFirstTimeAndLastTime.get("lastTime");
+            thisWeekCount = extTestCaseMapper.getTestPlanThisWeekBugCount(projectId, issueIds, firstDay.getTime(), lastDay.getTime()).intValue();
         }
         bugSizeMap.put("thisWeekCount", thisWeekCount);
         return bugSizeMap;
