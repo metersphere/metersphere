@@ -3537,7 +3537,7 @@ const message = {
   shepherd: {
     step1: {
       title: 'A Workspaces and Projects',
-      text: 'MeterSphere uses "workspaces" and "projects" to organize test data and members. You can switch positions as you like in the top menu.'
+      text: 'MeterSphere uses [workspace] and [project] to isolate test data, and you can switch between workspace and project in the top menu.'
     },
     step2: {
       title: 'Side navigation menu',
@@ -3553,7 +3553,7 @@ const message = {
     },
     step5: {
       title: "Where are you?",
-      text: "Now, you have joined our preset workspace by default and become a member of the demo project. Please start your testing journey from here."
+      text: "Now, that you have joined a workspace and become a member of the current project, start your testing journey from here."
     },
     exit:'skip',
     next: 'Next',
@@ -3567,22 +3567,22 @@ const message = {
     },
     test: {
       title: 'Test cases are the cornerstone of testing',
-      desc: '<span>Maintain your test cases through online editing/file import/URL synchronization/multi-person review,</span><br> <span>add them to your test plan,quantitatively manage test progress, record results, synchronize issues, </span><br> retain/share test reports, and cover the entire software testing life cycle. ',
+      desc: '<span>Maintain your test cases through online editing/file import/URL synchronization/multi-person review,</span><br><span>add them to your test plan,quantitatively manage test progress, record results, synchronize issues, </span><br><span>retain/share test reports, and cover the entire software testing life cycle.</span>',
       button: 'Next: Interface Test'
     },
     api: {
       title: 'Simulate real scenarios to automate API testing',
-      desc: '<span>API testing is triggered by manual/scheduled tasks/plug-ins, supporting multiple communication protocols; </span><br> <span> scenario case-sets are arranged based on real business processes,  </span><br> <span> and multi-type controllers/custom scripts/assertions are supported to meet various user needs. ',
+      desc: '<span>API testing is triggered by manual/scheduled tasks/plug-ins, supporting multiple communication protocols; </span><br><span>scenario case-sets are arranged based on real business processes, </span><br><span>and multi-type controllers/custom scripts/assertions are supported to meet various user needs.</span>',
       button: 'Next: UI Test'
     },
     ui: {
       title: 'Portable UI element library and command set',
-      desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br> combine your commonly used test steps into new command, <br> <span> which can be flexibly called in automation scenarios. </span>',
+      desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br><span>combine your commonly used test steps into new command, </span><br><span>which can be flexibly called in automation scenarios. </span>',
       button: 'Next: Performance Test'
     },
     performance: {
       title: 'One-click launch performance testing',
-      desc: '<span>Provides a distributed performance testing solution, supporting multiple types of testing resource pools </span><br> <span>such as physical machines/virtual machines/k8s container clusters; </span><br> <span>One-click to initiate API scenario case to performance testing, and view real-time reports;</span><br> Provides report comparison under different configurations to control performance bottlenecks and optimize them. ',
+      desc: '<span>Provides a distributed performance testing solution, supporting multiple types of testing resource pools </span><br><span>such as physical machines/virtual machines/k8s container clusters; </span><br><span>One-click to initiate API scenario case to performance testing, and view real-time reports;</span><br><span>Provides report comparison under different configurations to control performance bottlenecks and optimize them.</span>',
       button: 'To create your first test case'
     },
     go_prev: 'Return to previous'
@@ -3643,17 +3643,8 @@ const message = {
       desc: 'You can still find us in the top "?" dropdown menu.',
       continue_btn: "Continue",
       close_btn: "Still Close",
-    }
-
-
-
-
-
-
-
-
-
-
+    },
+    save_success: "Closed successfully",
   }
 };
 
