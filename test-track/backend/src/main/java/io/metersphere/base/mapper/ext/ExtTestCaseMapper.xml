@@ -968,7 +968,7 @@
         from test_plan_test_case tptc
             join test_plan tp on tp.id = tptc.plan_id
             join test_case_issues tci on tptc.id = tci.resource_id
-        where tp.project_id = #{projectId} and tptc.is_del != 1 and date_sub(curdate(), interval 7 day) &lt;= from_unixtime(round(tci.relate_time / 1000, 0))
+        where tp.project_id = #{projectId} and tptc.is_del != 1 and tci.relate_time between #{firstDayTimestamp} and #{lastDayTimestamp}
             and tci.issues_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
