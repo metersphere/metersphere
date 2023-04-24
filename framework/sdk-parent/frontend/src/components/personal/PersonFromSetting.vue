@@ -24,7 +24,7 @@
 
 <script>
 import MsDialogFooter from "../MsDialogFooter";
-import {removeGoBackListener} from "../../utils";
+import {getUrlParams, removeGoBackListener} from "../../utils";
 import MsTableOperatorButton from "../MsTableOperatorButton";
 import {EMAIL_REGEX, PHONE_REGEX} from "../../utils/regex";
 import {useUserStore} from "@/store";
@@ -78,6 +78,13 @@ export default {
         ],
       },
     };
+  },
+  created() {
+    let urlParams = getUrlParams(window.location.href);
+    let oidcLoginUrl = urlParams['oidcLoginUrl']
+    if (oidcLoginUrl) {
+      localStorage.setItem('oidcLoginUrl', oidcLoginUrl);
+    }
   },
   methods: {
     cancel() {

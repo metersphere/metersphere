@@ -21,6 +21,7 @@ public class SessionUser extends UserDTO implements Serializable {
     private static final long serialVersionUID = -7149638440406959033L;
     private String csrfToken;
     private String sessionId;
+    private String loginUrl; // 三方登录地址，如果有值，前端跳转到该地址
 
     private SessionUser() {
     }

@@ -6,6 +6,8 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.gateway.log.annotation.MsAuditLog;
 import io.metersphere.gateway.service.SSOService;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import org.springframework.web.server.WebSession;
 
-import jakarta.annotation.Resource;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -28,16 +29,22 @@ public class SSOController {
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering callbackWithAuthId(@RequestParam("code") String code, @PathVariable("authId") String authId, WebSession session, Locale locale) throws Exception {
         Optional<SessionUser> sessionUser = ssoService.exchangeToken(code, authId, session, locale);
-        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()) + "&_csrf=" + sessionUser.get().getCsrfToken())
-                .build();
+        String url = "/#/?_token=" + CodingUtil.base64Encoding(session.getId()) + "&_csrf=" + sessionUser.get().getCsrfToken();
+        if (StringUtils.isNotEmpty(sessionUser.get().getLoginUrl())) {
+            url += "&oidcLoginUrl=" + sessionUser.get().getLoginUrl();
+        }
+        return Rendering.redirectTo(url).build();
     }
 
     @GetMapping("callback")
     @MsAuditLog(module = OperLogModule.AUTH_TITLE, type = OperLogConstants.LOGIN, title = "登录")
     public Rendering callback(@RequestParam("code") String code, @RequestParam("state") String authId, WebSession session, Locale locale) throws Exception {
         Optional<SessionUser> sessionUser = ssoService.exchangeToken(code, authId, session, locale);
-        return Rendering.redirectTo("/#/?_token=" + CodingUtil.base64Encoding(session.getId()) + "&_csrf=" + sessionUser.get().getCsrfToken())
-                .build();
+        String url = "/#/?_token=" + CodingUtil.base64Encoding(session.getId()) + "&_csrf=" + sessionUser.get().getCsrfToken();
+        if (StringUtils.isNotEmpty(sessionUser.get().getLoginUrl())) {
+            url += "&oidcLoginUrl=" + sessionUser.get().getLoginUrl();
+        }
+        return Rendering.redirectTo(url).build();
     }
 
     @GetMapping("callback/oauth2")
