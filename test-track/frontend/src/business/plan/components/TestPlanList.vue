@@ -766,9 +766,9 @@ export default {
               });
               if (metricData) {
                 this.$set(item, "isMetricLoadOver", true);
-                this.$set(item, "passRate", metricData.passRate);
+                this.$set(item, "passRate", metricData.passRate + "%");
                 this.$set(item, "testRate", metricData.testRate);
-                this.$set(item, "passed", metricData.passed + "%");
+                this.$set(item, "passed", metricData.passed);
                 this.$set(item, "tested", metricData.tested);
                 this.$set(item, "total", metricData.total);
                 this.$set(
@@ -837,9 +837,9 @@ export default {
       this.$set(item, "principals", []);
       this.$set(item, "follows", []);
       this.$set(item, "showFollow", false);
-      this.$set(item, "passRate", 0);
+      this.$set(item, "passRate", 0 + "%");
       this.$set(item, "testRate", 0);
-      this.$set(item, "passed", 0 + "%");
+      this.$set(item, "passed", 0);
       this.$set(item, "tested", 0);
       this.$set(item, "total", 0);
       this.$set(item, "testPlanTestCaseCount", 0);
