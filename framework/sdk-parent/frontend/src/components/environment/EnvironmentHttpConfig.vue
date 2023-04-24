@@ -32,7 +32,7 @@
         </el-radio-group>
         <div v-if="condition.type === 'MODULE'" style="margin-top: 6px">
           <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule"
-                          :obj="moduleObj" clearable :checkStrictly="true" multiple v-if="!loading"/>
+                          :obj="moduleObj" clearable :checkStrictly="true" multiple v-if="!loading" @clean="clean"/>
         </div>
         <div v-if="condition.type === 'PATH'" style="margin-top: 6px">
           <el-input v-model="pathDetails.name" :placeholder="$t('api_test.value')" clearable size="small">
@@ -326,6 +326,10 @@ export default {
         });
       }
     },
+    clean() {
+      this.condition.details = [];
+      this.condition.ids = [];
+    },
     update() {
       const index = this.httpConfig.conditions.findIndex((d) => d.id === this.condition.id);
       this.validateSocket(this.condition.socket);
@@ -451,6 +455,7 @@ export default {
       if (socket.startsWith("${")){
         let split = socket.split(":");
         this.condition.domain = split[0];
+        return true;
       }
       this.condition.port = url.port;
       let path = url.pathname === "/" ? "" : url.pathname;
