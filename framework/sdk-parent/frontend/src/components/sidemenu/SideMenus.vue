@@ -3,8 +3,8 @@
     <!--    侧边任务按钮-->
     <div :class="language === 'en-US' ? 'parentBox parentBox-en' : 'parentBox'" @click="toggle(1)">
       <div class="contentsBox">
-        <div :style="openBox ? (language === 'en-US' ? 'right: 0;width:140px;cursor: auto;white-space: nowrap;' :
-        'right: 0;width:100px;cursor: auto;white-space: nowrap;') : ''" >
+        <div :style="openBox ? (language === 'en-US' ? 'right: 16px;width:140px;cursor: auto;white-space: nowrap;' :
+        'right: 16px;width:100px;cursor: auto;white-space: nowrap;') : ''" >
           <font-awesome-icon class="icon global focusing" :icon="['fas', 'compass']" spin style="color: #ffffff;" />
           <span :style="openBox ? 'display: block;color: #fff;cursor: pointer;' : ''">{{$t('side_task.novice_task')}}</span>
         </div>
@@ -159,13 +159,13 @@ export default {
   bottom: 125px;
 }
 .parentBox .contentsBox div:hover {
-  right: 0;
+  right: 16px;
   height: 28px;
   width: 100px;
   cursor: auto;
 }
 .parentBox-en .contentsBox div:hover {
-  right: 0;
+  right: 16px;
   height: 28px;
   width: 140px;
   cursor: auto;

@@ -3448,7 +3448,7 @@ const message = {
     },
     ui: {
       title: '可移植的 UI 元素库与指令集',
-      desc: '<span>基于可复用的元素库及指令快速编排场景化用例；</span><br><span>将你常用的测试步骤组合成新的自定义指令，</span><br><span>在自动化场景中灵活调用。</span>',
+      desc: '<span>基于可复用的元素库及指令快速编排场景化用例；</span><br><span>将你常用的测试步骤组合成新的自定义指令，在自动化场景中灵活调用。</span><br><span style="background-color: #ffffff;color:#ffffff">/</span>',
       button: '下一个：性能测试'
     },
     performance: {
@@ -3516,6 +3516,8 @@ const message = {
       close_btn: "仍然关闭",
     },
     save_success: "关闭成功",
+    to_try: "去完成",
+    view_video: "观看视频教程"
   }
 };
 

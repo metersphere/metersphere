@@ -3577,7 +3577,7 @@ const message = {
     },
     ui: {
       title: 'Portable UI element library and command set',
-      desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br><span>combine your commonly used test steps into new command, </span><br><span>which can be flexibly called in automation scenarios. </span>',
+      desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br><span>combine your commonly used test steps into new command, which can be flexibly called in automation scenarios.</span><br><span style="background-color: #ffffff;color:#ffffff">/</span>',
       button: 'Next: Performance Test'
     },
     performance: {
@@ -3645,6 +3645,8 @@ const message = {
       close_btn: "Still Close",
     },
     save_success: "Closed successfully",
+    to_try: "Go to try it",
+    view_video: "View video tutorial"
   }
 };
 

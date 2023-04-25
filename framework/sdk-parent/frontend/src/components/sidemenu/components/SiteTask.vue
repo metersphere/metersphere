@@ -38,7 +38,7 @@
         </div>
       </el-card>
     </div>
-    <div class="csat-popup" v-else-if="cardVisible && taskInfo.length > 0">
+    <div :class="language === 'en-US' ? 'csat-popup csat-popup-en' : 'csat-popup'" v-else-if="cardVisible && taskInfo.length > 0">
       <template v-for="(item,index) in taskInfo" >
         <el-card :key="item.id" v-if="(index + 1) === taskIndex && checkPermissions(item.permission)"
                  class="box-card" >
@@ -63,16 +63,15 @@
             <template v-for="(val,i) in item.taskData">
               <div class="text item" v-if="checkPermissions(val.permission)" :key="i">
                 <p v-if="val.status === 1">
-                  <font-awesome-icon :icon="['far', 'check-circle']" style="color:#783887" />
-                  <label :style="language === 'en-US' ? 'font-size: 14px' : ''">{{$t(val.name)}}</label>
+                  <font-awesome-icon :icon="['far', 'check-circle']" style="color:#783887" class="title-icon"/>
+                  <label>{{$t(val.name)}}</label>
                 </p>
                 <p v-else @click="openGif(val)" :class="checked === val.id ? 'check-p' : ''">
                   <font-awesome-icon :icon="checked === val.id ? ['fas', 'circle-notch'] : ['far', 'circle']"
                                      class="title-icon" rotation='90' />
-                  <span :style="language === 'en-US' ? 'font-size: 14px' : ''"
-                        :class="checked === val.id ? 'checked' : ''">
-                    {{$t(val.name)}}
-                  </span>
+                  <span :class="checked === val.id ? 'checked' : ''"
+                        :style="language === 'en-US' ? 'display:inline-block;width: 299px' :
+                        'display:inline-block;width: 248px'">{{$t(val.name)}}</span>
                 </p>
               </div>
             </template>
@@ -92,7 +91,7 @@
       </template>
     </div>
 
-    <div class="csat-popup-gif" v-if="gifVisible">
+    <div :class="language === 'en-US' ? 'csat-popup-gif csat-popup-gif-en' : 'csat-popup-gif'" v-if="gifVisible">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span style="float: right; padding: 5px 0;" class="moon"  @click="closeGif()">
@@ -111,14 +110,21 @@
           </el-image>
         </div>
         <div :class="language === 'en-US' ? 'gif-footer-en' : 'gif-footer'">
-          <el-button type="primary" round size="small" class="is-plain" @click="gotoPath(gifData.path)">
-            {{$t(gifData.name)}}
+          <el-button type="primary" round size="small" class="is-plain" style="margin-right:10px"
+                     @click="gotoPath(gifData.path)">
+            {{$t('side_task.to_try')}}
           </el-button>
+          <a href="https://www.metersphere.com/video" target="_blank">
+            <el-button type="primary" round size="small" class="is-plain">
+              {{ $t("side_task.view_video") }}
+            </el-button>
+          </a>
         </div>
       </el-card>
     </div>
 
-    <div :class="language === 'en-US' ? 'csat-popup-gif close close-en' : 'csat-popup-gif close'" v-if="noviceVisible">
+    <div :class="language === 'en-US' ? 'csat-popup-gif csat-popup-gif-en close close-en' : 'csat-popup-gif close'"
+         v-if="noviceVisible">
       <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span style="float: right; padding: 5px 0;" class="moon"  @click="closeGif()">
@@ -199,6 +205,7 @@ export default {
     },
 
     open() {
+      this.checked = ""
       this.taskIndex = 1
       this.cardVisible = !this.cardVisible;
       if(this.cardVisible){
@@ -230,6 +237,7 @@ export default {
       this.closeGif()
     },
     notShow() {
+      this.checked = ""
       this.noviceVisible = true
       this.gifVisible = false
     },
@@ -295,13 +303,14 @@ export default {
 }
 
 .item {
-  margin-bottom: 10px;
-  margin-left: 20px;
+  margin-bottom: 5px;
+  margin-left: 35px;
 }
 
 .item p {
+  font-size: 14px;
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 .item p label {
   color:#783887;
@@ -313,7 +322,7 @@ export default {
 }
 .title-icon {
   color: #303133;
-  margin-right: 3px;
+  margin-right: 5px;
 }
 .item p:hover {
   color:#783887;
@@ -330,7 +339,7 @@ export default {
 }
 .item p:hover span {
   border-radius: 15px;
-  background-color:#f3f3f3;
+  background-color:#f5f6f7;
 }
 
 .check-p {
@@ -344,7 +353,7 @@ export default {
 
 .checked {
   border-radius: 15px;
-  background-color:#f3f3f3;
+  background-color:#f5f6f7;
 }
 
 .progress-card-en {
@@ -380,7 +389,7 @@ export default {
 
 .gif-footer-en {
   width: 100%;
-  margin: 10px 0 44px;
+  margin: 10px 0 44px ;
   text-align: center;
 }
 
@@ -394,7 +403,7 @@ export default {
 }
 
 .box-card {
-  width: 400px;
+  /*width: 400px;*/
 }
 
 .csat-popup {
@@ -413,9 +422,13 @@ export default {
   transition: .3s;
 }
 
+.csat-popup-en {
+  width: 430px;
+}
+
 .csat-popup-gif {
   position: fixed;
-  right: 426px;
+  right: 424px;
   bottom: 170px;
   width: 400px;
   border-radius: 8px;
@@ -427,6 +440,9 @@ export default {
   background-color: #fff;
   -webkit-transition: .3s;
   transition: .3s;
+}
+.csat-popup-gif-en {
+  right: 455px;
 }
 .close {
   bottom: 362px;
@@ -490,8 +506,13 @@ export default {
 ::v-deep .el-progress__text{
   color: #783787 !important;
   float: left;
+  width: 40px;
   margin-left: 0;
-  margin-right: 10px
+  text-align: center;
+  /*margin-right: 8px*/
+}
+::v-deep .el-progress-bar__outer {
+  background-color: #E8EBED !important;
 }
 
 
