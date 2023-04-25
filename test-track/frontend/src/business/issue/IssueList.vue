@@ -598,43 +598,38 @@ export default {
         "createTime": data.createTime.getTime(),
         "pre": data.preValue
       }
-      syncAllIssues(param)
+      syncIssues()
         .then(() => {
-          checkSyncIssues(this.loading, false, (errorData) => {
-            this.loading = false;
-            this.syncDisable = false;
-            if (errorData.syncResult && errorData.syncResult !== '') {
-              this.$error(errorData.syncResult, false);
-            } else {
-              this.$success(this.$t('test_track.issue.sync_complete'), false);
-              this.getIssues();
-            }
-          });
-        })
-        .catch(() => {
-          this.loading = false;
-          this.syncDisable = false;
-        });
+          this.repeatCheckSyncRes();
+        }).catch(() => {
+        this.resetSyncParam();
+      });
     },
     syncIssues() {
       this.loading = true;
-      this.syncDisable = false;
+      this.syncDisable = true;
       syncIssues()
         .then(() => {
-          checkSyncIssues(this.loading, false, (errorData) => {
-            this.loading = false;
-            this.syncDisable = false;
-            if (errorData.syncResult && errorData.syncResult !== '') {
-              this.$error(errorData.syncResult, false);
-            } else {
-              this.$success(this.$t('test_track.issue.sync_complete'), false);
-              this.getIssues();
-            }
-          });
+          this.repeatCheckSyncRes();
         }).catch(() => {
-          this.loading = false;
-          this.syncDisable = false;
-        });
+        this.resetSyncParam();
+      });
+    },
+    repeatCheckSyncRes() {
+      checkSyncIssues(this.loading, false, (errorData) => {
+        this.loading = false;
+        this.syncDisable = false;
+        if (errorData.syncResult && errorData.syncResult !== '') {
+          this.$error(errorData.syncResult, false);
+        } else {
+          this.$success(this.$t('test_track.issue.sync_complete'), false);
+          this.getIssues();
+        }
+      });
+    },
+    resetSyncParam() {
+      this.loading = false;
+      this.syncDisable = false;
     },
     editParam() {
       let id = this.$route.query.id;
