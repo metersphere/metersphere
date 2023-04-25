@@ -24,4 +24,24 @@ public interface ExtTestPlanReportMapper {
     void setApiBaseCountAndPassRateIsNullById(String id);
 
     void updateAllStatus();
+
+    void deleteApiReportByTestPlanReportList(@Param("ids") List<String> testPlanReportIdList);
+
+    List<String> selectScenarioReportByTestPlanReportIds(@Param("ids") List<String> testPlanReportIdList);
+
+    List<String> selectUiReportByTestPlanReportIds(@Param("ids") List<String> testPlanReportIdList);
+
+    void deleteScenarioReportByIds(@Param("ids") List<String> scenarioReportIds);
+
+    void deleteScenarioReportResultByIds(@Param("ids") List<String> scenarioReportIds);
+
+    void deleteScenarioReportStructureByIds(@Param("ids") List<String> scenarioReportIds);
+
+    void deleteUiReportByIds(@Param("ids") List<String> scenarioReportIds);
+
+    void deleteUiReportResultByIds(@Param("ids") List<String> scenarioReportIds);
+
+    void deleteUiReportStructureByIds(@Param("ids") List<String> scenarioReportIds);
+
+
 }

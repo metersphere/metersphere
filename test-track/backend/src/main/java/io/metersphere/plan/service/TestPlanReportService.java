@@ -33,6 +33,7 @@ import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.xpack.track.dto.IssuesDao;
@@ -877,7 +878,39 @@ public class TestPlanReportService {
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
             contentExample.createCriteria().andTestPlanReportIdIn(testPlanReportIdList);
             testPlanReportContentMapper.deleteByExample(contentExample);
+            // todo 删除场景、接口的报告
+            BatchProcessingUtil.batchDeleteApiReport(testPlanReportIdList, this::deleteApiCaseReportByTestPlanExecute, this::deleteScenarioReportByTestPlanExecute, this::deleteUiReportByTestPlanExecute);
+        }
+    }
 
+    //删除执行测试计划产生的接口用例报告
+    private void deleteApiCaseReportByTestPlanExecute(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            extTestPlanReportMapper.deleteApiReportByTestPlanReportList(testPlanReportIdList);
+        }
+    }
+
+    //删除执行测试计划产生的场景报告
+    private void deleteScenarioReportByTestPlanExecute(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            List<String> scenarioReportIds = extTestPlanReportMapper.selectScenarioReportByTestPlanReportIds(testPlanReportIdList);
+            if (CollectionUtils.isNotEmpty(scenarioReportIds)) {
+                extTestPlanReportMapper.deleteScenarioReportByIds(scenarioReportIds);
+                extTestPlanReportMapper.deleteScenarioReportResultByIds(scenarioReportIds);
+                extTestPlanReportMapper.deleteScenarioReportStructureByIds(scenarioReportIds);
+            }
+        }
+    }
+
+    //删除执行测试计划产生的UI报告
+    private void deleteUiReportByTestPlanExecute(List<String> testPlanReportIdList) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            List<String> scenarioReportIds = extTestPlanReportMapper.selectUiReportByTestPlanReportIds(testPlanReportIdList);
+            if (CollectionUtils.isNotEmpty(scenarioReportIds)) {
+                extTestPlanReportMapper.deleteUiReportByIds(scenarioReportIds);
+                extTestPlanReportMapper.deleteUiReportResultByIds(scenarioReportIds);
+                extTestPlanReportMapper.deleteUiReportStructureByIds(scenarioReportIds);
+            }
         }
     }
 

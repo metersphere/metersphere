@@ -360,7 +360,7 @@
         SELECT count(id) AS countNumber
         FROM scenario_execution_info
         WHERE create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
-          AND project_id = #{projectId}
+        AND project_id = #{projectId}
         <if test="version != null">
             AND version = #{version}
         </if>
@@ -374,21 +374,21 @@
         SELECT count(id) AS countNumber
         FROM scenario_execution_info
         WHERE trigger_mode = 'SCHEDULE'
-          AND project_id = #{projectId}
+        AND project_id = #{projectId}
         <if test="version != null">
             AND version = #{version}
         </if>
         <if test="executeType != null">
             AND execute_type = #{executeType}
         </if>
-          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
     <select id="countByProjectIdGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, result AS groupField
         FROM scenario_execution_info
         WHERE trigger_mode = 'SCHEDULE'
-          AND project_id = #{projectId}
-          AND execute_type = #{executeType}
+        AND project_id = #{projectId}
+        AND execute_type = #{executeType}
         <if test="version != null">
             AND version = #{version}
         </if>
@@ -424,7 +424,7 @@
           and scenario_id = #{scenarioId}
           and id != #{nowId}
         ORDER BY create_time desc
-            LIMIT 5, 1
+        LIMIT 5, 1
     </select>
 
     <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
@@ -443,8 +443,7 @@
           and t.execute_type != 'Debug'
           and t.execute_type != 'Marge'
           and t.project_id = #{projectId}
-          and t.`status` in ('running'
-            , 'PENDING')
+          and t.`status` in ('running', 'PENDING')
 
     </select>
 
@@ -483,6 +482,14 @@
         where create_time &lt; #{time}
           and project_id = #{projectId}
           and relevance_test_plan_report_id IS NULL
+    </select>
+    <select id="selectByTestPlanIdList" resultType="java.lang.String">
+        select id
+        FROM api_scenario_report
+        WHERE relevance_test_plan_report_id IN
+        <foreach collection="testPlanIds" item="testPlanId" separator="," open="(" close=")">
+            testPlanId
+        </foreach>
     </select>
 
     <update id="updateAllStatus">
