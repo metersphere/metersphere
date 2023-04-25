@@ -674,7 +674,7 @@ export default {
                       ordered[key] = newRequest[key];
                     });
                   requestKvs.push(ordered);
-                  let beforeRequest = this.request.body.kvs[i];
+                  let beforeRequest = this.beforeRequest.body.kvs[i];
                   const beforeOrdered = {};
                   Object.keys(beforeRequest)
                     .sort()
