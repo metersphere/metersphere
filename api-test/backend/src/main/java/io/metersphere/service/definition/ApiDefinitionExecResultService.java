@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
+import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -63,6 +64,8 @@ public class ApiDefinitionExecResultService {
     private ApiCaseExecutionInfoService apiCaseExecutionInfoService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
 
     /**
      * API/CASE 重试结果保留一条
@@ -322,12 +325,10 @@ public class ApiDefinitionExecResultService {
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
                         if (apiCase != null) {
-                            if (MapUtils.isNotEmpty(dto.getExtendedParameters()) && dto.getExtendedParameters().containsKey("projectId")) {
-                                String projectId = dto.getExtendedParameters().get("projectId").toString();
-                                ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
-                                String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
-                                apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), reportResult.getStatus(), triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
-                            }
+                            String projectId = extTestPlanApiCaseMapper.selectProjectId(apiCase.getId());
+                            ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
+                            String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
+                            apiCaseExecutionInfoService.insertExecutionInfo(apiCase.getId(), reportResult.getStatus(), triggerMode, projectId, ExecutionExecuteTypeEnum.TEST_PLAN.name(), version);
                             apiCase.setStatus(reportResult.getStatus());
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
