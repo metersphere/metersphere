@@ -23,7 +23,7 @@
         node-key="id">
           <span slot-scope="{data}">
             <span>{{ data.name }}</span>
-            <span v-if="data.id === copyData.projectId" style="font-size: 12px">{{$t("custom_field.current_project")}}</span>
+            <span v-if="data.id === getCurrentProjectID()" style="font-size: 12px">{{$t("custom_field.current_project")}}</span>
             <span v-if="data.customPermissionFlag == null || !data.customPermissionFlag" style="font-size: 12px; color: red;">{{$t("custom_field.no_custom_fields_permission")}}</span>
           </span>
       </el-tree>
@@ -38,17 +38,8 @@
 
 <script>
 
-import draggable from 'vuedraggable';
-import TemplateComponentEditHeader from "@/business/menu/template/ext/TemplateComponentEditHeader";
-import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import {ISSUE_PLATFORM_OPTION} from "metersphere-frontend/src/utils/table-constants";
-import CustomFieldFormList from "@/business/menu/template/CustomFieldFormList";
-import CustomFieldRelateList from "@/business/menu/template/CustomFieldRelateList";
-import FieldTemplateEdit from "@/business/menu/template/FieldTemplateEdit";
-import FormRIchTextItem from "metersphere-frontend/src/components/FormRichTextItem";
-import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {getUUID} from "metersphere-frontend/src/utils";
-import {getCurrentUserId, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token"
+import {getCurrentUserId, getCurrentWorkspaceId, getCurrentProjectID} from "metersphere-frontend/src/utils/token"
 import {copyIssueTemplate, getIssueTemplateCopyProject} from "@/api/template";
 
 export default {
@@ -86,11 +77,10 @@ export default {
       }
     },
     initCopyProjects() {
-      let issueTemplateId = this.copyData.id;
       getIssueTemplateCopyProject(getCurrentUserId(), getCurrentWorkspaceId())
         .then((response) => {
           this.root = {id: getUUID(), name: response.data.workspaceName, customPermissionFlag: true, children: response.data.projectDTOS};
-          this.copyProjects.push(this.root)
+          this.copyProjects.push(this.root);
         })
     },
     confirm() {
@@ -108,6 +98,9 @@ export default {
             message: this.$t('commons.copy_success'),
           });
         })
+    },
+    getCurrentProjectID() {
+      return getCurrentProjectID();
     }
   }
 };
