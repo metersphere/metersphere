@@ -26,6 +26,7 @@ import io.metersphere.request.testcase.AuthUserIssueRequest;
 import io.metersphere.request.testcase.IssuesCountRequest;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.IssuesService;
+import io.metersphere.service.IssuesSyncService;
 import io.metersphere.service.PlatformPluginService;
 import io.metersphere.xpack.track.dto.*;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
@@ -46,6 +47,8 @@ public class IssuesController {
 
     @Resource
     private IssuesService issuesService;
+    @Resource
+    private IssuesSyncService issuesSyncService;
     @Resource
     private BaseCheckPermissionService baseCheckPermissionService;
     @Resource
@@ -159,12 +162,12 @@ public class IssuesController {
 
     @GetMapping("/sync/{projectId}")
     public void syncThirdPartyIssues(@PathVariable String projectId) {
-        issuesService.syncThirdPartyIssues(projectId);
+        issuesSyncService.syncIssues(projectId);
     }
 
     @PostMapping("/sync/all")
     public void syncThirdPartyAllIssues(@RequestBody IssueSyncRequest request) {
-        issuesService.syncThirdPartyAllIssues(request);
+        issuesSyncService.syncAllIssues(request);
     }
 
     @GetMapping("/sync/check/{projectId}")
