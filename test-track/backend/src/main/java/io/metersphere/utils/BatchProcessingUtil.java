@@ -6,6 +6,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -14,6 +15,35 @@ import java.util.function.Function;
 public class BatchProcessingUtil {
 
     private static final int BATCH_PROCESS_QUANTITY = 100;
+
+    public static void batchDeleteApiReport(List<String> testPlanReportIdList, Consumer<List<String>> deleteApiCaseReportFunc, Consumer<List<String>> deleteScenarioReportFunc, Consumer<List<String>> deleteUiReportFunc) {
+        if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+
+            int unDeleteReportIdCount = testPlanReportIdList.size();
+
+            while (BATCH_PROCESS_QUANTITY < testPlanReportIdList.size()) {
+                List<String> deleteReportIds = testPlanReportIdList.subList(0, BATCH_PROCESS_QUANTITY);
+                deleteApiCaseReportFunc.accept(deleteReportIds);
+                deleteScenarioReportFunc.accept(deleteReportIds);
+                deleteUiReportFunc.accept(deleteReportIds);
+
+                testPlanReportIdList.removeAll(deleteReportIds);
+
+                //未删除的报告数量如果未减少，跳出。防止死循环
+                if (testPlanReportIdList.size() >= unDeleteReportIdCount) {
+                    break;
+                } else {
+                    unDeleteReportIdCount = testPlanReportIdList.size();
+                }
+            }
+            //处理剩余数据
+            if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+                deleteApiCaseReportFunc.accept(testPlanReportIdList);
+                deleteScenarioReportFunc.accept(testPlanReportIdList);
+                deleteUiReportFunc.accept(testPlanReportIdList);
+            }
+        }
+    }
 
     public static List<TestCaseTest> selectTestCaseTestByPrimaryKey(List<String> primaryKeyList, Function<TestCaseTestExample, List<TestCaseTest>> func) {
         List<TestCaseTest> returnList = new ArrayList<>();

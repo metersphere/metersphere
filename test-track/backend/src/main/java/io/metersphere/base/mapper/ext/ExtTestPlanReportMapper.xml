@@ -86,6 +86,49 @@
             </include>
         </if>
     </sql>
+    <delete id="deleteApiReportByTestPlanReportList">
+        DELETE FROM api_definition_exec_result WHERE relevance_test_plan_report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteScenarioReportByIds">
+        DELETE FROM api_scenario_report WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteScenarioReportResultByIds">
+        DELETE FROM api_scenario_report_result WHERE report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteScenarioReportStructureByIds">
+        DELETE FROM api_scenario_report_structure WHERE report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteUiReportByIds">
+        DELETE FROM ui_scenario_report WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteUiReportResultByIds">
+        DELETE FROM ui_scenario_report_result WHERE report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteUiReportStructureByIds">
+        DELETE FROM ui_scenario_report_structure WHERE report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
     <select id="list" resultType="io.metersphere.dto.TestPlanReportDTO"
             parameterType="io.metersphere.request.report.QueryTestPlanReportRequest">
@@ -153,6 +196,18 @@
         </where>
         GROUP BY t.test_plan_id
     </select>
+    <select id="selectScenarioReportByTestPlanReportIds" resultType="java.lang.String">
+        SELECT id FROM api_scenario_report WHERE relevance_test_plan_report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectUiReportByTestPlanReportIds" resultType="java.lang.String">
+        SELECT id FROM ui_scenario_report WHERE relevance_test_plan_report_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
 
     <update id="setApiBaseCountAndPassRateIsNullById">
@@ -162,7 +217,9 @@
     </update>
 
     <update id="updateAllStatus">
-        update test_plan_report set status="COMPLETED" where status in ('Rerunning','Running')
+        update test_plan_report
+        set status="COMPLETED"
+        where status in ('Rerunning', 'Running')
     </update>
 
 </mapper>
