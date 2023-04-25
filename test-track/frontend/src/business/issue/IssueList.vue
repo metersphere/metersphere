@@ -598,7 +598,7 @@ export default {
         "createTime": data.createTime.getTime(),
         "pre": data.preValue
       }
-      syncIssues()
+      syncAllIssues(param)
         .then(() => {
           this.repeatCheckSyncRes();
         }).catch(() => {
