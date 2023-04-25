@@ -439,6 +439,7 @@ export default {
 
   .history-container {
     overflow: scroll;
+    max-height: 300px;
 
     .item-row:hover {
       background: rgba(31, 35, 41, 0.1);
