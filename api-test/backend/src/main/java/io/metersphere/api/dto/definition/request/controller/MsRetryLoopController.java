@@ -62,7 +62,7 @@ public class MsRetryLoopController extends MsTestElement {
                 "\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\", \"0\");" +
                 "\n" + "\t}else{" +
                 "\n" + "\t\tint retryNum= Integer.parseInt(vars.get(\"" + ms_current_timer + "_num\"));" +
-                "\n" + "\t\tlog.info(\"重试：\"+ retryNum);" +
+                "\n" + "\t\tlog.info(\"重试：\"+ (retryNum + 1));" +
                 "\n" + "        \tprev.setSampleLabel(\"MsRetry_\"+ (retryNum + 1) + \"_\" + prev.getSampleLabel());" +
                 "\n" + "\t\tretryNum =retryNum +1;\n" + "\t\tvars.put(\"" + ms_current_timer + "_num\",retryNum + \"\");\n" + "\t}" +
                 "\n" + "\tif(vars.get(\"" + ms_current_timer + "_num\").equals( \"" + retryNum + "\")){" +
