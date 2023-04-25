@@ -54,7 +54,7 @@
             <template v-slot:default="scope">
               <el-tooltip :content="getResultTip(scope.row)"
                           placement="top" :enterable="false" class="item" effect="dark">
-                <ms-yan-progress :total="scope.row.caseCount"
+                <ms-yan-progress v-if="scope.row.caseCount > 0" :total="scope.row.caseCount"
                                :statusCountItems="getResultCount(scope.row)"
                                :tip="tip"/>
               </el-tooltip>
