@@ -24,7 +24,7 @@
               </div>
             </div>
             <div class="version-creator">
-              <div class="username">{{ item.createUserName }}</div>
+              <div class="username">{{ item.createName }}</div>
               <div class="static-label">{{$t('permission.project_custom_code.create')}}</div>
             </div>
           </div>
@@ -304,13 +304,17 @@ export default {
     CaseDiffIssueRelate,
   },
   props: {
-    versionLeftId: {
-      type: String,
-      default: "",
+    leftVersion: {
+      type: Object,
+      default() {
+        return {}
+      },
     },
-    versionRightId: {
-      type: String,
-      default: "",
+    rightVersion: {
+      type: Object,
+      default() {
+        return {}
+      },
     },
     caseId: {
       type: String,
@@ -325,8 +329,6 @@ export default {
       standardWith: 184,
       prevBtn: true,
       nextBtn: true,
-      //手动切换版本id
-      appointVersionRightId: "",
       /**
        * 正文
        */
@@ -344,8 +346,6 @@ export default {
       cacheVersionsMap: new Map(),
       // 版本名称与版本id的对应关系
       cacheVersionsNameMap: new Map(),
-      // 当前case 可用的版本id
-      caseVersionIds: new Set(),
       // 版本列表
       versionOptions: [],
       versionList: [],
@@ -439,9 +439,6 @@ export default {
     async refresh() {
       await this.fetchCaseVersions();
       await this.fetchAllCaseVersion();
-      // 构造版本列表 根据顺序
-      // 这里构建的是全部的版本, 用来快速切换,
-      // this.formatVersionList();
       this.formatCompareVersion();
       this.checkoutVersionCase();
       this.calculate();
@@ -474,20 +471,6 @@ export default {
       this.tagDiffData = this.defaultExecutor.tagDiffData || {};
       this.baseInfoDiffData = this.defaultExecutor.baseInfoDiffData || {};
     },
-    formatVersionList() {
-      let map = new Map();
-      this.caseVersionIds.forEach((v) => {
-        map.set(v, v);
-      });
-
-      // 新版本在右边
-      for (let i = this.versionOptions.length - 1; i >= 0; i--) {
-        let v = this.versionOptions[i];
-        if (map.get(v.id)) {
-          this.versionList.push(v);
-        }
-      }
-    },
     async fetchAllCaseVersion() {
       //首先获取所有版本，再去构造版本展示的数组
       let res = await getProjectVersions(getCurrentProjectID());
@@ -499,7 +482,6 @@ export default {
       data.forEach((e) => {
         this.cacheVersionsMap.set(e.versionId, e);
         this.cacheVersionsNameMap.set(e.versionName, e.versionId);
-        this.caseVersionIds.add(e.versionId);
       });
     },
 
@@ -521,17 +503,15 @@ export default {
     },
     formatCompareVersion() {
       // 只添加比对的版本
-      let leftVersion = this.versionOptions.filter(version => version.id === this.versionLeftId);
-      let rightVersion = this.versionOptions.filter(version => version.id === this.versionRightId);
-      this.versionList.push(leftVersion[0]);
-      this.versionList.push(rightVersion[0]);
+      this.versionList.push(this.leftVersion);
+      this.versionList.push(this.rightVersion);
     },
     checkoutVersionCase() {
-      if (this.versionLeftId) {
-        this.originCase = this.cacheVersionsMap.get(this.versionLeftId);
+      if (this.leftVersion) {
+        this.originCase = this.cacheVersionsMap.get(this.leftVersion.id);
       }
-      if (this.versionRightId) {
-        this.targetCase = this.cacheVersionsMap.get(this.versionRightId);
+      if (this.rightVersion) {
+        this.targetCase = this.cacheVersionsMap.get(this.rightVersion.id);
       }
     },
     async diffAttachment() {

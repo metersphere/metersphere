@@ -315,7 +315,7 @@
       </div>
     </div>
   <!-- since v2.7 -->
-  <case-diff-side-viewer ref="caseDiffViewerRef" ></case-diff-side-viewer>
+  <case-diff-side-viewer ref="caseDiffViewerRef"/>
    <version-create-other-info-select
       @confirmOtherInfo="confirmOtherInfo"
       ref="selectPropDialog"/>
@@ -1490,11 +1490,16 @@ export default {
       this.currentVersionName = versionName;
     },
     compareBranchWithVersionId(originId, targetId){
-       // 打开对比
-       this.$refs.caseDiffViewerRef.open(originId, targetId, this.currentTestCaseInfo.id)
+      let originVersion = this.$refs.versionHistory.findVersionById(originId);
+      let targetVersion = this.$refs.versionHistory.findVersionById(targetId);
+      this.compareBranchWithVersionInfo(originVersion, targetVersion, this.currentTestCaseInfo.id);
+    },
+    compareBranchWithVersionInfo(originVersion, targetVersion){
+      // 打开对比
+      this.$refs.caseDiffViewerRef.open(originVersion, targetVersion, this.currentTestCaseInfo.id)
     },
     compareBranch(t1, t2) {
-       this.compareBranchWithVersionId(t1.id, t2.id);
+       this.compareBranchWithVersionInfo(t1, t2);
     },
     compare(row) {
       testCaseGetByVersionId(row.id, this.currentTestCaseInfo.refId).then(
