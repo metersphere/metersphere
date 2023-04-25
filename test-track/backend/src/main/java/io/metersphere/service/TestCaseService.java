@@ -1507,7 +1507,7 @@ public class TestCaseService {
             }
         } catch (Exception e) {
             LogUtil.error(e);
-            MSException.throwException("export case zip error");
+            MSException.throwException(e);
         } finally {
             try {
                 if (bis != null) {
