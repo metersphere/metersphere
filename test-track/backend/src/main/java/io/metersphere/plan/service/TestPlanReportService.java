@@ -468,12 +468,6 @@ public class TestPlanReportService {
 
         testPlanReportMapper.insert(testPlanReport);
 
-        if (runInfoDTO != null) {
-            //runInfoDTO 不为Null时，是执行测试计划行为触发的，要更新TestPlan状态为进行中
-            testPlan.setStatus(TestPlanStatus.Underway.name());
-            testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        }
-
         TestPlanScheduleReportInfoDTO returnDTO = new TestPlanScheduleReportInfoDTO();
         returnDTO.setTestPlanReport(testPlanReport);
         return returnDTO;
