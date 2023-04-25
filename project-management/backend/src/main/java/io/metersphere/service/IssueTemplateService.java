@@ -360,7 +360,8 @@ public class IssueTemplateService extends TemplateBaseService {
             issueTemplateRecord.setUpdateTime(System.currentTimeMillis());
             issueTemplateRecord.setCreateUser(SessionUtils.getUserId());
             issueTemplateRecord.setProjectId(targetProjectId);
-            issueTemplateRecord.setGlobal(false);
+            issueTemplateRecord.setGlobal(Boolean.FALSE);
+            issueTemplateRecord.setSystem(Boolean.FALSE);
             issueTemplateRecords.add(issueTemplateRecord);
             // 根据复制模式设置自定义字段
             sourceCustomFieldTemplates.forEach(sourceCustomFieldTemplate -> {
