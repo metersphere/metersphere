@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 @Service
@@ -198,85 +199,113 @@ public class ApiTestEnvironmentService {
         return returnModel;
     }
 
-    private ApiTestEnvironmentWithBLOBs updateHttpMockEvn(ApiTestEnvironmentWithBLOBs mockEnv, String protocol, String oldUrl, String newUrl) {
-        ApiTestEnvironmentWithBLOBs updatedEnv = null;
+    private ApiTestEnvironmentWithBLOBs updateMockEvn(ApiTestEnvironmentWithBLOBs mockEnv, String protocol, String newUrl) {
         if (mockEnv.getConfig() != null) {
             try {
                 JSONObject configObj = JSONObject.parseObject(mockEnv.getConfig());
                 if (configObj.containsKey("httpConfig")) {
                     JSONObject httpObj = configObj.getJSONObject("httpConfig");
-                    if (httpObj.containsKey("isMock") && httpObj.getBoolean("isMock")) {
-                        if (httpObj.containsKey("conditions")) {
-                            String url = newUrl;
-                            String oldEnvUrl = oldUrl;
-                            if (url.startsWith("http://")) {
-                                url = url.substring(7);
-                            } else if (url.startsWith("https://")) {
-                                url = url.substring(8);
-                            }
-                            if (oldEnvUrl.startsWith("http://")) {
-                                oldEnvUrl = oldEnvUrl.substring(7);
-                            } else if (oldEnvUrl.startsWith("https://")) {
-                                oldEnvUrl = oldEnvUrl.substring(8);
-                            }
-
-                            String ipStr = url;
-                            String portStr = "";
-                            if (url.contains(":") && !url.endsWith(":")) {
-                                String[] urlArr = url.split(":");
-                                int port = -1;
-                                try {
-                                    port = Integer.parseInt(urlArr[urlArr.length - 1]);
-                                } catch (Exception e) {
-                                }
-                                if (port > -1) {
-                                    portStr = String.valueOf(port);
-                                    ipStr = urlArr[0];
-                                }
-                            }
-
-                            if (httpObj.containsKey("socket") && httpObj.containsKey("protocol") && httpObj.containsKey("port")) {
-                                String oldHttpItemSocket = httpObj.getString("socket");
-                                if (oldHttpItemSocket.contains(oldEnvUrl)) {
-                                    oldHttpItemSocket = oldHttpItemSocket.replace(oldEnvUrl, url);
-                                }
-                                httpObj.put("socket", oldHttpItemSocket);
-                                httpObj.put("protocol", protocol);
-                                if (StringUtils.isNotEmpty(portStr)) {
-                                    httpObj.put("port", portStr);
-                                } else {
-                                    httpObj.put("port", "");
-                                }
-                            }
-
-                            JSONArray conditions = httpObj.getJSONArray("conditions");
-                            for (int i = 0; i < conditions.size(); i++) {
-                                JSONObject httpItem = conditions.getJSONObject(i);
-                                if (httpItem.containsKey("socket") && httpItem.containsKey("protocol") && httpItem.containsKey("domain")) {
-                                    String oldHttpItemSocket = httpItem.getString("socket");
-                                    if (oldHttpItemSocket.contains(oldEnvUrl)) {
-                                        oldHttpItemSocket = oldHttpItemSocket.replace(oldEnvUrl, url);
-                                    }
-                                    httpItem.put("socket", oldHttpItemSocket);
-                                    httpItem.put("domain", ipStr);
-                                    httpItem.put("protocol", protocol);
-                                    if (StringUtils.isNotEmpty(portStr)) {
-                                        httpItem.put("port", portStr);
-                                    } else {
-                                        httpItem.put("port", "");
-                                    }
-                                }
-                            }
-                            updatedEnv = mockEnv;
-                            updatedEnv.setConfig(configObj.toJSONString());
-                        }
-                    }
+                    JSONObject httpObject = this.genHttpMockConfig(httpObj, newUrl, protocol);
+                    configObj.put("httpConfig", httpObject);
                 }
+                if (configObj.containsKey("tcpConfig")) {
+                    JSONObject tcpObj = configObj.getJSONObject("tcpConfig");
+                    JSONObject tcpObject = this.genTcpMockConfig(tcpObj, newUrl);
+                    configObj.put("tcpConfig", tcpObject);
+                }
+                mockEnv.setConfig(configObj.toString());
             } catch (Exception e) {
                 LogUtil.error(e);
             }
         }
-        return updatedEnv;
+        return mockEnv;
+    }
+
+    private JSONObject genTcpMockConfig(@NotNull JSONObject tcpObj, String newUrl) {
+        if (tcpObj.containsKey("server")) {
+            String url = newUrl;
+            if (url.startsWith("http://")) {
+                url = url.substring(7);
+            } else if (url.startsWith("https://")) {
+                url = url.substring(8);
+            }
+            String ipStr = url;
+            if (url.contains(":") && !url.endsWith(":")) {
+                String[] urlArr = url.split(":");
+                int port = -1;
+                try {
+                    port = Integer.parseInt(urlArr[urlArr.length - 1]);
+                } catch (Exception e) {
+                }
+                if (port > -1) {
+                    ipStr = urlArr[0];
+                }
+            }
+            tcpObj.put("server", ipStr);
+        }
+        return tcpObj;
+    }
+
+    private JSONObject genHttpMockConfig(@NotNull JSONObject httpObj, String newUrl, String protocol) {
+        if (httpObj.containsKey("isMock") && httpObj.getBoolean("isMock")) {
+            if (httpObj.containsKey("conditions")) {
+                String url = newUrl;
+                if (url.startsWith("http://")) {
+                    url = url.substring(7);
+                } else if (url.startsWith("https://")) {
+                    url = url.substring(8);
+                }
+                String ipStr = url;
+                String portStr = "";
+                if (url.contains(":") && !url.endsWith(":")) {
+                    String[] urlArr = url.split(":");
+                    int port = -1;
+                    try {
+                        port = Integer.parseInt(urlArr[urlArr.length - 1]);
+                    } catch (Exception e) {
+                    }
+                    if (port > -1) {
+                        portStr = String.valueOf(port);
+                        ipStr = urlArr[0];
+                    }
+                }
+                if (httpObj.containsKey("socket") && httpObj.containsKey("protocol") && httpObj.containsKey("port")) {
+                    String httpSocket = httpObj.getString("socket");
+                    if (httpSocket.contains("/mock")) {
+                        String[] httpSocketArr = StringUtils.split(httpSocket, "/mock");
+                        httpSocket = StringUtils.join(url, "/mock", httpSocketArr[1]);
+                    }
+                    httpObj.put("socket", httpSocket);
+                    httpObj.put("protocol", protocol);
+                    if (StringUtils.isNotEmpty(portStr)) {
+                        httpObj.put("port", portStr);
+                    } else {
+                        httpObj.put("port", "");
+                    }
+                }
+
+                JSONArray conditions = httpObj.getJSONArray("conditions");
+                for (int i = 0; i < conditions.size(); i++) {
+                    JSONObject httpItem = conditions.getJSONObject(i);
+                    if (httpItem.containsKey("socket") && httpItem.containsKey("protocol") && httpItem.containsKey("domain")) {
+                        String httpSocket = httpItem.getString("socket");
+                        if (httpSocket.contains("/mock")) {
+                            String[] httpSocketArr = httpSocket.split("/mock");
+                            httpSocket = StringUtils.join(url, "/mock", httpSocketArr[1]);
+                        }
+                        httpItem.put("socket", httpSocket);
+                        httpItem.put("domain", ipStr);
+                        httpItem.put("protocol", protocol);
+                        if (StringUtils.isNotEmpty(portStr)) {
+                            httpItem.put("port", portStr);
+                        } else {
+                            httpItem.put("port", "");
+                        }
+                    }
+                }
+            }
+        }
+        return httpObj;
     }
 
     private ApiTestEnvironmentWithBLOBs checkMockEvnIsRightful(ApiTestEnvironmentWithBLOBs returnModel, String protocal, String projectId, String projectNumber, String name, String url) {
@@ -505,7 +534,7 @@ public class ApiTestEnvironmentService {
                     } else if (mockEnvUpdateDTO.getBaseUrl().startsWith("https:")) {
                         protocal = "https";
                     }
-                    ApiTestEnvironmentWithBLOBs updateModel = this.updateHttpMockEvn(model, protocal, mockEnvUpdateDTO.getOldBaseUrl(), mockEnvUpdateDTO.getBaseUrl());
+                    ApiTestEnvironmentWithBLOBs updateModel = this.updateMockEvn(model, protocal, mockEnvUpdateDTO.getBaseUrl());
                     updateList.add(updateModel);
                 }
             }
