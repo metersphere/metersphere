@@ -17,8 +17,8 @@
         </div>
       </template>
       <case-diff-viewer
-        :versionLeftId="versionLeftId"
-        :versionRightId="versionRightId"
+        :left-version="leftVersion"
+        :right-version="rightVersion"
         :caseId="caseId"
       ></case-diff-viewer>
     </el-drawer>
@@ -34,8 +34,8 @@ export default {
       visible: false,
       isFullScreen: false,
       // props 数据
-      versionLeftId: "",
-      versionRightId: "",
+      leftVersion: {},
+      rightVersion: {},
       caseId: "",
     };
   },
@@ -63,9 +63,9 @@ export default {
     },
   },
   methods: {
-    open(versionLeftId, versionRightId, caseId) {
-      this.versionLeftId = versionLeftId;
-      this.versionRightId = versionRightId;
+    open(leftVersion, rightVersion, caseId) {
+      this.leftVersion = leftVersion;
+      this.rightVersion = rightVersion;
       this.caseId = caseId;
       this.visible = true;
     },
