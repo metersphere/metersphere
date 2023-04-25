@@ -6,7 +6,10 @@ export function testCaseCommentList(id) {
 }
 
 export function testCaseCommentListByType(id, type) {
-  return get(BASE_URL + `list/${id}/${type}`);
+  if (type) {
+    return get(BASE_URL + `list/${id}/${type}`);
+  }
+  return get(BASE_URL + `list/${id}`);
 }
 
 export function testCaseCommentListByTypeAndBelongId(id, type, belongId) {
