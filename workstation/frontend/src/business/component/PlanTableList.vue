@@ -94,7 +94,8 @@
           show-overflow-tooltip
           :key="index">
           <template v-slot:default="scope">
-            <el-progress :percentage="scope.row.testRate"></el-progress>
+            <i class="el-icon-loading" style="font-size: 16px" v-if="!scope.row.testRate && scope.row.testRate !== 0"/>
+            <el-progress :percentage="scope.row.testRate" v-else></el-progress>
           </template>
         </el-table-column>
         <el-table-column v-if="item.id === 'tags'&& isShowAllColumn" prop="tags"
@@ -362,7 +363,6 @@ export default {
           this.$set(item, "principals", principalIds);
         })
       });
-      console.log(testPlanIds)
       this.getTestPlanDetailData(testPlanIds);
     },
     getTestPlanDetailData(testPlanIds) {
