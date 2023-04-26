@@ -278,8 +278,11 @@ import TestPlanCaseStatusTableItem from "@/business/othermodule/track/TestPlanCa
 import TestCasePreview from "@/business/othermodule/track/TestCasePreview";
 import { parseTag } from "metersphere-frontend/src/utils";
 import { getCustomFieldValueForTrack } from "@/business/component/js/table-head-util";
-import {getTestCaseNodes} from "@/api/test-case-node";
-import {buildTree, buildNodePath} from "metersphere-frontend/src/model/NodeTree";
+import { getTestCaseNodes } from "@/api/test-case-node";
+import {
+  buildNodePath,
+  buildTree,
+} from "metersphere-frontend/src/model/NodeTree";
 
 export default {
   name: "TableList",
@@ -339,7 +342,7 @@ export default {
       rowCaseResult: {},
       store: {},
       userFilter: [],
-      nodePathMap: new Map()
+      nodePathMap: new Map(),
     };
   },
   props: {
@@ -424,14 +427,6 @@ export default {
       } else {
         this.condition.filters = { status: ["Trash"] };
       }
-    } else {
-      if (this.condition.filters) {
-        this.condition.filters.review_status = ["Prepare", "Pass", "UnPass"];
-      } else {
-        this.condition.filters = {
-          review_status: ["Prepare", "Pass", "UnPass"],
-        };
-      }
     }
     this.condition.versionId = this.currentVersion;
     this.initTableData();
@@ -445,11 +440,6 @@ export default {
   },
   activated() {
     this.getTemplateField();
-    if (this.condition.filters) {
-      this.condition.filters.review_status = ["Prepare", "Pass", "UnPass"];
-    } else {
-      this.condition.filters = { review_status: ["Prepare", "Pass", "UnPass"] };
-    }
     let ids = this.$route.params.ids;
     if (ids) {
       this.condition.ids = ids;
@@ -567,25 +557,27 @@ export default {
       if (!this.projectId) {
         return;
       }
-      getTestCaseNodes(this.projectId)
-        .then((r) => {
-          let treeNodes = r.data;
-          treeNodes.forEach(node => {
-            node.name = node.name === '未规划用例' ? this.$t('api_test.unplanned_case') : node.name
-            buildTree(node, {path: ''});
-          });
-          let moduleOptions = [];
-          treeNodes.forEach(node => {
-            buildNodePath(node, {path: ''}, moduleOptions);
-          });
-          let map = new Map();
-          if (moduleOptions) {
-            moduleOptions.forEach((item) => {
-              map.set(item.id, item.path);
-            });
-          }
-          this.nodePathMap = map;
+      getTestCaseNodes(this.projectId).then((r) => {
+        let treeNodes = r.data;
+        treeNodes.forEach((node) => {
+          node.name =
+            node.name === "未规划用例"
+              ? this.$t("api_test.unplanned_case")
+              : node.name;
+          buildTree(node, { path: "" });
         });
+        let moduleOptions = [];
+        treeNodes.forEach((node) => {
+          buildNodePath(node, { path: "" }, moduleOptions);
+        });
+        let map = new Map();
+        if (moduleOptions) {
+          moduleOptions.forEach((item) => {
+            map.set(item.id, item.path);
+          });
+        }
+        this.nodePathMap = map;
+      });
     },
     setTestCaseDefaultValue(template) {
       let testCaseDefaultValue = {};
@@ -686,7 +678,7 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
-      this.condition.filters.review_status = ["Prepare", "Pass", "UnPass"];
+      this.condition.filters.review_status = [];
       switch (this.selectDataRange) {
         case "thisWeekCount":
           this.condition.selectThisWeedData = true;
