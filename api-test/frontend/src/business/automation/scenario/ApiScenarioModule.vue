@@ -200,7 +200,7 @@ export default {
         this.result = getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
           this.setData(response);
         });
-      } else if (this.isTrashData && !targetName) {
+      } else if (this.isTrashData && targetName === 'trash') {
         this.result = postModuleByTrash(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });

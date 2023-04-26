@@ -400,7 +400,7 @@ public class ApiScenarioReportStructureService {
             list = list.stream().sorted(Comparator.comparing(x -> x.getValue().getStartTime())).collect(Collectors.toList());
             unList = unList.stream().sorted(Comparator.comparing(x -> x.getIndex())).collect(Collectors.toList());
             unList.addAll(steps);
-            List<StepTreeDTO> mergeList = unList.stream().distinct().collect(Collectors.toList());
+            List<StepTreeDTO> mergeList = unList.stream().distinct().sorted(Comparator.comparing(StepTreeDTO::getIndex)).collect(Collectors.toList());
             // 处理请求结果开始时间为0的数据
             for (StepTreeDTO unListDTO : mergeList) {
                 int index = unListDTO.getIndex();
