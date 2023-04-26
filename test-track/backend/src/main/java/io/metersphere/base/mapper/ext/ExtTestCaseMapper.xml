@@ -653,6 +653,9 @@
             <if test="request.notEqStatus != null">
                 and test_case.status != #{request.notEqStatus}
             </if>
+            <if test="request.unComing">
+                and (test_case.status is null or test_case.status not in ('Trash', 'Completed'))
+            </if>
             <if test="request.casePublic != null and request.casePublic == true">
                 and test_case.case_public = true
             </if>
