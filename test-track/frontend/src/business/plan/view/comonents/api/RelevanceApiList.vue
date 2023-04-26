@@ -186,6 +186,7 @@ export default {
       if (this.$refs.msEnvironmentSelect) {
         this.$refs.msEnvironmentSelect.environmentId = "";
       }
+      this.condition.combine = undefined;
       this.clear();
     }
   },
