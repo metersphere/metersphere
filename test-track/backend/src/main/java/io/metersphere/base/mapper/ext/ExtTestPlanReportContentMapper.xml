@@ -24,12 +24,15 @@
         where test_plan_report_id = #{reportId}
     </select>
     <select id="hasRunningReport" resultType="java.lang.Boolean">
-        select count(1) > 0  from test_plan_report
-        where test_plan_id = #{planId} and status = 'RUNNING'
-        order by create_time desc limit 1;
+        select count(1) > 0
+        from test_plan_report
+        where test_plan_id = #{planId}
+          and status = 'RUNNING'
+        order by create_time desc
+        limit 1;
     </select>
     <select id="hasRunningReportByPlanIds" resultType="java.lang.Boolean">
-        select count(1) > 0  from test_plan_report
+        select count(1) > 0 from test_plan_report
         where test_plan_id in
         <foreach collection="planIds" item="planId" separator="," open="(" close=")">
             #{planId}
@@ -40,7 +43,68 @@
 
     <select id="isApiBasicCountIsNull" resultType="java.lang.Boolean">
         SELECT (api_base_count IS NULL OR api_base_count = '') AS apiCountIsNull
-        FROM test_plan_report_content WHERE test_plan_report_id = #{0} limit 1
+        FROM test_plan_report_content
+        WHERE test_plan_report_id = #{0}
+        limit 1
     </select>
+
+    <select id="selectScenarioReportByTestPlanReportIds" resultType="java.lang.String">
+        SELECT id FROM api_scenario_report WHERE relevance_test_plan_report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectUiReportByTestPlanReportIds" resultType="java.lang.String">
+        SELECT id FROM ui_scenario_report WHERE relevance_test_plan_report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <delete id="deleteApiReportByTestPlanReportList" parameterType="java.lang.String">
+        DELETE FROM api_definition_exec_result WHERE
+        (
+        relevance_test_plan_report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        )
+    </delete>
+    <delete id="deleteScenarioReportByIds" parameterType="java.lang.String">
+        DELETE FROM api_scenario_report WHERE id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteScenarioReportResultByIds" parameterType="java.lang.String">
+        DELETE FROM api_scenario_report_result WHERE report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteScenarioReportStructureByIds" parameterType="java.lang.String">
+        DELETE FROM api_scenario_report_structure WHERE report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteUiReportByIds" parameterType="java.lang.String">
+        DELETE FROM ui_scenario_report WHERE id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteUiReportResultByIds" parameterType="java.lang.String">
+        DELETE FROM ui_scenario_report_result WHERE report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteUiReportStructureByIds" parameterType="java.lang.String">
+        DELETE FROM ui_scenario_report_structure WHERE report_id IN
+        <foreach collection="testPlanReportIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 </mapper>
