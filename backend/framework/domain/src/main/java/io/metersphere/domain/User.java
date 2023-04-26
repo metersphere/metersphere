@@ -39,9 +39,5 @@ public class User implements Serializable {
 
     private String createUser;
 
-    private String platformInfo;
-
-    private String seleniumServer;
-
     private static final long serialVersionUID = 1L;
 }
