@@ -3,9 +3,9 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.CustomField;
-import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.CustomFieldScene;
+import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -13,17 +13,14 @@ import io.metersphere.constants.IssueStatus;
 import io.metersphere.constants.SystemCustomField;
 import io.metersphere.dto.BugStatistics;
 import io.metersphere.dto.ExecutedCaseInfoResult;
-import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TrackCountResult;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ChartsData;
-import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.testcase.TrackCount;
 import io.metersphere.xpack.track.dto.IssuesDao;
 import io.metersphere.xpack.track.dto.request.IssuesRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -40,13 +36,9 @@ public class TrackService {
     @Resource
     private ExtTestCaseMapper extTestCaseMapper;
     @Resource
-    private TestPlanMapper testPlanMapper;
-    @Resource
     private CustomFieldIssuesService customFieldIssuesService;
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
-    @Resource
-    private TestPlanService testPlanService;
     @Resource
     private ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
@@ -163,29 +155,30 @@ public class TrackService {
     }
 
     private Map<String, Integer> getPlanBugSize(String projectId) {
-        Map<String, Integer> bugSizeMap = new HashMap<>();
+        Map<String, Integer> bugSizeMap = new HashMap<>(2);
+        if (StringUtils.isEmpty(projectId)) {
+            bugSizeMap.put("total", 0);
+            bugSizeMap.put("unClosed", 0);
+            bugSizeMap.put("thisWeekCount", 0);
+            return bugSizeMap;
+        }
 
         List<String> issueIds = extIssuesMapper.getTestPlanIssue(projectId);
+        if (CollectionUtils.isEmpty(issueIds)) {
+            // 没有测试计划关联缺陷
+            bugSizeMap.put("total", 0);
+            bugSizeMap.put("unClosed", 0);
+            bugSizeMap.put("thisWeekCount", 0);
+            return bugSizeMap;
+        }
+
         bugSizeMap.put("total", issueIds.size());
-        Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
+        Map<String, String> statusMap = parseIssueStatusMap(issueIds, projectId);
 
-        if (MapUtils.isEmpty(statusMap) && CollectionUtils.isNotEmpty(issueIds)) {
-            // 未找到自定义字段状态, 则获取平台状态
-            IssuesRequest issuesRequest = new IssuesRequest();
-            issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-            issuesRequest.setFilterIds(issueIds);
-            List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
-            statusMap = issues.stream().collect(Collectors.toMap(IssuesDao::getId, i -> Optional.ofNullable(i.getPlatformStatus()).orElse("new")));
-        }
-
-        if (MapUtils.isNotEmpty(statusMap)) {
-            Map<String, String> tmpStatusMap = statusMap;
-            issueIds = issueIds.stream()
-                    .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
-                    .collect(Collectors.toList());
-        }
-
-        bugSizeMap.put("unClosed", issueIds.size());
+        // 过滤出未closed的缺陷(遗留)
+        List<String> unClosedIds = issueIds.stream()
+                .filter(id -> !StringUtils.equals(statusMap.get(id).replaceAll("\"", StringUtils.EMPTY), "closed")).toList();
+        bugSizeMap.put("unClosed", unClosedIds.size());
 
         int thisWeekCount = 0;
         if (CollectionUtils.isNotEmpty(issueIds)) {
@@ -196,71 +189,64 @@ public class TrackService {
     }
 
     private Map<String, Integer> getPlanBugStatusSize(String projectId) {
+        Map<String, Integer> bugStatusMap = new HashMap<>(2);
+        if (StringUtils.isEmpty(projectId)) {
+            bugStatusMap.put(Translator.get("new"), 0);
+            return bugStatusMap;
+        }
+
+        List<String> issueIds = extIssuesMapper.getTestPlanIssue(projectId);
+        if (CollectionUtils.isEmpty(issueIds)) {
+            // 没有测试计划关联缺陷
+            bugStatusMap.put(Translator.get("new"), 0);
+            return bugStatusMap;
+        }
+
         CustomField customField = baseCustomFieldService.getCustomFieldByName(projectId, SystemCustomField.ISSUE_STATUS);
         JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
-        Map<String, Integer> bugStatusMap = new HashMap<>();
 
-        if (StringUtils.isNotEmpty(projectId)) {
-            List<String> issueIds = extIssuesMapper.getTestPlanIssue(projectId);
-            Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
-            if (MapUtils.isEmpty(statusMap) && CollectionUtils.isNotEmpty(issueIds)) {
-                // 未找到自定义字段状态, 则获取平台状态
-                IssuesRequest issuesRequest = new IssuesRequest();
-                issuesRequest.setProjectId(SessionUtils.getCurrentProjectId());
-                issuesRequest.setFilterIds(issueIds);
-                List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
-                statusMap = issues.stream().collect(Collectors.toMap(IssuesDao::getId, i -> Optional.ofNullable(i.getPlatformStatus()).orElse("new")));
-            }
-
-            if (MapUtils.isEmpty(statusMap)) {
-                Integer count = bugStatusMap.get(Translator.get("new"));
+        Map<String, String> statusMap = parseIssueStatusMap(issueIds, projectId);
+        // 过滤出未closed的缺陷(遗留)
+        List<String> unClosedIds = issueIds.stream()
+                .filter(id -> !StringUtils.equals(statusMap.get(id).replaceAll("\"", StringUtils.EMPTY), "closed")).toList();
+        for (String unClosedId : unClosedIds) {
+            String status = statusMap.get(unClosedId).replaceAll("\"", StringUtils.EMPTY);
+            // 遗留缺陷状态是否存在枚举
+            IssueStatus statusEnum = IssueStatus.getEnumByName(status);
+            if (statusEnum != null) {
+                // 存在枚举类型则国际化Key
+                Integer count = bugStatusMap.get(Translator.get(statusEnum.getI18nKey()));
                 if (count == null) {
-                    bugStatusMap.put(Translator.get("new"), issueIds.size());
+                    bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), 1);
                 } else {
-                    count += issueIds.size();
-                    bugStatusMap.put(Translator.get("new"), count);
+                    count += 1;
+                    bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), count);
                 }
             } else {
-                Map<String, String> tmpStatusMap = statusMap;
-                List<String> unClosedIds = issueIds.stream()
-                        .filter(id -> !StringUtils.equals(tmpStatusMap.getOrDefault(id, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
-                        .collect(Collectors.toList());
-                for (String unClosedId : unClosedIds) {
-                    String status = statusMap.getOrDefault(unClosedId, StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY);
-                    IssueStatus statusEnum = IssueStatus.getEnumByName(status);
-                    if (statusEnum != null) {
-                        Integer count = bugStatusMap.get(Translator.get(statusEnum.getI18nKey()));
+                // 不存在枚举类型, 则在自定义状态字段option数组中取文本值
+                boolean isInStatusArray = false;
+                for (Object item : statusArray) {
+                    JSONObject statusObj = (JSONObject) item;
+                    if (StringUtils.equals(status, statusObj.get("value").toString())) {
+                        Integer count = bugStatusMap.get(statusObj.get("text").toString());
                         if (count == null) {
-                            bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), 1);
+                            bugStatusMap.put(statusObj.get("text").toString(), 1);
                         } else {
                             count += 1;
-                            bugStatusMap.put(Translator.get(statusEnum.getI18nKey()), count);
+                            bugStatusMap.put(statusObj.get("text").toString(), count);
                         }
-                    } else {
-                        boolean isInStatusArray = false;
-                        for (Object item : statusArray) {
-                            JSONObject statusObj = (JSONObject) item;
-                            if (StringUtils.equals(status, statusObj.get("value").toString())) {
-                                Integer count = bugStatusMap.get(statusObj.get("text").toString());
-                                if (count == null) {
-                                    bugStatusMap.put(statusObj.get("text").toString(), 1);
-                                } else {
-                                    count += 1;
-                                    bugStatusMap.put(statusObj.get("text").toString(), count);
-                                }
-                                isInStatusArray = true;
-                            }
-                        }
+                        isInStatusArray = true;
+                    }
+                }
 
-                        if (!isInStatusArray) {
-                            Integer count = bugStatusMap.get(status);
-                            if (count == null) {
-                                bugStatusMap.put(status, 1);
-                            } else {
-                                count += 1;
-                                bugStatusMap.put(status, count);
-                            }
-                        }
+                if (!isInStatusArray) {
+                    // 如果不在自定义状态字段option数组中, 则直接展示状态
+                    Integer count = bugStatusMap.get(status);
+                    if (count == null) {
+                        bugStatusMap.put(status, 1);
+                    } else {
+                        count += 1;
+                        bugStatusMap.put(status, count);
                     }
                 }
             }
@@ -268,26 +254,25 @@ public class TrackService {
         return bugStatusMap;
     }
 
-    private int getAllUnClosedBugSize(String projectId) {
-        IssuesRequest req = new IssuesRequest();
-        req.setProjectId(projectId);
-        List<IssuesDao> issues = extIssuesMapper.getIssues(req);
-        if (CollectionUtils.isEmpty(issues)) {
-            return 0;
-        }
-        List<String> ids = issues.stream().map(IssuesDao::getId).collect(Collectors.toList());
-        Map<String, String> statusMap = customFieldIssuesService.getIssueStatusMap(ids, projectId);
-
-        return (int) issues.stream()
-                .filter(i -> !StringUtils.equals(statusMap.getOrDefault(i.getId(), StringUtils.EMPTY).replaceAll("\"", StringUtils.EMPTY), "closed"))
-                .count();
-    }
-
-    private double getPlanPassRage(String planId) {
-        TestPlanDTOWithMetric testPlan = new TestPlanDTOWithMetric();
-        testPlan.setId(planId);
-        testPlanService.calcTestPlanRate(testPlan);
-        return testPlan.getPassRate();
+    private Map<String, String> parseIssueStatusMap(List<String> issueIds, String projectId) {
+        Map<String, String> statusMap = new HashMap<>(issueIds.size());
+        // 由于缺陷存在自定义状态, 平台状态, 所以遗留缺状态统计需校验平台
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setProjectId(projectId);
+        issuesRequest.setFilterIds(issueIds);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(issuesRequest);
+        Map<String, String> customStatusMap = customFieldIssuesService.getIssueStatusMap(issueIds, projectId);
+        issues.forEach(issue -> {
+            if (StringUtils.equals(issue.getPlatform(), IssuesManagePlatform.Local.name())) {
+                // Local平台, 取自定义状态(如果为空, 则为新增)
+                String customStatus = customStatusMap.getOrDefault(issue.getId(), "new");
+                statusMap.put(issue.getId(), customStatus);
+            } else {
+                // 第三方平台, 取平台状态(如果为空, 则为新增)
+                statusMap.put(issue.getId(), Optional.ofNullable(issue.getPlatformStatus()).orElse("new"));
+            }
+        });
+        return statusMap;
     }
 
     public List<ExecutedCaseInfoResult> findFailureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, String versionId) {
