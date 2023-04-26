@@ -575,16 +575,16 @@ public class TestPlanService {
                 failNum++;
             }
         }
-        if (passNum == statusList.size()) {   //  全部通过
+
+        if (testPlanWithBLOBs.getPlannedEndTime() != null && testPlanWithBLOBs.getPlannedEndTime() < System.currentTimeMillis()) {
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanWithBLOBs);
+        }else if (prepareNum == 0 && passNum + failNum == statusList.size()) {
             testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
             this.editTestPlan(testPlanWithBLOBs);
-        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
-            if (testPlanWithBLOBs.getPlannedEndTime() != null && testPlanWithBLOBs.getPlannedEndTime() > System.currentTimeMillis()) {
-                testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
-            } else {
-                testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
-            }
-            editTestPlan(testPlanWithBLOBs);
+        } else if (passNum == statusList.size()) {   //  全部通过
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
+            this.editTestPlan(testPlanWithBLOBs);
         } else if (prepareNum != 0) {    //  进行中
             testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
             editTestPlan(testPlanWithBLOBs);
