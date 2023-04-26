@@ -575,17 +575,17 @@ public class TestPlanService {
                 failNum++;
             }
         }
-        if (passNum == statusList.size()) {   //  全部通过
+
+        // 到结束时间了，不管用例的状态都改为已结束
+        if (testPlanWithBLOBs.getPlannedEndTime() != null && System.currentTimeMillis() > testPlanWithBLOBs.getPlannedEndTime()) {
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanWithBLOBs);
+        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {
+            // 如果全部都执行完了改为已完成，如果已完成之后到结束时间了，走上面逻辑改成已结束
             testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
             this.editTestPlan(testPlanWithBLOBs);
-        } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
-            if (testPlanWithBLOBs.getPlannedEndTime() != null && testPlanWithBLOBs.getPlannedEndTime() > System.currentTimeMillis()) {
-                testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
-            } else {
-                testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
-            }
-            editTestPlan(testPlanWithBLOBs);
-        } else if (prepareNum != 0) {    //  进行中
+        } else if (prepareNum != 0) {
+            //  用例没有执行完，并且结束时间没到，改为进行中
             testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
             editTestPlan(testPlanWithBLOBs);
         }
