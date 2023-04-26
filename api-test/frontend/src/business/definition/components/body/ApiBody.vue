@@ -354,16 +354,14 @@ export default {
         let keyValues = [];
         params.forEach((item) => {
           if (item) {
-            let line = [];
-            line[0] = item.substring(0, item.indexOf(/：|:/)).trim();
-            line[1] = item.substring(item.indexOf(/：|:/) + 1, item.length).trim();
+            let line = item.split(/：|:/);
+            let values = item.substr(line[0].length +1).trim();
             let required = false;
             keyValues.push(
               new KeyValue({
                 name: line[0],
                 required: required,
-                value: line[1],
-                description: line[2],
+                value: values,
                 type: 'text',
                 valid: false,
                 file: false,
