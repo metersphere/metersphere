@@ -149,7 +149,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="apiAppender"/>
     </appender>
-    <logger name="api-test" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.api" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="apiTestAppender"/>
     </logger>
 
@@ -177,7 +177,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="loadAppender"/>
     </appender>
-    <logger name="load-test" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.load" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="loadTestAppender"/>
     </logger>
 
@@ -206,7 +206,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="projectAppender"/>
     </appender>
-    <logger name="project-management" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.project" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="projectManagementAppender"/>
     </logger>
 
@@ -236,7 +236,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="systemAppender"/>
     </appender>
-    <logger name="system-setting" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.system" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="systemSettingAppender"/>
     </logger>
 
@@ -265,7 +265,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="testPlanAppender"/>
     </appender>
-    <logger name="test-plan" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.plan" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="testPlanRefAppender"/>
     </logger>
 
@@ -293,7 +293,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="testTrackAppender"/>
     </appender>
-    <logger name="test-track" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.track" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="testTrackRefAppender"/>
     </logger>
 
@@ -322,7 +322,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="uiTestAppender"/>
     </appender>
-    <logger name="ui-test" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.ui" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="uiTestRefAppender"/>
     </logger>
 
@@ -351,7 +351,7 @@
         <queueSize>10000</queueSize>
         <appender-ref ref="workstationAppender"/>
     </appender>
-    <logger name="workstation" additivity="false" level="${logger.level:INFO}">
+    <logger name="io.metersphere.workstation" additivity="false" level="${logger.level:INFO}">
         <appender-ref ref="workstationRefAppender"/>
     </logger>
 

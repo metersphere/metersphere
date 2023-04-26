@@ -3,8 +3,7 @@ package io.metersphere.api.jmeter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
-import io.metersphere.api.utils.ApiLogUtils;
-import io.metersphere.api.utils.FixedCapacityUtils;
+import io.metersphere.api.util.FixedCapacityUtils;
 import io.metersphere.sdk.util.DateUtils;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +37,7 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
                 }
             }
         } catch (Exception e) {
-            ApiLogUtils.error(e);
+            LogUtils.error(e);
         }
     }
 }

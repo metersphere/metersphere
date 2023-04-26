@@ -1,4 +1,4 @@
-package io.metersphere.api.utils;
+package io.metersphere.api.util;
 
 import org.apache.commons.lang3.StringUtils;
 
