@@ -93,6 +93,7 @@
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
+        <jacoco.version>0.8.7</jacoco.version>
     </properties>
 
     <modules>
@@ -207,6 +208,25 @@
                         <phase>clean</phase>
                         <goals>
                             <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
