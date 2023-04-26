@@ -150,7 +150,7 @@ export default {
                 fontSize: 14,
                 color: '#646A73',
                 fontWeight: 400,
-                width: 50,
+                width: 40,
                 align: 'left',
                 lineHeight: 22,
               },
