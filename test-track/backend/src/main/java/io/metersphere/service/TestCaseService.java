@@ -2731,10 +2731,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseTestDao> getRelateTest(String caseId) {
-        TestCaseTestExample example = new TestCaseTestExample();
-        example.createCriteria()
-                .andTestCaseIdEqualTo(caseId);
-        List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
+        List<TestCaseTest> testCaseTests = extTestCaseMapper.getTestCaseRelateList(caseId);
         Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
                 .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
 

@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestCase;
+import io.metersphere.base.domain.TestCaseTest;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.dto.*;
 
@@ -167,4 +168,6 @@ public interface ExtTestCaseMapper {
     void updateNoModuleTrashNodeToDefault(@Param("projectId") String projectId, @Param("defaultNodeId") String defaultNodeId, @Param("defaultNodePath") String defaultNodePath);
 
     void clearLatestVersion(@Param("refId") String refId);
+
+    List<TestCaseTest> getTestCaseRelateList(@Param("testCaseId") String testCaseId);
 }
