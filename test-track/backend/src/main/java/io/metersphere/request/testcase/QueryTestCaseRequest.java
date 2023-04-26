@@ -68,4 +68,9 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
      * 是否查询UI
      */
     private boolean queryUi;
+
+    /**
+     * 是否待办状态
+     */
+    private boolean unComing;
 }
