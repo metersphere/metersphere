@@ -312,9 +312,10 @@ export default {
     addTab(tab) {
       this.trashEnable = tab.name === 'trash';
       if (tab.name === 'default') {
-        this.$refs.nodeTree.list(this.projectId, tab);
+        this.$refs.nodeTree.list(this.projectId);
       } else if (tab.name === 'trash') {
         this.$refs.apiTrashScenarioList.search();
+        this.$refs.nodeTree.list(this.projectId, tab.name);
       }
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -618,7 +619,7 @@ export default {
       if (targetName === 'trash') {
         this.selectNodeIds = [];
         this.trashEnable = false;
-        this.$refs.nodeTree.list(this.projectId, targetName);
+        this.$refs.nodeTree.list(this.projectId);
       } else {
         let message = '';
         this.tabs.forEach((tab) => {
