@@ -6,7 +6,6 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JMeterThreadUtils;
-import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
@@ -45,8 +44,6 @@ public class ApiExecutionQueueService {
     protected ApiExecutionQueueMapper queueMapper;
     @Resource
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
-    @Resource
-    private RedisTemplateService redisTemplateService;
     @Resource
     private ApiScenarioSerialService apiScenarioSerialService;
     @Resource
@@ -227,37 +224,39 @@ public class ApiExecutionQueueService {
     public DBTestQueue handleQueue(String id, String testId) {
         ApiExecutionQueue executionQueue = queueMapper.selectByPrimaryKey(id);
         DBTestQueue queue = new DBTestQueue();
-        if (executionQueue != null) {
-            BeanUtils.copyBean(queue, executionQueue);
-            LoggerUtil.info("Get the next execution point：【" + id + "】");
+        if (executionQueue == null) {
+            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】");
+            return queue;
+        }
+        BeanUtils.copyBean(queue, executionQueue);
+        LoggerUtil.info("Get the next execution point：【" + id + "】");
 
-            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-            example.setOrderByClause("sort asc");
-            example.createCriteria().andQueueIdEqualTo(id);
-            List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
+        ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+        example.setOrderByClause("sort asc");
+        example.createCriteria().andQueueIdEqualTo(id);
+        List<ApiExecutionQueueDetail> queues = executionQueueDetailMapper.selectByExampleWithBLOBs(example);
 
+        if (CollectionUtils.isNotEmpty(queues)) {
+            // 处理掉当前已经执行完成的资源
+            List<ApiExecutionQueueDetail> completedQueues = queues.stream()
+                    .filter(item -> StringUtils.equals(item.getTestId(), testId))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(completedQueues)) {
+                ApiExecutionQueueDetail completed = completedQueues.get(0);
+                queue.setCompletedReportId(completed.getReportId());
+                executionQueueDetailMapper.deleteByPrimaryKey(completed.getId());
+                queues.remove(completed);
+            }
+            // 取出下一个要执行的节点
             if (CollectionUtils.isNotEmpty(queues)) {
-                // 处理掉当前已经执行完成的资源
-                List<ApiExecutionQueueDetail> completedQueues = queues.stream().filter(item -> StringUtils.equals(item.getTestId(), testId)).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(completedQueues)) {
-                    ApiExecutionQueueDetail completed = completedQueues.get(0);
-                    queue.setCompletedReportId(completed.getReportId());
-                    executionQueueDetailMapper.deleteByPrimaryKey(completed.getId());
-                    queues.remove(completed);
-                }
-                // 取出下一个要执行的节点
-                if (CollectionUtils.isNotEmpty(queues)) {
-                    queue.setDetail(queues.get(0));
-                } else {
-                    LoggerUtil.info("execution complete,clear queue：【" + id + "】");
-                    queueMapper.deleteByPrimaryKey(id);
-                }
+                queue.setDetail(queues.get(0));
             } else {
                 LoggerUtil.info("execution complete,clear queue：【" + id + "】");
                 queueMapper.deleteByPrimaryKey(id);
             }
         } else {
-            LoggerUtil.info("The queue was accidentally deleted：【" + id + "】");
+            LoggerUtil.info("execution complete,clear queue：【" + id + "】");
+            queueMapper.deleteByPrimaryKey(id);
         }
         return queue;
     }
@@ -312,50 +311,37 @@ public class ApiExecutionQueueService {
             }
             return;
         }
-        // 获取串行下一个执行节点
+        // 清理当前节点并获取下一个要执行的资源
         DBTestQueue executionQueue = this.handleQueue(dto.getQueueId(), dto.getTestId());
-        if (executionQueue != null) {
-            // 串行失败停止
-            if (BooleanUtils.isTrue(executionQueue.getFailure()) && StringUtils.isNotEmpty(executionQueue.getCompletedReportId())) {
-                boolean isNext = failure(executionQueue, dto);
-                if (!isNext) {
-                    return;
-                }
+        // 串行失败停止
+        if (BooleanUtils.isTrue(executionQueue.getFailure()) && StringUtils.isNotEmpty(executionQueue.getCompletedReportId())) {
+            boolean isNext = failure(executionQueue, dto);
+            if (!isNext) {
+                return;
             }
-            LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
-            if (executionQueue.getDetail() != null && StringUtils.isNotEmpty(executionQueue.getDetail().getTestId())) {
-                if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
-                    LoggerUtil.info("当前执行队列是：" + JSON.toJSONString(executionQueue.getDetail()));
-                    // 防止重复执行
-                    String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", executionQueue.getDetail().getReportId());
-                    boolean isNext = redisTemplateService.setIfAbsent(key, executionQueue.getDetail().getQueueId());
-                    if (!isNext) {
-                        return;
-                    }
-                    redisTemplateService.expire(key);
-                    if (StringUtils.equalsAny(executionQueue.getRunMode(),
-                            ApiRunMode.SCENARIO.name(),
-                            ApiRunMode.SCENARIO_PLAN.name(),
-                            ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                            ApiRunMode.SCHEDULE_SCENARIO.name(),
-                            ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                        apiScenarioSerialService.serial(executionQueue);
-                    } else {
-                        apiCaseSerialService.serial(executionQueue);
-                    }
-                }
-            } else {
-                // 集合报告合并
-                this.margeReport(dto);
-                queueMapper.deleteByPrimaryKey(dto.getQueueId());
-                LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
-            }
-
-            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
-            example.createCriteria().andQueueIdEqualTo(dto.getQueueId()).andTestIdEqualTo(dto.getTestId());
-            executionQueueDetailMapper.deleteByExample(example);
         }
-        LoggerUtil.info("处理队列结束：" + dto.getReportId() + "QID：" + dto.getQueueId());
+        LoggerUtil.info("开始处理执行队列：" + executionQueue.getId() + " 当前资源是：" + dto.getTestId() + "报告ID：" + dto.getReportId());
+        if (executionQueue.getDetail() != null && StringUtils.isNotEmpty(executionQueue.getDetail().getTestId())) {
+            if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
+                if (StringUtils.equalsAny(executionQueue.getRunMode(),
+                        ApiRunMode.SCENARIO.name(),
+                        ApiRunMode.SCENARIO_PLAN.name(),
+                        ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                        ApiRunMode.SCHEDULE_SCENARIO.name(),
+                        ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                    // 场景执行
+                    apiScenarioSerialService.serial(executionQueue);
+                } else {
+                    // 接口用例执行
+                    apiCaseSerialService.serial(executionQueue);
+                }
+            }
+        } else {
+            // 集合报告合并
+            this.margeReport(dto);
+            queueMapper.deleteByPrimaryKey(dto.getQueueId());
+            LoggerUtil.info("Queue execution ends：" + dto.getQueueId());
+        }
     }
 
     private void margeReport(ResultDTO dto) {
@@ -396,7 +382,6 @@ public class ApiExecutionQueueService {
             dto.setQueueId(item.getQueueId());
             dto.setTestId(item.getTestId());
             if (StringUtils.equalsAnyIgnoreCase(queue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(item.getReportId()));
                 ApiScenarioReportWithBLOBs report = apiScenarioReportMapper.selectByPrimaryKey(item.getReportId());
                 // 报告已经被删除则队列也删除
                 if (report == null) {
@@ -408,10 +393,6 @@ public class ApiExecutionQueueService {
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                     LoggerUtil.info("超时处理报告：" + report.getId());
                     if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
-                        // 删除串行资源锁
-                        String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
-                        redisTemplateService.delete(key);
-
                         LoggerUtil.info("超时处理报告：【" + report.getId() + "】进入下一个执行");
                         dto.setTestPlanReportId(queue.getReportId());
                         dto.setReportId(queue.getReportId());
@@ -424,7 +405,6 @@ public class ApiExecutionQueueService {
                     }
                 }
             } else {
-                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(item.getReportId()));
                 // 用例/接口超时结果处理
                 ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(item.getReportId());
                 if (result != null && StringUtils.equalsAnyIgnoreCase(result.getStatus(), TestPlanReportStatus.RUNNING.name())) {
@@ -476,8 +456,6 @@ public class ApiExecutionQueueService {
                 checkTestPlanCaseTestEnd(null, null, reportId);
             });
         }
-        // 清除异常队列/一般是服务突然停止产生
-        extApiExecutionQueueMapper.delete();
     }
 
     public void stop(String reportId) {
@@ -539,11 +517,46 @@ public class ApiExecutionQueueService {
      * 服务异常重启处理
      */
     public void exceptionHandling() {
-        LogUtil.info("开始处理服务重启导致执行未完成的报告状态");
-        // 更新报告状态
-        extApiScenarioReportMapper.updateAllStatus();
-        // 更新用例报告状态
-        extApiDefinitionExecResultMapper.updateAllStatus();
-        LogUtil.info("处理服务重启导致执行未完成的报告状态完成");
+        try {
+            LogUtil.info("开始处理服务重启导致执行未完成的报告状态");
+            // 更新报告状态
+            extApiScenarioReportMapper.updateAllStatus();
+            // 更新用例报告状态
+            extApiDefinitionExecResultMapper.updateAllStatus();
+            LogUtil.info("处理服务重启导致执行未完成的报告状态完成");
+            // 清理队列
+            final List<String> apiModes = new ArrayList<>() {{
+                this.add(ApiRunMode.SCENARIO.name());
+                this.add(ApiRunMode.SCHEDULE_SCENARIO.name());
+                this.add(ApiRunMode.SCENARIO_PLAN.name());
+                this.add(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+                this.add(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
+                this.add(ApiRunMode.DEFINITION.name());
+                this.add(ApiRunMode.JENKINS.name());
+                this.add(ApiRunMode.API_PLAN.name());
+                this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
+                this.add(ApiRunMode.JENKINS_API_PLAN.name());
+                this.add(ApiRunMode.MANUAL_PLAN.name());
+            }};
+
+            ApiExecutionQueueExample queueExample = new ApiExecutionQueueExample();
+            queueExample.createCriteria().andRunModeIn(apiModes);
+            List<ApiExecutionQueue> queues = apiExecutionQueueMapper.selectByExample(queueExample);
+            if (CollectionUtils.isNotEmpty(queues)) {
+                List<String> ids = queues.stream().map(ApiExecutionQueue::getId).collect(Collectors.toList());
+                ApiExecutionQueueDetailExample queueDetailExample = new ApiExecutionQueueDetailExample();
+                queueDetailExample.createCriteria().andQueueIdIn(ids);
+                apiExecutionQueueDetailMapper.deleteByExample(queueDetailExample);
+                // 通知测试计划
+                queues.forEach(item -> {
+                    if (StringUtils.endsWith(item.getRunMode(), "PLAN")) {
+                        checkTestPlanCaseTestEnd(null, null, item.getReportId());
+                    }
+                });
+                apiExecutionQueueMapper.deleteByExample(queueExample);
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        }
     }
 }

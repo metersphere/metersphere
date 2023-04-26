@@ -3,6 +3,7 @@ package io.metersphere.api.exec.scenario;
 
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.base.domain.ApiScenarioReport;
@@ -99,6 +100,8 @@ public class ApiScenarioSerialService {
             }
             // 开始执行
             runRequest.getExtendedParameters().put("projectId", queue.getProjectIds());
+            runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(
+                    JSON.parseArray(queue.getProjectIds())));
         } catch (Exception e) {
             remakeReportService.testEnded(runRequest, e.getMessage());
             LoggerUtil.error("脚本处理失败", runRequest.getReportId(), e);

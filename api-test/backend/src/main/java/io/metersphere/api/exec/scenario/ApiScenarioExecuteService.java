@@ -13,6 +13,7 @@ import io.metersphere.api.exec.api.ApiCaseExecuteService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
@@ -466,6 +467,8 @@ public class ApiScenarioExecuteService {
             test.setProperty(ApiTestConstants.JAR_PATH, JSON.toJSONString(loadJar.keySet().stream().toList()));
             runRequest.setCustomJarInfo(loadJar);
         }
+        runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(
+                NewDriverManager.getProjectIds(request)));
         jMeterService.run(runRequest);
         return request.getId();
     }

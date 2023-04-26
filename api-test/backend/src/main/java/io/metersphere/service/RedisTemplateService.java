@@ -1,17 +1,15 @@
 package io.metersphere.service;
 
+import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.TimeUnit;
-
 @Service
 public class RedisTemplateService {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-    public static final long TIME_OUT = 30;
 
     public boolean setIfAbsent(String key, String value) {
         try {
@@ -19,15 +17,6 @@ public class RedisTemplateService {
         } catch (Exception e) {
             LoggerUtil.error(key, e);
             return true;
-        }
-    }
-
-    public boolean expire(String key) {
-        try {
-            return redisTemplate.expire(key, TIME_OUT, TimeUnit.MINUTES);
-        } catch (Exception e) {
-            LoggerUtil.error(key, e);
-            return false;
         }
     }
 
@@ -47,5 +36,14 @@ public class RedisTemplateService {
             LoggerUtil.error(key, e);
             return false;
         }
+    }
+
+    public void delFilePathAndScript(String reportId, String testId) {
+        delete(JmxFileUtil.getExecuteScriptKey(reportId, testId));
+        delete(JmxFileUtil.getExecuteFileKeyInRedis(reportId));
+    }
+
+    public void delFilePath(String reportId) {
+        delete(JmxFileUtil.getExecuteFileKeyInRedis(reportId));
     }
 }

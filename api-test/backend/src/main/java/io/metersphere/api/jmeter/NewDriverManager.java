@@ -97,6 +97,14 @@ public class NewDriverManager {
     public static Map<String, List<ProjectJarConfig>> loadJar(RunDefinitionRequest request, BooleanPool pool) {
         // 加载自定义JAR
         MsTestPlan testPlan = (MsTestPlan) request.getTestElement();
+        List<String> projectIds = getProjectIds(request);
+        Map<String, List<ProjectJarConfig>> jars = getJars(projectIds, pool);
+        testPlan.setProjectJarIds(projectIds);
+
+        return jars;
+    }
+
+    public static List<String> getProjectIds(RunDefinitionRequest request) {
         List<String> projectIds = new ArrayList<>();
         projectIds.add(request.getProjectId());
         if (MapUtils.isNotEmpty(request.getEnvironmentMap())) {
@@ -106,10 +114,6 @@ public class NewDriverManager {
                 }
             });
         }
-        Map<String, List<ProjectJarConfig>> jars = getJars(projectIds, pool);
-        testPlan.setProjectJarIds(projectIds);
-
-        return jars;
+        return projectIds;
     }
-
 }

@@ -3,13 +3,11 @@ package io.metersphere.commons.utils;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.FakeErrorLibraryDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.enums.ResponseFormatType;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResponseResult;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -20,29 +18,22 @@ import java.util.Map;
  */
 public class ResponseUtil {
 
-    public static RequestResultExpandDTO parseByRequestResult(RequestResult baseResult) {
-        //根据responseheader的信息来处理返回数据
-        baseResult = ResponseUtil.parseResponseBodyByHeader(baseResult);
+    public static RequestResultExpandDTO parseByRequestResult(RequestResult requestResult) {
+        requestResult = ResponseUtil.parseResponseBodyByHeader(requestResult);
         //解析是否含有误报库信息
-        FakeErrorLibraryDTO errorCodeDTO = FakeErrorParse.parseAssertions(baseResult);
-        RequestResult requestResult = errorCodeDTO.getResult();
         RequestResultExpandDTO expandDTO = new RequestResultExpandDTO();
         BeanUtils.copyBean(expandDTO, requestResult);
-        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
+        if (StringUtils.isNotBlank(requestResult.getFakeErrorCode())) {
             Map<String, String> expandMap = new HashMap<>();
-            expandMap.put(ApiReportStatus.FAKE_ERROR.name(), errorCodeDTO.getErrorCodeStr());
-            if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ApiReportStatus.FAKE_ERROR.name())) {
+            expandMap.put(ApiReportStatus.FAKE_ERROR.name(), requestResult.getFakeErrorCode());
+            if (StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())) {
                 expandMap.put("status", ApiReportStatus.FAKE_ERROR.name());
             }
             expandDTO.setAttachInfoMap(expandMap);
-            LogUtil.info(" FAKE_ERROR result.id:" + errorCodeDTO.getRequestStatus() + "; AttachInfoMap:" + JSON.toJSONString(expandDTO.getAttachInfoMap()));
         }
-        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ApiReportStatus.FAKE_ERROR.name())) {
-            expandDTO.setStatus(errorCodeDTO.getRequestStatus());
+        if (StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())) {
+            expandDTO.setStatus(requestResult.getStatus());
         }
-        LogUtil.info(" FAKE_ERROR result.id:" + errorCodeDTO.getRequestStatus()
-                + ";status:" + expandDTO.getStatus()
-                + " AttachInfoMap:" + (expandDTO.getAttachInfoMap() == null ? "null" : JSON.toJSONString(expandDTO.getAttachInfoMap())));
         return expandDTO;
     }
 

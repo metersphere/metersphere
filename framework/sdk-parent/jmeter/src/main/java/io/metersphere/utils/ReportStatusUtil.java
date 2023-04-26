@@ -1,13 +1,9 @@
-package io.metersphere.api.jmeter.utils;
+package io.metersphere.utils;
 
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.enums.ApiReportStatus;
-import io.metersphere.commons.utils.JSONUtil;
-import io.metersphere.commons.vo.ResultVO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
-import io.metersphere.utils.LoggerUtil;
-import io.metersphere.utils.RetryResultUtil;
+import io.metersphere.enums.ApiReportStatus;
+import io.metersphere.vo.ResultVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +14,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ReportStatusUtil {
+    public static final String LOCAL_STATUS_KEY = "LOCAL_STATUS_KEY";
+    public static final String REPORT_STATUS = "REPORT_STATUS";
+
     public static List<RequestResult> filterRetryResults(List<RequestResult> results) {
         List<RequestResult> list = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(results)) {
@@ -50,9 +49,9 @@ public class ReportStatusUtil {
         if (StringUtils.equals(resultVO.getStatus(), ApiReportStatus.ERROR.name())) {
             return resultVO;
         }
-        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
+        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            resultVO.setStatus(JSONUtil.convertValue(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS), ResultVO.class).getStatus());
+            resultVO.setStatus(JsonUtils.convertValue(dto.getArbitraryData().get(REPORT_STATUS), ResultVO.class).getStatus());
         }
         // 过滤掉重试结果后进行统计
         List<RequestResult> requestResults = filterRetryResults(dto.getRequestResults());
@@ -84,13 +83,13 @@ public class ReportStatusUtil {
 
     public static ResultVO computedProcess(ResultDTO dto) {
         ResultVO result = new ResultVO();
-        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.LOCAL_STATUS_KEY)) {
+        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(LOCAL_STATUS_KEY)) {
             // 本地执行状态
-            result = JSONUtil.convertValue(dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY), ResultVO.class);
+            result = JsonUtils.convertValue(dto.getArbitraryData().get(LOCAL_STATUS_KEY), ResultVO.class);
         }
-        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.REPORT_STATUS)) {
+        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(REPORT_STATUS)) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            result = JSONUtil.convertValue(dto.getArbitraryData().get(CommonConstants.REPORT_STATUS), ResultVO.class);
+            result = JsonUtils.convertValue(dto.getArbitraryData().get(REPORT_STATUS), ResultVO.class);
         }
         result = getStatus(dto, result);
         if (result != null && result.getScenarioTotal() > 0 && result.getScenarioTotal() == result.getScenarioSuccess()) {

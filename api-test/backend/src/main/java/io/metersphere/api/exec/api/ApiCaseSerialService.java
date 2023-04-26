@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
@@ -77,6 +78,8 @@ public class ApiCaseSerialService {
             if (runRequest.getPool().isPool()) {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
+            runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(
+                    JSON.parseArray(queue.getProjectIds())));
             // 开始执行
             runRequest.getExtendedParameters().put(PROJECT_ID, queue.getProjectIds());
         } catch (Exception e) {

@@ -54,5 +54,6 @@ public class RequestResult {
     }
 
     private String fakeErrorMessage;
-
+    //  误报编码名称
+    private String fakeErrorCode;
 }

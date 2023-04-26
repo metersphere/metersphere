@@ -23,6 +23,7 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.MsRegexDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.service.definition.ApiDefinitionEnvService;
@@ -38,6 +39,7 @@ import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.threads.JMeterVariables;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,11 +59,16 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
     private String runMode;
 
     private ApiDefinitionEnvService apiDefinitionEnvService;
+    private Map<String, List<MsRegexDTO>> fakeErrorMap;
 
     @Override
     public Object clone() {
         MsDebugListener clone = (MsDebugListener) super.clone();
         return clone;
+    }
+
+    public void setFakeErrorMap(Map<String, List<MsRegexDTO>> fakeErrorMap) {
+        this.fakeErrorMap = fakeErrorMap;
     }
 
     public boolean isErrorLogging() {
@@ -160,7 +167,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         SampleResult result = event.getResult();
         this.setVars(result);
         if (isSampleWanted(result.isSuccessful(), result) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
-            RequestResult requestResult = JMeterBase.getRequestResult(result);
+            RequestResult requestResult = JMeterBase.getRequestResult(result, fakeErrorMap);
             if (requestResult != null && ResultParseUtil.isNotAutoGenerateSampler(requestResult)) {
                 MsgDTO dto = new MsgDTO();
                 dto.setExecEnd(false);

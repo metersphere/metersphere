@@ -1,4 +1,4 @@
-package io.metersphere.commons.vo;
+package io.metersphere.vo;
 
 import lombok.Data;
 
