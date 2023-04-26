@@ -21,6 +21,8 @@ public interface ExtApiDefinitionExecResultMapper {
 
     ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceId(String resourceId);
 
+    String selectMaxResultIdByResourceId(String resourceId);
+
     ApiDefinitionExecResultWithBLOBs selectMaxResultByResourceIdAndType(String resourceId, String type);
 
     long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("version") String version, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);

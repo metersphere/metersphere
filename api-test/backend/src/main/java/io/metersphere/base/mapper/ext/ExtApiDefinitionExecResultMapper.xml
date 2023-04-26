@@ -12,7 +12,16 @@
         select *
         from api_definition_exec_result
         where resource_id = #{resourceId,jdbcType=VARCHAR}
-        ORDER BY create_time DESC LIMIT 1
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+    <select id="selectMaxResultIdByResourceId" parameterType="java.lang.String"
+            resultType="java.lang.String">
+        select id
+        from api_definition_exec_result
+        where resource_id = #{resourceId,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+        LIMIT 1
     </select>
     <select id="selectMaxResultByResourceIdAndType"
             resultType="io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs">
@@ -20,7 +29,8 @@
         from api_definition_exec_result
         where resource_id = #{resourceId,jdbcType=VARCHAR}
           and `type` = #{type, jdbcType=VARCHAR}
-        ORDER BY start_time DESC LIMIT 5, 1
+        ORDER BY start_time DESC
+        LIMIT 5, 1
     </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
@@ -283,12 +293,9 @@
         FROM api_definition_exec_result r
                  INNER JOIN api_test_case c ON r.resource_id = c.id
             AND c.`status` != 'Trash'
-        WHERE
-            r.status not in ('SUCCESS'
-            , 'FAKE_ERROR')
+        WHERE r.status not in ('SUCCESS', 'FAKE_ERROR')
           AND r.integrated_report_id = #{reportId}
-        ORDER BY
-            r.create_time ASC
+        ORDER BY r.create_time ASC
     </select>
     <select id="selectByProjectIdAndLessThanTime" resultType="java.lang.String">
         select id

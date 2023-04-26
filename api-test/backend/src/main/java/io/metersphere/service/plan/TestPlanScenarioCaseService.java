@@ -14,6 +14,7 @@ import io.metersphere.base.domain.ApiScenarioReportResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiScenarioMapper;
@@ -96,6 +97,8 @@ public class TestPlanScenarioCaseService {
     private BaseEnvGroupProjectService environmentGroupProjectService;
     @Resource
     private ExtApiScenarioModuleMapper extApiScenarioModuleMapper;
+    @Resource
+    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Lazy
     @Resource
     private ApiScenarioModuleService apiScenarioModuleService;
@@ -868,12 +871,25 @@ public class TestPlanScenarioCaseService {
             if (checkReportConfig(config, "api", "all")) {
                 // 接口
                 apiAllCases = testPlanApiCaseService.getAllCases(planId);
+                apiAllCases.forEach(item -> {
+                    String reportId = extApiDefinitionExecResultMapper.selectMaxResultIdByResourceId(item.getId());
+                    if (StringUtils.isBlank(reportId)) {
+                        item.setReportId(StringUtils.EMPTY);
+                    } else {
+                        item.setReportId(reportId);
+                    }
+                });
                 report.setApiAllCases(apiAllCases);
                 if (saveResponse) {
                     testPlanApiCaseService.buildApiResponse(apiAllCases);
                 }
                 //场景
                 scenarioAllCases = getAllCases(planId);
+                scenarioAllCases.forEach(item -> {
+                    if (StringUtils.isBlank(item.getReportId())) {
+                        item.setReportId(StringUtils.EMPTY);
+                    }
+                });
                 if (saveResponse) {
                     buildScenarioResponse(scenarioAllCases);
                 }
