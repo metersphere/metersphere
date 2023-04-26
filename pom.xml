@@ -85,6 +85,7 @@
         <jgit.version>6.5.0.202303070854-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
+        <embedded.version>2.3.2</embedded.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v16.10.0</node.version>
@@ -121,6 +122,39 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!--   embedded 配置      -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>4.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.playtika.testcontainers</groupId>
+            <artifactId>embedded-mysql</artifactId>
+            <version>${embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.playtika.testcontainers</groupId>
+            <artifactId>embedded-redis</artifactId>
+            <version>${embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--    内置 minio 和 kafka    -->
+        <!--<dependency>
+            <groupId>com.playtika.testcontainers</groupId>
+            <artifactId>embedded-minio</artifactId>
+            <version>${embedded.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.playtika.testcontainers</groupId>
+            <artifactId>embedded-kafka</artifactId>
+            <version>${embedded.version}</version>
+            <scope>test</scope>
+        </dependency>-->
+        <!-- end  embedded 配置     -->
     </dependencies>
 
     <build>

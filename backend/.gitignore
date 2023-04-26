@@ -27,7 +27,7 @@ yarn-error.log*
 src/main/resources/static
 src/main/resources/public
 
-src/test/
+
 target
 .settings
 .project

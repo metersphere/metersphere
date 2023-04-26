@@ -22,17 +22,11 @@ public class LoadTest implements Serializable {
 
     private String testResourcePoolId;
 
-    private String userId;
-
     private Integer num;
 
     private String createUser;
 
-    private Integer scenarioVersion;
-
-    private String scenarioId;
-
-    private Long order;
+    private Long pos;
 
     private String versionId;
 
