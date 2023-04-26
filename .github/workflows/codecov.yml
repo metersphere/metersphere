@@ -1,0 +1,21 @@
+on: pull_request
+
+name: MeterSphere 覆盖率统计
+
+permissions:
+  pull-requests: write
+
+jobs:
+  generic_handler:
+    name: 为 PR 添加标签
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
