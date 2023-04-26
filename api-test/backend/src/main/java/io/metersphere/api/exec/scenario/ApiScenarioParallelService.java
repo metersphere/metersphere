@@ -4,8 +4,10 @@ import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -57,6 +59,8 @@ public class ApiScenarioParallelService {
                             dataDTO.getPlanEnvMap(), runRequest));
                 }
                 runRequest.getExtendedParameters().put("projectId", executionQueue.getDetail().getProjectIds());
+                runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(
+                        JSON.parseArray(executionQueue.getDetail().getProjectIds())));
                 LoggerUtil.info("进入并行模式，准备执行场景：[ " +
                         executeQueue.get(reportId).getReport().getName() + " ]", reportId);
             } catch (Exception e) {

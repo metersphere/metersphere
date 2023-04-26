@@ -9,15 +9,11 @@ import io.metersphere.commons.utils.FixedCapacityUtil;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.utils.LoggerUtil;
-import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RemakeReportService {
-    @Resource
-    private RedisTemplateService redisTemplateService;
-
     public void queueNext(JmeterRunRequestDTO request, String errorMsg) {
         try {
             ResultDTO dto = new ResultDTO();
@@ -35,11 +31,8 @@ public class RemakeReportService {
             LoggerUtil.info("Check Processing Test Plan report status.queueId：" + dto.getQueueId() + "，runMode:" + dto.getRunMode() + "，testId:" + dto.getTestId(), dto.getReportId());
             CommonBeanFactory.getBean(ApiExecutionQueueService.class).checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
         } catch (Exception e) {
-            LoggerUtil.error("回退报告异常", request.getReportId(), e);
-        } finally {
             ApiLocalRunner.clearCache(request.getReportId());
-            redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
-            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
+            LoggerUtil.error("回退报告异常", request.getReportId(), e);
         }
     }
 

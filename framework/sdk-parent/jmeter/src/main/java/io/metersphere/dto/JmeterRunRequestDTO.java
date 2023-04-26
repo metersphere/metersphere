@@ -97,6 +97,9 @@ public class JmeterRunRequestDTO {
     //自定义jar信息
     private Map<String, List<ProjectJarConfig>> customJarInfo;
 
+    // 自定义误报库
+    private Map<String, List<MsRegexDTO>> fakeErrorMap;
+
     private String triggerMode;
 
     public JmeterRunRequestDTO() {

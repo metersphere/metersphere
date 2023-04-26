@@ -40,6 +40,7 @@ import org.apache.jmeter.testelement.property.BooleanProperty;
 import org.apache.jmeter.threads.JMeterVariables;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -148,7 +149,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         SampleResult result = event.getResult();
         this.setVars(result);
         if (isSampleWanted(result.isSuccessful(), result) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
-            RequestResult requestResult = JMeterBase.getRequestResult(result);
+            RequestResult requestResult = JMeterBase.getRequestResult(result, new HashMap<>());
             if (requestResult != null && ResultParseUtil.isNotAutoGenerateSampler(requestResult)) {
                 MsgDto dto = new MsgDto();
                 dto.setExecEnd(false);

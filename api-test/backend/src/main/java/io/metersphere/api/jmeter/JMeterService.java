@@ -90,25 +90,25 @@ public class JMeterService {
 
     /**
      * 添加调试监听
-     *
-     * @param testId
-     * @param testPlan
      */
-    private void addDebugListener(String testId, HashTree testPlan, String runMode) {
+    private void addDebugListener(JmeterRunRequestDTO request) {
         MsDebugListener resultCollector = new MsDebugListener();
-        resultCollector.setName(testId);
+        resultCollector.setName(request.getReportId());
         resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
         resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
         resultCollector.setEnabled(true);
-        resultCollector.setRunMode(runMode);
-
+        resultCollector.setRunMode(request.getRunMode());
+        resultCollector.setFakeErrorMap(request.getFakeErrorMap());
         // 添加DEBUG标示
-        HashTree test = ArrayUtils.isNotEmpty(testPlan.getArray()) ? testPlan.getTree(testPlan.getArray()[0]) : null;
-        if (test != null && ArrayUtils.isNotEmpty(test.getArray()) && test.getArray()[0] instanceof ThreadGroup) {
+        HashTree test = ArrayUtils.isNotEmpty(request.getHashTree().getArray())
+                ? request.getHashTree().getTree(request.getHashTree().getArray()[0]) : null;
+
+        if (test != null && ArrayUtils.isNotEmpty(test.getArray())
+                && test.getArray()[0] instanceof ThreadGroup) {
             ThreadGroup group = (ThreadGroup) test.getArray()[0];
             group.setProperty(BackendListenerConstants.MS_DEBUG.name(), true);
         }
-        testPlan.add(testPlan.getArray()[0], resultCollector);
+        request.getHashTree().add(request.getHashTree().getArray()[0], resultCollector);
     }
 
     private void runLocal(JmeterRunRequestDTO request) {
@@ -131,12 +131,12 @@ public class JMeterService {
                 && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
                 && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS)) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
+            addDebugListener(request);
         }
 
         if (request.isDebug()) {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request.getReportId(), request.getHashTree(), request.getRunMode());
+            addDebugListener(request);
         } else {
             LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
             JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
@@ -178,6 +178,7 @@ public class JMeterService {
                 engine.start();
             } catch (Exception e) {
                 remakeReportService.testEnded(request, e.getMessage());
+                redisTemplateService.delFilePathAndScript(request.getReportId(), request.getTestId());
                 LoggerUtil.error("调用K8S执行请求[ " + request.getTestId() + " ]失败：", request.getReportId(), e);
             }
         } else if ((MapUtils.isNotEmpty(request.getExtendedParameters())
@@ -203,6 +204,7 @@ public class JMeterService {
             apiPoolDebugService.run(request, resources);
         } catch (Exception e) {
             remakeReportService.updateReport(request, e.getMessage());
+            redisTemplateService.delFilePathAndScript(request.getReportId(), request.getTestId());
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
             MSException.throwException("调用资源池执行失败，请检查资源池是否配置正常");
         }
@@ -231,6 +233,7 @@ public class JMeterService {
             }
         } catch (Exception e) {
             remakeReportService.testEnded(request, e.getMessage());
+            redisTemplateService.delFilePath(request.getReportId());
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
         }
     }

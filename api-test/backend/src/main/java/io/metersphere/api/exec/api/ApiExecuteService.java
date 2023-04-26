@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
@@ -115,27 +116,24 @@ public class ApiExecuteService {
     }
 
     public MsExecResponseDTO exec(RunCaseRequest request, Map<String, Object> extendedParameters) {
-        ApiTestCaseWithBLOBs testCaseWithBLOBs = request.getBloBs();
-        PerformInspectionUtil.countMatches(testCaseWithBLOBs.getRequest(), testCaseWithBLOBs.getId());
+        ApiTestCaseWithBLOBs testCase = request.getBloBs();
+        PerformInspectionUtil.countMatches(testCase.getRequest(), testCase.getId());
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
-            testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
+            testCase = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
             request.setCaseId(request.getReportId());
             //通过测试计划id查询环境
             request.setReportId(request.getTestPlanId());
         }
-        LoggerUtil.info("开始执行单条用例【 " + testCaseWithBLOBs.getId() + " 】", request.getReportId());
+        LoggerUtil.info("开始执行单条用例【 " + testCase.getId() + " 】", request.getReportId());
         RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
-        jMeterService.verifyPool(testCaseWithBLOBs.getProjectId(), runModeConfigDTO);
+        jMeterService.verifyPool(testCase.getProjectId(), runModeConfigDTO);
 
-        // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), null, null);
-        if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCase.getId(),
+                StringUtils.isEmpty(request.getReportId()) ? request.getId()
+                        : request.getReportId(), request.getRunMode(), null,null);
+        if (testCase != null && StringUtils.isNotEmpty(testCase.getRequest())) {
             try {
-                HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs, runModeConfigDTO);
-                if (LoggerUtil.getLogger().isDebugEnabled()) {
-                    LoggerUtil.debug("生成jmx文件：" + ElementUtil.hashTreeToString(jmeterHashTree));
-                }
-
+                HashTree jmeterHashTree = this.generateHashTree(request, testCase, runModeConfigDTO);
                 // 调用执行方法
                 runRequest.setHashTree(jmeterHashTree);
                 if (MapUtils.isNotEmpty(extendedParameters)) {
@@ -148,11 +146,16 @@ public class ApiExecuteService {
                     BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
                     runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
                 }
-                jMeterService.run(runRequest);
+                String projectId = testCase.getProjectId();
+                runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(new ArrayList<>() {{
+                    this.add(projectId);
+                }}));
             } catch (Exception ex) {
                 remakeReportService.updateReport(runRequest, ex.getMessage());
                 LogUtil.error(ex.getMessage(), ex);
+                return new MsExecResponseDTO(request.getCaseId(), request.getReport().getId(), request.getRunMode());
             }
+            jMeterService.run(runRequest);
         }
         return new MsExecResponseDTO(request.getCaseId(), request.getReport().getId(), request.getRunMode());
     }
@@ -165,6 +168,9 @@ public class ApiExecuteService {
             request.getTestElement().getHashTree().get(0).setName(request.getId());
         }
         JmeterRunRequestDTO runRequest = this.initRunRequest(request, bodyFiles);
+        runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(new ArrayList<>() {{
+            this.add(request.getProjectId());
+        }}));
         // 开始执行
         jMeterService.run(runRequest);
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runRequest.getRunMode());

@@ -2,9 +2,7 @@ package io.metersphere.api.jmeter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
-import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.service.ApiExecutionQueueService;
@@ -14,6 +12,7 @@ import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
@@ -60,13 +59,12 @@ public class KafkaListenerTask implements Runnable {
                 return;
             }
 
-            if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey(ExtendedParameter.TEST_END)
-                    && (Boolean) dto.getArbitraryData().get(ExtendedParameter.TEST_END)) {
-                redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
+            if (BooleanUtils.isTrue(dto.getHasEnded())) {
+                redisTemplateService.delFilePath(dto.getReportId());
                 resultDTOS.add(dto);
                 // 全局并发队列
                 PoolExecBlockingQueueUtil.offer(dto.getReportId());
-                LoggerUtil.info("KAFKA消费结果处理状态：" + dto.getArbitraryData().get(ExtendedParameter.TEST_END), String.valueOf(record.key()));
+                LoggerUtil.info("KAFKA消费结束：", record.key());
             }
             // 携带结果
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {

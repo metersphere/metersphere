@@ -17,6 +17,8 @@ public class ResultDTO {
     private String runType;
     private String console;
     private String runningDebugSampler;
+    // 是否是结束操作
+    private Boolean hasEnded;
     // 失败重试
     private boolean retryEnable;
     /**
@@ -26,5 +28,7 @@ public class ResultDTO {
 
     // 预留一个参数，可以放任何数据
     private Map<String, Object> arbitraryData;
+    // 误报规则
+    Map<String, List<MsRegexDTO>> fakeErrorMap;
 
 }

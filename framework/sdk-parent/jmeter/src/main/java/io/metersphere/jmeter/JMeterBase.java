@@ -1,12 +1,11 @@
 package io.metersphere.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.dto.*;
-import io.metersphere.utils.JMeterVars;
-import io.metersphere.utils.JsonUtils;
-import io.metersphere.utils.ListenerUtil;
-import io.metersphere.utils.LoggerUtil;
+import io.metersphere.enums.ApiReportStatus;
+import io.metersphere.utils.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 
 public class JMeterBase {
-
     private final static String THREAD_SPLIT = " ";
+    private final static String TRANSACTION = "Transaction=";
+    private final static String SPLIT_EQ = "split==";
+    private final static String SPLIT_AND = "split&&";
 
     public static HashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
@@ -51,6 +52,9 @@ public class JMeterBase {
         arguments.addArgument(BackendListenerConstants.QUEUE_ID.name(), request.getQueueId());
         arguments.addArgument(BackendListenerConstants.RUN_TYPE.name(), request.getRunType());
         arguments.addArgument(BackendListenerConstants.RETRY_ENABLE.name(), String.valueOf(request.isRetryEnable()));
+        if (MapUtils.isNotEmpty(request.getFakeErrorMap())) {
+            arguments.addArgument(BackendListenerConstants.FAKE_ERROR.name(), JSON.toJSONString(request.getFakeErrorMap()));
+        }
         if (MapUtils.isNotEmpty(request.getExtendedParameters())) {
             arguments.addArgument(BackendListenerConstants.EPT.name(), JsonUtils.toJSONString(request.getExtendedParameters()));
         }
@@ -65,9 +69,8 @@ public class JMeterBase {
         LoggerUtil.info("报告添加BackendListener 结束", request.getTestId());
     }
 
-    public static RequestResult getRequestResult(SampleResult result) {
+    public static RequestResult getRequestResult(SampleResult result, Map<String, List<MsRegexDTO>> fakeErrorMap) {
         LoggerUtil.debug("开始处理结果资源【" + result.getSampleLabel() + "】");
-
         String threadName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
         RequestResult requestResult = new RequestResult();
         requestResult.setThreadName(threadName);
@@ -92,7 +95,7 @@ public class JMeterBase {
         }
 
         for (SampleResult subResult : result.getSubResults()) {
-            requestResult.getSubRequestResults().add(getRequestResult(subResult));
+            requestResult.getSubRequestResults().add(getRequestResult(subResult, fakeErrorMap));
         }
         ResponseResult responseResult = requestResult.getResponseResult();
         // 超过20M的文件不入库
@@ -140,6 +143,16 @@ public class JMeterBase {
         }
 
         LoggerUtil.debug("处理结果资源【" + result.getSampleLabel() + "】结束");
+        // 误报处理
+        FakeErrorLibraryDTO errorCodeDTO = FakeErrorUtils.parseAssertions(requestResult, fakeErrorMap);
+        if (CollectionUtils.isNotEmpty(errorCodeDTO.getErrorCodeList())) {
+            requestResult.setFakeErrorCode(errorCodeDTO.getErrorCodeStr());
+        }
+        String status = requestResult.getError() == 0 ? "SUCCESS" : "ERROR";
+        if (StringUtils.equalsIgnoreCase(errorCodeDTO.getRequestStatus(), ApiReportStatus.FAKE_ERROR.name())) {
+            status = ApiReportStatus.FAKE_ERROR.name();
+        }
+        requestResult.setStatus(status);
         return requestResult;
     }
 
@@ -147,13 +160,13 @@ public class JMeterBase {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
 
         responseAssertionResult.setName(assertionResult.getName());
-        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("split==") != -1) {
+        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf(SPLIT_EQ) != -1) {
             if (assertionResult.getName().indexOf("JSR223") != -1) {
-                String[] array = assertionResult.getName().split("split==", 3);
+                String[] array = assertionResult.getName().split(SPLIT_EQ, 3);
                 if (array.length > 2 && "JSR223".equals(array[0])) {
                     responseAssertionResult.setName(array[1]);
-                    if (array[2].indexOf("split&&") != -1) {
-                        String[] content = array[2].split("split&&");
+                    if (array[2].indexOf(SPLIT_AND) != -1) {
+                        String[] content = array[2].split(SPLIT_AND);
                         responseAssertionResult.setContent(content[0]);
                         if (content.length > 1) {
                             responseAssertionResult.setScript(content[1]);
@@ -163,7 +176,7 @@ public class JMeterBase {
                     }
                 }
             } else {
-                String[] array = assertionResult.getName().split("split==");
+                String[] array = assertionResult.getName().split(SPLIT_EQ);
                 responseAssertionResult.setName(array[0]);
                 StringBuffer content = new StringBuffer();
                 for (int i = 1; i < array.length; i++) {
@@ -214,7 +227,7 @@ public class JMeterBase {
             List<String> environmentList = new ArrayList<>();
             sampleResults.forEach(result -> {
                 ListenerUtil.setVars(result);
-                RequestResult requestResult = JMeterBase.getRequestResult(result);
+                RequestResult requestResult = JMeterBase.getRequestResult(result, dto.getFakeErrorMap());
                 if (StringUtils.equals(result.getSampleLabel(), ListenerUtil.RUNNING_DEBUG_SAMPLER_NAME)) {
                     String evnStr = result.getResponseDataAsString();
                     environmentList.add(evnStr);
@@ -222,7 +235,7 @@ public class JMeterBase {
                     //检查是否有关系到最终执行结果的全局前后置脚本。
                     boolean resultNotFilterOut = ListenerUtil.checkResultIsNotFilterOut(requestResult);
                     if (resultNotFilterOut) {
-                        if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
+                        if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith(TRANSACTION)) {
                             transactionFormat(requestResult.getSubRequestResults(), requestResults);
                         } else {
                             requestResults.add(requestResult);

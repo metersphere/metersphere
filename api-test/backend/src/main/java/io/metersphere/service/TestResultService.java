@@ -2,7 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.exec.scenario.ApiEnvironmentRunningParamService;
-import io.metersphere.api.jmeter.utils.ReportStatusUtil;
+import io.metersphere.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -13,7 +13,7 @@ import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.vo.ResultVO;
+import io.metersphere.vo.ResultVO;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.RequestResult;
@@ -204,11 +204,6 @@ public class TestResultService {
     }
 
     public void testEnded(ResultDTO dto) {
-        // 删除串行资源锁
-        if (StringUtils.equals(dto.getRunType(), RunModeConstants.SERIAL.toString())) {
-            String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
-            redisTemplateService.delete(key);
-        }
         if (dto.getRequestResults() == null) {
             dto.setRequestResults(new LinkedList<>());
         }

@@ -374,7 +374,7 @@ public class ApiJMeterFileService {
 
         Object jmxFileInfoObj = redisTemplateService.get(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
         List<AttachmentBodyFile> fileInJmx = JmxFileUtil.formatRedisJmxFileString(jmxFileInfoObj);
-        redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
+        redisTemplateService.delFilePath(request.getReportId());
 
         if (CollectionUtils.isNotEmpty(request.getBodyFiles())) {
             request.getBodyFiles().forEach(attachmentBodyFile -> {

@@ -72,4 +72,13 @@ public class JsonUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static <T> T convertValue(Object content, Class<T> valueType) {
+        try {
+            return objectMapper.convertValue(content, valueType);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

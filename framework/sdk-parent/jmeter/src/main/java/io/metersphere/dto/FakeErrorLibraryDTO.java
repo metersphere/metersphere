@@ -1,6 +1,5 @@
-package io.metersphere.api.dto;
+package io.metersphere.dto;
 
-import io.metersphere.dto.RequestResult;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;

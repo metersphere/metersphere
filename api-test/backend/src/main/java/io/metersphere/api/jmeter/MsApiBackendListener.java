@@ -1,14 +1,15 @@
 package io.metersphere.api.jmeter;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
-import io.metersphere.api.jmeter.utils.JmxFileUtil;
-import io.metersphere.api.jmeter.utils.ReportStatusUtil;
+import io.metersphere.utils.ReportStatusUtil;
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.utils.*;
-import io.metersphere.commons.vo.ResultVO;
+import io.metersphere.vo.ResultVO;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.MsRegexDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.service.ApiExecutionQueueService;
@@ -65,8 +66,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         if (dto.isRetryEnable()) {
             queues.addAll(sampleResults);
         } else {
-            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
-
             if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 dto.setConsole(FixedCapacityUtil.getJmeterLogger(getReportId(), false));
             }
@@ -84,9 +83,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
     public void teardownTest(BackendListenerContext context) {
         try {
             LoggerUtil.info("进入TEST-END处理报告" + dto.getRunMode(), dto.getReportId());
-
-            redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(dto.getReportId()));
-
             super.teardownTest(context);
             // 获取执行日志
             if (!StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
@@ -125,6 +121,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             LoggerUtil.error("结果集处理异常", dto.getReportId(), e);
         } finally {
             queues.clear();
+            redisTemplateService.delFilePath(dto.getReportId());
             FileUtils.deleteBodyFiles(dto.getReportId());
             if (FileServer.getFileServer() != null) {
                 LoggerUtil.info("进入监听，开始关闭CSV", dto.getReportId());
@@ -157,6 +154,12 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
         String ept = context.getParameter(BackendListenerConstants.EPT.name());
         if (StringUtils.isNotEmpty(ept)) {
             dto.setExtendedParameters(JSON.parseObject(context.getParameter(BackendListenerConstants.EPT.name()), Map.class));
+        }
+        if (StringUtils.isNotBlank(context.getParameter(BackendListenerConstants.FAKE_ERROR.name()))) {
+            Map<String, List<MsRegexDTO>> fakeErrorMap = JSON.parseObject(
+                    context.getParameter(BackendListenerConstants.FAKE_ERROR.name()),
+                    new TypeReference<Map<String, List<MsRegexDTO>>>() {});
+            dto.setFakeErrorMap(fakeErrorMap);
         }
     }
 
