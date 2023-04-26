@@ -1477,4 +1477,55 @@
         SET latest = 0
         where ref_id = #{refId}
     </update>
+
+    <select id="getTestCaseRelateList" resultType="io.metersphere.base.domain.TestCaseTest" parameterType="java.lang.String">
+        SELECT
+            test_case_test.test_case_id as testCaseId,
+            test_case_test.test_id as testId,
+            test_case_test.test_type as testType,
+            test_case_test.create_time as createTime,
+            test_case_test.update_time as updateTime
+        FROM
+            test_case_test
+                LEFT JOIN api_test_case ON test_case_test.test_id = api_test_case.id
+        WHERE
+            ( test_case_id = #{testCaseId} AND test_case_test.test_type = 'testcase' AND ( api_test_case.STATUS != 'Trash' OR api_test_case.STATUS IS NULL ) ) UNION ALL
+        SELECT
+            test_case_test.test_case_id,
+            test_case_test.test_id,
+            test_case_test.test_type,
+            test_case_test.create_time,
+            test_case_test.update_time
+        FROM
+            test_case_test
+                LEFT JOIN api_scenario ON test_case_test.test_id = api_scenario.id
+        WHERE
+            ( test_case_id = #{testCaseId} AND test_case_test.test_type = 'automation' AND api_scenario.STATUS != 'Trash' ) UNION ALL
+        SELECT
+            test_case_test.test_case_id,
+            test_case_test.test_id,
+            test_case_test.test_type,
+            test_case_test.create_time,
+            test_case_test.update_time
+        FROM
+            test_case_test
+                LEFT JOIN load_test ON test_case_test.test_id = load_test.id
+        WHERE
+            ( test_case_id = #{testCaseId} AND test_case_test.test_type = 'performance' ) UNION ALL
+        SELECT
+            test_case_test.test_case_id,
+            test_case_test.test_id,
+            test_case_test.test_type,
+            test_case_test.create_time,
+            test_case_test.update_time
+        FROM
+            test_case_test
+                LEFT JOIN ui_scenario ON test_case_test.test_id = ui_scenario.id
+        WHERE
+            (
+                        test_case_id = #{testCaseId}
+                    AND test_case_test.test_type = 'uiAutomation'
+                    AND ui_scenario.STATUS != 'Trash'
+                )
+    </select>
 </mapper>
