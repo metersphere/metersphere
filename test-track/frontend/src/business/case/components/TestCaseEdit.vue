@@ -390,7 +390,7 @@ import {
 
 import {
   getProjectListAll,
-  getProjectMemberOption,
+  getProjectMemberOption, parseCustomFilesForItem,
 } from "@/business/utils/sdk-utils";
 import { testCaseCommentList } from "@/api/test-case-comment";
 import {
@@ -1136,6 +1136,10 @@ export default {
         let user = JSON.parse(localStorage.getItem(TokenKey));
         this.form.maintainer = user.id;
       }
+
+      testCase.fields.forEach(i => {
+        parseCustomFilesForItem(i);
+      });
 
       //设置自定义熟悉默认值
       this.customFieldForm = parseCustomField(
