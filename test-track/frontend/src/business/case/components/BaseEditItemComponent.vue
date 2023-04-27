@@ -511,7 +511,6 @@ export default {
 }
 .select {
   width: 100%;
-  max-height: px2rem(128);
   line-height: 32px;
   font-weight: 400;
   font-size: 14px;
