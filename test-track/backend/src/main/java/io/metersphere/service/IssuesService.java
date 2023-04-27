@@ -659,14 +659,7 @@ public class IssuesService {
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
-        request.getOrders().forEach(order -> {
-            if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
-                request.setIsCustomSorted(true);
-                request.setCustomFieldId(order.getName().replace("custom_", StringUtils.EMPTY));
-                order.setPrefix("cfi");
-                order.setName("value");
-            }
-        });
+        setCustomFieldsOrder(request);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
@@ -694,6 +687,21 @@ public class IssuesService {
         buildDescription(issues);
         buildCustomField(issues);
         return issues;
+    }
+
+    private void setCustomFieldsOrder(IssuesRequest request) {
+        request.getOrders().forEach(order -> {
+            if (StringUtils.isNotEmpty(order.getName()) && order.getName().startsWith("custom")) {
+                request.setIsCustomSorted(true);
+                String customId = order.getName().replace("custom_multiple-", StringUtils.EMPTY)
+                        .replace("custom_single-", StringUtils.EMPTY)
+                        .replace("custom_", StringUtils.EMPTY)
+                        .replace("custom-", StringUtils.EMPTY);
+                request.setCustomFieldId(customId);
+                order.setPrefix("cfi");
+                order.setName("value");
+            }
+        });
     }
 
     private void buildDescription(List<IssuesDao> issues) {
