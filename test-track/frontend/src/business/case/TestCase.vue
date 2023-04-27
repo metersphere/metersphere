@@ -231,7 +231,7 @@ export default {
     };
   },
   created() {
-    let projectId = this.$route.query.projectId;
+    let projectId = this.$route.params.projectId;
     if (projectId) {
       this.ignoreTreeNodes = true;
       if (projectId !== getCurrentProjectID() && projectId !== 'all') {

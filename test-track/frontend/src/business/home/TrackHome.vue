@@ -91,6 +91,7 @@ export default {
               redirectID: uuid,
               dataType: dataType,
               dataSelectRange: selectType,
+              projectId: projectId,
             },
           });
           break;
