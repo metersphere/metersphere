@@ -1,5 +1,6 @@
 package io.metersphere.api.exec.queue;
 
+import io.metersphere.api.jmeter.ApiLocalRunner;
 import io.metersphere.commons.utils.NamedThreadFactory;
 import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.utils.LoggerUtil;
@@ -118,6 +119,7 @@ public class ExecThreadPoolExecutor {
     }
 
     public void removeQueue(String reportId) {
+        ApiLocalRunner.stop(reportId);
         // 检查缓冲区
         Queue<JmeterRunRequestDTO> bufferQueue = msRejectedExecutionHandler.getBufferQueue();
         if (CollectionUtils.isNotEmpty(bufferQueue)) {

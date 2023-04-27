@@ -70,7 +70,7 @@ public class ApiScenarioParallelService {
 
     protected JmeterRunRequestDTO getJmeterRunRequestDTO(RunScenarioRequest request, String serialReportId, DBTestQueue executionQueue,
                                                          BaseSystemConfigDTO baseInfo, String reportId, RunModeDataDTO dataDTO) {
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode());
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(dataDTO.getTestId(), StringUtils.isNotEmpty(serialReportId) ? serialReportId : reportId, request.getRunMode(), request.getTriggerMode());
         runRequest.setReportType(StringUtils.isNotEmpty(serialReportId) ? RunModeConstants.SET_REPORT.toString() : RunModeConstants.INDEPENDENCE.toString());
         runRequest.setQueueId(executionQueue.getId());
         runRequest.setTestPlanReportId(request.getTestPlanReportId());

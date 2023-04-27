@@ -20,8 +20,10 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
 import io.metersphere.jmeter.JMeterBase;
-import io.metersphere.jmeter.LocalRunner;
-import io.metersphere.service.*;
+import io.metersphere.service.ApiPoolDebugService;
+import io.metersphere.service.PluginService;
+import io.metersphere.service.RedisTemplateService;
+import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -141,8 +143,8 @@ public class JMeterService {
         }
 
         LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());
-        LocalRunner runner = new LocalRunner(request.getHashTree());
-        runner.run(request.getReportId());
+        ApiLocalRunner runner = new ApiLocalRunner(request.getHashTree());
+        runner.run(request.getReportId(), request.getRunMode() , request.getTriggerMode());
     }
 
     private void fileProcessing(JmeterRunRequestDTO request) {

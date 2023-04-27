@@ -25,6 +25,7 @@ import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.dto.TaskRequestDTO;
 import io.metersphere.task.service.TaskService;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -231,5 +231,4 @@ public class ExtApiTaskService extends TaskService {
         }
         return new ArrayList<>();
     }
-
 }

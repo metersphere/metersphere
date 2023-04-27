@@ -311,8 +311,8 @@ export default {
         if (status === "pending" || status === 'stopped') {
           return 0;
         }
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
-          'pending' || status === 'fake_error') {
+        let statusArray = ['saved', 'completed', 'success','error','pending','fake_error'];
+        if (statusArray.includes(status)) {
           return 100;
         }
       }
@@ -321,8 +321,8 @@ export default {
     showStop(status) {
       if (status) {
         status = status.toLowerCase();
-        if (status === "stopped" || status === 'saved' || status === 'completed' || status === 'success' || status ===
-          'error' || status === 'pending' || status === 'fake_error') {
+        let statusArray = ['saved', 'completed', 'success','error','pending','fake_error', 'stopped'];
+        if (statusArray.includes(status)) {
           return false;
         }
       }
@@ -348,8 +348,8 @@ export default {
       let status = row.executionStatus;
       if (status) {
         status = row.executionStatus.toLowerCase();
-        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
-          'pending' || status === 'fake_error') {
+        let statusArray = ['saved', 'completed', 'success','error','pending','fake_error', 'stopped'];
+        if (statusArray.includes(status)) {
           this.executionModule = null;
           this.$nextTick(() => {
             this.size = window.innerWidth;
@@ -357,8 +357,6 @@ export default {
             this.executionModule = row.executionModule;
             this.reportType = row.reportType;
           })
-        } else if (status === 'stopped') {
-          this.$warning(this.$t('commons.run_stop'));
         } else {
           this.$warning(this.$t('commons.run_warning'))
         }

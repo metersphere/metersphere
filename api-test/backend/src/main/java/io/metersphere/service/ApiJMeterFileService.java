@@ -117,9 +117,8 @@ public class ApiJMeterFileService {
         }
         return scenario;
     }
-
     public byte[] downloadJmeterFiles(String runMode, String remoteTestId, String reportId, String reportType, String queueId) {
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode, null);
         runRequest.setReportType(reportType);
         runRequest.setQueueId(queueId);
         BooleanPool booleanPool = new BooleanPool();
