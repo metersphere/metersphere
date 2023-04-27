@@ -116,6 +116,7 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
         //删除可能出现的临时文件
         FileUtils.deleteBodyTmpFiles(this.getName());
         JvmUtil.memoryInfo();
+        ApiLocalRunner.clearCache(this.getName());
     }
 
     @Override

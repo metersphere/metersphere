@@ -2025,6 +2025,7 @@ public class ApiDefinitionService {
             record.setId(request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName());
             apiTestCaseMapper.updateByPrimaryKeySelective(record);
         }
+        request.setTriggerMode(TriggerMode.MANUAL.name());
         return apiExecuteService.debug(request, bodyFiles);
     }
 

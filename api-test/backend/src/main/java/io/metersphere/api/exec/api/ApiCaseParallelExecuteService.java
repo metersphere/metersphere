@@ -49,7 +49,7 @@ public class ApiCaseParallelExecuteService {
             }
             ApiDefinitionExecResultWithBLOBs result = executeQueue.get(testId);
             String reportId = result.getId();
-            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode);
+            JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, executionQueue.getTriggerMode());
             try {
                 runRequest.setPool(pool);
                 runRequest.setTestPlanReportId(executionQueue.getReportId());

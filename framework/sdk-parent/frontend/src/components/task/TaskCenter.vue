@@ -349,7 +349,7 @@ export default {
       if (status) {
         status = row.executionStatus.toLowerCase();
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error' || status ===
-          'pending' || status === 'fake_error') {
+          'pending' || status === 'fake_error' || status === 'stopped') {
           this.executionModule = null;
           this.$nextTick(() => {
             this.size = window.innerWidth;
@@ -357,8 +357,6 @@ export default {
             this.executionModule = row.executionModule;
             this.reportType = row.reportType;
           })
-        } else if (status === 'stopped') {
-          this.$warning(this.$t('commons.run_stop'));
         } else {
           this.$warning(this.$t('commons.run_warning'))
         }
