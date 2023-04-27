@@ -454,7 +454,9 @@ export default {
     if (ids) {
       this.condition.ids = ids;
     }
-    this.condition.unComing = true;
+    if (!this.isCreation && !this.isFocus) {
+      this.condition.unComing = true;
+    }
     this.initTableData();
     this.condition.ids = null;
   },
