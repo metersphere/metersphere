@@ -202,7 +202,6 @@
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
-        and tc.review_status in ('Prepare','Pass','UnPass')
         and tc.create_user = #{userId,jdbcType=VARCHAR}
         and (tc.status is null or tc.status Not IN ('Trash','Completed'));
     </select>
