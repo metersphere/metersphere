@@ -552,6 +552,7 @@
         </foreach>
         and ad.status in ('Prepare', 'Underway')
         and ad.user_id = #{userId,jdbcType=VARCHAR}
+        and ad.latest = 1
     </select>
 
 

@@ -4,11 +4,13 @@ package io.metersphere.workstation.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.ExecuteResult;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.request.ApiSyncCaseRequest;
+import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.api.ApiScenarioRequest;
 import io.metersphere.request.track.QueryTestCaseRequest;
 import io.metersphere.request.track.QueryTestPlanRequest;
@@ -27,6 +29,8 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.metersphere.workstation.util.ShareUtil.getTimeMills;
 
@@ -57,6 +61,9 @@ public class WorkstationService {
 
     @Resource
     private ExtProjectMapper extProjectMapper;
+
+    @Resource
+    private BaseProjectMapper baseProjectMapper;
 
     @Resource
     private ExtProjectApplicationMapper extProjectApplicationMapper;
@@ -152,10 +159,14 @@ public class WorkstationService {
 
     public Map<String, Integer> getUpcomingTotalCount(String workstationId){
         String userId = SessionUtils.getUserId();
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(workstationId);
-        if (CollectionUtils.isEmpty(projectIds)) {
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setWorkspaceId(workstationId);
+        projectRequest.setUserId(userId);
+        List<Project> projects = baseProjectMapper.getUserProject(projectRequest);
+        if (CollectionUtils.isEmpty(projects)) {
             return null;
         }
+        List<String> projectIds = projects.stream().map(Project::getId).toList();
         int caseUpcomingCount = extTestCaseMapper.getCountUpcoming(projectIds, userId);
         int planUpcomingCount = extTestPlanMapper.getCountUpcoming(projectIds, userId);
         int reviewUpcomingCount = extTestCaseReviewMapper.getCountUpcoming(projectIds, userId);
