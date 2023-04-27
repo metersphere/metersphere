@@ -228,7 +228,7 @@ public class TestCaseService {
             //新创建测试用例，默认使用最新版本
             request.setRefId(request.getId());
             request.setVersionId(baseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
-        } else if (StringUtils.isBlank(request.getRefId()) && StringUtils.isNotBlank(request.getVersionId())) {
+        } else if (StringUtils.isNotBlank(request.getVersionId())) {
             //从版本选择直接创建
             request.setRefId(request.getId());
         }
