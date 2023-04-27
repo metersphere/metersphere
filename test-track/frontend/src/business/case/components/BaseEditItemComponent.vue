@@ -314,6 +314,10 @@ export default {
           this.isCustomNone = false;
           return this.contentObject.content.defaultValue;
         }
+      } else if (['multipleInput'].indexOf(this.contentObject.content.type) > -1) {
+        if (this.contentObject.content.defaultValue && this.contentObject.content.defaultValue instanceof Array) {
+          return this.contentObject.content.defaultValue.join(' ');
+        }
       }
 
       if (!this.contentObject.content.defaultValue) {
