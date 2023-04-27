@@ -3,13 +3,13 @@ package io.metersphere.remote.service;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.remote.dto.QueryTestCaseRequest;
+import io.metersphere.request.QueryTestCaseRequest;
 import io.metersphere.service.MicroService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
