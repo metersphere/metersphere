@@ -43,42 +43,38 @@
       ref="table">
 
       <span v-for="(item, index) in fields" :key="index">
-
-       <ms-table-column
-         prop="projectName"
-         :fields-width="fieldsWidth"
-         :label="$t('test_track.case.project')"
-         v-if="item.id === 'projectName'"
-         min-width="150px">
-       </ms-table-column>
+         <ms-table-column
+           prop="projectName"
+           :fields-width="fieldsWidth"
+           :label="$t('test_track.case.project')"
+           v-if="item.id === 'projectName'"
+           min-width="150px">
+         </ms-table-column>
 
         <ms-table-column
           v-if="!customNum"
           :field="item"
           :fields-width="fieldsWidth"
-          prop="num"
-          sortable
+          :column-key="'num'"
+          :prop="'num'"
+          sortable="custom"
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <el-tooltip :content="$t('commons.edit')">
-              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
+            <a style="cursor:pointer"> {{ scope.row.num }} </a>
           </template>
         </ms-table-column>
 
         <ms-table-column
           v-if="item.id === 'num' && customNum"
-          :field="item"
           :fields-width="fieldsWidth"
+          :column-key="'customNum'"
           prop="customNum"
-          sortable
+          sortable="custom"
           :label="$t('commons.id')"
           min-width="80">
           <template v-slot:default="scope">
-            <el-tooltip :content="$t('commons.edit')">
-              <a style="cursor:pointer" @click="handleEdit(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
+            <a style="cursor:pointer"> {{ scope.row.customNum }} </a>
           </template>
         </ms-table-column>
 
@@ -186,7 +182,7 @@
 
     <ms-table-batch-operator-group v-if="selectCounts > 0" :batch-operators="batchButtons" :select-counts="selectCounts" @clear="clearTableSelect"/>
 
-    <home-pagination v-if="page.data.length > 0 && selectCounts == 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+    <home-pagination v-if="page.data.length > 0 && selectCounts === 0" :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                      :total="page.total" layout="total, prev, pager, next, sizes, jumper" style="margin-top: 19px"/>
 
     <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
