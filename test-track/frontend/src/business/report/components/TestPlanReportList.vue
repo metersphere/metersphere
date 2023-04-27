@@ -10,7 +10,7 @@
 
     <ms-table
       v-loading="loading"
-      operator-width="220px"
+      operator-width="110px"
       row-key="id"
       :data="tableData"
       :condition="condition"
@@ -62,7 +62,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           sortable="custom"
-          min-width="120"
+          min-width="180"
           :label="$t('test_track.report.list.create_time')"
           :show-overflow-tooltip="true"
         >
@@ -174,10 +174,10 @@ import ReportTriggerModeItem from "metersphere-frontend/src/components/tableItem
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import {
+  getCustomTableHeader,
+  getCustomTableWidth,
   getLastTableSortField,
   initCondition,
-  getCustomTableWidth,
-  getCustomTableHeader,
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
 import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
@@ -330,6 +330,7 @@ export default {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
+      this.formatCondition();
       this.loading = true;
       testPlanReportList(
         { pageNum: this.currentPage, pageSize: this.pageSize },
@@ -403,6 +404,24 @@ export default {
         this.initTableData();
         this.$refs.renameDialog.close();
       });
+    },
+    formatCondition() {
+      if (
+        this.condition &&
+        this.condition.combine &&
+        this.condition.combine.status &&
+        this.condition.combine.status.value
+      ) {
+        let formatValueArr = [];
+        this.condition.combine.status.value.forEach((item) => {
+          if (item === "Underway") {
+            formatValueArr.push("RUNNING");
+          } else {
+            formatValueArr.push(item);
+          }
+        });
+        this.condition.combine.status.value = formatValueArr;
+      }
     },
   },
 };

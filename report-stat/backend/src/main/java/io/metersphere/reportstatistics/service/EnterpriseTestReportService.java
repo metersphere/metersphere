@@ -359,9 +359,7 @@ public class EnterpriseTestReportService {
 
     private String genReportContent(EnterpriseTestReportWithBLOBs report, boolean isSchedule) {
         StringBuilder reportContent = new StringBuilder();
-        UserDTO user = baseUserService.getUserDTO(report.getCreateUser());
         List<EnterpriseReportContentStep> stepList = JSONUtil.parseArray(report.getReportContent(), EnterpriseReportContentStep.class);
-        Map<String, String> syncReportMap = this.getSyncReportMap(stepList, user, isSchedule);
         for (EnterpriseReportContentStep step : stepList) {
             String title = EmailPageInfoUtil.generateEmailStepTitle(step.getName());
             reportContent.append(title);
@@ -374,16 +372,6 @@ public class EnterpriseTestReportService {
                 }
                 reportContent.append(previweContent);
             } else if (isReportStep(step.getType())) {
-                if (isSchedule && syncReportMap.containsKey(step.getReportRecordId())) {
-                    //定时任务触发的数据，需要检查图片是否需要重新生成。如果生成失败，syncReportMap里有对应的步骤id，但是没有图片数据
-                    String imageFile = syncReportMap.get(step.getReportRecordId());
-                    if (StringUtils.isNotEmpty(imageFile)) {
-                        step.setRecordImageContent(imageFile);
-                    } else {
-                        step.setRecordImageContent(null);
-                    }
-                }
-
                 if (StringUtils.isNotEmpty(step.getRecordImageContent())) {
                     reportContent.append(EmailPageInfoUtil.generatePicInfo(step.getReportRecordId(), step.getRecordImageContent()));
                 }

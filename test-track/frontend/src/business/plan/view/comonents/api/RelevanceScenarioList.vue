@@ -118,7 +118,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="userId"
+        prop="userName"
         :label="$t('api_test.automation.creator')"
         show-overflow-tooltip
         sortable="custom"
