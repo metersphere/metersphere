@@ -320,7 +320,8 @@
         SELECT p.name
         FROM test_plan tp
                  INNER JOIN project p ON p.id = tp.project_id
-        WHERE tp.id = #{0} limit 1;
+        WHERE tp.id = #{0}
+        limit 1;
     </select>
     <select id="findIdByPerformanceReportId" resultType="java.lang.String">
         SELECT report.id
@@ -418,13 +419,17 @@
             </if>
         </where>
     </select>
-    <update id="updateActualEndTimeIsNullById">
+    <update id="updateStatusAndActStartTimeAndSetActEndTimeNullById">
         update test_plan
-        set actual_end_time = null
-        where id = #{0}
+        set actual_start_time = #{actStartTime},
+            actual_end_time   = null,
+            status            = #{status}
+        where id = #{testPlanId}
     </update>
 
     <select id="checkSyncTestCaseExecResultByTestPlanId" resultType="java.lang.Boolean">
-        SELECT automatic_status_update FROM test_plan WHERE id = #{0}
+        SELECT automatic_status_update
+        FROM test_plan
+        WHERE id = #{0}
     </select>
 </mapper>
