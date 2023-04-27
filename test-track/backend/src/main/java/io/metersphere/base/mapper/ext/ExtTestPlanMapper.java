@@ -35,8 +35,6 @@ public interface ExtTestPlanMapper {
 
     List<TestPlan> listRecent(@Param("userId") String userId, @Param("projectId") String currentProjectId);
 
-    int updateActualEndTimeIsNullById(String testPlanID);
-
     @MapKey("id")
     Map<String, ParamsDTO> testPlanTestCaseCount(@Param("planIds") List<String> planIds);
 
@@ -55,4 +53,7 @@ public interface ExtTestPlanMapper {
     List<TestPlanDTO> planListAll(@Param("request") QueryTestPlanRequest params);
 
     Boolean checkSyncTestCaseExecResultByTestPlanId(String testPlanId);
+
+    void updateStatusAndActStartTimeAndSetActEndTimeNullById(@Param("testPlanId") String testPlanId, @Param("actStartTime") long actStartTime, @Param("status") String status);
+
 }

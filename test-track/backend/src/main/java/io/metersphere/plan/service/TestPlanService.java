@@ -1874,12 +1874,7 @@ public class TestPlanService {
     }
 
     private void updateTestPlanExecuteInfo(String testPlanId, String status) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
-        if (testPlan != null) {
-            testPlan.setStatus(status);
-            testPlan.setActualEndTime(null);
-            testPlanMapper.updateByPrimaryKey(testPlan);
-        }
+        extTestPlanMapper.updateStatusAndActStartTimeAndSetActEndTimeNullById(testPlanId, System.currentTimeMillis(), status);
     }
 
     public RunModeConfigDTO getRunModeConfigDTO(TestPlanRunRequest testplanRunRequest, String
@@ -2128,7 +2123,7 @@ public class TestPlanService {
                 this.verifyPool(testPlan.getProjectId(), runModeConfigDTO);
             }
             //测试计划准备执行，取消测试计划的实际结束时间
-            extTestPlanMapper.updateActualEndTimeIsNullById(testPlan.getId());
+            extTestPlanMapper.updateStatusAndActStartTimeAndSetActEndTimeNullById(testPlan.getId(), System.currentTimeMillis(), TestPlanStatus.Underway.name());
             executeQueue.put(testPlan.getId(), planReportId);
         }
 
@@ -2301,10 +2296,7 @@ public class TestPlanService {
     public String runTestPlanBySchedule(String testPlanId, String projectId, String userId, String triggerMode, String planReportId, String executionWay, String apiRunConfig) {
         //定时任务执行重新设置实际开始时间
         if (StringUtils.equals(triggerMode, TriggerMode.SCHEDULE.name())) {
-            TestPlanWithBLOBs testPlanWithBLOBs = new TestPlanWithBLOBs();
-            testPlanWithBLOBs.setId(testPlanId);
-            testPlanWithBLOBs.setActualStartTime(System.currentTimeMillis());
-            testPlanMapper.updateByPrimaryKeySelective(testPlanWithBLOBs);
+            extTestPlanMapper.updateStatusAndActStartTimeAndSetActEndTimeNullById(testPlanId, System.currentTimeMillis(), TestPlanStatus.Underway.name());
         }
         return testPlanExecuteService.runTestPlan(testPlanId, projectId, userId, triggerMode, planReportId, executionWay, apiRunConfig);
     }
