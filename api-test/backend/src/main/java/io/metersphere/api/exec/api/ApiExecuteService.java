@@ -128,7 +128,7 @@ public class ApiExecuteService {
         jMeterService.verifyPool(testCaseWithBLOBs.getProjectId(), runModeConfigDTO);
 
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), null);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCaseWithBLOBs.getId(), StringUtils.isEmpty(request.getReportId()) ? request.getId() : request.getReportId(), request.getRunMode(), null, null);
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs, runModeConfigDTO);
@@ -236,7 +236,7 @@ public class ApiExecuteService {
         // 检查执行内容合规性
         PerformInspectionUtil.inspection(jmx, testId, 4);
 
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode,request.getTriggerMode(), hashTree);
         runRequest.setDebug(request.isDebug());
         runRequest.setRunMode(runMode);
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{

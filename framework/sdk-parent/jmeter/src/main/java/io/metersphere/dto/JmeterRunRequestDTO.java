@@ -97,22 +97,26 @@ public class JmeterRunRequestDTO {
     //自定义jar信息
     private Map<String, List<ProjectJarConfig>> customJarInfo;
 
+    private String triggerMode;
+
     public JmeterRunRequestDTO() {
     }
 
-    public JmeterRunRequestDTO(String testId, String reportId, String runMode) {
+    public JmeterRunRequestDTO(String testId, String reportId, String runMode, String triggerMode) {
         this.testId = testId;
         this.reportId = reportId;
         this.runMode = runMode;
+        this.triggerMode = triggerMode;
         this.reportType = RunModeConstants.INDEPENDENCE.name();
         this.pool = new BooleanPool();
         this.extendedParameters = new LinkedHashMap<>();
     }
 
-    public JmeterRunRequestDTO(String testId, String reportId, String runMode, HashTree hashTree) {
+    public JmeterRunRequestDTO(String testId, String reportId, String runMode, String triggerMode , HashTree hashTree) {
         this.testId = testId;
         this.reportId = reportId;
         this.runMode = runMode;
+        this.triggerMode = triggerMode;
         this.reportType = RunModeConstants.INDEPENDENCE.name();
         this.hashTree = hashTree;
         this.pool = new BooleanPool();

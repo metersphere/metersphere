@@ -76,6 +76,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             resultVO = ReportStatusUtil.getStatus(dto, resultVO);
             dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, resultVO);
             sampleResults.clear();
+            ApiLocalRunner.clearCache(dto.getReportId());
         }
     }
 
@@ -129,6 +130,7 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
                 LoggerUtil.info("进入监听，开始关闭CSV", dto.getReportId());
                 FileServer.getFileServer().closeCsv(dto.getReportId());
             }
+            ApiLocalRunner.clearCache(dto.getReportId());
         }
     }
 

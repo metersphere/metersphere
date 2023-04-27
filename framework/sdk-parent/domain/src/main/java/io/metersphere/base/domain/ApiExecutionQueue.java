@@ -14,6 +14,8 @@ public class ApiExecutionQueue implements Serializable {
 
     private String runMode;
 
+    private String triggerMode;
+
     private String poolId;
 
     private Long createTime;

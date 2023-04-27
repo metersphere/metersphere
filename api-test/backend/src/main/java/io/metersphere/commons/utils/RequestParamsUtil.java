@@ -10,7 +10,7 @@ import io.metersphere.service.SystemParameterService;
 public class RequestParamsUtil {
 
     public static JmeterRunRequestDTO init(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue, String reportId) {
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode());
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), executionQueue.getTriggerMode());
         runRequest.setRetryEnable(queue.getRetryEnable() == null ? false : queue.getRetryEnable());
         runRequest.setRetryNum(queue.getRetryNumber());
         runRequest.setReportType(executionQueue.getReportType());

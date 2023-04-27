@@ -155,7 +155,9 @@ public class ApiScenarioExecuteService {
         String planReportId = StringUtils.isNotEmpty(request.getTestPlanReportId()) ? request.getTestPlanReportId() : serialReportId;
         // 生成执行队列
         DBTestQueue executionQueue = apiExecutionQueueService.add(
-                executeQueue, request.getConfig().getResourcePoolId(), ApiRunMode.SCENARIO.name(), planReportId, reportType, request.getRunMode(), request.getConfig());
+                executeQueue, request.getConfig().getResourcePoolId(),
+                ApiRunMode.SCENARIO.name(), planReportId, reportType,
+                request.getRunMode(), request.getTriggerMode(),  request.getConfig());
 
         // 预生成报告
         if (!request.isRerun() && !GenerateHashTreeUtil.isSetReport(request.getConfig())) {
@@ -445,7 +447,7 @@ public class ApiScenarioExecuteService {
         this.testElement(request);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, request.getTriggerMode(), hashTree);
         runRequest.setDebug(true);
 
         String jmx = request.getTestElement().getJmx(hashTree);

@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
+import io.metersphere.api.jmeter.ApiLocalRunner;
 import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -36,6 +37,7 @@ public class RemakeReportService {
         } catch (Exception e) {
             LoggerUtil.error("回退报告异常", request.getReportId(), e);
         } finally {
+            ApiLocalRunner.clearCache(request.getReportId());
             redisTemplateService.delete(JmxFileUtil.getExecuteScriptKey(request.getReportId(), request.getTestId()));
             redisTemplateService.delete(JmxFileUtil.getExecuteFileKeyInRedis(request.getReportId()));
         }
