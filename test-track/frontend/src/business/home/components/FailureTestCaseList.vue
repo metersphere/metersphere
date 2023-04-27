@@ -209,7 +209,7 @@ export default {
           );
           break;
         case "testCase":
-          this.$emit("redirectPage", "testCase", "case", "single:" + param);
+          this.$emit("redirectPage", "testCase", "case", "single:" + param, projectId);
           break;
       }
     },

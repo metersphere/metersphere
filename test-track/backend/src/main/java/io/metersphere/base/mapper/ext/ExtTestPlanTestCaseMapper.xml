@@ -669,31 +669,27 @@
     </update>
     <select id="findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
             resultType="io.metersphere.dto.ExecutedCaseInfoResult">
-        SELECT * FROM (
-          SELECT
-              testCase.id AS testCaseID,
-              testCase.id AS id,
-              testCase.`name` AS caseName,
-              testCasePlan.testPlanName AS testPlan,
-              testCasePlan.testPlanId AS testPlanId,
-              count( executionInfo.id ) AS failureTimes,
-              'testCase' AS caseType
-          FROM
-              function_case_execution_info executionInfo
-                  INNER JOIN (
-                  SELECT
-                      testPlanTestCase.id,
-                      testPlanTestCase.case_id,
-                      testPlan.id AS testPlanId,
-                      testPlan.`name` AS testPlanName
-                  FROM
-                      test_plan_test_case testPlanTestCase
-                          INNER JOIN test_plan testPlan ON testPlan.id = testPlanTestCase.plan_id
-                  WHERE testPlan.project_id = #{projectId}
-              ) testCasePlan ON testCasePlan.id = executionInfo.source_id
-                  INNER JOIN test_case testCase ON testCase.id = testCasePlan.case_id
-          WHERE
-            testCase.`status` != 'Trash'
+        SELECT *
+        FROM (SELECT testCase.id               AS testCaseID,
+                     testCase.id               AS id,
+                     testCase.`name`           AS caseName,
+                     testCasePlan.testPlanName AS testPlan,
+                     testCasePlan.testPlanId   AS testPlanId,
+                     count(executionInfo.id)   AS failureTimes,
+                     'testCase'                AS caseType,
+                     testCase.project_id       AS projectId
+              FROM function_case_execution_info executionInfo
+                       INNER JOIN (SELECT testPlanTestCase.id,
+                                          testPlanTestCase.case_id,
+                                          testPlan.id     AS testPlanId,
+                                          testPlan.`name` AS testPlanName,
+                                          testPlan.project_id
+                                   FROM test_plan_test_case testPlanTestCase
+                                            INNER JOIN test_plan testPlan ON testPlan.id = testPlanTestCase.plan_id
+                                   WHERE testPlan.project_id = #{projectId}) testCasePlan
+                                  ON testCasePlan.id = executionInfo.source_id
+                       INNER JOIN test_case testCase ON testCase.id = testCasePlan.case_id
+              WHERE testCase.`status` != 'Trash'
             AND ( executionInfo.result = 'Failure' )
             AND executionInfo.create_time >= #{startTimestamp}
           GROUP BY testCase.id
