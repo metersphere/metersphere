@@ -4,7 +4,7 @@
     <div class="state-preview-row" v-if="state === 'PREVIEW'">
       <ms-mark-down-text
         prop="richText"
-        :data="tempFormData"
+        :data="formData"
         :disabled="true"
       />
     </div>
