@@ -98,7 +98,7 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="createName"
+          prop="createUser"
           min-width="120"
           :field="item"
           :fields-width="fieldsWidth"
