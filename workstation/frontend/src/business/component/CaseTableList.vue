@@ -429,7 +429,7 @@ export default {
         this.condition.filters.review_status = ["Prepare", "Underway", "Pass", "UnPass"];
       } else {
         this.condition.filters = {
-          review_status: ["Prepare", "Pass", "UnPass"],
+          review_status: ["Prepare", "Underway", "Pass", "UnPass"],
         };
       }
     }
@@ -454,7 +454,9 @@ export default {
     if (ids) {
       this.condition.ids = ids;
     }
-    this.condition.unComing = true;
+    if (!this.isCreation && !this.isFocus) {
+      this.condition.unComing = true;
+    }
     this.initTableData();
     this.condition.ids = null;
   },
