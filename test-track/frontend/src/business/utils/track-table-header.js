@@ -121,7 +121,7 @@ const TRACK_HEADER = {
     {id: 'versionId', key: 'b', label: 'project.version.name', xpack: true},
     {id: 'projectName', key: '5', label: 'test_track.case.project'},
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
-    {id: 'createName', key: '7', label: 'commons.create_user'},
+    {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
     {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
     {id: 'lastExecuteResult', key: '0', label: 'test_track.plan_view.execute_result'},
