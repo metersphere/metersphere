@@ -856,6 +856,7 @@ const message = {
       jira_prompt_information:
         "This information is the user authentication information for submitting defects through Jira. If it is not filled in, the default information configured in the workspace will be used",
       jira_information: "Jira information",
+      azure_url_check: "Please enter currect Azure Devops Url",
     },
   },
   project: {
