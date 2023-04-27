@@ -1132,7 +1132,8 @@
         test_case.create_time,
         test_case.update_time,
         project_version.name versionName,
-        project_version.id versionId
+        project_version.id versionId,
+        test_case.last_execute_result
         FROM
         test_case AS test_case
         inner join project_version on project_version.project_id = test_case.project_id and project_version.id =
