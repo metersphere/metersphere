@@ -838,6 +838,7 @@ const message = {
       jira_prompt_information:
         "该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用工作空间中配置的默认信息",
       jira_information: "Jira 信息",
+      azure_url_check: "请输入正确的Azure Devops地址",
     },
   },
   project: {

@@ -71,7 +71,7 @@
 <script>
 import BugManageBtn from "./BugManageBtn";
 import {getCurrentUser, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
-import {AZURE_DEVOPS} from "metersphere-frontend/src/utils/constants";
+import {AZURE_DEVOPS,AZURE_DEVOP_URL} from "metersphere-frontend/src/utils/constants";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import MsPersonRouter from "metersphere-frontend/src/components/personal/PersonRouter";
 import {
@@ -188,6 +188,10 @@ export default {
       });
     },
     testConnection() {
+      if (!(this.form.url === AZURE_DEVOP_URL)) {
+        this.$warning(this.$t('organization.integration.azure_url_check'));
+        return false;
+      }
       if (this.form.pat) {
         this.$parent.loading = authServiceIntegration(getCurrentWorkspaceId(), AZURE_DEVOPS).then(() => {
           this.$success(this.$t('organization.integration.verified'));
