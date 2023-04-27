@@ -216,6 +216,7 @@ public class ApiScenarioController {
             if (StringUtils.isEmpty(request.getExecuteType())) {
                 request.setExecuteType(ExecuteType.Debug.name());
             }
+            request.setTriggerMode(TriggerMode.MANUAL.name());
             apiAutomationService.debugRun(request, bodyFiles, scenarioFiles);
         } catch (Exception e) {
             return e.getMessage();
