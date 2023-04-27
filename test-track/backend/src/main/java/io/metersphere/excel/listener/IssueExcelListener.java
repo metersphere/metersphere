@@ -413,6 +413,11 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                 Integer.parseInt(value);
             } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
                 Float.parseFloat(value);
+            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue())) {
+                Object val = JSON.parseObject(value);
+                if (val instanceof ArrayList<?>) {
+                    return Boolean.TRUE;
+                }
             }
             return Boolean.FALSE;
         } catch (Exception e) {
