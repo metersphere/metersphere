@@ -505,10 +505,18 @@ export default {
       let formData = this.getSaveOption();
       this.loading = saveTest(this.test, formData).then(({ data }) => {
         this.test.id = data.data.id;
+        if (this.$route.path.indexOf("/performance/test/edit/") < 0) {
+          this.$router.push({
+            path: "/performance/test/edit/" + data.data.id,
+          });
+        } else {
+          this.$refs.basicConfig.uploadList = [];
+          this.getTest(this.test.id);
+        }
         this.$success(this.$t("commons.save_success"));
         runTest(this.test).then((response) => {
           let reportId = response.data;
-          this.$router.push({ path: "/performance/report/view/" + reportId });
+          this.$router.push({path: "/performance/report/view/" + reportId});
         });
       });
     },
