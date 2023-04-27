@@ -98,14 +98,14 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="createName"
+          prop="createUser"
           min-width="120"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
           :filters="userFilter">
            <template v-slot:default="scope">
-            {{ scope.row.createName }}
+             {{ getCreateUserName(scope.row.createUser) }}
           </template>
         </ms-table-column>
 
@@ -608,6 +608,10 @@ export default {
         getVersionFilters(getCurrentWorkspaceId())
           .then(r =>  this.versionFilters = r.data);
       }
+    },
+    getCreateUserName(userId) {
+      let user = this.userFilter.filter(item => item.value === userId);
+      return user.length > 0 ? user[0].text : "";
     },
   }
 };
