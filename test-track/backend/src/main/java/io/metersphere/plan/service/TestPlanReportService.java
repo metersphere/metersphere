@@ -1321,7 +1321,7 @@ public class TestPlanReportService {
         TestPlanUiExecuteReportDTO uiExecuteReportDTO = new TestPlanUiExecuteReportDTO();
         if (StringUtils.isNotEmpty(reportStructStr)) {
             Map<String, String> uiReportMap = new HashMap<>();
-            Map<String, TestPlanUiScenarioDTO> uiDTOMap = new HashMap<>();
+            Map<String, TestPlanUiScenarioDTO> uiDTOMap = new LinkedHashMap<>();
             List<TestPlanUiScenarioDTO> testPlanUiScenarioDTOList = null;
             try {
                 testPlanUiScenarioDTOList = JSON.parseArray(reportStructStr, TestPlanUiScenarioDTO.class);
