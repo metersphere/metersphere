@@ -6,6 +6,7 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
@@ -29,6 +30,8 @@ public class ApiScenarioParallelService {
     protected SystemParameterService systemParameterService;
     @Resource
     protected RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void parallel(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId, DBTestQueue executionQueue) {
         // 初始化分配策略
@@ -44,14 +47,21 @@ public class ApiScenarioParallelService {
             }
             RunModeDataDTO dataDTO = executeQueue.get(reportId);
             JmeterRunRequestDTO runRequest = getJmeterRunRequestDTO(request, serialReportId, executionQueue, baseInfo, reportId, dataDTO);
-            runRequest.setPool(pool);
-            runRequest.setPoolId(request.getConfig().getResourcePoolId());
-
-            // 本地执行生成hashTree
-            if (!pool.isPool()) {
-                runRequest.setHashTree(GenerateHashTreeUtil.generateHashTree(dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
+            try {
+                runRequest.setPool(pool);
+                runRequest.setPoolId(request.getConfig().getResourcePoolId());
+                // 本地执行生成hashTree
+                if (!pool.isPool()) {
+                    runRequest.setHashTree(
+                            GenerateHashTreeUtil.generateHashTree(
+                                    dataDTO.getScenario(), dataDTO.getPlanEnvMap(), runRequest));
+                }
+            } catch (Exception ex) {
+                remakeReportService.testEnded(runRequest, ex.getMessage());
+                continue;
             }
-            LoggerUtil.info("进入并行模式，准备执行场景：[ " + executeQueue.get(reportId).getReport().getName() + " ]", reportId);
+            LoggerUtil.info("进入并行模式，准备执行场景：[ "
+                    + executeQueue.get(reportId).getReport().getName() + " ]", reportId);
             jMeterService.run(runRequest);
         }
     }

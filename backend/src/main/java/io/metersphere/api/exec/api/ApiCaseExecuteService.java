@@ -12,10 +12,7 @@ import io.metersphere.api.exec.utils.ApiDefinitionExecResultUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.ApiCaseResultService;
-import io.metersphere.api.service.ApiExecutionQueueService;
-import io.metersphere.api.service.ApiScenarioReportStructureService;
-import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
@@ -67,6 +64,8 @@ public class ApiCaseExecuteService {
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     /**
      * 测试计划case执行
@@ -84,7 +83,7 @@ public class ApiCaseExecuteService {
         if (StringUtils.equals("GROUP", request.getConfig().getEnvironmentType()) && StringUtils.isNotEmpty(request.getConfig().getEnvironmentGroupId())) {
             request.getConfig().setEnvMap(environmentGroupProjectService.getEnvMap(request.getConfig().getEnvironmentGroupId()));
         }
-        LoggerUtil.debug("开始查询测试计划用例");
+        LoggerUtil.info("开始查询测试计划用例", request.getPlanReportId());
 
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(request.getPlanIds());
@@ -93,7 +92,7 @@ public class ApiCaseExecuteService {
         if (StringUtils.isEmpty(request.getTriggerMode())) {
             request.setTriggerMode(ApiRunMode.API_PLAN.name());
         }
-        LoggerUtil.debug("查询到测试计划用例 " + planApiCases.size());
+        LoggerUtil.info("查询到测试计划用例 " + planApiCases.size(), request.getPlanReportId());
 
         Map<String, ApiDefinitionExecResult> executeQueue = new LinkedHashMap<>();
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();
@@ -123,10 +122,11 @@ public class ApiCaseExecuteService {
                     report.setProjectId(plan.getProjectId());
                 }
             }
-            jMeterService.verifyPool(planProjects.get(testPlanApiCase.getTestPlanId()),request.getConfig());
+            jMeterService.verifyPool(planProjects.get(testPlanApiCase.getTestPlanId()), request.getConfig());
             executeQueue.put(testPlanApiCase.getId(), report);
             responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
-            LoggerUtil.debug("预生成测试用例结果报告：" + report.getName() + ", ID " + report.getId());
+            // 执行中资源锁住，防止重复更新造成LOCK WAIT
+            redisTemplateService.lock(testPlanApiCase.getId(), report.getId());
         }
 
         apiCaseResultService.batchSave(executeQueue);

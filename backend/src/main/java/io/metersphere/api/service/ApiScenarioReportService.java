@@ -4,23 +4,74 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.APIReportBatchRequest;
+import io.metersphere.api.dto.ApiScenarioReportDTO;
+import io.metersphere.api.dto.DeleteAPIReportRequest;
+import io.metersphere.api.dto.EnvironmentType;
+import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.exec.scenario.TestPlanResourceService;
 import io.metersphere.api.jmeter.FixedCapacityUtils;
 import io.metersphere.api.service.utils.PassRateUtil;
-import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiDefinitionExecResultExample;
+import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiScenarioReportDetail;
+import io.metersphere.base.domain.ApiScenarioReportDetailExample;
+import io.metersphere.base.domain.ApiScenarioReportExample;
+import io.metersphere.base.domain.ApiScenarioReportResultExample;
+import io.metersphere.base.domain.ApiScenarioReportResultWithBLOBs;
+import io.metersphere.base.domain.ApiScenarioReportStructureExample;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironment;
+import io.metersphere.base.domain.ApiTestEnvironmentExample;
+import io.metersphere.base.domain.EnvironmentGroup;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.TestPlanApiScenario;
+import io.metersphere.base.domain.UiScenarioWithBLOBs;
+import io.metersphere.base.domain.User;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
+import io.metersphere.base.mapper.ApiScenarioReportStructureMapper;
+import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.EnvironmentGroupMapper;
+import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.base.mapper.UiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportResultMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ExecuteResult;
+import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.ReportTypeConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.ApiReportCountDTO;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.MsExecResponseDTO;
+import io.metersphere.dto.RequestResult;
+import io.metersphere.dto.ResultDTO;
+import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -37,8 +88,6 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,13 +96,20 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiScenarioReportService {
-    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
@@ -92,6 +148,10 @@ public class ApiScenarioReportService {
     private UiReportServiceProxy uiReportServiceProxy;
     @Resource
     private ExtApiScenarioReportResultMapper extApiScenarioReportResultMapper;
+    @Resource
+    private RedisTemplateService redisTemplateService;
+    @Resource
+    private TestPlanResourceService testPlanResourceService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -231,7 +291,7 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReport editReport(String reportType, String reportId, String status, String runMode) {
+    public ApiScenarioReport editReport(String reportType, String reportId, String status, String runMode, TestPlanApiScenario planScenario) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         if (report == null) {
             report = new ApiScenarioReport();
@@ -254,6 +314,10 @@ public class ApiScenarioReportService {
         if (report.getExecuteType().equals(ExecuteType.Debug.name()) &&
                 report.getReportType().equals(ReportTypeConstants.UI_INDEPENDENT.name())) {
             return report;
+        }
+        if (planScenario != null) {
+            report.setScenarioId(planScenario.getApiScenarioId());
+            report.setEndTime(System.currentTimeMillis());
         }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
@@ -283,72 +347,74 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updatePlanCase(ResultDTO dto) {
         String status = getStatus(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
-        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
-        if (testPlanApiScenario != null) {
-            if (report != null) {
-                testPlanApiScenario.setLastResult(report.getStatus());
-            } else {
-                testPlanApiScenario.setLastResult(StringUtils.endsWithIgnoreCase(status, ScenarioStatus.Error.name())
-                        ? ScenarioStatus.Fail.name() : status);
-
-            }
-            long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-
-            String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
-            testPlanApiScenario.setPassRate(passRate);
-            testPlanApiScenario.setReportId(dto.getReportId());
-            testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
-            testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-
-            // 更新场景状态
-            ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
-            if (scenario != null) {
-                scenario.setLastResult(StringUtils.endsWithIgnoreCase(status, ScenarioStatus.Error.name())
-                        ? ScenarioStatus.Fail.name() : status);
-                scenario.setPassRate(passRate);
-                scenario.setReportId(dto.getReportId());
-                int executeTimes = 0;
-                if (scenario.getExecuteTimes() != null) {
-                    executeTimes = scenario.getExecuteTimes().intValue();
-                }
-                scenario.setExecuteTimes(executeTimes + 1);
-                apiScenarioMapper.updateByPrimaryKey(scenario);
-            }
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode(), null);
+        if (!redisTemplateService.hasReport(dto.getTestId(), report.getId())) {
+            return report;
         }
-
-        return report;
-    }
-
-
-    public ApiScenarioReport updateSchedulePlanCase(ResultDTO dto) {
-        List<String> testPlanReportIdList = new ArrayList<>();
-        StringBuilder scenarioNames = new StringBuilder();
-
-        String status = getStatus(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
-        if (report != null) {
-            if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
-                testPlanReportIdList.add(dto.getTestPlanReportId());
-            }
+        try {
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
             if (testPlanApiScenario != null) {
-                report.setScenarioId(testPlanApiScenario.getApiScenarioId());
-                report.setEndTime(System.currentTimeMillis());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-                testPlanApiScenario.setLastResult(report.getStatus());
-                long successSize = dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
-                String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
-                testPlanApiScenario.setPassRate(passRate);
+                if (report != null) {
+                    testPlanApiScenario.setLastResult(report.getStatus());
+                } else {
+                    testPlanApiScenario.setLastResult(StringUtils.endsWithIgnoreCase(status, ScenarioStatus.Error.name())
+                            ? ScenarioStatus.Fail.name() : status);
 
-                testPlanApiScenario.setReportId(report.getId());
-                report.setEndTime(System.currentTimeMillis());
+                }
+                long successSize = dto.getRequestResults().stream().filter(requestResult ->
+                        StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
+
+                String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
+                passRate = StringUtils.equals(passRate, "NaN") ? "0%" : passRate;
+                testPlanApiScenario.setPassRate(passRate);
+                testPlanApiScenario.setReportId(dto.getReportId());
                 testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
-                testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-                scenarioNames.append(report.getName()).append(",");
+                testPlanResourceService.updatePlanScenario(testPlanApiScenario);
 
                 // 更新场景状态
                 ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+                if (scenario != null) {
+                    scenario.setLastResult(StringUtils.endsWithIgnoreCase(status, ScenarioStatus.Error.name())
+                            ? ScenarioStatus.Fail.name() : status);
+                    scenario.setPassRate(passRate);
+                    scenario.setReportId(dto.getReportId());
+                    int executeTimes = 0;
+                    if (scenario.getExecuteTimes() != null) {
+                        executeTimes = scenario.getExecuteTimes().intValue();
+                    }
+                    scenario.setExecuteTimes(executeTimes + 1);
+                    testPlanResourceService.updateScenario(scenario);
+                }
+            }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        } finally {
+            redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
+        }
+        return report;
+    }
+
+    public ApiScenarioReport updateSchedulePlanCase(ResultDTO dto) {
+        String status = getStatus(dto);
+        TestPlanApiScenario planScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode(), planScenario);
+        if (!redisTemplateService.hasReport(dto.getTestId(), report.getId())) {
+            return report;
+        }
+        try {
+            if (report != null && planScenario != null) {
+                planScenario.setLastResult(report.getStatus());
+                long successSize = dto.getRequestResults().stream().filter(requestResult ->
+                        StringUtils.equalsIgnoreCase(requestResult.getStatus(), ScenarioStatus.Success.name())).count();
+                String passRate = new DecimalFormat("0%").format((float) successSize / dto.getRequestResults().size());
+                passRate = StringUtils.equals(passRate, "NaN") ? "0%" : passRate;
+                planScenario.setPassRate(passRate);
+                planScenario.setReportId(report.getId());
+                planScenario.setUpdateTime(System.currentTimeMillis());
+                testPlanResourceService.updatePlanScenario(planScenario);
+
+                // 更新场景状态
+                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(planScenario.getApiScenarioId());
                 if (scenario != null) {
                     scenario.setLastResult(StringUtils.endsWithIgnoreCase(status, ScenarioStatus.Error.name())
                             ? ScenarioStatus.Fail.name() : status);
@@ -359,9 +425,13 @@ public class ApiScenarioReportService {
                         executeTimes = scenario.getExecuteTimes().intValue();
                     }
                     scenario.setExecuteTimes(executeTimes + 1);
-                    apiScenarioMapper.updateByPrimaryKey(scenario);
+                    testPlanResourceService.updateScenario(scenario);
                 }
             }
+        } catch (Exception e) {
+            LoggerUtil.error(e);
+        } finally {
+            redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
         }
         return report;
     }
@@ -432,7 +502,7 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updateScenario(ResultDTO dto) {
         // 更新报告状态
         String status = getStatus(dto);
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode(), null);
         // 更新场景状态
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (scenario == null) {
@@ -469,7 +539,7 @@ public class ApiScenarioReportService {
         // 更新报告状态
         String status = getStatus(dto);
 
-        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode());
+        ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), status, dto.getRunMode(), null);
         // 更新场景状态
         UiScenarioWithBLOBs scenario = uiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (scenario == null) {

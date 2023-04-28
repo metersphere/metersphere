@@ -11,6 +11,7 @@ import io.metersphere.api.service.RedisTemplateService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaConfig;
@@ -181,7 +182,7 @@ public class JMeterService {
             }
             if (config == null) {
                 LoggerUtil.info("未获取到资源池，请检查配置【系统设置-系统-测试资源池】", request.getReportId());
-                remakeReportService.remake(request);
+                remakeReportService.testEnded(request, "未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
                 return;
             }
             request.setCorePoolSize(config.getCorePoolSize());
@@ -189,12 +190,11 @@ public class JMeterService {
             LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + config.getUrl() + " 节点执行", request.getReportId());
             ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                remakeReportService.remake(request);
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败", request.getReportId());
-                LoggerUtil.info(result.getBody());
+                MSException.throwException("资源池执行失败：" + result.getBody());
             }
         } catch (Exception e) {
-            remakeReportService.remake(request);
+            remakeReportService.testEnded(request, e.getMessage());
             LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 执行失败,进行数据回滚：", request.getReportId(), e);
         }
     }

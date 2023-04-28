@@ -5,6 +5,7 @@ import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
+import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
@@ -31,6 +32,8 @@ public class ApiCaseParallelExecuteService {
     private JMeterService jMeterService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void parallel(Map<String, ApiDefinitionExecResult> executeQueue, RunModeConfigDTO config, DBTestQueue executionQueue, String runMode) {
         BooleanPool pool = GenerateHashTreeUtil.isResourcePool(config.getResourcePoolId());
@@ -47,24 +50,29 @@ public class ApiCaseParallelExecuteService {
             ApiDefinitionExecResult result = executeQueue.get(testId);
             String reportId = result.getId();
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, reportId, runMode, null);
-            runRequest.setPool(pool);
-            runRequest.setTestPlanReportId(executionQueue.getReportId());
-            runRequest.setPoolId(config.getResourcePoolId());
-            runRequest.setReportType(executionQueue.getReportType());
-            runRequest.setRunType(RunModeConstants.PARALLEL.toString());
-            runRequest.setQueueId(executionQueue.getId());
-            Map<String, Object> extendedParameters = new HashMap<>();
-            extendedParameters.put("userId", result.getUserId());
-            runRequest.setExtendedParameters(extendedParameters);
-            if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
-                runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
+            try {
+                runRequest.setPool(pool);
+                runRequest.setTestPlanReportId(executionQueue.getReportId());
+                runRequest.setPoolId(config.getResourcePoolId());
+                runRequest.setReportType(executionQueue.getReportType());
+                runRequest.setRunType(RunModeConstants.PARALLEL.toString());
+                runRequest.setQueueId(executionQueue.getId());
+                Map<String, Object> extendedParameters = new HashMap<>();
+                extendedParameters.put("userId", result.getUserId());
+                runRequest.setExtendedParameters(extendedParameters);
+                if (MapUtils.isNotEmpty(executionQueue.getDetailMap())) {
+                    runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, executionQueue.getDetailMap().get(result.getId())));
+                }
+                if (!pool.isPool()) {
+                    HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
+                    runRequest.setHashTree(hashTree);
+                }
+            } catch (Exception e) {
+                remakeReportService.testEnded(runRequest, e.getMessage());
+                continue;
             }
-            if (!pool.isPool()) {
-                HashTree hashTree = apiScenarioSerialService.generateHashTree(testId, config.getEnvMap(), runRequest);
-                runRequest.setHashTree(hashTree);
-            }
-
-            LoggerUtil.info("进入并行模式，开始执行用例：[" + result.getName() + "] 报告ID [" + reportId + "]");
+            LoggerUtil.info("进入并行模式，开始执行用例：["
+                    + result.getName() + "] 报告ID [" + reportId + "]");
             jMeterService.run(runRequest);
         }
     }

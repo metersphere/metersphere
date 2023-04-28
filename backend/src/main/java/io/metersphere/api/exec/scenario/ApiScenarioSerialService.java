@@ -17,21 +17,19 @@ import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
-import io.metersphere.api.service.ApiExecutionQueueService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HashTreeUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.JmeterRunRequestDTO;
-import io.metersphere.dto.ResultDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
@@ -70,6 +68,8 @@ public class ApiScenarioSerialService {
     private ObjectMapper mapper;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private RemakeReportService remakeReportService;
 
     public void serial(ApiExecutionQueue executionQueue, ApiExecutionQueueDetail queue) {
         String reportId = StringUtils.isNotEmpty(executionQueue.getReportId()) ? executionQueue.getReportId() : queue.getReportId();
@@ -79,16 +79,6 @@ public class ApiScenarioSerialService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(queue.getTestId(), reportId, executionQueue.getRunMode(), null);
         // 获取可以执行的资源池
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-        // 判断触发资源对象是用例/场景更新对应报告状态
-        if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
-                || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                updateReportToRunning(queue, runRequest);
-            } else {
-                updateDefinitionExecResultToRunning(queue, runRequest);
-            }
-        }
-
         try {
             runRequest.setReportType(executionQueue.getReportType());
             runRequest.setPool(GenerateHashTreeUtil.isResourcePool(executionQueue.getPoolId()));
@@ -98,7 +88,13 @@ public class ApiScenarioSerialService {
             runRequest.setPoolId(executionQueue.getPoolId());
 
             if (StringUtils.isEmpty(executionQueue.getPoolId())) {
-                if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                if (StringUtils.equalsAny(executionQueue.getRunMode(),
+                        ApiRunMode.SCENARIO.name(),
+                        ApiRunMode.SCENARIO_PLAN.name(),
+                        ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                        ApiRunMode.SCHEDULE_SCENARIO.name(),
+                        ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+
                     ApiScenarioWithBLOBs scenario = null;
                     Map<String, String> planEnvMap = new LinkedHashMap<>();
                     if (StringUtils.equalsAny(executionQueue.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
@@ -135,16 +131,28 @@ public class ApiScenarioSerialService {
             if (runRequest.getPool().isPool()) {
                 SmoothWeighted.setServerConfig(runRequest.getPoolId(), redisTemplate);
             }
-            // 开始执行
-            jMeterService.run(runRequest);
+            runRequest.setRunType(RunModeConstants.SERIAL.toString());
         } catch (Exception e) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            remakeReportService.remake(runRequest);
-            ResultDTO dto = new ResultDTO();
-            BeanUtils.copyBean(dto, runRequest);
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
+            remakeReportService.testEnded(runRequest, e.getMessage());
             LoggerUtil.error("执行队列[" + queue.getId() + "]入队列失败：", queue.getReportId(), e);
+            return;
         }
+        // 判断触发资源对象是用例/场景更新对应报告状态
+        if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
+                || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
+            if (StringUtils.equalsAny(executionQueue.getRunMode(),
+                    ApiRunMode.SCENARIO.name(),
+                    ApiRunMode.SCENARIO_PLAN.name(),
+                    ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                    ApiRunMode.SCHEDULE_SCENARIO.name(),
+                    ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                updateReportToRunning(queue, runRequest);
+            } else {
+                updateDefinitionExecResultToRunning(queue, runRequest);
+            }
+        }
+        // 开始执行
+        jMeterService.run(runRequest);
     }
 
     protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
@@ -219,12 +227,7 @@ public class ApiScenarioSerialService {
                 return jmeterHashTree;
             }
         } catch (Exception ex) {
-            RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-            remakeReportService.remake(runRequest);
-            ResultDTO dto = new ResultDTO();
-            BeanUtils.copyBean(dto, runRequest);
-            CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
-            LoggerUtil.error("用例资源：" + testId + ", 生成执行脚本失败", runRequest.getReportId(), ex);
+            MSException.throwException("生成脚本失败：【 " + ex.getMessage() + " 】");
         }
         return null;
     }

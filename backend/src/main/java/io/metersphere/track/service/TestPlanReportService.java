@@ -444,7 +444,8 @@ public class TestPlanReportService {
 
     public TestPlanReport finishedTestPlanReport(String testPlanReportId, String status) {
         TestPlanReport testPlanReport = this.getTestPlanReport(testPlanReportId);
-        if (testPlanReport != null && StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), "stopped")) {
+        if (testPlanReport != null && StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), "stopped",
+                TestPlanReportStatus.COMPLETED.name())) {
             return testPlanReport;
         }
         boolean isSendMessage = false;
@@ -490,7 +491,7 @@ public class TestPlanReportService {
                 //更新content表对结束日期,并计算报表信息
                 content.setStartTime(testPlanReport.getStartTime());
                 content.setEndTime(endTime);
-                this.initTestPlanReportBaseCount(testPlanReport,content);
+                this.initTestPlanReportBaseCount(testPlanReport, content);
                 testPlanReportContentMapper.updateByExampleSelective(content, contentExample);
             }
             this.executeTestPlanInQueue(testPlanReportId);
@@ -501,7 +502,7 @@ public class TestPlanReportService {
         return testPlanReport;
     }
 
-    private void executeTestPlanInQueue(String testPlanReportId){
+    private void executeTestPlanInQueue(String testPlanReportId) {
         TestPlanExecutionQueueExample testPlanExecutionQueueExample = new TestPlanExecutionQueueExample();
         testPlanExecutionQueueExample.createCriteria().andReportIdEqualTo(testPlanReportId);
         List<TestPlanExecutionQueue> planExecutionQueues = testPlanExecutionQueueMapper.selectByExample(testPlanExecutionQueueExample);
@@ -530,14 +531,14 @@ public class TestPlanReportService {
     }
 
     private void initTestPlanReportBaseCount(TestPlanReport testPlanReport, TestPlanReportContentWithBLOBs reportContent) {
-        if(testPlanReport != null && reportContent != null){
+        if (testPlanReport != null && reportContent != null) {
             TestPlanReportBuildResultDTO reportBuildResultDTO = testPlanService.buildPlanReport(testPlanReport, reportContent);
             //如果场景报告中出现了 Waiting 或者 Running 则不保存
             boolean isReportAllFinished = testPlanService.checkAllReportFinished(reportBuildResultDTO.getTestPlanSimpleReportDTO());
-            if(isReportAllFinished){
+            if (isReportAllFinished) {
                 reportContent.setApiBaseCount(JSONObject.toJSONString(reportBuildResultDTO.getTestPlanSimpleReportDTO()));
                 reportContent.setPassRate(reportBuildResultDTO.getTestPlanSimpleReportDTO().getPassRate());
-            }else {
+            } else {
                 reportContent.setApiBaseCount(null);
             }
         }

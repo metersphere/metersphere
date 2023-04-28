@@ -13,10 +13,7 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.ApiExecutionQueueService;
-import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.api.service.ApiScenarioReportStructureService;
-import io.metersphere.api.service.TcpApiParamService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -93,6 +90,8 @@ public class ApiScenarioExecuteService {
     protected JMeterService jMeterService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         if (LoggerUtil.getLogger().isDebugEnabled()) {
@@ -299,6 +298,8 @@ public class ApiScenarioExecuteService {
             if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
+            // 执行中资源锁住，防止重复更新造成LOCK WAIT
+            redisTemplateService.lock(planApiScenario.getId(), report.getId());
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
         }

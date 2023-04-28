@@ -29,14 +29,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -322,7 +320,6 @@ public class ApiExecutionQueueService {
                     String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", executionQueue.getQueue().getReportId());
                     boolean isNext = redisTemplateService.setIfAbsent(key, executionQueue.getQueue().getQueueId());
                     if (isNext) {
-                        redisTemplateService.expire(key);
                         if (StringUtils.startsWith(executionQueue.getRunMode(), "UI")) {
                             uiScenarioSerialServiceProxy.serial(executionQueue, executionQueue.getQueue());
                         } else {
@@ -454,8 +451,6 @@ public class ApiExecutionQueueService {
                 CommonBeanFactory.getBean(TestPlanReportService.class).finishedTestPlanReport(reportId, TestPlanReportStatus.COMPLETED.name());
             });
         }
-        // 清除异常队列/一般是服务突然停止产生
-        extApiExecutionQueueMapper.delete();
     }
 
     public void stop(String reportId) {
@@ -518,5 +513,13 @@ public class ApiExecutionQueueService {
         for (String testPlanReportId : testPlanReportIdList) {
             this.testPlanReportTestEnded(testPlanReportId);
         }
+    }
+
+    public void deleteQueue() {
+        ApiExecutionQueueExample queueExample = new ApiExecutionQueueExample();
+        queueMapper.deleteByExample(queueExample);
+
+        ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
+        executionQueueDetailMapper.deleteByExample(detailExample);
     }
 }

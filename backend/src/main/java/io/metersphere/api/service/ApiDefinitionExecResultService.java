@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
+import io.metersphere.api.exec.scenario.TestPlanResourceService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -63,6 +64,10 @@ public class ApiDefinitionExecResultService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private RedisTemplateService redisTemplateService;
+    @Resource
+    private TestPlanResourceService testPlanResourceService;
 
     public List<ApiDefinitionExecResult> saveApiResult(ResultDTO dto) {
         LoggerUtil.info("接收到API/CASE执行结果【 " + dto.getRequestResults().size() + " 】条");
@@ -73,7 +78,7 @@ public class ApiDefinitionExecResultService {
             }
             if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                 ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), null);
-                if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")) {
+                if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE", "API_PLAN")) {
                     result.setResourceId(dto.getTestId());
                     LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
                     results.add(result);
@@ -107,7 +112,7 @@ public class ApiDefinitionExecResultService {
                                 planApiCaseMapper, reviewApiCaseMapper, batchApiTestCaseMapper
                         );
 
-                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE","API_PLAN")) {
+                        if (result != null && !StringUtils.startsWithAny(dto.getRunMode(), "SCHEDULE", "API_PLAN")) {
                             // 发送通知
                             result.setResourceId(dto.getTestId());
                             resultList.add(result);
@@ -130,14 +135,6 @@ public class ApiDefinitionExecResultService {
         return results;
     }
 
-    public void setExecResult(String id, String status, Long time) {
-        TestPlanApiCase apiCase = new TestPlanApiCase();
-        apiCase.setId(id);
-        apiCase.setStatus(status);
-        apiCase.setUpdateTime(time);
-        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
-    }
-
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
         String version = "";
@@ -145,24 +142,21 @@ public class ApiDefinitionExecResultService {
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
-            if (testPlanApiCase != null) {
-                this.setExecResult(testId, status, time);
+            if (testPlanApiCase != null && redisTemplateService.hasReport(testId, reportId)) {
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                 testPlanApiCase.setStatus(status);
                 testPlanApiCase.setUpdateTime(System.currentTimeMillis());
-                testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
-                if (LoggerUtil.getLogger().isDebugEnabled()) {
-                    LoggerUtil.debug("更新测试计划用例【 " + testPlanApiCase.getId() + " 】");
-                }
+                testPlanResourceService.updatePlanCase(testPlanApiCase);
+                redisTemplateService.unlock(testId, reportId);
             }
             TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(testId);
-            if (testCaseReviewApiCase != null) {
+            if (testCaseReviewApiCase != null && redisTemplateService.hasReport(testId, reportId)) {
                 testCaseReviewApiCaseService.setExecResult(testId, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testCaseReviewApiCase.getApiCaseId());
                 testCaseReviewApiCase.setStatus(status);
                 testCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
                 testCaseReviewApiCaseService.updateByPrimaryKeySelective(testCaseReviewApiCase);
-
+                redisTemplateService.unlock(testId, reportId);
                 if (LoggerUtil.getLogger().isDebugEnabled()) {
                     LoggerUtil.debug("更新用例评审用例【 " + testCaseReviewApiCase.getId() + " 】");
                 }
@@ -208,17 +202,20 @@ public class ApiDefinitionExecResultService {
                                 ApiTestCaseMapper batchApiTestCaseMapper) {
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
                 ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            TestPlanApiCase apiCase = new TestPlanApiCase();
-            apiCase.setId(testId);
-            apiCase.setStatus(status);
-            apiCase.setUpdateTime(System.currentTimeMillis());
-            batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+            if (redisTemplateService.hasReport(testId, reportId)) {
+                TestPlanApiCase apiCase = new TestPlanApiCase();
+                apiCase.setId(testId);
+                apiCase.setStatus(status);
+                apiCase.setUpdateTime(System.currentTimeMillis());
+                batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
 
-            TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
-            reviewApiCase.setId(testId);
-            reviewApiCase.setStatus(status);
-            reviewApiCase.setUpdateTime(System.currentTimeMillis());
-            batchReviewApiCaseMapper.updateByPrimaryKeySelective(reviewApiCase);
+                TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
+                reviewApiCase.setId(testId);
+                reviewApiCase.setStatus(status);
+                reviewApiCase.setUpdateTime(System.currentTimeMillis());
+                batchReviewApiCaseMapper.updateByPrimaryKeySelective(reviewApiCase);
+                redisTemplateService.unlock(testId, reportId);
+            }
         } else {
             // 更新用例最后执行结果
             ApiTestCaseWithBLOBs caseWithBLOBs = new ApiTestCaseWithBLOBs();
@@ -256,13 +253,13 @@ public class ApiDefinitionExecResultService {
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                        if (apiCase != null) {
+                        if (apiCase != null && redisTemplateService.hasReport(dto.getTestId(), dto.getReportId())) {
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
-                            testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+                            testPlanResourceService.updatePlanCase(apiCase);
+                            redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
                         }
                     } else {
-                        this.setExecResult(dto.getTestId(), status, item.getStartTime());
                         testCaseReviewApiCaseService.setExecResult(dto.getTestId(), status, item.getStartTime());
                     }
                 }
