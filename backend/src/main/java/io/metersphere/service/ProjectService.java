@@ -1009,6 +1009,9 @@ public class ProjectService {
     }
 
     public boolean isVersionEnable(String projectId) {
+        if (StringUtils.isBlank(projectId)) {
+            return false;
+        }
         return extProjectVersionMapper.isVersionEnable(projectId);
     }
 
