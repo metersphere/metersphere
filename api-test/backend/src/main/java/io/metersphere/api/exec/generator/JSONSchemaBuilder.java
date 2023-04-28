@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.util.NumberUtils;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -121,7 +122,7 @@ public class JSONSchemaBuilder {
                     if (value.toString().indexOf(".") == -1) {
                         concept.put(propertyName, value.longValue());
                     } else {
-                        concept.put(propertyName, value.floatValue());
+                        concept.put(propertyName, new BigDecimal(object.getAsString()));
                     }
                 }
             } catch (Exception e) {
@@ -233,11 +234,11 @@ public class JSONSchemaBuilder {
                 array.put(value);
             } else if (StringUtils.equalsIgnoreCase(type, PropertyConstant.NUMBER)) {
                 JsonElement valueObj = FormatterUtil.getElementValue(itemsObject);
-                Number value = valueObj.getAsNumber();
+                String value = valueObj.getAsString();
                 if (StringUtils.isNotEmpty(valueObj.getAsString()) && valueObj.getAsString().indexOf(".") != -1) {
-                    array.put(value.floatValue());
+                    array.put(new BigDecimal(value));
                 } else {
-                    array.put(value.longValue());
+                    array.put(Integer.valueOf(value));
                 }
             } else {
                 arrayValueOf(FormatterUtil.getStrValue(itemsObject), array);
