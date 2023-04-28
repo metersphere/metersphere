@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
@@ -53,6 +55,7 @@ import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.*;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -1211,6 +1214,16 @@ public class ApiDefinitionService {
 
     private boolean setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
+        ObjectMapper mapper = new ObjectMapper();
+        LinkedList<MsTestElement> hashTree = null;
+        JSONObject element = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
+        try {
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+            });
+        } catch (JsonProcessingException e) {
+            LogUtil.error(e);
+        }
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
         boolean createCase = CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getHeaders());
         if (CollectionUtils.isNotEmpty(msHTTPSamplerProxy.getArguments()) && !createCase) {
@@ -1223,6 +1236,9 @@ public class ApiDefinitionService {
             createCase = true;
         }
         msHTTPSamplerProxy.setId(apiDefinition.getId());
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            msHTTPSamplerProxy.setHashTree(hashTree);
+        }
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
         return createCase;
     }
@@ -1230,6 +1246,16 @@ public class ApiDefinitionService {
     private boolean setImportTCPHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
         MsTCPSampler tcpSampler = JSONObject.parseObject(request, MsTCPSampler.class, Feature.DisableSpecialKeyDetect);
+        ObjectMapper mapper = new ObjectMapper();
+        LinkedList<MsTestElement> hashTree = null;
+        JSONObject element = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
+        try {
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+            });
+        } catch (JsonProcessingException e) {
+            LogUtil.error(e);
+        }
         boolean createCase = CollectionUtils.isNotEmpty(tcpSampler.getParameters());
         if (StringUtils.isNotBlank(tcpSampler.getJsonDataStruct()) && !createCase) {
             createCase = true;
@@ -1241,6 +1267,9 @@ public class ApiDefinitionService {
             createCase = true;
         }
         tcpSampler.setId(apiDefinition.getId());
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            tcpSampler.setHashTree(hashTree);
+        }
         apiDefinition.setRequest(JSONObject.toJSONString(tcpSampler));
         return createCase;
     }
