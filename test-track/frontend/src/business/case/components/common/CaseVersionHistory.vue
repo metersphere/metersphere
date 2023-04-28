@@ -285,7 +285,7 @@ export default {
     },
     checkout(row) {
       let versionCase = this.caseVersionMap.get(row.id);
-      if (!versionCase) {
+      if (!versionCase || this.currentVersionId === row.id) {
         return;
       }
       this.loading = true;
