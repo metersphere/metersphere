@@ -359,14 +359,12 @@ import {
   parseCustomField,
 } from "metersphere-frontend/src/utils/custom_field";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
-import TestCaseEditOtherInfo from "@/business/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/case/components/richtext/FormRichTextItem";
 import TestCaseStepItem from "@/business/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/case/components/StepChangeItem";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
 import { getTestTemplate } from "@/api/custom-field-template";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
-import TestCaseVersionDiff from "@/business/case/version/TestCaseVersionDiff";
 import VersionCreateOtherInfoSelect from "@/business/case/components/VersionCreateOtherInfoSelect";
 import TestCaseBaseInfo from "@/business/case/components/TestCaseBaseInfo";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
@@ -419,7 +417,6 @@ export default {
     StepChangeItem,
     TestCaseStepItem,
     FormRichTextItem,
-    TestCaseEditOtherInfo,
     MsFormDivider,
     CustomFiledComponent,
     MsTableButton,
@@ -433,7 +430,6 @@ export default {
     TestCaseAttachment,
     MsTestCaseStepRichText,
     MsChangeHistory,
-    TestCaseVersionDiff,
     VersionCreateOtherInfoSelect,
     TestCaseBaseInfo,
     MsContainer,
