@@ -35,7 +35,6 @@ public class MinIOFileRepository implements FileRepository {
                 .bucket(bucket) // 存储桶
                 .object(fileName) // 文件名
                 .stream(file.getInputStream(), file.getSize(), -1) // 文件内容
-                .contentType(file.getContentType()) // 文件类型
                 .build());
         return String.format("%s/%s/%s", minioProperties.getEndpoint(), bucket, fileName);
     }
