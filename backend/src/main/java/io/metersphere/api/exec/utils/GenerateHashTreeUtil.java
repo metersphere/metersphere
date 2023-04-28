@@ -11,17 +11,18 @@ import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
-import io.metersphere.api.service.ApiExecutionQueueService;
-import io.metersphere.api.service.RemakeReportService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
-import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
-import io.metersphere.dto.*;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.JmeterRunRequestDTO;
+import io.metersphere.dto.JvmInfoDTO;
+import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.EnvironmentGroupProjectService;
 import io.metersphere.utils.LoggerUtil;
@@ -149,20 +150,12 @@ public class GenerateHashTreeUtil {
             config.setScenarioId(item.getId());
             config.setReportType(runRequest.getReportType());
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
-            LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
+            LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功"
+                    , runRequest.getReportId());
         } catch (Exception ex) {
-            remakeException(runRequest);
-            LoggerUtil.error("场景资源：" + item.getName() + ", 生成执行脚本失败", runRequest.getReportId(), ex);
+            MSException.throwException("生成测试脚本JMX文件失败【 " + ex.getMessage() + " 】");
         }
         return jmeterHashTree;
-    }
-
-    public static void remakeException(JmeterRunRequestDTO runRequest) {
-        RemakeReportService remakeReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-        remakeReportService.remake(runRequest);
-        ResultDTO dto = new ResultDTO();
-        BeanUtils.copyBean(dto, runRequest);
-        CommonBeanFactory.getBean(ApiExecutionQueueService.class).queueNext(dto);
     }
 
     public static boolean isSetReport(RunModeConfigDTO config) {
