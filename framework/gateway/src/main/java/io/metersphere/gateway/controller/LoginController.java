@@ -5,7 +5,6 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.controller.handler.ResultHolder;
 import io.metersphere.dto.ServiceDTO;
@@ -57,21 +56,15 @@ public class LoginController {
         if (StringUtils.isNotBlank(sessionId) && StringUtils.isNotBlank(csrfToken)) {
             userLoginService.validateCsrfToken(sessionId, csrfToken);
             Object userFromSession = redisSessionRepository.getSessionRedisOperations().opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user");
-            if (userFromSession != null) {
-                if (userFromSession instanceof User) {
-                    // 用户只有工作空间权限
-                    if (StringUtils.isBlank(((User) userFromSession).getLastProjectId())) {
-                        ((User) userFromSession).setLastProjectId("no_such_project");
-                    }
-                    // 使用数据库里的最新用户权限，不同的tab sessionId 不变
-                    UserDTO userDTO = userLoginService.getUserDTO(((User) userFromSession).getId());
-                    SessionUser sessionUser = SessionUser.fromUser(userDTO, sessionId);
-                    return Mono.just(ResultHolder.success(sessionUser));
+            if (userFromSession instanceof User) {
+                // 用户只有工作空间权限
+                if (StringUtils.isBlank(((User) userFromSession).getLastProjectId())) {
+                    ((User) userFromSession).setLastProjectId("no_such_project");
                 }
-                LogUtil.info("userFromSession.class: " + userFromSession.getClass().getName());
-                return Mono.just(ResultHolder.success(userFromSession));
-            } else {
-                LogUtil.info("userFromSession is null");
+                // 使用数据库里的最新用户权限，不同的tab sessionId 不变
+                UserDTO userDTO = userLoginService.getUserDTO(((User) userFromSession).getId());
+                SessionUser sessionUser = SessionUser.fromUser(userDTO, sessionId);
+                return Mono.just(ResultHolder.success(sessionUser));
             }
         }
         return Mono.just(ResultHolder.error(RsaUtil.getRsaKey().getPublicKey()));
