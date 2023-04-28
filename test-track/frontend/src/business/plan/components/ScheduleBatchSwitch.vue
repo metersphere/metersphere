@@ -22,7 +22,7 @@
           :inactive-text="$t('test_track.plan.batch_update_schedule_enable', [size])"
           active-color="#783887">
         </el-switch>
-        <p style="font-size: 10px;color: gray;margin-bottom: -10px">
+        <p style="font-size: 10px;color: gray;margin-bottom: 1px">
           {{ $t('test_track.plan.batch_update_schedule_enable_alert') }}
         </p>
       </div>
