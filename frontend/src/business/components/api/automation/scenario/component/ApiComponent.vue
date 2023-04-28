@@ -252,6 +252,14 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
+    if (this.request.customizeReq) {
+      if (this.node.parent && this.node.parent.data && this.node.parent.data.length > 1) {
+        this.request.projectId = getCurrentProjectID();
+      }else {
+        this.request.projectId =
+          this.node.parent.data instanceof Array ? this.node.parent.data[0].projectId : this.node.parent.data.projectId;
+      }
+    }
     if (this.currentScenario) {
       this.request.currentScenarioId = this.currentScenario.id;
     }
