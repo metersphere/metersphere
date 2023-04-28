@@ -72,9 +72,6 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             MSException.throwException(Translator.get(CollectionUtils.isEmpty(auths) ? "swagger_parse_error" : "swagger_parse_error_with_auth"));
         }
         OpenAPI openAPI = result.getOpenAPI();
-        if (result.getMessages() != null) {
-            result.getMessages().forEach(msg -> LogUtil.error(msg)); // validation errors and warnings
-        }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(openAPI, request));
