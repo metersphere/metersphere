@@ -20,9 +20,9 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.WebSession;
@@ -49,14 +49,14 @@ public class LoginController {
     @Resource
     private SystemParameterService systemParameterService;
     @Resource
-    private RedisSessionRepository redisSessionRepository;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @GetMapping(value = "/is-login")
     public Mono<ResultHolder> isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId,
                                       @RequestHeader(name = SessionConstants.CSRF_TOKEN, required = false) String csrfToken) throws Exception {
         if (StringUtils.isNotBlank(sessionId) && StringUtils.isNotBlank(csrfToken)) {
             userLoginService.validateCsrfToken(sessionId, csrfToken);
-            Object userFromSession = redisSessionRepository.getSessionRedisOperations().opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user");
+            Object userFromSession = redisTemplate.opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user");
             if (userFromSession != null) {
                 if (userFromSession instanceof User) {
                     // 用户只有工作空间权限
