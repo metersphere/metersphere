@@ -240,6 +240,9 @@ export default {
       }
 
       children.forEach((item) => {
+        if (!item.id) {
+          return;
+        }
         let node = {
           data: {
             text: item.name,
