@@ -68,7 +68,7 @@ export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNode
         // 加载用例
         getCaseFuc(request, (testCases) => {
           initNodeCase(node, testCases, param, setParamCallback);
-          if (getExtraNodeFuc) {
+          if (getExtraNodeFuc && data.id) {
             param.result.loading = true;
             // 加载临时节点
             getExtraNodeFuc(getCurrentProjectID(), data.id)
