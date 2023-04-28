@@ -1,5 +1,11 @@
 <template>
-  <el-dialog :visible="visible" v-loading="loading" :title="$t('test_track.issue.import_bugs')" @close="cancel" width="35%">
+  <el-dialog
+    v-loading="loading"
+    width="35%"
+    :visible="visible"
+    :title="$t('test_track.issue.import_bugs')"
+    class="issue-import-dialog"
+    @close="cancel">
     <div>
       <el-row>
         <span style="color: red">*</span> {{ $t('test_track.issue.import_type') }}
@@ -163,5 +169,9 @@ export default {
   top: -15px;
   font-size: 5px;
   font-weight: 600;
+}
+
+.issue-import-dialog :deep(.el-dialog) {
+  min-width: 500px;
 }
 </style>
