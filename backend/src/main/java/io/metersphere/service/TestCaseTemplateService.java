@@ -235,6 +235,9 @@ public class TestCaseTemplateService extends TemplateBaseService {
 
     public TestCaseTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
+        if (project == null) {
+            return null;
+        }
         String caseTemplateId = project.getCaseTemplateId();
         TestCaseTemplateWithBLOBs caseTemplate;
         TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
