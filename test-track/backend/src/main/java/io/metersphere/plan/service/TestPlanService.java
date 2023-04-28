@@ -674,6 +674,7 @@ public class TestPlanService {
                 caseTestRelevance(request, subList);
             });
         } catch (Exception e) {
+            sqlSession.rollback();
             throw new RuntimeException(e);
         } finally {
             if (sqlSession != null && sqlSessionFactory != null) {

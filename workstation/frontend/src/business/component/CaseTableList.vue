@@ -448,7 +448,7 @@ export default {
     if (this.condition.filters) {
       this.condition.filters.review_status = ["Prepare", "Underway", "Pass", "UnPass"];
     } else {
-      this.condition.filters = { review_status: ["Prepare", "Underway", "Pass", "UnPass"] };
+      this.condition.filters = { review_status: ["Prepare", "Underway", "Pass", "UnPass"]};
     }
     let ids = this.$route.params.ids;
     if (ids) {
