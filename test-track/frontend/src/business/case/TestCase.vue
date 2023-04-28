@@ -177,7 +177,6 @@ import MsTabButton from "metersphere-frontend/src/components/new-ui/MsTabButton"
 import TestCaseMinder from "../common/minder/TestCaseMinder";
 import IsChangeConfirm from "metersphere-frontend/src/components/IsChangeConfirm";
 import {openMinderConfirm} from "../common/minder/minderUtils";
-import TestCaseEditShow from "./components/TestCaseEditShow";
 import {PROJECT_ID} from "metersphere-frontend/src/utils/constants";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import {useStore} from "@/store";
@@ -195,7 +194,7 @@ export default {
   name: "TestCase",
   components: {
     PublicTestCaseList, TestCaseTrashNodeTree, TestCasePublicNodeTree, IsChangeConfirm, TestCaseMinder, MsTabButton, TestCaseNodeTree,
-    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, SelectMenu, TestCaseEditShow, 'VersionSelect': MxVersionSelect,
+    MsMainContainer, MsAsideContainer, MsContainer, TestCaseList, SelectMenu, 'VersionSelect': MxVersionSelect,
     MsMainButtonGroup, TestCaseCommonImportNew
   },
   comments: {},
@@ -539,18 +538,6 @@ export default {
     },
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
-    },
-    checkoutPublic(testCase, item) {
-      Object.assign(item.testCaseInfo, testCase)
-      //子组件先变更 copy 状态，再执行初始化操作
-      this.$refs.testCaseEditShow[0].initEdit(item.testCaseInfo, () => {
-        this.$nextTick(() => {
-          let vh = this.$refs.testCaseEditShow[0].$refs.versionHistory;
-          vh.getVersionOptionList(vh.handleVersionOptions);
-          vh.show = false;
-          vh.loading = false;
-        });
-      });
     },
     checkVersionEnable() {
       if (!this.projectId) {
