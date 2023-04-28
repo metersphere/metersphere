@@ -95,22 +95,22 @@
 </template>
 
 <script>
-  import MsApiAssertionText from "./ApiAssertionText";
-  import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
-  import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-  import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
-  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-  import {getUUID} from "@/common/js/utils";
-  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
-  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
-  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
-  import MsApiAssertionDocument from "./document/DocumentHeader";
+import MsApiAssertionText from "./ApiAssertionText";
+import MsApiAssertionRegex from "./ApiAssertionRegex";
+import MsApiAssertionDuration from "./ApiAssertionDuration";
+import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
+import MsApiAssertionsEdit from "./ApiAssertionsEdit";
+import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
+import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+import {getUUID} from "@/common/js/utils";
+import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
+import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
+import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+import MsApiAssertionDocument from "./document/DocumentHeader";
 
-  export default {
+export default {
     name: "MsApiAssertions",
     components: {
       ApiBaseComponent,
@@ -227,10 +227,15 @@
         jsonItem.setJSONPathDescription();
         let expect = jsonItem.expect;
         if (expect) {
-          expect = expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
-            .replaceAll('+', "\\+").replaceAll('[', "\\[").replaceAll(']', "\\]")
-            .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
-            .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
+          expect = expect.replaceAll('\\', "\\\\")
+            .replaceAll('(', "\\(")
+            .replaceAll(')', "\\)")
+            .replaceAll('+', "\\+")
+            .replaceAll('?', "\\?")
+            .replaceAll('/', "\\/")
+            .replaceAll('*', "\\*")
+            .replaceAll('^', "\\^")
+            .replaceAll('$', "\\$");
         }
         jsonItem.expect = expect;
         jsonItem.enable = true;
