@@ -122,6 +122,7 @@
           <review-comment-item v-for="(comment,index) in comments"
                                :key="index"
                                :comment="comment"
+                               :read-only="readOnly"
                                @refresh="getComments" api-url="/test/case"/>
           <div v-if="!comments || comments.length === 0" style="text-align: center">
             <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
@@ -180,7 +181,7 @@ export default {
     FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText
   },
   props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'versionEnable', 'isCopy', 'copyCaseId',
-    'type', 'comments', 'isClickAttachmentTab',
+    'type', 'isClickAttachmentTab',
     'defaultOpen'
   ],
   data() {
@@ -204,7 +205,8 @@ export default {
       uploadFiles: [],
       relateFiles: [],
       unRelateFiles: [],
-      dumpFile: {}
+      dumpFile: {},
+      comments: []
     };
   },
   computed: {
@@ -224,6 +226,8 @@ export default {
         this.$refs.relationship.open();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
+      } else if (this.tabActiveName === 'comment') {
+        this.getComments();
       } else if (this.tabActiveName === 'relateTest') {
         this.$nextTick(() => {
           this.getRelatedTest();
@@ -253,16 +257,21 @@ export default {
     },
     getComments(testCase) {
       let id = '';
-      if (testCase) {
-        id = testCase.id;
-      } else {
-        id = this.form.id;
+      if (!testCase) {
+        testCase = this.form
       }
+      if (testCase.caseId) {
+        // 评审和计划加载评论
+        id = testCase.caseId;
+      } else {
+        id = testCase.id;
+      }
+
       this.result.loading = true;
       testCaseCommentList(id)
         .then(res => {
           this.result.loading = false;
-          this.$emit('update:comments', res.data);
+          this.comments = res.data;
         });
     },
     setRelationshipCount(count) {
