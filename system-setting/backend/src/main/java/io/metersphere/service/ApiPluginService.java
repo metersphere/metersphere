@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.PluginResourceDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.api.UiScriptApi;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.utils.CommonUtil;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -61,6 +64,7 @@ public class ApiPluginService {
     }
 
     private boolean loadJar(String jarPath) {
+        validatePluginType(jarPath);
         try {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             try {
@@ -82,6 +86,22 @@ public class ApiPluginService {
             LogUtil.error(e);
         }
         return false;
+    }
+
+    /**
+     * 校验是否是平台插件,避免被系统类加载器加载后,无法卸载,影响功能
+     * @param jarPath
+     */
+    private void validatePluginType(String jarPath) {
+        try {
+            JarFile jar = new JarFile(jarPath);
+            JarEntry entry = jar.getJarEntry("json/frontend.json");
+            if (entry != null) {
+                MSException.throwException(Translator.get("plugin_type_error"));
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
     }
 
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
