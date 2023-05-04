@@ -1,4 +1,11 @@
-on: push
+on:
+  push:
+    branches:
+      - pr@**
+      - repr@**
+  pull_request:
+    branches:
+      - v3.x
 
 name: MeterSphere 覆盖率统计
 
@@ -15,7 +22,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Install dependencies
+        run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - name: Run tests and collect coverage
+        run: mvn -B test
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
