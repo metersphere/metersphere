@@ -1135,8 +1135,7 @@ export default {
     setVariables(v, headers) {
       this.currentScenario.variables = v;
       this.currentScenario.headers = headers;
-      if (this.path.endsWith("/update")) {
-        // 直接更新场景防止编辑内容丢失
+      if (v && v.length> 0 || headers && headers.length > 0) {
         this.editScenario();
       }
       if (this.$refs.maximizeHeader) {
