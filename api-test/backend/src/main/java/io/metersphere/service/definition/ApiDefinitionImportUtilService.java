@@ -1133,7 +1133,11 @@ public class ApiDefinitionImportUtilService {
                                 List<ApiTestCaseWithBLOBs> optionDataCases) {
         Map<String, ApiModule> parentIdModuleMap = new HashMap<>();
         for (ApiModule value : moduleMap.values()) {
-            parentIdModuleMap.put(value.getParentId(), value);
+            if (StringUtils.isBlank(value.getParentId())) {
+                parentIdModuleMap.put("0", value);
+            } else {
+                parentIdModuleMap.put(value.getParentId(), value);
+            }
         }
         Map<String, List<ApiDefinitionWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiDefinition::getModulePath));
         repeatDataMap.forEach((k, v) -> {
