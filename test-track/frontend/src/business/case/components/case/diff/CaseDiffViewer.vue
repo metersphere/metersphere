@@ -69,44 +69,78 @@
                   </div>
                 </div>
 
-                <!-- step description -->
+                <!-- 步骤类型 -->
                 <div class="step-desc-row">
-                  <!-- 类型切换 -->
                   <div class="step-desc-name case-title-wrap case-content-wrap">
-                    <div class="name title-wrap">
-                      {{
-                        contentDiffData.stepModel === "TEXT"
-                          ? $t("test_track.case.text_describe")
-                          : $t("test_track.case.step_describe")
-                      }}
-                    </div>
-                    <div class="update-type-row title-wrap"></div>
+                    <div class="name title-wrap">{{ $t("ui.step_type") }}</div>
                   </div>
-                  <!-- 文本描述 -->
                   <div class="content-wrap">
                     <div class="opt-row">
                       <case-diff-text
-                        :diffInfo="contentDiffData.stepDescription"
+                        :diffInfo="contentDiffData.stepModel"
                       ></case-diff-text>
                     </div>
                   </div>
                 </div>
 
-                <!-- expect -->
-                <div
-                  class="expect-row"
-                  v-if="contentDiffData.stepModel === 'TEXT'"
-                >
-                  <div class="expect-name case-title-wrap case-content-wrap">
-                    <div class="name title-wrap">
-                      {{ $t("test_track.case.expected_results") }}
-                    </div>
+                <div class="step-desc-row" v-if="!isSameStepType">
+                  <!-- 文本描述和步骤描述的对比 -->
+                  <div class="step-desc-name case-title-wrap case-content-wrap">
+                    <div class="name title-wrap">{{ $t("test_track.case.step_info") }}</div>
                   </div>
                   <div class="content-wrap">
                     <div class="opt-row">
                       <case-diff-text
-                        :diffInfo="contentDiffData.expectedResult"
+                        :diffInfo="contentDiffData.diffStep"
                       ></case-diff-text>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else>
+                  <div class="step-desc-row" v-if="isStep">
+                    <!-- 步骤描述 -->
+                    <div class="step-desc-name case-title-wrap case-content-wrap">
+                      <div class="name title-wrap">{{ $t("test_track.case.step_describe") }}</div>
+                    </div>
+                    <div class="content-wrap">
+                      <div class="opt-row">
+                        <case-diff-text
+                          :diffInfo="contentDiffData.steps"
+                        ></case-diff-text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="step-desc-row" v-if="!isStep">
+                    <!-- 文本描述 -->
+                    <div class="step-desc-name case-title-wrap case-content-wrap">
+                      <div class="name title-wrap">{{ $t("test_track.case.text_describe") }}</div>
+                    </div>
+                    <div class="content-wrap">
+                      <div class="opt-row">
+                        <case-diff-text
+                          :diffInfo="contentDiffData.stepDescription"
+                        ></case-diff-text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- expect -->
+                  <div
+                    class="expect-row"
+                    v-if="!isStep">
+                    <div class="expect-name case-title-wrap case-content-wrap">
+                      <div class="name title-wrap">
+                        {{ $t("test_track.case.expected_results") }}
+                      </div>
+                    </div>
+                    <div class="content-wrap">
+                      <div class="opt-row">
+                        <case-diff-text
+                          :diffInfo="contentDiffData.expectedResult"
+                        ></case-diff-text>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -388,6 +422,12 @@ export default {
       }
       return this.nextBtn;
     },
+    isStep() {
+      return this.isSameStepType && this.contentDiffData.targetStepModel === 'STEP';
+    },
+    isSameStepType() {
+      return this.contentDiffData.originStepModel === this.contentDiffData.targetStepModel;
+    }
   },
   methods: {
     /**

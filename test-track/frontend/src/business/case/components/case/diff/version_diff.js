@@ -1,3 +1,4 @@
+import i18n from "@/i18n";
 /**
  * 存储版本信息的数据结构
  */
@@ -133,15 +134,8 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
       },
     ];
 
-    // // 自定义信息处理
-    // this.customDiffData = DiffUtil.diffCustomData(
-    //   this.origin.customFieldForm,
-    //   this.target.customFieldForm
-    // );
-
     // 详细信息对比
     //名称对比
-    this.contentDiffData.stepModel = "TEXT";
     this.contentDiffData.caseName = [
       {
         diffArr: DiffUtil.diffText(this.origin.name, this.target.name),
@@ -156,7 +150,45 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
         ),
       },
     ];
-    //文本描述
+
+    let originStepModel = this.origin.stepModel === 'STEP' ? i18n.t('test_track.case.step_describe') : i18n.t('test_track.case.text_describe');
+    let targetStepModel = this.target.stepModel === 'STEP' ? i18n.t('test_track.case.step_describe') : i18n.t('test_track.case.text_describe');
+    this.contentDiffData.originStepModel = this.origin.stepModel;
+    this.contentDiffData.targetStepModel = this.target.stepModel;
+    this.contentDiffData.stepModel = [
+      {
+        diffArr: DiffUtil.diffText(originStepModel, targetStepModel),
+      },
+    ];
+
+    // 步骤描述不一致
+    if (this.origin.stepModel !== this.target.stepModel) {
+      if (this.origin.stepModel === 'STEP') {
+        this.contentDiffData.diffStep = [
+          {
+            diffArr: DiffUtil.diffText(this.origin.steps, this.target.stepDescription + '\n' + this.target.expectedResult),
+          },
+        ];
+      } else {
+        this.contentDiffData.diffStep = [
+          {
+            diffArr: DiffUtil.diffText(this.origin.stepDescription + '\n' + this.origin.expectedResult, this.target.steps),
+          },
+        ];
+      }
+    }
+
+    // 步骤描述
+    this.contentDiffData.steps = [
+      {
+        diffArr: DiffUtil.diffText(
+          this.origin.steps,
+          this.target.steps
+        ),
+      },
+    ];
+
+    // 文本描述
     this.contentDiffData.stepDescription = [
       {
         diffArr: DiffUtil.diffText(
@@ -165,7 +197,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
         ),
       },
     ];
-    //预期结果
+    // 预期结果
     this.contentDiffData.expectedResult = [
       {
         diffArr: DiffUtil.diffText(
@@ -174,6 +206,7 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
         ),
       },
     ];
+
     //备注
     this.contentDiffData.remark = [
       {
@@ -183,12 +216,6 @@ export default class DefaultDiffExecutor extends AbstractVersionDiffExecutor {
         ),
       },
     ];
-
-    // {"name":"open——2614e2dd-bcf9-4bb1-88ec-9737940ad7fc——1673837163926——screenshot.png","size":"0 B","updateTime":1675700468279,"progress":100,"status":"error","creator":"Administrator","type":"PNG","isLocal":true}
-    // this.attachmentDiffData.attachment = DiffUtil.diffAttachment(
-    //   this.origin,
-    //   this.target
-    // );
   }
 
   diffAttachment(origin, target) {
