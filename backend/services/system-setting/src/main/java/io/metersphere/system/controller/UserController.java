@@ -2,7 +2,7 @@ package io.metersphere.system.controller;
 
 
 import io.metersphere.domain.User;
-import io.metersphere.system.service.UserService;
+import io.metersphere.sdk.UserService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
