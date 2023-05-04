@@ -15,7 +15,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Install dependencies
+        run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - name: Run tests and collect coverage
+        run: mvn -B test --file pom.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
