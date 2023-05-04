@@ -310,7 +310,10 @@ export default {
   height: 32px;
 }
 
+:deep(.ms-select-tag.el-select span.el-tag--light) {
+  width: 100%;
+}
 :deep(.ms-select-tag.el-select span.el-select__tags-text) {
-  max-width: 240px!important;
+  width: 90%;
 }
 </style>
