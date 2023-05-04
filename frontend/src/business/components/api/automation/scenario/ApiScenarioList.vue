@@ -302,6 +302,7 @@
             :environment-type="environmentType" :environment-group-id="envGroupId"
             :run-data="debugData"
             @runRefresh="runRefresh"
+            @errorRefresh="search"
             ref="runTest"/>
     <ms-task-center ref="taskCenter" :show-menu="false"/>
     <relationship-graph-drawer v-xpack :graph-data="graphData" ref="relationshipGraph"/>
