@@ -62,7 +62,8 @@ export default {
         // 获取pdf文件
         const pdfLoadingTask = PdfJs.getDocument({
           url: this.pdfUrl,
-          cMapUrl: this.cMapUrl
+          cMapUrl: '/pdfjs-cmaps/',
+          cMapPacked: true
         })
         pdfLoadingTask.promise.then(pdfDoc => {
           if (pdfDoc && pdfViewerDom) {
