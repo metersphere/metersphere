@@ -93,7 +93,7 @@
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
-        <jacoco.version>0.8.7</jacoco.version>
+        <jacoco.version>0.8.10</jacoco.version>
     </properties>
 
     <modules>

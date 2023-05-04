@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(exclude = {
         QuartzAutoConfiguration.class,
@@ -15,6 +16,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
         MybatisAutoConfiguration.class
 })
 @ServletComponentScan
+@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.system"})
 public class Application {
 
     public static void main(String[] args) {
