@@ -124,6 +124,12 @@ public class TestPlanReportService {
     @Lazy
     @Resource
     private IssuesService issuesService;
+    @Resource
+    private ApiExecutionQueueMapper apiExecutionQueueMapper;
+    @Resource
+    private ApiExecutionQueueDetailMapper apiExecutionQueueDetailMapper;
+    @Resource
+    private ExtApiExecutionQueueMapper extApiExecutionQueueMapper;
 
     private final String GROUP = "GROUP";
 
@@ -872,7 +878,6 @@ public class TestPlanReportService {
             TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
             contentExample.createCriteria().andTestPlanReportIdIn(testPlanReportIdList);
             testPlanReportContentMapper.deleteByExample(contentExample);
-            // todo 删除场景、接口的报告
             BatchProcessingUtil.batchDeleteApiReport(testPlanReportIdList, this::deleteApiCaseReportByTestPlanExecute, this::deleteScenarioReportByTestPlanExecute, this::deleteUiReportByTestPlanExecute);
         }
     }
@@ -1687,6 +1692,39 @@ public class TestPlanReportService {
         LogUtil.info("开始处理服务重启导致执行未完成的报告状态");
         extTestPlanReportMapper.updateAllStatus();
         LogUtil.info("处理服务重启导致执行未完成的报告状态完成");
+        LogUtil.info("开始清除测试计划相关的执行队列");
+        this.deleteAllQueue();
+        LogUtil.info("清除测试计划相关的执行队列完成");
+    }
+
+    public void deleteAllQueue() {
+        LogUtil.info("开始清除测试计划的资源执行队列");
+        //删除测试计划资源执行队列
+        List<String> queueDeleteIdList = extApiExecutionQueueMapper.selectIdByReportIdIsNull();
+        if (CollectionUtils.isNotEmpty(queueDeleteIdList)) {
+            BatchProcessingUtil.consumerByStringList(queueDeleteIdList, this::deleteApiExecutionQueueDetail);
+            BatchProcessingUtil.consumerByStringList(queueDeleteIdList, this::deleteApiExecutionQueue);
+        }
+        LogUtil.info("开始清除测试计划的批量串行执行队列");
+        //删除测试计划串行队列
+        TestPlanExecutionQueueExample example = new TestPlanExecutionQueueExample();
+        testPlanExecutionQueueMapper.deleteByExample(example);
+    }
+
+    public void deleteApiExecutionQueue(List<String> queueIdList) {
+        if (CollectionUtils.isNotEmpty(queueIdList)) {
+            ApiExecutionQueueExample example = new ApiExecutionQueueExample();
+            example.createCriteria().andIdIn(queueIdList);
+            apiExecutionQueueMapper.deleteByExample(example);
+        }
+    }
+
+    public void deleteApiExecutionQueueDetail(List<String> queueIdList) {
+        if (CollectionUtils.isNotEmpty(queueIdList)) {
+            ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
+            example.createCriteria().andQueueIdIn(queueIdList);
+            apiExecutionQueueDetailMapper.deleteByExample(example);
+        }
     }
 
     public String getLastReportByPlanId(String planId) {
