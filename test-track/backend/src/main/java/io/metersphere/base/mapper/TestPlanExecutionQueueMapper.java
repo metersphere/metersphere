@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestPlanExecutionQueue;
 import io.metersphere.base.domain.TestPlanExecutionQueueExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface TestPlanExecutionQueueMapper {
     long countByExample(TestPlanExecutionQueueExample example);
@@ -27,4 +28,5 @@ public interface TestPlanExecutionQueueMapper {
     int updateByPrimaryKeySelective(TestPlanExecutionQueue record);
 
     int updateByPrimaryKey(TestPlanExecutionQueue record);
+
 }
