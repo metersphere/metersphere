@@ -19,7 +19,7 @@
               {{ $t('commons.export') }}
             </span>
             <el-dropdown-menu slot="dropdown" class="drawer-header">
-              <el-dropdown-item @click.native.stop="exportJPG">JPG</el-dropdown-item>
+              <el-dropdown-item @click.native.stop="exportJPG">JPEG</el-dropdown-item>
               <el-dropdown-item @click.native.stop="exportPNG">PNG</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     exportJPG() {
-      this.$emit("export","JPG")
+      this.$emit("export","JPEG")
     },
     exportPNG() {
       this.$emit("export","PNG")

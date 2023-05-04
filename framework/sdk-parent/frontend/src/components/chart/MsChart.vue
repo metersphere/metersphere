@@ -87,10 +87,10 @@ export default {
     exportCharts(fileName, type) {
       if (document.getElementsByClassName('ms-chart')) {
         let chartsCanvas = document.getElementsByClassName('ms-chart')[0].querySelectorAll('canvas')[0];
-        let mime = 'image/png';
+        let mime = `image/${type?.toLowerCase() || 'png'}`;
         if (chartsCanvas) {
           // toDataURL()是canvas对象的一种方法，用于将canvas对象转换为base64位编码
-          let imageUrl = chartsCanvas && chartsCanvas.toDataURL("image/png");
+          let imageUrl = chartsCanvas.toDataURL(mime);
           if (navigator.userAgent.indexOf('Trident') > -1) {
             // IE11
             let arr = imageUrl.split(',');
