@@ -1,4 +1,4 @@
-on: pull_request
+on: push
 
 name: MeterSphere 覆盖率统计
 
