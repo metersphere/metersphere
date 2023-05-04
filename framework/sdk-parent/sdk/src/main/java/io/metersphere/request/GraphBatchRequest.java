@@ -12,5 +12,5 @@ public class GraphBatchRequest {
     private String name;
     private List<OrderRequest> orders;
     private String projectId;
-    private QueryTestCaseRequest condition;
+    private BaseQueryRequest condition;
 }

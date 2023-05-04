@@ -1,5 +1,6 @@
-package io.metersphere.request;
+package io.metersphere.remote.dto;
 
+import io.metersphere.request.BaseQueryRequest;
 import lombok.Getter;
 import lombok.Setter;
 
