@@ -28,4 +28,13 @@ public class UserControllerTests {
                 .andDo(print());
     }
 
+    @Test
+    public void testSelectAll2() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/get/admin"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$.person.name").value("Jason"))
+                .andDo(print());
+    }
+
 }
