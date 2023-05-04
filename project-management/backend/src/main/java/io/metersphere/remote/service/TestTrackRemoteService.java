@@ -3,7 +3,7 @@ package io.metersphere.remote.service;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.remote.dto.QueryTestCaseRequest;
+import io.metersphere.request.QueryTestCaseRequest;
 import io.metersphere.service.MicroService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
