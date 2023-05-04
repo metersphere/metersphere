@@ -139,6 +139,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
     public void invoke(Map<Integer, String> data, AnalysisContext analysisContext) {
 
+        if (headMap == null) {
+            MSException.throwException(Translator.get("case_import_table_header_missing"));
+        }
+
         Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
 
         handleMergeData(data, rowIndex);
