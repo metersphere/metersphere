@@ -455,7 +455,7 @@ public class UserLoginService {
     }
 
 
-    public void validateCsrfToken(String sessionId, String csrfToken) {
+    public String validateCsrfToken(String sessionId, String csrfToken) {
         if (StringUtils.isBlank(csrfToken)) {
             throw new RuntimeException("csrf token is empty");
         }
@@ -468,6 +468,7 @@ public class UserLoginService {
         if (!StringUtils.equals(sessionId, signatureArray[2])) {
             throw new RuntimeException("Please check csrf token.");
         }
+        return signatureArray[0];
     }
 
     public boolean checkWhetherChangePasswordOrNot(LoginRequest request) {

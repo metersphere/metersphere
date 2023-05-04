@@ -19,6 +19,8 @@ import io.metersphere.request.LoginRequest;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
@@ -50,7 +52,7 @@ public class LoginController {
     @Resource
     private SystemParameterService systemParameterService;
     @Resource
-    private ReactiveRedisSessionRepository reactiveRedisSessionRepository;
+    private StringRedisTemplate stringRedisTemplate;
 
     @GetMapping(value = "/is-login")
     public Mono<ResultHolder> isLogin(@RequestHeader(name = SessionConstants.HEADER_TOKEN, required = false) String sessionId,
@@ -58,25 +60,19 @@ public class LoginController {
         RsaKey rsaKey = RsaUtil.getRsaKey();
 
         if (StringUtils.isNotBlank(sessionId) && StringUtils.isNotBlank(csrfToken)) {
-            userLoginService.validateCsrfToken(sessionId, csrfToken);
-            return reactiveRedisSessionRepository.getSessionRedisOperations().opsForHash().get("spring:session:sessions:" + sessionId, "sessionAttr:user")
-                    .switchIfEmpty(Mono.just(rsaKey))
-                    .map(r -> {
-                        if (r instanceof RsaKey) {
-                            return ResultHolder.error(rsaKey.getPublicKey());
-                        }
-                        if (r instanceof User) {
-                            // 用户只有工作空间权限
-                            if (StringUtils.isBlank(((User) r).getLastProjectId())) {
-                                ((User) r).setLastProjectId("no_such_project");
-                            }
-                            // 使用数据库里的最新用户权限，不同的tab sessionId 不变
-                            UserDTO userDTO = userLoginService.getUserDTO(((User) r).getId());
-                            SessionUser sessionUser = SessionUser.fromUser(userDTO, sessionId);
-                            return ResultHolder.success(sessionUser);
-                        }
-                        return ResultHolder.success(r);
-                    });
+            String userId = userLoginService.validateCsrfToken(sessionId, csrfToken);
+            Boolean exist = stringRedisTemplate.opsForHash().hasKey("spring:session:sessions:" + sessionId, "sessionAttr:user");
+            if (BooleanUtils.isFalse(exist)) {
+                return Mono.just(ResultHolder.error(rsaKey.getPublicKey()));
+            }
+            // 使用数据库里的最新用户权限，不同的tab sessionId 不变
+            UserDTO userDTO = userLoginService.getUserDTO(userId);
+            SessionUser sessionUser = SessionUser.fromUser(userDTO, sessionId);
+            // 用户只有工作空间权限
+            if (StringUtils.isBlank(sessionUser.getLastProjectId())) {
+                sessionUser.setLastProjectId("no_such_project");
+            }
+            return Mono.just(ResultHolder.success(sessionUser));
         } else {
             return Mono.just(ResultHolder.error(rsaKey.getPublicKey()));
         }
