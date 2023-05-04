@@ -228,6 +228,12 @@ export default {
       }
       if (this.currentApi.request) {
         this.currentApi.request.clazzName = TYPE_TO_C.get(this.currentApi.request.type);
+        if (this.currentApi.request.hashTree) {
+          let hasNull = this.currentApi.request.hashTree.filter(v => !v || v == null);
+          if (hasNull && hasNull.length > 0) {
+            this.currentApi.request.hashTree = [];
+          }
+        }
         this.sort(this.currentApi.request.hashTree);
       }
     },
