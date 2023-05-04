@@ -2,7 +2,6 @@ package io.metersphere.plan.service;
 
 import io.metersphere.base.domain.TestPlanWithBLOBs;
 import io.metersphere.base.mapper.TestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
@@ -10,12 +9,10 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.plan.dto.ExecutionWay;
 import io.metersphere.plan.request.api.TestPlanRunRequest;
-import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
 import io.metersphere.plan.service.remote.performance.PerfExecService;
 import io.metersphere.plan.service.remote.ui.PlanTestPlanUiScenarioCaseService;
-import io.metersphere.plan.service.remote.ui.PlanUiAutomationService;
 import io.metersphere.plan.utils.TestPlanRequestUtil;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -45,15 +42,9 @@ public class TestPlanExecuteService {
     private PerfExecService perfExecService;
     @Resource
     private PlanTestPlanUiScenarioCaseService planTestPlanUiScenarioCaseService;
-    @Resource
-    private PlanApiAutomationService planApiAutomationService;
-    @Resource
-    private PlanUiAutomationService planUiAutomationService;
 
     @Resource
     private TestPlanMapper testPlanMapper;
-    @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
 
     /**
      * 执行测试计划流程是会调用其它服务的执行方法，并通过kafka传递信息给test-track服务来判断测试计划是否执行结束

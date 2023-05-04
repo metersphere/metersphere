@@ -16,11 +16,29 @@ public class BatchProcessingUtil {
 
     private static final int BATCH_PROCESS_QUANTITY = 100;
 
+    //批量处理参数是List<String>的函数
+    public static void consumerByStringList(List<String> stringList, Consumer<List<String>> consumer) {
+        if (CollectionUtils.isNotEmpty(stringList)) {
+            int foreachIndex = 0;
+            int foreachCount = stringList.size() / BATCH_PROCESS_QUANTITY;
+            while (BATCH_PROCESS_QUANTITY < stringList.size() || (foreachIndex > foreachCount)) {
+                List<String> handleList = stringList.subList(0, BATCH_PROCESS_QUANTITY);
+                consumer.accept(handleList);
+                stringList.removeAll(handleList);
+
+                //记录循环次数,防止出现死循环
+                foreachIndex++;
+            }
+            //处理剩余数据
+            if (CollectionUtils.isNotEmpty(stringList)) {
+                consumer.accept(stringList);
+            }
+        }
+    }
+
     public static void batchDeleteApiReport(List<String> testPlanReportIdList, Consumer<List<String>> deleteApiCaseReportFunc, Consumer<List<String>> deleteScenarioReportFunc, Consumer<List<String>> deleteUiReportFunc) {
         if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
-
             int unDeleteReportIdCount = testPlanReportIdList.size();
-
             while (BATCH_PROCESS_QUANTITY < testPlanReportIdList.size()) {
                 List<String> deleteReportIds = testPlanReportIdList.subList(0, BATCH_PROCESS_QUANTITY);
                 deleteApiCaseReportFunc.accept(deleteReportIds);
