@@ -8,6 +8,8 @@ import io.metersphere.plan.dto.ExecutionWay;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.sechedule.MsScheduleJob;
 import io.metersphere.service.BaseUserService;
+import org.apache.shiro.mgt.DefaultSecurityManager;
+import org.apache.shiro.util.ThreadContext;
 import org.quartz.*;
 
 /**
@@ -23,6 +25,8 @@ public class TestPlanTestJob extends MsScheduleJob {
     private TestPlanService testPlanService;
 
     private BaseUserService baseUserService;
+
+    private static DefaultSecurityManager defaultSecurityManager = new DefaultSecurityManager();
 
     public TestPlanTestJob() {
         this.testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
@@ -45,6 +49,8 @@ public class TestPlanTestJob extends MsScheduleJob {
         this.expression = jobDataMap.getString("expression");
         this.projectID = jobDataMap.getString("projectId");
 
+        // 业务中涉及远程调用, 需在定时任务中获取subject.
+        ThreadContext.bind(defaultSecurityManager);
         businessExecute(context);
     }
 
