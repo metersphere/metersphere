@@ -6,9 +6,14 @@
         <drawer-header :title="$t('commons.relationship.graph')" @close="close" @export="exportCharts"/>
       </template>
       <div>
-        <el-scrollbar>
-          <relationship-graph :height="height" :width="width" :data="graphData.data" :links="graphData.links"
-                              ref="relationshipGraph"/>
+        <el-scrollbar class="graph-scrollbar">
+          <relationship-graph
+            :height="height"
+            :width="width"
+            :data="graphData.data"
+            :links="graphData.links"
+            @finished="handleFinished"
+            ref="relationshipGraph"/>
         </el-scrollbar>
       </div>
     </ms-drawer>
@@ -72,6 +77,12 @@ export default {
           this.$refs.relationshipGraph.reload();
         });
       });
+    },
+    handleFinished() {
+      // 滚动条设置居中
+      let graphScrollbar = document.querySelector('.graph-scrollbar .el-scrollbar__wrap');
+      let graphScrollbarView = document.querySelector('.graph-scrollbar .el-scrollbar__wrap .ms-chart');
+      graphScrollbar.scrollLeft = (graphScrollbarView.clientWidth - graphScrollbar.clientWidth)/2
     },
     close() {
       this.visible = false;

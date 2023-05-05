@@ -1,5 +1,11 @@
 <template>
-  <ms-chart v-if="visible" :options="options" :height="height" :width="width" ref="msChart"/>
+  <ms-chart
+    v-if="visible"
+    :options="options"
+    :height="height"
+    :width="width"
+    @finished="$emit('finished')"
+    ref="msChart"/>
 </template>
 
 <script>

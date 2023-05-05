@@ -9,6 +9,7 @@
       :group="group"
       @click="onClick"
       @datazoom="datazoom"
+      @finished="$emit('finished')"
       v-on="$listeners"
       :watch-shallow="watchShallow"
       :manual-update="manualUpdate"
