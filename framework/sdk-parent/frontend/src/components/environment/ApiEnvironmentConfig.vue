@@ -15,21 +15,6 @@
         </environment-edit>
       </el-container>
     </el-dialog>
-    <el-dialog
-      :visible.sync="delDialogVisible"
-      append-to-body
-      width="30%">
-      <span style="color: #de9d1c; font-size: 18px;padding-right: 5px">
-        <i class="el-icon-warning"/>
-      </span>
-      <span style="font-size: 18px">
-        {{ $t('commons.confirm_delete') + currentEnvironment.name }}
-      </span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="delDialogVisible = false">{{ $t('commons.cancel') }}</el-button>
-        <el-button type="primary" @click="delEnvironment">{{ $t('commons.confirm') }}</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -78,7 +63,6 @@ export default {
       ],
       selectEnvironmentId: '',
       ifCreate: false, //是否是创建环境
-      delDialogVisible: false,
       currentIndex: -1,
       isCopy: false
     }
@@ -134,7 +118,7 @@ export default {
       listenGoBack(this.close);
     },
     deleteEnvironment(environment, index) {
-      this.$alert(this.$t('commons.confirm_delete') + environment.name, '', {
+      this.$alert(this.$t('commons.delete') + "(" + environment.name + ")" + this.$t('project.del_env_tip'), '', {
         confirmButtonText: this.$t('commons.confirm'),
         cancelButtonText: this.$t('commons.cancel'),
         callback: (action) => {
@@ -143,11 +127,9 @@ export default {
               this.result = delApiEnvironment(environment.id).then(() => {
                 this.$success(this.$t('commons.delete_success'));
                 this.getEnvironments();
-                this.delDialogVisible = false;
               });
             } else {
               this.environments.splice(index, 1);
-              this.delDialogVisible = false;
             }
           }
         }
@@ -258,7 +240,6 @@ export default {
     openDelEnv(environment, index) {
       this.currentEnvironment = environment;
       this.currentIndex = index;
-      this.delDialogVisible = true
     },
     delEnvironment() {
       this.deleteEnvironment(this.currentEnvironment, this.currentIndex)
