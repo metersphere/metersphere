@@ -1314,7 +1314,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 List<ApiDefinitionWithBLOBs> moduleDatas = moduleOptionData.get(modulePath);
                 if (moduleDatas != null && moduleDatas.size() <= 1) {
                     ApiModule apiModule = moduleMap.get(modulePath);
-                    if (parentIdModuleMap.get(apiModule.getId()) == null) {
+                    if (apiModule != null && parentIdModuleMap.get(apiModule.getId()) == null) {
                         moduleMap.remove(modulePath);
                     }
                     moduleDatas.remove(apiDefinitionWithBLOBs);
