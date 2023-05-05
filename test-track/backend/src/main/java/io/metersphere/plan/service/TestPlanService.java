@@ -68,6 +68,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.quartz.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,6 +156,9 @@ public class TestPlanService {
     private ApiPoolDebugService apiPoolDebugService;
     @Resource
     private TestPlanExecuteService testPlanExecuteService;
+    @Resource
+    @Lazy
+    private TestPlanService testPlanService;
 
     public TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -482,6 +486,7 @@ public class TestPlanService {
         }
         List<TestPlanDTOWithMetric> testPlanList = extTestPlanMapper.list(request);
         if (CollectionUtils.isNotEmpty(testPlanList)) {
+            List<String> changeToFinishedIds = new ArrayList<>();
             //检查定时任务的设置
             List<String> idList = testPlanList.stream().map(TestPlan::getId).collect(Collectors.toList());
             List<Schedule> scheduleByResourceIds = baseScheduleService.getScheduleByResourceIds(idList, ScheduleGroup.TEST_PLAN_TEST.name());
@@ -500,12 +505,42 @@ public class TestPlanService {
                     item.setScheduleStatus(ScheduleStatus.NOTSET.name());
                 }
 
-                //关注人这里查出来。 是因为编辑的时候需要有这个字段。
+                // 关注人这里查出来。 是因为编辑的时候需要有这个字段。
                 List<User> planPrincipal = this.getPlanPrincipal(item.getId());
                 item.setPrincipalUsers(planPrincipal);
+
+                // 还没有结束的计划，如果设置了结束时间，并且已经到了结束时间，则将状态改为已结束
+                if (!StringUtils.equals(item.getStatus(), TestPlanStatus.Finished.name())
+                        && item.getPlannedEndTime() != null && System.currentTimeMillis() > item.getPlannedEndTime()) {
+                    item.setStatus(TestPlanStatus.Finished.name());
+                    changeToFinishedIds.add(item.getId());
+                }
             });
+
+            if (CollectionUtils.isNotEmpty(changeToFinishedIds)) {
+                // 使用代理对象，避免 @Async 失效
+                testPlanService.changeToFinished(changeToFinishedIds);
+            }
         }
         return testPlanList;
+    }
+
+    /**
+     * 异步将测试计划的状态置为已结束
+     * @param changeToFinishedIds
+     */
+    @Async
+    protected void changeToFinished(List<String> changeToFinishedIds) {
+        if (CollectionUtils.isEmpty(changeToFinishedIds)) {
+            return;
+        }
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdIn(changeToFinishedIds);
+        List<TestPlanWithBLOBs> testPlans = testPlanMapper.selectByExampleWithBLOBs(example);
+        testPlans.forEach(item -> {
+            item.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(item);
+        });
     }
 
     public List<TestPlanDTOWithMetric> selectTestPlanMetricById(List<String> idList) {
