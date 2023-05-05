@@ -1,5 +1,7 @@
 package io.metersphere.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
@@ -11,6 +13,7 @@ import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.LoadTestReportLog;
+import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -32,6 +35,7 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.service.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -309,7 +313,29 @@ public class ShareController {
     public List<TestResourcePoolDTO> getTestResourcePools() {
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
         resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
-        return testResourcePoolService.listResourcePools(resourcePoolRequest);
+        // 数据脱敏
+        // 仅对k8s操作
+        List<TestResourcePoolDTO> testResourcePoolDTOS = testResourcePoolService.listResourcePools(resourcePoolRequest);
+        testResourcePoolDTOS.stream()
+                .filter(testResourcePoolDTO -> StringUtils.equals(ResourcePoolTypeEnum.K8S.name(), testResourcePoolDTO.getType()))
+                .forEach(pool -> pool.getResources().forEach(resource -> {
+                    String configuration = resource.getConfiguration();
+                    JSONObject map = JSON.parseObject(configuration);
+                    if (map.containsKey("token")) {
+                        map.put("token", "******");
+                    }
+                    if (map.containsKey("masterUrl")) {
+                        map.put("masterUrl", "******");
+                    }
+                    if (map.containsKey("jobTemplate")) {
+                        map.put("jobTemplate", "******");
+                    }
+                    if (map.containsKey("namespace")) {
+                        map.put("namespace", "******");
+                    }
+                    resource.setConfiguration(JSON.toJSONString(map));
+                }));
+        return testResourcePoolDTOS;
     }
 
     @GetMapping("/{shareId}/scenario/report/selectReportContent/{stepId}")
