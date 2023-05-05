@@ -3,13 +3,11 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ProjectApplication;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
-import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -21,6 +19,7 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.testcase.*;
 import io.metersphere.request.testplan.FileOperationRequest;
 import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.service.BaseProjectApplicationService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.service.wapper.CheckPermissionService;
@@ -55,9 +54,16 @@ public class TestCaseController {
     @Resource
     private FileService fileService;
 
+    @Resource
+    private BaseProjectApplicationService projectApplicationService;
+
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(request.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        if (projectApplication != null && StringUtils.isNotEmpty(projectApplication.getTypeValue()) && request.getCombine() != null) {
+            request.getCombine().put("caseCustomNum", projectApplication.getTypeValue());
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
