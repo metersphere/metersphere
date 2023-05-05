@@ -9,12 +9,23 @@
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
-        <if test='${condition}.id != null'>
+        <if test='${condition}.id != null and ${condition}.id.operator == "like"'>
             and (test_case.num
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
                 <property name="object" value="${condition}.id"/>
             </include>
             or test_case.custom_num
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.id != null and ${condition}.id.operator == "not like"'>
+            and (test_case.num
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.id"/>
+            </include>
+            and test_case.custom_num
             <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
                 <property name="object" value="${condition}.id"/>
             </include>
