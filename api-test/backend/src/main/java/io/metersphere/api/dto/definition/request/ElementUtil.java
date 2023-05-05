@@ -374,22 +374,7 @@ public class ElementUtil {
                         }
                     }
                 } else if (element != null && element.get(PropertyConstant.TYPE).toString().equals(ElementConstants.HTTP_SAMPLER)) {
-                    MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
-                    if (httpSamplerProxy != null && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment())))) {
-                        if (element != null && element.has(ElementConstants.HASH_TREE)) {
-                            httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
-                        }
-                        HashTree tmpHashTree = new HashTree();
-                        httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
-                        if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
-                            HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
-                            // 清空Domain
-                            element.put("domain", "");
-                            if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
-                                element.put("domain", StringUtils.isNotEmpty(object.getProtocol()) ? object.getProtocol() + "://" + object.getDomain() : object.getDomain());
-                            }
-                        }
-                    }
+                    setDomain(element, msParameter);
                 }
                 if (element.has(ElementConstants.HASH_TREE)) {
                     JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
@@ -402,6 +387,28 @@ public class ElementUtil {
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
+        }
+    }
+
+    public static void setDomain(JSONObject element, MsParameter msParameter) {
+        MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
+        if (httpSamplerProxy != null &&
+                (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq()
+                        && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment())))) {
+            if (element != null && element.has(ElementConstants.HASH_TREE)) {
+                httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
+            }
+            HashTree tmpHashTree = new HashTree();
+            httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
+            if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
+                HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
+                // 清空Domain
+                element.put("domain", "");
+                if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
+                    element.put("domain", StringUtils.isNotEmpty(object.getProtocol()) ?
+                            object.getProtocol() + "://" + object.getDomain() : object.getDomain());
+                }
+            }
         }
     }
 
@@ -1033,7 +1040,7 @@ public class ElementUtil {
     }
 
     public static boolean isLoop(MsTestElement sampler) {
-        if (sampler != null ) {
+        if (sampler != null) {
             if (StringUtils.equals(sampler.getType(), "LoopController")) {
                 return true;
             }

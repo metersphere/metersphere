@@ -275,6 +275,12 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
     }
 
+    public List<ApiTestCaseInfo> selectByCaseIds(List<String> ids) {
+        if(CollectionUtils.isEmpty(ids)){
+            return new ArrayList<>();
+        }
+        return extApiTestCaseMapper.selectByCaseIds(ids);
+    }
     public ApiTestCaseInfo getResult(String id) {
         return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
     }

@@ -726,21 +726,17 @@ public class ApiScenarioService {
 
     public ApiScenarioDTO getNewApiScenario(String id) {
         ApiScenarioDTO scenarioWithBLOBs = extApiScenarioMapper.selectById(id);
-        if (scenarioWithBLOBs != null && StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
+        if (scenarioWithBLOBs == null) {
+            return null;
+        }
+        if (StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-            hashTreeService.dataFormatting(element);
+            List<String> caseIds = new ArrayList<>();
+            hashTreeService.dataFormatting(element, caseIds);
+            // 处理用例
+            hashTreeService.caseFormatting(element, caseIds, getConfig(scenarioWithBLOBs));
             ElementUtil.dataFormatting(element);
             scenarioWithBLOBs.setScenarioDefinition(element.toString());
-        }
-        if (scenarioWithBLOBs != null && StringUtils.isNotBlank(scenarioWithBLOBs.getEnvironmentJson())) {
-            ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
-            request.setEnvironmentEnable(false);
-            request.setDefinition(scenarioWithBLOBs.getScenarioDefinition());
-            request.setEnvironmentMap(JSON.parseObject(scenarioWithBLOBs.getEnvironmentJson(), Map.class));
-            request.setEnvironmentType(scenarioWithBLOBs.getEnvironmentType());
-            request.setEnvironmentGroupId(scenarioWithBLOBs.getEnvironmentGroupId());
-            request.setId(scenarioWithBLOBs.getId());
-            scenarioWithBLOBs.setScenarioDefinition(this.setDomain(request));
         }
         return scenarioWithBLOBs;
     }
@@ -776,6 +772,26 @@ public class ApiScenarioService {
             }
         }
         return target;
+    }
+
+    public ParameterConfig getConfig(ApiScenarioDTO scenario) {
+        try {
+            Map<String, String> environmentMap = new HashMap<>();
+            String environmentType = scenario.getEnvironmentType();
+            String environmentGroupId = scenario.getEnvironmentGroupId();
+            String environmentJson = scenario.getEnvironmentJson();
+            if (StringUtils.equals(environmentType, EnvironmentType.GROUP.name())) {
+                environmentMap = environmentGroupProjectService.getEnvMap(environmentGroupId);
+            } else if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
+                environmentMap = JSON.parseObject(environmentJson, Map.class);
+            }
+            ParameterConfig config = new ParameterConfig();
+            apiScenarioEnvService.setEnvConfig(environmentMap, config);
+            return config;
+        } catch (Exception e) {
+            LogUtil.error(e);
+            return null;
+        }
     }
 
     public String setDomain(ApiScenarioEnvRequest request) {
@@ -825,14 +841,36 @@ public class ApiScenarioService {
         }
     }
 
-    public List<ApiScenarioDTO> getNewApiScenarios(List<String> ids) {
-        List<ApiScenarioDTO> list = new LinkedList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ids.forEach(item -> {
-                ApiScenarioDTO dto = this.getNewApiScenario(item);
-                list.add(dto);
-            });
+    public List<ApiScenarioDTO> getScenarioDetail(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
         }
+        List<ApiScenarioDTO> list = extApiScenarioMapper.selectByScenarioIds(ids);
+        list.forEach(dto -> {
+            if (dto != null) {
+                if (StringUtils.isNotEmpty(dto.getScenarioDefinition())) {
+                    JSONObject element = JSONUtil.parseObject(dto.getScenarioDefinition());
+                    // 获取所有case
+                    List<String> caseIds = new ArrayList<>();
+                    hashTreeService.dataFormatting(element, caseIds);
+                    // 处理用例
+                    hashTreeService.caseFormatting(element, caseIds, null);
+
+                    ElementUtil.dataFormatting(element);
+                    dto.setScenarioDefinition(element.toString());
+                }
+                if (StringUtils.isNotBlank(dto.getEnvironmentJson())) {
+                    ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
+                    request.setEnvironmentEnable(false);
+                    request.setDefinition(dto.getScenarioDefinition());
+                    request.setEnvironmentMap(JSON.parseObject(dto.getEnvironmentJson(), Map.class));
+                    request.setEnvironmentType(dto.getEnvironmentType());
+                    request.setEnvironmentGroupId(dto.getEnvironmentGroupId());
+                    request.setId(dto.getId());
+                    dto.setScenarioDefinition(this.setDomain(request));
+                }
+            }
+        });
         return list;
     }
 

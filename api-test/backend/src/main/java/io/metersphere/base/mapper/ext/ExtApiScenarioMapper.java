@@ -60,6 +60,8 @@ public interface ExtApiScenarioMapper {
 
     ApiScenarioDTO selectById(@Param("id") String id);
 
+    List<ApiScenarioDTO> selectByScenarioIds(@Param("ids") List<String> ids);
+
     void clearLatestVersion(String refId);
 
     void addLatestVersion(String refId);
