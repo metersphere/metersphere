@@ -206,7 +206,7 @@ public class ApiScenarioController {
 
     @PostMapping("/get-scenario-list")
     public List<ApiScenarioDTO> getApiScenarios(@RequestBody List<String> ids) {
-        return apiAutomationService.getNewApiScenarios(ids);
+        return apiAutomationService.getScenarioDetail(ids);
     }
 
     @PostMapping(value = "/run/debug")

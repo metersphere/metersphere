@@ -4,7 +4,9 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.request.ElementUtil;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class MsHashTreeService {
@@ -136,18 +139,23 @@ public class MsHashTreeService {
         }
     }
 
-    private void setElement(JSONObject element, Integer num, Boolean enable, String versionName, Boolean versionEnable) {
+    private void setElement(JSONObject element, Integer num,
+                            Boolean enable, String versionName,
+                            Boolean versionEnable, ParameterConfig msParameter) {
         element.put(NUM, num);
         element.put(ENABLE, enable == null ? false : enable);
         element.put(VERSION_NAME, versionName);
         element.put(VERSION_ENABLE, versionEnable == null ? false : versionEnable);
+        if (msParameter != null) {
+            ElementUtil.setDomain(element, msParameter);
+        }
     }
 
-    private JSONObject setRequest(JSONObject element) {
+    private JSONObject setRequest(JSONObject element, Map<String, ApiTestCaseInfo> caseMap, ParameterConfig msParameter) {
         boolean enable = element.optBoolean(ENABLE);
         boolean isExist = false;
         if (StringUtils.equalsIgnoreCase(element.optString(REF_TYPE), CASE)) {
-            ApiTestCaseInfo apiTestCase = apiTestCaseService.get(element.optString(ID));
+            ApiTestCaseInfo apiTestCase = caseMap.get(element.optString(ID));
             if (apiTestCase != null) {
                 if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                     JSONObject refElement = JSONUtil.parseObject(apiTestCase.getRequest());
@@ -202,7 +210,7 @@ public class MsHashTreeService {
                 }
                 element.put(ID, apiTestCase.getId());
                 isExist = true;
-                this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable());
+                this.setElement(element, apiTestCase.getNum(), enable, apiTestCase.getVersionName(), apiTestCase.getVersionEnable(), msParameter);
             }
         } else if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), COPY)) {
             ApiDefinitionResult definition = apiDefinitionService.getById(element.optString(ID));
@@ -210,7 +218,8 @@ public class MsHashTreeService {
                 Project project = projectMapper.selectByPrimaryKey(definition.getProjectId());
                 element.put(ID, definition.getId());
                 element.put(VERSION_ID, definition.getVersionId());
-                this.setElement(element, definition.getNum(), enable, definition.getVersionName(), project.getVersionEnable());
+                this.setElement(element, definition.getNum(), enable,
+                        definition.getVersionName(), project.getVersionEnable(), msParameter);
                 isExist = true;
             }
         }
@@ -221,6 +230,13 @@ public class MsHashTreeService {
             element.put(NUM, StringUtils.EMPTY);
         }
         return element;
+    }
+
+
+    private void getCaseIds(JSONObject element, List<String> caseIds) {
+        if (StringUtils.equalsIgnoreCase(element.optString(REF_TYPE), CASE) && element.has(ID)) {
+            caseIds.add(element.optString(ID));
+        }
     }
 
     private JSONObject setRefScenario(JSONObject element) {
@@ -256,7 +272,8 @@ public class MsHashTreeService {
             ProjectConfig projectApplication = baseProjectApplicationService.getSpecificTypeValue(scenarioWithBLOBs.getProjectId(), "SCENARIO_CUSTOM_NUM");
             element.put(SHOW_CUSTOM_NUM, projectApplication.getScenarioCustomNum());
             element.put(CUSTOM_NUM, scenarioWithBLOBs.getCustomNum());
-            this.setElement(element, scenarioWithBLOBs.getNum(), enable, scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable());
+            this.setElement(element, scenarioWithBLOBs.getNum(), enable,
+                    scenarioWithBLOBs.getVersionName(), scenarioWithBLOBs.getVersionEnable(), null);
         } else {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
@@ -289,7 +306,7 @@ public class MsHashTreeService {
                         target.forEach(targetObj -> {
                             JSONObject childTarget = (JSONObject) targetObj;
                             if (StringUtils.equals(childOrg.optString(ID), childTarget.optString(ID))
-                            && StringUtils.equals(childOrg.optString(INDEX), childTarget.optString(INDEX))) {
+                                    && StringUtils.equals(childOrg.optString(INDEX), childTarget.optString(INDEX))) {
                                 setRefEnable(childTarget, childOrg);
                             }
                         });
@@ -303,32 +320,60 @@ public class MsHashTreeService {
         return orgElement;
     }
 
-    public void dataFormatting(JSONArray hashTree) {
+    public void dataFormatting(JSONArray hashTree, List<String> caseIds) {
         for (int i = 0; i < hashTree.length(); i++) {
             JSONObject element = hashTree.optJSONObject(i);
             if (element != null && StringUtils.equalsIgnoreCase(element.optString(TYPE), SCENARIO)) {
                 element = this.setRefScenario(element);
                 hashTree.put(i, element);
             } else if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
-                element = this.setRequest(element);
+                this.getCaseIds(element, caseIds);
                 hashTree.put(i, element);
             }
             if (element.has(HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-                dataFormatting(elementJSONArray);
+                dataFormatting(elementJSONArray, caseIds);
             }
         }
     }
 
-    public void dataFormatting(JSONObject element) {
+    public void dataFormatting(JSONObject element, List<String> caseIds) {
         if (element != null && StringUtils.equalsIgnoreCase(element.optString(TYPE), SCENARIO)) {
             element = this.setRefScenario(element);
         } else if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
-            element = this.setRequest(element);
+            this.getCaseIds(element, caseIds);
         }
         if (element != null && element.has(HASH_TREE)) {
             JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-            dataFormatting(elementJSONArray);
+            dataFormatting(elementJSONArray, caseIds);
         }
     }
+
+    public void caseFormatting(JSONArray hashTree, Map<String, ApiTestCaseInfo> caseMap, ParameterConfig msParameter) {
+        for (int i = 0; i < hashTree.length(); i++) {
+            JSONObject element = hashTree.optJSONObject(i);
+            if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
+                element = this.setRequest(element, caseMap, msParameter);
+                hashTree.put(i, element);
+            }
+            if (element.has(HASH_TREE)) {
+                JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
+                caseFormatting(elementJSONArray, caseMap, msParameter);
+            }
+        }
+    }
+
+    public void caseFormatting(JSONObject element, List<String> caseIds, ParameterConfig msParameter) {
+        List<ApiTestCaseInfo> caseInfos = apiTestCaseService.selectByCaseIds(caseIds);
+        Map<String, ApiTestCaseInfo> caseMap = caseInfos.stream()
+                .collect(Collectors.toMap(ApiTestCase::getId, a -> a, (k1, k2) -> k1));
+        if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
+            element = this.setRequest(element, caseMap, msParameter);
+        }
+        if (element != null && element.has(HASH_TREE)) {
+            JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
+            caseFormatting(elementJSONArray, caseMap, msParameter);
+        }
+    }
+
 }

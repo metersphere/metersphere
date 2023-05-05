@@ -746,6 +746,18 @@
         WHERE api_scenario.id = #{id}
     </select>
 
+    <select id="selectByScenarioIds" resultMap="BaseResultMap">
+        select api_scenario.*, project_version.name as version_name, project.version_enable
+        from api_scenario
+                 LEFT JOIN project_version
+                           on project_version.project_id = api_scenario.project_id and project_version.id = version_id
+                 LEFT JOIN project on api_scenario.project_id = project.id
+        WHERE api_scenario.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <sql id="queryVersionCondition">
         <if test="request.versionId != null">
             and ${versionTable}.version_id = #{request.versionId}

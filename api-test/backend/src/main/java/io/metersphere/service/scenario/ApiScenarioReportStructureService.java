@@ -167,7 +167,11 @@ public class ApiScenarioReportStructureService {
             //保证场景的步骤是最新的（比如场景中包含引用场景）
             MsHashTreeService hashTreeService = CommonBeanFactory.getBean(MsHashTreeService.class);
             assert hashTreeService != null;
-            hashTreeService.dataFormatting(element);
+            List<String> caseIds = new ArrayList<>();
+            hashTreeService.dataFormatting(element, caseIds);
+            // 处理用例
+            hashTreeService.caseFormatting(element, caseIds, null);
+
             String resourceId = combinationResourceId(element, reportType, id);
             StepTreeDTO dto = new StepTreeDTO(name, resourceId, element.optString(TYPE), resourceId, 1);
             dto.setAllIndex(null);
