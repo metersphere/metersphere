@@ -34,9 +34,11 @@
           <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
           <div class="el-upload__tip" slot="tip">
             {{ $t('test_track.issue.import_file_limit_tips') }}
-            <el-link type="primary" class="download-template" @click="downloadIssueImportTemplate">
-              {{ $t('test_track.case.import.download_template') }}
-            </el-link>
+            <div>
+              <el-link type="primary" class="download-template" @click="downloadIssueImportTemplate">
+                {{ $t('test_track.case.import.download_template') }}
+              </el-link>
+            </div>
           </div>
         </el-upload>
       </el-row>
