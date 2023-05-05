@@ -1,7 +1,7 @@
 <template>
   <workstation-detail
     :is-creation="true"
-    v-if="projectId !== '' && projectId !== 'no_such_project'"
+    v-if="projectId !== '' && projectId !== 'no_such_project' && currentTodo !== 'empty'"
     :current-todo-name="currentTodo"
   ></workstation-detail>
 </template>
@@ -26,6 +26,7 @@ export default {
   methods: {
     setDefaultCurrentTodo() {
       // 设置当前默认TAB页为下一个有权限的菜单TAB
+      // 如果该用户无权限存在, 则空白
       if (hasPermissions('PROJECT_TRACK_CASE:READ')) {
         this.currentTodo = 'track_case';
       } else if (hasPermissions('PROJECT_TRACK_PLAN:READ')) {
@@ -40,6 +41,8 @@ export default {
         this.currentTodo = 'api_automation';
       } else if (hasPermissions('PROJECT_PERFORMANCE_TEST:READ')) {
         this.currentTodo = 'performance';
+      } else {
+        this.currentTodo = 'empty'
       }
     }
   },

@@ -5,7 +5,7 @@
     <el-tab-pane name="track_review" :label="$t('workstation.table_name.track_review')"  v-if="disabled(['PROJECT_TRACK_REVIEW:READ'])"></el-tab-pane>
     <el-tab-pane name="track_issue" :label= "$t('workstation.table_name.track_issue')" v-if="disabled(['PROJECT_TRACK_ISSUE:READ'])"></el-tab-pane>
     <el-tab-pane name="api_definition" :label= "$t('workstation.table_name.api_definition')" v-if="disabled(['PROJECT_API_DEFINITION:READ'])"></el-tab-pane>
-    <el-tab-pane name="api_case" :label= "$t('workstation.table_name.api_case')" v-if="disabled(['PROJECT_API_SCENARIO:READ'])"></el-tab-pane>
+    <el-tab-pane name="api_case" :label= "$t('workstation.table_name.api_case')" v-if="disabled(['PROJECT_API_DEFINITION:READ'])"></el-tab-pane>
     <el-tab-pane name="api_automation" :label= "$t('workstation.table_name.api_automation')" v-if="disabled(['PROJECT_API_SCENARIO:READ'])"></el-tab-pane>
     <el-tab-pane name="performance" :label= "$t('workstation.table_name.performance')" v-if="disabled(['PROJECT_PERFORMANCE_TEST:READ'])"></el-tab-pane>
   </el-tabs>
