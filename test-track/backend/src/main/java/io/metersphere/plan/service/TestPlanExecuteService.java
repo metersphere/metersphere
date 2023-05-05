@@ -3,7 +3,6 @@ package io.metersphere.plan.service;
 import io.metersphere.base.domain.TestPlanWithBLOBs;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
@@ -208,7 +207,7 @@ public class TestPlanExecuteService {
         testPlanReportService.createTestPlanReportContentReportIds(planReportId, apiTestCases, scenarioCases, uiScenarios, loadCaseReportMap);
         if (!haveApiCaseExec && !haveScenarioCaseExec && !haveLoadCaseExec && !haveUICaseExec) {
             //如果没有执行的自动化用例，调用结束测试计划的方法。 因为方法中包含着测试计划执行队列的处理逻辑。
-            testPlanReportService.testPlanExecuteOver(planReportId, TestPlanReportStatus.COMPLETED.name());
+            testPlanReportService.testPlanUnExecute(reportInfoDTO.getTestPlanReport());
         }
         return planReportId;
     }
