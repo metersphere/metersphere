@@ -41,15 +41,17 @@
         </el-upload>
       </el-row>
 
-      <el-row>
-        <ul>
-          <li v-for="errFile in errList" :key="errFile.rowNum">
-            {{ errFile.errMsg }}
-          </li>
-        </ul>
+      <el-row style="margin: 10px 0">
+        <el-scrollbar>
+          <ul style="max-height: 60px">
+            <li v-for="errFile in errList" :key="errFile.rowNum">
+              {{ errFile.errMsg }}
+            </li>
+          </ul>
+        </el-scrollbar>
       </el-row>
 
-      <el-row style="text-align: right; margin-top: 40px">
+      <el-row style="text-align: right; margin-top: 30px">
         <el-button size="mini" @click="cancel">{{ $t('commons.cancel') }}</el-button>
         <el-button type="primary" size="mini" @click="save">
           {{ $t('commons.save') }}
