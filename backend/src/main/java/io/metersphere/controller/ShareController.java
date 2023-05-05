@@ -309,6 +309,28 @@ public class ShareController {
     public List<TestResourcePoolDTO> getTestResourcePools() {
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
         resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
+        // 数据脱敏
+        // 仅对k8s操作
+        List<TestResourcePoolDTO> testResourcePoolDTOS = baseTestResourcePoolService.listResourcePools(resourcePoolRequest);
+        testResourcePoolDTOS.stream()
+                .filter(testResourcePoolDTO -> StringUtils.equals(ResourcePoolTypeEnum.K8S.name(), testResourcePoolDTO.getType()))
+                .forEach(pool -> pool.getResources().forEach(resource -> {
+                    String configuration = resource.getConfiguration();
+                    Map map = JSON.parseMap(configuration);
+                    if (map.containsKey("token")) {
+                        map.put("token", "******");
+                    }
+                    if (map.containsKey("masterUrl")) {
+                        map.put("masterUrl", "******");
+                    }
+                    if (map.containsKey("jobTemplate")) {
+                        map.put("jobTemplate", "******");
+                    }
+                    if (map.containsKey("namespace")) {
+                        map.put("namespace", "******");
+                    }
+                    resource.setConfiguration(JSON.toJSONString(map));
+                }));
         return testResourcePoolService.listResourcePools(resourcePoolRequest);
     }
 
