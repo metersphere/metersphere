@@ -38,7 +38,7 @@ public class SessionUtils {
             assert user != null;
             return user;
         } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
+            LogUtil.warn("后台获取在线用户失败: " + e.getMessage());
             return null;
         }
     }
