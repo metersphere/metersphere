@@ -193,13 +193,13 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                 String type = customFieldDao.getType();
                 Boolean required = customFieldDao.getRequired();
                 String options = StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue()) ?
-                        this.memberMap.toString() : customFieldDao.getOptions();
+                        JSON.toJSONString(this.memberMap) : customFieldDao.getOptions();
                 if (required && StringUtils.isEmpty(v.toString())) {
                     errMsg.append(k).append(Translator.get("can_not_be_null")).append(";");
+                } else if (StringUtils.isNotEmpty(v.toString()) && isIllegalFormat(type, v)) {
+                    errMsg.append(k).append(Translator.get("format_error")).append(";");
                 } else if (StringUtils.isNotEmpty(v.toString()) && isSelect(type) && !isOptionInclude(v, options)) {
                     errMsg.append(k).append(Translator.get("options_not_exist")).append(";");
-                } else if (StringUtils.isNotEmpty(v.toString()) && isIllegalFormat(type, v.toString())) {
-                    errMsg.append(k).append(Translator.get("format_error")).append(";");
                 }
             } else {
                 if (!exportFieldsContains(k)) {
@@ -403,19 +403,18 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                 CustomFieldType.CASCADING_SELECT.getValue(), CustomFieldType.MEMBER.getValue(), CustomFieldType.MULTIPLE_MEMBER.getValue());
     }
 
-    private Boolean isIllegalFormat(String type, String value) {
+    private Boolean isIllegalFormat(String type, Object value) {
         try {
             if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATE.getValue())) {
-                DateUtils.parseDate(value, "yyyy/MM/dd");
+                DateUtils.parseDate(value.toString(), "yyyy/MM/dd");
             } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATETIME.getValue())) {
-                DateUtils.parseDate(value);
+                DateUtils.parseDate(value.toString());
             } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.INT.getValue())) {
-                Integer.parseInt(value);
+                Integer.parseInt(value.toString());
             } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.FLOAT.getValue())) {
-                Float.parseFloat(value);
-            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue())) {
-                Object val = JSON.parseObject(value);
-                if (val instanceof ArrayList<?>) {
+                Float.parseFloat(value.toString());
+            } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue(), CustomFieldType.RADIO.getValue(), CustomFieldType.MEMBER.getValue())) {
+                if (value instanceof List) {
                     return Boolean.TRUE;
                 }
             }
@@ -435,7 +434,7 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                 }
             });
         } else {
-            isInclude.set(StringUtils.contains(options, value.toString()));
+            isInclude.set(StringUtils.contains(options, "\"" + value.toString() + "\""));
         }
         return isInclude.get();
     }
