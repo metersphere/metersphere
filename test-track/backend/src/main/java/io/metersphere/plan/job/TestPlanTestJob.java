@@ -26,8 +26,6 @@ public class TestPlanTestJob extends MsScheduleJob {
 
     private BaseUserService baseUserService;
 
-    private static DefaultSecurityManager defaultSecurityManager = new DefaultSecurityManager();
-
     public TestPlanTestJob() {
         this.testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
         this.baseUserService = CommonBeanFactory.getBean(BaseUserService.class);
@@ -49,8 +47,6 @@ public class TestPlanTestJob extends MsScheduleJob {
         this.expression = jobDataMap.getString("expression");
         this.projectID = jobDataMap.getString("projectId");
 
-        // 业务中涉及远程调用, 需在定时任务中获取subject.
-        ThreadContext.bind(defaultSecurityManager);
         businessExecute(context);
     }
 
