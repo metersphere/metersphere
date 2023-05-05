@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,11 +123,11 @@ public class JSONSchemaParser {
             }
             if (FormatterUtil.isMockValue(object)) {
                 if (FormatterUtil.isNumber(FormatterUtil.getStrValue(object))) {
-                    Number value = FormatterUtil.getElementValue(object).getAsNumber();
-                    if (value.toString().indexOf(".") == -1) {
-                        concept.put(propertyName, value.longValue());
+                    String value = FormatterUtil.getElementValue(object).getAsString();
+                    if (value.indexOf(".") == -1) {
+                        concept.put(propertyName, Integer.valueOf(value));
                     } else {
-                        concept.put(propertyName, value.floatValue());
+                        concept.put(propertyName, new BigDecimal(value));
                     }
                 } else {
                     JSONSchemaBuilder.processValue(concept, processMap, propertyName, FormatterUtil.getStrValue(object));
