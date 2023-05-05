@@ -26,6 +26,7 @@
     <ms-search
       :base-search-tip="$t('api_test.definition.request.select_case')"
       :condition.sync="condition"
+      v-if="clearOver"
       style="margin-top: 10px"
       @search="filterSearch"
     >
@@ -167,8 +168,7 @@
 <script>
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
-import MsTag from "metersphere-frontend/src/components/MsTag";
-// import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
+import MsTag from "metersphere-frontend/src/components/MsTag"; // import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
@@ -228,6 +228,7 @@ export default {
       currentScenario: {},
       schedule: {},
       tableData: [],
+      clearOver: true,
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -320,6 +321,10 @@ export default {
     },
     clear() {
       this.selectRows.clear();
+      this.clearOver = false;
+      this.$nextTick(() => {
+        this.clearOver = true;
+      });
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
