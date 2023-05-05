@@ -908,6 +908,7 @@ const message = {
     info: "项目信息",
     member: "项目成员",
     env: "项目环境",
+    del_env_tip: "可能导致使用该环境的测试执行失败",
     file_manage: "文件管理",
     my_file: "我的文件",
     all_file: "所有文件",

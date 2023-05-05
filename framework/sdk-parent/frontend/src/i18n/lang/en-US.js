@@ -930,6 +930,7 @@ const message = {
     info: "Info",
     member: "Member",
     env: "Environment",
+    del_env_tip: "may cause tests execution using this environment to fail",
     file_manage: "File",
     my_file: "My file",
     all_file: "All files",
