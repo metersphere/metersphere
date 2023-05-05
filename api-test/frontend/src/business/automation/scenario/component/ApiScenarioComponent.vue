@@ -193,7 +193,7 @@ export default {
       }
       this.scenario.run = true;
       let runScenario = JSON.parse(JSON.stringify(this.scenario));
-      let variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
+      let variables = this.currentScenario.variables;
 
       // 合并自身依赖场景变量
       if (runScenario && runScenario.variableEnable && runScenario.variables) {

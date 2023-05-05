@@ -172,14 +172,6 @@
         </div>
       </template>
     </api-base-component>
-    <ms-run
-      :debug="true"
-      :reportId="reportId"
-      :run-data="runData"
-      :env-map="environmentMap"
-      @runRefresh="runRefresh"
-      @errorRefresh="errorRefresh"
-      ref="runTest" />
   </div>
 </template>
 
@@ -237,7 +229,6 @@ export default {
     MsDubboBasisParameters: () => import('../../../definition/components/request/dubbo/BasisParameters'),
     MsApiRequestForm: () => import('../../../definition/components/request/http/ApiHttpRequestForm'),
     MsRequestResultTail: () => import('../../../definition/components/response/RequestResultTail'),
-    MsRun: () => import('../../../definition/components/Run'),
   },
   data() {
     return {
@@ -480,7 +471,7 @@ export default {
           // 场景变量
           let variables = [];
           if (this.currentScenario && this.currentScenario.variables) {
-            variables = JSON.parse(JSON.stringify(this.currentScenario.variables));
+            variables = this.currentScenario.variables;
           }
           let debugData = {
             id: this.currentScenario.id,
@@ -518,6 +509,9 @@ export default {
           this.request.result = undefined;
           /*触发执行操作*/
           this.reportId = getUUID();
+          debugData.hashTree = [this.request];
+          debugData.stepScenario = true;
+          this.$emit('runScenario', debugData);
         }
       });
     },
