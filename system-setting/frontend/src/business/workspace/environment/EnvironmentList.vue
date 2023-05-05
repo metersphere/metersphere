@@ -138,7 +138,7 @@ import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOp
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import {Environment, parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
 import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitch";
-import {downloadFile, operationConfirm, strMapToObj} from "metersphere-frontend/src/utils";
+import {downloadFile, strMapToObj} from "metersphere-frontend/src/utils";
 import EnvironmentImport from "./EnvironmentImport";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
 import {
@@ -152,6 +152,7 @@ import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import EnvironmentEdit from "metersphere-frontend/src/components/environment/EnvironmentEdit"
 import {listAllProject} from "../../../api/project";
 import {batchAddEnvGroup, delEnvironmentById, getEnvironmentPages} from "../../../api/environment";
+import i18n from "@/i18n";
 
 
 export default {
@@ -350,7 +351,7 @@ export default {
     },
     deleteEnv(environment) {
       if (environment.id) {
-        operationConfirm(this, this.$t('commons.confirm_delete') + environment.name, () => {
+        this.operationConfirm(this, this.$t('commons.delete') + "(" + environment.name + ")" + this.$t('project.del_env_tip'), () => {
           this.loading = delEnvironmentById(environment.id).then(() => {
             this.$success(this.$t('commons.delete_success'));
             this.list();
@@ -359,6 +360,25 @@ export default {
           this.$info(this.$t('commons.delete_cancelled'));
         })
       }
+    },
+    operationConfirm(v, tip, success, cancel) {
+      return v
+        .$confirm(tip, "", {
+          confirmButtonText: i18n.t("commons.confirm"),
+          cancelButtonText: i18n.t("commons.cancel"),
+          type: "warning",
+          center: false,
+        })
+        .then(() => {
+          if (success) {
+            success();
+          }
+        })
+        .catch(() => {
+          if (cancel) {
+            cancel();
+          }
+        });
     },
     getNoRepeatName(name) {
       for (let i in this.environments) {
