@@ -8,9 +8,9 @@
     </el-row>
     <el-row>
       <div class="row-card">
-        <el-card v-for="(option,index) in contentArray" :key="index"
+        <el-card v-for="(option,index) in contentArray" :key="index" :class="!hasPermissions(option.permission) ? 'no-permission' : ''"
                  body-style="padding-top: 16px; padding-left: 16px; padding-bottom: 16px;"
-                 class="card-info" shadow="never"   @click.native="gotoDetail(option.name)">
+                 class="card-info" shadow="never"   @click.native="gotoDetail(option.name, option.permission)">
           <div class="card-name">{{option.label}}</div>
           <div class="card-value">{{option.value}}</div>
         </el-card>
@@ -24,6 +24,7 @@
 
 import {getFollowTotalCount, getUpcomingTotalCount} from "@/api/workstation";
 import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {hasPermissions} from "metersphere-frontend/src/utils/permission"
 
 export default {
   name: "MyUpcomingCard",
@@ -42,48 +43,62 @@ export default {
           name: 'track_case',
           value:0,
           label: this.$t('workstation.table_name.track_case'),
+          permission: 'PROJECT_TRACK_CASE:READ'
         },
         {
           name:"track_plan",
           value:0,
           label: this.$t('workstation.table_name.track_plan'),
+          permission: 'PROJECT_TRACK_PLAN:READ'
         },
         {
           name:"track_review",
           value:0,
           label: this.$t('workstation.table_name.track_review'),
+          permission: 'PROJECT_TRACK_REVIEW:READ'
         },
         {
           name:"track_issue",
           value:0,
           label: this.$t('workstation.table_name.track_issue'),
+          permission: 'PROJECT_TRACK_ISSUE:READ'
         },
         {
           name:"api_definition",
           value:0,
           label: this.$t('workstation.table_name.api_definition'),
+          permission: 'PROJECT_API_DEFINITION:READ'
         },
         {
           name:"api_case",
           value:0,
           label: this.$t('workstation.table_name.api_case'),
+          permission: 'PROJECT_API_DEFINITION:READ'
         },
         {
           name:"api_automation",
           value:0,
           label: this.$t('workstation.table_name.api_automation'),
+          permission: 'PROJECT_API_SCENARIO:READ'
         },
         {
           name:"performance",
           value:0,
           label: this.$t('workstation.table_name.performance'),
+          permission: 'PROJECT_PERFORMANCE_TEST:READ'
         },
       ],
       title:"",
     };
   },
   methods:{
-    gotoDetail(name){
+    hasPermissions(permission) {
+      return hasPermissions(permission);
+    },
+    gotoDetail(name, permission){
+      if (!hasPermissions(permission)) {
+        return;
+      }
       if (this.cardType === 'upcoming') {
         let upcoming =this.$router.resolve({
           path: "/workstation/upcoming",
@@ -156,6 +171,12 @@ export default {
   cursor: pointer;
   &:hover {
     background: #F5F6F7;
+  }
+}
+.no-permission {
+  background: #F5F6F7;
+  &:hover {
+    cursor: not-allowed;
   }
 }
 .top-css {
