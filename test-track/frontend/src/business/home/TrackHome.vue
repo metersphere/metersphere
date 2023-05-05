@@ -101,13 +101,15 @@ export default {
         case "scenarioWithQuery":
           home = this.$router.resolve(
             "/api/automation/" +
-              defaultVersion +
-              "/" +
-              uuid +
-              "/" +
-              dataType +
-              "/" +
-              selectType
+            defaultVersion +
+            "/" +
+            uuid +
+            "/" +
+            dataType +
+            "/" +
+            selectType +
+            "/" +
+            projectId
           );
           break;
         case "api":
