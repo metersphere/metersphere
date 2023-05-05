@@ -166,6 +166,7 @@ export default {
         }
         x += 1;
         y += 1;
+        item.value = "\0"
       });
       this.visible = false;
       this.$nextTick(() => {
