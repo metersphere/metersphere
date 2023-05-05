@@ -10,7 +10,7 @@
       <span style="color: #8a8b8d; margin-left: 8px; font-size: 12px">
         {{ comment.createTime | datetimeFormat }}
       </span>
-      <span>
+      <span v-if="showStatus">
          <status-table-item v-if="comment.status" :value="comment.status"/>
       </span>
       <span class="comment-delete">
@@ -65,7 +65,11 @@ export default {
       type: Boolean,
       default: false
     },
-    apiUrl: String
+    apiUrl: String,
+    showStatus: {
+      type: Boolean,
+      default: true
+    },
   },
   data() {
     return {
