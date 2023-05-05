@@ -156,16 +156,8 @@ export default {
     'condition.filterText'() {
       this.filter();
     },
-    'condition.trashEnable'() {
-      this.param = {};
-      this.$emit('enableTrash', this.condition.trashEnable);
-    },
     relevanceProjectId() {
       this.list();
-    },
-    isTrashData() {
-      this.condition.trashEnable = this.isTrashData;
-      this.param = {};
     },
   },
   created() {
@@ -195,12 +187,13 @@ export default {
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
-    list(projectId, targetName) {
+    list(projectId) {
+
       if (this.isRelevanceModel) {
         this.result = getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
           this.setData(response);
         });
-      } else if (this.isTrashData && targetName === 'trash') {
+      } else if (this.isTrashData) {
         this.result = postModuleByTrash(projectId ? projectId : this.projectId, this.param).then((response) => {
           this.setData(response);
         });
@@ -352,9 +345,12 @@ export default {
     enableTrash() {
       this.condition.trashEnable = true;
       this.param.trashEnable = true;
+      this.param.name = '';
+      this.param.combine = {};
       this.result = postModuleByTrash(this.projectId, this.param).then((response) => {
         this.setData(response);
       });
+      this.$emit('enableTrash', this.condition.trashEnable);
     },
     removeModuleId(nodeIds) {
       if (localStorage.getItem('scenarioModule') && localStorage.getItem('scenarioModule') === nodeIds[0]) {
