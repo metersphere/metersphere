@@ -205,7 +205,9 @@ export default {
             "redirectPage",
             "scenarioWithQuery",
             "scenario",
-            "edit:" + param
+            "edit:" + param,
+            projectId,
+            null
           );
           break;
         case "testCase":
