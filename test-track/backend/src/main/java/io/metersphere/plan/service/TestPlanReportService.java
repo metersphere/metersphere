@@ -605,6 +605,18 @@ public class TestPlanReportService {
         }
     }
 
+    public void testPlanUnExecute(TestPlanReport testPlanReport) {
+        if (testPlanReport != null && !StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.COMPLETED.name())) {
+            testPlanReport.setIsApiCaseExecuting(false);
+            testPlanReport.setIsScenarioExecuting(false);
+            testPlanReport.setIsPerformanceExecuting(false);
+            testPlanReport.setIsUiScenarioExecuting(false);
+            testPlanReport.setStatus(TestPlanReportStatus.COMPLETED.name());
+            testPlanReportMapper.updateByPrimaryKey(testPlanReport);
+            this.executeTestPlanByQueue(testPlanReport.getId());
+        }
+    }
+
     /**
      * 测试计划报告设置最终执行状态
      */
