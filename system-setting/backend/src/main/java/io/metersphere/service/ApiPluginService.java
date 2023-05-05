@@ -64,7 +64,6 @@ public class ApiPluginService {
     }
 
     private boolean loadJar(String jarPath) {
-        validatePluginType(jarPath);
         try {
             ClassLoader classLoader = ClassLoader.getSystemClassLoader();
             try {
@@ -93,19 +92,25 @@ public class ApiPluginService {
      * @param jarPath
      */
     private void validatePluginType(String jarPath) {
+        boolean valid = true;
         try {
             JarFile jar = new JarFile(jarPath);
             JarEntry entry = jar.getJarEntry("json/frontend.json");
             if (entry != null) {
-                MSException.throwException(Translator.get("plugin_type_error"));
+                // 如果 jar 包中包含 frontend.json 文件，说明是平台插件
+                valid = false;
             }
         } catch (Exception e) {
             LogUtil.error(e);
+        }
+        if (!valid) {
+            MSException.throwException(Translator.get("plugin_type_error"));
         }
     }
 
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
         List<PluginResourceDTO> resources = new LinkedList<>();
+        validatePluginType(path);
         try {
             this.loadJar(path);
             String jarPath[] = new String[]{path};
