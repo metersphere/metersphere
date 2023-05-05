@@ -428,19 +428,36 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             body.setFormat("JSON-SCHEMA");
         } else if (body.getType().equals(Body.WWW_FROM) || body.getType().equals(Body.FORM_DATA)) {
             String parameterStr = parseSchema(bodyParameter.getSchema());
-            if (StringUtils.isNotBlank(parameterStr)) {
-                JSONObject jsonObject = JSONUtil.parseObject(parameterStr);
-                Set<String> strings = jsonObject.keySet();
-                List<KeyValue> kvs = new ArrayList<>();
-                for (String key : strings) {
-                    KeyValue keyValue = new KeyValue(key, jsonObject.get(key).toString());
-                    kvs.add(keyValue);
-                }
-                body.setKvs(kvs);
+            if (StringUtils.isBlank(parameterStr)) {
+                return;
             }
+            if (bodyParameter.getSchema() instanceof ArrayModel) {
+                JSONArray objects = JSONUtil.parseArray(parameterStr);
+                if (objects.isEmpty()) {
+                    return;
+                }
+                objects.forEach(item -> {
+                    setBodyKvs(body, (JSONObject) item);
+                });
+
+            } else {
+                JSONObject jsonObject = JSONUtil.parseObject(parameterStr);
+                setBodyKvs(body, jsonObject);
+            }
+
         } else {
             body.setRaw(parseSchema(bodyParameter.getSchema()));
         }
+    }
+
+    private static void setBodyKvs(Body body, JSONObject jsonObject) {
+        Set<String> strings = jsonObject.keySet();
+        List<KeyValue> kvs = new ArrayList<>();
+        for (String key : strings) {
+            KeyValue keyValue = new KeyValue(key, jsonObject.get(key).toString());
+            kvs.add(keyValue);
+        }
+        body.setKvs(kvs);
     }
 
     private JsonSchemaItem parseSchema2JsonSchema(Model schema) {
