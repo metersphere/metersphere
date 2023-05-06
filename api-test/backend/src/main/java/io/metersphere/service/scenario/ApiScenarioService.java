@@ -841,6 +841,9 @@ public class ApiScenarioService {
         }
     }
 
+    public int getScenarioStep(List<String> ids) {
+        return extApiScenarioReferenceIdMapper.selectByScenarioIds(ids);
+    }
     public List<ApiScenarioDTO> getScenarioDetail(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();

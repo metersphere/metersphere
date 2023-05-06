@@ -9,4 +9,7 @@ public interface ExtApiScenarioReferenceIdMapper {
     List<ApiScenarioReferenceId> selectUrlByProjectId(@Param("projectId") String projectId, @Param("versionId") String versionId);
 
     List<ApiScenarioReferenceId> selectReferenceIdByIds(List<String> ids);
+
+    int selectByScenarioIds(List<String> ids);
+
 }
