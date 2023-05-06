@@ -73,10 +73,8 @@ export default class Node {
     this.parent = null;
     this.visible = true;
     this.isCurrent = false;
-    // console.log(22, Object.prototype.hasOwnProperty.call(options, name));
     for (let name in options) {
       if (Object.prototype.hasOwnProperty.call(options, name)) {
-        // if (options.hasOwnProperty(name)) {
         this[name] = options[name];
       }
     }

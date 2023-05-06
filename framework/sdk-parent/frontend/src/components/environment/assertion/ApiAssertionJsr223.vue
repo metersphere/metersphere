@@ -273,7 +273,6 @@ export default {
       }
     },
     detail() {
-      console.log(this.edit)
       this.disabled = false;
       this.visible = true;
     },

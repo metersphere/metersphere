@@ -213,7 +213,6 @@ export default {
                 this.$emit('refresh');
               })
               .catch((e) => {
-                console.log(e)
               });
           });
       }

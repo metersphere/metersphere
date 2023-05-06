@@ -47,9 +47,7 @@ export default {
       this.microApp = loadMicroApp(app);
     },
     messageInit() {
-      this.messageEvent.onGlobalStateChange((state, prev) => {
-        console.log("main-onGlobalStateChange", state, prev);
-      });
+      this.messageEvent.onGlobalStateChange((state, prev) => {});
     },
     changeState() {
       this.messageEvent.setGlobalState({b: 1});
