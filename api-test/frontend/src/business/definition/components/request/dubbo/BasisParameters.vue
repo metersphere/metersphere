@@ -16,7 +16,7 @@
               </el-select>
             </el-form-item>
 
-            <el-tabs v-model="activeName" @tab-click="tabClick">
+            <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tabs__nav-scroll">
               <el-tab-pane label="Interface" name="interface" v-if="isBodyShow">
                 <ms-dubbo-interface :request="request" :is-read-only="isReadOnly" />
               </el-tab-pane>
@@ -285,5 +285,9 @@ export default {
 
 .ms-el-tabs__nav-scroll :deep(.el-tabs__nav-scroll) {
   width: calc(100% - 10px);
+}
+
+.ms-tabs__nav-scroll :deep(.el-tabs__nav-wrap.is-top) {
+  width: 100%;
 }
 </style>

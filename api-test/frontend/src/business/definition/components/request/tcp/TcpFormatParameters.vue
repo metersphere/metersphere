@@ -4,7 +4,7 @@
       <el-col :span="spanNum" style="padding-bottom: 20px">
         <div style="border: 1px #dcdfe6 solid; height: 100%; border-radius: 4px; width: 100%">
           <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly">
-            <el-tabs v-model="activeName" class="request-tabs" @tab-click="tabClick">
+            <el-tabs v-model="activeName" class="request-tabs ms-tabs__nav-scroll" @tab-click="tabClick">
               <!--test-->
               <el-tab-pane name="parameters">
                 <template v-slot:label>
@@ -646,5 +646,9 @@ export default {
   margin-top: 10px;
   color: #783887;
   background-color: white;
+}
+
+.ms-tabs__nav-scroll :deep(.el-tabs__nav-wrap.is-top) {
+  width: 100%;
 }
 </style>

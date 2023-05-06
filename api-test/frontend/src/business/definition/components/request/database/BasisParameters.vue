@@ -87,7 +87,7 @@
               <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small" />
             </el-form-item>
 
-            <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tab-content">
+            <el-tabs v-model="activeName" @tab-click="tabClick" class="ms-tab-content ms-tabs__nav-scroll">
               <el-tab-pane :label="$t('api_test.scenario.variables')" name="variables" v-if="isBodyShow">
                 <ms-api-scenario-variables
                   :is-read-only="isReadOnly"
@@ -572,5 +572,9 @@ export default {
 .ref_environment {
   margin-top: 13px;
   float: right;
+}
+
+.ms-tabs__nav-scroll :deep(.el-tabs__nav-wrap.is-top) {
+  width: 100%;
 }
 </style>

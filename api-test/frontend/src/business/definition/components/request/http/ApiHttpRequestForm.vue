@@ -648,6 +648,10 @@ export default {
   width: 100%;
 }
 
+.ms-tabs__nav-scroll :deep(.el-tabs__nav-wrap.is-top) {
+  width: 100%;
+}
+
 :deep(.el-step__icon-inner) {
   border-top-color: var(--primary_color);
 }
