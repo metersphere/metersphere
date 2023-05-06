@@ -362,4 +362,18 @@ export default {
 .instructions-icon {
   margin-left: 10px;
 }
+.el-select :deep(.el-tag) {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  border-color: transparent;
+  margin: 2px 0 2px 6px;
+  background-color: #f0f2f5;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  max-width: 100%;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
 </style>
