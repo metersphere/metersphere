@@ -67,6 +67,10 @@ export function getApiScenarios(params) {
   return post('/api/automation/get-scenario-list', params);
 }
 
+export function getApiScenarioStep(params) {
+  return post('/api/automation/get-scenario-step', params);
+}
+
 export function genPerformanceTestJmx(params) {
   return post('/api/automation/gen-jmx', params);
 }

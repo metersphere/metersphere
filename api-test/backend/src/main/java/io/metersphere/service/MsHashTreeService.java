@@ -365,6 +365,9 @@ public class MsHashTreeService {
 
     public void caseFormatting(JSONObject element, List<String> caseIds, ParameterConfig msParameter) {
         List<ApiTestCaseInfo> caseInfos = apiTestCaseService.selectByCaseIds(caseIds);
+        if(CollectionUtils.isEmpty(caseInfos)){
+            return;
+        }
         Map<String, ApiTestCaseInfo> caseMap = caseInfos.stream()
                 .collect(Collectors.toMap(ApiTestCase::getId, a -> a, (k1, k2) -> k1));
         if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {

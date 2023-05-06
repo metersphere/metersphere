@@ -209,6 +209,11 @@ public class ApiScenarioController {
         return apiAutomationService.getScenarioDetail(ids);
     }
 
+    @PostMapping("/get-scenario-step")
+    public int getScenarioStep(@RequestBody List<String> ids) {
+        return apiAutomationService.getScenarioStep(ids);
+    }
+
     @PostMapping(value = "/run/debug")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {

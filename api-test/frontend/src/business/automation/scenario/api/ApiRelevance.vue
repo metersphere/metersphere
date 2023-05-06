@@ -91,6 +91,7 @@ import RelevanceDialog from '@/business/commons/RelevanceDialog';
 import TestCaseRelevanceBase from '@/business/commons/TestCaseRelevanceBase';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import TableSelectCountBar from '@/business/automation/scenario/api/TableSelectCountBar';
+import { operationConfirm } from 'metersphere-frontend/src/utils';
 
 export default {
   name: 'ApiRelevance',
@@ -156,38 +157,56 @@ export default {
           api.projectId = this.projectId;
         });
         let params = this.$refs.apiList.getConditions();
-        this.result = apiListBatch(params).then(
-          (response) => {
-            let apis = response.data;
-            if (apis.length === 0) {
-              this.$warning('请选择接口');
-              this.buttonIsWorking = false;
+        this.result = apiListBatch(params).then((response) => {
+          let apis = response.data;
+          if (apis.length === 0) {
+            this.$warning(this.$t('automation.case_message'));
+            this.buttonIsWorking = false;
+          } else {
+            if (apis.length > 500) {
+              operationConfirm(
+                this,
+                this.$t('automation.scenario_step_ref_message', [apis.length]) + '？',
+                () => {
+                  this.$emit('save', apis, 'API', reference);
+                  this.$refs.baseRelevance.close();
+                },
+                () => {
+                  this.buttonIsWorking = false;
+                }
+              );
             } else {
               this.$emit('save', apis, 'API', reference);
               this.$refs.baseRelevance.close();
             }
-          },
-          (error) => {
-            this.buttonIsWorking = false;
           }
-        );
+        });
       } else {
         let params = this.$refs.apiCaseList.getConditions();
-        this.result = getApiCaseWithBLOBs(params).then(
-          (response) => {
-            let apiCases = response.data;
-            if (apiCases.length === 0) {
-              this.$warning('请选择案例');
-              this.buttonIsWorking = false;
+        this.result = getApiCaseWithBLOBs(params).then((response) => {
+          let apiCases = response.data;
+          if (apiCases.length === 0) {
+            this.$warning(this.$t('automation.case_message'));
+            this.buttonIsWorking = false;
+          } else {
+            if (apiCases.length > 500) {
+              operationConfirm(
+                this,
+                this.$t('automation.scenario_step_ref_message', [apiCases.length]) + '？',
+                () => {
+                  this.$emit('save', apiCases, 'CASE', reference);
+                  this.$refs.baseRelevance.close();
+                },
+                () => {
+                  this.buttonIsWorking = false;
+                }
+              );
             } else {
               this.$emit('save', apiCases, 'CASE', reference);
               this.$refs.baseRelevance.close();
             }
-          },
-          (error) => {
-            this.buttonIsWorking = false;
           }
-        );
+        });
       }
     },
     close() {
