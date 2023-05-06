@@ -1,7 +1,7 @@
 <template>
   <el-drawer :visible="visible" append-to-body>
     <ms-drawer :size="85" @close="close" direction="right" :show-full-screen="false"
-               :is-show-close="false" style="height: auto">
+               :is-show-close="false" style="height: auto" ref="msDrawer">
       <template v-slot:header>
         <drawer-header :title="$t('commons.relationship.graph')" @close="close" @export="exportCharts"/>
       </template>
@@ -77,6 +77,9 @@ export default {
           this.$refs.relationshipGraph.reload();
         });
       });
+      if (this.$refs.msDrawer) {
+        this.$refs.msDrawer.init();
+      }
     },
     handleFinished() {
       // 滚动条设置居中
