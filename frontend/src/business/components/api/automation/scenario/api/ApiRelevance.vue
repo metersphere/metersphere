@@ -140,34 +140,94 @@ export default {
           api.projectId = this.projectId;
         });
         let params = this.$refs.apiList.getConditions();
-        this.result = this.$post("/api/definition/list/batch", params, (response) => {
-          let apis = response.data;
-          if (apis.length === 0) {
-            this.$warning('请选择接口');
-            this.buttonIsWorking = false;
-          } else {
+        if (this.$refs.apiList.total > 500) {
+          this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [this.$refs.apiList.total]) + '？', '', {
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.getApiList(params,apis, reference,false);
+              } else {
+                this.buttonIsWorking = false;
+              }
+            }
+          });
+        } else  {
+          this.getApiList(params,apis, reference, true);
+        }
+      } else {
+        let params = this.$refs.apiCaseList.getConditions();
+        let apiCases = this.$refs.apiCaseList.selectRows;
+        apiCases.forEach(apiCase => {
+          apiCase.projectId = this.projectId;
+        });
+        if (this.$refs.apiCaseList.total > 500) {
+          this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [this.$refs.apiCaseList.total]) + '？', '', {
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.getApiCaseList(params,apiCases, reference, false);
+              } else {
+                this.buttonIsWorking = false;
+              }
+            }
+          });
+        } else {
+          this.getApiCaseList(params,apiCases, reference,true);
+        }
+      }
+    },
+    getApiList(params,apis, reference, isContinue) {
+      this.result = this.$post("/api/definition/list/batch", params, (response) => {
+        let apis = response.data;
+        if (apis.length === 0) {
+          this.$warning('请选择接口');
+          this.buttonIsWorking = false;
+        } else {
+          if (apis.length > 500 && isContinue) {
+            this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [apis.length]) + '？', '', {
+              callback: (action) => {
+                if (action === 'confirm') {
+                  this.$emit('save', apis, 'API', reference);
+                  this.$refs.baseRelevance.close();
+                } else {
+                  this.buttonIsWorking = false;
+                }
+              }
+            });
+          }else {
             this.$emit('save', apis, 'API', reference);
             this.$refs.baseRelevance.close();
           }
-        }, (error) => {
+        }
+      }, (error) => {
+        this.buttonIsWorking = false;
+      });
+    },
+    getApiCaseList(params,apiCases, reference,isContinue) {
+      this.result = this.$post("/api/testcase/get/caseBLOBs/request", params, (response) => {
+         apiCases = response.data;
+        if (apiCases.length === 0) {
+          this.$warning('请选择案例');
           this.buttonIsWorking = false;
-        });
-
-      } else {
-        let params = this.$refs.apiCaseList.getConditions();
-        this.result = this.$post("/api/testcase/get/caseBLOBs/request", params, (response) => {
-          let apiCases = response.data;
-          if (apiCases.length === 0) {
-            this.$warning('请选择案例');
-            this.buttonIsWorking = false;
+        } else {
+          if (apiCases.length > 500 && isContinue) {
+            this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [apiCases.length]) + '？','', {
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this.$emit('save', apiCases, 'CASE', reference);
+                    this.$refs.baseRelevance.close();
+                  } else {
+                    this.buttonIsWorking = false;
+                  }
+                }
+              }
+            );
           } else {
             this.$emit('save', apiCases, 'CASE', reference);
             this.$refs.baseRelevance.close();
           }
-        }, (error) => {
-          this.buttonIsWorking = false;
-        });
-      }
+        }
+      }, (error) => {
+        this.buttonIsWorking = false;
+      });
     },
     close() {
       this.$emit('close');

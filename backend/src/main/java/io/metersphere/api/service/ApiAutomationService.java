@@ -151,6 +151,8 @@ public class ApiAutomationService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
 
     @Resource
     private JMeterService jMeterService;
@@ -2286,5 +2288,9 @@ public class ApiAutomationService {
         }
 
         return !StringUtils.equals(existApiScenario.getScenarioDefinition(), apiScenario.getScenarioDefinition());
+    }
+
+    public int getScenarioStep(List<String> ids) {
+        return extApiScenarioReferenceIdMapper.selectByScenarioIds(ids);
     }
 }

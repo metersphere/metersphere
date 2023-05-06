@@ -1466,7 +1466,12 @@ export default {
       rerun_warning: "The connection is abnormal, please check the environment configuration",
       debug_pool_warning: "Execution exception, please check the resource pool",
       csv_warning: "Please add csv file",
-      variable_warning: "Variable name cannot be empty"
+      variable_warning: "Variable name cannot be empty",
+      scenario_step_ref_message:
+        'The current number of selection requests [{0}] may cause page loading exceptions, whether to continue?',
+      scenario_totals_message:'The current number of selection scenarios [{0}] may cause page loading exceptions, whether to continue?',
+      case_message: 'Please select a case',
+      scenario_message: 'Please select a scene',
     },
     environment: {
       id: 'Environment ID',

@@ -1471,7 +1471,11 @@ export default {
       rerun_warning: "連接異常，請檢查環境配置",
       debug_pool_warning: "執行異常，請檢查資源池",
       csv_warning: "請添加 csv 文件",
-      variable_warning: "變量名不能為空"
+      variable_warning: "變量名不能為空",
+      scenario_step_ref_message: '當前選擇請求數 [{0}] 个可能導致頁面加載異常，是否繼續',
+      scenario_totals_message:'當前選擇场景數 [{0}] 个可能導致頁面加載異常，是否繼續',
+      case_message: '請選擇案例',
+      scenario_message: '請選擇場景',
     },
     environment: {
       id: '環境ID',

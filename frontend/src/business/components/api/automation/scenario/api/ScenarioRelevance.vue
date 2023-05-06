@@ -153,45 +153,85 @@ export default {
         let params = {};
         params.ids = this.currentScenarioIds;
         params.condition = conditions;
-        this.result = this.$post(url, params, (response) => {
-          this.currentScenarioIds = response.data;
-          if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
-            this.$warning('请选择场景');
-            this.buttonIsWorking = false;
-            return;
-          }
-          this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
-            if (response.data) {
-              this.createScenarioDefinition(scenarios, response.data, referenced);
-              this.$emit('save', scenarios);
-              this.$refs.baseRelevance.close();
-              this.buttonIsWorking = false;
+        if (this.$refs.apiScenarioList.total > 500) {
+          this.$alert(this.$t('api_test.automation.scenario_totals_message', [this.$refs.apiScenarioList.total]) + '？','', {
+              callback: (action) => {
+                if (action === 'confirm') {
+                  this.getApiScenario(url,params,scenarios, referenced, false);
+                } else {
+                  this.buttonIsWorking = false;
+                }
+              }
             }
-          }, (error) => {
-            this.buttonIsWorking = false;
-          });
-        }, (error) => {
-          this.buttonIsWorking = false;
-        });
+          );
+        } else {
+          this.getApiScenario(url,params,scenarios, referenced, true);
+        }
       } else {
         if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
           this.$warning('请选择场景');
           this.buttonIsWorking = false;
           return;
         }
-        this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
-          if (response.data) {
-            this.currentScenarioIds = [];
-            this.createScenarioDefinition(scenarios, response.data, referenced);
-            this.$emit('save', scenarios);
-            this.$refs.baseRelevance.close();
-            this.buttonIsWorking = false;
+        this.result = this.$post("/api/automation/get-scenario-step", this.currentScenarioIds, response =>{
+          if (response.data > 500) {
+            this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [response.data]) + '？','', {
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this.pushApiScenario(scenarios,referenced);
+                  } else {
+                    this.buttonIsWorking = false;
+                  }
+                }
+              }
+            );
+          } else {
+            this.pushApiScenario(scenarios, referenced);
           }
-        }, (error) => {
-          this.buttonIsWorking = false;
         });
       }
     },
+    getApiScenario(url, params,scenarios, referenced, isContinue) {
+      this.result = this.$post(url, params, (response) => {
+        this.currentScenarioIds = response.data;
+        if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
+          this.$warning('请选择场景');
+          this.buttonIsWorking = false;
+          return;
+        }
+        this.result = this.$post("/api/automation/get-scenario-step", this.currentScenarioIds, response =>{
+          if (response.data > 500 && isContinue) {
+            this.$alert(this.$t('api_test.automation.scenario_step_ref_message', [response.data]) + '？','', {
+                callback: (action) => {
+                  if (action === 'confirm') {
+                    this.pushApiScenario(scenarios,referenced);
+                  } else {
+                    this.buttonIsWorking = false;
+                  }
+                }
+              }
+            );
+          } else {
+            this.pushApiScenario(scenarios, referenced);
+          }
+        });
+      }, (error) => {
+        this.buttonIsWorking = false;
+      });
+    },
+   pushApiScenario(scenarios, referenced) {
+     this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
+       if (response.data) {
+         this.currentScenarioIds = [];
+         this.createScenarioDefinition(scenarios, response.data, referenced);
+         this.$emit('save', scenarios);
+         this.$refs.baseRelevance.close();
+         this.buttonIsWorking = false;
+       }
+     }, (error) => {
+       this.buttonIsWorking = false;
+     });
+},
     reference() {
       this.getScenarioDefinition("REF");
     },
