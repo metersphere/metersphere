@@ -84,7 +84,7 @@
                 :label="$t('test_track.case.priority')"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
-                  <priority-table-item :value="scope.row.priority"/>
+                  <priority-table-item :value="scope.row.priority" :priority-options="priorityFilters"/>
                 </template>
               </el-table-column>
 
@@ -189,12 +189,7 @@ export default {
       condition: {
         components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS
       },
-      priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
+      priorityFilters: [],
       statusFilters: [
         {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
         {text: this.$t('test_track.review.pass'), value: 'Pass'},
@@ -247,8 +242,16 @@ export default {
   methods: {
     loadConditionComponents() {
       getTestTemplate(this.projectId).then((template) => {
+        this.initPriorityFilters(template);
         this.condition.components = initTestCaseConditionComponents(this.condition, template.customFields, false);
       });
+    },
+    initPriorityFilters(template) {
+      template.customFields.forEach(field => {
+        if (field.name === '用例等级') {
+          this.priorityFilters = field.options;
+        }
+      })
     },
     fullScreen(){
       this.isFullScreen = !this.isFullScreen;

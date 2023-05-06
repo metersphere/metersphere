@@ -88,7 +88,7 @@
           min-width="120px"
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority" ref="priority"/>
+            <priority-table-item :value="scope.row.priority" ref="priority" :priority-options="priorityFilters"/>
           </template>
         </ms-table-column>
 
@@ -226,14 +226,15 @@ import {parseTag} from "metersphere-frontend/src/utils"
 import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import {getProjectApplicationConfig} from "@/api/project-application";
-import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
+import {getTagToolTips, initTestCaseConditionComponents, parseColumnTag} from "@/business/case/test-case";
 import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {editTestReviewTestCaseOrder, getTestReviewTestCase} from "@/api/testCase";
 import {
   _handleSelectAll, buildBatchParam, deepClone, getCustomTableWidth, getLastTableSortField, getSelectDataCounts,
-  getTableHeaderWithCustomFields, initCondition, toggleAllSelection, getCustomFieldBatchEditOption } from "metersphere-frontend/src/utils/tableUtils";
+  getTableHeaderWithCustomFields, initCondition, toggleAllSelection } from "metersphere-frontend/src/utils/tableUtils";
 import {batchDeleteTestReviewCase, batchEditTestReviewCaseReviewer, batchEditTestReviewCaseStatus, deleteTestReviewCase, getTesReviewById} from "@/api/test-review";
+import {getTestTemplate} from "@/api/custom-field-template";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -278,12 +279,7 @@ export default {
       isTestManagerOrTestUser: false,
       selectDataCounts: 0,
       tableHeaderKey: 'TEST_CASE_REVIEW_FUNCTION_TEST_CASE',
-      priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
+      priorityFilters: [],
       statusFilters:  [
         {text: this.$t('test_track.review.again'), value: 'Again'},
         {text: this.$t('test_track.review.pass'), value: 'Pass'},
@@ -387,6 +383,7 @@ export default {
       this.userFilter = data;
     });
     this.getTemplateField();
+    this.initPriorityFilters();
   },
   mounted() {
     this.$emit('setCondition', this.condition);
@@ -398,6 +395,15 @@ export default {
     this.getCustomNum();
   },
   methods: {
+    initPriorityFilters() {
+      getTestTemplate(this.projectId).then((template) => {
+        template.customFields.forEach(field => {
+          if (field.name === '用例等级') {
+            this.priorityFilters = field.options;
+          }
+        })
+      });
+    },
     getTemplateField() {
       getProjectMember()
         .then((response) => {
