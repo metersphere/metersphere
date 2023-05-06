@@ -71,7 +71,7 @@
 
       <ms-table-column
         prop="priority"
-        :filters="priorityFilters"
+        :filters="priorityOptions"
         sortable
         :label="$t('test_track.case.priority')"
         width="120px">

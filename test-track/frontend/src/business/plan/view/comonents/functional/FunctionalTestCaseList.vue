@@ -77,7 +77,7 @@
           prop="priority"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="priorityFilters"
+          :filters="priorityOptions"
           sortable="custom"
           min-width="120px"
           :label="$t('test_track.case.priority')">
@@ -605,9 +605,6 @@ export default {
       });
     },
     getCustomFieldFilter(field) {
-      if (field.name === '用例状态') {
-        return null;
-      }
       return getCustomFieldFilter(field, this.userFilters);
     },
     getCustomFieldValue(row, field, defaultVal = '') {
