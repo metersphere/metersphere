@@ -10,12 +10,11 @@
 
 <script>
 import MsDrawer from "../MsDrawer";
-import DrawerHeader from "../head/DrawerHeader";
 import MsChart from "../chart/MsChart";
 
 export default {
   name: "RelationshipGraph",
-  components: {MsChart, DrawerHeader, MsDrawer},
+  components: {MsChart, MsDrawer},
   props: {
     data: Array, links: Array,
     width: [Number, String],

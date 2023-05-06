@@ -6,12 +6,7 @@
           <span class="title">{{ title }}</span>
         </div>
       </el-col>
-      <el-col :span="10" class="head-right">
-        <el-button v-for="button in buttons" :disabled="button.disabled" :key="button.name" plain size="mini" @click="button.exec">
-          {{ button.name }}
-        </el-button>
-      </el-col>
-      <el-col :span="4">
+      <el-col :span="14">
         <div class="ms-export">
           <el-dropdown style="padding-left: 3rem">
             <span class="el-dropdown-link">
@@ -136,11 +131,11 @@ i.delimiter {
   position: relative;
   top: -2px;
   left: 15px;
+  padding-right: 10px;
 }
 
 .ms-export {
   float: right;
-  width: 100%;
 }
 
 .close-btn {
