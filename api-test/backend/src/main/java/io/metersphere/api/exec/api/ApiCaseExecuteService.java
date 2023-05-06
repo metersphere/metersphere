@@ -176,6 +176,11 @@ public class ApiCaseExecuteService {
             }
         }
         if (StringUtils.isNotEmpty(message)) {
+            // message过长时截取部分展示
+            String[] splitErr = message.toString().split("；");
+            if (splitErr.length > 20) {
+                MSException.throwException("用例：" + String.join("；", Arrays.copyOf(splitErr, 20)) + "....；运行环境为空！");
+            }
             MSException.throwException("用例：" + message + "运行环境为空！");
         }
         return projectEnvMap;
