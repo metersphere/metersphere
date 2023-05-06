@@ -1471,7 +1471,11 @@ export default {
       rerun_warning: "连接异常，请检查环境配置",
       debug_pool_warning: "执行异常，请检查资源池",
       csv_warning: "请添加 csv 文件",
-      variable_warning: "变量名不能为空"
+      variable_warning: "变量名不能为空",
+      scenario_step_ref_message: '当前选择请求数 [{0}] 个可能导致页面加载异常，是否继续',
+      scenario_totals_message:'当前选择场景数 [{0}] 个可能导致页面加载异常，是否继续',
+      case_message: '请选择案例',
+      scenario_message: '请选择场景',
     },
     environment: {
       id: '环境ID',

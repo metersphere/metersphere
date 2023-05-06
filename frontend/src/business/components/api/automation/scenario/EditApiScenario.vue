@@ -1325,6 +1325,12 @@ export default {
       if (!request.hashTree) {
         request.hashTree = [];
       }
+      if (request.hashTree) {
+        let hasNull = request.hashTree.filter(v => !v || v == null);
+        if (hasNull && hasNull.length > 0) {
+          request.hashTree = [];
+        }
+      }
       if (referenced === 'REF' && request.hashTree) {
         this.recursiveSorting(request.hashTree);
       }

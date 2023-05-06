@@ -7,4 +7,16 @@
         ) AND url IS NOT NULL AND method IS NOT NULL;
     </select>
 
+    <select id="selectByScenarioIds" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        api_scenario_reference_id
+        WHERE
+        api_scenario_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

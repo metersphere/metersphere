@@ -426,5 +426,10 @@ public class ApiAutomationController {
     public List<String> getEnvProjects(@RequestBody RunScenarioRequest request) {
         return apiAutomationService.getProjects(request);
     }
+
+    @PostMapping("/get-scenario-step")
+    public int getScenarioStep(@RequestBody List<String> ids) {
+        return apiAutomationService.getScenarioStep(ids);
+    }
 }
 
