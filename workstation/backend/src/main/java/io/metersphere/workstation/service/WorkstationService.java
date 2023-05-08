@@ -173,8 +173,6 @@ public class WorkstationService {
         int issueUpcomingCount = extIssuesMapper.getCountUpcoming(projectIds, userId);
         int apiUpcomingCount = extApiDefinitionMapper.getCountUpcoming(projectIds, userId);
         int apiCaseUpcomingCount = extApiTestCaseMapper.getCountUpcoming(projectIds, userId);
-        int updateApiCaseCount = getUpdateApiCaseCount(projectIds, userId);
-        int apiCaseCount = apiCaseUpcomingCount + updateApiCaseCount;
         int scenarioUpcomingCount = extApiScenarioMapper.getCountUpcoming(projectIds, userId);
         int loadUpcomingCount = extLoadTestMapper.getCountUpcoming(projectIds, userId);
         Map<String, Integer> map = new HashMap<>(8);
@@ -183,21 +181,10 @@ public class WorkstationService {
         map.put("track_review", reviewUpcomingCount);
         map.put("track_issue", issueUpcomingCount);
         map.put("api_definition", apiUpcomingCount);
-        map.put("api_case",apiCaseCount);
+        map.put("api_case",apiCaseUpcomingCount);
         map.put("api_automation", scenarioUpcomingCount);
         map.put("performance", loadUpcomingCount);
         return map;
-    }
-
-    public int getUpdateApiCaseCount(List<String> projectIds,String userId){
-        int totalUpdateCount = 0;
-        for (String projectId : projectIds) {
-            List<String> syncRuleCaseStatus = getSyncRuleCaseStatus(projectId);
-            Long toBeUpdatedTime = getToBeUpdatedTime(projectId);
-            int updateCount = extApiTestCaseMapper.getUpdateCount(userId, projectId, syncRuleCaseStatus, toBeUpdatedTime);
-            totalUpdateCount = totalUpdateCount+updateCount;
-        }
-        return totalUpdateCount;
     }
 
     public List<String> getSyncRuleCaseStatus(String projectId) {
