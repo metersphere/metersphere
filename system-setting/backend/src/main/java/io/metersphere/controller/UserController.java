@@ -174,6 +174,7 @@ public class UserController {
      */
     @GetMapping("/ws/member/delete/{workspaceId}/{userId}")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MEMBER, type = OperLogConstants.DELETE, title = "删除工作空间成员")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_USER_READ_DELETE)
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
 //        workspaceService.checkWorkspaceOwner(workspaceId);
         String currentUserId = SessionUtils.getUser().getId();
@@ -185,6 +186,7 @@ public class UserController {
 
     @GetMapping("/project/member/delete/{projectId}/{userId}")
 //    @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, title = "删除工作空间成员")
+    @RequiresPermissions(value={PermissionConstants.PROJECT_USER_READ_DELETE}, logical = Logical.OR)
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
