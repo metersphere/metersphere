@@ -314,14 +314,14 @@
         </if>
     </select>
     <select id="getCountUpcoming" resultType="java.lang.Integer">
-        select count(*) from api_test_case ac where
+        select count(*) from api_test_case ac inner join api_definition ad on ac.api_definition_id = ad.id where
         ac.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
         and ac.create_user_id = #{userId,jdbcType=VARCHAR}
-        and case_status in ('Prepare', 'Underway')
-        and (ac.status is null or ac.status != 'Trash');
+        and ac.case_status in ('Prepare', 'Underway')
+        and (ac.status is null or ac.status != 'Trash')
     </select>
 
     <sql id="queryWhereCondition">
