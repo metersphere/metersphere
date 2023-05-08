@@ -18,10 +18,11 @@
 
 <script>
 import {
+  clearOtherTagAfterBatchTag,
   handleExpandToLevel,
   listenBeforeExecCommand,
   listenNodeSelected,
-  loadSelectNodes,
+  loadSelectNodes, saveTagBeforeBatchTag,
   tagBatch
 } from "@/business/common/minder/minderUtils";
 import {getReviewCasesForMinder} from "@/api/testCase";
@@ -31,6 +32,7 @@ import {useStore} from "@/store";
 import {mapState} from "pinia";
 import {testReviewCaseMinderEdit} from "@/api/remote/plan/test-review-case";
 import {hasPermission} from "@/business/utils/sdk-utils";
+import i18n from "@/i18n";
 
 export default {
   name: "TestReviewMinder",
@@ -99,11 +101,17 @@ export default {
         }
 
         if (even.commandName.toLocaleLowerCase() === 'resource') {
-          // 设置完标签后，优先级显示有问题，重新设置下
-          setTimeout(() => setPriorityView(true, 'P'), 100);
+          saveTagBeforeBatchTag();
+          // afterExecCommand 没有效果，这里只能 setTimeout 执行
+          setTimeout(() => {
+            clearOtherTagAfterBatchTag(this.tags, this.distinctTags);
+            // 设置完标签后，优先级显示有问题，重新设置下
+            setPriorityView(true, 'P');
+          }, 100);
           this.setIsChange(true);
         }
       });
+
       tagBatch(this.distinctTags, {
         param: this.getParam(),
         getCaseFuc: getReviewCasesForMinder,
