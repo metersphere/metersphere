@@ -50,37 +50,35 @@ public class TestPlanMessageService {
 
     @Async
     public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, boolean sendMessage) {
-        if (report == null) {
-            return;
-        }
-        if (testPlanReportContent != null) {
-            report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
-        }
-        if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting() && !report.getIsUiScenarioExecuting()) {
+        if (report != null && testPlanReportContent != null) {
             // 异步发送通知需要指定调用其他服务的user
             HttpHeaderUtils.runAsUser(report.getCreator());
-            //更新TestPlan状态为完成
-            TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
-            if (testPlan != null
-                    && !StringUtils.equalsAny(testPlan.getStatus(), TestPlanStatus.Completed.name(), TestPlanStatus.Finished.name())) {
-
-                testPlan.setStatus(calcTestPlanStatusWithPassRate(testPlan));
-                testPlanService.editTestPlan(testPlan);
-            }
             try {
-                if (sendMessage && testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
-                        ReportTriggerMode.MANUAL.name(),
-                        ReportTriggerMode.API.name(),
-                        ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())
-                ) {
-                    //发送通知
-                    this.sendMessage(testPlan, report, testPlan.getProjectId());
+                report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
+                if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting() && !report.getIsUiScenarioExecuting()) {
+                    //更新TestPlan状态为完成
+                    TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
+                    if (testPlan != null
+                            && !StringUtils.equalsAny(testPlan.getStatus(), TestPlanStatus.Completed.name(), TestPlanStatus.Finished.name())) {
+
+                        testPlan.setStatus(calcTestPlanStatusWithPassRate(testPlan));
+                        testPlanService.editTestPlan(testPlan);
+                    }
+                    if (sendMessage && testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
+                            ReportTriggerMode.MANUAL.name(),
+                            ReportTriggerMode.API.name(),
+                            ReportTriggerMode.SCHEDULE.name()) && !StringUtils.equalsIgnoreCase(report.getStatus(), ExecuteResult.TEST_PLAN_RUNNING.toString())
+                    ) {
+                        //发送通知
+                        this.sendMessage(testPlan, report, testPlan.getProjectId());
+                    }
                 }
             } catch (Exception e) {
-                LogUtil.error(e);
+                LogUtil.error("检查测试计划状态出错", e);
             } finally {
                 HttpHeaderUtils.clearUser();
             }
+
         }
     }
 

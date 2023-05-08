@@ -683,6 +683,10 @@ public class TestPlanReportService {
                 Map jsonObject = JSON.parseMap(testPlan.getRunModeConfig());
                 TestPlanRequestUtil.changeStringToBoolean(jsonObject);
                 TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
+                if (StringUtils.isNotBlank(testPlanExecutionQueue.getExecuteUser())) {
+                    runRequest.setUserId(testPlanExecutionQueue.getExecuteUser());
+                }
+                runRequest.setTestPlanId(testPlanExecutionQueue.getTestPlanId());
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 runRequest.setTestPlanId(testPlan.getId());
                 try {

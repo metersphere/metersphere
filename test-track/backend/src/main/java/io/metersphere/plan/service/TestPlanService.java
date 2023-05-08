@@ -474,8 +474,7 @@ public class TestPlanService {
                 }
             });
             testPlan.setTotal(testPlan.getTotal() + execResults.size());
-        } catch (MSException e) {
-            LogUtil.error(e);
+        } catch (MSException ignore) {
         }
     }
 
@@ -527,6 +526,7 @@ public class TestPlanService {
 
     /**
      * 异步将测试计划的状态置为已结束
+     *
      * @param changeToFinishedIds
      */
     @Async
@@ -2159,6 +2159,7 @@ public class TestPlanService {
             executionQueue.setRunMode(request.getMode());
             executionQueue.setResourceId(resourceId);
             executionQueue.setNum(nextNum[0]);
+            executionQueue.setExecuteUser(request.getUserId());
             nextNum[0]++;
             planExecutionQueues.add(executionQueue);
         });
@@ -2174,6 +2175,10 @@ public class TestPlanService {
                 Map jsonObject = JSON.parseMap(testPlan.getRunModeConfig());
                 TestPlanRequestUtil.changeStringToBoolean(jsonObject);
                 TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
+                if (StringUtils.isNotBlank(planExecutionQueue.getExecuteUser())) {
+                    runRequest.setUserId(planExecutionQueue.getExecuteUser());
+                }
+                runRequest.setTestPlanId(planExecutionQueue.getTestPlanId());
                 runRequest.setReportId(planExecutionQueue.getReportId());
                 runPlan(runRequest);
             } else {

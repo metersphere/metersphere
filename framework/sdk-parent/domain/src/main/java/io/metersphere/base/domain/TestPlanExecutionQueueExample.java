@@ -573,6 +573,76 @@ public class TestPlanExecutionQueueExample {
             addCriterion("num not between", value1, value2, "num");
             return (Criteria) this;
         }
+
+        public Criteria andExecuteUserIsNull() {
+            addCriterion("execute_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserIsNotNull() {
+            addCriterion("execute_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserEqualTo(String value) {
+            addCriterion("execute_user =", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotEqualTo(String value) {
+            addCriterion("execute_user <>", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserGreaterThan(String value) {
+            addCriterion("execute_user >", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserGreaterThanOrEqualTo(String value) {
+            addCriterion("execute_user >=", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLessThan(String value) {
+            addCriterion("execute_user <", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLessThanOrEqualTo(String value) {
+            addCriterion("execute_user <=", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserLike(String value) {
+            addCriterion("execute_user like", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotLike(String value) {
+            addCriterion("execute_user not like", value, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserIn(List<String> values) {
+            addCriterion("execute_user in", values, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotIn(List<String> values) {
+            addCriterion("execute_user not in", values, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserBetween(String value1, String value2) {
+            addCriterion("execute_user between", value1, value2, "executeUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteUserNotBetween(String value1, String value2) {
+            addCriterion("execute_user not between", value1, value2, "executeUser");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
