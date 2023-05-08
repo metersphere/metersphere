@@ -14,6 +14,7 @@
         :priority-disable-check="priorityDisableCheck"
         :distinct-tags="distinctTags"
         :default-mold="defaultMode"
+        :del-confirm="delConfirm"
         @afterMount="$emit('afterMount')"
         @moldChange="handleMoldChange"
         :disabled="disabled"
@@ -84,6 +85,10 @@ export default {
     },
     getExtraNodeCount: {
       type: Function
+    },
+    delConfirm: {
+      type: Function,
+      default: null
     }
   },
   data() {
