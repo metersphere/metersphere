@@ -22,6 +22,7 @@
       :priority-disable-check="priorityDisableCheck()"
       :disabled="disabled"
       :get-extra-node-count="getMinderTreeExtraNodeCount()"
+      :del-confirm="handleDeleteConfirm"
       @afterMount="handleAfterMount"
       @toggleMinderFullScreen="toggleMinderFullScreen"
       @save="save"
@@ -268,17 +269,6 @@ export default {
           handlePasteAfter(window.minder.getSelectedNode());
         }
 
-        if ('removenode' === even.commandName) {
-          let nodes = window.minder.getSelectedNodes();
-          if (nodes) {
-            nodes.forEach((node) => {
-              if (isModuleNodeData(node.data) && node.children && node.children.length > 0) {
-                this.$warning('删除模块将删除模块下的所有资源');
-              }
-            });
-          }
-        }
-
         if ('resource' === even.commandName) {
           // 设置完标签后，优先级显示有问题，重新设置下
           setTimeout(() => setPriorityView(true, 'P'), 100);
@@ -288,7 +278,7 @@ export default {
       addIssueHotBox(this);
     },
     toggleMinderFullScreen(isFullScreen) {
-      this.$emit("toggleMinderFullScreen", isFullScreen)
+      this.$emit("toggleMinderFullScreen", isFullScreen);
     },
     getParam() {
       return {
@@ -299,6 +289,31 @@ export default {
         },
         result: this.result,
         isDisable: false
+      }
+    },
+    handleDeleteConfirm() {
+      let selectNodes = minder.getSelectedNodes();
+      let moduleName = '';
+      selectNodes.forEach(node => {
+        if (isModuleNode(node)) {
+          moduleName += node.data.text + ' ';
+        }
+      });
+      if (moduleName.length > 0) {
+        let title = this.$t('commons.confirm_delete') + ': ' + this.$t("project.project_file.file_module_type.module") + moduleName + "?";
+        this.$confirm(this.$t('test_track.module.delete_tip'), title, {
+            cancelButtonText: this.$t("commons.cancel"),
+            confirmButtonText: this.$t("commons.confirm"),
+            customClass: 'custom-confirm-delete',
+            callback: action => {
+              if (action === "confirm") {
+                minder.forceRemoveNode();
+              }
+            }
+          }
+        );
+      } else {
+        minder.forceRemoveNode();
       }
     },
     setIsChange(isChanged) {
