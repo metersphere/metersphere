@@ -164,35 +164,26 @@
                     v-if="!casePublic"
                     @click="addPublic"
                   >
-                    <div class="icon">
-                      <img src="/assets/module/figma/icon_add-folder_outlined.svg" alt="" />
-                    </div>
-                    <div class="title">{{ $t("case.add_to_public_case") }}</div>
+                    <svg-icon icon-class="icon_add-folder_outlined" class-name="opt-icon"/>
+                    <span class="title">{{ $t("case.add_to_public_case") }}</span>
                   </div>
                   <div
                     class="add-public-row sub-opt-row"
                     v-if="!isPublicShow && casePublic"
                     @click="removePublic"
                   >
-                    <div class="icon">
-                      <img src="/assets/module/figma/icon_yes_outlined.svg" alt="" />
-                    </div>
-                    <div class="title">{{ $t("case.added_to_public_case") }}</div>
+                    <svg-icon icon-class="icon_yes_outlined" class-name="opt-icon"/>
+                    <span class="title">{{ $t("case.added_to_public_case") }}</span>
                   </div>
                   <div class="split"></div>
                   <div class="copy-row sub-opt-row" @click="copyRow">
-                    <div class="icon">
-                      <img :src="!hasCopyPermission ? '/assets/module/figma/icon_copy_outlined_disable.svg' : '/assets/module/figma/icon_copy_outlined.svg'" alt=""/>
-                    </div>
-                    <div class="title" :style="!hasCopyPermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.copy") }}</div>
+                    <svg-icon :icon-class="!hasCopyPermission ? 'icon_copy_outlined_disable' : 'icon_copy_outlined'" class-name="opt-icon"/>
+                    <span class="title" :style="!hasCopyPermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.copy") }}</span>
                   </div>
                   <div class="split"></div>
                   <div class="delete-row sub-opt-row" @click="deleteRow">
-                    <div class="icon">
-                      <img :src="!hasDeletePermission ? '/assets/module/figma/icon_delete-trash_outlined_disable.svg' :
-                      '/assets/module/figma/icon_delete-trash_outlined_red.svg'" alt=""/>
-                    </div>
-                    <div class="title" :style="!hasDeletePermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.delete") }}</div>
+                    <svg-icon :icon-class="!hasDeletePermission ? 'icon_delete-trash_outlined_disable' : 'icon_delete-trash_outlined_red'" class-name="opt-icon"/>
+                    <span class="title" :style="!hasDeletePermission ? 'color: rgb(187, 187, 187); cursor: not-allowed;' : 'cursor: pointer;'">{{ $t("commons.delete") }}</span>
                   </div>
                 </div>
                 <div slot="reference">{{ $t("case.more") }}</div>
@@ -2275,13 +2266,13 @@ export default {
   background-color: rgba(31, 35, 41, 0.1);
 }
 
-.more-opt-item-popover .sub-opt-row .icon img {
-  width: 15px;
-  height: 15px;
-}
-
-.more-opt-item-popover .sub-opt-row .icon {
-  margin: 4px 9.33px 0 13px;
+.more-opt-item-popover .sub-opt-row .opt-icon {
+  position: relative;
+  top: 10px;
+  left: 13px;
+  margin-right: 23px;
+  width: 1.2em;
+  height: 1.2em;
 }
 
 .more-opt-item-popover .sub-opt-row .title {
