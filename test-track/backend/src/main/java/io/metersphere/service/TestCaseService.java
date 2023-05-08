@@ -33,6 +33,8 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
+import io.metersphere.platform.domain.DemandUpdateRequest;
+import io.metersphere.platform.domain.TestCaseDemandDTO;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ProjectVersionRequest;
 import io.metersphere.request.ResetOrderRequest;
@@ -186,6 +188,8 @@ public class TestCaseService {
     private ExtTestCaseCountMapper extTestCaseCountMapper;
     @Resource
     private ExtTestAnalysisMapper extTestAnalysisMapper;
+    @Resource
+    private PlatformPluginService platformPluginService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
 
@@ -237,6 +241,8 @@ public class TestCaseService {
 
         // 同步用例与需求的关联关系
         addDemandHyperLink(request, "add");
+        handleDemandUpdate(request, DemandUpdateRequest.OperateType.ADD,
+                projectMapper.selectByPrimaryKey(request.getProjectId()));
 
         testCaseMapper.insert(request);
         saveFollows(request.getId(), request.getFollows());
@@ -253,6 +259,37 @@ public class TestCaseService {
         Project project = baseProjectService.getProjectById(request.getProjectId());
         if (StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
             doAddDemandHyperLink(request, type, updateRequest, project);
+        }
+    }
+
+    private void handleDemandUpdate(EditTestCaseRequest request, DemandUpdateRequest.OperateType type, Project project) {
+        handleDemandUpdate(request, type, project, null);
+    }
+
+    /**
+     * 用例变更时，调用插件的需求变更的方法
+     * @param request
+     * @param type
+     * @param project
+     * @param originDemandId
+     */
+    private void handleDemandUpdate(EditTestCaseRequest request, DemandUpdateRequest.OperateType type,
+                                    Project project, String originDemandId) {
+        try {
+            if (!StringUtils.isAllBlank(request.getDemandId(), originDemandId) && PlatformPluginService.isPluginPlatform(project.getPlatform())) {
+                String projectConfig = PlatformPluginService.getCompatibleProjectConfig(project);
+                DemandUpdateRequest demandUpdateRequest = new DemandUpdateRequest();
+                TestCaseDemandDTO testCaseDemandDTO = new TestCaseDemandDTO();
+                BeanUtils.copyBean(testCaseDemandDTO, request);
+                testCaseDemandDTO.setOriginDemandId(originDemandId);
+                demandUpdateRequest.setTestCase(testCaseDemandDTO);
+                demandUpdateRequest.setProjectConfig(projectConfig);
+                demandUpdateRequest.setOperateType(type);
+                platformPluginService.getPlatform(project.getPlatform())
+                        .handleDemandUpdate(demandUpdateRequest);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
@@ -389,6 +426,9 @@ public class TestCaseService {
 
             // 同步用例与需求的关联关系
             addDemandHyperLink(testCase, "edit");
+
+            handleDemandUpdate(testCase, DemandUpdateRequest.OperateType.EDIT,
+                    projectMapper.selectByPrimaryKey(testCase.getProjectId()), originCase.getDemandId());
         } catch (Exception e) {
             LogUtil.error(e);
         }
@@ -722,6 +762,9 @@ public class TestCaseService {
             EditTestCaseRequest request = new EditTestCaseRequest();
             BeanUtils.copyBean(request, testCaseWithBLOBs);
             addDemandHyperLink(request, "delete");
+
+            handleDemandUpdate(request, DemandUpdateRequest.OperateType.DELETE,
+                    projectMapper.selectByPrimaryKey(testCase.getProjectId()));
         }
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
