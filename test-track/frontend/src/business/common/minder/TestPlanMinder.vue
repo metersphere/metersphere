@@ -9,7 +9,7 @@
       :tag-enable="true"
       :disabled="disableMinder"
       :select-node="selectNode"
-      :distinct-tags="[...tags, this.$t('test_track.plan.plan_status_prepare')]"
+      :distinct-tags="distinctTags"
       :ignore-num="true"
       @afterMount="handleAfterMount"
       @save="save"
@@ -37,8 +37,17 @@
 import {setPriorityView} from "vue-minder-editor-plus/src/script/tool/utils";
 
 import {
-  handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
-  tagBatch, getSelectedNodeData, handleIssueAdd, handleIssueBatch, listenDblclick, handleMinderIssueDelete
+  handleExpandToLevel,
+  listenBeforeExecCommand,
+  listenNodeSelected,
+  loadSelectNodes,
+  tagBatch,
+  getSelectedNodeData,
+  handleIssueAdd,
+  handleIssueBatch,
+  listenDblclick,
+  handleMinderIssueDelete,
+  saveTagBeforeBatchTag, clearOtherTagAfterBatchTag
 } from "@/business/common/minder/minderUtils";
 import {getPlanCasesForMinder} from "@/api/testCase";
 import IssueRelateList from "@/business/case/components/IssueRelateList";
@@ -92,6 +101,9 @@ export default {
       } else {
         return false
       }
+    },
+    distinctTags() {
+      return [...this.tags, this.$t('test_track.plan.plan_status_prepare')];
     }
   },
   mounted() {
@@ -127,8 +139,14 @@ export default {
         if (handleMinderIssueDelete(even.commandName, true)) return; // 删除缺陷不算有编辑脑图信息
 
         if (even.commandName.toLocaleLowerCase() === 'resource') {
-          // 设置完标签后，优先级显示有问题，重新设置下
-          setTimeout(() => setPriorityView(true, 'P'), 100);
+          saveTagBeforeBatchTag();
+
+          // afterExecCommand 没有效果，这里只能 setTimeout 执行
+          setTimeout(() => {
+            clearOtherTagAfterBatchTag(this.tags, this.distinctTags);
+            // 设置完标签后，优先级显示有问题，重新设置下
+            setPriorityView(true, 'P');
+          }, 100);
           this.setIsChange(true);
         }
       });
@@ -144,7 +162,7 @@ export default {
         }
       });
 
-      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')], {
+      tagBatch(this.distinctTags, {
         param: this.getParam(),
         getCaseFuc: getPlanCasesForMinder,
         setParamCallback: this.setParamCallback

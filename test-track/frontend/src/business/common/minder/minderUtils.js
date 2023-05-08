@@ -202,23 +202,7 @@ export async function tagChildren(node, resourceName, distinctTags, loadNodePara
   for (const item of children) {
     let isCaseNode = item.data.resource && item.data.resource.indexOf(i18n.t('api_test.definition.request.case')) > -1;
     if (item.data.type === 'node' || isCaseNode) {
-      let origin = item.data.resource;
-      if (!origin) {
-        origin = [];
-      }
-      // 先删除排他的标签
-      if (distinctTags.indexOf(resourceName) > -1) {
-        for (let i = 0; i < origin.length; i++) {
-          if (distinctTags.indexOf(origin[i]) > -1 && origin[i] !== resourceName) {
-            origin.splice(i, 1);
-            i--;
-          }
-        }
-      }
-      if (origin.indexOf(resourceName) < 0) {
-        origin.push(resourceName);
-      }
-      item.data.resource = origin;
+      item.data.resource = getResourceAfterDistinct(item.data.resource, resourceName, distinctTags);
       if (isCaseNode) {
         item.data.changed = true;
       }
@@ -228,6 +212,31 @@ export async function tagChildren(node, resourceName, distinctTags, loadNodePara
   return;
 }
 
+/**
+ * 打标签，并去掉互斥的标签
+ * @param origin
+ * @param resourceName
+ * @param distinctTags
+ * @returns {*[]}
+ */
+function getResourceAfterDistinct(origin, resourceName, distinctTags) {
+  if (!origin) {
+    origin = [];
+  }
+  // 先删除排他的标签
+  if (distinctTags.indexOf(resourceName) > -1) {
+    for (let i = 0; i < origin.length; i++) {
+      if (distinctTags.indexOf(origin[i]) > -1 && origin[i] !== resourceName) {
+        origin.splice(i, 1);
+        i--;
+      }
+    }
+  }
+  if (origin.indexOf(resourceName) < 0) {
+    origin.push(resourceName);
+  }
+  return origin;
+}
 
 function modifyParentNodeTag(node, resourceName) {
   let topNode = null;
@@ -731,5 +740,53 @@ export function saveMinderConfirm(vueObj, isSave) {
       });
       vueObj.tmpPath = null;
     }
+  });
+}
+
+/**
+ * 解决测试计划和评审选中多个节点批量打标签时，显示所有标签的问题
+ * @param tags
+ * @param distinctTags
+ */
+export function clearOtherTagAfterBatchTag(tags, distinctTags) {
+  let selectNodes = minder.getSelectedNodes();
+  if (selectNodes.length <= 1) {
+    // 批量才处理
+    return;
+  }
+  selectNodes.forEach(node => {
+    if (!isModuleNode(node) && node.data.type !== 'case') {
+      // 如果不是模块和用例，直接重置标签
+      if (node.data.originResource) {
+        node.data.resource = node.data.originResource;
+        node.render();
+      }
+    } else {
+      let newResource = node.data.resource;
+      if (newResource) {
+        // 先重置标签，再重新打标签
+        node.data.resource = node.data.originResource;
+        let addResource = newResource.filter(item => tags.indexOf(item) > -1);
+        addResource.forEach((resourceName) => {
+          getResourceAfterDistinct(node.data.resource, resourceName, distinctTags);
+        });
+        node.render();
+      }
+    }
+  });
+  minder.layout(200);
+}
+
+/**
+ * 记录当前的标签
+ */
+export function saveTagBeforeBatchTag() {
+  let selectNodes = minder.getSelectedNodes();
+  if (selectNodes.length <= 1) {
+    // 批量才处理
+    return;
+  }
+  selectNodes.forEach(node => {
+    node.data.originResource = node.data.resource;
   });
 }
