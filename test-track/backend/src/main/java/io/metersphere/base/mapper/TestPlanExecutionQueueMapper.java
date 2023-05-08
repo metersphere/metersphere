@@ -28,5 +28,4 @@ public interface TestPlanExecutionQueueMapper {
     int updateByPrimaryKeySelective(TestPlanExecutionQueue record);
 
     int updateByPrimaryKey(TestPlanExecutionQueue record);
-
 }

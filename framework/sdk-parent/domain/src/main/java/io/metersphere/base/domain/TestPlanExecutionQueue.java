@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class TestPlanExecutionQueue implements Serializable {
@@ -19,6 +18,8 @@ public class TestPlanExecutionQueue implements Serializable {
     private String resourceId;
 
     private Integer num;
+
+    private String executeUser;
 
     private static final long serialVersionUID = 1L;
 }
