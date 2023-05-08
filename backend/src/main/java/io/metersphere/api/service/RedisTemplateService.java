@@ -90,7 +90,19 @@ public class RedisTemplateService {
      * 加锁
      */
     public boolean lock(String key, String value) {
-        return redisTemplate.opsForValue().setIfAbsent(StringUtils.join(PRX, key), value, TIME_OUT, TimeUnit.SECONDS);
+        boolean hasReport = redisTemplate.opsForValue().setIfAbsent(
+                StringUtils.join(PRX, key),
+                value,
+                TIME_OUT,
+                TimeUnit.MINUTES);
+        if(!hasReport){
+            redisTemplate.opsForValue().setIfPresent(
+                    StringUtils.join(PRX, key),
+                    value,
+                    TIME_OUT,
+                    TimeUnit.MINUTES);
+        }
+        return hasReport;
     }
 
     public boolean hasReport(String key, String reportId) {
