@@ -30,13 +30,14 @@ import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.comparators.FixedOrderComparator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -234,9 +235,9 @@ public class ApiScenarioRerunService {
             request.setUserId(parametersDTO.getCases().get(0).getUserId());
 
             Map<String, ApiDefinitionExecResultWithBLOBs> executeQueue = new LinkedHashMap<>();
-            if (com.alibaba.nacos.common.utils.CollectionUtils.isNotEmpty(ids)) {
+            if (CollectionUtils.isNotEmpty(ids)) {
                 List<TestPlanApiCase> planApiCases = extTestPlanApiCaseMapper.selectByIdsAndStatusIsNotTrash(ids);
-                if (com.alibaba.nacos.common.utils.CollectionUtils.isNotEmpty(planApiCases)) {
+                if (CollectionUtils.isNotEmpty(planApiCases)) {
                     for (KeyValueDTO testPlanApiCase : parametersDTO.getCases()) {
                         ApiDefinitionExecResultWithBLOBs report = apiDefinitionExecResultMapper.selectByPrimaryKey(testPlanApiCase.getReportId());
                         if (report == null) {
@@ -261,21 +262,34 @@ public class ApiScenarioRerunService {
             }
         }
         // 场景
-        if (com.alibaba.nacos.common.utils.CollectionUtils.isNotEmpty(parametersDTO.getScenarios())) {
-            List<String> ids = parametersDTO.getScenarios().stream().map(KeyValueDTO::getId).collect(Collectors.toList());
-            if (com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(ids)) {
+        if (CollectionUtils.isNotEmpty(parametersDTO.getScenarios())) {
+            Map<String, String> planScenarioReportMap = new LinkedHashMap<>();
+            parametersDTO.getScenarios().forEach(item -> {
+                if (StringUtils.isNoneBlank(item.getId(), item.getReportId())) {
+                    planScenarioReportMap.put(item.getId(), item.getReportId());
+                }
+            });
+            if (MapUtils.isEmpty(planScenarioReportMap)) {
                 return isStart;
             }
-            List<TestPlanApiScenario> apiScenarios = extTestPlanApiScenarioMapper.selectByIdsAndStatusIsNotTrash(ids);
-            if (com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(apiScenarios)) {
+            List<String> paramPlanScenarioIds = new ArrayList<>(planScenarioReportMap.keySet());
+            List<TestPlanApiScenario> apiScenarios = extTestPlanApiScenarioMapper.selectByIdsAndStatusIsNotTrash(paramPlanScenarioIds);
+
+            if (CollectionUtils.isEmpty(apiScenarios)) {
                 return isStart;
             }
             List<String> scenarioIds = apiScenarios.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
             LoggerUtil.info("重跑测试计划报告：【" + parametersDTO.getReportId() + "】,对应重跑场景资源：" + scenarioIds.size());
             List<String> planScenarioIds = apiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
             // 查出原始报告
-            List<String> reportIds = apiScenarios.stream().map(TestPlanApiScenario::getReportId).collect(Collectors.toList());
-            if (com.alibaba.nacos.common.utils.CollectionUtils.isEmpty(reportIds)) {
+            List<String> reportIds = new ArrayList<>();
+            apiScenarios.forEach(item -> {
+                if (planScenarioReportMap.containsKey(item.getId())) {
+                    reportIds.add(planScenarioReportMap.get(item.getId()));
+                }
+            });
+
+            if (CollectionUtils.isEmpty(reportIds)) {
                 return isStart;
             }
             ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
