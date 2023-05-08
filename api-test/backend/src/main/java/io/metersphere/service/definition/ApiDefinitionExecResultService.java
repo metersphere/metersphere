@@ -20,6 +20,7 @@ import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
@@ -66,6 +67,8 @@ public class ApiDefinitionExecResultService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     /**
      * API/CASE 重试结果保留一条
@@ -100,7 +103,7 @@ public class ApiDefinitionExecResultService {
                     User user = getUser(dto, result);
                     //如果是测试计划用例，更新接口用例的上次执行结果
                     TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                    if (testPlanApiCase != null) {
+                    if (testPlanApiCase != null && !redisTemplateService.has(dto.getTestId())) {
                         ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                         if (apiTestCase != null) {
                             apiTestCase.setLastResultId(dto.getReportId());
@@ -219,21 +222,27 @@ public class ApiDefinitionExecResultService {
     }
 
     public void setExecResult(String id, String status, Long time) {
-        TestPlanApiCase apiCase = new TestPlanApiCase();
-        apiCase.setId(id);
-        apiCase.setStatus(status);
-        apiCase.setUpdateTime(time);
-        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+        if (!redisTemplateService.has(id)) {
+            TestPlanApiCase apiCase = new TestPlanApiCase();
+            apiCase.setId(id);
+            apiCase.setStatus(status);
+            apiCase.setUpdateTime(time);
+            testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+        }
     }
 
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
         String name = testId;
         String version = StringUtils.EMPTY;
         String projectId = StringUtils.EMPTY;
-        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(type,
+                ApiRunMode.API_PLAN.name(),
+                ApiRunMode.SCHEDULE_API_PLAN.name(),
+                ApiRunMode.JENKINS_API_PLAN.name(),
+                ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
-            if (testPlanApiCase != null) {
+            if (testPlanApiCase != null && !redisTemplateService.has(testId)) {
                 this.setExecResult(testId, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                 testPlanApiCase.setStatus(status);
@@ -255,7 +264,7 @@ public class ApiDefinitionExecResultService {
                 projectId = apiDefinition.getProjectId();
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
-                if (caseWithBLOBs != null) {
+                if (caseWithBLOBs != null && !redisTemplateService.has(testId)) {
                     // 更新用例最后执行结果
                     caseWithBLOBs.setLastResultId(reportId);
                     caseWithBLOBs.setStatus(status);
@@ -281,18 +290,23 @@ public class ApiDefinitionExecResultService {
     public void batchEditStatus(String type, String status, String reportId, String testId,
                                 TestPlanApiCaseMapper batchTestPlanApiCaseMapper,
                                 ApiTestCaseMapper batchApiTestCaseMapper) {
-        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
-                ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
-            TestPlanApiCase apiCase = new TestPlanApiCase();
-            apiCase.setId(testId);
-            apiCase.setStatus(status);
-            apiCase.setUpdateTime(System.currentTimeMillis());
-            batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+        if (StringUtils.equalsAnyIgnoreCase(type,
+                ApiRunMode.API_PLAN.name(),
+                ApiRunMode.SCHEDULE_API_PLAN.name(),
+                ApiRunMode.JENKINS_API_PLAN.name(),
+                ApiRunMode.MANUAL_PLAN.name())) {
+            if (!redisTemplateService.has(testId)) {
+                TestPlanApiCase apiCase = new TestPlanApiCase();
+                apiCase.setId(testId);
+                apiCase.setStatus(status);
+                apiCase.setUpdateTime(System.currentTimeMillis());
+                batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
 
-            TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
-            reviewApiCase.setId(testId);
-            reviewApiCase.setStatus(status);
-            reviewApiCase.setUpdateTime(System.currentTimeMillis());
+                TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
+                reviewApiCase.setId(testId);
+                reviewApiCase.setStatus(status);
+                reviewApiCase.setUpdateTime(System.currentTimeMillis());
+            }
         } else {
             // 更新用例最后执行结果
             ApiTestCaseWithBLOBs caseWithBLOBs = new ApiTestCaseWithBLOBs();
@@ -324,7 +338,7 @@ public class ApiDefinitionExecResultService {
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                        if (apiCase != null) {
+                        if (apiCase != null && !redisTemplateService.has(dto.getTestId())) {
                             String projectId = extTestPlanApiCaseMapper.selectProjectId(apiCase.getId());
                             ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
                             String version = apiDefinition == null ? "" : apiDefinition.getVersionId();

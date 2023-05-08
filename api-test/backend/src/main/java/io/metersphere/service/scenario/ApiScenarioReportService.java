@@ -7,6 +7,7 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.service.*;
 import io.metersphere.utils.ReportStatusUtil;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -30,10 +31,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.BaseShareInfoService;
-import io.metersphere.service.BaseUserService;
-import io.metersphere.service.ServiceUtils;
-import io.metersphere.service.SystemParameterService;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -89,6 +86,8 @@ public class ApiScenarioReportService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     BaseShareInfoService baseShareInfoService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     public void saveResult(ResultDTO dto) {
         // 报告详情内容
@@ -305,6 +304,10 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updatePlanCase(ResultDTO dto) {
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
+        // 当前资源正在执行中
+        if (redisTemplateService.has(dto.getTestId())) {
+            return report;
+        }
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
         if (testPlanApiScenario != null) {
             if (report != null) {
@@ -341,6 +344,10 @@ public class ApiScenarioReportService {
 
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
+        // 当前资源正在执行中
+        if (redisTemplateService.has(dto.getTestId())) {
+            return report;
+        }
         if (report != null) {
             if (StringUtils.isNotEmpty(dto.getTestPlanReportId()) && !testPlanReportIdList.contains(dto.getTestPlanReportId())) {
                 testPlanReportIdList.add(dto.getTestPlanReportId());
