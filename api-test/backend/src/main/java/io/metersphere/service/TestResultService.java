@@ -196,7 +196,9 @@ public class TestResultService {
         }
         if (StringUtils.equals(dto.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             return apiScenarioReportService.updatePlanCase(dto);
-        } else if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        } else if (StringUtils.equalsAny(dto.getRunMode(),
+                ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             return apiScenarioReportService.updateSchedulePlanCase(dto);
         } else {
             return this.editReport(dto);

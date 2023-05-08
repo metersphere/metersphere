@@ -35,6 +35,7 @@ import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
@@ -91,6 +92,8 @@ public class ApiScenarioExecuteService {
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
         if (LoggerUtil.getLogger().isDebugEnabled()) {
@@ -343,6 +346,8 @@ public class ApiScenarioExecuteService {
             if (!StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString())) {
                 apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
+            // 执行中资源锁住，防止重复更新造成LOCK WAIT
+            redisTemplateService.lock(planApiScenario.getId());
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
         }
