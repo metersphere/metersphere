@@ -19,6 +19,7 @@ import io.metersphere.api.exec.utils.PerformInspectionUtil;
 import io.metersphere.api.exec.utils.GenerateHashTreeUtil;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.service.RedisTemplateService;
 import io.metersphere.api.service.TcpApiParamService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -70,6 +71,8 @@ public class ApiExecuteService {
     private ObjectMapper mapper;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     public MsExecResponseDTO jenkinsRun(RunCaseRequest request) {
         ApiTestCaseWithBLOBs caseWithBLOBs = null;
@@ -212,6 +215,9 @@ public class ApiExecuteService {
             runRequest.setPoolId(request.getConfig().getResourcePoolId());
             BaseSystemConfigDTO baseInfo = systemParameterService.getBaseInfo();
             runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
+        }
+        if (StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
+            redisTemplateService.lock(testId, request.getId());
         }
         jMeterService.run(runRequest);
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runMode);
