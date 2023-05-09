@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.GenerateHashTreeUtil;
 import io.metersphere.commons.utils.JSON;
@@ -44,7 +43,7 @@ public class FunctionRunService {
         try {
             HashTree hashTree = apiExecuteService.getHashTree(request);
             JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(),
-                    request.getId(), ApiRunMode.DEBUG.name(), TriggerMode.MANUAL.name(), hashTree);
+                    request.getId(), ApiRunMode.DEBUG.name(), hashTree);
             runRequest.setDebug(true);
             if (StringUtils.isNotEmpty(runModeConfigDTO.getResourcePoolId())) {
                 runRequest.setPool(GenerateHashTreeUtil.isResourcePool(runModeConfigDTO.getResourcePoolId()));
