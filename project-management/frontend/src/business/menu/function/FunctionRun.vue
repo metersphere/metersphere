@@ -3,6 +3,7 @@
 </template>
 <script>
 import {getSocket, runCodeSnippet} from "../../../api/custom-func";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
 export default {
   name: 'FunctionRun',
@@ -59,7 +60,9 @@ export default {
       this.websocket.onopen = this.onOpen;
     },
     run() {
-      runCodeSnippet(this.reportId, this.runData).then(res => {
+      this.runData.id = this.reportId;
+      this.runData.projectId = getCurrentProjectID();
+      runCodeSnippet(this.runData).then(res => {
         this.requestResult = res.data;
       }).catch(() => {
         this.$emit('errorRefresh', {});
