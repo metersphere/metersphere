@@ -24,10 +24,20 @@ export function modifyCodeSnippet(obj) {
   return post('/custom/func/update', obj);
 }
 
-export function runCodeSnippet(reportId, param) {
-  return post(`/custom/func/run/${reportId}`, param);
+export function runCodeSnippet( param) {
+  return post(`/custom/func/run`, param);
 }
 
+
+export const apiSocket = (url) => {
+  let protocol = "ws://";
+  if (window.location.protocol === 'https:') {
+    protocol = "wss://";
+  }
+  let uri = protocol + window.location.host + url;
+  return new WebSocket(uri);
+};
+
 export function getSocket(reportId) {
-  return socket(`/websocket/${reportId}`)
+  return apiSocket(`/api/websocket/${reportId}`)
 }
