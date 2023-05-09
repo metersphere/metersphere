@@ -509,6 +509,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='maintainer'">
+                            and test_case.maintainer in
+                            <foreach collection="values" open="(" close=")" separator="," item="value">
+                                #{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
                 <if test="key=='status' and (values == null || values.size() == 0)">

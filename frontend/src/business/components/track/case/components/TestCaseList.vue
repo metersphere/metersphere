@@ -11,7 +11,7 @@
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
-      :condition="condition"
+      :condition.sync="condition"
       :total="page.total"
       :page-size.sync="page.pageSize"
       :operators="operators"
@@ -201,6 +201,7 @@
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="120"
+                         :column-key="field.columnKey"
                          :prop="field.name">
           <template v-slot="scope">
             <span v-if="field.name === '用例等级'">
@@ -297,6 +298,7 @@ import {editTestCaseOrder} from "@/network/testCase";
 import {getGraphByCondition} from "@/network/graph";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "@/business/components/common/components/ListItemDeleteConfirm";
+import {generateColumnKey} from "@/common/js/custom_field"
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const relationshipGraphDrawer = requireComponent.keys().length > 0 ? requireComponent("./graph/RelationshipGraphDrawer.vue") : {};
@@ -347,6 +349,7 @@ export default {
         filters: {}
       },
       versionFilters: [],
+      userFilters: [],
       graphData: {},
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -574,6 +577,7 @@ export default {
       });
     }
     this.getVersionOptions();
+    this.getUserOptions();
   },
   watch: {
     '$route'(to) {
@@ -695,15 +699,16 @@ export default {
         field.options.forEach(option => {
           option.text = this.$t(option.text)
         })
-        return field.options;
       }
       if (field.name === '用例等级') {
-        return this.priorityFilters;
+        return field.options && field.options.length > 0 ? field.options : this.priorityFilters;
       } else if (field.name === '用例状态') {
         if (this.trashEnable) {
           return null;
         }
-        return this.statusFilters;
+        return field.options && field.options.length > 0 ? field.options : this.statusFilters;
+      } else if (field.name === '责任人') {
+        return this.userFilters;
       }
       return null;
     },
@@ -792,8 +797,6 @@ export default {
           this.condition.filters.review_status = [this.selectDataRange];
           break;
       }
-      this.condition.filters.priority = this.condition.filters['用例等级'];
-      this.condition.filters.status = this.condition.filters['用例状态'];
       if (this.trashEnable) {
         //支持回收站查询版本
         let versionIds = this.condition.filters.version_id;
@@ -1224,6 +1227,13 @@ export default {
           });
         });
       }
+    },
+    getUserOptions() {
+      this.$get('/user/project/member/list', response => {
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
     },
   }
 };

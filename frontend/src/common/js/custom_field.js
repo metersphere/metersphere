@@ -162,3 +162,16 @@ export function buildTestCaseOldFields(testCase) {
   oldFields.set('用例等级', testCase.priority);
   return oldFields;
 }
+
+export function generateColumnKey(name) {
+  // 只处理系统自定义字段
+  if (name === '用例等级') {
+    return 'priority';
+  } else if (name === '责任人') {
+    return 'maintainer';
+  } else if (name === '用例状态') {
+    return 'status';
+  } else {
+    return name;
+  }
+}
