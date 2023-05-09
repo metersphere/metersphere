@@ -4,6 +4,7 @@ import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
 import Sortable from 'sortablejs'
 import {timestampFormatDate} from "@/common/js/filter";
+import {generateColumnKey} from "@/common/js/custom_field";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -289,6 +290,8 @@ export function getTableHeaderWithCustomFields(key, customFields) {
   translateLabel(fieldSetting);
   let keys = getCustomFieldsKeys(customFields);
   customFields.forEach(item => {
+    // 设置系统自定义字段columnKey
+    item.columnKey = generateColumnKey(item.name);
     if (!item.key) {
       // 兼容旧版，更新key
       item.key = generateTableHeaderKey(keys, customFields);
