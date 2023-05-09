@@ -706,7 +706,8 @@ export function parseCustomFilesForList(data) {
 
 export function parseCustomFilesForItem(data) {
   if (data.value) {
-    data.value = JSON.parse(data.value);
+    // 自定义字段内容存在回车,换行符, 需转义.
+    data.value = JSON.parse(data.value.replace(/\n/g,"\\n").replace(/\r/g,"\\r"));
   }
   if (data.textValue && !data.textValue.startsWith(OPTION_LABEL_PREFIX)) {
     data.value = data.textValue;
