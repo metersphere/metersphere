@@ -8,7 +8,6 @@ import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.assertions.document.DocumentElement;
-import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
@@ -34,6 +33,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionService;
+import io.metersphere.service.definition.FunctionRunService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -54,7 +54,8 @@ public class ApiDefinitionController {
     private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
     private ApiExecuteService apiExecuteService;
-
+    @Resource
+    private FunctionRunService functionRunService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
@@ -392,11 +393,6 @@ public class ApiDefinitionController {
         return apiDefinitionService.rawToXml(parseTreeDataDTO.getStringData());
     }
 
-    @PostMapping("/get-hash-tree")
-    public String getHashTree(@RequestBody MsJSR223Processor request) {
-        return apiExecuteService.getHashTree(request);
-    }
-
     @PostMapping("/update/file")
     public void updateFileMetadataId(@RequestBody List<ReplaceFileIdRequest> requestList) {
         apiDefinitionService.updateFileMetadataId(requestList);
@@ -406,5 +402,10 @@ public class ApiDefinitionController {
     @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
         return apiDefinitionService.getBaseCaseByProjectId(projectId);
+    }
+
+    @PostMapping("/func/run")
+    public void run(@RequestBody Object request) {
+        functionRunService.run(request);
     }
 }

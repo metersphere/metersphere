@@ -170,12 +170,12 @@ public class ApiExecuteService {
         return new MsExecResponseDTO(runRequest.getTestId(), runRequest.getReportId(), runRequest.getRunMode());
     }
 
-    public String getHashTree(MsJSR223Processor request) {
+    public HashTree getHashTree(MsJSR223Processor request) {
         MsTestPlan testPlan = new MsTestPlan();
-        testPlan.setName(MsTestPlan.class.getCanonicalName());
+        testPlan.setName(request.getId());
         testPlan.setHashTree(new LinkedList<>());
         MsThreadGroup threadGroup = new MsThreadGroup();
-        threadGroup.setName(MsThreadGroup.class.getCanonicalName());
+        threadGroup.setName(request.getId());
         threadGroup.setHashTree(new LinkedList<>());
         testPlan.getHashTree().add(threadGroup);
         testPlan.setProjectJarIds(NewDriverManager.getJars(new ArrayList<>() {{
@@ -184,7 +184,7 @@ public class ApiExecuteService {
         threadGroup.getHashTree().add(request);
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
-        return new MsTestPlan().getJmx(testPlan.generateHashTree(config));
+        return testPlan.generateHashTree(config);
     }
 
     private JmeterRunRequestDTO initRunRequest(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
