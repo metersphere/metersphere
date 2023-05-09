@@ -7,11 +7,10 @@ import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.code.snippet.service.CustomFunctionService;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.request.CustomFunctionRequest;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 /**
@@ -56,8 +55,8 @@ public class CustomFunctionController {
         return customFunctionService.get(id);
     }
 
-    @PostMapping("/run/{reportId}")
-    public MsExecResponseDTO run(@PathVariable String reportId, @RequestBody Object request) {
-        return customFunctionService.run(reportId, request);
+    @PostMapping("/run")
+    public void run(@RequestBody Object request) {
+        customFunctionService.run(request);
     }
 }

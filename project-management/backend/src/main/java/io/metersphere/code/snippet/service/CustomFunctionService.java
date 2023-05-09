@@ -6,17 +6,17 @@ import io.metersphere.base.mapper.CustomFunctionMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFunctionMapper;
 import io.metersphere.code.snippet.listener.MsDebugListener;
-import io.metersphere.code.snippet.util.FixedCapacityUtils;
 import io.metersphere.code.snippet.util.ProjectFileUtils;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.BackendListenerConstants;
 import io.metersphere.dto.FileInfoDTO;
-import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.ProjectJarConfig;
-import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.CustomFunctionRequest;
@@ -35,10 +35,8 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -204,25 +202,8 @@ public class CustomFunctionService {
         return jarConfigMap;
     }
 
-    public MsExecResponseDTO run(String reportId, Object request) {
-        HashTree hashTree = null;
-        //下载项目执行代码片段的jar包
-        getJars();
-        String jmx = microService.postForData(MicroServiceName.API_TEST, "/api/definition/get-hash-tree", request, String.class);
-        try {
-            Object scriptWrapper = SaveService.loadElement(new ByteArrayInputStream(jmx.getBytes(StandardCharsets.UTF_8)));
-            hashTree = this.getHashTree(scriptWrapper);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage());
-            MSException.throwException(e.getMessage());
-        }
-        if (!FixedCapacityUtils.containsKey(reportId)) {
-            FixedCapacityUtils.put(reportId,new StringBuffer());
-        }
-        addDebugListener(reportId, hashTree);
-        LocalRunner runner = new LocalRunner(hashTree);
-        runner.run(reportId);
-        return null;
+    public void run(Object request) {
+        microService.postForData(MicroServiceName.API_TEST, "/api/definition/func/run", request);
     }
 
     private HashTree getHashTree(Object scriptWrapper) throws Exception {
