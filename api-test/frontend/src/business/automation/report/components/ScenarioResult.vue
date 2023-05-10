@@ -7,6 +7,8 @@
         (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)
       ">
       <el-card class="ms-card">
+        <el-row>
+        <el-col :span="23">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">
             {{ node.index }}
@@ -18,6 +20,11 @@
           </el-link>
           <span v-else>{{ getLabel(node.label) }}</span>
         </el-tooltip>
+        </el-col>
+        <el-col :span="1">
+          <ms-api-report-status :status="node.totalStatus" />
+        </el-col>
+        </el-row>
       </el-card>
     </div>
     <div v-else>
@@ -43,11 +50,12 @@
 import MsRequestResult from './RequestResult';
 import { STEP } from '../../../../business/automation/scenario/Setting';
 import { getCurrentByResourceId } from '../../../../api/user';
+import MsApiReportStatus from '../ApiReportStatus';
 
 export default {
   name: 'MsScenarioResult',
   components: {
-    MsRequestResult,
+    MsRequestResult, MsApiReportStatus
   },
   props: {
     scenario: Object,
