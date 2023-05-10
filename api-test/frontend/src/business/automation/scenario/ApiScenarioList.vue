@@ -882,7 +882,7 @@ export default {
         };
       }
 
-      if (!this.condition.filters.status) {
+      if (!this.condition.filters || !this.condition.filters.status) {
         this.condition.filters = {
           status: ['Prepare', 'Underway', 'Completed'],
         };
@@ -894,7 +894,7 @@ export default {
         this.condition.projectId = this.projectId;
       }
 
-      this.enableOrderDrag = this.condition.orders.length <= 0;
+      this.enableOrderDrag = this.condition.orders && this.condition.orders.length <= 0;
 
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
