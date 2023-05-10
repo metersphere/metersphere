@@ -2,6 +2,8 @@ package io.metersphere.reportstatistics.controller;
 
 import io.metersphere.base.domain.ReportStatistics;
 import io.metersphere.base.domain.ReportStatisticsWithBLOBs;
+import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.reportstatistics.dto.ReportStatisticsSaveRequest;
 import io.metersphere.reportstatistics.service.ReportStatisticsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,18 +38,21 @@ public class HistoryReportController {
     }
 
     @PostMapping("/update")
+    @MsRequestLog(module = OperLogModule.ENTERPRISE_TEST_REPORT)
     public ReportStatisticsWithBLOBs update(@RequestBody ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs returnData = reportStatisticsService.update(request);
         return returnData;
     }
 
     @PostMapping("/updateByRequest")
+    @MsRequestLog(module = OperLogModule.ENTERPRISE_TEST_REPORT)
     public ReportStatisticsWithBLOBs updateByRequest(@RequestBody ReportStatisticsSaveRequest request) {
         ReportStatisticsWithBLOBs returnData = reportStatisticsService.updateByRequest(request);
         return returnData;
     }
 
     @PostMapping("/deleteByParam")
+    @MsRequestLog(module = OperLogModule.ENTERPRISE_TEST_REPORT)
     public int deleteById(@RequestBody ReportStatisticsSaveRequest request) {
         return reportStatisticsService.deleteById(request.getId());
     }

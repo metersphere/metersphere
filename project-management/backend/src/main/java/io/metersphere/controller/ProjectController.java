@@ -16,6 +16,7 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.member.AddMemberRequest;
@@ -138,6 +139,7 @@ public class ProjectController {
     }
 
     @PostMapping("/member/add")
+    @MsRequestLog(module = OperLogModule.PROJECT_PROJECT_MEMBER)
     public void addProjectMember(@RequestBody AddMemberRequest request) {
         projectService.addProjectMember(request);
     }

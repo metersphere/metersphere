@@ -15,6 +15,7 @@ import io.metersphere.consul.CacheNode;
 import io.metersphere.consul.ConsulService;
 import io.metersphere.dto.*;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.*;
@@ -119,6 +120,7 @@ public class PerformanceTestController {
 
 
     @PostMapping("/edit/order")
+    @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         performanceTestService.updateOrder(request);
     }
@@ -233,6 +235,7 @@ public class PerformanceTestController {
 
     @PostMapping(value = "/schedule/create")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
+    @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void createSchedule(@RequestBody ScheduleRequest request) {
         performanceTestService.createSchedule(request);
     }
@@ -266,6 +269,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("test/update/follows/{testId}")
+    @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void saveFollows(@PathVariable String testId, @RequestBody List<String> follows) {
         performanceTestService.saveFollows(testId, follows);
     }
@@ -306,6 +310,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/stop/batch")
+    @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void stopBatch(@RequestBody TaskRequestDTO taskRequestDTO) {
         performanceTestService.stopBatch(taskRequestDTO);
     }

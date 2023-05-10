@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.TestPlanCaseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.plan.request.function.QueryTestPlanCaseRequest;
 import io.metersphere.plan.request.function.TestPlanCaseBatchRequest;
 import io.metersphere.plan.request.function.TestPlanFuncCaseBatchRequest;
@@ -147,6 +148,7 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/edit/order")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testPlanTestCaseService.updateOrder(request);
     }

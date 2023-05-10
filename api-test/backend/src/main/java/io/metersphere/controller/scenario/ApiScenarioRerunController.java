@@ -1,8 +1,10 @@
 package io.metersphere.controller.scenario;
 
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.dto.RerunParametersDTO;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.scenario.ApiScenarioRerunService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,7 @@ public class ApiScenarioRerunController {
     private ApiScenarioRerunService apiScenarioRerunService;
 
     @PostMapping("/rerun")
+    @MsRequestLog(module = OperLogModule.API_AUTOMATION)
     public String rerun(@RequestBody RerunParametersDTO parametersDTO) {
         return apiScenarioRerunService.rerun(parametersDTO);
     }

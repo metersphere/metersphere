@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.reportstatistics.dto.request.EnterpriseTestReportRequest;
 import io.metersphere.reportstatistics.dto.response.EnterpriseTestReportDTO;
 import io.metersphere.reportstatistics.dto.response.UserGroupResponse;
@@ -88,11 +89,13 @@ public class EnterpriseTestReportController {
     }
 
     @PostMapping(value = "/schedule/update")
+    @MsRequestLog(module = OperLogModule.ENTERPRISE_TEST_REPORT)
     public void updateSchedule(@RequestBody Schedule request) {
         enterpriseTestReportService.updateSchedule(request);
     }
 
     @PostMapping(value = "/schedule/create")
+    @MsRequestLog(module = OperLogModule.ENTERPRISE_TEST_REPORT)
     public void createSchedule(@RequestBody ScheduleRequest request) {
         enterpriseTestReportService.createSchedule(request);
     }

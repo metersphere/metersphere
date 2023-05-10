@@ -17,6 +17,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.plan.TestPlanScenarioCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
@@ -79,6 +80,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/relevance/projectIds")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public ScenarioProjectDTO relevanceProjectIds(@RequestBody ApiScenarioRequest request) {
         return testPlanScenarioCaseService.relevanceProjectIds(request);
     }
@@ -135,6 +137,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/edit/order")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testPlanScenarioCaseService.updateOrder(request);
     }
@@ -155,6 +158,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/relevance/{planId}")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void testPlanRelevance(@RequestBody List<String> ids, @PathVariable("planId") String planId) {
         testPlanScenarioCaseService.relevanceByTestIds(ids, planId);
     }

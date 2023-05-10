@@ -764,7 +764,7 @@ public class TestCaseService {
             addDemandHyperLink(request, "delete");
 
             handleDemandUpdate(request, DemandUpdateRequest.OperateType.DELETE,
-                    projectMapper.selectByPrimaryKey(testCase.getProjectId()));
+                    projectMapper.selectByPrimaryKey(testCaseWithBLOBs.getProjectId()));
         }
 
         DeleteTestCaseRequest request = new DeleteTestCaseRequest();
