@@ -356,7 +356,7 @@ export function getPlanSchedule(planId, taskType) {
 }
 
 export function updateBatchScheduleEnable(param) {
-  return post(BASE_URL + "schedule/Batch/updateEnable", param);
+  return post(BASE_URL + "schedule/batch/update_enable", param);
 }
 
 export function batchDeletePlan(param) {

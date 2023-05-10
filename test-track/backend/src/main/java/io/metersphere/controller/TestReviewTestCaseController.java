@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.dto.TestReviewCaseDTO;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.request.testreview.DeleteRelevanceRequest;
@@ -100,6 +101,7 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/edit/order")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testReviewTestCaseService.updateOrder(request);
     }

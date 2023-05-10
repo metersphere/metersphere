@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.IssueTemplateCopyDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.BaseQueryRequest;
 import io.metersphere.request.CopyIssueTemplateRequest;
 import io.metersphere.request.UpdateIssueTemplateRequest;
@@ -67,6 +68,7 @@ public class IssueTemplateController {
     }
 
     @PostMapping("/copy")
+    @MsRequestLog(module = OperLogModule.PROJECT_TEMPLATE_MANAGEMENT)
     public void copy(@RequestBody CopyIssueTemplateRequest request) {
         List<IssueTemplate> copyRecords = issueTemplateService.copy(request);
         // 目标项目操作日志

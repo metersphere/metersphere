@@ -11,8 +11,10 @@ import io.metersphere.api.dto.mock.config.response.MockExpectConfigResponse;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.MockExpectConfig;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.commons.utils.mock.MockTestDataUtil;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import org.springframework.web.bind.annotation.*;
@@ -42,11 +44,13 @@ public class MockConfigController {
     }
 
     @PostMapping(value = "/update/form", consumes = {"multipart/form-data"})
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public MockExpectConfig updateMockExpectConfig(@RequestPart("request") MockExpectConfigRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return mockConfigService.updateMockExpectConfig(request, bodyFiles);
     }
 
     @PostMapping(value = "/update/expect")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public MockExpectConfig updateMockExpectConfig(@RequestBody MockExpectConfigRequest request) {
         return mockConfigService.updateMockExpectConfigStatus(request);
     }
@@ -59,6 +63,7 @@ public class MockConfigController {
     }
 
     @GetMapping("/delete/{id}")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public String deleteMockExpectConfig(@PathVariable String id) {
         mockConfigService.deleteMockExpectConfig(id);
         return "SUCCESS";

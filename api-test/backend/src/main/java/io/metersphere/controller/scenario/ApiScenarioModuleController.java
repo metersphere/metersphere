@@ -3,6 +3,7 @@ package io.metersphere.controller.scenario;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -66,6 +67,7 @@ public class ApiScenarioModuleController {
     }
 
     @PostMapping("/pos")
+    @MsRequestLog(module = OperLogModule.API_AUTOMATION)
     public void treeSort(@RequestBody List<String> ids) {
         apiScenarioModuleService.sort(ids);
     }

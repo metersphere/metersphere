@@ -30,6 +30,7 @@ import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RelationshipEdgeDTO;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionService;
@@ -248,12 +249,14 @@ public class ApiDefinitionController {
 
     //更新定时任务更新定时任务
     @PostMapping(value = "/schedule-switch")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void updateScheduleEnable(@RequestBody Schedule request) {
         apiDefinitionService.switchSchedule(request);
     }
 
     //删除定时任务和swaggereUrl
     @PostMapping("/del-schedule")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void deleteSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.deleteSchedule(request);
     }
@@ -267,6 +270,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void editApiBath(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiBath(request);
     }
@@ -293,6 +297,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/relevance/review")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testCaseReviewRelevance(request);
     }
@@ -333,6 +338,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/relationship/add")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void saveRelationshipBatch(@RequestBody ApiDefinitionRelationshipEdgeRequest request) {
         apiDefinitionService.saveRelationshipBatch(request);
     }
@@ -353,12 +359,14 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/update/follows/{definitionId}")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void saveFollows(@PathVariable String definitionId, @RequestBody List<String> follows) {
         apiDefinitionService.saveFollows(definitionId, follows);
     }
 
 
     @PostMapping("/delete/follows/batch")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void deleteFollows(@RequestBody List<String> definitionIds) {
         apiDefinitionService.deleteFollows(definitionIds);
     }
@@ -394,6 +402,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/update/file")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void updateFileMetadataId(@RequestBody List<ReplaceFileIdRequest> requestList) {
         apiDefinitionService.updateFileMetadataId(requestList);
     }

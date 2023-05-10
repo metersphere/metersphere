@@ -3,9 +3,11 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.FileModule;
 import io.metersphere.commons.constants.FileModuleTypeConstants;
+import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.FileRelevanceCaseDTO;
 import io.metersphere.dto.FileVersionDTO;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.metadata.utils.GitRepositoryUtil;
 import io.metersphere.request.QueryProjectFileRequest;
@@ -49,6 +51,7 @@ public class FileRepositoryController {
     }
 
     @PostMapping("/case/version/update/{refId}")
+    @MsRequestLog(module = OperLogModule.PROJECT_FILE_MANAGEMENT)
     public String updateCaseVersion(@PathVariable String refId, @RequestBody QueryProjectFileRequest request) {
         return fileRepositoryService.updateCaseVersion(refId, request);
     }

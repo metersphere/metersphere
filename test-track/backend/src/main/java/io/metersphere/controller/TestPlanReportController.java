@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.TestPlanReportDTO;
 import io.metersphere.dto.TestPlanScheduleReportInfoDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.TestPlanReportSaveRequest;
@@ -89,11 +90,13 @@ public class TestPlanReportController {
     }
 
     @PostMapping("/reName")
+    @MsRequestLog(module = OperLogModule.TRACK_REPORT)
     public void reName(@RequestBody TestPlanReport request) {
         testPlanReportService.reName(request.getId(), request.getName());
     }
 
     @PostMapping("/edit/report")
+    @MsRequestLog(module = OperLogModule.TRACK_REPORT)
     public void editReport(@RequestBody TestPlanReportContentWithBLOBs reportContentWithBLOBs) {
         testPlanReportService.editReport(reportContentWithBLOBs);
     }

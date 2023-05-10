@@ -13,7 +13,10 @@
     </div>
     <div>
       <p class="tip">{{ this.$t('report.test_log_details') }} </p>
-      <div v-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail.operType !=='COPY' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
+      <div v-if="detail.operType === 'REQUEST'">
+        <request-log-detail :detail="detail"/>
+      </div>
+      <div v-else-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail.operType !=='COPY' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" width="150px" show-overflow-tooltip/>
@@ -53,13 +56,14 @@
 
 <script>
 import {getLogDetailById} from "../../../api/log";
+import RequestLogDetail from "./RequestLogDetail";
 
 const jsondiffpatch = require('jsondiffpatch');
   const formattersHtml = jsondiffpatch.formatters.html;
 
   export default {
     name: "MsLogDetail",
-    components: {},
+    components: {RequestLogDetail},
     props: {
       title: String,
     },
@@ -91,7 +95,8 @@ const jsondiffpatch = require('jsondiffpatch');
           {id: 'BATCH_ADD', label: this.$t('commons.batch_add')},
           {id: 'UN_ASSOCIATE_CASE', label: this.$t('test_track.case.unlink')},
           {id: 'BATCH_RESTORE', label: this.$t('commons.batch_restore')},
-          {id: 'BATCH_GC', label: this.$t('commons.batch_gc')}
+          {id: 'BATCH_GC', label: this.$t('commons.batch_gc')},
+          {id: 'REQUEST', label: this.$t('operating_log.request_record')},
         ],
         LOG_TYPE_MAP: new Map([
           ['CREATE', this.$t('api_test.definition.request.create_info')],
@@ -116,6 +121,7 @@ const jsondiffpatch = require('jsondiffpatch');
           ['BATCH_RESTORE', "批量恢复"],
           ['BATCH_GC', "批量回收"],
           ['UN_ASSOCIATE_CASE', this.$t('test_track.case.unlink')],
+          ['REQUEST', this.$t('operating_log.request_record')],
         ]),
         timeDates: ["plannedStartTime", "plannedEndTime", "startTime", "endTime"],
         loading: false
