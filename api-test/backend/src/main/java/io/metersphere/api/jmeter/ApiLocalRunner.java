@@ -1,7 +1,5 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.jmeter.LocalRunner;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.PostConstruct;
@@ -13,7 +11,6 @@ import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,20 +26,10 @@ public class ApiLocalRunner extends LocalRunner {
     }
 
 
-    public void run(String report, String runMode, String trigger) {
+    public void run(String report) {
         StandardJMeterEngine engine = new StandardJMeterEngine();
         engine.configure(this.jmxTree);
-        List<String> triggerList = List.of(TriggerMode.BATCH.name(),TriggerMode.MANUAL.name());
-        List<String> runModeList = List.of(ApiRunMode.SCENARIO_PLAN.name(),
-                ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
-                ApiRunMode.SCHEDULE_SCENARIO.name(),
-                ApiRunMode.JENKINS_SCENARIO_PLAN.name(),
-                ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
-                ApiRunMode.JENKINS_API_PLAN.name());
-        if ( triggerList.contains(trigger) &&
-                !runModeList.contains(runMode)) {
-            runningTasks.put(report, engine);
-        }
+        runningTasks.put(report, engine);
         try {
             LoggerUtil.info("LocalRunner 开始执行报告", report);
             engine.runTest();

@@ -75,7 +75,6 @@ public class MsApiBackendListener extends AbstractBackendListenerClient implemen
             resultVO = ReportStatusUtil.getStatus(dto, resultVO);
             dto.getArbitraryData().put(CommonConstants.LOCAL_STATUS_KEY, resultVO);
             sampleResults.clear();
-            ApiLocalRunner.clearCache(dto.getReportId());
         }
     }
 

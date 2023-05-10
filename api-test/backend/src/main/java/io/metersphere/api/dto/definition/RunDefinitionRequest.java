@@ -60,5 +60,4 @@ public class RunDefinitionRequest {
 
     private boolean syncResult;
     private boolean editCaseRequest;
-    private String triggerMode;
 }

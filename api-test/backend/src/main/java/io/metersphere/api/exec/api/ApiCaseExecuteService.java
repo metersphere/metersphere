@@ -145,7 +145,7 @@ public class ApiCaseExecuteService {
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
         String runMode = StringUtils.equals(request.getTriggerMode(), TriggerMode.MANUAL.name()) ? ApiRunMode.API_PLAN.name() : ApiRunMode.SCHEDULE_API_PLAN.name();
-        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getTriggerMode(), request.getConfig());
+        DBTestQueue deQueue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.API_PLAN.name(), request.getPlanReportId(), reportType, runMode, request.getConfig());
 
         // 开始选择执行模式
         if (deQueue != null && deQueue.getDetail() != null) {
@@ -354,7 +354,7 @@ public class ApiCaseExecuteService {
 
         String reportType = request.getConfig().getReportType();
         String poolId = request.getConfig().getResourcePoolId();
-        DBTestQueue queue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getTriggerMode(), request.getConfig());
+        DBTestQueue queue = apiExecutionQueueService.add(executeQueue, poolId, ApiRunMode.DEFINITION.name(), serialReportId, reportType, ApiRunMode.DEFINITION.name(), request.getConfig());
         // 开始选择执行模式
         if (queue != null && queue.getDetail() != null) {
             Thread thread = new Thread(() -> {

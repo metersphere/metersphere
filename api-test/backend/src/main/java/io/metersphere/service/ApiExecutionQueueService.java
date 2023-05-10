@@ -74,12 +74,12 @@ public class ApiExecutionQueueService {
     private ApiExecutionQueueDetailMapper apiExecutionQueueDetailMapper;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, String triggerMode, RunModeConfigDTO config) {
+    public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         LoggerUtil.info("报告【" + type + "】开始生成执行链", reportId);
         if (config.getEnvMap() == null) {
             config.setEnvMap(new LinkedHashMap<>());
         }
-        ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode,triggerMode, config);
+        ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode, config);
         queueMapper.insert(executionQueue);
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
@@ -149,7 +149,7 @@ public class ApiExecutionQueueService {
         resQueue.setDetailMap(detailMap);
     }
 
-    protected ApiExecutionQueue getApiExecutionQueue(String poolId, String reportId, String reportType, String runMode, String triggerMode, RunModeConfigDTO config) {
+    protected ApiExecutionQueue getApiExecutionQueue(String poolId, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
         ApiExecutionQueue executionQueue = new ApiExecutionQueue();
         executionQueue.setId(UUID.randomUUID().toString());
         executionQueue.setCreateTime(System.currentTimeMillis());
@@ -158,7 +158,6 @@ public class ApiExecutionQueueService {
         executionQueue.setReportId(reportId);
         executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
         executionQueue.setRunMode(runMode);
-        executionQueue.setTriggerMode(triggerMode);
         return executionQueue;
     }
 

@@ -100,26 +100,22 @@ public class JmeterRunRequestDTO {
     // 自定义误报库
     private Map<String, List<MsRegexDTO>> fakeErrorMap;
 
-    private String triggerMode;
-
     public JmeterRunRequestDTO() {
     }
 
-    public JmeterRunRequestDTO(String testId, String reportId, String runMode, String triggerMode) {
+    public JmeterRunRequestDTO(String testId, String reportId, String runMode) {
         this.testId = testId;
         this.reportId = reportId;
         this.runMode = runMode;
-        this.triggerMode = triggerMode;
         this.reportType = RunModeConstants.INDEPENDENCE.name();
         this.pool = new BooleanPool();
         this.extendedParameters = new LinkedHashMap<>();
     }
 
-    public JmeterRunRequestDTO(String testId, String reportId, String runMode, String triggerMode , HashTree hashTree) {
+    public JmeterRunRequestDTO(String testId, String reportId, String runMode, HashTree hashTree) {
         this.testId = testId;
         this.reportId = reportId;
         this.runMode = runMode;
-        this.triggerMode = triggerMode;
         this.reportType = RunModeConstants.INDEPENDENCE.name();
         this.hashTree = hashTree;
         this.pool = new BooleanPool();
