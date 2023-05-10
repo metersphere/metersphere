@@ -131,6 +131,7 @@ public class ApiDefinitionExecResultService {
 
         for (ResultDTO dto : resultDTOS) {
             this.mergeRetryResults(dto);
+            LoggerUtil.info("开始存储报告结果[ " + dto.getRequestResults().size() + " ]", dto.getReportId());
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                 for (RequestResult item : dto.getRequestResults()) {
                     if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {

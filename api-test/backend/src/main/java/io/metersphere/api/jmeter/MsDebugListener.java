@@ -22,6 +22,7 @@ import io.metersphere.api.dto.RequestResultExpandDTO;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.MsRegexDTO;
 import io.metersphere.dto.RequestResult;
@@ -176,7 +177,8 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
                 dto.setRunMode(runMode);
 
                 String console = FixedCapacityUtil.getJmeterLogger(this.getName(), false);
-                if (StringUtils.isNotEmpty(requestResult.getName()) && requestResult.getName().startsWith("Transaction=")) {
+                if (StringUtils.isNotEmpty(requestResult.getName())
+                        && requestResult.getName().startsWith(CommonConstants.PRE_TRANSACTION)) {
                     requestResult.getSubRequestResults().forEach(transactionResult -> {
                         this.sendResult(transactionResult, console, dto);
                     });
@@ -201,7 +203,8 @@ public class MsDebugListener extends AbstractListenerElement implements SampleLi
     }
 
     private void setVars(SampleResult result) {
-        if (StringUtils.isNotEmpty(result.getSampleLabel()) && result.getSampleLabel().startsWith("Transaction=")) {
+        if (StringUtils.isNotEmpty(result.getSampleLabel())
+                && result.getSampleLabel().startsWith(CommonConstants.PRE_TRANSACTION)) {
             for (int i = 0; i < result.getSubResults().length; i++) {
                 SampleResult subResult = result.getSubResults()[i];
                 this.setVars(subResult);

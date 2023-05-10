@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request.controller;
 
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
@@ -52,7 +53,7 @@ public class MsTransactionController extends MsTestElement {
         if (StringUtils.isEmpty(this.getName())) {
             this.setName(getLabelName());
         }
-        transactionController.setName("Transaction=" + this.getName());
+        transactionController.setName(CommonConstants.PRE_TRANSACTION + this.getName());
         transactionController.setProperty(TestElement.TEST_CLASS, TransactionController.class.getName());
         transactionController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TransactionControllerGui"));
         transactionController.setGenerateParentSample(generateParentSample);
