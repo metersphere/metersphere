@@ -14,15 +14,27 @@ export function attachmentList(param) {
 }
 
 export function uploadIssueAttachment(file, param, cancelToken, cancelTokens, progressCallback) {
-  return fileUploadWithProcessAndCancel(BASE_URL + "upload", file, param, cancelToken, cancelTokens, progressCallback);
+  return fileUploadWithProcessAndCancel(BASE_URL + "issue/upload", file, param, cancelToken, cancelTokens, progressCallback);
 }
 
-export function unrelatedAttachment(param) {
-  return post(BASE_URL + "metadata/unrelated", param)
+export function uploadTestCaseAttachment(file, param, cancelToken, cancelTokens, progressCallback) {
+  return fileUploadWithProcessAndCancel(BASE_URL + "testcase/upload", file, param, cancelToken, cancelTokens, progressCallback);
 }
 
-export function relatedAttachment(param) {
-  return post(BASE_URL + "metadata/relate", param)
+export function unrelatedTestCaseAttachment(param) {
+  return post(BASE_URL + "testcase/metadata/unrelated", param)
+}
+
+export function unrelatedIssueAttachment(param) {
+  return post(BASE_URL + "issue/metadata/unrelated", param)
+}
+
+export function relatedTestCaseAttachment(param) {
+  return post(BASE_URL + "testcase/metadata/relate", param)
+}
+
+export function relatedIssueAttachment(param) {
+  return post(BASE_URL + "issue/metadata/relate", param)
 }
 
 export function dumpAttachment(param) {

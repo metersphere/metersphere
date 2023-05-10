@@ -125,9 +125,9 @@ import {
   attachmentList,
   deleteTestCaseAttachment,
   dumpAttachment,
-  relatedAttachment,
-  unrelatedAttachment,
-  uploadIssueAttachment,
+  relatedTestCaseAttachment,
+  unrelatedTestCaseAttachment,
+  uploadTestCaseAttachment,
 } from "@/api/attachment";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
 
@@ -244,7 +244,7 @@ export default {
       let CancelToken = axios.CancelToken;
       let self = this;
 
-      uploadIssueAttachment(
+      uploadTestCaseAttachment(
         file,
         data,
         CancelToken,
@@ -381,7 +381,7 @@ export default {
                     belongId: this.targetId,
                     metadataRefIds: this.unRelateFiles,
                   };
-                  unrelatedAttachment(data).then(() => {
+                  unrelatedTestCaseAttachment(data).then(() => {
                     this.$success(this.$t("commons.unrelated_success"), false);
                     this.result.loading = false;
                     this.getFileMetaData(this.issueId);
@@ -480,7 +480,7 @@ export default {
             metadataRefIds: metadataRefIds,
           };
           this.result.loading = true;
-          relatedAttachment(data).then(() => {
+          relatedTestCaseAttachment(data).then(() => {
             this.$success(this.$t("commons.relate_success"), false);
             this.result.loading = false;
             this.getFileMetaData();

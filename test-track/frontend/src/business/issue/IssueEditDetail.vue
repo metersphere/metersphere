@@ -213,8 +213,8 @@ import {
   uploadIssueAttachment,
   attachmentList,
   deleteIssueAttachment,
-  unrelatedAttachment,
-  relatedAttachment, dumpAttachment
+  unrelatedIssueAttachment,
+  relatedIssueAttachment, dumpAttachment
 } from "@/api/attachment";
 import CustomFiledFormItem from "metersphere-frontend/src/components/form/CustomFiledFormItem";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
@@ -810,7 +810,7 @@ export default {
                 this.unRelateFiles.push(file.id);
                 let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': this.unRelateFiles};
                 this.result.loading = true;
-                unrelatedAttachment(data)
+                unrelatedIssueAttachment(data)
                   .then(() => {
                     this.$success(this.$t('commons.unrelated_success'));
                     this.result.loading = false;
@@ -870,7 +870,7 @@ export default {
           rows.forEach(row => metadataRefIds.push(row.id));
           let data = {'belongType': 'issue', 'belongId': this.issueId, 'metadataRefIds': metadataRefIds};
           this.result.loading = true;
-          relatedAttachment(data)
+          relatedIssueAttachment(data)
             .then(() => {
               this.$success(this.$t('commons.relate_success'));
               this.result.loading = false;

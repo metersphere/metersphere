@@ -146,45 +146,31 @@ import CaseAttachmentComponent from "@/business/case/components/case/CaseAttachm
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import FormRichTextItem from "../richtext/FormRichTextItem";
-import {
-  buildCustomFields,
-  parseCustomField,
-} from "metersphere-frontend/src/utils/custom_field";
+import {buildCustomFields, parseCustomField,} from "metersphere-frontend/src/utils/custom_field";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
 import {
   getCurrentProjectID,
   getCurrentUser,
-  getCurrentWorkspaceId,
   getCurrentUserId,
+  getCurrentWorkspaceId,
 } from "metersphere-frontend/src/utils/token";
-import { hasLicense } from "metersphere-frontend/src/utils/permission";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
-  getIssuePartTemplateWithProject,
-  saveOrUpdateIssue,
-  saveFollow,
   getFollow,
-  getComments,
+  getIssuePartTemplateWithProject,
+  getPlatformFormOption,
+  getPlatformTransitions,
   getTapdUser,
-  getPlatformTransitions, getPlatformFormOption,
+  saveOrUpdateIssue,
 } from "@/api/issue";
-import {
-  uploadIssueAttachment,
-  attachmentList,
-  deleteIssueAttachment,
-  unrelatedAttachment,
-  relatedAttachment,
-  dumpAttachment,
-} from "@/api/attachment";
 import CustomFiledFormItem from "../common/CaseCustomFiledFormItem";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import IssueComment from "@/business/issue/IssueComment";
 import ReviewCommentItem from "@/business/review/commom/ReviewCommentItem";
-import { TokenKey } from "metersphere-frontend/src/utils/constants";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
-import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
 

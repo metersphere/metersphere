@@ -155,9 +155,9 @@ import {testCaseCommentList} from "@/api/test-case-comment";
 import {
   attachmentList,
   deleteTestCaseAttachment, dumpAttachment,
-  relatedAttachment,
-  unrelatedAttachment,
-  uploadIssueAttachment
+  relatedTestCaseAttachment,
+  unrelatedTestCaseAttachment,
+  uploadTestCaseAttachment
 } from "@/api/attachment";
 import {getUUID} from "metersphere-frontend/src/utils"
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token"
@@ -326,11 +326,11 @@ export default {
     async uploadFile(param, progressCallback) {
       let progress = 0;
       let file = param.file;
-      let data = {"belongId": this.caseId, "belongType": "testcase"};
+      let data = {"belongId": this.caseId, "belongType": "testcase", "belongTitle": this.};
       let CancelToken = axios.CancelToken;
       let self = this;
 
-      uploadIssueAttachment(file, data, CancelToken, self.cancelFileToken, progressCallback)
+      uploadTestCaseAttachment(file, data, CancelToken, self.cancelFileToken, progressCallback)
         .then(response => { // 成功回调
           progress = 100;
           param.onSuccess(response);
@@ -425,7 +425,7 @@ export default {
               // 已经关联的记录
               this.unRelateFiles.push(file.id);
               let data = {'belongType': 'testcase', 'belongId': this.caseId, 'metadataRefIds': this.unRelateFiles};
-              unrelatedAttachment(data)
+              unrelatedTestCaseAttachment(data)
                 .then(() => {
                   this.$success(this.$t('commons.unrelated_success'));
                   this.result.loading = false;
@@ -516,7 +516,7 @@ export default {
           rows.forEach(row => metadataRefIds.push(row.id));
           let data = {'belongType': 'testcase', 'belongId': this.caseId, 'metadataRefIds': metadataRefIds};
           this.result.loading = true;
-          relatedAttachment(data)
+          relatedTestCaseAttachment(data)
             .then(() => {
               this.$success(this.$t('commons.relate_success'));
               this.result.loading = false;
