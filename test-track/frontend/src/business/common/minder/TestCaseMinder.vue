@@ -338,6 +338,8 @@ export default {
         module.nodeIds = nodeIds;
       });
 
+      // 去掉为 null 的数据
+      this.deleteNodes = this.deleteNodes.filter(i => i);
       let param = {
         projectId: this.projectId,
         data: this.saveCases,
