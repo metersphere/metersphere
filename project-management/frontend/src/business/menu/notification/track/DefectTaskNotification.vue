@@ -87,10 +87,6 @@ export default {
           value: 'title',
         },
         {
-          label: this.$t('commons.status'),
-          value: 'status',
-        },
-        {
           label: this.$t('commons.create_time'),
           value: 'createTime',
         },
