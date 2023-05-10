@@ -1,6 +1,8 @@
 package io.metersphere.controller;
 
 import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
+import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -33,6 +35,7 @@ public class ScheduleController {
     }
 
     @PostMapping(value = "/api/schedule/update")
+    @MsRequestLog(module = OperLogModule.API_AUTOMATION)
     public Schedule update(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = baseScheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());

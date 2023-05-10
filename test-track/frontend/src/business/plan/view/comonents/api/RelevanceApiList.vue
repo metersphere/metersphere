@@ -150,17 +150,19 @@ export default {
       this.condition.planId = this.planId;
       this.$nextTick(() => {
         this.result = {loading: true};
-        apiDefinitionListRelevance({pageNum: this.$refs.apitable.currentPage, pageSize: this.$refs.apitable.pageSize}, this.condition)
-          .then(response => {
-            this.result = {loading: false};
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.tableData.forEach(item => {
-              if (item.tags && item.tags.length > 0) {
-                item.tags = JSON.parse(item.tags);
-              }
+        if (this.$refs.apitable) {
+          apiDefinitionListRelevance({pageNum: this.$refs.apitable.currentPage, pageSize: this.$refs.apitable.pageSize}, this.condition)
+            .then(response => {
+              this.result = {loading: false};
+              this.total = response.data.itemCount;
+              this.tableData = response.data.listObject;
+              this.tableData.forEach(item => {
+                if (item.tags && item.tags.length > 0) {
+                  item.tags = JSON.parse(item.tags);
+                }
+              });
             });
-          });
+        }
       });
     },
     setEnvironment(data) {

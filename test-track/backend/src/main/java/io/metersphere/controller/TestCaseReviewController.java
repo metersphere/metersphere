@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.testreview.*;
 import io.metersphere.service.*;
@@ -134,6 +135,7 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit/status/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
     public void editTestPlanStatus(@PathVariable String reviewId) {
         trackCheckPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);
@@ -148,6 +150,7 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit/follows")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
     public void editTestFollows(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         testCaseReviewService.editCaseRevieweFollow(testCaseReview);
     }

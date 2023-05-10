@@ -13,6 +13,7 @@ import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
@@ -141,6 +142,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/fresh/{planId}")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public TestPlan freshRecentPlan(@PathVariable String planId) {
         AddTestPlanRequest request = new AddTestPlanRequest();
         request.setId(planId);
@@ -158,13 +160,14 @@ public class TestPlanController {
 
     @PostMapping("/edit/report/config")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
-    //    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void editReportConfig(@RequestBody TestPlanDTO testPlanDTO) {
         testPlanService.editReportConfig(testPlanDTO);
     }
 
     @PostMapping("/edit/follows/{planId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void editTestFollows(@PathVariable String planId, @RequestBody List<String> follows) {
         testPlanService.editTestFollows(planId, follows);
     }
@@ -241,11 +244,13 @@ public class TestPlanController {
 
 
     @PostMapping("/edit/run/config")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void updateRunModeConfig(@RequestBody TestPlanRunRequest testplanRunRequest) {
         testPlanService.updateRunModeConfig(testplanRunRequest);
     }
 
     @PostMapping("/run")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public String run(@RequestBody TestPlanRunRequest testplanRunRequest) {
         if (baseUserService.getUserDTO(testplanRunRequest.getUserId()) == null) {
             MSException.throwException(Translator.get("user_not_exist"));
@@ -254,6 +259,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/run/save")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public String runAndSave(@RequestBody TestPlanRunRequest testplanRunRequest) {
         testPlanService.updateRunModeConfig(testplanRunRequest);
         return testPlanService.runPlan(testplanRunRequest);
@@ -287,6 +293,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/edit/report")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void editReport(@RequestBody TestPlanWithBLOBs testPlanWithBLOBs) {
         testPlanService.editReport(testPlanWithBLOBs);
     }
@@ -339,7 +346,8 @@ public class TestPlanController {
         return testPlanService.getPlanFollow(planId);
     }
 
-    @PostMapping(value = "/schedule/Batch/updateEnable")
+    @PostMapping(value = "/schedule/batch/update_enable")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN_SCHEDULE)
     public void updateBatchScheduleEnable(@RequestBody ScheduleInfoRequest request) {
         testPlanService.batchUpdateScheduleEnable(request);
     }
@@ -377,11 +385,13 @@ public class TestPlanController {
     }
 
     @PostMapping(value = "/rerun")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public String rerun(@RequestBody TestPlanRerunParametersDTO request) {
         return testPlanRerunService.rerun(request);
     }
 
     @GetMapping(value = "/status/reset/{planId}")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public void resetStatus(@PathVariable String planId) {
         testPlanService.resetStatus(planId);
     }

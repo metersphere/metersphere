@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.*;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.testcase.*;
@@ -111,6 +112,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/relationship/add")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void saveRelationshipBatch(@RequestBody TestCaseRelationshipEdgeRequest request) {
         testCaseService.saveRelationshipBatch(request);
     }
@@ -151,11 +153,13 @@ public class TestCaseController {
     }
 
     @PostMapping("/relate/test/{type}/{caseId}")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void relateTest(@PathVariable String type, @PathVariable String caseId, @RequestBody List<String> apiIds) {
         testCaseService.relateTest(type, caseId, apiIds);
     }
 
     @GetMapping("/relate/delete/{caseId}/{testId}")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void relateDelete(@PathVariable String caseId, @PathVariable String testId) {
         testCaseService.relateDelete(caseId, testId);
     }
@@ -211,6 +215,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/edit/order")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         trackCheckPermissionService.checkTestCaseOwner(request.getMoveId());
         testCaseService.updateOrder(request);
@@ -395,6 +400,7 @@ public class TestCaseController {
 
     @PostMapping("/edit/follows/{caseId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void editTestFollows(@PathVariable String caseId, @RequestBody List<String> follows) {
         testCaseService.saveFollows(caseId, follows);
     }

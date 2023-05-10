@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.testcase.DragNodeRequest;
 import io.metersphere.request.testcase.QueryNodeRequest;
 import io.metersphere.request.testcase.QueryTestCaseRequest;
@@ -158,6 +159,7 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/pos")
+    @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE)
     public void treeSort(@RequestBody List<String> ids) {
         testCaseNodeService.sort(ids);
     }

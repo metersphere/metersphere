@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.GroupRequest;
 import io.metersphere.request.group.EditGroupRequest;
 import io.metersphere.request.group.EditGroupUserRequest;
@@ -84,6 +85,7 @@ public class GroupController {
 
     @PostMapping("/permission/edit")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION, PermissionConstants.PROJECT_GROUP_READ_SETTING_PERMISSION}, logical = Logical.OR)
+    @MsRequestLog(module = OperLogModule.GROUP_PERMISSION)
     public void editGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
         groupService.editGroupPermission(editGroupRequest);
     }
@@ -140,11 +142,13 @@ public class GroupController {
     }
 
     @PostMapping("/add/member")
+    @MsRequestLog(module = OperLogModule.GROUP_PERMISSION)
     public void addGroupUser(@RequestBody EditGroupUserRequest request) {
         groupService.addGroupUser(request);
     }
 
     @PostMapping("/edit/member")
+    @MsRequestLog(module = OperLogModule.GROUP_PERMISSION)
     public void editGroupUser(@RequestBody EditGroupUserRequest request) {
         groupService.editGroupUser(request);
     }

@@ -18,6 +18,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
@@ -160,6 +161,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/sort")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION_CASE)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         apiTestCaseService.updateOrder(request);
     }
@@ -196,11 +198,13 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/relevance")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION_CASE)
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByCase(request);
     }
 
     @PostMapping("/relevance/review")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION_CASE)
     public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByApiByReview(request);
     }
@@ -230,6 +234,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/update/follows/{testId}")
+    @MsRequestLog(module = OperLogModule.API_DEFINITION_CASE)
     public void saveFollows(@PathVariable String testId, @RequestBody List<String> follows) {
         apiTestCaseService.saveFollows(testId, follows);
     }

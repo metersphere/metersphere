@@ -19,6 +19,7 @@ import io.metersphere.dto.BaseCase;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.ext.ExtApiTaskService;
@@ -348,6 +349,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/stop/batch")
+    @MsRequestLog(module = OperLogModule.API_AUTOMATION)
     public void stopBatch(@RequestBody List<TaskRequestDTO> reportIds) {
         apiTaskService.apiStop(reportIds);
     }
@@ -402,6 +404,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/update/follows/{scenarioId}")
+    @MsRequestLog(module = OperLogModule.API_AUTOMATION)
     public void saveFollows(@PathVariable String scenarioId, @RequestBody List<String> follows) {
         apiAutomationService.saveFollows(scenarioId, follows);
     }

@@ -16,6 +16,7 @@ import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssuesStatusCountDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.platform.domain.SelectOption;
 import io.metersphere.request.PlatformOptionRequest;
@@ -131,6 +132,7 @@ public class IssuesController {
     }
 
     @PostMapping("/delete/relate")
+    @MsRequestLog(module = OperLogModule.TRACK_BUG)
     public void deleteRelate(@RequestBody IssuesRequest request) {
         issuesService.deleteIssueRelate(request);
     }
@@ -191,6 +193,7 @@ public class IssuesController {
     }
 
     @PostMapping("/up/follows/{issueId}")
+    @MsRequestLog(module = OperLogModule.TRACK_BUG)
     public void saveFollows(@PathVariable String issueId,@RequestBody List<String> follows) {
         issuesService.saveFollows(issueId,follows);
     }

@@ -1,5 +1,7 @@
 package io.metersphere.controller.definition;
 
+import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.definition.ApiDefinitionEnvService;
 import io.metersphere.base.domain.ApiDefinitionEnv;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -22,6 +24,7 @@ public class ApiDefinitionEnvController {
 
     @PostMapping(value = "/create")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API, PermissionConstants.PROJECT_API_DEFINITION_READ}, logical = Logical.OR)
+    @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void create(@RequestBody ApiDefinitionEnv request) {
         apiDefinitionEnvService.insert(request);
     }

@@ -25,6 +25,7 @@ export function LOG_TYPE(_this) {
     {id: 'BATCH_RESTORE', label: _this.$t('commons.batch_restore')},
     {id: 'BATCH_GC', label: _this.$t('commons.batch_gc')},
     {id: 'MINDER_OPERATION', label: _this.$t('commons.minder_operation')},
+    {id: 'REQUEST', label: _this.$t('operating_log.request_record')},
   ];
   return LOG_TYPE;
 }
@@ -54,6 +55,7 @@ export function LOG_TYPE_MAP(_this) {
     ['BATCH_RESTORE', _this.$t('commons.batch_restore')],
     ['BATCH_GC', _this.$t('commons.batch_gc')],
     ['MINDER_OPERATION', _this.$t('commons.minder_operation')],
+    ['REQUEST', _this.$t('operating_log.request_record')],
   ]);
   return LOG_TYPE_MAP;
 }
