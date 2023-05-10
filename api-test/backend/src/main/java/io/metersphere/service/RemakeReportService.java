@@ -39,8 +39,9 @@ public class RemakeReportService {
                     + dto.getQueueId() + "，runMode:" + dto.getRunMode() + "，testId:" + dto.getTestId(), dto.getReportId());
             queueService.checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
         } catch (Exception e) {
-            ApiLocalRunner.clearCache(request.getReportId());
             LoggerUtil.error("回退报告异常", request.getReportId(), e);
+        }finally {
+            ApiLocalRunner.clearCache(request.getReportId());
         }
     }
 

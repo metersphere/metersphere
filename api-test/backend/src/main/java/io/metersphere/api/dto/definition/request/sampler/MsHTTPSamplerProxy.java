@@ -349,7 +349,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (CollectionUtils.isNotEmpty(environmentConfig.getAssertions())) {
                     httpConfig.setAssertions(ElementUtil.copyAssertion(environmentConfig.getAssertions()));
                 }
-                if (environmentConfig.isUseErrorCode()) {
+                if ((!this.isCustomizeReq() || this.isRefEnvironment) && environmentConfig.isUseErrorCode()) {
                     FakeError fakeError = new FakeError();
                     fakeError.setHigherThanError(environmentConfig.isHigherThanError());
                     fakeError.setProjectId(this.getProjectId());

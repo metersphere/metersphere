@@ -130,7 +130,7 @@ public class ApiExecuteService {
 
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testCase.getId(),
                 StringUtils.isEmpty(request.getReportId()) ? request.getId()
-                        : request.getReportId(), request.getRunMode(), null,null);
+                        : request.getReportId(), request.getRunMode(), null);
         if (testCase != null && StringUtils.isNotEmpty(testCase.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCase, runModeConfigDTO);
@@ -242,7 +242,7 @@ public class ApiExecuteService {
         // 检查执行内容合规性
         PerformInspectionUtil.inspection(jmx, testId, 4);
 
-        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode,request.getTriggerMode(), hashTree);
+        JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(testId, request.getId(), runMode, hashTree);
         runRequest.setDebug(request.isDebug());
         runRequest.setRunMode(runMode);
         runRequest.setExtendedParameters(new HashMap<String, Object>() {{

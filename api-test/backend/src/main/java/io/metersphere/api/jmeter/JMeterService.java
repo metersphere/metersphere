@@ -144,7 +144,7 @@ public class JMeterService {
 
         LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());
         ApiLocalRunner runner = new ApiLocalRunner(request.getHashTree());
-        runner.run(request.getReportId(), request.getRunMode() , request.getTriggerMode());
+        runner.run(request.getReportId());
     }
 
     private void fileProcessing(JmeterRunRequestDTO request) {
