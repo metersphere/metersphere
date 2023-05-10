@@ -1,7 +1,6 @@
 package io.metersphere.api.jmeter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.ResultDTO;
@@ -49,23 +48,15 @@ public class KafkaListenerTask implements Runnable {
     @Override
     public void run() {
         try {
-            // 分三类存储
-            Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
-            List<ResultDTO> resultDTOS = new LinkedList<>();
-            LoggerUtil.info("KAFKA解析结果任务开始解析结果", String.valueOf(record.key()));
             ResultDTO dto = this.formatResult();
             if (dto == null) {
-                LoggerUtil.info("未获取到执行结果", String.valueOf(record.key()));
+                LoggerUtil.info("KAFKA监听未获取到执行结果", String.valueOf(record.key()));
                 return;
             }
-
-            if (BooleanUtils.isTrue(dto.getHasEnded())) {
-                redisTemplateService.delFilePath(dto.getReportId());
-                resultDTOS.add(dto);
-                // 全局并发队列
-                PoolExecBlockingQueueUtil.offer(dto.getReportId());
-                LoggerUtil.info("KAFKA消费结束：", record.key());
-            }
+            LoggerUtil.info("KAFKA监听解任务开始处理结果：【"
+                    + dto.getRequestResults().size() + "】", String.valueOf(record.key()));
+            // 分三类存储
+            Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
             // 携带结果
             if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
                 String key = RUN_MODE_MAP.get(dto.getRunMode());
@@ -77,25 +68,25 @@ public class KafkaListenerTask implements Runnable {
                     }});
                 }
             }
+
             if (MapUtils.isNotEmpty(assortMap)) {
-                LoggerUtil.info("KAFKA消费执行内容存储开始", String.valueOf(record.key()));
                 testResultService.batchSaveResults(assortMap);
-                LoggerUtil.info("KAFKA消费执行内容存储结束", String.valueOf(record.key()));
             }
+
             // 更新执行结果
-            if (CollectionUtils.isNotEmpty(resultDTOS)) {
-                resultDTOS.forEach(testResult -> {
-                    LoggerUtil.info("资源 " + testResult.getTestId() + " 整体执行完成", testResult.getReportId());
-                    testResultService.testEnded(testResult);
-                    LoggerUtil.info("执行队列处理：" + testResult.getQueueId(), testResult.getReportId());
-                    apiExecutionQueueService.queueNext(testResult);
-                    // 更新测试计划报告
-                    LoggerUtil.info("Check Processing Test Plan report status：" + testResult.getQueueId() + "，" + testResult.getTestId(), testResult.getReportId());
-                    apiExecutionQueueService.checkTestPlanCaseTestEnd(testResult.getTestId(), testResult.getRunMode(), testResult.getTestPlanReportId());
-                });
+            if (BooleanUtils.isTrue(dto.getHasEnded())) {
+                redisTemplateService.delFilePath(dto.getReportId());
+                LoggerUtil.info("KAFKA监听开始处理报告状态", dto.getReportId());
+                testResultService.testEnded(dto);
+                LoggerUtil.info("KAFKA监听开始处理执行队列", dto.getReportId());
+                apiExecutionQueueService.queueNext(dto);
+                // 更新测试计划报告
+                LoggerUtil.info("Check Processing Test Plan report status：", dto.getReportId());
+                apiExecutionQueueService.checkTestPlanCaseTestEnd(dto.getTestId(), dto.getRunMode(), dto.getTestPlanReportId());
+                LoggerUtil.info("KAFKA监听整体资源处理结束", dto.getReportId());
             }
         } catch (Exception e) {
-            LoggerUtil.error("KAFKA消费失败：", String.valueOf(record.key()), e);
+            LoggerUtil.error("KAFKA监听消费失败", String.valueOf(record.key()), e);
         }
     }
 

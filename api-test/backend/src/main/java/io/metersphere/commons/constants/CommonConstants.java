@@ -13,5 +13,5 @@ public class CommonConstants {
     public static final String CASE = "CASE";
     public static final String USER = "user";
     public static final String USER_NAME = "userName";
-
+    public static final String PRE_TRANSACTION = "Transaction=";
 }
