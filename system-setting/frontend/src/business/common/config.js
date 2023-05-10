@@ -523,7 +523,7 @@ export function getUrl(d, _this) {
     case "测试用例" :
     case "測試用例" :
     case "Test case":
-      url += "/track/case/all?resourceId=" + resourceId;
+      url += "/track/case/edit/" + resourceId;
       break;
     case "系统-用户":
     case "System user":

@@ -30,9 +30,15 @@ public class AttachmentController {
     @Resource
     private FileMetadataService fileMetadataService;
 
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, title = "#request.belongType", content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
-    @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
-    public void uploadAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
+    @PostMapping(value = "/issue/upload", consumes = {"multipart/form-data"})
+    public void uploadIssueAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        attachmentService.uploadAttachment(request, file);
+    }
+
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
+    @PostMapping(value = "/testcase/upload", consumes = {"multipart/form-data"})
+    public void uploadTestCaseAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         attachmentService.uploadAttachment(request, file);
     }
 
@@ -61,10 +67,16 @@ public class AttachmentController {
         }
     }
 
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#attachmentId, #attachmentType)", title = "#request.belongType", msClass = AttachmentService.class)
-    @GetMapping("/delete/{attachmentType}/{attachmentId}")
-    public void deleteAttachment(@PathVariable String attachmentId, @PathVariable String attachmentType) {
-        attachmentService.deleteAttachment(attachmentId, attachmentType);
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#attachmentId, 'testcase')", msClass = AttachmentService.class)
+    @GetMapping("/delete/testcase/{attachmentId}")
+    public void deleteTestCaseAttachment(@PathVariable String attachmentId) {
+        attachmentService.deleteAttachment(attachmentId, "testcase");
+    }
+
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#attachmentId, 'issue')", msClass = AttachmentService.class)
+    @GetMapping("/delete/issue/{attachmentId}")
+    public void deleteIssueAttachment(@PathVariable String attachmentId) {
+        attachmentService.deleteAttachment(attachmentId, "issue");
     }
 
     @PostMapping("/metadata/list")
@@ -72,15 +84,27 @@ public class AttachmentController {
         return attachmentService.listMetadata(request);
     }
 
-    @PostMapping("/metadata/relate")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, title = "#request.belongType", content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
-    public void relate(@RequestBody AttachmentRequest request) {
+    @PostMapping("/testcase/metadata/relate")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
+    public void caseRelate(@RequestBody AttachmentRequest request) {
         attachmentService.relate(request);
     }
 
-    @PostMapping("/metadata/unrelated")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, title = "#request.belongType", beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
-    public void unrelated(@RequestBody AttachmentRequest request) {
+    @PostMapping("/issue/metadata/relate")
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
+    public void issueRelate(@RequestBody AttachmentRequest request) {
+        attachmentService.relate(request);
+    }
+
+    @PostMapping("/testcase/metadata/unrelated")
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
+    public void caseUnrelated(@RequestBody AttachmentRequest request) {
+        attachmentService.unrelated(request);
+    }
+
+    @PostMapping("/issue/metadata/unrelated")
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
+    public void issueUnrelated(@RequestBody AttachmentRequest request) {
         attachmentService.unrelated(request);
     }
 
