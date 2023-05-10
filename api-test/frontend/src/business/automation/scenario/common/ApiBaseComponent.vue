@@ -233,6 +233,12 @@ export default {
     },
   },
   created() {
+    let typeArray = ["LoopController", "IfController","TransactionController"];
+    if (typeArray.includes(this.data.type) && !this.data.disabled) {
+      this.data.hashTree.forEach(item => {
+        item.isCopy = true;
+      })
+    }
     if (!this.data.name) {
       this.isShowInput = true;
     }
