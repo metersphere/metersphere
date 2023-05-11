@@ -293,13 +293,7 @@ public class TestPlanService {
                 && res.getActualStartTime() == null) {
             testPlan.setActualStartTime(System.currentTimeMillis());
         }
-
-        if (testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
-            testPlanMapper.updateByPrimaryKeySelective(testPlan);
-        } else {  //  有修改字段的调用，为保证将某些时间置null的情况，使用updateByPrimaryKey
-            baseScheduleService.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
-            testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
-        }
+        testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan);
         return testPlanMapper.selectByPrimaryKey(testPlan.getId());
     }
 
@@ -2307,5 +2301,52 @@ public class TestPlanService {
             testPlanMapper.updateByPrimaryKeySelective(testPlanWithBLOBs);
         }
         return testPlanExecuteService.runTestPlan(testPlanId, projectId, userId, triggerMode, planReportId, executionWay, apiRunConfig);
+    }
+
+    public TestPlanWithBLOBs selectAndChangeTestPlanExecuteInfo(String testPlanId) {
+        //更新TestPlan状态为完成
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        if (testPlan != null
+                && !StringUtils.equalsAny(testPlan.getStatus(), TestPlanStatus.Completed.name(), TestPlanStatus.Finished.name())) {
+            testPlan.setStatus(calcTestPlanStatusWithPassRate(testPlan));
+            this.editTestPlan(testPlan);
+        }
+        return testPlan;
+    }
+
+    private String calcTestPlanStatusWithPassRate(TestPlanWithBLOBs testPlan) {
+        try {
+            int fullMarks = 100;
+
+            // 计算通过率
+            TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
+            testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
+            //测试进度
+            Double testRate = Optional.ofNullable(testPlanDTOWithMetric.getTestRate()).orElse(0.0);
+            //通过率
+            Double passRate = Optional.ofNullable(testPlanDTOWithMetric.getPassRate()).orElse(0.0);
+
+            // 已完成：测试进度=100% 且 通过率=100%
+            if (testRate >= fullMarks && passRate >= fullMarks) {
+                return TestPlanStatus.Completed.name();
+            }
+
+            // 已结束：超过了计划结束时间（如有） 或 测试进度=100% 且 通过率非100%
+            Long plannedEndTime = testPlan.getPlannedEndTime();
+            long currentTime = System.currentTimeMillis();
+            if (Objects.nonNull(plannedEndTime) && currentTime >= plannedEndTime) {
+                return TestPlanStatus.Finished.name();
+            }
+
+            if (testRate >= fullMarks && passRate < fullMarks) {
+                return TestPlanStatus.Finished.name();
+            }
+
+        } catch (Exception e) {
+            LogUtil.error("计算通过率失败！", e);
+        }
+
+        // 进行中：0 < 测试进度 < 100%
+        return TestPlanStatus.Underway.name();
     }
 }
