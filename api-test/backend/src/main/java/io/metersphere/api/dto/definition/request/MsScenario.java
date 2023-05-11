@@ -253,7 +253,8 @@ public class MsScenario extends MsTestElement {
                     orgJSONArray.forEach(obj -> {
                         JSONObject orgJsonObject = (JSONObject) obj;
                         hashTree.forEach(targetObj -> {
-                            if (StringUtils.equals(orgJsonObject.optString(MsHashTreeService.RESOURCE_ID), targetObj.getResourceId())) {
+                            if (StringUtils.equals(orgJsonObject.optString(MsHashTreeService.ID), targetObj.getId())
+                                    && StringUtils.equals(orgJsonObject.optString(MsHashTreeService.INDEX), targetObj.getIndex())) {
                                 setRefEnable(targetObj, orgJsonObject);
                             }
                         });
