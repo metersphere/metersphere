@@ -12,6 +12,9 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 
 ![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ms-architecture.png)
 
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere?ref=badge_large)
+
 ## MeterSphere 的功能
 
 -   **测试跟踪**: 对接主流项目管理平台，测试过程全链路跟踪管理；列表脑图模式自由切换，用例编写更简单、测试报告更清晰；
@@ -30,6 +33,7 @@ MeterSphere 是一站式开源持续测试平台, 涵盖测试跟踪、接口测
 ## UI 展示
 
 ![UI展示](https://www.fit2cloud.com/metersphere/images/ms-dashboard.jpeg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere?ref=badge_shield)
 
 ## 快速开始
 
