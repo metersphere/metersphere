@@ -3,17 +3,24 @@
     <div v-if="(node.children && node.children.length >0) || node.unsolicited
     || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
       <el-card class="ms-card">
-        <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner">
-            {{ node.index }}
-          </div>
-        </div>
-        <el-tooltip effect="dark" :content="node.label" placement="top">
-          <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
-            {{ getLabel(node.label) }}
-          </el-link>
-          <span v-else>{{ getLabel(node.label) }}</span>
-        </el-tooltip>
+        <el-row>
+          <el-col span="23">
+            <div class="el-step__icon is-text ms-api-col">
+              <div class="el-step__icon-inner">
+                {{ node.index }}
+              </div>
+            </div>
+            <el-tooltip effect="dark" :content="node.label" placement="top">
+              <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
+                {{ getLabel(node.label) }}
+              </el-link>
+              <span v-else>{{ getLabel(node.label) }}</span>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="1">
+            <ms-api-report-status :status="node.totalStatus"/>
+          </el-col>
+        </el-row>
       </el-card>
     </div>
     <div v-else-if="node.type === 'MsUiCommand'">
@@ -50,12 +57,14 @@
 import MsRequestResult from "./RequestResult";
 import {STEP} from "./Setting";
 import UiCommandResult from "./UiCommandResult";
+import ApiReportStatus from "@/business/plan/view/comonents/report/detail/api/ApiReportStatus";
 
 export default {
   name: "MsScenarioResult",
   components: {
     UiCommandResult,
-    MsRequestResult
+    MsRequestResult,
+    ApiReportStatus
   },
   props: {
     scenario: Object,
