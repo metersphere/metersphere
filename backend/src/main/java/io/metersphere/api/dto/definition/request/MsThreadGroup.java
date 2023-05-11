@@ -74,7 +74,7 @@ public class MsThreadGroup extends MsTestElement {
         threadGroup.setProperty(ThreadGroup.ON_SAMPLE_ERROR, ThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
         threadGroup.setScheduler(false);
         if (onSampleError != null && !onSampleError) {
-            threadGroup.setProperty("ThreadGroup.on_sample_error", "stoptest");
+            threadGroup.setProperty("ThreadGroup.on_sample_error", "stopthread");
         }
         threadGroup.setSamplerController(loopController);
         return threadGroup;

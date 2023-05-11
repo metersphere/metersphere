@@ -126,6 +126,7 @@ public class GenerateHashTreeUtil {
 
         HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setName(runRequest.getReportId());
         testPlan.setHashTree(new LinkedList<>());
         try {
             MsThreadGroup group = new MsThreadGroup();
