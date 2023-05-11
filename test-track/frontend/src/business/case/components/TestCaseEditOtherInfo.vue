@@ -326,7 +326,7 @@ export default {
     async uploadFile(param, progressCallback) {
       let progress = 0;
       let file = param.file;
-      let data = {"belongId": this.caseId, "belongType": "testcase", "belongTitle": this.};
+      let data = {"belongId": this.caseId, "belongType": "testcase"};
       let CancelToken = axios.CancelToken;
       let self = this;
 
