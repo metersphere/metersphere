@@ -45,6 +45,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -391,23 +392,31 @@ public class ElementUtil {
     }
 
     public static void setDomain(JSONObject element, MsParameter msParameter) {
+        if (!StringUtils.equals(element.optString("type"), ElementConstants.HTTP_SAMPLER)) {
+            return;
+        }
         MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
+        ParameterConfig config = (ParameterConfig) msParameter;
         if (httpSamplerProxy != null &&
                 (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq()
-                        && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment())))) {
+                        && BooleanUtils.isTrue(httpSamplerProxy.getIsRefEnvironment()))) && MapUtils.isNotEmpty(config.getConfig())) {
             if (element != null && element.has(ElementConstants.HASH_TREE)) {
                 httpSamplerProxy.setHashTree(JSONUtil.readValue(element.optString(ElementConstants.HASH_TREE)));
             }
-            HashTree tmpHashTree = new HashTree();
-            httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
-            if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
-                HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
-                // 清空Domain
-                element.put("domain", "");
-                if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
-                    element.put("domain", StringUtils.isNotEmpty(object.getProtocol()) ?
-                            object.getProtocol() + "://" + object.getDomain() : object.getDomain());
+            try {
+                HashTree tmpHashTree = new HashTree();
+                httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
+                if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
+                    HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
+                    // 清空Domain
+                    element.put("domain", "");
+                    if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
+                        element.put("domain", StringUtils.isNotEmpty(object.getProtocol()) ?
+                                object.getProtocol() + "://" + object.getDomain() : object.getDomain());
+                    }
                 }
+            } catch (Exception e) {
+                LogUtil.error(e);
             }
         }
     }
