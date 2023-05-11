@@ -586,20 +586,25 @@ public class TestPlanReportService {
                 isSendMessage = true;
             }
             TestPlanReportContentWithBLOBs content = null;
+            TestPlanWithBLOBs testPlanWithBLOBs = null;
             try {
                 HttpHeaderUtils.runAsUser(testPlanReport.getCreator());
                 boolean isRerunningTestPlan = BooleanUtils.isTrue(StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), APITestStatus.Rerunning.name()));
                 //测试计划报告结果数据初始化
                 testPlanReport.setStatus(finishStatus);
+                //统计并保存报告
                 content = this.countAndSaveTestPlanReport(testPlanReport, isRerunningTestPlan);
-                this.setReportExecuteResult(testPlanReport, finishStatus);
+                //更新测试计划的执行相关信息(状态、执行率等）
+                testPlanWithBLOBs = testPlanService.selectAndChangeTestPlanExecuteInfo(testPlanReport.getTestPlanId());
             } catch (Exception e) {
                 testPlanReport.setStatus(finishStatus);
                 LogUtil.error("统计测试计划状态失败！", e);
             } finally {
                 HttpHeaderUtils.clearUser();
                 testPlanReportMapper.updateByPrimaryKey(testPlanReport);
-                testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, isSendMessage);
+                if (testPlanWithBLOBs != null) {
+                    testPlanMessageService.checkTestPlanStatusAndSendMessage(testPlanReport, content, testPlanWithBLOBs, isSendMessage);
+                }
                 this.executeTestPlanByQueue(testPlanReportId);
             }
         }
@@ -615,17 +620,6 @@ public class TestPlanReportService {
             testPlanReportMapper.updateByPrimaryKey(testPlanReport);
             this.executeTestPlanByQueue(testPlanReport.getId());
         }
-    }
-
-    /**
-     * 测试计划报告设置最终执行状态
-     */
-    private void setReportExecuteResult(TestPlanReport testPlanReport, String finishStatus) {
-        //计算测试计划状态
-        testPlanReport.setStatus(StringUtils.equalsIgnoreCase(finishStatus, TestPlanReportStatus.COMPLETED.name()) ?
-                TestPlanReportStatus.SUCCESS.name() : finishStatus);
-        //检查更新测试计划状态
-        testPlanService.checkTestPlanStatusWhenExecuteOver(testPlanReport.getTestPlanId());
     }
 
     /**

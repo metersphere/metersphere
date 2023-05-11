@@ -1,6 +1,9 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ShareInfo;
+import io.metersphere.base.domain.TestPlan;
+import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.BeanUtils;
@@ -24,7 +27,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,25 +51,14 @@ public class TestPlanMessageService {
     @Resource
     private TestPlanReportService testPlanReportService;
 
-    public static final Integer FULL_MARKS = 100;
-
-
     @Async
-    public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, boolean sendMessage) {
+    public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, TestPlan testPlan, boolean sendMessage) {
         if (report != null && testPlanReportContent != null) {
             // 异步发送通知需要指定调用其他服务的user
             HttpHeaderUtils.runAsUser(report.getCreator());
             try {
                 report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
                 if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting() && !report.getIsUiScenarioExecuting()) {
-                    //更新TestPlan状态为完成
-                    TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
-                    if (testPlan != null
-                            && !StringUtils.equalsAny(testPlan.getStatus(), TestPlanStatus.Completed.name(), TestPlanStatus.Finished.name())) {
-
-                        testPlan.setStatus(calcTestPlanStatusWithPassRate(testPlan));
-                        testPlanService.editTestPlan(testPlan);
-                    }
                     if (sendMessage && testPlan != null && StringUtils.equalsAny(report.getTriggerMode(),
                             ReportTriggerMode.MANUAL.name(),
                             ReportTriggerMode.API.name(),
@@ -80,40 +75,6 @@ public class TestPlanMessageService {
             }
 
         }
-    }
-
-    private String calcTestPlanStatusWithPassRate(TestPlanWithBLOBs testPlan) {
-        try {
-            // 计算通过率
-            TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
-            testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
-            //测试进度
-            Double testRate = Optional.ofNullable(testPlanDTOWithMetric.getTestRate()).orElse(0.0);
-            //通过率
-            Double passRate = Optional.ofNullable(testPlanDTOWithMetric.getPassRate()).orElse(0.0);
-
-            // 已完成：测试进度=100% 且 通过率=100%
-            if (testRate >= FULL_MARKS && passRate >= FULL_MARKS) {
-                return TestPlanStatus.Completed.name();
-            }
-
-            // 已结束：超过了计划结束时间（如有） 或 测试进度=100% 且 通过率非100%
-            Long plannedEndTime = testPlan.getPlannedEndTime();
-            long currentTime = System.currentTimeMillis();
-            if (Objects.nonNull(plannedEndTime) && currentTime >= plannedEndTime) {
-                return TestPlanStatus.Finished.name();
-            }
-
-            if (testRate >= FULL_MARKS && passRate < FULL_MARKS) {
-                return TestPlanStatus.Finished.name();
-            }
-
-        } catch (Exception e) {
-            LogUtil.error("计算通过率失败！", e);
-        }
-
-        // 进行中：0 < 测试进度 < 100%
-        return TestPlanStatus.Underway.name();
     }
 
     private void sendMessage(TestPlan testPlan, TestPlanReport testPlanReport, String projectId) {
