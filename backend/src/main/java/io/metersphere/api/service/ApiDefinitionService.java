@@ -1219,9 +1219,11 @@ public class ApiDefinitionService {
         JSONObject element = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
         try {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-            });
-        } catch (JsonProcessingException e) {
+            if (StringUtils.isNotBlank(element.getString("hashTree"))) {
+                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
+            }
+        } catch (Exception e) {
             LogUtil.error(e);
         }
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class, Feature.DisableSpecialKeyDetect);
@@ -1251,9 +1253,11 @@ public class ApiDefinitionService {
         JSONObject element = JSONObject.parseObject(request, Feature.DisableSpecialKeyDetect);
         try {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-            });
-        } catch (JsonProcessingException e) {
+            if (StringUtils.isNotBlank(element.getString("hashTree"))) {
+                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
+            }
+        } catch (Exception e) {
             LogUtil.error(e);
         }
         boolean createCase = CollectionUtils.isNotEmpty(tcpSampler.getParameters());
@@ -1294,7 +1298,7 @@ public class ApiDefinitionService {
      * @return
      */
     public MsExecResponseDTO run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        if(request.getConfig() == null ) {
+        if (request.getConfig() == null) {
             request.setConfig(new RunModeConfigDTO());
         }
         if (StringUtils.isNotBlank(request.getEnvironmentGroupId())) {
