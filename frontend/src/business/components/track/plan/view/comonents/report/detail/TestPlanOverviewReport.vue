@@ -11,7 +11,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item :label="$t('test_track.report.exacutive_rate') + ':'">
+          <el-form-item :label="$t('test_track.report.executive_finish_rate') + ':'">
             {{ (report.executeRate ? (report.executeRate * 100).toFixed(1) : 0) + '%'}}
             <ms-instructions-icon :content="$t('test_track.report.exacutive_rate_tip')"/>
           </el-form-item>

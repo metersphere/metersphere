@@ -67,8 +67,8 @@ public class TestPlanUtils {
             report.setCaseCount((report.getCaseCount() == null ? 0 : report.getCaseCount()) + 1);
             String status = item.getStatus();
             if (StringUtils.isNotBlank(status)
-                    && !StringUtils.equalsAnyIgnoreCase(status, TestPlanTestCaseStatus.Underway.name(), TestPlanTestCaseStatus.Prepare.name(),
-                    ExecuteResult.UN_EXECUTE.toString(), ExecuteResult.STOP.toString(), ExecuteResult.WAITING.toString())) {
+                    && !StringUtils.equalsAnyIgnoreCase(status, TestPlanTestCaseStatus.Underway.name(), TestPlanTestCaseStatus.Prepare.name(),TestPlanTestCaseStatus.Blocking.name(),
+                    ExecuteResult.UN_EXECUTE.toString(), ExecuteResult.STOP.toString(), ExecuteResult.WAITING.toString(), ExecuteResult.TEST_PLAN_PREPARE.toString(), ExecuteResult.TEST_PLAN_RUNNING.toString())) {
                 // 计算执行过的数量
                 report.setExecuteCount(report.getExecuteCount() + 1);
                 if (StringUtils.equals(successStatus, status)) {
