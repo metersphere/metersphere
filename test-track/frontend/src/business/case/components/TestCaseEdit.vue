@@ -999,12 +999,20 @@ export default {
           this.testCaseTemplate,
           this.customFieldRules
         );
+        this.setSystemFieldDefault();
         this.reload();
         this.loading = false;
       }
       if (callback) {
         callback();
       }
+    },
+    setSystemFieldDefault() {
+      this.form.name = this.testCaseTemplate.name;
+      this.form.prerequisite = this.testCaseTemplate.prerequisite;
+      this.form.stepDescription = this.testCaseTemplate.stepDescription;
+      this.form.expectedResult = this.testCaseTemplate.expectedResult;
+      this.form.steps = JSON.parse(this.testCaseTemplate.steps);
     },
     async checkCurrentProject() {
       if (this.isPublicShow) {
