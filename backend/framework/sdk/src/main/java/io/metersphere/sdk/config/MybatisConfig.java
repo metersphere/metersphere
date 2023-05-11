@@ -1,10 +1,11 @@
-package io.metersphere.system.config;
+package io.metersphere.sdk.config;
 
 import com.fit2cloud.quartz.anno.QuartzDataSource;
 import com.github.pagehelper.PageInterceptor;
 import com.zaxxer.hikari.HikariDataSource;
 import io.metersphere.sdk.interceptor.MybatisInterceptor;
 import io.metersphere.sdk.interceptor.UserDesensitizationInterceptor;
+import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.sdk.util.MybatisInterceptorConfig;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
