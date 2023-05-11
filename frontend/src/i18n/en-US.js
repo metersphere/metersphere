@@ -2503,6 +2503,7 @@ export default {
       testing_time: "Testing time",
       total_number_tests: "Total",
       exacutive_rate: "Exacutive rate",
+      executive_finish_rate: "Executive finish rate",
       exacutive_rate_tip: "Use cases executed/all use cases * 100%",
       passing_rate: "Passing rate",
       passing_rate_tip: "Execute passed use cases/all use cases * 100%",

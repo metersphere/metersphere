@@ -2509,6 +2509,7 @@ export default {
       testing_time: "测试时间",
       total_number_tests: "测试总数",
       exacutive_rate: "执行率",
+      executive_finish_rate: "执行完成率",
       exacutive_rate_tip: "执行过的用例/所有用例 * 100%",
       passing_rate: "通过率",
       passing_rate_tip: "执行通过用例/所有用例 * 100%",
