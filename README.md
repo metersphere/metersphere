@@ -88,6 +88,11 @@ MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
 -   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
 
+## FOSSA Status
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere?ref=badge_large)
+
+
 ## License & Copyright
 
 Copyright (c) 2014-2023 飞致云 FIT2CLOUD, All rights reserved.
