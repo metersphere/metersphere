@@ -91,7 +91,7 @@ public class MsHashTreeService {
     private static final String FOLLOW_REDIRECTS = "followRedirects";
     private static final String AUTO_REDIRECTS = "autoRedirects";
     private static final String ALIAS = "alias";
-    private static final String INDEX = "index";
+    public static final String INDEX = "index";
     private static final String QUERY = "query";
     private static final String VARIABLE_NAMES = "variableNames";
     private static final String DATASOURCEID = "dataSourceId";
