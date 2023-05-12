@@ -580,6 +580,7 @@ export default {
           // 点击模块导致路由变更不刷新，避免刷新两次
           return;
         }
+        this.getProject();
         this.getTemplateField();
         let ids = this.$route.params.ids;
         if (ids) {
@@ -1217,7 +1218,18 @@ export default {
           });
       }
     },
-    generateColumnKey
+    generateColumnKey,
+    getProject() {
+      getProjectApplicationConfig('CASE_CUSTOM_NUM')
+        .then(result => {
+          let data = result.data;
+          if (data && data.typeValue === 'true') {
+            store.currentProjectIsCustomNum = true;
+          } else {
+            store.currentProjectIsCustomNum = false;
+          }
+        });
+    },
   }
 };
 </script>
