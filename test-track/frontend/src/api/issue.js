@@ -106,6 +106,7 @@ export function getIssuesByCaseIdWithSearch(refType, caseId, page, condition) {
           page.data = response.data;
         }
         buildIssues(page);
+        parseFields(page);
       });
   }
 }
@@ -259,6 +260,19 @@ export function buildIssues(page) {
       if (data[i].customFields) {
         data[i].customFields = JSON.parse(data[i].customFields);
       }
+    }
+  }
+}
+
+export function parseFields(page) {
+  let data = page.data;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i] && data[i].fields && data[i].fields.length > 0) {
+      data[i].fields.forEach(item => {
+        if (item.value) {
+          item.value = JSON.parse(item.value);
+        }
+      });
     }
   }
 }

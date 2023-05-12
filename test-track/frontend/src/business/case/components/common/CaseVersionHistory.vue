@@ -99,6 +99,11 @@
       <div class="compare-wrap">
         <div class="version-left-box">
           <el-select v-model="versionLeftId" size="small" clearable>
+            <template #prefix>
+              <span class="compare-version-lasted" v-if="versionLeftId === dataLatestId">
+                {{ $t("case.last_version") }}
+              </span>
+            </template>
             <el-option
               v-for="item in versionLeftCompareOptions"
               :key="item.id"
@@ -115,6 +120,11 @@
         <div class="desc">{{ $t("case.compare") }}</div>
         <div class="version-right-box">
           <el-select v-model="versionRightId" size="small" clearable>
+            <template #prefix>
+              <span class="compare-version-lasted" v-if="versionRightId === dataLatestId">
+                {{ $t("case.last_version") }}
+              </span>
+            </template>
             <el-option
               v-for="item in versionRightCompareOptions"
               :key="item.id"
@@ -596,6 +606,16 @@ export default {
 
   margin-top: 24px;
   margin-bottom: 24px;
+}
+
+:deep(.el-input--prefix .el-input__inner) {
+  padding-left: 15px;
+}
+
+:deep(.el-input__prefix) {
+  left: 60px;
+  transition: all 0.3s;
+  top: 5px;
 }
 </style>
 <style>
