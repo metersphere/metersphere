@@ -7,6 +7,8 @@ import io.metersphere.sdk.interceptor.MybatisInterceptor;
 import io.metersphere.sdk.interceptor.UserDesensitizationInterceptor;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.sdk.util.MybatisInterceptorConfig;
+import io.metersphere.system.domain.AuthSource;
+import io.metersphere.system.domain.TestResource;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -45,7 +47,8 @@ public class MybatisConfig {
     public MybatisInterceptor dbInterceptor() {
         MybatisInterceptor interceptor = new MybatisInterceptor();
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
-//        configList.add(new MybatisInterceptorConfig(FileContent.class, "file", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(AuthSource.class, "configuration", CompressUtils.class, "zip", "unzip"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
     }
