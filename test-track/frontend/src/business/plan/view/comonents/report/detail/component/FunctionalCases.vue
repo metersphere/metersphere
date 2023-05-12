@@ -13,7 +13,7 @@
           <el-link
             v-else
             type="primary"
-            @click="redirectFunctionCaseEditPage(row.caseId)"
+            @click="redirectFunctionCaseEditPage(row.caseId, row.projectId)"
           >
             {{ row.isCustomNum ? row.customNum : row.num }}
           </el-link>
@@ -82,6 +82,9 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
+import {getEditSimpleTestCase} from "@/api/testCase";
+import {openCaseEdit} from "@/business/case/test-case";
 
 export default {
   name: "FunctionalCases",
@@ -138,14 +141,12 @@ export default {
         this.testCases = this.allTestCase;
       }
     },
-    redirectFunctionCaseEditPage(caseId) {
-      let home = this.$router.resolve({
-        name: "testCaseEdit",
-        params: {
-          caseId: caseId,
-        },
-      });
-      window.open(home.href, "_blank");
+    redirectFunctionCaseEditPage(caseId, projectId) {
+      getEditSimpleTestCase(caseId)
+        .then((r) => {
+          openCaseEdit({caseId: caseId, projectId: projectId}, this);
+        })
+        .catch(() => {});
     },
   },
 };
