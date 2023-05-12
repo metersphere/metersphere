@@ -63,6 +63,7 @@
             filterable
             :popper-append-to-body="false"
             class="member_select"
+            :filter-method="userFilter"
             :disabled="userSelectDisable"
             :placeholder="$t('member.please_choose_member')">
             <el-option
@@ -152,6 +153,7 @@ export default {
         sourceIds: {required: true, message: this.$t('group.select_belong_source'), trigger: 'blur'}
       },
       loading: false,
+      userListCopy: [],
     };
   },
   computed: {
@@ -259,6 +261,7 @@ export default {
     getUser() {
       this.memberLoading = getUserListByResourceUrl(this.initUserUrl).then(res => {
         this.users = res.data;
+        this.userListCopy = res.data;
       })
     },
     removeMember(row) {
@@ -334,6 +337,17 @@ export default {
       this.form = {};
       this.memberVisible = false;
       this.userSelectDisable = false;
+    },
+    userFilter(val) {
+      if (val) {
+        this.users = this.userListCopy.filter((item) => {
+          if (!!~item.id.indexOf(val) || (item.name && !!~item.name.indexOf(val))) {
+            return true;
+          }
+        })
+      } else {
+        this.users = this.userListCopy;
+      }
     }
   }
 };
