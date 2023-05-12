@@ -1,6 +1,6 @@
 package io.metersphere.sdk.interceptor;
 
-import io.metersphere.domain.User;
+import io.metersphere.system.domain.User;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
