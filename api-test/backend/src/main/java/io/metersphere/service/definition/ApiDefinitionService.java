@@ -1712,6 +1712,7 @@ public class ApiDefinitionService {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setId(id);
         List<ApiDefinitionResult> list = extApiDefinitionMapper.list(request);
+        buildCustomField(list);
         ApiDefinitionResult result = null;
         if (CollectionUtils.isNotEmpty(list)) {
             result = list.get(0);
