@@ -156,6 +156,7 @@ import MsAssertionResults from "./AssertionResults";
 import MsRequestText from "./RequestText";
 import MsResponseText from "./ResponseText";
 import MsRequestResultTail from "./RequestResultTail";
+import {selectStepContent} from "@/network/share";
 
 export default {
   name: "MsRequestResult",
@@ -238,8 +239,8 @@ export default {
     loadRequestInfoExpand() {
       if (!this.request.responseResult || this.request.responseResult.body === null || this.request.responseResult.body === undefined) {
         if (this.isShare) {
-          this.$get("/share/" + this.shareId + "/scenario/report/selectReportContent/" + this.stepId, response => {
-            this.requestInfo = response.data;
+          selectStepContent(this.shareId,this.stepId, (data) => {
+            this.requestInfo = data;
             this.$nextTick(() => {
               this.requestInfo.loading = false;
             });
