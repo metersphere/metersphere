@@ -22,7 +22,7 @@ export default {
 }
 
 .drag-bar:hover {
-  width: 2px;
+  width: 4px;
   background-color: #783887;
 }
 
