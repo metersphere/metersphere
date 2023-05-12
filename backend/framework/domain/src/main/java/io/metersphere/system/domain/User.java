@@ -19,7 +19,7 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{user.id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.id.not_blank}", groups = {Created.class, Updated.class})
     @ApiModelProperty(name = "用户ID", required = true, allowableValues = "range[1, 50]")
     private String id;
 

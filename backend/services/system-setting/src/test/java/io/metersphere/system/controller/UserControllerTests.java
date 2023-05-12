@@ -1,5 +1,7 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.User;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -32,6 +34,18 @@ public class UserControllerTests {
     public void testSelectAll2() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/get/admin"))
                 .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(jsonPath("$.person.name").value("Jason"))
+                .andDo(print());
+    }
+
+    @Test
+    public void testAddUser() throws Exception {
+        User user = new User();
+        user.setId("admin");
+        user.setName("admin");
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/add").content(JSON.toJSONString(user)).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
 //                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 //                .andExpect(jsonPath("$.person.name").value("Jason"))
                 .andDo(print());
