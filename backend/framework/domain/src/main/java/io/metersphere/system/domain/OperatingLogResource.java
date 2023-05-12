@@ -17,22 +17,19 @@ import java.io.Serializable;
 public class OperatingLogResource implements Serializable {
     private static final long serialVersionUID = 1L;
     
-    /** ID */
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{operating_log_resource.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues="range[1, 50]")
     private String id;
     
-    /** Operating log ID */
-    @Size(min = 1, max = 50, message = "Operating log ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Operating log ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Operating log ID")
+    @Size(min = 1, max = 50, message = "{operating_log_resource.operating_log_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{operating_log_resource.operating_log_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Operating log ID", required = true, allowableValues="range[1, 50]")
     private String operatingLogId;
     
-    /** operating source id */
-    @Size(min = 1, max = 50, message = "operating source id长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "operating source id不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "operating source id")
+    @Size(min = 1, max = 50, message = "{operating_log_resource.source_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{operating_log_resource.source_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "operating source id", required = true, allowableValues="range[1, 50]")
     private String sourceId;
     
 

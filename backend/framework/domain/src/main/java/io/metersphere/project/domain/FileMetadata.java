@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "文件基础信息")
@@ -16,114 +17,81 @@ import java.io.Serializable;
 @Data
 public class FileMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 文件ID */
+
     @TableId
-    @NotBlank(message = "文件ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "文件ID")
+    @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "文件ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 文件名 */
-    @Size(min = 1, max = 250, message = "文件名长度必须在1-250之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "文件名不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "文件名")
+
+    @Size(min = 1, max = 250, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "文件名", required = true, allowableValues = "range[1, 250]")
     private String name;
-    
-    /** 文件类型 */
-    
-    
-    @ApiModelProperty(name = "文件类型")
+
+
+    @ApiModelProperty(name = "文件类型", required = false, allowableValues = "range[1, 64]")
     private String type;
-    
-    /** 文件大小 */
-    
-    
-    @ApiModelProperty(name = "文件大小")
+
+
+    @ApiModelProperty(name = "文件大小", required = true, allowableValues = "range[1, ]")
     private Long size;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 更新时间 */
-    
-    
-    @ApiModelProperty(name = "更新时间")
+
+
+    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 项目ID */
-    
-    
-    @ApiModelProperty(name = "项目ID")
+
+
+    @ApiModelProperty(name = "项目ID", required = false, allowableValues = "range[1, 50]")
     private String projectId;
-    
-    /** 文件存储方式 */
-    @Size(min = 1, max = 50, message = "文件存储方式长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "文件存储方式不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "文件存储方式")
+
+    @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "文件存储方式", required = true, allowableValues = "range[1, 50]")
     private String storage;
-    
-    /** 创建人 */
-    
-    
-    @ApiModelProperty(name = "创建人")
+
+
+    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
     private String createUser;
-    
-    /** 修改人 */
-    
-    
-    @ApiModelProperty(name = "修改人")
+
+
+    @ApiModelProperty(name = "修改人", required = false, allowableValues = "range[1, 100]")
     private String updateUser;
-    
-    /** 标签 */
-    
-    
-    @ApiModelProperty(name = "标签")
+
+
+    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 2000]")
     private String tags;
-    
-    /** 描述 */
-    
-    
-    @ApiModelProperty(name = "描述")
+
+
+    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
     private String description;
-    
-    /** 文件所属模块 */
-    
-    
-    @ApiModelProperty(name = "文件所属模块")
+
+
+    @ApiModelProperty(name = "文件所属模块", required = false, allowableValues = "range[1, 50]")
     private String moduleId;
-    
-    /** 是否加载jar（开启后用于接口测试执行时使用） */
-    
-    
-    @ApiModelProperty(name = "是否加载jar（开启后用于接口测试执行时使用）")
+
+
+    @ApiModelProperty(name = "是否加载jar（开启后用于接口测试执行时使用）", required = false, allowableValues = "range[1, 1]")
     private Boolean loadJar;
-    
-    /** 文件存储路径 */
-    
-    
-    @ApiModelProperty(name = "文件存储路径")
+
+
+    @ApiModelProperty(name = "文件存储路径", required = false, allowableValues = "range[1, 1000]")
     private String path;
-    
-    /** 资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据 */
-    
-    
-    @ApiModelProperty(name = "资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据")
+
+
+    @ApiModelProperty(name = "资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据", required = false, allowableValues = "range[1, 50]")
     private String resourceType;
-    
-    /** 是否是最新版 */
-    
-    
-    @ApiModelProperty(name = "是否是最新版")
+
+
+    @ApiModelProperty(name = "是否是最新版", required = false, allowableValues = "range[1, 1]")
     private Boolean latest;
-    
-    /** 同版本数据关联的ID */
-    
-    
-    @ApiModelProperty(name = "同版本数据关联的ID")
+
+
+    @ApiModelProperty(name = "同版本数据关联的ID", required = false, allowableValues = "range[1, 50]")
     private String refId;
-    
+
 
 }

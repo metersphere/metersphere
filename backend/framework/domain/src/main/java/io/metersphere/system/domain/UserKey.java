@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "用户api key")
@@ -16,42 +17,34 @@ import java.io.Serializable;
 @Data
 public class UserKey implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** user_key ID */
+
     @TableId
-    @NotBlank(message = "user_key ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "user_key ID")
+    @NotBlank(message = "{user_key.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "user_key ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 用户ID */
-    @Size(min = 1, max = 50, message = "用户ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "用户ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "用户ID")
+
+    @Size(min = 1, max = 50, message = "{user_key.create_user.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_key.create_user.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "用户ID", required = true, allowableValues = "range[1, 50]")
     private String createUser;
-    
-    /** access_key */
-    @Size(min = 1, max = 50, message = "access_key长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "access_key不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "access_key")
+
+    @Size(min = 1, max = 50, message = "{user_key.access_key.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_key.access_key.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "access_key", required = true, allowableValues = "range[1, 50]")
     private String accessKey;
-    
-    /** secret key */
-    @Size(min = 1, max = 50, message = "secret key长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "secret key不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "secret key")
+
+    @Size(min = 1, max = 50, message = "{user_key.secret_key.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_key.secret_key.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "secret key", required = true, allowableValues = "range[1, 50]")
     private String secretKey;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 状态 */
-    
-    
-    @ApiModelProperty(name = "状态")
+
+
+    @ApiModelProperty(name = "状态", required = false, allowableValues = "range[1, 10]")
     private String status;
-    
+
 
 }

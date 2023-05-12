@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "测试资源池节点")
@@ -16,42 +17,33 @@ import java.io.Serializable;
 @Data
 public class TestResource implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** Test resource ID */
+
     @TableId
-    @NotBlank(message = "Test resource ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "Test resource ID")
+    @NotBlank(message = "{test_resource.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "Test resource ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** Test resource pool ID this test resource belongs to */
-    @Size(min = 1, max = 50, message = "Test resource pool ID this test resource belongs to长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Test resource pool ID this test resource belongs to不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Test resource pool ID this test resource belongs to")
+
+    @Size(min = 1, max = 50, message = "{test_resource.test_resource_pool_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_resource.test_resource_pool_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Test resource pool ID this test resource belongs to", required = true, allowableValues = "range[1, 50]")
     private String testResourcePoolId;
-    
-    /** Test resource configuration */
-    
-    
-    @ApiModelProperty(name = "Test resource configuration")
+
+
+    @ApiModelProperty(name = "Test resource configuration", required = false, allowableValues = "range[1, ]")
     private byte[] configuration;
-    
-    /** Test resource status */
-    @Size(min = 1, max = 64, message = "Test resource status长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Test resource status不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Test resource status")
+
+    @Size(min = 1, max = 64, message = "{test_resource.status.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_resource.status.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Test resource status", required = true, allowableValues = "range[1, 64]")
     private String status;
-    
-    /** Create timestamp */
-    
-    
-    @ApiModelProperty(name = "Create timestamp")
+
+
+    @ApiModelProperty(name = "Create timestamp", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** Update timestamp */
-    
-    
-    @ApiModelProperty(name = "Update timestamp")
+
+
+    @ApiModelProperty(name = "Update timestamp", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
+
 
 }

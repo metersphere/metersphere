@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "自定义模版")
@@ -16,60 +17,46 @@ import java.io.Serializable;
 @Data
 public class CustomFieldTemplate implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 自定义模版ID */
+
     @TableId
-    @NotBlank(message = "自定义模版ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "自定义模版ID")
+    @NotBlank(message = "{custom_field_template.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "自定义模版ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 自定义字段ID */
-    @Size(min = 1, max = 50, message = "自定义字段ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "自定义字段ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "自定义字段ID")
+
+    @Size(min = 1, max = 50, message = "{custom_field_template.field_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field_template.field_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "自定义字段ID", required = true, allowableValues = "range[1, 50]")
     private String fieldId;
-    
-    /** 模版ID */
-    @Size(min = 1, max = 50, message = "模版ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "模版ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "模版ID")
+
+    @Size(min = 1, max = 50, message = "{custom_field_template.template_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field_template.template_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "模版ID", required = true, allowableValues = "range[1, 50]")
     private String templateId;
-    
-    /** 使用场景 */
-    @Size(min = 1, max = 30, message = "使用场景长度必须在1-30之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "使用场景不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "使用场景")
+
+    @Size(min = 1, max = 30, message = "{custom_field_template.scene.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field_template.scene.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "使用场景", required = true, allowableValues = "range[1, 30]")
     private String scene;
-    
-    /** 是否必填 */
-    
-    
-    @ApiModelProperty(name = "是否必填")
+
+
+    @ApiModelProperty(name = "是否必填", required = false, allowableValues = "range[1, 1]")
     private Boolean required;
-    
-    /** 排序字段 */
-    
-    
-    @ApiModelProperty(name = "排序字段")
+
+
+    @ApiModelProperty(name = "排序字段", required = false, allowableValues = "range[1, ]")
     private Integer pos;
-    
-    /** 默认值 */
-    
-    
-    @ApiModelProperty(name = "默认值")
+
+
+    @ApiModelProperty(name = "默认值", required = false, allowableValues = "range[1, ]")
     private byte[] defaultValue;
-    
-    /** 自定义数据 */
-    
-    
-    @ApiModelProperty(name = "自定义数据")
+
+
+    @ApiModelProperty(name = "自定义数据", required = false, allowableValues = "range[1, 255]")
     private String customData;
-    
-    /** 自定义表头 */
-    
-    
-    @ApiModelProperty(name = "自定义表头")
+
+
+    @ApiModelProperty(name = "自定义表头", required = false, allowableValues = "range[1, 1]")
     private String key;
-    
+
 
 }

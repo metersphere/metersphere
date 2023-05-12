@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "插件")
@@ -16,90 +17,70 @@ import java.io.Serializable;
 @Data
 public class Plugin implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{plugin.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** plugin name */
-    
-    
-    @ApiModelProperty(name = "plugin name")
+
+
+    @ApiModelProperty(name = "plugin name", required = false, allowableValues = "range[1, 300]")
     private String name;
-    
-    /** Plugin id */
-    @Size(min = 1, max = 300, message = "Plugin id长度必须在1-300之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Plugin id不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Plugin id")
+
+    @Size(min = 1, max = 300, message = "{plugin.plugin_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.plugin_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Plugin id", required = true, allowableValues = "range[1, 300]")
     private String pluginId;
-    
-    /** Ui script id */
-    @Size(min = 1, max = 300, message = "Ui script id长度必须在1-300之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Ui script id不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Ui script id")
+
+    @Size(min = 1, max = 300, message = "{plugin.script_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.script_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Ui script id", required = true, allowableValues = "range[1, 300]")
     private String scriptId;
-    
-    /** Plugin clazzName */
-    @Size(min = 1, max = 500, message = "Plugin clazzName长度必须在1-500之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Plugin clazzName不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Plugin clazzName")
+
+    @Size(min = 1, max = 500, message = "{plugin.clazz_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.clazz_name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Plugin clazzName", required = true, allowableValues = "range[1, 500]")
     private String clazzName;
-    
-    /** Jmeter base clazzName */
-    @Size(min = 1, max = 300, message = "Jmeter base clazzName长度必须在1-300之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Jmeter base clazzName不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Jmeter base clazzName")
+
+    @Size(min = 1, max = 300, message = "{plugin.jmeter_clazz.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.jmeter_clazz.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Jmeter base clazzName", required = true, allowableValues = "range[1, 300]")
     private String jmeterClazz;
-    
-    /** Plugin jar path */
-    @Size(min = 1, max = 300, message = "Plugin jar path长度必须在1-300之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Plugin jar path不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Plugin jar path")
+
+    @Size(min = 1, max = 300, message = "{plugin.source_path.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.source_path.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Plugin jar path", required = true, allowableValues = "range[1, 300]")
     private String sourcePath;
-    
-    /** Plugin jar name */
-    @Size(min = 1, max = 300, message = "Plugin jar name长度必须在1-300之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Plugin jar name不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Plugin jar name")
+
+    @Size(min = 1, max = 300, message = "{plugin.source_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.source_name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Plugin jar name", required = true, allowableValues = "range[1, 300]")
     private String sourceName;
-    
-    /** plugin init entry class */
-    
-    
-    @ApiModelProperty(name = "plugin init entry class")
+
+
+    @ApiModelProperty(name = "plugin init entry class", required = false, allowableValues = "range[1, 300]")
     private String execEntry;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
     private String createUser;
-    
-    /** Is xpack plugin */
-    
-    
-    @ApiModelProperty(name = "Is xpack plugin")
+
+
+    @ApiModelProperty(name = "Is xpack plugin", required = false, allowableValues = "range[1, 1]")
     private Boolean xpack;
-    
-    /** Plugin usage scenarios */
-    @Size(min = 1, max = 50, message = "Plugin usage scenarios长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Plugin usage scenarios不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Plugin usage scenarios")
+
+    @Size(min = 1, max = 50, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{plugin.scenario.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Plugin usage scenarios", required = true, allowableValues = "range[1, 50]")
     private String scenario;
-    
+
 
 }

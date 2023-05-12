@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "自定义字段缺陷关系")
@@ -16,30 +17,24 @@ import java.io.Serializable;
 @Data
 public class CustomFieldIssue implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 资源ID */
+
     @TableId
-    @NotBlank(message = "资源ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "资源ID")
+    @NotBlank(message = "{custom_field_issue.resource_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "资源ID", required = true, allowableValues = "range[1, 50]")
     private String resourceId;
-    
-    /** 字段ID */
+
     @TableId
-    @NotBlank(message = "字段ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "字段ID")
+    @NotBlank(message = "{custom_field_issue.field_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "字段ID", required = true, allowableValues = "range[1, 50]")
     private String fieldId;
-    
-    /** 字段值 */
-    
-    
-    @ApiModelProperty(name = "字段值")
+
+
+    @ApiModelProperty(name = "字段值", required = false, allowableValues = "range[1, 1000]")
     private String value;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
     private byte[] textValue;
-    
+
 
 }

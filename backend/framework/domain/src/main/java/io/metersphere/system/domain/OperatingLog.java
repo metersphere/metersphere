@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "操作日志")
@@ -16,84 +17,60 @@ import java.io.Serializable;
 @Data
 public class OperatingLog implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{operating_log.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 项目ID */
-    @Size(min = 1, max = 50, message = "项目ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "项目ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID")
+
+    @Size(min = 1, max = 50, message = "{operating_log.project_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{operating_log.project_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
-    
-    /** operating method */
-    
-    
-    @ApiModelProperty(name = "operating method")
+
+
+    @ApiModelProperty(name = "operating method", required = false, allowableValues = "range[1, 500]")
     private String operMethod;
-    
-    /** 创建人 */
-    
-    
-    @ApiModelProperty(name = "创建人")
+
+
+    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
     private String createUser;
-    
-    /** 操作人 */
-    
-    
-    @ApiModelProperty(name = "操作人")
+
+
+    @ApiModelProperty(name = "操作人", required = false, allowableValues = "range[1, 50]")
     private String operUser;
-    
-    /** 资源ID */
-    
-    
-    @ApiModelProperty(name = "资源ID")
+
+
+    @ApiModelProperty(name = "资源ID", required = false, allowableValues = "range[1, 6000]")
     private String sourceId;
-    
-    /** 操作类型 */
-    
-    
-    @ApiModelProperty(name = "操作类型")
+
+
+    @ApiModelProperty(name = "操作类型", required = false, allowableValues = "range[1, 100]")
     private String operType;
-    
-    /** 操作模块 */
-    
-    
-    @ApiModelProperty(name = "操作模块")
+
+
+    @ApiModelProperty(name = "操作模块", required = false, allowableValues = "range[1, 100]")
     private String operModule;
-    
-    /** 操作标题 */
-    
-    
-    @ApiModelProperty(name = "操作标题")
+
+
+    @ApiModelProperty(name = "操作标题", required = false, allowableValues = "range[1, 6000]")
     private String operTitle;
-    
-    /** 操作路径 */
-    
-    
-    @ApiModelProperty(name = "操作路径")
+
+
+    @ApiModelProperty(name = "操作路径", required = false, allowableValues = "range[1, 500]")
     private String operPath;
-    
-    /** 操作内容 */
-    
-    
-    @ApiModelProperty(name = "操作内容")
+
+
+    @ApiModelProperty(name = "操作内容", required = false, allowableValues = "range[1, ]")
     private byte[] operContent;
-    
-    /** 操作参数 */
-    
-    
-    @ApiModelProperty(name = "操作参数")
+
+
+    @ApiModelProperty(name = "操作参数", required = false, allowableValues = "range[1, ]")
     private byte[] operParams;
-    
-    /** 操作时间 */
-    
-    
-    @ApiModelProperty(name = "操作时间")
+
+
+    @ApiModelProperty(name = "操作时间", required = true, allowableValues = "range[1, ]")
     private Long operTime;
-    
+
 
 }

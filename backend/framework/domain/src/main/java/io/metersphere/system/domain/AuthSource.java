@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "三方认证源")
@@ -16,54 +17,40 @@ import java.io.Serializable;
 @Data
 public class AuthSource implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 认证源ID */
+
     @TableId
-    @NotBlank(message = "认证源ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "认证源ID")
+    @NotBlank(message = "{auth_source.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "认证源ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 认证源配置 */
-    
-    
-    @ApiModelProperty(name = "认证源配置")
+
+
+    @ApiModelProperty(name = "认证源配置", required = true, allowableValues = "range[1, ]")
     private byte[] configuration;
-    
-    /** 状态 启用 禁用 */
-    @Size(min = 1, max = 64, message = "状态 启用 禁用长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "状态 启用 禁用不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "状态 启用 禁用")
+
+    @Size(min = 1, max = 64, message = "{auth_source.status.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{auth_source.status.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "状态 启用 禁用", required = true, allowableValues = "range[1, 64]")
     private String status;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 更新时间 */
-    
-    
-    @ApiModelProperty(name = "更新时间")
+
+
+    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 描述 */
-    
-    
-    @ApiModelProperty(name = "描述")
+
+
+    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
     private String description;
-    
-    /** 名称 */
-    
-    
-    @ApiModelProperty(name = "名称")
+
+
+    @ApiModelProperty(name = "名称", required = false, allowableValues = "range[1, 60]")
     private String name;
-    
-    /** 类型 */
-    
-    
-    @ApiModelProperty(name = "类型")
+
+
+    @ApiModelProperty(name = "类型", required = false, allowableValues = "range[1, 30]")
     private String type;
-    
+
 
 }

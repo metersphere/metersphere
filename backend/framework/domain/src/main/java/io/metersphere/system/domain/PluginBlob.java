@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "插件大字段")
@@ -16,24 +17,19 @@ import java.io.Serializable;
 @Data
 public class PluginBlob implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{plugin_blob.plugin_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String pluginId;
-    
-    /** plugin form option */
-    
-    
-    @ApiModelProperty(name = "plugin form option")
+
+
+    @ApiModelProperty(name = "plugin form option", required = false, allowableValues = "range[1, ]")
     private byte[] formOption;
-    
-    /** plugin form script */
-    
-    
-    @ApiModelProperty(name = "plugin form script")
+
+
+    @ApiModelProperty(name = "plugin form script", required = false, allowableValues = "range[1, ]")
     private byte[] formScript;
-    
+
 
 }

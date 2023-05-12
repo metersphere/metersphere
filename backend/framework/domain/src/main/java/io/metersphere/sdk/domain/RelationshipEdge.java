@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "关系图")
@@ -16,42 +17,35 @@ import java.io.Serializable;
 @Data
 public class RelationshipEdge implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 源节点的ID */
+
     @TableId
-    @NotBlank(message = "源节点的ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "源节点的ID")
+    @NotBlank(message = "{relationship_edge.source_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "源节点的ID", required = true, allowableValues = "range[1, 50]")
     private String sourceId;
-    
-    /** 目标节点的ID */
+
     @TableId
-    @NotBlank(message = "目标节点的ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "目标节点的ID")
+    @NotBlank(message = "{relationship_edge.target_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "目标节点的ID", required = true, allowableValues = "range[1, 50]")
     private String targetId;
-    
-    /** 边的分类 */
-    @Size(min = 1, max = 20, message = "边的分类长度必须在1-20之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "边的分类不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "边的分类")
+
+    @Size(min = 1, max = 20, message = "{relationship_edge.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{relationship_edge.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "边的分类", required = true, allowableValues = "range[1, 20]")
     private String type;
-    
-    /** 所属关系图的ID */
-    @Size(min = 1, max = 50, message = "所属关系图的ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "所属关系图的ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "所属关系图的ID")
+
+    @Size(min = 1, max = 50, message = "{relationship_edge.graph_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{relationship_edge.graph_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "所属关系图的ID", required = true, allowableValues = "range[1, 50]")
     private String graphId;
-    
-    /** 创建人 */
-    @Size(min = 1, max = 50, message = "创建人长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "创建人不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "创建人")
+
+    @Size(min = 1, max = 50, message = "{relationship_edge.create_user.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{relationship_edge.create_user.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
     private String createUser;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
+
 
 }

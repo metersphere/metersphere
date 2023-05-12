@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "自定义函数-代码片段")
@@ -16,60 +17,47 @@ import java.io.Serializable;
 @Data
 public class CustomFunction implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /**  */
+
     @TableId
-    @NotBlank(message = "不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "")
+    @NotBlank(message = "{custom_function.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 函数名 */
-    @Size(min = 1, max = 255, message = "函数名长度必须在1-255之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "函数名不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "函数名")
+
+    @Size(min = 1, max = 255, message = "{custom_function.name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_function.name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "函数名", required = true, allowableValues = "range[1, 255]")
     private String name;
-    
-    /** 标签 */
-    
-    
-    @ApiModelProperty(name = "标签")
+
+
+    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 1000]")
     private String tags;
-    
-    /** 函数描述 */
-    
-    
-    @ApiModelProperty(name = "函数描述")
+
+
+    @ApiModelProperty(name = "函数描述", required = false, allowableValues = "range[1, 1000]")
     private String description;
-    
-    /** 脚本语言类型 */
-    @Size(min = 1, max = 255, message = "脚本语言类型长度必须在1-255之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "脚本语言类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "脚本语言类型")
+
+    @Size(min = 1, max = 255, message = "{custom_function.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_function.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "脚本语言类型", required = true, allowableValues = "range[1, 255]")
     private String type;
-    
-    /** 创建人 */
-    @Size(min = 1, max = 100, message = "创建人长度必须在1-100之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "创建人不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "创建人")
+
+    @Size(min = 1, max = 100, message = "{custom_function.create_user.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_function.create_user.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 100]")
     private String createUser;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 更新时间 */
-    
-    
-    @ApiModelProperty(name = "更新时间")
+
+
+    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 所属项目ID */
-    @Size(min = 1, max = 50, message = "所属项目ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "所属项目ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "所属项目ID")
+
+    @Size(min = 1, max = 50, message = "{custom_function.project_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_function.project_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "所属项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
-    
+
 
 }

@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "文件管理模块大字段")
@@ -16,36 +17,27 @@ import java.io.Serializable;
 @Data
 public class FileModuleBlob implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{file_module_blob.file_module_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String fileModuleId;
-    
-    /** 存储库描述 */
-    
-    
-    @ApiModelProperty(name = "存储库描述")
+
+
+    @ApiModelProperty(name = "存储库描述", required = false, allowableValues = "range[1, ]")
     private byte[] repositoryDesc;
-    
-    /** 存储库路径 */
-    
-    
-    @ApiModelProperty(name = "存储库路径")
+
+
+    @ApiModelProperty(name = "存储库路径", required = false, allowableValues = "range[1, 255]")
     private String repositoryPath;
-    
-    /** 存储库Token */
-    
-    
-    @ApiModelProperty(name = "存储库Token")
+
+
+    @ApiModelProperty(name = "存储库Token", required = false, allowableValues = "range[1, 255]")
     private String repositoryUserName;
-    
-    /** 存储库Token */
-    
-    
-    @ApiModelProperty(name = "存储库Token")
+
+
+    @ApiModelProperty(name = "存储库Token", required = false, allowableValues = "range[1, 255]")
     private String repositoryToken;
-    
+
 
 }

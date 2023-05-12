@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "消息通知")
@@ -16,72 +17,60 @@ import java.io.Serializable;
 @Data
 public class Notification implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{notification.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, ]")
     private Long id;
-    
-    /** 通知类型 */
-    @Size(min = 1, max = 30, message = "通知类型长度必须在1-30之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "通知类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "通知类型")
+
+    @Size(min = 1, max = 30, message = "{notification.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "通知类型", required = true, allowableValues = "range[1, 30]")
     private String type;
-    
-    /** 接收人 */
-    @Size(min = 1, max = 50, message = "接收人长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "接收人不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "接收人")
+
+    @Size(min = 1, max = 50, message = "{notification.receiver.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.receiver.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "接收人", required = true, allowableValues = "range[1, 50]")
     private String receiver;
-    
-    /** 标题 */
-    @Size(min = 1, max = 100, message = "标题长度必须在1-100之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "标题不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "标题")
+
+    @Size(min = 1, max = 100, message = "{notification.title.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.title.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "标题", required = true, allowableValues = "range[1, 100]")
     private String title;
-    
-    /** 状态 */
-    @Size(min = 1, max = 30, message = "状态长度必须在1-30之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "状态不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "状态")
+
+    @Size(min = 1, max = 30, message = "{notification.status.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.status.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "状态", required = true, allowableValues = "range[1, 30]")
     private String status;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 操作人 */
-    @Size(min = 1, max = 50, message = "操作人长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "操作人不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "操作人")
+
+    @Size(min = 1, max = 50, message = "{notification.operator.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.operator.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "操作人", required = true, allowableValues = "range[1, 50]")
     private String operator;
-    
-    /** 操作 */
-    @Size(min = 1, max = 50, message = "操作长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "操作不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "操作")
+
+    @Size(min = 1, max = 50, message = "{notification.operation.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.operation.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "操作", required = true, allowableValues = "range[1, 50]")
     private String operation;
-    
-    /** 资源ID */
-    @Size(min = 1, max = 50, message = "资源ID长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "资源ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "资源ID")
+
+    @Size(min = 1, max = 50, message = "{notification.resource_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.resource_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "资源ID", required = true, allowableValues = "range[1, 50]")
     private String resourceId;
-    
-    /** 资源类型 */
-    @Size(min = 1, max = 50, message = "资源类型长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "资源类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "资源类型")
+
+    @Size(min = 1, max = 50, message = "{notification.resource_type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.resource_type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "资源类型", required = true, allowableValues = "range[1, 50]")
     private String resourceType;
-    
-    /** 资源名称 */
-    @Size(min = 1, max = 100, message = "资源名称长度必须在1-100之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "资源名称不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "资源名称")
+
+    @Size(min = 1, max = 100, message = "{notification.resource_name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.resource_name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "资源名称", required = true, allowableValues = "range[1, 100]")
     private String resourceName;
-    
+
 
 }

@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "消息通知任务大字段")
@@ -16,18 +17,15 @@ import java.io.Serializable;
 @Data
 public class MessageTaskBlob implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /**  */
+
     @TableId
-    @NotBlank(message = "不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "")
+    @NotBlank(message = "{message_task_blob.message_task_id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 255]")
     private String messageTaskId;
-    
-    /** 消息模版 */
-    
-    
-    @ApiModelProperty(name = "消息模版")
+
+
+    @ApiModelProperty(name = "消息模版", required = false, allowableValues = "range[1, ]")
     private String template;
-    
+
 
 }

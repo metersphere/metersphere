@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "用户组权限")
@@ -16,30 +17,25 @@ import java.io.Serializable;
 @Data
 public class UserRolePermission implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /**  */
+
     @TableId
-    @NotBlank(message = "不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "")
+    @NotBlank(message = "{user_role_permission.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 64]")
     private String id;
-    
-    /** 用户组ID */
-    @Size(min = 1, max = 64, message = "用户组ID长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "用户组ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "用户组ID")
+
+    @Size(min = 1, max = 64, message = "{user_role_permission.role_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role_permission.role_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "用户组ID", required = true, allowableValues = "range[1, 64]")
     private String roleId;
-    
-    /** 权限ID */
-    @Size(min = 1, max = 128, message = "权限ID长度必须在1-128之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "权限ID不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "权限ID")
+
+    @Size(min = 1, max = 128, message = "{user_role_permission.permission_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role_permission.permission_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "权限ID", required = true, allowableValues = "range[1, 128]")
     private String permissionId;
-    
-    /** 功能菜单 */
-    @Size(min = 1, max = 64, message = "功能菜单长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "功能菜单不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "功能菜单")
+
+    @Size(min = 1, max = 64, message = "{user_role_permission.module_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role_permission.module_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "功能菜单", required = true, allowableValues = "range[1, 64]")
     private String moduleId;
-    
 
 }

@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "")
@@ -16,30 +17,23 @@ import java.io.Serializable;
 @Data
 public class License implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{license.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** Create timestamp */
-    
-    
-    @ApiModelProperty(name = "Create timestamp")
+
+
+    @ApiModelProperty(name = "Create timestamp", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** Update timestamp */
-    
-    
-    @ApiModelProperty(name = "Update timestamp")
+
+
+    @ApiModelProperty(name = "Update timestamp", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** license_code */
-    
-    
-    @ApiModelProperty(name = "license_code")
+
+
+    @ApiModelProperty(name = "license_code", required = false, allowableValues = "range[1, ]")
     private String licenseCode;
-    
+
 
 }

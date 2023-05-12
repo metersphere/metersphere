@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "定时任务")
@@ -16,84 +17,63 @@ import java.io.Serializable;
 @Data
 public class Schedule implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /**  */
+
     @TableId
-    @NotBlank(message = "不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "")
+    @NotBlank(message = "{schedule.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** qrtz UUID */
-    
-    
-    @ApiModelProperty(name = "qrtz UUID")
+
+
+    @ApiModelProperty(name = "qrtz UUID", required = false, allowableValues = "range[1, 50]")
     private String key;
-    
-    /** 资源类型 */
-    @Size(min = 1, max = 50, message = "资源类型长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "资源类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "资源类型")
+
+    @Size(min = 1, max = 50, message = "{schedule.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{schedule.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "资源类型", required = true, allowableValues = "range[1, 50]")
     private String type;
-    
-    /** Schedule value */
-    @Size(min = 1, max = 255, message = "Schedule value长度必须在1-255之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Schedule value不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Schedule value")
+
+    @Size(min = 1, max = 255, message = "{schedule.value.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{schedule.value.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Schedule value", required = true, allowableValues = "range[1, 255]")
     private String value;
-    
-    /** Schedule Job Class Name */
-    @Size(min = 1, max = 64, message = "Schedule Job Class Name长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "Schedule Job Class Name不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "Schedule Job Class Name")
+
+    @Size(min = 1, max = 64, message = "{schedule.job.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{schedule.job.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "Schedule Job Class Name", required = true, allowableValues = "range[1, 64]")
     private String job;
-    
-    /** Schedule Eable */
-    
-    
-    @ApiModelProperty(name = "Schedule Eable")
+
+
+    @ApiModelProperty(name = "Schedule Eable", required = false, allowableValues = "range[1, 1]")
     private Boolean enable;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
     private String resourceId;
-    
-    /** 创建人 */
-    @Size(min = 1, max = 50, message = "创建人长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "创建人不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "创建人")
+
+    @Size(min = 1, max = 50, message = "{schedule.create_user.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{schedule.create_user.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
     private String createUser;
-    
-    /** Create timestamp */
-    
-    
-    @ApiModelProperty(name = "Create timestamp")
+
+
+    @ApiModelProperty(name = "Create timestamp", required = false, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** Update timestamp */
-    
-    
-    @ApiModelProperty(name = "Update timestamp")
+
+
+    @ApiModelProperty(name = "Update timestamp", required = false, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 项目ID */
-    
-    
-    @ApiModelProperty(name = "项目ID")
+
+
+    @ApiModelProperty(name = "项目ID", required = false, allowableValues = "range[1, 50]")
     private String projectId;
-    
-    /** 名称 */
-    
-    
-    @ApiModelProperty(name = "名称")
+
+
+    @ApiModelProperty(name = "名称", required = false, allowableValues = "range[1, 100]")
     private String name;
-    
-    /** 配置 */
-    
-    
-    @ApiModelProperty(name = "配置")
+
+
+    @ApiModelProperty(name = "配置", required = false, allowableValues = "range[1, 1000]")
     private String config;
-    
+
 
 }

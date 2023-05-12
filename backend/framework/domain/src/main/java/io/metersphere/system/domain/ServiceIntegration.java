@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "服务集成")
@@ -16,30 +17,24 @@ import java.io.Serializable;
 @Data
 public class ServiceIntegration implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /**  */
+
     @TableId
-    @NotBlank(message = "不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "")
+    @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 平台 */
-    @Size(min = 1, max = 50, message = "平台长度必须在1-50之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "平台不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "平台")
+
+    @Size(min = 1, max = 50, message = "{service_integration.platform.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{service_integration.platform.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "平台", required = true, allowableValues = "range[1, 50]")
     private String platform;
-    
-    /**  */
-    
-    
-    @ApiModelProperty(name = "")
+
+
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, ]")
     private byte[] configuration;
-    
-    /** 工作空间ID */
-    
-    
-    @ApiModelProperty(name = "工作空间ID")
+
+
+    @ApiModelProperty(name = "工作空间ID", required = false, allowableValues = "range[1, 50]")
     private String workspaceId;
-    
+
 
 }

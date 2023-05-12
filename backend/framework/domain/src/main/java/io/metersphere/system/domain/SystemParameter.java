@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "系统参数")
@@ -16,24 +17,20 @@ import java.io.Serializable;
 @Data
 public class SystemParameter implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 参数名称 */
+
     @TableId
-    @NotBlank(message = "参数名称不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "参数名称")
+    @NotBlank(message = "{system_parameter.param_key.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "参数名称", required = true, allowableValues = "range[1, 64]")
     private String paramKey;
-    
-    /** 参数值 */
-    
-    
-    @ApiModelProperty(name = "参数值")
+
+
+    @ApiModelProperty(name = "参数值", required = false, allowableValues = "range[1, 255]")
     private String paramValue;
-    
-    /** 类型 */
-    @Size(min = 1, max = 100, message = "类型长度必须在1-100之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "类型")
+
+    @Size(min = 1, max = 100, message = "{system_parameter.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{system_parameter.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "类型", required = true, allowableValues = "range[1, 100]")
     private String type;
-    
+
 
 }

@@ -2,13 +2,12 @@ package io.metersphere.sdk.domain;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "执行链条目")
@@ -16,72 +15,51 @@ import java.io.Serializable;
 @Data
 public class ExecutionQueueDetail implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** ID */
+
     @TableId
-    @NotBlank(message = "ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "ID")
+    @NotBlank(message = "{execution_queue_detail.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 队列id */
-    
-    
-    @ApiModelProperty(name = "队列id")
+
+
+    @ApiModelProperty(name = "队列id", required = false, allowableValues = "range[1, 100]")
     private String queueId;
-    
-    /** 排序 */
-    
-    
-    @ApiModelProperty(name = "排序")
+
+
+    @ApiModelProperty(name = "排序", required = false, allowableValues = "range[1, ]")
     private Integer sort;
-    
-    /** 报告id */
-    
-    
-    @ApiModelProperty(name = "报告id")
+
+
+    @ApiModelProperty(name = "报告id", required = false, allowableValues = "range[1, 100]")
     private String reportId;
-    
-    /** 资源id */
-    
-    
-    @ApiModelProperty(name = "资源id")
+
+
+    @ApiModelProperty(name = "资源id", required = false, allowableValues = "range[1, 100]")
     private String testId;
-    
-    /** 环境 */
-    
-    
-    @ApiModelProperty(name = "环境")
+
+
+    @ApiModelProperty(name = "环境", required = false, allowableValues = "range[1, ]")
     private String evnMap;
-    
-    /** 资源类型 */
-    
-    
-    @ApiModelProperty(name = "资源类型")
+
+
+    @ApiModelProperty(name = "资源类型", required = false, allowableValues = "range[1, 100]")
     private String type;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = false, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 是否开启失败重试 */
-    
-    
-    @ApiModelProperty(name = "是否开启失败重试")
+
+
+    @ApiModelProperty(name = "是否开启失败重试", required = false, allowableValues = "range[1, 1]")
     private Boolean retryEnable;
-    
-    /** 失败重试次数 */
-    
-    
-    @ApiModelProperty(name = "失败重试次数")
+
+
+    @ApiModelProperty(name = "失败重试次数", required = false, allowableValues = "range[1, ]")
     private Long retryNumber;
-    
-    /** 项目ID集合 */
-    
-    
-    @ApiModelProperty(name = "项目ID集合")
+
+
+    @ApiModelProperty(name = "项目ID集合", required = false, allowableValues = "range[1, 2000]")
     private String projectIds;
-    
+
 
 }

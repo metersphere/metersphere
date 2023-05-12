@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "自定义字段")
@@ -16,84 +17,63 @@ import java.io.Serializable;
 @Data
 public class CustomField implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 自定义字段ID */
+
     @TableId
-    @NotBlank(message = "自定义字段ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "自定义字段ID")
+    @NotBlank(message = "{custom_field.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "自定义字段ID", required = true, allowableValues = "range[1, 100]")
     private String id;
-    
-    /** 自定义字段名称 */
-    @Size(min = 1, max = 64, message = "自定义字段名称长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "自定义字段名称不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "自定义字段名称")
+
+    @Size(min = 1, max = 64, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field.name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "自定义字段名称", required = true, allowableValues = "range[1, 64]")
     private String name;
-    
-    /** 使用场景 */
-    @Size(min = 1, max = 30, message = "使用场景长度必须在1-30之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "使用场景不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "使用场景")
+
+    @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "使用场景", required = true, allowableValues = "range[1, 30]")
     private String scene;
-    
-    /** 自定义字段类型 */
-    @Size(min = 1, max = 30, message = "自定义字段类型长度必须在1-30之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "自定义字段类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "自定义字段类型")
+
+    @Size(min = 1, max = 30, message = "{custom_field.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "自定义字段类型", required = true, allowableValues = "range[1, 30]")
     private String type;
-    
-    /** 自定义字段备注 */
-    
-    
-    @ApiModelProperty(name = "自定义字段备注")
+
+
+    @ApiModelProperty(name = "自定义字段备注", required = false, allowableValues = "range[1, 255]")
     private String remark;
-    
-    /** 自定义字段选项 */
-    
-    
-    @ApiModelProperty(name = "自定义字段选项")
+
+
+    @ApiModelProperty(name = "自定义字段选项", required = false, allowableValues = "range[1, ]")
     private String options;
-    
-    /** 是否是系统字段 */
-    
-    
-    @ApiModelProperty(name = "是否是系统字段")
+
+
+    @ApiModelProperty(name = "是否是系统字段", required = false, allowableValues = "range[1, 1]")
     private Boolean system;
-    
-    /** 是否是全局字段 */
-    
-    
-    @ApiModelProperty(name = "是否是全局字段")
+
+
+    @ApiModelProperty(name = "是否是全局字段", required = false, allowableValues = "range[1, 1]")
     private Boolean global;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 更新时间 */
-    
-    
-    @ApiModelProperty(name = "更新时间")
+
+
+    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 创建人 */
-    
-    
-    @ApiModelProperty(name = "创建人")
+
+
+    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
     private String createUser;
-    
-    /** 项目ID */
-    
-    
-    @ApiModelProperty(name = "项目ID")
+
+
+    @ApiModelProperty(name = "项目ID", required = false, allowableValues = "range[1, 64]")
     private String projectId;
-    
-    /** 是否关联第三方 */
-    @Size(min = 1, max = 1, message = "是否关联第三方长度必须在1-1之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "是否关联第三方不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "是否关联第三方")
+
+    @Size(min = 1, max = 1, message = "{custom_field.third_part.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field.third_part.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "是否关联第三方", required = true, allowableValues = "range[1, 1]")
     private Boolean thirdPart;
-    
+
 
 }

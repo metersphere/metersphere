@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.io.Serializable;
 
 @ApiModel(value = "用户组")
@@ -16,60 +17,48 @@ import java.io.Serializable;
 @Data
 public class UserRole implements Serializable {
     private static final long serialVersionUID = 1L;
-    
-    /** 组ID */
+
     @TableId
-    @NotBlank(message = "组ID不能为空", groups = {Updated.class})
-    @ApiModelProperty(name = "组ID")
+    @NotBlank(message = "{user_role.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "组ID", required = true, allowableValues = "range[1, 50]")
     private String id;
-    
-    /** 组名称 */
-    @Size(min = 1, max = 64, message = "组名称长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "组名称不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "组名称")
+
+    @Size(min = 1, max = 64, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role.name.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "组名称", required = true, allowableValues = "range[1, 64]")
     private String name;
-    
-    /** 描述 */
-    
-    
-    @ApiModelProperty(name = "描述")
+
+
+    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 100]")
     private String description;
-    
-    /** 是否是系统用户组 */
-    @Size(min = 1, max = 1, message = "是否是系统用户组长度必须在1-1之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "是否是系统用户组不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "是否是系统用户组")
+
+    @Size(min = 1, max = 1, message = "{user_role.system.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role.system.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "是否是系统用户组", required = true, allowableValues = "range[1, 1]")
     private Boolean system;
-    
-    /** 所属类型 */
-    @Size(min = 1, max = 20, message = "所属类型长度必须在1-20之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "所属类型不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "所属类型")
+
+    @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "所属类型", required = true, allowableValues = "range[1, 20]")
     private String type;
-    
-    /** 创建时间 */
-    
-    
-    @ApiModelProperty(name = "创建时间")
+
+
+    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
     private Long createTime;
-    
-    /** 更新时间 */
-    
-    
-    @ApiModelProperty(name = "更新时间")
+
+
+    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
     private Long updateTime;
-    
-    /** 创建人(操作人） */
-    @Size(min = 1, max = 64, message = "创建人(操作人）长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "创建人(操作人）不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "创建人(操作人）")
+
+    @Size(min = 1, max = 64, message = "{user_role.create_user.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role.create_user.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "创建人(操作人）", required = true, allowableValues = "range[1, 64]")
     private String createUser;
-    
-    /** 应用范围 */
-    @Size(min = 1, max = 64, message = "应用范围长度必须在1-64之间", groups = {Created.class, Updated.class})
-    @NotBlank(message = "应用范围不能为空", groups = {Created.class})
-    @ApiModelProperty(name = "应用范围")
+
+    @Size(min = 1, max = 64, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role.scope_id.not_blank}", groups = {Created.class})
+    @ApiModelProperty(name = "应用范围", required = true, allowableValues = "range[1, 64]")
     private String scopeId;
-    
+
 
 }
