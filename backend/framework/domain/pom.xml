@@ -24,6 +24,23 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>${swagger-parser.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>swagger-core</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>swagger-models</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
