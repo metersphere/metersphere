@@ -99,6 +99,15 @@
               </el-dropdown>
             </template>
           </ms-table-column>
+          <ms-table-column
+            :field="item"
+            :label="field.name"
+            :prop="field.name"
+            v-if="field.name === '处理人'">
+            <template v-slot="scope">
+              <span>{{ getCustomMember(scope.row, field) }}</span>
+            </template>
+          </ms-table-column>
         </span>
 
         <ms-table-column
@@ -130,6 +139,7 @@ import { LOCAL } from "metersphere-frontend/src/utils/constants";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
 import { ISSUE_STATUS_MAP } from "metersphere-frontend/src/utils/table-constants";
 import { issueStatusChange } from "@/api/issue";
+import {getProjectMember} from "@/api/user";
 
 export default {
   name: "CaseDiffIssueRelate",
@@ -149,6 +159,7 @@ export default {
       status: [],
       issueRelateVisible: false,
       fields: [],
+      members: [],
     };
   },
   computed: {
@@ -190,11 +201,20 @@ export default {
         this.$refs.table.reloadTable();
       }
     });
+    this.getMembers();
   },
   methods: {
+    getMembers() {
+      getProjectMember().then((res) => {
+        this.members = res.data;
+      });
+    },
+    getCustomMember(row, field) {
+      return getCustomFieldValue(row, field, this.members);
+    },
     getStatus(row, field) {
-      return getCustomFieldValue(row, field)
-        ? getCustomFieldValue(row, field)
+      return getCustomFieldValue(row, field, this.members)
+        ? getCustomFieldValue(row, field, this.members)
         : this.issueStatusMap[row.status];
     },
     statusChange(param) {

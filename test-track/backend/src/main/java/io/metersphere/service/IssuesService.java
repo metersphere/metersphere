@@ -454,6 +454,7 @@ public class IssuesService {
             }
         });
         handleCustomFieldStatus(issues);
+        buildCustomField(issues);
         return DistinctKeyUtil.distinctByKey(issues, IssuesDao::getId);
     }
 
