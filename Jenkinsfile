@@ -41,10 +41,10 @@ pipeline {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
-                        export PATH=$JAVA_HOME/bin:$PATH
+                        export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
-                        ./mvnw clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface,framework/sdk-parent/jmeter --settings ./settings.xml
+                        mvn install -N -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean install -Drevision=${REVISION} -pl framework,framework/sdk-parent,framework/sdk-parent/domain,framework/sdk-parent/sdk,framework/sdk-parent/xpack-interface,framework/sdk-parent/jmeter --settings ./settings.xml
 
                         # 复制前端代码
                         if [ -n "${FRONTEND_LINK}" ]; then
@@ -61,9 +61,9 @@ pipeline {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
-                        export PATH=$JAVA_HOME/bin:$PATH
+                        export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        ./mvnw clean package -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean package -Drevision=${REVISION} --settings ./settings.xml
 
                         frameworks=('framework/eureka' 'framework/gateway')
                         for library in "${frameworks[@]}";
@@ -71,7 +71,7 @@ pipeline {
                             mkdir -p $library/target/dependency && (cd $library/target/dependency; jar -xf ../*.jar)
                         done
 
-                        LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
+                        LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
 
                         libraries=('api-test' 'performance-test' 'project-management' 'system-setting' 'test-track' 'report-stat' 'workstation')
                         for library in "${libraries[@]}";
