@@ -9,8 +9,19 @@ import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.JmeterThreadUtils;
-import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiExecutionQueue;
+import io.metersphere.base.domain.ApiExecutionQueueDetail;
+import io.metersphere.base.domain.ApiExecutionQueueDetailExample;
+import io.metersphere.base.domain.ApiExecutionQueueExample;
+import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiScenarioReportResultExample;
+import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiExecutionQueueDetailMapper;
+import io.metersphere.base.mapper.ApiExecutionQueueMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ApiScenarioReportResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
@@ -21,6 +32,7 @@ import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.constants.RunModeConstants;
+import io.metersphere.dto.JmeterRunRequestDTO;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.track.service.TestPlanReportService;
@@ -34,7 +46,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,7 +86,8 @@ public class ApiExecutionQueueService {
     @Lazy
     @Resource
     private TestPlanReportService testPlanReportService;
-
+    @Resource
+    private RemakeReportService remakeReportService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public DBTestQueue add(Object runObj, String poolId, String type, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
@@ -348,9 +367,9 @@ public class ApiExecutionQueueService {
 
     public void defendQueue() {
         final int SECOND_MILLIS = 1000;
-        final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-        // 计算一小时前的超时报告
-        final long timeout = System.currentTimeMillis() - (60 * MINUTE_MILLIS);
+        final int MINUTE_MILLIS = 30 * SECOND_MILLIS;
+        // 计算半小时前的超时报告
+        final long timeout = System.currentTimeMillis() - (30 * MINUTE_MILLIS);
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andCreateTimeLessThan(timeout).andTypeNotEqualTo("loadTest");
         List<ApiExecutionQueueDetail> queueDetails = executionQueueDetailMapper.selectByExample(example);
@@ -385,28 +404,21 @@ public class ApiExecutionQueueService {
                 // 这里只处理已经开始执行的队列如果 报告状态是 Waiting 表示还没开始暂不处理
                 if (report != null && StringUtils.equalsAnyIgnoreCase(report.getStatus(), TestPlanReportStatus.RUNNING.name())
                         && report.getUpdateTime() < timeout) {
-                    report.setStatus(ScenarioStatus.Timeout.name());
-                    apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-
-                    LoggerUtil.info("超时处理报告：" + report.getId());
-                    ResultDTO dto = new ResultDTO();
-                    dto.setQueueId(item.getQueueId());
-                    dto.setTestId(item.getTestId());
-                    if (queue != null && StringUtils.equalsIgnoreCase(item.getType(), RunModeConstants.SERIAL.toString())) {
-                        // 删除串行资源锁
-                        String key = StringUtils.join(RunModeConstants.SERIAL.name(), "_", dto.getReportId());
-                        redisTemplateService.delete(key);
-
-                        LoggerUtil.info("超时处理报告处理，进入下一个执行", report.getId());
-                        dto.setTestPlanReportId(queue.getReportId());
-                        dto.setReportId(queue.getReportId());
-                        dto.setRunMode(queue.getRunMode());
-                        dto.setRunType(item.getType());
-                        dto.setReportType(queue.getReportType());
-                        queueNext(dto);
-                    } else {
-                        executionQueueDetailMapper.deleteByPrimaryKey(item.getId());
+                    JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO();
+                    runRequest.setTestId(item.getTestId());
+                    runRequest.setReportId(item.getReportId());
+                    runRequest.setRunMode(queue.getRunMode());
+                    runRequest.setReportType(queue.getReportType());
+                    runRequest.setQueueId(queue.getId());
+                    runRequest.setPoolId(queue.getPoolId());
+                    runRequest.setRunType(item.getType());
+                    if (StringUtils.equalsAny(runRequest.getRunMode(),
+                            ApiRunMode.SCENARIO_PLAN.name(),
+                            ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),
+                            ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                        runRequest.setTestPlanReportId(queue.getReportId());
                     }
+                    remakeReportService.testEnded(runRequest, APITestStatus.TIMEOUT.name());
                 }
             } else {
                 // 用例/接口超时结果处理
