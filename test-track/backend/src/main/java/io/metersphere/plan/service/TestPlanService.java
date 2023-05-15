@@ -293,7 +293,13 @@ public class TestPlanService {
                 && res.getActualStartTime() == null) {
             testPlan.setActualStartTime(System.currentTimeMillis());
         }
-        testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan);
+        if (testPlan.getName() == null) {
+            //  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
+            testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        } else {
+            //  有修改字段的调用，为保证将某些时间置null的情况，使用updateByPrimaryKey
+            testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
+        }
         return testPlanMapper.selectByPrimaryKey(testPlan.getId());
     }
 
