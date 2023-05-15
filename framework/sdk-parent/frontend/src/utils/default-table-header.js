@@ -128,7 +128,6 @@ export let CUSTOM_TABLE_HEADER = {
       key: "6",
       label: "api_test.definition.api_principal",
     },
-    { id: "environmentMap", key: "8", label: "commons.environment" },
     { id: "updateTime", key: "7", label: "api_test.definition.api_last_time" },
     { id: "lastResult", key: "a", label: "ui.debug_result_label" },
     { id: "createTime", key: "c", label: "commons.create_time" },
