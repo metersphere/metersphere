@@ -1008,7 +1008,7 @@ export default {
       }
     },
     setSystemFieldDefault() {
-      this.form.name = this.testCaseTemplate.name;
+      this.form.name = this.testCaseTemplate.caseName;
       this.form.prerequisite = this.testCaseTemplate.prerequisite;
       this.form.stepDescription = this.testCaseTemplate.stepDescription;
       this.form.expectedResult = this.testCaseTemplate.expectedResult;
