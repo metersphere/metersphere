@@ -1,9 +1,18 @@
 package io.metersphere.sdk.controller.handler;
 
+import lombok.Data;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+@Data
 public class ResultHolder {
+    // 请求是否成功
+    private int code = 0;
+    // 描述信息
+    private String message;
+    // 返回数据
+    private Object data = "";
+
     public ResultHolder() {
         this.code = 0;
     }
@@ -21,37 +30,6 @@ public class ResultHolder {
     public ResultHolder(int code, String msg, Object data) {
         this.code = code;
         this.message = msg;
-        this.data = data;
-    }
-
-    // 请求是否成功
-    private int code = 0;
-    // 描述信息
-    private String message;
-    // 返回数据
-    private Object data = "";
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
         this.data = data;
     }
 
