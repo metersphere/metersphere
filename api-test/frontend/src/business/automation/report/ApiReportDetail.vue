@@ -756,6 +756,8 @@ export default {
     },
     startExport() {
       if (this.report.reportVersion && this.report.reportVersion > 1) {
+        // 多次点击导出报告, 场景步骤未清空#771;
+        this.content.scenarios = [];
         if (this.report.reportType === 'API_INTEGRATED' || this.report.reportType === 'UI_INTEGRATED') {
           let scenario = { name: '', requestResults: [] };
           this.content.scenarios = [scenario];
