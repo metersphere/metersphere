@@ -509,7 +509,7 @@ public class TestPlanService {
                 item.setPrincipalUsers(planPrincipal);
 
                 // 还没有结束的计划，如果设置了结束时间，并且已经到了结束时间，则将状态改为已结束
-                if (!StringUtils.equals(item.getStatus(), TestPlanStatus.Finished.name())
+                if (!StringUtils.equalsAny(item.getStatus(), TestPlanStatus.Finished.name(), TestPlanStatus.Archived.name())
                         && item.getPlannedEndTime() != null && System.currentTimeMillis() > item.getPlannedEndTime()) {
                     item.setStatus(TestPlanStatus.Finished.name());
                     changeToFinishedIds.add(item.getId());
