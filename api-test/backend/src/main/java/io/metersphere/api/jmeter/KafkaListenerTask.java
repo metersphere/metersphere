@@ -45,6 +45,9 @@ public class KafkaListenerTask implements Runnable {
 
     }};
 
+    public static final String ENV = "ENV";
+
+
     @Override
     public void run() {
         try {
@@ -58,7 +61,9 @@ public class KafkaListenerTask implements Runnable {
             // 分三类存储
             Map<String, List<ResultDTO>> assortMap = new LinkedHashMap<>();
             // 携带结果
-            if (CollectionUtils.isNotEmpty(dto.getRequestResults())) {
+            if (CollectionUtils.isNotEmpty(dto.getRequestResults()) ||
+                    (MapUtils.isNotEmpty(dto.getArbitraryData()) &&
+                            dto.getArbitraryData().containsKey(ENV))) {
                 String key = RUN_MODE_MAP.get(dto.getRunMode());
                 if (assortMap.containsKey(key)) {
                     assortMap.get(key).add(dto);
@@ -68,7 +73,6 @@ public class KafkaListenerTask implements Runnable {
                     }});
                 }
             }
-
             if (MapUtils.isNotEmpty(assortMap)) {
                 testResultService.batchSaveResults(assortMap);
             }
