@@ -10,9 +10,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.regex.Matcher;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -44,10 +45,12 @@ public class UserControllerTests {
         User user = new User();
         user.setId("admin");
         user.setName("admin");
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/add").content(JSON.toJSONString(user)).contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.person.name").value("Jason"))
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/add")
+                        .content(JSON.toJSONString(user))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value("40000"))
                 .andDo(print());
     }
 
