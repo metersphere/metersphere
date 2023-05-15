@@ -53,4 +53,6 @@ public interface ExtApiDefinitionExecResultMapper {
     List<String> selectDistinctStatusByReportId(String reportId);
 
     List<String> selectByProjectIdAndLessThanTime(@Param("projectId") String projectId, @Param("time") long time);
+
+    void updateByRunning();
 }

@@ -11,8 +11,7 @@
         FROM
             api_execution_queue
         WHERE
-            report_id != NULL
-            AND run_mode IN ( 'API_PLAN', 'JENKINS_SCENARIO_PLAN', 'SCHEDULE_SCENARIO_PLAN' )
+            run_mode IN ( 'API_PLAN', 'JENKINS_SCENARIO_PLAN', 'SCHEDULE_SCENARIO_PLAN' )
             AND id NOT IN ( SELECT t1.queue_id FROM api_execution_queue_detail t1 )
             AND report_id NOT IN ( SELECT report_id FROM test_plan_execution_queue );
     </select>

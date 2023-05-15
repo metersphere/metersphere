@@ -468,4 +468,8 @@
         select id from api_scenario_report where create_time &lt; #{time} and project_id = #{projectId}
     </select>
 
+    <update id="updateByRunning">
+        update api_scenario_report set `status`= "STOP" where `status` ="Running"
+    </update>
+
 </mapper>

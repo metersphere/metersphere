@@ -484,4 +484,8 @@
         select id from api_definition_exec_result where project_id = #{projectId} and create_time &lt; #{time}
     </select>
 
+    <update id="updateByRunning" parameterType="java.util.List">
+        update api_definition_exec_result set `status`= "STOP" where `status` ="Running"
+    </update>
+
 </mapper>

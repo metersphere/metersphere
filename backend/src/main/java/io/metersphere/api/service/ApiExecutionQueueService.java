@@ -533,5 +533,9 @@ public class ApiExecutionQueueService {
 
         ApiExecutionQueueDetailExample detailExample = new ApiExecutionQueueDetailExample();
         executionQueueDetailMapper.deleteByExample(detailExample);
+
+        extApiScenarioReportMapper.updateByRunning();
+
+        extApiDefinitionExecResultMapper.updateByRunning();
     }
 }
