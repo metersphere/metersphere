@@ -97,6 +97,7 @@ import MsApiBinaryVariable from "./ApiBinaryVariable";
 import MsApiFromUrlVariable from "./ApiFromUrlVariable";
 import BatchAddParameter from "../basis/BatchAddParameter";
 import Convert from "@/business/components/common/json-schema/convert/convert";
+import {jsonParse, trimAll} from "@/business/components/common/json-schema/convert/jsonParse";
 
 
 export default {
@@ -226,12 +227,9 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-            if (!this.body.jsonSchema) {
-              this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-            } else {
-              let data = MsConvert.format(JSON.parse(this.body.raw));
-              this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
-            }
+            const tmpStr = trimAll(this.body.raw)
+            const tmpObj = jsonParse(tmpStr)
+            this.body.jsonSchema = MsConvert.format(tmpObj);
           } catch (e) {
             this.body.format = 'JSON';
             this.$error(this.$t('api_test.definition.json_format_error'));
