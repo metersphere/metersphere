@@ -320,7 +320,7 @@ public class ApiScenarioReportStructureService {
                 }
             }
             if (StringUtils.isNotEmpty(dto.getErrorCode()) && StringUtils.isEmpty(dto.getTotalStatus())) {
-                dto.setTotalStatus(ERROR_CODE);
+                dto.setTotalStatus(ApiReportStatus.FAKE_ERROR.name());
             }
 
             if (CollectionUtils.isNotEmpty(dto.getChildren())) {
@@ -362,7 +362,7 @@ public class ApiScenarioReportStructureService {
                         if (failCount > 0) {
                             dto.setTotalStatus(ApiReportStatus.ERROR.name());
                         } else if (errorReportCount > 0) {
-                            dto.setTotalStatus(ERROR_CODE);
+                            dto.setTotalStatus(ApiReportStatus.FAKE_ERROR.name());
                         } else {
                             dto.setTotalStatus(ApiReportStatus.SUCCESS.name());
                         }
@@ -370,7 +370,7 @@ public class ApiScenarioReportStructureService {
                         if (failCount > 0) {
                             dto.setTotalStatus(ApiReportStatus.ERROR.name());
                         } else if (errorReportCount > 0) {
-                            dto.setTotalStatus(ERROR_CODE);
+                            dto.setTotalStatus(ApiReportStatus.FAKE_ERROR.name());
                         } else {
                             dto.setTotalStatus(ApiReportStatus.SUCCESS.name());
                         }
