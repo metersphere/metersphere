@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.WebSession;
 
 import jakarta.annotation.Resource;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -353,6 +354,12 @@ public class UserLoginService {
         }
         if (StringUtils.isBlank(password)) {
             MSException.throwException(Translator.get("password_is_null"));
+        }
+        if (userId.length() > 64) {
+            MSException.throwException(Translator.get("user_id_length_too_long"));
+        }
+        if (password.length() > 30) {
+            MSException.throwException(Translator.get("password_length_too_long"));
         }
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
