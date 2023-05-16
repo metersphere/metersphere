@@ -7,6 +7,9 @@ const message = {
     environment_import_repeat_tip: "(已过滤同名称的环境配置 {0})",
     check_third_project_success: "检查通过",
     api_run_pool_title: "接口执行资源池",
+    reviewers: "审核人",
+    load_test_script_review: "性能脚本审核",
+    load_test_script_review_detail: "上传性能测试脚本文件须指定用户审核",
   },
   file_manage: {
     my_file: "我的文件",

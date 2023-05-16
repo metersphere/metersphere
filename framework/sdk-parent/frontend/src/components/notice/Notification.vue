@@ -3,41 +3,72 @@
     <div class="ms-header-menu align-right">
       <el-tooltip effect="light">
         <template v-slot:content>
-          <span>{{ $t('commons.notice_center') }}</span>
+          <span>{{ $t("commons.notice_center") }}</span>
         </template>
         <div @click="showNoticeCenter" v-if="noticeCount > 0 || noticeShow">
           <el-badge is-dot class="item" type="danger">
-            <font-awesome-icon class="icon global focusing" :icon="['fas', 'bell']"/>
+            <font-awesome-icon
+              class="icon global focusing"
+              :icon="['fas', 'bell']"
+            />
           </el-badge>
         </div>
-        <font-awesome-icon @click="showNoticeCenter" class="icon global focusing" :icon="['fas', 'bell']" v-else/>
+        <font-awesome-icon
+          @click="showNoticeCenter"
+          class="icon global focusing"
+          :icon="['fas', 'bell']"
+          v-else
+        />
       </el-tooltip>
     </div>
 
-    <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.notice_center')" size="550px"
-               custom-class="ms-drawer-task">
+    <el-drawer
+      :visible.sync="taskVisible"
+      :destroy-on-close="true"
+      direction="rtl"
+      :withHeader="true"
+      :modal="false"
+      :title="$t('commons.notice_center')"
+      size="550px"
+      custom-class="ms-drawer-task"
+    >
       <div style="margin: 0 20px 0">
         <el-tabs :active-name="activeName">
-          <el-tab-pane :label="$t('commons.mentioned_me_notice')" name="mentionedMe">
-            <notification-data ref="mentionedMe" :user-list="userList" type="MENTIONED_ME"/>
+          <el-tab-pane
+            :label="$t('commons.mentioned_me_notice')"
+            name="mentionedMe"
+          >
+            <notification-data
+              ref="mentionedMe"
+              :user-list="userList"
+              type="MENTIONED_ME"
+            />
           </el-tab-pane>
           <el-tab-pane :label="$t('commons.system_notice')" name="systemNotice">
-            <notification-data ref="systemNotice" :user-list="userList" type="SYSTEM_NOTICE"/>
+            <notification-data
+              ref="systemNotice"
+              :user-list="userList"
+              type="SYSTEM_NOTICE"
+            />
           </el-tab-pane>
         </el-tabs>
       </div>
     </el-drawer>
-
   </div>
 </template>
 
 <script>
 import MsDrawer from "../MsDrawer";
 import MsTipButton from "../MsTipButton";
-import {getOperation, getResource} from "./util";
+import { getOperation, getResource } from "./util";
 import NotificationData from "./components/NotificationData";
-import {getWsMemberList, initNoticeSocket, read, readAll, searchNotifications} from "../../api/notification";
+import {
+  getWsMemberList,
+  initNoticeSocket,
+  read,
+  readAll,
+  searchNotifications,
+} from "../../api/notification";
 
 export default {
   name: "MsNotification",
@@ -46,9 +77,7 @@ export default {
     MsTipButton,
     MsDrawer,
   },
-  inject: [
-    'reload'
-  ],
+  inject: ["reload"],
   data() {
     return {
       noticeCount: 0,
@@ -63,7 +92,7 @@ export default {
       userList: [],
       userMap: {},
       websocket: Object,
-      activeName: 'mentionedMe',
+      activeName: "mentionedMe",
       pageSize: 20,
       goPage: 1,
       totalPage: 0,
@@ -83,18 +112,17 @@ export default {
       if (!v) {
         this.close();
       }
-    }
+    },
   },
   methods: {
     getUserList() {
-      getWsMemberList()
-        .then(response => {
-          this.userList = response.data;
-          this.userMap = this.userList.reduce((r, c) => {
-            r[c.id] = c;
-            return r;
-          }, {});
-        });
+      getWsMemberList().then((response) => {
+        this.userList = response.data;
+        this.userMap = this.userList.reduce((r, c) => {
+          r[c.id] = c;
+          return r;
+        }, {});
+      });
     },
     initWebSocket() {
       this.websocket = initNoticeSocket();
@@ -103,10 +131,9 @@ export default {
       this.websocket.onerror = this.onError;
       this.websocket.onclose = this.onClose;
     },
-    onOpen() {
-    },
+    onOpen() {},
     onError(e) {
-      console.warn('socket error: ', e)
+      console.warn("socket error: ", e);
     },
     onMessage(e) {
       let m = JSON.parse(e.data);
@@ -121,8 +148,7 @@ export default {
         this.$refs.mentionedMe.init();
       }
     },
-    onClose(e) {
-    },
+    onClose(e) {},
     showNoticeCenter() {
       this.noticeCount = 0;
       this.readAll();
@@ -138,43 +164,61 @@ export default {
       this.initIndex = 0;
     },
     readAll() {
-      readAll()
+      readAll();
       this.noticeShow = false;
     },
     getNotifications() {
       this.initWebSocket();
     },
     showNotification() {
-      searchNotifications({}, 1, 10)
-        .then(response => {
-          let data = response.data.listObject;
-          let now = this.serverTime;
-          data.filter(d => d.status === 'UNREAD').forEach(d => {
+      searchNotifications({}, 1, 10).then((response) => {
+        let data = response.data.listObject;
+        let now = this.serverTime;
+        data
+          .filter((d) => d.status === "UNREAD")
+          .forEach((d) => {
             if (now - d.createTime > 10 * 1000) {
               return;
             }
-            d.user = this.userMap[d.operator] || {name: 'MS'};
-            let message = d.user.name + getOperation(d.operation) + getResource(d) + ": " + d.resourceName;
-            let title = d.type === 'MENTIONED_ME' ? this.$t('commons.mentioned_me_notice') : this.$t('commons.system_notice');
+            d.user = this.userMap[d.operator] || { name: "MS" };
+            let message = "";
+            if (d.operation === "REVIEW") {
+              message =
+                getResource(d) +
+                "：" +
+                d.resourceName +
+                " " +
+                this.$t("commons.contains_script_review");
+            } else {
+              message =
+                d.user.name +
+                getOperation(d.operation) +
+                getResource(d) +
+                ": " +
+                d.resourceName;
+            }
+            let title =
+              d.type === "MENTIONED_ME"
+                ? this.$t("commons.mentioned_me_notice")
+                : this.$t("commons.system_notice");
             setTimeout(() => {
               this.$notify({
                 title: title,
-                type: 'info',
+                type: "info",
                 message: message,
               });
               // 弹出之后标记成已读
-              read(d.id)
+              read(d.id);
               this.noticeShow = true;
             });
           });
-        });
-    }
-  }
+      });
+    },
+  },
 };
 </script>
 
 <style scoped>
-
 .el-icon-check {
   color: #44b349;
   margin-left: 10px;
@@ -197,8 +241,8 @@ export default {
 :deep(.el-drawer__header) {
   font-size: 18px;
   color: #0a0a0a;
-  border-bottom: 1px solid #E6E6E6;
-  background-color: #FFF;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #fff;
   margin-bottom: 10px;
   padding: 10px;
 }
@@ -238,7 +282,6 @@ export default {
   border-color: #783887;
 }
 
-
 :deep(.el-menu-item) {
   padding-left: 0;
   padding-right: 0;
@@ -259,11 +302,11 @@ export default {
 }
 
 .ms-task-error {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
 .ms-task-success {
-  color: #67C23A;
+  color: #67c23a;
 }
 
 .ms-header-menu {
@@ -275,5 +318,4 @@ export default {
   cursor: pointer;
   border-color: var(--color);
 }
-
 </style>

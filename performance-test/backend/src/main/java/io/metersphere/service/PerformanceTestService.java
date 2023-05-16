@@ -24,12 +24,16 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.metadata.service.FileMetadataService;
+import io.metersphere.notice.service.NotificationService;
 import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.*;
 import io.metersphere.task.dto.TaskRequestDTO;
+import io.metersphere.utils.JmxParseUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.redisson.api.RLock;
@@ -38,7 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -94,6 +97,10 @@ public class PerformanceTestService {
     private TestCaseTestMapper testCaseTestMapper;
     @Resource
     private BaseQuotaService baseQuotaService;
+    @Resource
+    private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private NotificationService notificationService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -794,29 +801,6 @@ public class PerformanceTestService {
         return null;
     }
 
-//    /**
-//     * 初始化场景与性能测试的关联关系
-//     */
-//    public void initScenarioLoadTest() {
-//        LoadTestExample example = new LoadTestExample();
-//        example.createCriteria().andScenarioIdIsNotNull();
-//        List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
-//        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-//        ApiLoadTestMapper mapper = sqlSession.getMapper(ApiLoadTestMapper.class);
-//        loadTests.forEach(item -> {
-//            ApiLoadTest scenarioLoadTest = new ApiLoadTest();
-//            scenarioLoadTest.setType(ApiLoadType.SCENARIO.name());
-//            scenarioLoadTest.setApiId(item.getScenarioId());
-//            scenarioLoadTest.setApiVersion(item.getScenarioVersion() == null ? 0 : item.getScenarioVersion());
-//            scenarioLoadTest.setLoadTestId(item.getId());
-//            scenarioLoadTest.setId(UUID.randomUUID().toString());
-//            mapper.insert(scenarioLoadTest);
-//        });
-//        sqlSession.flushStatements();
-//        if (sqlSession != null && sqlSessionFactory != null) {
-//            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-//        }
-//    }
 
     public Integer getGranularity(String reportId) {
         Integer granularity = CommonBeanFactory.getBean(JmeterProperties.class).getReport().getGranularity();
@@ -1016,5 +1000,41 @@ public class PerformanceTestService {
 
     public List<BaseCase> getBaseCaseByProjectId(String projectId) {
         return extLoadTestMapper.selectBaseCaseByProjectId(projectId);
+    }
+
+    //检查并发送脚本审核的通知
+    public void checkAndSendReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files, String loadTestId, String loadTestName, String projectId) {
+        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
+                projectId, ProjectApplicationType.PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT.name());
+        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
+            ProjectApplication loadTestScriptReviewerConfig = baseProjectApplicationService.getProjectApplication(
+                    projectId, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name());
+            if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue())) {
+                boolean isSend = this.isSendScriptReviewMessage(fileMetadataList, files);
+                if (isSend) {
+                    Notification notification = new Notification();
+                    notification.setTitle("性能测试通知");
+                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperation(NoticeConstants.Event.REVIEW);
+                    notification.setResourceId(loadTestId);
+                    notification.setResourceName(loadTestName);
+                    notification.setResourceType(NoticeConstants.TaskType.PERFORMANCE_TEST_TASK);
+                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                    notification.setCreateTime(System.currentTimeMillis());
+                    notification.setReceiver(loadTestScriptReviewerConfig.getTypeValue());
+                    notificationService.sendAnnouncement(notification);
+                }
+            }
+        }
+    }
+
+    private boolean isSendScriptReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files) {
+        List<FileMetadataWithBLOBs> fileMetadataWithBLOBsList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(fileMetadataList)) {
+            List<String> idList = fileMetadataList.stream().map(FileMetadata::getId).toList();
+            fileMetadataWithBLOBsList = fileMetadataService.selectByIdAndType(idList, "JMX");
+        }
+        return JmxParseUtil.isJmxHasScriptByFiles(files) || JmxParseUtil.isJmxHasScriptByStorage(fileMetadataWithBLOBsList);
     }
 }

@@ -1,31 +1,73 @@
 <template>
   <div>
-    <div style="padding-bottom: 5px; width: 100%; height: 50px;">
-      <div style="float:right;">
-        <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
+    <div style="padding-bottom: 5px; width: 100%; height: 50px">
+      <div style="float: right">
+        <span style="color: gray; padding-right: 10px"
+          >({{ totalCount }} {{ $t("commons.notice_count") }})</span
+        >
         <el-dropdown @command="handleCommand" style="padding-right: 10px">
-        <span class="el-dropdown-link" v-if="totalPage > 0">
-          {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
-        </span>
+          <span class="el-dropdown-link" v-if="totalPage > 0">
+            {{ goPage }}/{{ totalPage
+            }}<i class="el-icon-arrow-down el-icon--right"></i>
+          </span>
           <span v-else class="el-dropdown-link">0/0</span>
           <el-dropdown-menu slot="dropdown">
             <div class="dropdown-content">
-              <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
+              <el-dropdown-item v-for="i in totalPage" :key="i" :command="i"
+                >{{ i }}
+              </el-dropdown-item>
             </div>
           </el-dropdown-menu>
         </el-dropdown>
-        <el-button icon="el-icon-arrow-left" size="mini" :disabled="goPage === 1" @click="prevPage"/>
-        <el-button icon="el-icon-arrow-right" size="mini" :disabled="goPage === totalPage" @click="nextPage"/>
+        <el-button
+          icon="el-icon-arrow-left"
+          size="mini"
+          :disabled="goPage === 1"
+          @click="prevPage"
+        />
+        <el-button
+          icon="el-icon-arrow-right"
+          size="mini"
+          :disabled="goPage === totalPage"
+          @click="nextPage"
+        />
       </div>
     </div>
     <div class="report-container">
-      <el-table :data="systemNoticeData"
-                :show-header="false"
-                :highlight-current-row="true"
-                style="width: 100%">
+      <el-table
+        :data="systemNoticeData"
+        :show-header="false"
+        :highlight-current-row="true"
+        style="width: 100%"
+      >
         <el-table-column prop="content" :label="$t('commons.name')">
-          <template v-slot="{row}">
-            <el-row type="flex" align="start" class="current-user">
+          <template v-slot="{ row }">
+            <!--评审信息的格式与其余的不一样-->
+            <el-row
+              v-if="isReviewNotice(row)"
+              type="flex"
+              align="start"
+              class="current-user"
+            >
+              <el-col :span="2">
+                <div class="icon-title">
+                  {{ row.resourceName.substring(0, 1) }}
+                </div>
+              </el-col>
+              <el-col :span="22">
+                <span class="operation">
+                  <span>{{ getResource(row) }}:</span>
+                  <span
+                    @click="clickResource(row)"
+                    style="color: #783887; cursor: pointer"
+                  >
+                    {{ row.resourceName }}
+                  </span>
+                  <span> {{ $t("commons.contains_script_review") }} </span>
+                </span>
+              </el-col>
+            </el-row>
+            <el-row v-else type="flex" align="start" class="current-user">
               <el-col :span="2">
                 <div class="icon-title">
                   {{ row.user.name.substring(0, 1) }}
@@ -33,9 +75,13 @@
               </el-col>
               <el-col :span="22">
                 <span class="username">{{ row.user.name }}</span>
-                <span class="operation">{{ getOperation(row.operation) }}{{ getResource(row) }}:
-                  <span v-if="row.resourceId && row.operation.indexOf('DELETE') < 0" @click="clickResource(row)"
-                        style="color: #783887; cursor: pointer;">
+                <span class="operation"
+                  >{{ getOperation(row.operation) }}{{ getResource(row) }}:
+                  <span
+                    v-if="row.resourceId && row.operation.indexOf('DELETE') < 0"
+                    @click="clickResource(row)"
+                    style="color: #783887; cursor: pointer"
+                  >
                     {{ row.resourceName }}
                   </span>
                   <span v-else>{{ row.resourceName }}</span>
@@ -43,26 +89,29 @@
               </el-col>
             </el-row>
             <el-row type="flex" justify="space-between">
-              <el-col :span="12">
-
-              </el-col>
+              <el-col :span="12"></el-col>
               <el-col :span="6">
-                <span class="time-style">{{ row.createTime | datetimeFormat }}</span>
+                <span class="time-style">{{
+                  row.createTime | datetimeFormat
+                }}</span>
               </el-col>
             </el-row>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div style="color: gray; padding-top:20px; text-align: center">
-      - {{ $t('commons.notice_tips') }} -
+    <div style="color: gray; padding-top: 20px; text-align: center">
+      - {{ $t("commons.notice_tips") }} -
     </div>
   </div>
 </template>
 
 <script>
-import {getOperation, getResource, getUrl} from "../util";
-import {searchNotifications, updateUserByResourceId} from "../../../api/notification";
+import { getOperation, getResource, getUrl } from "../util";
+import {
+  searchNotifications,
+  updateUserByResourceId,
+} from "../../../api/notification";
 
 export default {
   name: "NotificationData",
@@ -73,7 +122,7 @@ export default {
       goPage: 1,
       totalPage: 0,
       totalCount: 0,
-      userMap: {}
+      userMap: {},
     };
   },
   props: {
@@ -95,17 +144,18 @@ export default {
       this.init();
     },
     init() {
-      let param = {type: this.type};
-      this.result = searchNotifications(param, this.goPage, this.pageSize)
-        .then(response => {
+      let param = { type: this.type };
+      this.result = searchNotifications(param, this.goPage, this.pageSize).then(
+        (response) => {
           this.systemNoticeData = response.data.listObject;
           this.totalPage = response.data.pageCount;
           this.totalCount = response.data.itemCount;
 
-          this.systemNoticeData.forEach(n => {
-            n.user = this.userMap[n.operator] || {name: "MS"};
+          this.systemNoticeData.forEach((n) => {
+            n.user = this.userMap[n.operator] || { name: "MS" };
           });
-        });
+        }
+      );
     },
     prevPage() {
       if (this.goPage < 1) {
@@ -130,10 +180,9 @@ export default {
       }
       let uri = getUrl(resource);
 
-      updateUserByResourceId(resourceId)
-        .then(() => {
-          this.toPage(uri);
-        });
+      updateUserByResourceId(resourceId).then(() => {
+        this.toPage(uri);
+      });
     },
     toPage(uri) {
       let id = "new_a";
@@ -146,8 +195,11 @@ export default {
 
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
-    }
-  }
+    },
+    isReviewNotice(row) {
+      return row.operation === "REVIEW";
+    },
+  },
 };
 </script>
 

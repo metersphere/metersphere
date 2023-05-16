@@ -7,6 +7,9 @@ const message = {
     environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})",
     check_third_project_success: "檢查通過",
     api_run_pool_title: "接口執行資源池",
+    reviewers: "審核人",
+    load_test_script_review: "性能腳本審核",
+    load_test_script_review_detail: "上傳性能測試腳本文件須指定用戶審核",
   },
   file_manage: {
     my_file: "我的文件",
