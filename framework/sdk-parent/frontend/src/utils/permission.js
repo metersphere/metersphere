@@ -68,6 +68,41 @@ export function hasPermission(permission) {
   return false;
 }
 
+export function hasPermissionForProjectId(permission, projectId) {
+  let user = getCurrentUser();
+  if (!user || !user.groups) {
+    return false;
+  }
+  let index = user.groups.findIndex(g => g.id === SUPER_GROUP);
+  if (index !== -1) {
+    return true;
+  }
+
+  user.userGroups.forEach(ug => {
+    user.groupPermissions.forEach(gp => {
+      if (gp.group.id === ug.groupId) {
+        ug.userGroupPermissions = gp.userGroupPermissions;
+        ug.group = gp.group;
+      }
+    });
+  });
+
+  let currentProjectPermissions = user.userGroups.filter(ug => ug.group && ug.group.type === 'PROJECT')
+    .filter(ug => ug.sourceId === projectId)
+    .flatMap(ug => ug.userGroupPermissions)
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
+  for (const p of currentProjectPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function hasPermissions(...permissions) {
   for (let p of permissions) {
     if (hasPermission(p)) {
