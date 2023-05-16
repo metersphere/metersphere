@@ -672,6 +672,7 @@ const message = {
       "Note: The system will automatically synchronize at 00:00:00 every day",
     case_priority_option_check_error:
       "Use case levels need to add option values in order, for example: P",
+    remote_search_tip: "Enter a user name to search users for you"
   },
   workspace: {
     id: "Workspace ID",
