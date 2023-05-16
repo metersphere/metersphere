@@ -6,6 +6,7 @@
         <template v-slot:default="scope">
           <div v-if="isObject(scope.row.newValue)" class="code-edit-container">
             <ms-code-edit
+              v-if="visible"
               mode="json"
               :read-only="true"
               :data="getJsonValue(scope.row.newValue)"
@@ -34,11 +35,23 @@ import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
     },
     data() {
       return {
+        visible: true
+      }
+    },
+    watch: {
+      detail() {
+        this.reload();
       }
     },
     methods: {
       getJsonValue(value) {
         return JSON.stringify(value);
+      },
+      reload() {
+        this.visible = false;
+        this.$nextTick(() => {
+          this.visible = true;
+        });
       },
       isObject(value) {
         if (value instanceof Object) {
