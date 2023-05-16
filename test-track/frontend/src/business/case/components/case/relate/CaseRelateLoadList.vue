@@ -108,6 +108,7 @@ import { TEST_CASE_RELEVANCE_LOAD_CASE } from "metersphere-frontend/src/componen
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import { getVersionFilters } from "@/business/utils/sdk-utils";
 import { getTestCaseRelevanceLoadList } from "@/api/testCase";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
 export default {
   name: "CaseRelateLoadList",
@@ -154,7 +155,7 @@ export default {
     projectId() {
       this.condition.versionId = null;
       this.getVersionOptions();
-      this.initTable();
+      this.initTable(this.projectId);
     },
   },
   computed: {
@@ -177,6 +178,9 @@ export default {
         this.condition.projectId = projectId;
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
+      }
+      if (this.condition.projectId === "") {
+        this.condition.projectId = getCurrentProjectID();
       }
       this.condition.notInIds = this.notInIds;
       this.condition.testCaseId = this.testCaseId;

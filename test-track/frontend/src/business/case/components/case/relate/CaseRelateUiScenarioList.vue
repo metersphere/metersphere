@@ -185,7 +185,7 @@ export default {
     },
     projectId() {
       this.condition.versionId = null;
-      this.initTable();
+      this.initTable(this.projectId);
     },
   },
   computed: {
