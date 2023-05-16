@@ -314,11 +314,24 @@ public class SystemParameterService {
             poolList = list.stream().filter(pool -> pools.contains(pool.getId())).collect(Collectors.toList());
         }
         if (CollectionUtils.isNotEmpty(poolList)) {
-            return poolList.get(0).getId();
+            return getPreLocalPoolId(poolList);
         } else if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getId();
+            return getPreLocalPoolId(list);
         }
         return null;
+    }
+
+    String getPreLocalPoolId(List<TestResourcePoolDTO> poolList) {
+        if (CollectionUtils.isEmpty(poolList)) {
+            return null;
+        }
+        List<TestResourcePoolDTO> poolDTOS = poolList.stream().filter(pool ->
+                StringUtils.equals(pool.getName(), "LOCAL")).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(poolDTOS)) {
+            return poolDTOS.get(0).getId();
+        } else {
+            return poolList.get(0).getId();
+        }
     }
 
     public void batchSaveApp(List<String> projectIds, List<TestResourcePoolDTO> poolList, ProjectApplicationMapper batchMapper) {

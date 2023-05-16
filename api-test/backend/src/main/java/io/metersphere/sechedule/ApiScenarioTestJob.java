@@ -11,7 +11,9 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.service.scenario.ApiScenarioService;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
@@ -33,6 +35,8 @@ public class ApiScenarioTestJob extends MsScheduleJob {
     private List<String> scenarioIds;
 
     private ApiScenarioService apiAutomationService;
+
+    private ApiPoolDebugService apiPoolDebugService;
 
     public ApiScenarioTestJob() {
         apiAutomationService = CommonBeanFactory.getBean(ApiScenarioService.class);
@@ -79,7 +83,14 @@ public class ApiScenarioTestJob extends MsScheduleJob {
             runModeConfigDTO.setMode(RunModeConstants.PARALLEL.toString());
             request.setConfig(runModeConfigDTO);
         }
-
+        // 兼容历史定时任务默认给一个资源池
+        if (StringUtils.isBlank(request.getConfig().getResourcePoolId())) {
+            try {
+                apiPoolDebugService.verifyPool(projectID, request.getConfig());
+            } catch (Exception e) {
+                LoggerUtil.error(e);
+            }
+        }
         apiAutomationService.run(request);
     }
 
