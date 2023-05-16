@@ -38,6 +38,8 @@ public class PlatformPluginService {
     private BasePluginService basePluginService;
     @Resource
     private BaseIntegrationService baseIntegrationService;
+    @Resource
+    private BaseProjectService baseProjectService;
 
     public static final String PLUGIN_DOWNLOAD_URL = "https://github.com/metersphere/metersphere-platform-plugin";
 
@@ -156,7 +158,8 @@ public class PlatformPluginService {
         Platform platform = getPlatform(request.getPlatform(), request.getWorkspaceId());
         GetOptionRequest getOptionRequest = new GetOptionRequest();
         getOptionRequest.setOptionMethod(request.getOptionMethod());
-        getOptionRequest.setProjectConfig(request.getProjectConfig());
+        String projectConfig = getCompatibleProjectConfig(baseProjectService.getProjectById(request.getProjectId()));
+        getOptionRequest.setProjectConfig(projectConfig);
         getOptionRequest.setQuery(request.getQuery());
         try {
             return platform.getFormOptions(getOptionRequest);

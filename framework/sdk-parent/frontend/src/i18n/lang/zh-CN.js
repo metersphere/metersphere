@@ -658,6 +658,7 @@ const message = {
     option_value_check: "请填写完整选项值",
     sync_issue_tips: "注: 系统在每天00:00:00会自动同步一次",
     case_priority_option_check_error: "用例等级需按照顺序添加选项值, 例: P",
+    remote_search_tip: "输入用户名，系统会提供更多匹配的用户列表供您选择"
   },
   workspace: {
     id: "工作空间ID",
