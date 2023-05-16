@@ -22,7 +22,7 @@
         </el-tooltip>
         </el-col>
         <el-col :span="1">
-          <ms-api-report-status :status="node.totalStatus" />
+          <ms-api-report-status :status="node.totalStatus" v-if="node.label !=='ConstantTimer'"/>
         </el-col>
         </el-row>
       </el-card>
