@@ -68,16 +68,8 @@
               haveOtherExecCase
             "
           >
-            <el-checkbox
-              v-model="runConfig.runWithinResourcePool"
-              style="padding-right: 10px"
-              class="radio-change"
-              :disabled="true"
-            >
-              {{ $t("run_mode.run_with_resource_pool") }} </el-checkbox
-            ><br />
+            <span>{{ $t("run_mode.run_with_resource_pool") }}: </span>
             <el-select
-              :disabled="!runConfig.runWithinResourcePool"
               v-model="runConfig.resourcePoolId"
               size="mini"
               style="width: 100%; margin-top: 8px"
@@ -100,16 +92,8 @@
               haveOtherExecCase
             "
           >
-            <el-checkbox
-              v-model="runConfig.runWithinResourcePool"
-              style="padding-right: 10px"
-              class="radio-change"
-              :disabled="true"
-            >
-              {{ $t("run_mode.run_with_resource_pool") }} </el-checkbox
-            ><br />
+            <span>{{ $t("run_mode.run_with_resource_pool") }}: </span>
             <el-select
-              :disabled="!runConfig.runWithinResourcePool"
               v-model="runConfig.resourcePoolId"
               size="mini"
               style="width: 100%; margin-top: 8px"
@@ -254,7 +238,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -319,9 +302,6 @@ export default {
         this.runConfig.onSampleError =
           this.runConfig.onSampleError === "true" ||
           this.runConfig.onSampleError === true;
-        this.runConfig.runWithinResourcePool =
-          this.runConfig.runWithinResourcePool === "true" ||
-          this.runConfig.runWithinResourcePool === true;
       }
       this.runModeVisible = true;
       this.testType = testType;
@@ -330,15 +310,21 @@ export default {
       this.showPopover();
     },
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), "").then((res) => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.resourcePools.forEach(item => {
-            if (item.id === res.data.resourcePoolId) {
-              this.runConfig.resourcePoolId = res.data.resourcePoolId;
-            }
-          });
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
       });
+      if (!hasPool) {
+        this.runConfig.resourcePoolId = null;
+        getProjectConfig(getCurrentProjectID(), "").then((res) => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     changeMode() {
       this.runConfig.onSampleError = false;
@@ -348,7 +334,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -366,7 +351,6 @@ export default {
     getResourcePools() {
       getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
-        this.runConfig.runWithinResourcePool = true;
         this.getProjectApplication();
       });
     },
@@ -445,7 +429,6 @@ export default {
     },
     handleCommand(command) {
       if (
-        this.runConfig.runWithinResourcePool &&
         this.runConfig.resourcePoolId == null &&
         this.haveOtherExecCase
       ) {
