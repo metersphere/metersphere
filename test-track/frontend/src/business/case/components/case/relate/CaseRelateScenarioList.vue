@@ -130,6 +130,7 @@ import { getVersionFilters } from "@/business/utils/sdk-utils";
 import MxVersionSelect from "metersphere-frontend/src/components/version/MxVersionSelect";
 import { getTestCaseRelevanceScenarioList } from "@/api/testCase";
 import {getTagToolTips, parseColumnTag} from "@/business/case/test-case";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 
 export default {
   name: "CaseRelateScenarioList",
@@ -190,7 +191,7 @@ export default {
     projectId() {
       this.condition.versionId = null;
       this.getVersionOptions();
-      this.initTable();
+      this.initTable(this.projectId);
     },
   },
   computed: {
@@ -214,6 +215,9 @@ export default {
         this.condition.projectId = projectId;
       } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
+      }
+      if (this.condition.projectId === "") {
+        this.condition.projectId = getCurrentProjectID();
       }
       this.condition.notInIds = this.notInIds;
       this.condition.testCaseId = this.testCaseId;
