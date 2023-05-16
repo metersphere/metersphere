@@ -22,6 +22,7 @@ import io.metersphere.request.*;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.PerformanceTestService;
 import io.metersphere.task.dto.TaskRequestDTO;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -29,7 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,12 +97,12 @@ public class PerformanceTestController {
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
         request.setId(UUID.randomUUID().toString());
-        // checkPermissionService.checkProjectOwner(request.getProjectId());
         LoadTest loadTest = performanceTestService.save(request, files);
 
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
-
+        //检查并发送审核脚本的通知
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
         return loadTest;
     }
 
@@ -114,8 +115,10 @@ public class PerformanceTestController {
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
-        // // checkPermissionService.checkPerformanceTestOwner(request.getId());
-        return performanceTestService.edit(request, files);
+        LoadTest returnModel = performanceTestService.edit(request, files);
+        //检查并发送审核脚本的通知
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        return returnModel;
     }
 
 
@@ -160,7 +163,7 @@ public class PerformanceTestController {
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                      @PathVariable int goPage, @PathVariable int pageSize,
                                                      @RequestBody QueryProjectFileRequest request) {
-//        // checkPermissionService.checkProjectOwner(projectId);
+        //        // checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }
@@ -283,6 +286,7 @@ public class PerformanceTestController {
     public LoadTestDTO getLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
         return performanceTestService.getLoadTestByVersion(version, refId);
     }
+
     @GetMapping("check-file-is-related/{fileId}")
     public void checkFileIsRelated(@PathVariable String fileId) {
         performanceTestService.checkFileIsRelated(fileId);

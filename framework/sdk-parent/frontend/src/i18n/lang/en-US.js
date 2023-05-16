@@ -395,6 +395,7 @@ const message = {
     },
     reviewer: "Reviewer",
     append_reviewer: "Append Reviewer",
+    contains_script_review: "has script step，review it please.",
     report_statistics: {
       reserved: "Reserved",
       menu: {
@@ -520,10 +521,10 @@ const message = {
       ui_module: "default",
     },
     other: "Other",
-    function_introduction: 'Function introduction',
-    page_guidance: 'Page guidance',
-    novice_journey: 'Novice Journey',
-    minder_operation: 'Minder Operation'
+    function_introduction: "Function introduction",
+    page_guidance: "Page guidance",
+    novice_journey: "Novice Journey",
+    minder_operation: "Minder Operation",
   },
   login: {
     normal_Login: "Normal Login",
@@ -1381,7 +1382,8 @@ const message = {
       title: "Upload jar package",
       jar_file: "Jar Package",
       jar_manage: "JAR package management",
-      delete_tip: "Deleting the plug-in requires restarting the service to take effect",
+      delete_tip:
+        "Deleting the plug-in requires restarting the service to take effect",
       delete_confirm: "Confirm to delete the plugin",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
@@ -3539,56 +3541,56 @@ const message = {
   },
   shepherd: {
     step1: {
-      title: 'A Workspaces and Projects',
-      text: 'MeterSphere uses [workspace] and [project] to isolate test data, and you can switch between workspace and project in the top menu.'
+      title: "A Workspaces and Projects",
+      text: "MeterSphere uses [workspace] and [project] to isolate test data, and you can switch between workspace and project in the top menu.",
     },
     step2: {
-      title: 'Side navigation menu',
-      text: 'The navigation menu shows which function module you are in.'
+      title: "Side navigation menu",
+      text: "The navigation menu shows which function module you are in.",
     },
     step3: {
-      title: 'One workspace holds multiple projects',
-      text: 'A "project" is a collection of use cases and members. Various types of tests on MeterSphere are viewed and managed through projects.'
+      title: "One workspace holds multiple projects",
+      text: 'A "project" is a collection of use cases and members. Various types of tests on MeterSphere are viewed and managed through projects.',
     },
     step4: {
-      title: 'Top function menu',
-      text: 'The topl function menu supports switching subdivision functions under the current first-class module.'
+      title: "Top function menu",
+      text: "The topl function menu supports switching subdivision functions under the current first-class module.",
     },
     step5: {
       title: "Where are you?",
-      text: "Now, that you have joined a workspace and become a member of the current project, start your testing journey from here."
+      text: "Now, that you have joined a workspace and become a member of the current project, start your testing journey from here.",
     },
-    exit:'skip',
-    next: 'Next',
-    know:'know',
+    exit: "skip",
+    next: "Next",
+    know: "know",
   },
   guide: {
     home: {
-      title: 'Welcome to MeterSphere!',
-      desc: 'A quickstart guide to see what MeterSphere can do for you.',
-      button: 'Lets get started'
+      title: "Welcome to MeterSphere!",
+      desc: "A quickstart guide to see what MeterSphere can do for you.",
+      button: "Lets get started",
     },
     test: {
-      title: 'Test cases are the cornerstone of testing',
-      desc: '<span>Maintain your test cases through online editing/file import/URL synchronization/multi-person review,</span><br><span>add them to your test plan,quantitatively manage test progress, record results, synchronize issues, </span><br><span>retain/share test reports, and cover the entire software testing life cycle.</span>',
-      button: 'Next: Interface Test'
+      title: "Test cases are the cornerstone of testing",
+      desc: "<span>Maintain your test cases through online editing/file import/URL synchronization/multi-person review,</span><br><span>add them to your test plan,quantitatively manage test progress, record results, synchronize issues, </span><br><span>retain/share test reports, and cover the entire software testing life cycle.</span>",
+      button: "Next: Interface Test",
     },
     api: {
-      title: 'Simulate real scenarios to automate API testing',
-      desc: '<span>API testing is triggered by manual/scheduled tasks/plug-ins, supporting multiple communication protocols; </span><br><span>scenario case-sets are arranged based on real business processes, </span><br><span>and multi-type controllers/custom scripts/assertions are supported to meet various user needs.</span>',
-      button: 'Next: UI Test'
+      title: "Simulate real scenarios to automate API testing",
+      desc: "<span>API testing is triggered by manual/scheduled tasks/plug-ins, supporting multiple communication protocols; </span><br><span>scenario case-sets are arranged based on real business processes, </span><br><span>and multi-type controllers/custom scripts/assertions are supported to meet various user needs.</span>",
+      button: "Next: UI Test",
     },
     ui: {
-      title: 'Portable UI element library and command set',
+      title: "Portable UI element library and command set",
       desc: '<span>Arrange scenario cases based on reusable element library and commands;</span><br><span>combine your commonly used test steps into new command, which can be flexibly called in automation scenarios.</span><br><span style="background-color: #ffffff;color:#ffffff">/</span>',
-      button: 'Next: Performance Test'
+      button: "Next: Performance Test",
     },
     performance: {
-      title: 'One-click launch performance testing',
-      desc: '<span>Provides a distributed performance testing solution, supporting multiple types of testing resource pools </span><br><span>such as physical machines/virtual machines/k8s container clusters; </span><br><span>One-click to initiate API scenario case to performance testing, and view real-time reports;</span><br><span>Provides report comparison under different configurations to control performance bottlenecks and optimize them.</span>',
-      button: 'To create your first test case'
+      title: "One-click launch performance testing",
+      desc: "<span>Provides a distributed performance testing solution, supporting multiple types of testing resource pools </span><br><span>such as physical machines/virtual machines/k8s container clusters; </span><br><span>One-click to initiate API scenario case to performance testing, and view real-time reports;</span><br><span>Provides report comparison under different configurations to control performance bottlenecks and optimize them.</span>",
+      button: "To create your first test case",
     },
-    go_prev: 'Return to previous'
+    go_prev: "Return to previous",
   },
   side_task: {
     test_tracking: {
@@ -3638,7 +3640,7 @@ const message = {
       subtitle: "You have completed all the novice journey, full of energy",
       desc: "If you want to continue to learn about advanced tutorials, please follow our technical blog and live channel",
       blog_url: "Technical Blog",
-      live_url: "Live Channel"
+      live_url: "Live Channel",
     },
     close: {
       title: "Close the novice journey",
@@ -3649,8 +3651,8 @@ const message = {
     },
     save_success: "Closed successfully",
     to_try: "Go to try it",
-    view_video: "View video tutorial"
-  }
+    view_video: "View video tutorial",
+  },
 };
 
 export default {

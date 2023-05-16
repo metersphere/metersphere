@@ -8,6 +8,10 @@ const message = {
       "(Environment configuration with the same name filtered {0})",
     check_third_project_success: "inspection passed",
     api_run_pool_title: "Interface execution resource pool",
+    reviewers: "Reviewers",
+    load_test_script_review: "Performance test script review",
+    load_test_script_review_detail:
+      "Performance test script file upload must specify user review",
   },
   file_manage: {
     my_file: "My File",

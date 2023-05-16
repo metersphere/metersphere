@@ -784,4 +784,10 @@ public class FileMetadataService {
             return new ArrayList<>();
         }
     }
+
+    public List<FileMetadataWithBLOBs> selectByIdAndType(List<String> idList, String jmx) {
+        FileMetadataExample fileMetadataExample = new FileMetadataExample();
+        fileMetadataExample.createCriteria().andIdIn(idList).andTypeEqualTo("JMX");
+        return fileMetadataMapper.selectByExampleWithBLOBs(fileMetadataExample);
+    }
 }

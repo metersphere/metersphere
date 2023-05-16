@@ -36,4 +36,6 @@ public class ProjectConfig {
     private String resourcePoolId;
     private Boolean poolEnable = false;
     private Boolean reReview = false;
+    private String performanceScriptReviewer;
+    private Boolean performanceReviewLoadTestScript = false;
 }

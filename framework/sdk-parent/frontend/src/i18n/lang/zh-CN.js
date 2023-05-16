@@ -387,6 +387,7 @@ const message = {
     },
     reviewer: "评审人",
     append_reviewer: "追加评审人",
+    contains_script_review: "包含脚本步骤，请审核",
     report_statistics: {
       reserved: "预留模块敬请期待",
       menu: {
@@ -512,10 +513,10 @@ const message = {
     template_delete: "模版删除",
     scope: "应用场景",
     other: "其他",
-    function_introduction: '功能介绍',
-    page_guidance: '页面指引',
-    novice_journey: '新手旅程',
-    minder_operation: '脑图操作'
+    function_introduction: "功能介绍",
+    page_guidance: "页面指引",
+    novice_journey: "新手旅程",
+    minder_operation: "脑图操作",
   },
   login: {
     normal_Login: "普通登录",
@@ -3413,56 +3414,56 @@ const message = {
   },
   shepherd: {
     step1: {
-      title: '工作空间和项目',
-      text: 'MeterSphere 使用 [工作空间] 和 [项目] 来隔离测试数据, 你可以在顶部菜单进行工作空间和项目切换。'
+      title: "工作空间和项目",
+      text: "MeterSphere 使用 [工作空间] 和 [项目] 来隔离测试数据, 你可以在顶部菜单进行工作空间和项目切换。",
     },
     step2: {
-      title: '功能主菜单',
-      text: '主菜单显示你所在的功能模块。'
+      title: "功能主菜单",
+      text: "主菜单显示你所在的功能模块。",
     },
     step3: {
-      title: '一个空间可以创建多个项目',
-      text: '「项目」是一组用例和成员的集合。MeterSphere 上各种类型的测试均通过项目进行分权分域查看和管理。'
+      title: "一个空间可以创建多个项目",
+      text: "「项目」是一组用例和成员的集合。MeterSphere 上各种类型的测试均通过项目进行分权分域查看和管理。",
     },
     step4: {
-      title: '一级功能菜单',
-      text: '顶部一级功能菜单栏，支持在当前功能模块下切换细分功能。'
+      title: "一级功能菜单",
+      text: "顶部一级功能菜单栏，支持在当前功能模块下切换细分功能。",
     },
     step5: {
       title: "你在哪？",
-      text: "现在，你已加入了一个工作空间并成为当前项目的一员，就从这里开始你的测试之旅吧。"
+      text: "现在，你已加入了一个工作空间并成为当前项目的一员，就从这里开始你的测试之旅吧。",
     },
-    exit:'跳过',
-    next:'下一步',
-    know:'知道啦',
+    exit: "跳过",
+    next: "下一步",
+    know: "知道啦",
   },
   guide: {
     home: {
-      title: '欢迎来到 MeterSphere！',
-      desc: '通过一个快捷指引来了解 MeterSphere 究竟能为你做哪些事。',
-      button: '让我们开始吧'
+      title: "欢迎来到 MeterSphere！",
+      desc: "通过一个快捷指引来了解 MeterSphere 究竟能为你做哪些事。",
+      button: "让我们开始吧",
     },
     test: {
-      title: '测试用例是测试任务的基石',
-      desc: '<span>使用在线编辑/文件导入/URL同步/多人评审的方式维护你的用例，</span><br><span>将它们加入你的测试计划中，量化管理测试进度，记录结果，同步缺陷，</span><br><span>留存/分享测试报告，覆盖整个测试生命周期。</span>',
-      button: '下一个：接口测试'
+      title: "测试用例是测试任务的基石",
+      desc: "<span>使用在线编辑/文件导入/URL同步/多人评审的方式维护你的用例，</span><br><span>将它们加入你的测试计划中，量化管理测试进度，记录结果，同步缺陷，</span><br><span>留存/分享测试报告，覆盖整个测试生命周期。</span>",
+      button: "下一个：接口测试",
     },
     api: {
-      title: '模拟真实场景 让接口自动化',
-      desc: '<span>通过手动/定时任务/插件触发接口测试，支持多种通信协议；</span><br><span>基于真实业务流程编排场景化用例集，支持添加多类型控制器/自定义脚本/断言，</span><br><span>满足各种复杂场景所需。</span>',
-      button: '下一个：UI测试'
+      title: "模拟真实场景 让接口自动化",
+      desc: "<span>通过手动/定时任务/插件触发接口测试，支持多种通信协议；</span><br><span>基于真实业务流程编排场景化用例集，支持添加多类型控制器/自定义脚本/断言，</span><br><span>满足各种复杂场景所需。</span>",
+      button: "下一个：UI测试",
     },
     ui: {
-      title: '可移植的 UI 元素库与指令集',
+      title: "可移植的 UI 元素库与指令集",
       desc: '<span>基于可复用的元素库及指令快速编排场景化用例；</span><br><span>将你常用的测试步骤组合成新的自定义指令，在自动化场景中灵活调用。</span><br><span style="background-color: #ffffff;color:#ffffff">/</span>',
-      button: '下一个：性能测试'
+      button: "下一个：性能测试",
     },
     performance: {
-      title: '性能测试 一键就可以',
-      desc: '<span>提供分布式压测解决方案，支持物理机/虚拟机/k8s容器集群等多类型压测资源池；</span><br><span>使用接口测试转性能一键发起，实时查看报告；</span><br><span>提供差异配置下的报告对比，掌控性能瓶颈及调优。</span>',
-      button: '完成！去创建你的第 1 条测试用例'
+      title: "性能测试 一键就可以",
+      desc: "<span>提供分布式压测解决方案，支持物理机/虚拟机/k8s容器集群等多类型压测资源池；</span><br><span>使用接口测试转性能一键发起，实时查看报告；</span><br><span>提供差异配置下的报告对比，掌控性能瓶颈及调优。</span>",
+      button: "完成！去创建你的第 1 条测试用例",
     },
-    go_prev: '返回上一个'
+    go_prev: "返回上一个",
   },
   side_task: {
     test_tracking: {
@@ -3512,7 +3513,7 @@ const message = {
       subtitle: "你已完成全部新手旅程 能量满载～",
       desc: "想继续了解进阶教程，请关注我们的技术博客和直播",
       blog_url: "博客地址",
-      live_url: "直播间地址"
+      live_url: "直播间地址",
     },
     close: {
       title: "关闭新手旅程",
@@ -3523,8 +3524,8 @@ const message = {
     },
     save_success: "关闭成功",
     to_try: "去完成",
-    view_video: "观看视频教程"
-  }
+    view_video: "观看视频教程",
+  },
 };
 
 export default {

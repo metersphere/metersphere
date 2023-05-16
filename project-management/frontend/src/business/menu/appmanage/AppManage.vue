@@ -3,10 +3,20 @@
     <ms-main-container>
       <div v-loading="loading">
         <el-card class="table-card">
-          <el-tabs v-model="activeName" style="height: 600px" @tab-click="tabClick">
-            <el-tab-pane :label="$t('commons.my_workstation')" name="my_workstation" v-if="isXpack">
+          <el-tabs
+            v-model="activeName"
+            style="height: 600px"
+            @tab-click="tabClick"
+          >
+            <el-tab-pane
+              :label="$t('commons.my_workstation')"
+              name="my_workstation"
+              v-if="isXpack"
+            >
               <el-row style="margin-top: 10px">
-                <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+                <span style="font-weight: bold">{{
+                  this.$t("commons.enable_settings")
+                }}</span>
               </el-row>
               <el-row style="margin-top: 15px">
                 <app-manage-item
@@ -14,10 +24,11 @@
                   :show-btn="true"
                   @clickBtn="openRuleSetting"
                   :disabled-btn="disabledRuleBtn"
-                  v-if="isXpack">
+                  v-if="isXpack"
+                >
                   <template #append>
                     <el-switch v-model="openUpdateRule" @change="openRule">
-                      {{ $t('commons.setting') + $t('commons.rule') }}
+                      {{ $t("commons.setting") + $t("commons.rule") }}
                     </el-switch>
                   </template>
                 </app-manage-item>
@@ -26,42 +37,76 @@
 
             <el-tab-pane :label="$t('test_track.test_track')" name="test_track">
               <el-row style="margin-top: 10px">
-                <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+                <span style="font-weight: bold">{{
+                  this.$t("commons.enable_settings")
+                }}</span>
               </el-row>
               <el-row style="margin-top: 15px">
-                <app-manage-item :title="$t('project.public')" :description="$t('project.public_info')"
-                                 v-if="isXpack">
+                <app-manage-item
+                  :title="$t('project.public')"
+                  :description="$t('project.public_info')"
+                  v-if="isXpack"
+                >
                   <template #append>
-                    <el-switch v-model="config.casePublic" @change="switchChange('CASE_PUBLIC', $event)"></el-switch>
+                    <el-switch
+                      v-model="config.casePublic"
+                      @change="switchChange('CASE_PUBLIC', $event)"
+                    ></el-switch>
                   </template>
                 </app-manage-item>
 
-                <app-manage-item :title="$t('project.test_case_custom_id')"
-                                 :description="$t('project.test_case_custom_id_info')">
+                <app-manage-item
+                  :title="$t('project.test_case_custom_id')"
+                  :description="$t('project.test_case_custom_id_info')"
+                >
                   <template #append>
-                    <el-switch v-model="config.caseCustomNum"
-                               @change="switchChange('CASE_CUSTOM_NUM', $event)"></el-switch>
+                    <el-switch
+                      v-model="config.caseCustomNum"
+                      @change="switchChange('CASE_CUSTOM_NUM', $event)"
+                    ></el-switch>
                   </template>
                 </app-manage-item>
-                <timing-item ref="trackTimingItem" :choose.sync="config.cleanTrackReport"
-                             :expr.sync="config.cleanTrackReportExpr"
-                             @chooseChange="switchChange('CLEAN_TRACK_REPORT', config.cleanTrackReport, ['CLEAN_TRACK_REPORT_EXPR', config.cleanTrackReportExpr])"
-                             :title="$t('project.timing_clean_plan_report')"/>
-                <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
-                             :expr.sync="config.trackShareReportTime" :share-link="true"
-                             :unit-options="applyUnitOptions"
-                             @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime, config.shareReport)"
-                             :title="$t('report.report_sharing_link')"/>
+                <timing-item
+                  ref="trackTimingItem"
+                  :choose.sync="config.cleanTrackReport"
+                  :expr.sync="config.cleanTrackReportExpr"
+                  @chooseChange="
+                    switchChange(
+                      'CLEAN_TRACK_REPORT',
+                      config.cleanTrackReport,
+                      ['CLEAN_TRACK_REPORT_EXPR', config.cleanTrackReportExpr]
+                    )
+                  "
+                  :title="$t('project.timing_clean_plan_report')"
+                />
+                <timing-item
+                  ref="trackTimingItem"
+                  :choose.sync="config.shareReport"
+                  :expr.sync="config.trackShareReportTime"
+                  :share-link="true"
+                  :unit-options="applyUnitOptions"
+                  @chooseChange="
+                    switchChange(
+                      'TRACK_SHARE_REPORT_TIME',
+                      config.trackShareReportTime,
+                      config.shareReport
+                    )
+                  "
+                  :title="$t('report.report_sharing_link')"
+                />
 
-                <app-manage-item :title="$t('project.re_review')"
-                                 :prepend-span="18"
-                                 :description="$t('project.re_review_info')">
+                <app-manage-item
+                  :title="$t('project.re_review')"
+                  :prepend-span="18"
+                  :description="$t('project.re_review_info')"
+                >
                   <template #append>
-                    <el-switch v-model="config.reReview"
-                               @change="switchChange('RE_REVIEW', $event)"></el-switch>
+                    <el-switch
+                      v-model="config.reReview"
+                      @change="switchChange('RE_REVIEW', $event)"
+                    ></el-switch>
                   </template>
                 </app-manage-item>
-
               </el-row>
             </el-tab-pane>
 
@@ -69,80 +114,149 @@
               <el-row :gutter="20">
                 <el-col :span="8" class="commons-api-enable">
                   <el-row style="margin-top: 10px">
-                    <span style="font-weight:bold">{{ $t('commons.enable_settings') }}</span>
+                    <span style="font-weight: bold">{{
+                      $t("commons.enable_settings")
+                    }}</span>
                   </el-row>
                   <el-row style="margin-top: 15px">
-                    <app-manage-item :title="$t('project.repeatable')" :description="$t('project.repeatable_info')">
+                    <app-manage-item
+                      :title="$t('project.repeatable')"
+                      :description="$t('project.repeatable_info')"
+                    >
                       <template #append>
-                        <el-switch v-model="config.urlRepeatable"
-                                   @change="switchChange('URL_REPEATABLE', $event)"></el-switch>
+                        <el-switch
+                          v-model="config.urlRepeatable"
+                          @change="switchChange('URL_REPEATABLE', $event)"
+                        ></el-switch>
                       </template>
                     </app-manage-item>
-                    <app-manage-item :title="$t('project.scenario_custom_id')"
-                                     :description="$t('project.scenario_custom_id_info')">
+                    <app-manage-item
+                      :title="$t('project.scenario_custom_id')"
+                      :description="$t('project.scenario_custom_id_info')"
+                    >
                       <template #append>
-                        <el-switch v-model="config.scenarioCustomNum"
-                                   @change="switchChange('SCENARIO_CUSTOM_NUM', $event)"></el-switch>
+                        <el-switch
+                          v-model="config.scenarioCustomNum"
+                          @change="switchChange('SCENARIO_CUSTOM_NUM', $event)"
+                        ></el-switch>
                       </template>
                     </app-manage-item>
-                    <app-manage-item :title="'TCP Mock Port'" :prepend-span="8" :middle-span="12" :append-span="4">
+                    <app-manage-item
+                      :title="'TCP Mock Port'"
+                      :prepend-span="8"
+                      :middle-span="12"
+                      :append-span="4"
+                    >
                       <template #middle>
-                        <el-input-number v-model="config.mockTcpPort" :controls="false" size="medium"
-                                         :disabled="config.mockTcpOpen"></el-input-number>
+                        <el-input-number
+                          v-model="config.mockTcpPort"
+                          :controls="false"
+                          size="medium"
+                          :disabled="config.mockTcpOpen"
+                        ></el-input-number>
                       </template>
                       <template #append>
-                        <el-switch v-model="config.mockTcpOpen"
-                                   @change="tcpMockSwitchChange($event, ['MOCK_TCP_PORT', config.mockTcpPort])"></el-switch>
+                        <el-switch
+                          v-model="config.mockTcpOpen"
+                          @change="
+                            tcpMockSwitchChange($event, [
+                              'MOCK_TCP_PORT',
+                              config.mockTcpPort,
+                            ])
+                          "
+                        ></el-switch>
                       </template>
                     </app-manage-item>
-                    <timing-item ref="apiTimingItem" :choose.sync="config.cleanApiReport"
-                                 :expr.sync="config.cleanApiReportExpr"
-                                 @chooseChange="switchChange('CLEAN_API_REPORT', config.cleanApiReport, ['CLEAN_API_REPORT_EXPR', config.cleanApiReportExpr])"
-                                 :title="$t('project.timing_clean_api_report')"/>
-                    <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
-                                 :expr.sync="config.apiShareReportTime" :share-link="true"
-                                 :unit-options="applyUnitOptions"
-                                 @chooseChange="switchChange('API_SHARE_REPORT_TIME', config.apiShareReportTime, config.shareReport)"
-                                 :title="$t('report.report_sharing_link')"/>
+                    <timing-item
+                      ref="apiTimingItem"
+                      :choose.sync="config.cleanApiReport"
+                      :expr.sync="config.cleanApiReportExpr"
+                      @chooseChange="
+                        switchChange(
+                          'CLEAN_API_REPORT',
+                          config.cleanApiReport,
+                          ['CLEAN_API_REPORT_EXPR', config.cleanApiReportExpr]
+                        )
+                      "
+                      :title="$t('project.timing_clean_api_report')"
+                    />
+                    <timing-item
+                      ref="trackTimingItem"
+                      :choose.sync="config.shareReport"
+                      :expr.sync="config.apiShareReportTime"
+                      :share-link="true"
+                      :unit-options="applyUnitOptions"
+                      @chooseChange="
+                        switchChange(
+                          'API_SHARE_REPORT_TIME',
+                          config.apiShareReportTime,
+                          config.shareReport
+                        )
+                      "
+                      :title="$t('report.report_sharing_link')"
+                    />
 
                     <!-- 接口测试资源池 -->
                     <app-manage-item :title="$t('pj.api_run_pool_title')" :prepend-span="8" :middle-span="12"
                                      :append-span="4">
                       <template #middle>
-                        <el-select v-model="config.resourcePoolId"
-                                   size="mini"
-                                   @change="runModeChange(true, ['RESOURCE_POOL_ID', config.resourcePoolId])">
+                        <el-select
+                          v-model="config.resourcePoolId"
+                          size="mini"
+                          @change="
+                            runModeChange(true, [
+                              'RESOURCE_POOL_ID',
+                              config.resourcePoolId,
+                            ])
+                          "
+                        >
                           <el-option
                             v-for="item in resourcePools"
                             :key="item.id"
                             :label="item.name"
                             :disabled="!item.api"
-                            :value="item.id">
+                            :value="item.id"
+                          >
                           </el-option>
                         </el-select>
                       </template>
                       <template #append>
-                        <el-switch v-model="config.poolEnable"
-                                   @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
+                        <el-switch
+                          v-model="config.poolEnable"
+                          @change="
+                            runModeChange($event, [
+                              'RESOURCE_POOL_ID',
+                              config.resourcePoolId,
+                            ])
+                          "
+                        ></el-switch>
                       </template>
                     </app-manage-item>
-
                   </el-row>
                 </el-col>
                 <el-col :span="8" class="commons-view-setting">
                   <el-row style="margin-top: 10px">
-                    <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
+                    <span style="font-weight: bold">{{
+                      $t("commons.view_settings")
+                    }}</span>
                   </el-row>
                   <el-row style="margin-top: 15px">
-                    <app-manage-item :title="$t('api_test.definition.api_quick_button')"
-                                     :append-span="12" :prepend-span="12" :middle-span="0">
+                    <app-manage-item
+                      :title="$t('api_test.definition.api_quick_button')"
+                      :append-span="12"
+                      :prepend-span="12"
+                      :middle-span="0"
+                    >
                       <template #append>
-                        <el-radio-group v-model="config.apiQuickMenu" @change="switchChange('API_QUICK_MENU', $event)">
+                        <el-radio-group
+                          v-model="config.apiQuickMenu"
+                          @change="switchChange('API_QUICK_MENU', $event)"
+                        >
                           <el-radio label="debug" value="debug">
-                            {{ $t('api_test.definition.request.fast_debug') }}
+                            {{ $t("api_test.definition.request.fast_debug") }}
                           </el-radio>
                           <el-radio label="api" value="api">
-                            {{ $t('api_test.definition.request.title') }}
+                            {{ $t("api_test.definition.request.title") }}
                           </el-radio>
                         </el-radio-group>
                       </template>
@@ -157,36 +271,73 @@
               <!-- 启用设置 -->
               <el-col :span="8" class="commons-api-enable">
                 <el-row style="margin-top: 10px">
-                  <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+                  <span style="font-weight: bold">{{
+                    this.$t("commons.enable_settings")
+                  }}</span>
                 </el-row>
                 <el-row style="margin-top: 15px">
-                  <timing-item ref="uiTimingItem" :choose.sync="config.cleanUiReport"
-                               :expr.sync="config.cleanUiReportExpr"
-                               @chooseChange="switchChange('CLEAN_UI_REPORT', config.cleanUiReport, ['CLEAN_UI_REPORT_EXPR', config.cleanUiReportExpr])"
-                               :title="$t('pj_app_manage.timing_clean_ui_report')"/>
-                  <timing-item ref="uiTimingItem" :choose.sync="config.shareReport"
-                               :expr.sync="config.uiShareReportTime" :share-link="true"
-                               :unit-options="applyUnitOptions"
-                               @chooseChange="switchChange('UI_SHARE_REPORT_TIME', config.uiShareReportTime, config.shareReport)"
-                               :title="$t('report.report_sharing_link')"/>
+                  <timing-item
+                    ref="uiTimingItem"
+                    :choose.sync="config.cleanUiReport"
+                    :expr.sync="config.cleanUiReportExpr"
+                    @chooseChange="
+                      switchChange('CLEAN_UI_REPORT', config.cleanUiReport, [
+                        'CLEAN_UI_REPORT_EXPR',
+                        config.cleanUiReportExpr,
+                      ])
+                    "
+                    :title="$t('pj_app_manage.timing_clean_ui_report')"
+                  />
+                  <timing-item
+                    ref="uiTimingItem"
+                    :choose.sync="config.shareReport"
+                    :expr.sync="config.uiShareReportTime"
+                    :share-link="true"
+                    :unit-options="applyUnitOptions"
+                    @chooseChange="
+                      switchChange(
+                        'UI_SHARE_REPORT_TIME',
+                        config.uiShareReportTime,
+                        config.shareReport
+                      )
+                    "
+                    :title="$t('report.report_sharing_link')"
+                  />
                 </el-row>
               </el-col>
 
               <!-- 显示设置 -->
               <el-col :span="8" class="commons-view-setting">
                 <el-row style="margin-top: 10px">
-                  <span style="font-weight:bold">{{ $t('commons.view_settings') }}</span>
+                  <span style="font-weight: bold">{{
+                    $t("commons.view_settings")
+                  }}</span>
                 </el-row>
                 <el-row style="margin-top: 15px">
-                  <app-manage-item :title="$t('ui.ui_debug_mode')"
-                                   :append-span="12" :prepend-span="12" :middle-span="0">
+                  <app-manage-item
+                    :title="$t('ui.ui_debug_mode')"
+                    :append-span="12"
+                    :prepend-span="12"
+                    :middle-span="0"
+                  >
                     <template #append>
-                      <el-radio-group v-model="config.uiQuickMenu" @change="switchChange('UI_QUICK_MENU', $event)">
-                        <el-radio label="local" value="local" :disabled="!isXpack">
-                          {{ $t('ui.ui_local_debug') }}
+                      <el-radio-group
+                        v-model="config.uiQuickMenu"
+                        @change="switchChange('UI_QUICK_MENU', $event)"
+                      >
+                        <el-radio
+                          label="local"
+                          value="local"
+                          :disabled="!isXpack"
+                        >
+                          {{ $t("ui.ui_local_debug") }}
                         </el-radio>
-                        <el-radio label="server" value="server" :disabled="!isXpack">
-                          {{ $t('ui.ui_server_debug') }}
+                        <el-radio
+                          label="server"
+                          value="server"
+                          :disabled="!isXpack"
+                        >
+                          {{ $t("ui.ui_server_debug") }}
                         </el-radio>
                       </el-radio-group>
                     </template>
@@ -197,18 +348,56 @@
 
             <el-tab-pane :label="$t('commons.performance')" name="performance">
               <el-row style="margin-top: 10px">
-                <span style="font-weight:bold">{{ this.$t('commons.enable_settings') }}</span>
+                <span style="font-weight: bold">{{
+                  this.$t("commons.enable_settings")
+                }}</span>
               </el-row>
               <el-row style="margin-top: 15px">
-                <timing-item ref="loadTimingItem" :choose.sync="config.cleanLoadReport"
-                             :expr.sync="config.cleanLoadReportExpr"
-                             @chooseChange="switchChange('CLEAN_LOAD_REPORT', config.cleanLoadReport, ['CLEAN_LOAD_REPORT_EXPR', config.cleanLoadReportExpr])"
-                             :title="$t('project.timing_clean_load_report')"/>
-                <timing-item ref="trackTimingItem" :choose.sync="config.shareReport"
-                             :expr.sync="config.performanceShareReportTime" :share-link="true"
-                             :unit-options="applyUnitOptions"
-                             @chooseChange="switchChange('PERFORMANCE_SHARE_REPORT_TIME', config.performanceShareReportTime, config.shareReport)"
-                             :title="$t('report.report_sharing_link')"/>
+                <timing-item
+                  ref="loadTimingItem"
+                  :choose.sync="config.cleanLoadReport"
+                  :expr.sync="config.cleanLoadReportExpr"
+                  @chooseChange="
+                    switchChange('CLEAN_LOAD_REPORT', config.cleanLoadReport, [
+                      'CLEAN_LOAD_REPORT_EXPR',
+                      config.cleanLoadReportExpr,
+                    ])
+                  "
+                  :title="$t('project.timing_clean_load_report')"
+                />
+                <timing-item
+                  ref="trackTimingItem"
+                  :choose.sync="config.shareReport"
+                  :expr.sync="config.performanceShareReportTime"
+                  :share-link="true"
+                  :unit-options="applyUnitOptions"
+                  @chooseChange="
+                    switchChange(
+                      'PERFORMANCE_SHARE_REPORT_TIME',
+                      config.performanceShareReportTime,
+                      config.shareReport
+                    )
+                  "
+                  :title="$t('report.report_sharing_link')"
+                />
+                <reviewer-config
+                  :name="$t('pj.load_test_script_review')"
+                  :popTitle="$t('pj.load_test_script_review_detail')"
+                  :reviewers="userInProject"
+                  :config.sync="config"
+                  @reviewerChange="
+                    switchChange(
+                      'PERFORMANCE_SCRIPT_REVIEWER',
+                      config.performanceScriptReviewer
+                    )
+                  "
+                  @chooseChange="
+                    switchChange(
+                      'PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT',
+                      config.performanceReviewLoadTestScript
+                    )
+                  "
+                />
               </el-row>
             </el-tab-pane>
 
@@ -219,43 +408,77 @@
           :visible.sync="showRuleSetting"
           width="720px"
         >
-          <div style="margin-top: -25px; margin-left: -20px; width:720px; height:1px; background:#DCDFE6;"></div>
+          <div
+            style="
+              margin-top: -25px;
+              margin-left: -20px;
+              width: 720px;
+              height: 1px;
+              background: #dcdfe6;
+            "
+          ></div>
           <el-row style="margin-top: 15px">
             <div class="timeClass">
               <span>
-                <span style="font-size: 16px">{{ $t('api_test.request.time') + $t('commons.setting') }}</span>
-                 <i class="el-icon-arrow-down" v-if="showSyncTimeSetting" @click="showSyncTimeSetting=false"/>
-                 <i class="el-icon-arrow-right" v-if="!showSyncTimeSetting" @click="showSyncTimeSetting=true"/>
-                <el-tooltip class="ms-num" effect="dark"
-                            :content="$t('project_application.workstation.time_tip')"
-                            placement="top">
-                  <i class="el-icon-warning"/>
-                </el-tooltip></span>
-              <el-switch v-model="config.openUpdateTime"
-                         @change="setSyncTime"></el-switch>
+                <span style="font-size: 16px">{{
+                  $t("api_test.request.time") + $t("commons.setting")
+                }}</span>
+                <i
+                  class="el-icon-arrow-down"
+                  v-if="showSyncTimeSetting"
+                  @click="showSyncTimeSetting = false" />
+                <i
+                  class="el-icon-arrow-right"
+                  v-if="!showSyncTimeSetting"
+                  @click="showSyncTimeSetting = true" />
+                <el-tooltip
+                  class="ms-num"
+                  effect="dark"
+                  :content="$t('project_application.workstation.time_tip')"
+                  placement="top"
+                >
+                  <i class="el-icon-warning" /> </el-tooltip
+              ></span>
+              <el-switch
+                v-model="config.openUpdateTime"
+                @change="setSyncTime"
+              ></el-switch>
             </div>
           </el-row>
           <el-row v-if="showSyncTimeSetting" style="margin-top: 15px">
             <div class="setTimeClass">
-              <span>{{ $t('workstation.past') }}</span>
-              <el-select style="margin-left: 5px" v-model="pastQuantity" placeholder=" " size="mini" filterable
-                         default-first-option
-                         allow-create
-                         class="timing_select">
+              <span>{{ $t("workstation.past") }}</span>
+              <el-select
+                style="margin-left: 5px"
+                v-model="pastQuantity"
+                placeholder=" "
+                size="mini"
+                filterable
+                default-first-option
+                allow-create
+                class="timing_select"
+              >
                 <el-option
                   v-for="item in applyQuantityOptions"
                   :key="item"
                   :label="item"
-                  :value="item">
+                  :value="item"
+                >
                 </el-option>
               </el-select>
-              <el-select style="margin-left: 5px" v-model="pastUnit" placeholder=" " size="mini"
-                         class="timing_select">
+              <el-select
+                style="margin-left: 5px"
+                v-model="pastUnit"
+                placeholder=" "
+                size="mini"
+                class="timing_select"
+              >
                 <el-option
                   v-for="item in applyUnitOptions"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.value">
+                  :value="item.value"
+                >
                 </el-option>
               </el-select>
             </div>
@@ -263,58 +486,102 @@
           <el-row style="margin-top: 15px">
             <span>
               <span style="font-size: 16px">
-                {{ $t('commons.pending_upgrade') + $t('api_test.request.condition') + $t('commons.setting') }}
+                {{
+                  $t("commons.pending_upgrade") +
+                  $t("api_test.request.condition") +
+                  $t("commons.setting")
+                }}
               </span>
-              <i class="el-icon-arrow-down" v-if="showApiConfig" @click="showApiConfig=false"/>
-              <i class="el-icon-arrow-right" v-if="!showApiConfig" @click="showApiConfig=true"/>
-              <el-tooltip class="ms-num" effect="dark"
-                          :content="$t('project_application.workstation.rule_tip')"
-                          placement="top">
-                <i class="el-icon-warning"/>
+              <i
+                class="el-icon-arrow-down"
+                v-if="showApiConfig"
+                @click="showApiConfig = false"
+              />
+              <i
+                class="el-icon-arrow-right"
+                v-if="!showApiConfig"
+                @click="showApiConfig = true"
+              />
+              <el-tooltip
+                class="ms-num"
+                effect="dark"
+                :content="$t('project_application.workstation.rule_tip')"
+                placement="top"
+              >
+                <i class="el-icon-warning" />
               </el-tooltip>
             </span>
           </el-row>
-          <div style="margin-top: 15px" class="setApiClass" v-if="showApiConfig">
+          <div
+            style="margin-top: 15px"
+            class="setApiClass"
+            v-if="showApiConfig"
+          >
             <span>
-              <span style="font-weight: bold">{{ $t('workstation.api_change') + $t('commons.setting') }}</span>
-              <el-tooltip class="ms-num" effect="dark"
-                          :content="$t('project_application.workstation.api_tip')"
-                          placement="top">
-                <i class="el-icon-warning"/>
+              <span style="font-weight: bold">{{
+                $t("workstation.api_change") + $t("commons.setting")
+              }}</span>
+              <el-tooltip
+                class="ms-num"
+                effect="dark"
+                :content="$t('project_application.workstation.api_tip')"
+                placement="top"
+              >
+                <i class="el-icon-warning" />
               </el-tooltip>
             </span>
             <el-row style="margin-bottom: 20px">
-              <el-col :span="4">{{ $t('api_test.mock.req_param') + ":" }}</el-col>
+              <el-col :span="4"
+                >{{ $t("api_test.mock.req_param") + ":" }}
+              </el-col>
               <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.headers">{{ "Header" + '\xa0\xa0' }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.headers"
+                  >{{ "Header" + "\xa0\xa0" }}
+                </el-checkbox>
                 <el-checkbox v-model="apiSyncCaseRequest.query">
-                  {{ $t('api_test.definition.request.query_param') }}
+                  {{ $t("api_test.definition.request.query_param") }}
                 </el-checkbox>
                 <el-checkbox v-model="apiSyncCaseRequest.rest">
-                  {{ $t('api_test.definition.request.rest_param') }}
+                  {{ $t("api_test.definition.request.rest_param") }}
                 </el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.body">{{ $t('api_test.request.body') }}</el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.body"
+                  >{{ $t("api_test.request.body") }}
+                </el-checkbox>
               </el-col>
             </el-row>
 
-            <span>{{ $t('commons.track') + $t('commons.setting') }}<el-tooltip class="ms-num" effect="dark"
-                                                                               :content="$t('project_application.workstation.case_tip')"
-                                                                               placement="top">
-              <i class="el-icon-warning"/>
+            <span
+              >{{ $t("commons.track") + $t("commons.setting")
+              }}<el-tooltip
+                class="ms-num"
+                effect="dark"
+                :content="$t('project_application.workstation.case_tip')"
+                placement="top"
+              >
+                <i class="el-icon-warning" />
               </el-tooltip>
             </span>
             <el-row>
-              <el-col :span="4">{{ $t('project.code_segment.result') + ":" }}</el-col>
+              <el-col :span="4"
+                >{{ $t("project.code_segment.result") + ":" }}
+              </el-col>
               <el-col :span="20" style="color: #783887">
-                <el-checkbox v-model="apiSyncCaseRequest.runError">{{ $t('schedule.event_failed') }}</el-checkbox>
-                <el-checkbox v-model="apiSyncCaseRequest.unRun">{{ $t('api_test.home_page.detail_card.unexecute') }}
+                <el-checkbox v-model="apiSyncCaseRequest.runError"
+                  >{{ $t("schedule.event_failed") }}
+                </el-checkbox>
+                <el-checkbox v-model="apiSyncCaseRequest.unRun"
+                  >{{ $t("api_test.home_page.detail_card.unexecute") }}
                 </el-checkbox>
               </el-col>
             </el-row>
           </div>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="showRuleSetting = false">{{ $t('commons.cancel') }}</el-button>
-            <el-button type="primary" @click="saveSync">{{ $t('commons.confirm') }}</el-button>
+            <el-button @click="showRuleSetting = false">{{
+              $t("commons.cancel")
+            }}</el-button>
+            <el-button type="primary" @click="saveSync">{{
+              $t("commons.confirm")
+            }}</el-button>
           </span>
         </el-dialog>
       </div>
@@ -322,31 +589,38 @@
   </ms-container>
 </template>
 
-
 <script>
-
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {getCurrentProjectID,} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import { hasLicense } from "metersphere-frontend/src/utils/permission";
 import AppManageItem from "./AppManageItem";
 import TimingItem from "./TimingItem";
-import {genTcpMockPort} from "../../../api/project";
-import {batchModifyAppSetting, getProjectAppSetting} from "../../../api/app-setting";
-import {PROJECT_APP_SETTING} from "../../../common/js/constants";
-import {getSystemBaseSetting, getTestResourcePools} from "metersphere-frontend/src/api/system";
+import ReviewerConfig from "@/business/menu/appmanage/ReviewerConfig.vue";
+import { getProjectUsers } from "metersphere-frontend/src/api/user";
+import { genTcpMockPort } from "../../../api/project";
+import {
+  batchModifyAppSetting,
+  getProjectAppSetting,
+} from "../../../api/app-setting";
+import { PROJECT_APP_SETTING } from "../../../common/js/constants";
+import {
+  getSystemBaseSetting,
+  getTestResourcePools,
+} from "metersphere-frontend/src/api/system";
 
 export default {
   name: "appManage",
   components: {
+    ReviewerConfig,
     TimingItem,
     AppManageItem,
     MsMainContainer,
-    MsContainer
+    MsContainer,
   },
   data() {
     return {
-      activeName: 'test_track',
+      activeName: "test_track",
       resourcePools: [],
       isPool: false,
       form: {
@@ -357,7 +631,7 @@ export default {
         cleanLoadReport: false,
         cleanLoadReportExpr: "",
         cleanUiReport: false,
-        cleanUiReportExpr: ""
+        cleanUiReportExpr: "",
       },
       count: 0,
       isXpack: false,
@@ -367,11 +641,12 @@ export default {
       unit: "",
       choose: false,
       applyUnitOptions: [
-        {value: "H", label: this.$t('commons.date_unit.hour')},
-        {value: "D", label: this.$t('commons.date_unit.day')},
-        {value: "M", label: this.$t('commons.date_unit.month')},
-        {value: "Y", label: this.$t('commons.date_unit.year')},
+        { value: "H", label: this.$t("commons.date_unit.hour") },
+        { value: "D", label: this.$t("commons.date_unit.day") },
+        { value: "M", label: this.$t("commons.date_unit.month") },
+        { value: "Y", label: this.$t("commons.date_unit.year") },
       ],
+      userInProject: [],
       applyQuantityOptions: [
         "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
         "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
@@ -405,19 +680,23 @@ export default {
         triggerUpdate: "",
         openUpdateRule: false,
         reReview: false,
+        performanceScriptReviewer: "",
+        performanceReviewLoadTestScript: false,
       },
       showRuleSetting: false,
       showSyncTimeSetting: true,
       apiSyncCaseRequest: {},
-      pastQuantity: '',
-      pastUnit: '',
+      pastQuantity: "",
+      pastUnit: "",
       showApiConfig: true,
       disabledRuleBtn: false,
-      openUpdateRule: true
+      openUpdateRule: true,
     };
   },
   created() {
     this.init();
+    this.getBase();
+    this.selectUserInProject();
     this.getResourcePools();
     this.isXpack = !!hasLicense();
   },
@@ -428,15 +707,15 @@ export default {
   },
   methods: {
     getResourcePools() {
-      this.result = getTestResourcePools().then(response => {
+      this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
         let isDelPool = true;
-        this.resourcePools.forEach(item =>{
-          if(item.id === this.config.resourcePoolId){
+        this.resourcePools.forEach((item) => {
+          if (item.id === this.config.resourcePoolId) {
             isDelPool = false;
           }
-        })
-        if(isDelPool){
+        });
+        if (isDelPool) {
           this.config.resourcePoolId = undefined;
           this.config.poolEnable = false;
         }
@@ -444,7 +723,9 @@ export default {
     },
     runModeChange(value, other) {
       if (value && !this.config.resourcePoolId) {
-        this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+        this.$warning(
+          this.$t("workspace.env_group.please_select_run_within_resource_pool")
+        );
         this.config.poolEnable = false;
       } else {
         this.switchChange("POOL_ENABLE", value, other);
@@ -452,47 +733,64 @@ export default {
     },
     tcpMockSwitchChange(value, other) {
       if (value && this.config.mockTcpPort === 0) {
-        genTcpMockPort(this.projectId).then(res => {
-          let port = res.data;
-          this.config.mockTcpPort = port;
-          this.$nextTick(() => {
-            this.switchChange("MOCK_TCP_OPEN", value, ['MOCK_TCP_PORT', this.config.mockTcpPort]);
+        genTcpMockPort(this.projectId)
+          .then((res) => {
+            let port = res.data;
+            this.config.mockTcpPort = port;
+            this.$nextTick(() => {
+              this.switchChange("MOCK_TCP_OPEN", value, [
+                "MOCK_TCP_PORT",
+                this.config.mockTcpPort,
+              ]);
+            });
           })
-        }).catch(() => {
-          this.config.mockTcpOpen = false;
-        })
+          .catch(() => {
+            this.config.mockTcpOpen = false;
+          });
       } else {
         this.switchChange("MOCK_TCP_OPEN", value, other);
       }
     },
     switchChange(type, value, other) {
-      if ([PROJECT_APP_SETTING.TRACK_SHARE_REPORT_TIME, PROJECT_APP_SETTING.API_SHARE_REPORT_TIME,
-          PROJECT_APP_SETTING.UI_SHARE_REPORT_TIME, PROJECT_APP_SETTING.PERFORMANCE_SHARE_REPORT_TIME].indexOf(type) >= 0
-        && other === false) {
+      if (
+        [
+          PROJECT_APP_SETTING.TRACK_SHARE_REPORT_TIME,
+          PROJECT_APP_SETTING.API_SHARE_REPORT_TIME,
+          PROJECT_APP_SETTING.UI_SHARE_REPORT_TIME,
+          PROJECT_APP_SETTING.PERFORMANCE_SHARE_REPORT_TIME,
+        ].indexOf(type) >= 0 &&
+        other === false
+      ) {
         // 分享报告时，关闭开关后不做操作
         return;
       }
       let configs = [];
       if (other && value) {
         // 在开启开关时需要保存的其它信息
-        configs.push({projectId: this.projectId, typeValue: other[1], type: other[0]});
+        configs.push({
+          projectId: this.projectId,
+          typeValue: other[1],
+          type: other[0],
+        });
       }
       // 开关信息在最后保存
       // 后台按照顺序先校验其它数据合法性，如tcp端口合法性，合法后保存是否开启
-      configs.push({projectId: this.projectId, typeValue: value, type});
-      let params = {configs};
-      this.startSaveData(params)
+      configs.push({ projectId: this.projectId, typeValue: value, type });
+      let params = { configs };
+      this.startSaveData(params);
     },
     startSaveData(params) {
-      this.loading = batchModifyAppSetting(params).then(() => {
-        this.$success(this.$t('commons.save_success'));
-        this.init();
-      }).catch(() => {
-        this.init();
-      });
+      this.loading = batchModifyAppSetting(params)
+        .then(() => {
+          this.$success(this.$t("commons.save_success"));
+          this.init();
+        })
+        .catch(() => {
+          this.init();
+        });
     },
     init() {
-      this.loading = getProjectAppSetting(this.projectId).then(res => {
+      this.loading = getProjectAppSetting(this.projectId).then((res) => {
         if (!res.data) {
           return false;
         }
@@ -510,24 +808,29 @@ export default {
           if (!this.config.openUpdateRuleTime) {
             this.config.openUpdateTime = true;
             this.showSyncTimeSetting = true;
-            this.pastUnit = 'D'
-            this.pastQuantity = 3
+            this.pastUnit = "D";
+            this.pastQuantity = 3;
           }
         }
         if (this.config.openUpdateRuleTime) {
-          this.pastUnit = this.config.openUpdateRuleTime.substring(this.config.openUpdateRuleTime.length - 1);
-          this.pastQuantity = this.config.openUpdateRuleTime.substring(0, this.config.openUpdateRuleTime.length - 1);
+          this.pastUnit = this.config.openUpdateRuleTime.substring(
+            this.config.openUpdateRuleTime.length - 1
+          );
+          this.pastQuantity = this.config.openUpdateRuleTime.substring(
+            0,
+            this.config.openUpdateRuleTime.length - 1
+          );
           if (this.config.openUpdateTime) {
             this.showSyncTimeSetting = true;
           }
         }
         this.openUpdateRule = this.config.openUpdateRule !== false;
         this.disabledRuleBtn = !this.openUpdateRule;
-      })
+      });
     },
     openRuleSetting() {
       this.showRuleSetting = true;
-      if (JSON.stringify(this.apiSyncCaseRequest) === '{}') {
+      if (JSON.stringify(this.apiSyncCaseRequest) === "{}") {
         this.apiSyncCaseRequest = {
           protocol: true,
           method: true,
@@ -537,8 +840,8 @@ export default {
           rest: true,
           body: true,
           runError: true,
-          unRun: false
-        }
+          unRun: false,
+        };
       }
       this.apiSyncCaseRequest.protocol = true;
       this.apiSyncCaseRequest.method = true;
@@ -549,10 +852,10 @@ export default {
       configs.push({
         projectId: this.projectId,
         typeValue: this.openUpdateRule,
-        type: 'OPEN_UPDATE_RULE'
+        type: "OPEN_UPDATE_RULE",
       });
-      let params = {configs};
-      this.startSaveData(params)
+      let params = { configs };
+      this.startSaveData(params);
       this.disabledRuleBtn = !this.disabledRuleBtn;
     },
     buildSyncTime(configs) {
@@ -560,27 +863,31 @@ export default {
         if (!this.pastQuantity) {
           this.$message.error("请选择时间");
           this.config.openUpdateTime = false;
-          return
+          return;
         }
         if (!this.pastUnit) {
           this.$message.error("请选择时间单位");
           this.config.openUpdateTime = false;
-          return
+          return;
         }
         this.config.openUpdateRuleTime = this.pastQuantity + this.pastUnit;
         configs.push({
           projectId: this.projectId,
           typeValue: this.config.openUpdateRuleTime,
-          type: 'OPEN_UPDATE_RULE_TIME'
+          type: "OPEN_UPDATE_RULE_TIME",
         });
       }
-      configs.push({projectId: this.projectId, typeValue: this.config.openUpdateTime, type: 'OPEN_UPDATE_TIME'});
+      configs.push({
+        projectId: this.projectId,
+        typeValue: this.config.openUpdateTime,
+        type: "OPEN_UPDATE_TIME",
+      });
       return configs;
     },
     setSyncTime() {
       let configs = [];
       this.buildSyncTime(configs);
-      let params = {configs};
+      let params = { configs };
       this.startSaveData(params);
     },
     saveSync() {
@@ -588,17 +895,22 @@ export default {
       configs.push({
         projectId: this.projectId,
         typeValue: JSON.stringify(this.apiSyncCaseRequest),
-        type: 'TRIGGER_UPDATE'
+        type: "TRIGGER_UPDATE",
       });
       this.buildSyncTime(configs);
-      let params = {configs};
+      let params = { configs };
       this.startSaveData(params);
       this.showRuleSetting = false;
     },
     tabClick() {
       this.config.shareReport = true;
-    }
-  }
+    },
+    selectUserInProject() {
+      getProjectUsers().then((res) => {
+        this.userInProject = res.data;
+      });
+    },
+  },
 };
 </script>
 
