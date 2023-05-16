@@ -115,15 +115,8 @@
                 </el-col>
                 <el-col :span="18">
                   <div v-if="testType === 'API'">
-                    <el-checkbox
-                      v-model="runConfig.runWithinResourcePool"
-                      style="padding-right: 10px"
-                      :disabled="true"
-                    >
-                      {{ $t("run_mode.run_with_resource_pool") }}
-                    </el-checkbox>
+                   <sapn>{{ $t("run_mode.run_with_resource_pool") }}: </sapn>
                     <el-select
-                      :disabled="!runConfig.runWithinResourcePool"
                       v-model="runConfig.resourcePoolId"
                       size="mini"
                     >
@@ -148,15 +141,10 @@
                 </el-col>
                 <el-col :span="18">
                   <div v-if="testType === 'API'">
-                    <el-checkbox
-                      v-model="runConfig.runWithinResourcePool"
-                      style="padding-right: 10px"
-                      :disabled="true"
-                    >
-                      {{ $t("run_mode.run_with_resource_pool") }}
-                    </el-checkbox>
+                   <span>
+                     {{ $t("run_mode.run_with_resource_pool") }} :
+                   </span>
                     <el-select
-                      :disabled="!runConfig.runWithinResourcePool"
                       v-model="runConfig.resourcePoolId"
                       size="mini"
                     >
@@ -325,11 +313,6 @@ export default {
     "schedule.value"() {
       this.form.cronValue = this.schedule.value;
     },
-    "runConfig.runWithinResourcePool"() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig.resourcePoolId = null;
-      }
-    },
   },
   data() {
     const validateCron = (rule, cronValue, callback) => {
@@ -375,7 +358,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         retryEnable: false,
         retryNum: 1,
@@ -400,15 +382,21 @@ export default {
   },
   methods: {
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), "").then((res) => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.resourcePools.forEach(item => {
-            if (item.id === res.data.resourcePoolId) {
-              this.runConfig.resourcePoolId = res.data.resourcePoolId;
-            }
-          });
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
       });
+      if (!hasPool) {
+        this.runConfig.resourcePoolId = null;
+        getProjectConfig(getCurrentProjectID(), "").then((res) => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     currentUser: () => {
       return getCurrentUser();
@@ -495,7 +483,6 @@ export default {
     },
     saveCron() {
       if (
-        this.runConfig.runWithinResourcePool &&
         this.runConfig.resourcePoolId == null
       ) {
         this.$warning(
@@ -529,7 +516,6 @@ export default {
         param.workspaceId = getCurrentWorkspaceId();
       }
       if (
-        this.runConfig.runWithinResourcePool &&
         this.runConfig.resourcePoolId == null
       ) {
         this.$warning(
@@ -598,13 +584,11 @@ export default {
     getResourcePools() {
       this.result = getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
-        this.runConfig.runWithinResourcePool = true;
         this.getProjectApplication();
       });
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
       this.runConfig.resourcePoolId = null;
     },
   },

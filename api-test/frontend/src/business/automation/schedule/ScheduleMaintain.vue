@@ -68,12 +68,9 @@
             </div>
             <div class="ms-mode-div">
               <span class="ms-mode-span">{{ $t('run_mode.other_config') }}：</span>
-              <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="true">
-                {{ $t('run_mode.run_with_resource_pool') }}
-              </el-checkbox>
+              <span>{{ $t('run_mode.run_with_resource_pool') }}:</span>
               <el-select
                 style="margin-left: 10px"
-                :disabled="!runConfig.runWithinResourcePool"
                 v-model="runConfig.resourcePoolId"
                 size="mini">
                 <el-option
@@ -114,8 +111,6 @@ import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
 import EnvPopover from '@/business/automation/scenario/EnvPopover';
 import { getMaintainer, getOwnerProjects, getProjectConfig } from '@/api/project';
 import { getTestResourcePools } from '@/api/test-resource-pool';
-import { getSystemBaseSetting } from 'metersphere-frontend/src/api/system';
-
 function defaultCustomValidate() {
   return { pass: true };
 }
@@ -145,11 +140,6 @@ export default {
   watch: {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
-    },
-    'runConfig.runWithinResourcePool'() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig.resourcePoolId = null;
-      }
     },
   },
   data() {
@@ -193,7 +183,6 @@ export default {
         mode: 'serial',
         reportType: 'iddReport',
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: {},
         environmentGroupId: '',
@@ -206,15 +195,21 @@ export default {
   },
   methods: {
     getProjectApplication() {
-      getProjectConfig(getCurrentProjectID(), '').then((res) => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.resourcePools.forEach(item => {
-            if (item.id === res.data.resourcePoolId) {
-              this.runConfig.resourcePoolId = res.data.resourcePoolId;
-            }
-          });
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
       });
+      if (!hasPool) {
+        this.runConfig.resourcePoolId = null;
+        getProjectConfig(getCurrentProjectID(), "").then((res) => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     currentUser: () => {
       return getCurrentUser();
@@ -255,7 +250,6 @@ export default {
     getResourcePools() {
       this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
-        this.runConfig.runWithinResourcePool = true;
         this.getProjectApplication();
       });
     },
@@ -388,7 +382,7 @@ export default {
           this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
           return;
         }
-        if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+        if (this.runConfig.resourcePoolId == null) {
           this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
           return;
         }
