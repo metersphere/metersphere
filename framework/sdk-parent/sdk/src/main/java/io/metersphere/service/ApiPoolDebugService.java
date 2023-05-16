@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.*;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -70,9 +71,12 @@ public class ApiPoolDebugService {
             LoggerUtil.info("校验项目为：【" + projectId + "】", runConfig.getReportId());
             ProjectConfig config = baseProjectApplicationService.getProjectConfig(projectId);
             List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
-            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId).collect(Collectors.toList()).contains(config.getResourcePoolId());
+            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
+                    .collect(Collectors.toList()).contains(config.getResourcePoolId());
 
-            if (StringUtils.isEmpty(config.getResourcePoolId()) || !contains) {
+            if ((StringUtils.isEmpty(config.getResourcePoolId())
+                    && BooleanUtils.isTrue(config.getPoolEnable()))
+                    || !contains) {
                 String id = systemParameterService.filterQuota(poolList, projectId);
                 if (StringUtils.isBlank(id)) {
                     MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
