@@ -327,6 +327,7 @@ import {
 import {
   hasLicense,
   hasPermission,
+  hasPermissionForProjectId
 } from "metersphere-frontend/src/utils/permission";
 import {
   getUUID,
@@ -1025,6 +1026,11 @@ export default {
         this.projectId = this.routeProjectId;
         if (this.projectId) {
           // 带了 routeProjectId 校验是否是当前项目
+          if (!hasPermissionForProjectId('PROJECT_TRACK_CASE:READ', this.projectId)) {
+            // 没有该项目权限，跳转到根目录
+            this.$router.push({path: "/"});
+            return;
+          }
           if (getCurrentProjectID() !== this.projectId) {
             setCurrentProjectID(this.projectId);
             location.reload();
