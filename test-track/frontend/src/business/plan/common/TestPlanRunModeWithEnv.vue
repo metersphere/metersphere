@@ -72,7 +72,7 @@
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
               class="radio-change"
-              :disabled="runMode === 'POOL'"
+              :disabled="true"
             >
               {{ $t("run_mode.run_with_resource_pool") }} </el-checkbox
             ><br />
@@ -104,7 +104,7 @@
               v-model="runConfig.runWithinResourcePool"
               style="padding-right: 10px"
               class="radio-change"
-              :disabled="runMode === 'POOL'"
+              :disabled="true"
             >
               {{ $t("run_mode.run_with_resource_pool") }} </el-checkbox
             ><br />
@@ -241,7 +241,6 @@ export default {
   },
   data() {
     return {
-      runMode: "",
       btnStyle: {
         width: "260px",
       },
@@ -329,29 +328,16 @@ export default {
       this.getResourcePools();
       this.getWsProjects();
       this.showPopover();
-      this.query();
-    },
-    query() {
-      this.loading = true;
-      this.result = getSystemBaseSetting().then((response) => {
-        if (!response.data.runMode) {
-          response.data.runMode = "LOCAL";
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === "POOL") {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        } else {
-          this.loading = false;
-        }
-      });
     },
     getProjectApplication() {
       getProjectConfig(getCurrentProjectID(), "").then((res) => {
         if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          this.resourcePools.forEach(item => {
+            if (item.id === res.data.resourcePoolId) {
+              this.runConfig.resourcePoolId = res.data.resourcePoolId;
+            }
+          });
         }
-        this.loading = false;
       });
     },
     changeMode() {
@@ -380,6 +366,8 @@ export default {
     getResourcePools() {
       getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
+        this.runConfig.runWithinResourcePool = true;
+        this.getProjectApplication();
       });
     },
     setDefaultEnv(projectId, envId) {

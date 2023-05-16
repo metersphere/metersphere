@@ -118,7 +118,7 @@
                     <el-checkbox
                       v-model="runConfig.runWithinResourcePool"
                       style="padding-right: 10px"
-                      :disabled="runMode === 'POOL'"
+                      :disabled="true"
                     >
                       {{ $t("run_mode.run_with_resource_pool") }}
                     </el-checkbox>
@@ -151,7 +151,7 @@
                     <el-checkbox
                       v-model="runConfig.runWithinResourcePool"
                       style="padding-right: 10px"
-                      :disabled="runMode === 'POOL'"
+                      :disabled="true"
                     >
                       {{ $t("run_mode.run_with_resource_pool") }}
                     </el-checkbox>
@@ -350,7 +350,6 @@ export default {
       }
     };
     return {
-      runMode: "",
       result: {},
       scheduleReceiverOptions: [],
       operation: true,
@@ -400,27 +399,15 @@ export default {
     };
   },
   methods: {
-    query() {
-      this.loading = true;
-      this.result = getSystemBaseSetting().then((response) => {
-        if (!response.data.runMode) {
-          response.data.runMode = "LOCAL";
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === "POOL") {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        } else {
-          this.loading = false;
-        }
-      });
-    },
     getProjectApplication() {
       getProjectConfig(getCurrentProjectID(), "").then((res) => {
         if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          this.resourcePools.forEach(item => {
+            if (item.id === res.data.resourcePoolId) {
+              this.runConfig.resourcePoolId = res.data.resourcePoolId;
+            }
+          });
         }
-        this.loading = false;
       });
     },
     currentUser: () => {
@@ -451,7 +438,6 @@ export default {
       return param;
     },
     open(row) {
-      this.query();
       this.planId = row.id;
       //测试计划页面跳转来的
       let paramTestId = row.id;
@@ -612,6 +598,8 @@ export default {
     getResourcePools() {
       this.result = getQuotaValidResourcePools().then((response) => {
         this.resourcePools = response.data;
+        this.runConfig.runWithinResourcePool = true;
+        this.getProjectApplication();
       });
     },
     changeMode() {
