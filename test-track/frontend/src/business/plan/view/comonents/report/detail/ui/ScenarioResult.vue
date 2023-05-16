@@ -18,7 +18,7 @@
             </el-tooltip>
           </el-col>
           <el-col :span="1">
-            <ms-api-report-status :status="node.totalStatus"/>
+            <ms-api-report-status :status="node.totalStatus" v-if="node.label !=='ConstantTimer'"/>
           </el-col>
         </el-row>
       </el-card>
@@ -85,12 +85,16 @@ export default {
   methods: {
     getLabel(label) {
       switch (label) {
-        case "ConstantTimer":
-          return "等待控制器";
-        case "LoopController":
-          return "循环控制器";
-        case "Assertion":
-          return "场景断言";
+        case 'ConstantTimer':
+          return this.$t('api_test.automation.wait_controller');
+        case 'LoopController':
+          return this.$t('api_test.automation.loop_controller');
+        case 'Assertion':
+          return this.$t('api_test.definition.request.scenario_assertions');
+        case 'IfController':
+          return this.$t('api_test.automation.if_controller');
+        case 'TransactionController':
+          return this.$t('api_test.automation.transaction_controller');
         default:
           return label;
       }
