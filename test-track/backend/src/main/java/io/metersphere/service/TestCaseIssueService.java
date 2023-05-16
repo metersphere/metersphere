@@ -128,7 +128,7 @@ public class TestCaseIssueService {
     }
 
     public String getLogDetails(IssuesRelevanceRequest request) {
-        TestCaseWithBLOBs bloBs = testCaseService.getTestCase(request.getCaseId());
+        TestCaseWithBLOBs bloBs = testCaseService.getTestCase(request.getCaseResourceId());
         if (bloBs != null) {
             IssuesExample example = new IssuesExample();
             example.createCriteria().andIdIn(request.getIssueIds());
