@@ -7,7 +7,7 @@ const isObject = require("lodash.isobject");
 const isString = require("lodash.isstring");
 const {post} = require("@/common/js/ajax");
 const isArray = Array.isArray;
-
+const { default: CustomNum } = require('./customNum');
 
 class Convert {
   constructor() {
@@ -113,7 +113,7 @@ class Convert {
         if (!result["properties"]) {
           continue;
         }
-        if (isObject(element)) {
+        if (isObject(element) && !(element instanceof CustomNum)) {
           // 创建当前属性的基本信息
           result["properties"][key] = this._value2object(element, $id, key)
           if (isArray(element)) {
@@ -234,6 +234,10 @@ class Convert {
     } else if (isArray(value)) {
       objectTemplate.type = "array";
       objectTemplate["mock"] = undefined;
+    } else if (value instanceof CustomNum) {
+      // 解决丢失精度问题
+      objectTemplate.type = 'number';
+      objectTemplate['mock'].mock = value.get();
     } else if (isObject(value)) {
       objectTemplate.type = "object"
       objectTemplate["mock"] = undefined;
