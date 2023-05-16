@@ -85,15 +85,7 @@ export function parseCustomField(data, template, rules, oldFields) {
             } else {
               setDefaultValue(item, customField.value);
             }
-            if (customField.textValue && customField.textValue.startsWith(OPTION_LABEL_PREFIX))  {
-              // 处理 jira 的 sprint 字段，没有选项，则添加对应选项
-              if (item.options && item.options.filter(i => i.value === customField.value).length < 1) {
-                item.options.push({
-                  'text': customField.textValue.substring(OPTION_LABEL_PREFIX.length),
-                  'value': customField.value
-                });
-              }
-            }
+            parseCustomFieldOptionLabel(customField, item);
             item.isEdit = true;
           } catch (e) {
             console.error("JSON parse custom field value error.", e);
@@ -117,6 +109,44 @@ export function parseCustomField(data, template, rules, oldFields) {
   });
 
   return customFieldForm;
+}
+
+export function isMultipleField(type) {
+  if (type.startsWith('multiple') || type === 'checkbox') {
+    return true;
+  }
+  return false;
+}
+
+export function parseCustomFieldOptionLabel(customField, item) {
+  if (customField.textValue && customField.textValue.startsWith(OPTION_LABEL_PREFIX))  {
+    // 处理 jira 的远程搜索字段，没有选项，则添加对应选项
+    let optionLabel = customField.textValue.substring(OPTION_LABEL_PREFIX.length);
+    if (customField.value instanceof Array) {
+      // 多选
+      try {
+        if (optionLabel) {
+          let optionLabelMap = JSON.parse(optionLabel);
+          customField.value.forEach((val) => {
+            if (item.options && item.options.filter(i => i.value === val).length < 1) {
+              item.options.push({
+                'text': optionLabelMap[val],
+                'value': val
+              });
+            }
+          });
+        }
+      } catch (e) {
+        console.error("parseCustomFieldOptionLabel error ", e);
+      }
+    } else if (item.options && item.options.filter(i => i.value === customField.value).length < 1) {
+      // 单选
+      item.options.push({
+        'text': optionLabel,
+        'value': customField.value
+      });
+    }
+  }
 }
 
 // 将template的属性值设置给customFields

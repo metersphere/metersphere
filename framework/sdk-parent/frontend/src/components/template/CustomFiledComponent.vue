@@ -13,9 +13,14 @@
                 :filter-method="data.inputSearch ? handleSelectInput : null"
                 :remote="data.inputSearch"
                 :placeholder="$t('commons.default')">
+      <template v-solt:prefix>
+         <span v-if="data.inputSearch" class="input-search-tip">
+           {{ $t("custom_field.remote_search_tip") }}
+         </span>
+      </template>
       <el-option
-        v-for="(item,index) in data.options ? data.options : []"
-        :key="index"
+        v-for="(item) in data.options ? data.options : []"
+        :key="item.value"
         @change="handleChange"
         :label="getTranslateOption(item)"
         :value="item.value">
@@ -224,23 +229,50 @@ export default {
       this.$emit('change', this.data.name);
       this.$forceUpdate();
       if (this.data.inputSearch) {
-        // 处理 jira 的 sprint 字段
-        let selectOption = this.data.options.find(item => item.value === this.data[this.prop]);
-        if (selectOption) {
-          this.data.optionLabel = OPTION_LABEL_PREFIX + selectOption.text;
+        // 将选项的选项名保存在 optionLabel 中
+        if (this.data[this.prop] instanceof Array) {
+          // 多选
+          try {
+            let optionLabel = this.data.optionLabel;
+            let optionLabelMap;
+            if (optionLabel && this.data.optionLabel.startsWith(OPTION_LABEL_PREFIX)) {
+              optionLabel = this.data.optionLabel.substring(OPTION_LABEL_PREFIX.length);
+              optionLabelMap = JSON.parse(optionLabel);
+            }
+            if (!optionLabelMap) {
+              optionLabelMap = {};
+            }
+            this.data[this.prop].forEach((val) => {
+              let selectOption = this.data.options.find(item => item.value === val);
+              if (selectOption) {
+                optionLabelMap[val] = selectOption.text;
+              }
+            });
+            this.data.optionLabel = OPTION_LABEL_PREFIX + JSON.stringify(optionLabelMap);
+          } catch (e) {
+            console.error("set optionLabel error ", e);
+          }
+        } else {
+          // 单选
+          let selectOption = this.data.options.find(item => item.value === this.data[this.prop]);
+          if (selectOption) {
+            this.data.optionLabel = OPTION_LABEL_PREFIX + selectOption.text;
+          }
         }
       }
     },
     handleSelectInput(val) {
-      this.loading = true;
       if (!this.originOptions) {
         this.originOptions = this.data.options;
       }
-      if (!val) {
+      if (val) {
+        this.loading = true;
+        this.$emit('inputSearch', this.data, val);
+      } else {
         // 置空搜索时，恢复回原始选项
+        this.$forceUpdate();
         this.data.options = this.originOptions;
       }
-      this.$emit('inputSearch', this.data, val);
     },
     handleClear() {
       if (this.originOptions && this.data.inputSearch) {
@@ -275,5 +307,10 @@ export default {
 
 :deep( .el-input--suffix .el-input__inner) {
   height: 32px;
+}
+
+.input-search-tip {
+  padding-left: 15px;
+  color: #C0C4CC;
 }
 </style>
