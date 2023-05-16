@@ -107,7 +107,7 @@
 
                     <!-- 接口测试资源池 -->
                     <app-manage-item :title="$t('pj.api_run_pool_title')" :prepend-span="8" :middle-span="12"
-                                     :append-span="4" v-if="isPool">
+                                     :append-span="4">
                       <template #middle>
                         <el-select v-model="config.resourcePoolId"
                                    size="mini"
@@ -418,7 +418,6 @@ export default {
   },
   created() {
     this.init();
-    this.getBase();
     this.getResourcePools();
     this.isXpack = !!hasLicense();
   },
@@ -428,11 +427,6 @@ export default {
     },
   },
   methods: {
-    getBase() {
-      this.result = getSystemBaseSetting().then(response => {
-        this.isPool = response.data.runMode === 'POOL';
-      })
-    },
     getResourcePools() {
       this.result = getTestResourcePools().then(response => {
         this.resourcePools = response.data;

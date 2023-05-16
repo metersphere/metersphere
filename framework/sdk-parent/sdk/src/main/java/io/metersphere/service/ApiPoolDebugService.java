@@ -6,13 +6,14 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.*;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ApiPoolDebugService {
@@ -66,16 +67,21 @@ public class ApiPoolDebugService {
      */
     public void verifyPool(String projectId, RunModeConfigDTO runConfig) {
         if (runConfig != null && StringUtils.isEmpty(runConfig.getResourcePoolId())) {
-            BaseSystemConfigDTO configDTO = systemParameterService.getBaseInfo();
             LoggerUtil.info("校验项目为：【" + projectId + "】", runConfig.getReportId());
-            if (StringUtils.equals(configDTO.getRunMode(), POOL)) {
-                ProjectConfig config = baseProjectApplicationService.getProjectConfig(projectId);
-                if (config == null || !config.getPoolEnable() || StringUtils.isEmpty(config.getResourcePoolId())) {
+            ProjectConfig config = baseProjectApplicationService.getProjectConfig(projectId);
+            List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
+            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId).collect(Collectors.toList()).contains(config.getResourcePoolId());
+
+            if (StringUtils.isEmpty(config.getResourcePoolId()) || !contains) {
+                String id = systemParameterService.filterQuota(poolList, projectId);
+                if (StringUtils.isBlank(id)) {
                     MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+                } else {
+                    config.setResourcePoolId(id);
                 }
-                runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
-                runConfig.setResourcePoolId(config.getResourcePoolId());
             }
+            runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
+            runConfig.setResourcePoolId(config.getResourcePoolId());
         }
     }
 }

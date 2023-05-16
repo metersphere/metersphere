@@ -22,9 +22,6 @@
           <el-form-item :label="$t('commons.help_documentation')" prop="docUrl">
             <el-input v-model="formInline.docUrl" placeholder="https://metersphere.io/docs/index.html"/>
           </el-form-item>
-          <el-form-item :label="$t('system.api_default_run')" prop="runMode">
-            <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
-          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -95,20 +92,6 @@ export default {
         })
       });
     },
-    modeChange(v){
-      if(v === 'POOL'){
-        this.formInline.runMode = 'LOCAL';
-        this.$alert(this.$t('system.api_default_run_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.formInline.runMode = v;
-            }
-          }
-        });
-      }
-    },
     edit() {
       this.showEdit = false;
       this.showSave = true;
@@ -129,8 +112,7 @@ export default {
           {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
           {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
           {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
-          {paramKey: "base.doc.url", paramValue: this.formInline.docUrl, type: "text", sort: 1},
-          {paramKey: "base.run.mode", paramValue: this.formInline.runMode, type: "text", sort: 5}
+          {paramKey: "base.doc.url", paramValue: this.formInline.docUrl, type: "text", sort: 1}
         ];
         this.loading = saveSystemBaseSetting(param).then(res => {
           if (res.success) {

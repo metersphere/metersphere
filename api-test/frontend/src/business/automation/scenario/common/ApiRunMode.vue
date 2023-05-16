@@ -56,7 +56,7 @@
             style="width: 100%" />
         </div>
         <div class="mode-row">
-          <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="runMode === 'POOL'">
+          <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="true">
             {{ $t('run_mode.run_with_resource_pool') }} </el-checkbox
           ><br />
           <el-select
@@ -106,7 +106,6 @@ export default {
   components: { MsDialogFooter, EnvSelectPopover },
   data() {
     return {
-      runMode: '',
       loading: false,
       runModeVisible: false,
       testType: null,
@@ -154,7 +153,6 @@ export default {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
-      this.query();
       this.showPopover();
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
@@ -198,29 +196,19 @@ export default {
     getResourcePools() {
       this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
-      });
-    },
-    query() {
-      this.loading = true;
-      this.result = getSystemBaseSetting().then((response) => {
-        if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL';
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        } else {
-          this.loading = false;
-        }
+        this.runConfig.runWithinResourcePool = true;
+        this.getProjectApplication();
       });
     },
     getProjectApplication() {
       getProjectConfig(getCurrentProjectID(), '').then((res) => {
         if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          this.resourcePools.forEach(item => {
+            if (item.id === res.data.resourcePoolId) {
+              this.runConfig.resourcePoolId = res.data.resourcePoolId;
+            }
+          });
         }
-        this.loading = false;
       });
     },
     setEnvGroup(id) {

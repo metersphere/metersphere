@@ -24,8 +24,6 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MailInfo;
-import io.metersphere.notice.domain.Receiver;
-import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.impl.MailNoticeSender;
 import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.request.HeaderRequest;
@@ -309,7 +307,7 @@ public class SystemParameterService {
         return baseTestResourcePoolService.listResourcePools(resourcePoolRequest);
     }
 
-    private String filterQuota(List<TestResourcePoolDTO> list, String projectId) {
+    public String filterQuota(List<TestResourcePoolDTO> list, String projectId) {
         Set<String> pools = baseQuotaService.getQuotaResourcePools(projectId);
         List<TestResourcePoolDTO> poolList = new ArrayList<>();
         if (!pools.isEmpty()) {
@@ -366,23 +364,20 @@ public class SystemParameterService {
     }
 
     public void saveProjectApplication(String projectId) {
-        BaseSystemConfigDTO config = getBaseInfo();
-        if (config != null && StringUtils.equals(config.getRunMode(), "POOL")) {
-            List<TestResourcePoolDTO> poolList = getTestResourcePool();
-            String id = filterQuota(poolList, projectId);
-            if (StringUtils.isNotBlank(id)) {
-                ProjectApplication applicationValue = new ProjectApplication();
-                applicationValue.setProjectId(projectId);
-                applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
-                applicationValue.setTypeValue(id);
-                projectApplicationMapper.insert(applicationValue);
+        List<TestResourcePoolDTO> poolList = getTestResourcePool();
+        String id = filterQuota(poolList, projectId);
+        if (StringUtils.isNotBlank(id)) {
+            ProjectApplication applicationValue = new ProjectApplication();
+            applicationValue.setProjectId(projectId);
+            applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
+            applicationValue.setTypeValue(id);
+            projectApplicationMapper.insert(applicationValue);
 
-                ProjectApplication application = new ProjectApplication();
-                application.setProjectId(projectId);
-                application.setType(ProjectApplicationType.POOL_ENABLE.name());
-                application.setTypeValue(String.valueOf(true));
-                projectApplicationMapper.insert(application);
-            }
+            ProjectApplication application = new ProjectApplication();
+            application.setProjectId(projectId);
+            application.setType(ProjectApplicationType.POOL_ENABLE.name());
+            application.setTypeValue(String.valueOf(true));
+            projectApplicationMapper.insert(application);
         }
     }
 
@@ -401,14 +396,6 @@ public class SystemParameterService {
                     } catch (Exception e) {
                         MSException.throwException("并发数设置不规范，请重新设置");
                     }
-                }
-            }
-            // 启用资源池
-            if (param.getParamKey().equals("base.run.mode") && param.getParamValue().equals("POOL")) {
-                long size = baseProjectService.count();
-                List<TestResourcePoolDTO> poolList = getTestResourcePool();
-                if (CollectionUtils.isNotEmpty(poolList) && size > 0) {
-                    batchSaveProjectApp(poolList, size);
                 }
             }
             // 去掉路径最后的 /
