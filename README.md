@@ -48,7 +48,7 @@ curl -sSL https://resource.fit2cloud.com/metersphere/metersphere/releases/latest
 
 -   [在线文档](https://metersphere.io/docs/)
 -   [社区论坛](https://space.bilibili.com/510493147/channel/collectiondetail?sid=397323)
--   [在线体验](https://metersphere.com/)
+-   [在线体验](https://metersphere.com/?utm_source=github)
 
 **加入微信交流群**
 
