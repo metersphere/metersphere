@@ -62,6 +62,8 @@ public class JMeterService {
     private RemakeReportService remakeReportService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private ApiPoolDebugService apiPoolDebugService;
 
     @PostConstruct
     private void init() {
@@ -200,7 +202,6 @@ public class JMeterService {
     }
 
     private synchronized void nodeDebug(JmeterRunRequestDTO request) {
-        ApiPoolDebugService apiPoolDebugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
         if (apiPoolDebugService != null) {
             apiPoolDebugService.run(request);
         }
@@ -248,10 +249,7 @@ public class JMeterService {
     }
 
     public void verifyPool(String projectId, RunModeConfigDTO runModeConfigDTO) {
-        ApiPoolDebugService debugService = CommonBeanFactory.getBean(ApiPoolDebugService.class);
-        if (debugService != null) {
-            debugService.verifyPool(projectId, runModeConfigDTO);
-        }
+        apiPoolDebugService.verifyPool(projectId, runModeConfigDTO);
     }
 }
 

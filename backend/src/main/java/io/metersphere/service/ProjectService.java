@@ -19,6 +19,7 @@ import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ProjectConfig;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.CleanUpReportJob;
@@ -128,6 +129,8 @@ public class ProjectService {
     private ApiScenarioReportResultMapper apiScenarioReportResultMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public Project addProject(AddProjectRequest project) {
         this.checkCreateProjectParam(project);
@@ -183,9 +186,28 @@ public class ProjectService {
         initProjectApplication(project.getId());
         // 初始化项目默认节点
         initProjectDefaultNode(project.getId());
+        // 初始化项目资源池
+        saveProjectApplication(project.getId());
         return project;
     }
 
+    public void saveProjectApplication(String projectId) {
+        List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
+        String id = systemParameterService.filterQuota(poolList);
+        if (StringUtils.isNotBlank(id)) {
+            ProjectApplication applicationValue = new ProjectApplication();
+            applicationValue.setProjectId(projectId);
+            applicationValue.setType(ProjectApplicationType.RESOURCE_POOL_ID.name());
+            applicationValue.setTypeValue(id);
+            projectApplicationMapper.insert(applicationValue);
+
+            ProjectApplication application = new ProjectApplication();
+            application.setProjectId(projectId);
+            application.setType(ProjectApplicationType.POOL_ENABLE.name());
+            application.setTypeValue(String.valueOf(true));
+            projectApplicationMapper.insert(application);
+        }
+    }
     private void checkCreateProjectParam(AddProjectRequest project) {
         String name = project.getName();
         if (StringUtils.isBlank(name)) {

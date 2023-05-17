@@ -3,6 +3,7 @@ package io.metersphere.job.sechedule;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
+import io.metersphere.api.exec.ApiPoolDebugService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -11,6 +12,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
+import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
@@ -32,6 +34,9 @@ public class ApiScenarioTestJob extends MsScheduleJob {
     private List<String> scenarioIds;
 
     private ApiAutomationService apiAutomationService;
+
+    private ApiPoolDebugService apiPoolDebugService;
+
 
     public ApiScenarioTestJob() {
         apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
@@ -77,6 +82,14 @@ public class ApiScenarioTestJob extends MsScheduleJob {
             RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
             runModeConfigDTO.setMode(RunModeConstants.PARALLEL.toString());
             request.setConfig(runModeConfigDTO);
+        }
+        // 兼容历史定时任务默认给一个资源池
+        if (StringUtils.isBlank(request.getConfig().getResourcePoolId())) {
+            try {
+                apiPoolDebugService.verifyPool(projectID, request.getConfig());
+            } catch (Exception e) {
+                LoggerUtil.error(e);
+            }
         }
 
         apiAutomationService.run(request);
