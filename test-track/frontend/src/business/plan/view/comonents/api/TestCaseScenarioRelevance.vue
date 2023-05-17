@@ -77,10 +77,12 @@ export default {
   methods: {
     open() {
       this.$refs.baseRelevance.open();
-      if (this.$refs.apiScenarioList) {
-        this.$refs.apiScenarioList.clear();
-        this.$refs.apiScenarioList.search();
-      }
+      this.$nextTick(() => {
+        if (this.$refs.apiScenarioList) {
+          this.$refs.apiScenarioList.clear();
+          this.$refs.apiScenarioList.search();
+        }
+      });
     },
     setProject(projectId) {
       this.projectId = projectId;
