@@ -236,7 +236,36 @@
                 <property name="object" value="${condition}.caseCount"/>
             </include>
         </if>
-
+        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                and api_definition.id in (
+                select resource_id from custom_field_api where field_id = #{custom.id}
+                <choose>
+                    <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                        and ${custom.value}
+                    </when>
+                    <when test="custom.type == 'date' or custom.type == 'datetime'">
+                        and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </when>
+                    <when test="custom.type == 'richText' or custom.type == 'textarea'">
+                        and text_value
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </when>
+                    <otherwise>
+                        and trim(both '"' from value)
+                        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                            <property name="object" value="custom"/>
+                        </include>
+                    </otherwise>
+                </choose>
+                )
+            </foreach>
+        </if>
     </sql>
 
     <sql id="condition">
@@ -296,6 +325,9 @@
         from api_definition
         left join user on api_definition.user_id = user.id
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        <if test="request.isCustomSorted">
+            left join custom_field_api on api_definition.id = custom_field_api.resource_id
+        </if>
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

@@ -51,4 +51,10 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
 
     private Long deleteTime;
     private String deleteUserId;
+
+    /**
+     * 是否根据自定义字段进行排序
+     */
+    private Boolean isCustomSorted = false;
+
 }

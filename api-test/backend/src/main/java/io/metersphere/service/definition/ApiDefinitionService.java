@@ -179,6 +179,7 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
+        setCustomFieldsOrder(request);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
@@ -189,6 +190,12 @@ public class ApiDefinitionService {
         }
         buildCustomField(resList);
         return resList;
+    }
+
+    private void setCustomFieldsOrder(ApiDefinitionRequest request) {
+        if (request.getCombine() != null && !request.getCombine().isEmpty()) {
+            request.setIsCustomSorted(true);
+        }
     }
 
     /**
