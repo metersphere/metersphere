@@ -139,7 +139,6 @@ public class ProjectController {
     }
 
     @PostMapping("/member/add")
-    @MsRequestLog(module = OperLogModule.PROJECT_PROJECT_MEMBER)
     public void addProjectMember(@RequestBody AddMemberRequest request) {
         projectService.addProjectMember(request);
     }
