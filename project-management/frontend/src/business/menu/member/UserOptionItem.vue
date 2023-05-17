@@ -41,5 +41,6 @@ export default {
   float: right;
   color: #8492a6;
   font-size: 13px;
+  margin-right: 20px;
 }
 </style>
