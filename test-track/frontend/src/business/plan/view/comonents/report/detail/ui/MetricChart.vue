@@ -231,8 +231,8 @@
             <div v-show="showUnExecuteReport && !isUi" class="metric-box">
               <div class="value">
                 {{
-                  content.scenarioStepUnExecuteReport
-                    ? content.scenarioStepUnExecuteReport
+                  content.scenarioStepPending
+                    ? content.scenarioStepPending
                     : 0
                 }}
               </div>
@@ -445,6 +445,7 @@ export default {
       return (
         (this.content.scenarioStepUnExecuteReport &&
           this.content.scenarioStepUnExecuteReport > 0) ||
+        (this.content.scenarioStepPending && this.content.scenarioStepPending > 0) ||
         (this.content.scenarioUnExecute &&
           this.content.scenarioUnExecute > 0) ||
         (this.content.unExecute && this.content.unExecute > 0)

@@ -1138,6 +1138,7 @@ export default {
         this.cardLoading = true;
         testPlanRunSave(param).then(() => {
           this.cardLoading = false;
+          this.initTableData();
           this.$success(this.$t("commons.run_success"));
         });
       } else if (config.executionWay === "save") {

@@ -30,6 +30,7 @@
                   :report="report"
                   :is-share="isShare"
                   :share-id="shareId"
+                  :is-template="isTemplate"
                   v-on:requestResult="requestResult"
                   ref="resultsTree"/>
               </el-tab-pane>
@@ -118,9 +119,9 @@ import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "metersphere-frontend/src/model/ApiTestModel";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {getUUID, windowPrint} from "metersphere-frontend/src/utils";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import {STEP} from "metersphere-frontend/src/model/Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
+
 export default {
   name: "MsApiReport",
   components: {

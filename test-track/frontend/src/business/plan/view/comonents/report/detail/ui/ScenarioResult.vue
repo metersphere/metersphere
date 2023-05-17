@@ -4,7 +4,7 @@
     || (node.type && this.stepFilter.get('AllSamplerProxy').indexOf(node.type) === -1)">
       <el-card class="ms-card">
         <el-row>
-          <el-col span="23">
+          <el-col :span="22">
             <div class="el-step__icon is-text ms-api-col">
               <div class="el-step__icon-inner">
                 {{ node.index }}
@@ -17,8 +17,10 @@
               <span v-else>{{ getLabel(node.label) }}</span>
             </el-tooltip>
           </el-col>
-          <el-col :span="1">
-            <ms-api-report-status :status="node.totalStatus" v-if="node.label !=='ConstantTimer'"/>
+          <el-col :span="2">
+            <div style="float: right">
+              <ms-api-report-status :status="node.totalStatus" v-if="node.label !=='ConstantTimer'"/>
+            </div>
           </el-col>
         </el-row>
       </el-card>
@@ -45,6 +47,7 @@
         :total-status="node.totalStatus"
         :console="console"
         :isActive="isActive"
+        :is-template="isTemplate"
         :is-share="isShare"
         :share-id="shareId"
         v-on:requestResult="requestResult"
