@@ -305,6 +305,8 @@ import {buildNodePath} from 'metersphere-frontend/src/model/NodeTree';
 import VersionSelector from '@/business/definition/components/version/VersionSelector';
 import TableExtendBtns from "@/business/definition/components/complete/table/TableExtendBtns";
 import MsShowReference from "@/business/definition/components/reference/ShowReference";
+import {getApiTemplate} from "@/api/api-template";
+import {getAdvSearchCustomField} from "metersphere-frontend/src/components/search/custom-component";
 
 export default {
   name: 'ApiList',
@@ -597,7 +599,17 @@ export default {
         this.editApi(response.data);
       });
     }
+    for (let i = 0; i < this.condition.components.length; i++) {
+      if (this.condition.components[i].custom) {
+        this.condition.components.splice(i, 1);
+        break;
+      }
+    }
     this.setAdvSearchParam();
+    getApiTemplate(this.projectId).then((template) => {
+      let comp = getAdvSearchCustomField(this.condition, template.customFields);
+      this.condition.components.push(...comp)
+    });
   },
   watch: {
     selectNodeIds() {
