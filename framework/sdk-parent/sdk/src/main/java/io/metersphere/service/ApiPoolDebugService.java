@@ -74,9 +74,7 @@ public class ApiPoolDebugService {
             boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
                     .collect(Collectors.toList()).contains(config.getResourcePoolId());
 
-            if ((StringUtils.isEmpty(config.getResourcePoolId())
-                    && BooleanUtils.isTrue(config.getPoolEnable()))
-                    || !contains) {
+            if (StringUtils.isEmpty(config.getResourcePoolId()) || !contains || BooleanUtils.isFalse(config.getPoolEnable())) {
                 String id = systemParameterService.filterQuota(poolList, projectId);
                 if (StringUtils.isBlank(id)) {
                     MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
