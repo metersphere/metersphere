@@ -192,8 +192,9 @@
           </el-col>
           <el-col :span="2">
             <div v-if="totalStatus">
-              <el-tag size="mini" v-if="totalStatus === 'unexecute'"
-                > Pending
+              <el-tag size="mini"
+                      v-if="totalStatus === 'unexecute' || totalStatus === 'Pending'|| totalStatus === 'PENDING'"
+              > Pending
               </el-tag>
               <el-tag
                 v-else-if="
@@ -294,6 +295,7 @@ export default {
     console: String,
     totalStatus: String,
     redirect: Boolean,
+    isTemplate: Boolean,
     errorCode: {
       type: String,
       default: "",
@@ -388,12 +390,14 @@ export default {
         this.request.responseResult.body === null ||
         this.request.responseResult.body === undefined
       ) {
-        if (this.isShare) {
+        if (this.isTemplate) {
+          this.requestInfo.loading = false;
+        } else if (this.isShare) {
           this.$get(
             "/share/" +
-              this.shareId +
-              "/scenario/report/selectReportContent/" +
-              this.stepId
+            this.shareId +
+            "/scenario/report/selectReportContent/" +
+            this.stepId
           ).then((response) => {
             this.requestInfo = response.data;
             this.$nextTick(() => {

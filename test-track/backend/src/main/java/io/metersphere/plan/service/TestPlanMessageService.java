@@ -54,8 +54,6 @@ public class TestPlanMessageService {
     @Async
     public void checkTestPlanStatusAndSendMessage(TestPlanReport report, TestPlanReportContentWithBLOBs testPlanReportContent, TestPlan testPlan, boolean sendMessage) {
         if (report != null && testPlanReportContent != null) {
-            // 异步发送通知需要指定调用其他服务的user
-            HttpHeaderUtils.runAsUser(report.getCreator());
             try {
                 report = testPlanReportService.checkTestPlanReportHasErrorCase(report, testPlanReportContent);
                 if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting() && !report.getIsUiScenarioExecuting()) {
@@ -70,8 +68,6 @@ public class TestPlanMessageService {
                 }
             } catch (Exception e) {
                 LogUtil.error("检查测试计划状态出错", e);
-            } finally {
-                HttpHeaderUtils.clearUser();
             }
 
         }
@@ -94,19 +90,16 @@ public class TestPlanMessageService {
         } else {
             subject = "任务通知";
         }
+        String creator = testPlanReport.getCreator();
+        UserDTO userDTO = baseUserService.getUserDTO(creator);
+        HttpHeaderUtils.runAsUser(userDTO);
         // 计算通过率
         TestPlanDTOWithMetric testPlanDTOWithMetric = BeanUtils.copyBean(new TestPlanDTOWithMetric(), testPlan);
         testPlanService.calcTestPlanRate(Collections.singletonList(testPlanDTOWithMetric));
-        String creator = testPlanReport.getCreator();
-        UserDTO userDTO = baseUserService.getUserDTO(creator);
         // 计算各种属性
-        HttpHeaderUtils.runAsUser(userDTO);
         TestPlanReportDataStruct report = testPlanReportService.getReport(testPlanReport.getId());
         HttpHeaderUtils.clearUser();
-
         Map<String, Long> caseCountMap = calculateCaseCount(report);
-
-
         Map paramMap = new HashMap();
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
