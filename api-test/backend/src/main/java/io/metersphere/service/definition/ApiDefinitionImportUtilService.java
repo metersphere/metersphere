@@ -229,7 +229,7 @@ public class ApiDefinitionImportUtilService {
         } else {
             repeatList = dealRepeat(apiImportParamDto);
         }
-
+        optionData = apiImportParamDto.getOptionData();
         Map<String, List<ApiTestCaseWithBLOBs>> apiIdCaseMap = optionDataCases.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         if (MapUtils.isNotEmpty(moduleMap)) {
 
@@ -867,7 +867,6 @@ public class ApiDefinitionImportUtilService {
         List<ApiTestCaseWithBLOBs> optionDataCases = apiImportParamDto.getOptionDataCases();
         Map<String, ApiModule> moduleMap = apiImportParamDto.getModuleMap();
 
-        String chooseModuleId = request.getModuleId();
         List<ApiDefinitionWithBLOBs> repeatApiDefinitionWithBLOBs = getApiDefinitionWithBLOBsList(request, optionData);
         //如果系统内，没有重复数据，要把文件重复的数据改成接口的case
         if (CollectionUtils.isEmpty(repeatApiDefinitionWithBLOBs)) {
@@ -888,15 +887,12 @@ public class ApiDefinitionImportUtilService {
                 List<ApiDefinitionWithBLOBs> singleOptionData = new ArrayList<>();
                 removeOtherChooseModuleRepeat(optionData, singleOptionData, chooseModulePath);
                 optionData = singleOptionData;
-                optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName().concat(chooseModulePath), api -> api));
-            } else {
-                getNoHChooseModuleUrlRepeatOptionMap(optionData, optionMap, chooseModulePath);
             }
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().filter(t -> t.getModuleId().equals(chooseModuleId)).collect(Collectors.groupingBy(t -> t.getName().concat(t.getModulePath())));
+            getNoHChooseModuleUrlRepeatOptionMap(optionData, optionMap, chooseModulePath);
         } else {
             buildOptionMap(optionData, optionMap);
-            repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getModulePath())));
         }
+        repeatDataMap = repeatApiDefinitionWithBLOBs.stream().collect(Collectors.groupingBy(t -> t.getName().concat(t.getModulePath())));
         Boolean fullCoverageApi = getFullCoverageApi(request);
         String updateVersionId = getUpdateVersionId(request);
         //处理数据
@@ -932,10 +928,10 @@ public class ApiDefinitionImportUtilService {
         if (optionData.isEmpty()) {
             moduleMap = new HashMap<>();
         }
+        apiImportParamDto.setOptionData(optionData);
         //将原来的case和更改的case组合在一起，为了同步的设置
         List<String> caseIds = optionDataCases.stream().map(ApiTestCase::getId).filter(StringUtils::isNotBlank).collect(Collectors.toList());
         buildCases(optionDataCases, oldCaseMap, caseIds);
-
         return repeatApiDefinitionWithBLOBs;
     }
 
@@ -961,7 +957,7 @@ public class ApiDefinitionImportUtilService {
             if (optionDatum.getModulePath() == null) {
                 optionMap.put(optionDatum.getName().concat(chooseModulePath), optionDatum);
             } else {
-                optionMap.put(optionDatum.getName().concat(chooseModulePath).concat(optionDatum.getModulePath()), optionDatum);
+                optionMap.put(optionDatum.getName().concat(optionDatum.getModulePath()), optionDatum);
             }
         }
     }
