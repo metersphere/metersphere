@@ -37,6 +37,9 @@ public class OperatingLogService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
+    private static final String TIMING_SYNCHRONIZATION = "TIMING_SYNCHRONIZATION";
+    private static final String IMPORT_FILE = "IMPORT_FILE";
+
     public void create(OperatingLogWithBLOBs log, String sourceIds) {
         log.setSourceId(StringUtils.EMPTY);
         operatingLogMapper.insert(log);
@@ -129,9 +132,7 @@ public class OperatingLogService {
                 if (CollectionUtils.isEmpty(logWithBLOB.getDetails().getColumns())) {
                     dtos.add(logWithBLOB);
                 }
-                if (StringUtils.isBlank(logWithBLOB.getUserName()) && StringUtils.isNotBlank(logWithBLOB.getOperUser())) {
-                    logWithBLOB.setUserName(logWithBLOB.getOperUser());
-                }
+                setUserName(logWithBLOB);
             }
         }
         if (CollectionUtils.isNotEmpty(dtos)) {
@@ -139,4 +140,21 @@ public class OperatingLogService {
         }
         return logWithBLOBs;
     }
+
+    private static void setUserName(OperatingLogDTO logWithBLOB) {
+        if (StringUtils.isBlank(logWithBLOB.getUserName()) && StringUtils.isNotBlank(logWithBLOB.getOperUser())) {
+            if (logWithBLOB.getOperUser().contains(TIMING_SYNCHRONIZATION)) {
+                int suffix = logWithBLOB.getOperUser().indexOf(TIMING_SYNCHRONIZATION);
+                String substring = logWithBLOB.getOperUser().substring(0, suffix);
+                logWithBLOB.setUserName(substring + Translator.get("timing_synchronization"));
+            } else if (logWithBLOB.getOperUser().contains(IMPORT_FILE)) {
+                int suffix = logWithBLOB.getOperUser().indexOf(IMPORT_FILE);
+                String substring = logWithBLOB.getOperUser().substring(0, suffix);
+                logWithBLOB.setUserName(substring + Translator.get("import_file"));
+            } else {
+                logWithBLOB.setUserName(logWithBLOB.getOperUser());
+            }
+        }
+    }
+
 }
