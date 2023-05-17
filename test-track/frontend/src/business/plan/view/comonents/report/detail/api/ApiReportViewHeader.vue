@@ -4,7 +4,10 @@
       <el-col>
         <span v-if="!debug">
           <span>
-             <el-link v-if="isSingleScenario"
+            <span v-if="isTemplate">
+              {{ report.name }}
+            </span>
+             <el-link v-else-if="isSingleScenario"
                       type="primary"
                       class="report-name"
                       @click="redirect">
