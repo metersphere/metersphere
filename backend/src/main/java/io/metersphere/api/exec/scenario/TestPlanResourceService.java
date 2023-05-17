@@ -7,7 +7,6 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -22,18 +21,18 @@ public class TestPlanResourceService {
     private ApiScenarioMapper apiScenarioMapper;
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updatePlanScenario(TestPlanApiScenario testPlanApiScenario){
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePlanScenario(TestPlanApiScenario testPlanApiScenario) {
         testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updatePlanCase(TestPlanApiCase testPlanApiCase){
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePlanCase(TestPlanApiCase testPlanApiCase) {
         tstPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void updateScenario(ApiScenario apiScenario){
+    @Transactional(rollbackFor = Exception.class)
+    public void updateScenario(ApiScenario apiScenario) {
         apiScenarioMapper.updateByPrimaryKey(apiScenario);
     }
 
