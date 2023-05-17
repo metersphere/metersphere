@@ -36,10 +36,8 @@
               <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
             </div>
             <div v-if="testType === 'API'" style="padding-top: 10px">
-              <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
-                {{ $t('run_mode.run_with_resource_pool') }}
-              </el-checkbox>
-              <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+              <span>{{ $t('run_mode.run_with_resource_pool') }}：</span>
+              <el-select v-model="runConfig.resourcePoolId" size="mini">
                 <el-option
                   v-for="item in resourcePools"
                   :key="item.id"
@@ -58,10 +56,8 @@
           </el-col>
           <el-col :span="18">
             <div v-if="testType === 'API'">
-              <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
-                {{ $t('run_mode.run_with_resource_pool') }}
-              </el-checkbox>
-              <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+              <span> {{ $t('run_mode.run_with_resource_pool') }}：</span>
+              <el-select v-model="runConfig.resourcePoolId" size="mini">
                 <el-option
                   v-for="item in resourcePools"
                   :key="item.id"
@@ -113,7 +109,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -149,43 +144,34 @@ export default {
       if (runModeConfig) {
         this.runConfig = JSON.parse(runModeConfig);
         this.runConfig.onSampleError = this.runConfig.onSampleError === 'true' || this.runConfig.onSampleError === true;
-        this.runConfig.runWithinResourcePool = this.runConfig.runWithinResourcePool === 'true' || this.runConfig.runWithinResourcePool === true;
       }
       this.runModeVisible = true;
       this.testType = testType;
-      if(hasLicense()) {
-        this.query();
-      }
       this.getResourcePools();
       this.getWsProjects();
     },
-    query() {
-      this.loading = true;
-      this.result = this.$get("/system/base/info", response => {
-        if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        } else {
-          this.loading = false;
-        }
-      })
-    },
+
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
+        this.getProjectApplication();
       });
     },
     getProjectApplication() {
-      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
-        this.loading = false;
       });
+      if (!hasPool) {
+        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     changeMode() {
       this.runConfig.onSampleError = false;
@@ -195,7 +181,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -245,7 +230,7 @@ export default {
       });
     },
     handleCommand(command) {
-      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+      if (this.runConfig.resourcePoolId == null) {
         this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
         return;
       }

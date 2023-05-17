@@ -63,10 +63,8 @@
                     <el-checkbox v-model="runConfig.onSampleError">{{ $t("api_test.fail_to_stop") }}</el-checkbox>
                   </div>
                   <div v-if="testType === 'API'" style="padding-top: 10px">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
-                      {{ $t('run_mode.run_with_resource_pool') }}
-                    </el-checkbox>
-                    <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
+                    <span> {{ $t('run_mode.run_with_resource_pool') }}：</span>
+                    <el-select v-model="runConfig.resourcePoolId"
                                size="mini">
                       <el-option
                           v-for="item in resourcePools"
@@ -86,10 +84,8 @@
                 </el-col>
                 <el-col :span="18">
                   <div v-if="testType === 'API'">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" :disabled="runMode === 'POOL'">
-                      {{ $t('run_mode.run_with_resource_pool') }}
-                    </el-checkbox>
-                    <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
+                    <span>{{ $t('run_mode.run_with_resource_pool') }}：</span>
+                    <el-select v-model="runConfig.resourcePoolId"
                                size="mini">
                       <el-option
                           v-for="item in resourcePools"
@@ -172,11 +168,6 @@ export default {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
     },
-    'runConfig.runWithinResourcePool'() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig.resourcePoolId = null;
-      }
-    }
   },
   data() {
     const validateCron = (rule, cronValue, callback) => {
@@ -224,7 +215,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
       },
       projectList: [],
@@ -314,29 +304,23 @@ export default {
       listenGoBack(this.close);
       this.activeName = 'first';
       this.getResourcePools();
-      if(hasLicense()) {
-        this.query();
-      }
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
-    query() {
-      this.result = this.$get("/system/base/info", response => {
-        if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        }
-      })
-    },
     getProjectApplication() {
-      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
       });
+      if (!hasPool) {
+        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     findSchedule() {
       let scheduleResourceID = this.testId;
@@ -377,7 +361,7 @@ export default {
       });
     },
     saveCron() {
-      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+      if (this.runConfig.resourcePoolId == null) {
         this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
         return;
       }
@@ -406,7 +390,7 @@ export default {
       if (!param.workspaceId) {
         param.workspaceId = getCurrentWorkspaceId();
       }
-      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+      if (this.runConfig.resourcePoolId == null) {
         this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
         return;
       }
@@ -476,6 +460,7 @@ export default {
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
+        this.getProjectApplication();
       });
     },
     changeMode() {

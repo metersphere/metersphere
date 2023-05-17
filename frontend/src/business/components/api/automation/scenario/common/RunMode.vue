@@ -40,11 +40,8 @@
           </el-radio-group>
         </span>
         <div style="padding:10px 90px">
-          <el-checkbox v-model="runConfig.runWithinResourcePool"
-                       style="padding-right: 10px;" :disabled="runMode === 'POOL'">
-            {{ $t('run_mode.run_with_resource_pool') }}
-          </el-checkbox>
-          <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+          <span>{{ $t('run_mode.run_with_resource_pool') }}：</span>
+          <el-select v-model="runConfig.resourcePoolId" size="mini">
             <el-option
               v-for="item in resourcePools"
               :key="item.id"
@@ -99,7 +96,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -118,25 +114,9 @@ export default {
     }
   },
 
-  watch: {
-    'runConfig.runWithinResourcePool'() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig = {
-          mode: this.runConfig.mode,
-          reportType: "iddReport",
-          reportName: "",
-          runWithinResourcePool: false,
-          resourcePoolId: null,
-        };
-      }
-    }
-  },
   methods: {
     open() {
       this.runModeVisible = true;
-      if(hasLicense()) {
-        this.query();
-      }
       this.getResourcePools();
       this.getWsProjects();
       this.runConfig.environmentType = ENV_TYPE.JSON;
@@ -151,38 +131,32 @@ export default {
         reportType: "iddReport",
         reportName: "",
         environmentType: ENV_TYPE.JSON,
-        runWithinResourcePool: false,
         resourcePoolId: null,
       };
       this.runModeVisible = false;
       this.$emit('close');
     },
-    query() {
-      this.loading = true;
-      this.result = this.$get("/system/base/info", response => {
-        if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        } else {
-          this.loading = false;
-        }
-      })
-    },
     getProjectApplication() {
-      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
-        this.loading = false;
       });
+      if (!hasPool) {
+        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+          this.loading = false;
+        });
+      }
     },
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
+        this.getProjectApplication();
       });
     },
     getWsProjects() {
@@ -195,7 +169,7 @@ export default {
         this.$warning(this.$t('commons.input_name'));
         return;
       }
-      if (this.runConfig.runWithinResourcePool && this.runConfig.resourcePoolId == null) {
+      if (this.runConfig.resourcePoolId == null) {
         this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
         return;
       }

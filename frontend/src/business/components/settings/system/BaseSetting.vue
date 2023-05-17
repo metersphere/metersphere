@@ -20,9 +20,6 @@
                       :placeholder="$t('system_config.selenium_docker.url_tip')"/>
             <i>({{ $t('commons.examples') }}:http://localhost:4444)</i>
           </el-form-item>
-          <el-form-item :label="$t('commons.api_default_run')" prop="runMode" v-if="hasLicense()">
-            <el-switch active-value="LOCAL" inactive-value="POOL" v-model="formInline.runMode" @change="modeChange"/>
-          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -91,20 +88,6 @@ export default {
         })
       })
     },
-    modeChange(v) {
-      if (v === 'POOL') {
-        this.formInline.runMode = 'LOCAL';
-        this.$alert(this.$t('commons.api_default_run_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.formInline.runMode = v;
-            }
-          }
-        });
-      }
-    },
     edit() {
       this.showEdit = false;
       this.showSave = true;
@@ -121,7 +104,6 @@ export default {
         {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
         {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
         {paramKey: "base.selenium.docker.url", paramValue: this.formInline.seleniumDockerUrl, type: "text", sort: 1},
-        {paramKey: "base.run.mode", paramValue: this.formInline.runMode, type: "text", sort: 5},
       ];
 
       this.$refs[formInline].validate(valid => {

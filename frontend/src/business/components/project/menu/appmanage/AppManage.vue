@@ -80,7 +80,7 @@
                                  :title="$t('report.report_sharing_link')"/>
 
                     <!-- 接口测试资源池 -->
-                    <app-manage-item :title="$t('commons.api_run_pool_title')" :prepend-span="8" :middle-span="12" :append-span="4" v-if="isPool && isXpack">
+                    <app-manage-item :title="$t('commons.api_run_pool_title')" :prepend-span="8" :middle-span="12" :append-span="4">
                       <template #middle>
                         <el-select v-model="config.resourcePoolId"
                                    size="mini"
@@ -263,7 +263,6 @@ export default {
   },
   created() {
     this.init();
-    this.getBase();
     this.getResourcePools();
     this.isXpack = !!hasLicense();
   },
@@ -273,11 +272,6 @@ export default {
     },
   },
   methods: {
-    getBase() {
-      this.result = this.$get("/system/base/info", response => {
-        this.isPool = response.data.runMode === 'POOL';
-      })
-    },
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;

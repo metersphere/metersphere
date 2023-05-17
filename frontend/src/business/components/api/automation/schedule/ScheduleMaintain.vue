@@ -60,10 +60,8 @@
             </div>
             <div class="ms-mode-div">
                   <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
-              <el-checkbox v-model="runConfig.runWithinResourcePool" :disabled="runMode === 'POOL'">
-                {{ $t('run_mode.run_with_resource_pool') }}
-              </el-checkbox>
-              <el-select style="margin-left: 10px" :disabled="!runConfig.runWithinResourcePool"
+              <span> {{ $t('run_mode.run_with_resource_pool') }}：</span>
+              <el-select style="margin-left: 10px"
                          v-model="runConfig.resourcePoolId"
                          size="mini">
                 <el-option
@@ -144,11 +142,6 @@ export default {
     'schedule.value'() {
       this.form.cronValue = this.schedule.value;
     },
-    'runConfig.runWithinResourcePool'() {
-      if (!this.runConfig.runWithinResourcePool) {
-        this.runConfig.resourcePoolId = null;
-      }
-    }
   },
   data() {
     const validateCron = (rule, cronValue, callback) => {
@@ -193,7 +186,6 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
         resourcePoolId: null,
         envMap: {},
         environmentGroupId: "",
@@ -214,24 +206,21 @@ export default {
       }
       return true;
     },
-    query() {
-      this.result = this.$get("/system/base/info", response => {
-        if (!response.data.runMode) {
-          response.data.runMode = 'LOCAL'
-        }
-        this.runMode = response.data.runMode;
-        if (this.runMode === 'POOL') {
-          this.runConfig.runWithinResourcePool = true;
-          this.getProjectApplication();
-        }
-      })
-    },
     getProjectApplication() {
-      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+      let hasPool = false;
+      this.resourcePools.forEach(item => {
+        if (item.id === this.runConfig.resourcePoolId) {
+          hasPool = true;
+          return;
         }
       });
+      if (!hasPool) {
+        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
+      }
     },
     changeMode() {
       this.runConfig.reportType = "iddReport";
@@ -265,6 +254,7 @@ export default {
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
+        this.getProjectApplication();
       });
     },
     scheduleChange() {
@@ -344,9 +334,6 @@ export default {
       this.activeName = 'first';
       this.getResourcePools();
       this.getWsProjects();
-      if(hasLicense()) {
-        this.query();
-      }
       this.runConfig.environmentType = ENV_TYPE.JSON;
     },
     findSchedule() {
