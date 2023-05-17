@@ -695,7 +695,6 @@ export default {
   },
   created() {
     this.init();
-    this.getBase();
     this.selectUserInProject();
     this.getResourcePools();
     this.isXpack = !!hasLicense();
@@ -714,11 +713,11 @@ export default {
           if (item.id === this.config.resourcePoolId) {
             isDelPool = false;
           }
+          if (isDelPool) {
+            this.config.resourcePoolId = undefined;
+            this.config.poolEnable = false;
+          }
         });
-        if (isDelPool) {
-          this.config.resourcePoolId = undefined;
-          this.config.poolEnable = false;
-        }
       });
     },
     runModeChange(value, other) {
