@@ -53,6 +53,9 @@ public class ApiDefinitionImportUtilService {
 
     public static final String BODY = "body";
 
+    private static final String TIMING_SYNCHRONIZATION = "TIMING_SYNCHRONIZATION";
+    private static final String IMPORT_FILE = "IMPORT_FILE";
+
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
 
@@ -1320,14 +1323,14 @@ public class ApiDefinitionImportUtilService {
             List<Schedule> list = scheduleMapper.selectByExample(schedule);
             if (list.size() > 0) {
                 User user = baseUserService.getUserDTO(list.get(0).getUserId());
-                msOperLog.setOperUser(user.getName() + Translator.get("timing_synchronization"));
+                msOperLog.setOperUser(user.getName() + TIMING_SYNCHRONIZATION);
                 msOperLog.setCreateUser(user.getId());
             } else {
-                msOperLog.setOperUser(Translator.get("timing_synchronization"));
+                msOperLog.setOperUser(TIMING_SYNCHRONIZATION);
             }
         } else {
             SessionUser user = SessionUtils.getUser();
-            msOperLog.setOperUser(user.getName() + Translator.get("import_file"));
+            msOperLog.setOperUser(user.getName() + IMPORT_FILE);
             msOperLog.setCreateUser(user.getId());
         }
     }
