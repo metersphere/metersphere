@@ -178,20 +178,28 @@ public class ReflexObjectUtil {
                                 Object originalObject = JSON.toJSONString(originalValueArray);
                                 oldTags = StringUtils.join(JSON_START, ((originalColumns.get(i) != null && originalObject != null) ? originalObject.toString() : "\"\""), JSON_END);
                             }
-                            List<String> newValueArray = JSON.parseArray(newValue.toString(), String.class);
-                            if (CollectionUtils.isNotEmpty(newValueArray)) {
-                                Collections.sort(newValueArray);
+                            String newTags = null;
+                            if (newValue != null && !StringUtils.equals("null", newValue.toString())) {
+                                List<String> newValueArray = JSON.parseArray(newValue.toString(), String.class);
+                                if (CollectionUtils.isNotEmpty(newValueArray)) {
+                                    Collections.sort(newValueArray);
+                                }
+                                Object newObject = JSON.toJSONString(newValueArray);
+                                newTags = StringUtils.join(JSON_START, ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\""), JSON_END);
                             }
-                            Object newObject = JSON.toJSONString(newValueArray);
-                            String newTags = StringUtils.join(JSON_START, ((newColumns.get(i) != null && newObject != null) ? newObject.toString() : "\"\""), JSON_END);
-                            String diffValue;
-                            if (oldTags != null) {
+
+                            if (StringUtils.isBlank(oldTags) && StringUtils.isBlank(newTags)) {
+                                continue;
+                            }
+                            if (StringUtils.isNotBlank(oldTags) && StringUtils.isNotBlank(newTags)) {
                                 String diffStr = diff.diff(oldTags, newTags);
-                                diffValue = diff.apply(newTags, diffStr);
-                            } else {
-                                diffValue = reviverJson(newTags, "root", DIFF_ADD);
+                                String diffValue = diff.apply(newTags, diffStr);
+                                column.setDiffValue(diffValue);
+                            } else if (StringUtils.isNotBlank(newTags)) {
+                                String diffValue = reviverJson(newTags, "root", DIFF_ADD);
+                                column.setDiffValue(diffValue);
                             }
-                            column.setDiffValue(diffValue);
+
                         }
                         // 深度对比
                         else if (StringUtils.equals(module, "API_DEFINITION")) {
@@ -199,11 +207,19 @@ public class ReflexObjectUtil {
                             if (originalColumns.get(i).getColumnName().equals("request")) {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
-                                column.setDiffValue(apiDefinitionDiffUtilClass.diff(newValue, oldValue));
+                                String diff = apiDefinitionDiffUtilClass.diff(newValue, oldValue);
+                                if (StringUtils.isBlank(diff)) {
+                                    continue;
+                                }
+                                column.setDiffValue(diff);
                             } else if (originalColumns.get(i).getColumnName().equals("response")) {
                                 String newValue = Objects.toString(column.getNewValue().toString(), "");
                                 String oldValue = Objects.toString(column.getOriginalValue(), "");
-                                column.setDiffValue(apiDefinitionDiffUtilClass.diffResponse(newValue, oldValue));
+                                String diff = apiDefinitionDiffUtilClass.diffResponse(newValue, oldValue);
+                                if (StringUtils.isBlank(diff)) {
+                                    continue;
+                                }
+                                column.setDiffValue(diff);
                             }
                         }
                         // 环境全局前后置脚本深度对比
@@ -237,15 +253,22 @@ public class ReflexObjectUtil {
                                 }
                             }
                         } else {
-                            String newValue = Objects.toString(column.getNewValue(), "");
-                            if (StringUtils.isNotEmpty(newValue)) {
+                            String newValue = Objects.toString(column.getNewValue(), StringUtils.EMPTY);
+                            if (StringUtils.isNotBlank(newValue)) {
                                 column.setNewValue(newValue.replaceAll("\\n", StringUtils.SPACE));
                             }
                             String oldValue = Objects.toString(column.getOriginalValue(), StringUtils.EMPTY);
-                            if (StringUtils.isNotEmpty(oldValue)) {
+                            if (StringUtils.isNotBlank(oldValue)) {
                                 column.setOriginalValue(oldValue.replaceAll("\\n", StringUtils.SPACE));
                             }
+                            if (StringUtils.isBlank(newValue) && StringUtils.isBlank(oldValue)) {
+                                continue;
+                            }
                         }
+                        if (column.getDiffValue() == null || StringUtils.isBlank(JSON.toJSONString(column.getDiffValue())) || (StringUtils.isBlank(JSON.toJSONString(column.getNewValue())) && StringUtils.isBlank(JSON.toJSONString(column.getOriginalValue())))) {
+                            continue;
+                        }
+
                         comparedColumns.add(column);
                     }
                 }
