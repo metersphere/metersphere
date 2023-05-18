@@ -418,8 +418,13 @@
             <artifactId>org.eclipse.jgit</artifactId>
             <version>${jgit.version}</version>
         </dependency>
+        <!-- otp -->
+        <dependency>
+            <groupId>com.github.bastiaanjansen</groupId>
+            <artifactId>otp-java</artifactId>
+            <version>${otp-java.version}</version>
+        </dependency>
     </dependencies>
-
 
 
 </project>

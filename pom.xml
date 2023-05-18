@@ -86,6 +86,7 @@
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
         <embedded.version>3.0.0-RC5</embedded.version>
+        <otp-java.version>2.0.1</otp-java.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v16.10.0</node.version>
