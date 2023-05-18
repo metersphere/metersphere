@@ -147,7 +147,7 @@ public class IssuesController {
 
     @PostMapping("/batchDelete")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
-    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request)", msClass = IssuesService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, msClass = IssuesService.class)
     public void batchDelete(@RequestBody IssuesUpdateRequest request) {
         issuesService.batchDelete(request);
     }
