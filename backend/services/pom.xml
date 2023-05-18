@@ -20,7 +20,7 @@
         <module>project-management</module>
         <module>system-setting</module>
         <module>test-plan</module>
-        <module>test-track</module>
+        <module>functional-test</module>
         <module>ui-test</module>
         <module>workstation</module>
     </modules>
