@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "误报库大字段")
 @TableName("fake_error_blob")
 @Data
-public class FakeErrorBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class FakeErrorBlob extends FakeError implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

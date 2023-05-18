@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "性能测试用例大字段")
 @TableName("load_test_blob")
 @Data
-public class LoadTestBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class LoadTestBlob extends LoadTest implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{load_test_blob.test_id.not_blank}", groups = {Updated.class})
