@@ -25,7 +25,31 @@
                 style="width: 100%">
         <el-table-column prop="content" :label="$t('commons.name')">
           <template v-slot="{row}">
-            <el-row type="flex" align="start" class="current-user">
+            <el-row
+              v-if="isReviewNotice(row)"
+              type="flex"
+              align="start"
+              class="current-user"
+            >
+              <el-col :span="2">
+                <div class="icon-title">
+                  {{ row.resourceName.substring(0, 1) }}
+                </div>
+              </el-col>
+              <el-col :span="22">
+                <span class="operation">
+                  <span>{{ getResource(row) }}:</span>
+                  <span
+                    @click="clickResource(row)"
+                    style="color: #783887; cursor: pointer"
+                  >
+                    {{ row.resourceName }}
+                  </span>
+                  <span> {{ $t("project.config.contains_script_review") }} </span>
+                </span>
+              </el-col>
+            </el-row>
+            <el-row v-else type="flex" align="start" class="current-user">
               <el-col :span="2">
                 <div class="icon-title">
                   {{ row.user.name.substring(0, 1) }}
@@ -143,7 +167,10 @@ export default {
 
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
-    }
+    },
+    isReviewNotice(row) {
+      return row.operation === "REVIEW";
+    },
   }
 };
 </script>

@@ -164,7 +164,12 @@ export default {
             return;
           }
           d.user = this.userMap[d.operator] || {name: 'MS'};
-          let message = d.user.name + getOperation(d.operation) + getResource(d) + ": " + d.resourceName;
+          let message = "";
+          if (d.operation === "REVIEW") {
+            message = getResource(d) + "：" + d.resourceName + " " + this.$t("project.config.contains_script_review");
+          } else {
+            message = d.user.name + getOperation(d.operation) + getResource(d) + ": " + d.resourceName;
+          }
           let title = d.type === 'MENTIONED_ME' ? this.$t('commons.mentioned_me_notice') : this.$t('commons.system_notice');
           setTimeout(() => {
             this.$notify({

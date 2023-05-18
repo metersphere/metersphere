@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -95,7 +96,10 @@ public class PerformanceTestController {
     ) {
         request.setId(UUID.randomUUID().toString());
         checkPermissionService.checkProjectOwner(request.getProjectId());
-        return performanceTestService.save(request, files);
+        LoadTest loadTest = performanceTestService.save(request, files);
+        //检查并发送审核脚本的通知
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        return loadTest;
     }
 
     @PostMapping(value = "/sync/scenario")
@@ -114,7 +118,10 @@ public class PerformanceTestController {
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
-        return performanceTestService.edit(request, files);
+        LoadTest loadTest = performanceTestService.edit(request, files);
+        //检查并发送审核脚本的通知
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        return loadTest;
     }
 
 

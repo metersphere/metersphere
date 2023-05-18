@@ -32,4 +32,6 @@ public interface ExtUserGroupMapper {
     List<UserGroupInfoDTO> getUserGroupInfoByProjectId(String projectId);
 
     List<User> getProjectMemberOption(@Param("projectId") String projectId);
+
+    List<String> getProjectUserId(String projectId);
 }
