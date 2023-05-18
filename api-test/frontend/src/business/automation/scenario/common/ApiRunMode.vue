@@ -57,11 +57,7 @@
         </div>
         <div class="mode-row">
           <span>{{ $t('run_mode.run_with_resource_pool') }} : </span>
-          <el-select
-            v-model="runConfig.resourcePoolId"
-            size="mini"
-            class="mode-row"
-            style="width: 100%">
+          <el-select v-model="runConfig.resourcePoolId" size="mini" class="mode-row" style="width: 100%">
             <el-option
               v-for="item in resourcePools"
               :key="item.id"
@@ -94,7 +90,6 @@ import { strMapToObj } from 'metersphere-frontend/src/utils';
 import { getOwnerProjects, getProjectConfig } from '@/api/project';
 import { getTestResourcePools } from '@/api/test-resource-pool';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { getSystemBaseSetting } from 'metersphere-frontend/src/api/system';
 import EnvSelectPopover from '@/business/automation/scenario/EnvSelectPopover';
 import { getApiCaseEnvironments } from '@/api/api-test-case';
 
@@ -182,21 +177,22 @@ export default {
       });
     },
     getProjectApplication() {
-      let hasPool = false;
-      this.resourcePools.forEach(item => {
-        if (item.id === this.runConfig.resourcePoolId) {
-          hasPool = true;
-          return;
+      this.runConfig.resourcePoolId = null;
+      getProjectConfig(getCurrentProjectID(), '').then((res) => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
         }
-      });
-      if (!hasPool) {
-        this.runConfig.resourcePoolId = null;
-        getProjectConfig(getCurrentProjectID(), "").then((res) => {
-          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        let hasPool = false;
+        this.resourcePools.forEach((item) => {
+          if (item.id === this.runConfig.resourcePoolId) {
+            hasPool = true;
+            return;
           }
         });
-      }
+        if (!hasPool) {
+          this.runConfig.resourcePoolId = null;
+        }
+      });
     },
     setEnvGroup(id) {
       this.runConfig.environmentGroupId = id;

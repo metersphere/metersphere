@@ -381,7 +381,7 @@ export default {
     };
   },
   methods: {
-    getProjectApplication() {
+    async checkPool(){
       let hasPool = false;
       this.resourcePools.forEach(item => {
         if (item.id === this.runConfig.resourcePoolId) {
@@ -389,11 +389,19 @@ export default {
           return;
         }
       });
+      return hasPool;
+    },
+    async getProjectApplication() {
+      let hasPool = await this.checkPool();
       if (!hasPool) {
         this.runConfig.resourcePoolId = null;
-        getProjectConfig(getCurrentProjectID(), "").then((res) => {
+        getProjectConfig(getCurrentProjectID(), "").then(async (res) => {
           if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
             this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+          hasPool = await this.checkPool();
+          if (!hasPool) {
+            this.runConfig.resourcePoolId = undefined;
           }
         });
       }
@@ -425,13 +433,13 @@ export default {
       param.testId = this.testId;
       return param;
     },
-    open(row) {
+    async open(row) {
       this.planId = row.id;
       //测试计划页面跳转来的
       let paramTestId = row.id;
       this.paramRow = row;
       this.testId = paramTestId;
-      this.findSchedule(paramTestId);
+      await this.findSchedule(paramTestId);
       this.initUserList();
       this.dialogVisible = true;
       this.form.cronValue = this.schedule.value;
@@ -442,7 +450,7 @@ export default {
       this.runConfig.retryEnable = false;
       this.runConfig.retryNum = 1;
     },
-    findSchedule() {
+    async findSchedule() {
       let scheduleResourceID = this.testId;
       this.result = getPlanSchedule(scheduleResourceID, "TEST_PLAN_TEST").then(
         (response) => {
