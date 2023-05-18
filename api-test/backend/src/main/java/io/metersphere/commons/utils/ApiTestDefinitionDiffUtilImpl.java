@@ -4,9 +4,11 @@ import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.log.utils.ApiDefinitionDiffUtil;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.utils.diff.json.JacksonDiff;
@@ -15,13 +17,11 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
     public static final String JSON_START = "{\"root\":";
@@ -54,7 +54,10 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                 diffMap.put(TYPE, bloBsIsNew.getString(TYPE));
             }
         }
-        return JSON.toJSONString(diffMap);
+        if (MapUtils.isNotEmpty(diffMap)) {
+            return JSON.toJSONString(diffMap);
+        }
+        return null;
     }
 
     @Override
@@ -107,7 +110,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         if (!StringUtils.equals(headerNew, headerOld)) {
             String patch = jsonDiff.diff(headerOld, headerNew);
             String diffPatch = jsonDiff.apply(headerOld, patch);
-            if (StringUtils.isNotEmpty(diffPatch)) {
+            if (StringUtils.isNotBlank(diffPatch)) {
                 diffMap.put("header", diffPatch);
             }
         }
@@ -123,7 +126,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         if (!StringUtils.equals(queryNew, queryOld)) {
             String patch = jsonDiff.diff(queryOld, queryNew);
             String diff = jsonDiff.apply(queryOld, patch);
-            if (StringUtils.isNotEmpty(diff)) {
+            if (StringUtils.isNotBlank(diff)) {
                 diffMap.put(QUERY, diff);
             }
         }
@@ -139,7 +142,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
         if (!StringUtils.equals(restNew, restOld)) {
             String patch = jsonDiff.diff(restOld, restNew);
             String diff = jsonDiff.apply(restOld, patch);
-            if (StringUtils.isNotEmpty(diff)) {
+            if (StringUtils.isNotBlank(diff)) {
                 diffMap.put("rest", diff);
             }
         }
@@ -150,7 +153,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(bodyNew, bodyOld)) {
                 String patch = jsonDiff.diff(bodyOld, bodyNew);
                 String diff = jsonDiff.apply(bodyOld, patch);
-                if (StringUtils.isNotEmpty(diff)) {
+                if (StringUtils.isNotBlank(diff)) {
                     diffMap.put(BODY, diff);
                 }
             }
@@ -166,7 +169,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
                 String diff = jsonDiff.apply(bodyFormOld, patch);
-                if (StringUtils.isNotEmpty(diff)) {
+                if (StringUtils.isNotBlank(diff)) {
                     diffMap.put(BODY_FORM, diff);
                 }
             }
@@ -221,7 +224,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(headerNew, headerOld)) {
                 String patch = jsonDiff.diff(headerOld, headerNew);
                 String diffPatch = jsonDiff.apply(headerNew, patch);
-                if (StringUtils.isNotEmpty(diffPatch)) {
+                if (StringUtils.isNotBlank(diffPatch)) {
                     diffMap.put("header", diffPatch);
                 }
             }
@@ -233,7 +236,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(statusCodeNew, statusCodeOld)) {
                 String patch = jsonDiff.diff(statusCodeOld, statusCodeNew);
                 String diff = jsonDiff.apply(statusCodeNew, patch);
-                if (StringUtils.isNotEmpty(diff)) {
+                if (StringUtils.isNotBlank(diff)) {
                     diffMap.put(STATUS_CODE, diff);
                 }
             }
@@ -245,7 +248,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(bodyStrNew, bodyStrOld)) {
                 String patch = jsonDiff.diff(bodyStrOld, bodyStrNew);
                 String diff = jsonDiff.apply(bodyStrNew, patch);
-                if (StringUtils.isNotEmpty(diff)) {
+                if (StringUtils.isNotBlank(diff)) {
                     diffMap.put(BODY, diff);
                 }
             }
@@ -253,16 +256,19 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             Body bodyNew = JSON.parseObject(bodyStrNew, Body.class);
             Body bodyOld = JSON.parseObject(bodyStrOld, Body.class);
 
-            if (CollectionUtils.isNotEmpty(bodyNew.getKvs()) && CollectionUtils.isNotEmpty(bodyOld.getKvs())) {
-                bodyNew.getKvs().remove(bodyNew.getKvs().size() - 1);
-                bodyOld.getKvs().remove(bodyOld.getKvs().size() - 1);
+            // 对比BODY-FORM参数
+            if (CollectionUtils.isNotEmpty(bodyNew.getKvs())) {
+                removeSpaceName(bodyNew.getKvs());
+            }
+            if (CollectionUtils.isNotEmpty(bodyOld.getKvs())) {
+                removeSpaceName(bodyOld.getKvs());
             }
             String bodyFormNew = StringUtils.join(JSON_START, JSON.toJSONString(bodyNew.getKvs()), JSON_END);
             String bodyFormOld = StringUtils.join(JSON_START, JSON.toJSONString(bodyOld.getKvs()), JSON_END);
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
                 String diff = jsonDiff.apply(bodyFormNew, patch);
-                if (StringUtils.isNotEmpty(diff)) {
+                if (StringUtils.isNotBlank(diff)) {
                     diffMap.put(BODY_FORM, diff);
                 }
             }
