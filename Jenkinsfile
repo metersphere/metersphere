@@ -41,10 +41,10 @@ pipeline {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
-                        export PATH=$JAVA_HOME/bin:$PATH
+                        export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        ./mvnw install -N -Drevision=${REVISION} --settings ./settings.xml
-                        ./mvnw clean install -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk --settings ./settings.xml
+                        mvn install -N -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean install -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk --settings ./settings.xml
                     '''
                 }
             }
@@ -56,11 +56,11 @@ pipeline {
                     sh '''#!/bin/bash -xe
                         export JAVA_HOME=/opt/jdk-17
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
-                        export PATH=$JAVA_HOME/bin:$PATH
+                        export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        ./mvnw clean package -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean package -Drevision=${REVISION} --settings ./settings.xml
 
-                        LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
+                        LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         # echo $LOCAL_REPOSITORY
                         mkdir -p backend/app/target/dependency && cd backend/app/target/dependency && jar -xf ../*.jar;
 
