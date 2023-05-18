@@ -81,7 +81,7 @@
         </span>
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
-        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!request.testing">
           <el-button
             :disabled="!request.enable"
             @click="run"
@@ -264,10 +264,10 @@ export default {
       this.request.projectId = getCurrentProjectID();
     }
     this.request.customizeReq = this.isCustomizeReq;
-   if (this.request.customizeReq) {
+    if (this.request.customizeReq) {
       if (this.node.parent && this.node.parent.data && this.node.parent.data.length > 1) {
         this.request.projectId = getCurrentProjectID();
-      }else {
+      } else {
         this.request.projectId =
           this.node.parent.data instanceof Array ? this.node.parent.data[0].projectId : this.node.parent.data.projectId;
       }
@@ -511,6 +511,8 @@ export default {
           this.reportId = getUUID();
           debugData.hashTree = [this.request];
           debugData.stepScenario = true;
+          debugData.hasRequest = true;
+          this.request.testing = true;
           this.$emit('runScenario', debugData);
         }
       });
@@ -527,10 +529,7 @@ export default {
       }
     },
     stop() {
-      execStop(this.reportId).then(() => {
-        this.loading = false;
-        this.$success(this.$t('report.test_stop_success'));
-      });
+      this.$emit('stopScenario');
     },
     errorRefresh() {
       this.loading = false;
