@@ -2,11 +2,11 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
-import io.metersphere.request.group.EditGroupRequest;
-import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.dto.RelatedSource;
 import io.metersphere.dto.UserGroupDTO;
 import io.metersphere.dto.UserGroupInfoDTO;
+import io.metersphere.request.group.EditGroupRequest;
+import io.metersphere.request.member.QueryMemberRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -32,4 +32,6 @@ public interface BaseUserGroupMapper {
     List<UserGroupInfoDTO> getUserGroupInfoByProjectId(String projectId);
 
     List<User> getProjectMemberOption(@Param("projectId") String projectId);
+
+    List<String> getProjectUserId(String projectId);
 }

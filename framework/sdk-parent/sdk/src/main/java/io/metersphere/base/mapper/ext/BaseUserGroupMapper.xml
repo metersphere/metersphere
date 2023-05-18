@@ -95,12 +95,16 @@
     </select>
     <select id="getProjectMemberOption" resultType="io.metersphere.base.domain.User">
         SELECT DISTINCT *
-        FROM (
-                 SELECT u.id, u.name, u.email
-                 FROM user_group
-                          JOIN `user` u ON user_group.user_id = u.id
-                 WHERE user_group.source_id = #{projectId}
-                 ORDER BY user_group.update_time DESC
-             ) temp
+        FROM (SELECT u.id, u.name, u.email
+              FROM user_group
+                       JOIN `user` u ON user_group.user_id = u.id
+              WHERE user_group.source_id = #{projectId}
+              ORDER BY user_group.update_time DESC) temp
+    </select>
+    <select id="getProjectUserId" resultType="java.lang.String">
+        SELECT DISTINCT USER.id
+        FROM USER
+                 JOIN user_group ug ON USER.id = ug.user_id
+        WHERE ug.source_id = #{0}
     </select>
 </mapper>

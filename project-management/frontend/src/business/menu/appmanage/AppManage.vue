@@ -592,22 +592,16 @@
 <script>
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
-import { hasLicense } from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import AppManageItem from "./AppManageItem";
 import TimingItem from "./TimingItem";
 import ReviewerConfig from "@/business/menu/appmanage/ReviewerConfig.vue";
-import { getProjectUsers } from "metersphere-frontend/src/api/user";
-import { genTcpMockPort } from "../../../api/project";
-import {
-  batchModifyAppSetting,
-  getProjectAppSetting,
-} from "../../../api/app-setting";
-import { PROJECT_APP_SETTING } from "../../../common/js/constants";
-import {
-  getSystemBaseSetting,
-  getTestResourcePools,
-} from "metersphere-frontend/src/api/system";
+import {getProjectUsers} from "metersphere-frontend/src/api/user";
+import {genTcpMockPort} from "../../../api/project";
+import {batchModifyAppSetting, getProjectAppSetting,} from "../../../api/app-setting";
+import {PROJECT_APP_SETTING} from "../../../common/js/constants";
+import {getTestResourcePools,} from "metersphere-frontend/src/api/system";
 
 export default {
   name: "appManage",
@@ -907,6 +901,16 @@ export default {
     selectUserInProject() {
       getProjectUsers().then((res) => {
         this.userInProject = res.data;
+        //判断审核人是否在其中，如果不在则置空。
+        let isExist = false;
+        this.userInProject.forEach((item) => {
+          if (item.id === this.config.performanceScriptReviewer) {
+            isExist = true;
+          }
+        });
+        if (!isExist) {
+          this.$set(this.config, "performanceScriptReviewer", "");
+        }
       });
     },
   },
