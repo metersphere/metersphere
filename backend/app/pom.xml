@@ -46,7 +46,7 @@
         </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-test-track</artifactId>
+            <artifactId>metersphere-functional-test</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

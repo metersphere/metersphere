@@ -269,15 +269,15 @@
         <appender-ref ref="testPlanRefAppender"/>
     </logger>
 
-    <!-- 自定义test-track模块日志 -->
+    <!-- 自定义functional-test模块日志 -->
     <appender name="testTrackAppender"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <File>${logging.file.path}/test-track.log</File>
+        <File>${logging.file.path}/functional-test.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/test-track.%d{yyyyMMdd}-%i.log</FileNamePattern>
+            <FileNamePattern>${logging.file.path}/history/functional-test.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
             <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
