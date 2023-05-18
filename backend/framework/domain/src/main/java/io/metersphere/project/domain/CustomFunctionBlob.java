@@ -7,13 +7,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "自定义函数-代码片段大字段")
 @TableName("custom_function_blob")
 @Data
-public class CustomFunctionBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class CustomFunctionBlob extends CustomFunction implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

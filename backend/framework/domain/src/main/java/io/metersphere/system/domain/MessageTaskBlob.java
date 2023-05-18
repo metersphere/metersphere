@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "消息通知任务大字段")
 @TableName("message_task_blob")
 @Data
-public class MessageTaskBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class MessageTaskBlob extends MessageTask implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

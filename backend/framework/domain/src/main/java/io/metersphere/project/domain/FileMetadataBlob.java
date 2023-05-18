@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "文件基础信息大字段")
 @TableName("file_metadata_blob")
 @Data
-public class FileMetadataBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class FileMetadataBlob extends FileMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

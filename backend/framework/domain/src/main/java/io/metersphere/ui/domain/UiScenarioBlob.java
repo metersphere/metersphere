@@ -9,29 +9,32 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 
 @ApiModel(value = "场景大字段")
 @TableName("ui_scenario_blob")
 @Data
-public class UiScenarioBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class UiScenarioBlob extends UiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{ui_scenario_blob.scenario_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "场景ID", required = true, allowableValues="range[1, 255]")
+    @ApiModelProperty(name = "场景ID", required = true, allowableValues = "range[1, 255]")
     private String scenarioId;
-    
-    
-    @ApiModelProperty(name = "场景定义", required = false, allowableValues="range[1, ]")
+
+
+    @ApiModelProperty(name = "场景定义", required = false, allowableValues = "range[1, ]")
     private byte[] scenarioDefinition;
-    
-    
-    @ApiModelProperty(name = "描述", required = false, allowableValues="range[1, ]")
+
+
+    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, ]")
     private byte[] description;
-    
-    
-    @ApiModelProperty(name = "环境", required = false, allowableValues="range[1, ]")
+
+
+    @ApiModelProperty(name = "环境", required = false, allowableValues = "range[1, ]")
     private byte[] environmentJson;
-    
+
 
 }

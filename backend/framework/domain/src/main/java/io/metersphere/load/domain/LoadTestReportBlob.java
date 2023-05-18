@@ -7,13 +7,15 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "性能报告大字段")
 @TableName("load_test_report_blob")
 @Data
-public class LoadTestReportBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class LoadTestReportBlob extends LoadTestReport implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{load_test_report_blob.report_id.not_blank}", groups = {Updated.class})

@@ -9,13 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "文件管理模块大字段")
 @TableName("file_module_blob")
 @Data
-public class FileModuleBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class FileModuleBlob extends FileModule implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

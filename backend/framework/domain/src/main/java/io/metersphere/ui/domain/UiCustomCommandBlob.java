@@ -9,12 +9,15 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.io.Serializable;
 
 @ApiModel(value = "自定义指令大字段")
 @TableName("ui_custom_command_blob")
 @Data
-public class UiCustomCommandBlob implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class UiCustomCommandBlob extends UiCustomCommand implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{ui_custom_command_blob.scenario_id.not_blank}", groups = {Updated.class})
