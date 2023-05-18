@@ -101,6 +101,8 @@ public class PerformanceTestService {
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private NotificationService notificationService;
+    @Resource
+    private BaseProjectService baseProjectService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -1009,7 +1011,7 @@ public class PerformanceTestService {
         if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
             ProjectApplication loadTestScriptReviewerConfig = baseProjectApplicationService.getProjectApplication(
                     projectId, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name());
-            if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue())) {
+            if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue()) && baseProjectService.isProjectMember(projectId, loadTestScriptReviewerConfig.getTypeValue())) {
                 boolean isSend = this.isSendScriptReviewMessage(fileMetadataList, files);
                 if (isSend) {
                     Notification notification = new Notification();

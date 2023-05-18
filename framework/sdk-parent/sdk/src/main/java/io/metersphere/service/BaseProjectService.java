@@ -23,14 +23,13 @@ import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import jakarta.annotation.Resource;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -386,5 +385,10 @@ public class BaseProjectService {
 
     public List<String> getPage(long pageNum, long pageSize) {
         return baseProjectMapper.selectPage(pageNum, pageSize);
+    }
+
+    public boolean isProjectMember(String projectId, String userId) {
+        List<String> projectUserId = baseUserGroupMapper.getProjectUserId(projectId);
+        return projectUserId.contains(userId);
     }
 }
