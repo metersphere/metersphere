@@ -65,6 +65,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -747,6 +748,30 @@ public class IssuesService {
         data.setFields(fields);
     }
 
+    private String getCustomStatus(List<CustomFieldItemDTO> fields) {
+        List<CustomFieldItemDTO> customFields = fields.stream().filter(field -> StringUtils.equals(field.getName(), SystemCustomField.ISSUE_STATUS))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(customFields)) {
+            return null;
+        }
+        return customFields.get(0).getValue().toString();
+    }
+
+    private void buildCustomFieldStr(IssuesWithBLOBs issues, List<CustomFieldItemDTO> fields) {
+        if (CollectionUtils.isEmpty(fields)) {
+            return;
+        }
+        List<Map<String, Object>> custemFieldMaps = new ArrayList<>();
+        fields.stream().filter(field -> ObjectUtils.isNotEmpty(field.getValue())
+                && !StringUtils.equalsAnyIgnoreCase(field.getValue().toString(), StringUtils.EMPTY, "[]")).forEach(field -> {
+            Map<String, Object> custemFieldMap = new HashMap<>();
+            custemFieldMap.put("name", field.getName());
+            custemFieldMap.put("value", field.getValue());
+            custemFieldMaps.add(custemFieldMap);
+        });
+        issues.setCustomFields(JSON.toJSONString(custemFieldMaps));
+    }
+
     private void buildCustomField(List<IssuesDao> data, Boolean isThirdTemplate, List<CustomFieldDao> customFields) {
         if (CollectionUtils.isEmpty(data)) {
             return;
@@ -1234,6 +1259,7 @@ public class IssuesService {
     public String getLogDetails(String id) {
         IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
         if (issuesWithBLOBs != null) {
+            issuesWithBLOBs.setStatus(StringUtils.equals(issuesWithBLOBs.getPlatform(), IssuesManagePlatform.Local.name()) ? issuesWithBLOBs.getStatus() : issuesWithBLOBs.getPlatformStatus());
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(issuesWithBLOBs, TestPlanReference.issuesColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesWithBLOBs.getId()), issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getTitle(), issuesWithBLOBs.getCreator(), columns);
             return JSON.toJSONString(details);
@@ -1242,10 +1268,18 @@ public class IssuesService {
     }
 
     public String getLogDetails(IssuesUpdateRequest issuesRequest) {
-        if (issuesRequest != null) {
-            issuesRequest.setCreator(SessionUtils.getUserId());
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(issuesRequest, TestPlanReference.issuesColumns);
-            OperatingLogDetails details = new OperatingLogDetails(null, issuesRequest.getProjectId(), issuesRequest.getTitle(), issuesRequest.getCreator(), columns);
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesRequest.getId());
+        if (issuesWithBLOBs != null) {
+            if (!StringUtils.equals(issuesWithBLOBs.getPlatform(), IssuesManagePlatform.Local.name())) {
+                issuesWithBLOBs.setStatus(issuesWithBLOBs.getPlatformStatus());
+            }
+            String customStatus = getCustomStatus(issuesRequest.getRequestFields());
+            if (customStatus != null) {
+                issuesWithBLOBs.setStatus(customStatus);
+            }
+            buildCustomFieldStr(issuesWithBLOBs, issuesRequest.getRequestFields());
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(issuesWithBLOBs, TestPlanReference.issuesColumns);
+            OperatingLogDetails details = new OperatingLogDetails(null, issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getTitle(), issuesWithBLOBs.getCreator(), columns);
             return JSON.toJSONString(details);
         }
         return null;
