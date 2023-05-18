@@ -33,4 +33,9 @@ public class ProjectConfig {
     private String resourcePoolId;
     private Boolean poolEnable = false;
 
+    //性能测试脚本审核开关
+    private Boolean performanceReviewLoadTestScript = false;
+    //性能测试脚本审核人
+    private String performanceScriptReviewer;
+
 }

@@ -1112,9 +1112,14 @@ public class ProjectService {
 
     public ProjectDTO getProjectByScenarioOrUi(String id) {
         ProjectDTO project = extProjectMapper.getProjectByScenario(id);
-        if(project == null){
+        if (project == null) {
             project = extProjectMapper.getProjectByUi(id);
         }
         return project;
+    }
+
+    public boolean isProjectMember(String projectId, String userId) {
+        List<String> projectUserId = extUserGroupMapper.getProjectUserId(projectId);
+        return projectUserId.contains(userId);
     }
 }

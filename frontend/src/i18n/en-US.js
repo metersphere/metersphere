@@ -52,6 +52,7 @@ export default {
     organization: 'Organization',
     setting: 'Setting',
     api_run_pool_title: 'Interface execution resource pool',
+    reviewers: "Reviewers",
     api_default_run: 'The interface is executed locally by default',
     api_default_run_message: 'In order not to affect the normal execution of the interface, please configure the resource pool for interface execution in [Project Settings - Application Management - Interface Test]',
     project: 'Project',
@@ -844,7 +845,12 @@ export default {
     timing_clean_load_report: "Regularly clean up report",
     timing_clean_ui_report: "Regularly clean up report",
     keep_recent: "Keep",
-    please_select_cleaning_time: "please select cleaning time！"
+    please_select_cleaning_time: "please select cleaning time！",
+    config: {
+      contains_script_review: "has script step，review it please",
+      load_test_script_review: "Performance test script review",
+      load_test_script_review_detail: "Performance test script file upload must specify user review",
+    }
   },
   member: {
     create: 'Create',

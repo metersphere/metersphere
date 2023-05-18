@@ -32,6 +32,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
+import io.metersphere.notice.service.NotificationService;
 import io.metersphere.performance.base.GranularityData;
 import io.metersphere.performance.base.VumProcessedStatus;
 import io.metersphere.performance.dto.LoadModuleDTO;
@@ -39,16 +40,16 @@ import io.metersphere.performance.dto.LoadTestBatchRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.performance.parse.JmxParseUtil;
 import io.metersphere.performance.request.*;
-import io.metersphere.service.ApiPerformanceService;
-import io.metersphere.service.FileService;
-import io.metersphere.service.QuotaService;
-import io.metersphere.service.ScheduleService;
+import io.metersphere.service.*;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -60,7 +61,6 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -132,6 +132,13 @@ public class PerformanceTestService {
     private RedissonClient redissonClient;
     @Resource
     private LoadTestReportFileMapper loadTestReportFileMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+    @Resource
+    private NotificationService notificationService;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
@@ -1164,5 +1171,49 @@ public class PerformanceTestService {
         param.put("id", request.getIds());
         request2.setFilters(param);
         return this.list(request2);
+    }
+
+    //检查并发送脚本审核的通知
+    public void checkAndSendReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files, String loadTestId, String loadTestName, String projectId) {
+        ProjectApplication reviewLoadTestScript = projectApplicationService.getProjectApplication(
+                projectId, ProjectApplicationType.PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT.name());
+        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
+            ProjectApplication loadTestScriptReviewerConfig = projectApplicationService.getProjectApplication(
+                    projectId, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name());
+            if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue()) && projectService.isProjectMember(projectId, loadTestScriptReviewerConfig.getTypeValue())) {
+                boolean isSend = this.isSendScriptReviewMessage(fileMetadataList, files);
+                if (isSend) {
+                    Notification notification = new Notification();
+                    notification.setTitle("性能测试通知");
+                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperation(NoticeConstants.Event.REVIEW);
+                    notification.setResourceId(loadTestId);
+                    notification.setResourceName(loadTestName);
+                    notification.setResourceType(NoticeConstants.TaskType.PERFORMANCE_TEST_TASK);
+                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                    notification.setCreateTime(System.currentTimeMillis());
+                    notification.setReceiver(loadTestScriptReviewerConfig.getTypeValue());
+                    notificationService.sendAnnouncement(notification);
+                }
+            }
+        }
+    }
+
+    private boolean isSendScriptReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files) {
+        List<FileContent> fileContentList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(fileMetadataList)) {
+            fileMetadataList.forEach(fileMetadata -> {
+                FileContent fileContent = this.selectFileContentByFileMetadataList(fileMetadata.getId());
+                if (fileContent != null) {
+                    fileContentList.add(fileContent);
+                }
+            });
+        }
+        return JmxParseUtil.isJmxHasScriptByFiles(files) || JmxParseUtil.isJmxHasScriptByStorage(fileContentList);
+    }
+
+    public FileContent selectFileContentByFileMetadataList(String fileMetadataId) {
+        return fileService.getFileContent(fileMetadataId);
     }
 }

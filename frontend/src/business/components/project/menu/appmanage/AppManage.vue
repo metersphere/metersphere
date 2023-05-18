@@ -36,6 +36,13 @@
                              :unit-options="applyUnitOptions"
                              @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime)"
                              :title="$t('report.report_sharing_link')"/>
+                <reviewer-config :name="$t('project.config.load_test_script_review')"
+                                 :popTitle="$t('project.config.load_test_script_review_detail')"
+                                 :reviewers="userInProject"
+                                 :config.sync="config"
+                                 @reviewerChange="switchChange('PERFORMANCE_SCRIPT_REVIEWER',config.performanceScriptReviewer)"
+                                 @chooseChange="switchChange('PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT',config.performanceReviewLoadTestScript)"
+                />
               </el-row>
             </el-tab-pane>
 
@@ -181,6 +188,25 @@
                              :unit-options="applyUnitOptions"
                              @chooseChange="switchChange('PERFORMANCE_SHARE_REPORT_TIME', config.performanceShareReportTime)"
                              :title="$t('report.report_sharing_link')"/>
+                <reviewer-config
+                  :name="$t('project.config.load_test_script_review')"
+                  :popTitle="$t('project.config.load_test_script_review_detail')"
+                  :reviewers="userInProject"
+                  :reviewer.sync="config.performanceScriptReviewer"
+                  :reviewerSwitch.sync="config.performanceReviewLoadTestScript"
+                  @reviewerChange="
+                    switchChange(
+                      'PERFORMANCE_SCRIPT_REVIEWER',
+                      config.performanceScriptReviewer
+                    )
+                  "
+                  @chooseChange="
+                    switchChange(
+                      'PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT',
+                      config.performanceReviewLoadTestScript
+                    )
+                  "
+                />
               </el-row>
             </el-tab-pane>
 
@@ -196,10 +222,11 @@
 
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-
+import ReviewerConfig from "@/business/components/project/menu/appmanage/ReviewerConfig.vue";
 import {getCurrentProjectID, hasLicense,} from "@/common/js/utils";
 import AppManageItem from "@/business/components/project/menu/appmanage/AppManageItem";
 import TimingItem from "@/business/components/project/menu/appmanage/TimingItem";
+import {getProjectMember} from "@/network/user";
 
 export default {
   name: "appManage",
@@ -207,7 +234,8 @@ export default {
     TimingItem,
     AppManageItem,
     MsMainContainer,
-    MsContainer
+    MsContainer,
+    ReviewerConfig
   },
   data() {
     return {
@@ -223,6 +251,7 @@ export default {
         cleanUiReport: false,
         cleanUiReportExpr: ""
       },
+      userInProject: [],
       count: 0,
       isXpack: false,
       result: {},
@@ -256,7 +285,9 @@ export default {
         cleanUiReport: false,
         cleanUiReportExpr: "",
         urlRepeatable: false,
-        shareReport: true
+        shareReport: true,
+        performanceScriptReviewer: "",
+        performanceReviewLoadTestScript: false,
       },
       isPool: false
     };
@@ -264,6 +295,7 @@ export default {
   created() {
     this.init();
     this.getResourcePools();
+    this.selectUserInProject();
     this.isXpack = !!hasLicense();
   },
   computed: {
@@ -343,7 +375,23 @@ export default {
           }
         }
       });
-    }
+    },
+    selectUserInProject() {
+      getProjectMember((data) => {
+        this.userInProject = data;
+        //判断审核人是否在其中，如果不在则置空。
+        let isExist = false;
+        this.userInProject.forEach((item) => {
+          if (item.id === this.config.performanceScriptReviewer) {
+            isExist = true;
+          }
+        });
+        if (!isExist) {
+          this.$set(this.config, "performanceScriptReviewer", null);
+          this.$set(this.config, "performanceReviewLoadTestScript", false);
+        }
+      });
+    },
   }
 };
 </script>

@@ -51,6 +51,7 @@ export default {
     organization: '組織',
     setting: '設置',
     api_run_pool_title: '接口執行資源池',
+    reviewers: "審核人",
     api_default_run: '接口默認本地執行',
     api_default_run_message: '為了不影響接口正常執行，請在【 項目設置-應用管理-接口測試 】中配置接口執行的資源池',
     project: '項目',
@@ -848,7 +849,12 @@ export default {
     timing_clean_load_report: "定時清理性能測試報告",
     timing_clean_ui_report: "定時清理UI測試報告",
     keep_recent: "保留最近",
-    please_select_cleaning_time: "請選擇清理時間！"
+    please_select_cleaning_time: "請選擇清理時間！",
+    config: {
+      contains_script_review: "包含脚本步骤，请审核",
+      load_test_script_review: "性能腳本審核",
+      load_test_script_review_detail: "上傳性能測試腳本文件須指定用戶審核",
+    }
   },
   member: {
     create: '添加成員',
