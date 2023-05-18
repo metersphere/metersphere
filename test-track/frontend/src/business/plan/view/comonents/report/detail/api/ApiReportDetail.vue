@@ -45,7 +45,8 @@
                   :report="report"
                   :is-share="isShare"
                   :share-id="shareId"
-                  :treeData="fullTreeNodes" ref="failsTree"
+                  :is-template="isTemplate"
+                  :treeData="errorTreeNodes" ref="failsTree"
                   :errorReport="content.error"/>
               </el-tab-pane>
               <!--error step -->
@@ -60,8 +61,9 @@
                   :report="report"
                   :is-share="isShare"
                   :share-id="shareId"
+                  :is-template="isTemplate"
                   :console="content.console"
-                  :treeData="fullTreeNodes" ref="errorReportTree"/>
+                  :treeData="fakeErrorTreeNodes" ref="errorReportTree"/>
               </el-tab-pane>
               <!-- Not performed step -->
               <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
@@ -75,9 +77,10 @@
                   v-on:requestResult="requestResult"
                   :report="report"
                   :is-share="isShare"
+                  :is-template="isTemplate"
                   :share-id="shareId"
                   :console="content.console"
-                  :treeData="fullTreeNodes" ref="unExecuteTree"/>
+                  :treeData="unExecuteTreeNodes" ref="unExecuteTree"/>
               </el-tab-pane>
               <!-- console -->
               <el-tab-pane name="console">
@@ -155,6 +158,9 @@ export default {
       projectEnvMap: {},
       showCancel: false,
       poolName: '',
+      errorTreeNodes: [],
+      unExecuteTreeNodes: [],
+      fakeErrorTreeNodes: [],
     }
   },
   activated() {
@@ -189,13 +195,69 @@ export default {
   },
   methods: {
     filter(index) {
-      if (index === "1") {
-        this.$refs.failsTree.filter(index);
-      } else if (this.activeName === "errorReport") {
-        this.$refs.errorReportTree.filter("FAKE_ERROR");
-      } else if (this.activeName === "unExecute") {
-        this.$refs.unExecuteTree.filter("PENDING");
+      if (index === '1') {
+        //查询失败的步骤
+        this.initFilterTreeNodes('ERROR');
+      } else if (this.activeName === 'errorReport') {
+        this.initFilterTreeNodes('FAKE_ERROR');
+      } else if (this.activeName === 'unExecute') {
+        this.initFilterTreeNodes('UN_EXECUTE');
       }
+    },
+
+    initFilterTreeNodes(status) {
+      if (this.fullTreeNodes.length > 0) {
+        let filteredTreeNodeArr = [];
+        for (let i = 0; i < this.fullTreeNodes.length; i++) {
+          let node = this.filterNodes(this.fullTreeNodes[i], status);
+          if (node) {
+            filteredTreeNodeArr.push(node);
+          }
+        }
+        if (status === 'ERROR') {
+          this.errorTreeNodes = filteredTreeNodeArr;
+        } else if (status === 'FAKE_ERROR') {
+          this.fakeErrorTreeNodes = filteredTreeNodeArr;
+        } else if (status === 'UN_EXECUTE') {
+          this.unExecuteTreeNodes = filteredTreeNodeArr;
+        }
+      }
+    },
+    filterNodes(node, status) {
+      if (status === 'ERROR' || status === 'FAKE_ERROR' || status === 'UN_EXECUTE') {
+        let data = {...node};
+        if (!data.value && (!data.children || data.children.length === 0)) {
+          return null;
+        }
+        if (data.children.length > 0) {
+          let filteredChildren = [];
+          for (let i = 0; i < data.children.length; i++) {
+            let filteredNode = this.filterNodes(data.children[i], status);
+            if (filteredNode) {
+              filteredChildren.push(filteredNode);
+            }
+          }
+          data.children = filteredChildren;
+        }
+        if (data.children.length > 0) {
+          return data;
+        } else {
+          if (status === 'FAKE_ERROR') {
+            if (data.errorCode && data.errorCode !== '' && data.value.status === 'FAKE_ERROR') {
+              return data;
+            }
+          } else if (status === 'UN_EXECUTE') {
+            if (data.value && data.value.status === 'PENDING') {
+              return data;
+            }
+          } else if (status === 'ERROR') {
+            if (data.totalStatus !== 'FAKE_ERROR' && data.value && data.value.error > 0) {
+              return data;
+            }
+          }
+        }
+      }
+      return null;
     },
     init() {
       this.loading = true;
