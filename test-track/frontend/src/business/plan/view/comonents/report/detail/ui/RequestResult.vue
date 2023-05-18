@@ -191,7 +191,7 @@
             </div>
           </el-col>
           <el-col :span="2">
-            <div v-if="totalStatus">
+            <div v-if="totalStatus" style="float:right;">
               <el-tag size="mini"
                       v-if="totalStatus === 'unexecute' || totalStatus === 'Pending'|| totalStatus === 'PENDING'"
               > Pending
@@ -221,17 +221,17 @@
                 Error </el-tag
               >
             </div>
-            <div v-else>
+            <div v-else style="float:right;">
               <el-tag
                 v-if="request.testing"
                 class="ms-test-running"
                 size="mini"
               >
-                <i class="el-icon-loading" style="font-size: 16px" />
+                <i class="el-icon-loading" style="font-size: 16px"/>
                 Pending
               </el-tag>
-              <el-tag size="mini" v-else-if="request.unexecute"
-                >Pending
+              <el-tag size="mini" v-else-if="request.unexecute">
+                Pending
               </el-tag>
               <el-tag
                 size="mini"
@@ -239,8 +239,8 @@
                   !request.success &&
                   request.status &&
                   request.status === 'unexecute'
-                "
-                >Pending
+                ">
+                Pending
               </el-tag>
               <el-tag
                 v-else-if="
