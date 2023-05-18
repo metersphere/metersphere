@@ -1253,8 +1253,15 @@ export default {
         } else {
           this.reqError += 1;
         }
+        this.runningEvaluation(e.data);
+
+        let hasRequest = this.runScenario && this.runScenario.hasRequest;
+        if (hasRequest && data && this.runScenario.hashTree) {
+          this.runScenario.hashTree[0].requestResult = [];
+          this.runScenario.hashTree[0].testing = false;
+          this.runScenario.hashTree[0].requestResult.push(data);
+        }
       }
-      this.runningEvaluation(e.data);
       this.message = getUUID();
       if (e.data && e.data.indexOf('MS_TEST_END') !== -1) {
         this.runScenario = undefined;
@@ -1738,7 +1745,10 @@ export default {
         return;
       }
       this.clearResult(this.scenarioDefinition);
-      this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+      let hasRequest = runScenario && runScenario.hasRequest;
+      if (!hasRequest) {
+        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+      }
       this.saved = runScenario && runScenario.stepScenario ? false : true;
       /*触发执行操作*/
       this.$refs.currentScenario.validate(async (valid) => {
@@ -1880,8 +1890,8 @@ export default {
                 }
               }
               this.isPreventReClick = true;
-              if (this.currentScenario.scenarioDefinitionOrg){
-               delete this.currentScenario['scenarioDefinitionOrg'];
+              if (this.currentScenario.scenarioDefinitionOrg) {
+                delete this.currentScenario['scenarioDefinitionOrg'];
               }
               this.currentScenario.name = this.currentScenario.name.trim();
               await saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
@@ -2018,7 +2028,7 @@ export default {
                 }
                 this.dataProcessing(obj.hashTree);
                 this.scenarioDefinition = obj.hashTree;
-                this.$nextTick(()=>{
+                this.$nextTick(() => {
                   let data = this.scenarioDefinition;
                   if (data.hashTree) {
                     this.sort(data.hashTree);
@@ -2027,7 +2037,7 @@ export default {
                     this.margeDomain(this.scenarioDefinition, domainMap);
                     this.cancelBatchProcessing();
                   }
-                })
+                });
               }
             }
             if (this.currentScenario.copy) {
