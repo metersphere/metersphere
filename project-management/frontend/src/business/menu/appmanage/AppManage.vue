@@ -232,6 +232,26 @@
                         ></el-switch>
                       </template>
                     </app-manage-item>
+                    <!-- 接口审核 -->
+                    <reviewer-config
+                      :name="$t('pj.api_script_review')"
+                      :popTitle="$t('pj.api_script_review_tips')"
+                      :reviewers="userInProject"
+                      :reviewer.sync="config.apiScriptReviewer"
+                      :reviewerSwitch.sync="config.apiReviewTestScript"
+                      @reviewerChange="
+                    switchChange(
+                      'API_SCRIPT_REVIEWER',
+                      config.apiScriptReviewer
+                    )
+                  "
+                      @chooseChange="
+                    switchChange(
+                      'API_REVIEW_TEST_SCRIPT',
+                      config.apiReviewTestScript
+                    )
+                  "
+                    />
                   </el-row>
                 </el-col>
                 <el-col :span="8" class="commons-view-setting">
@@ -384,7 +404,8 @@
                   :name="$t('pj.load_test_script_review')"
                   :popTitle="$t('pj.load_test_script_review_detail')"
                   :reviewers="userInProject"
-                  :config.sync="config"
+                  :reviewer.sync="config.performanceScriptReviewer"
+                  :reviewerSwitch.sync="config.performanceReviewLoadTestScript"
                   @reviewerChange="
                     switchChange(
                       'PERFORMANCE_SCRIPT_REVIEWER',
@@ -676,6 +697,8 @@ export default {
         reReview: false,
         performanceScriptReviewer: "",
         performanceReviewLoadTestScript: false,
+        apiScriptReviewer: "",
+        apiReviewTestScript: false,
       },
       showRuleSetting: false,
       showSyncTimeSetting: true,

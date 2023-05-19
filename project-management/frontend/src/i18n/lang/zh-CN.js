@@ -10,6 +10,9 @@ const message = {
     reviewers: "审核人",
     load_test_script_review: "性能脚本审核",
     load_test_script_review_detail: "上传性能测试脚本文件须指定用户审核",
+    api_script_review: "接口脚本审核",
+    api_script_review_tips: "接口用例包含脚本步骤时须指定用户审核",
+    script_warning:"脚本已启用审核机制，无法在当前页面测试脚本"
   },
   file_manage: {
     my_file: "我的文件",
@@ -57,6 +60,7 @@ const message = {
     cancel_ui_relevane: "取消关联",
     re_ui_relevane: "重新关联",
     relevance_ui: "关联登录场景/指令",
+    get_env_failed: "跳转环境被删除！",
   },
 };
 

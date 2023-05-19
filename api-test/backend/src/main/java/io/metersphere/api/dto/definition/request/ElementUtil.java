@@ -43,6 +43,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.BodyFile;
+import io.metersphere.service.MsHashTreeService;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -81,6 +82,13 @@ public class ElementUtil {
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
     private static final String TEST_BEAN_GUI = "TestBeanGUI";
+    public final static List<String> scriptList = new ArrayList<String>() {{
+        this.add(ElementConstants.JSR223);
+        this.add(ElementConstants.JSR223_PRE);
+        this.add(ElementConstants.JSR223_POST);
+    }};
+
+
 
 
     public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
@@ -1099,4 +1107,49 @@ public class ElementUtil {
         }
         return false;
     }
+
+    public static Map<String, String> scriptMap(String request) {
+        Map<String, String> map = new HashMap<>();
+        if (StringUtils.isBlank(request)) {
+            return map;
+        }
+        JSONObject element = JSONUtil.parseObject(request);
+        toMap(element.getJSONArray(ElementConstants.HASH_TREE), scriptList, map);
+        return map;
+    }
+
+    private static void toMap(JSONArray hashTree, List<String> scriptList, Map<String, String> map) {
+        for (int i = 0; i < hashTree.length(); i++) {
+            JSONObject element = hashTree.optJSONObject(i);
+            if (element == null) {
+                continue;
+            }
+            if (scriptList.contains(element.optString(ElementConstants.TYPE))) {
+                JSONObject elementTarget = JSONUtil.parseObject(element.toString());
+                if (elementTarget.has(ElementConstants.HASH_TREE)) {
+                    elementTarget.remove(ElementConstants.HASH_TREE);
+                }
+                map.put(StringUtils.join(element.optString(MsHashTreeService.ID),
+                                element.optString(MsHashTreeService.INDEX)),
+                        elementTarget.toString());
+            }
+            if (element.has(ElementConstants.HASH_TREE)) {
+                JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
+                toMap(elementJSONArray, scriptList, map);
+            }
+        }
+    }
+
+    public static boolean isSend(Map<String, String> org, Map<String, String> target) {
+        if (org.size() != target.size() && target.size() > 0) {
+            return true;
+        }
+        for (Map.Entry<String, String> entry : org.entrySet()) {
+            if (target.containsKey(entry.getKey()) && !StringUtils.equals(entry.getValue(), target.get(entry.getKey()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

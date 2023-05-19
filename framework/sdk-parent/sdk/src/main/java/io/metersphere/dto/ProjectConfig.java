@@ -38,4 +38,6 @@ public class ProjectConfig {
     private Boolean reReview = false;
     private String performanceScriptReviewer;
     private Boolean performanceReviewLoadTestScript = false;
+    private String apiScriptReviewer;
+    private Boolean apiReviewTestScript = false;
 }

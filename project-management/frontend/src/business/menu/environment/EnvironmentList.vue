@@ -148,7 +148,7 @@ import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import {listAllProject} from "../../../api/project";
-import {delEnvironmentById, getEnvironmentPages} from "../../../api/environment";
+import {delEnvironmentById, getEnvironmentPages, getEnvironment} from "../../../api/environment";
 import i18n from "@/i18n";
 
 export default {
@@ -196,7 +196,18 @@ export default {
       isFullScreen: false //是否全屏
     }
   },
-  created() {
+  mounted() {
+    //跳转环境编辑页面
+    if (this.$route && this.$route.query && this.$route.query.resourceId) {
+      let id = this.$route.query.resourceId;
+      getEnvironment(id).then(response => {
+        if (response.data) {
+          this.editEnv(response.data);
+        } else {
+          this.$error(this.$t('environment.get_env_failed'));
+        }
+      })
+    }
   },
 
   activated() {

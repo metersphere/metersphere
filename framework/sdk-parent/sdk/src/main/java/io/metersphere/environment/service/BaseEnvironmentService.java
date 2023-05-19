@@ -6,6 +6,8 @@ import io.metersphere.base.mapper.ext.BaseApiTestEnvironmentMapper;
 import io.metersphere.base.mapper.ext.BaseEnvironmentGroupMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestEnvironmentMapper;
 import io.metersphere.commons.constants.FileAssociationType;
+import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.NotificationConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -19,6 +21,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.metadata.service.FileAssociationService;
+import io.metersphere.notice.service.NotificationService;
 import io.metersphere.request.BodyFile;
 import io.metersphere.request.variable.ScenarioVariable;
 import io.metersphere.service.BaseProjectApplicationService;
@@ -37,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,7 +82,16 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     private BaseProjectService baseProjectService;
     @Resource
     private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private NotificationService notificationService;
+
     public static final String MOCK_EVN_NAME = "Mock环境";
+
+    public static final String POST_STEP = "postStepProcessor";
+    public static final String PRE_STEP = "preStepProcessor";
+    public static final String POST = "postProcessor";
+    public static final String PRE = "preProcessor";
+    public static final String SCRIPT = "script";
 
     public BaseEnvironmentService() {
         super(ApiModuleDTO.class);
@@ -399,6 +412,13 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         apiTestEnvironmentMapper.insert(request);
         // 存储附件关系
         saveEnvironment(request.getId(), request.getConfig(), FileAssociationType.ENVIRONMENT.name());
+        checkAndSendReviewMessage(request.getId(),
+                request.getName(),
+                request.getProjectId(),
+                NoticeConstants.TaskType.ENV_TASK,
+                null,
+                request.getConfig()
+                );
         return request.getId();
     }
 
@@ -478,7 +498,17 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         apiTestEnvironment.setUpdateTime(System.currentTimeMillis());
         // 存储附件关系
         saveEnvironment(apiTestEnvironment.getId(), apiTestEnvironment.getConfig(), FileAssociationType.ENVIRONMENT.name());
+        ApiTestEnvironmentWithBLOBs envOrg = apiTestEnvironmentMapper.selectByPrimaryKey(apiTestEnvironment.getId());
+
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
+        checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                apiTestEnvironment.getName(),
+                apiTestEnvironment.getProjectId(),
+                NoticeConstants.TaskType.ENV_TASK,
+                envOrg.getConfig(),
+                apiTestEnvironment.getConfig()
+        );
+
     }
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
@@ -973,5 +1003,73 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         } else {
             return new ArrayList<>();
         }
+    }
+
+    @Async
+    public void checkAndSendReviewMessage(String id,
+                                          String name,
+                                          String projectId,
+                                          String resourceType,
+                                          String requestOrg,
+                                          String requestTarget) {
+        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
+                projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
+            ProjectApplication reviewerConfig = baseProjectApplicationService.getProjectApplication(
+                    projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+            if (StringUtils.isNotEmpty(reviewerConfig.getTypeValue()) &&
+                baseProjectService.isProjectMember(projectId, reviewerConfig.getTypeValue())) {
+                Map<String, String> org = scriptMap(requestOrg);
+                Map<String, String> target = scriptMap(requestTarget);
+                boolean isSend = isSend(org, target);
+                if (isSend) {
+                    Notification notification = new Notification();
+                    notification.setTitle("环境设置");
+                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperation(NoticeConstants.Event.REVIEW);
+                    notification.setResourceId(id);
+                    notification.setResourceName(name);
+                    notification.setResourceType(resourceType);
+                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                    notification.setCreateTime(System.currentTimeMillis());
+                    notification.setReceiver(reviewerConfig.getTypeValue());
+                    notificationService.sendAnnouncement(notification);
+                }
+            }
+        }
+    }
+
+    public static Map<String, String> scriptMap(String request) {
+        Map<Object, Object> configMap = JSON.parseObject(request, Map.class);
+        Map<String, String> map = new HashMap<>();
+        JSONObject configObj = new JSONObject(configMap);
+        toMap(map, configObj, POST_STEP, PRE_STEP);
+        toMap(map, configObj, PRE, POST);
+        return map;
+    }
+
+    private static void toMap(Map<String, String> map, JSONObject configObj, String pre, String post) {
+        JSONObject preProcessor = configObj.optJSONObject(pre);
+        if (StringUtils.isNotBlank(preProcessor.optString(SCRIPT))) {
+            map.put(pre, preProcessor.optString(SCRIPT));
+        }
+        JSONObject postProcessor = configObj.optJSONObject(post);
+        if (StringUtils.isNotBlank(postProcessor.optString(SCRIPT))) {
+            map.put(post, postProcessor.optString(SCRIPT));
+        }
+    }
+
+    public static boolean isSend(Map<String, String> orgMap, Map<String, String> targetMap) {
+        if (orgMap.size() != targetMap.size() &&
+                targetMap.size() > 0) {
+            return true;
+        }
+        for (Map.Entry<String, String> entry : orgMap.entrySet()) {
+            if (targetMap.containsKey(entry.getKey()) && !StringUtils.equals(entry.getValue(), targetMap.get(entry.getKey()))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
