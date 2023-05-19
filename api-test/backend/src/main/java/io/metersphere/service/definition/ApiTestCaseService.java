@@ -28,9 +28,12 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.notice.service.NotificationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.BaseProjectApplicationService;
+import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.service.ext.ExtFileAssociationService;
@@ -104,11 +107,18 @@ public class ApiTestCaseService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtApiScenarioReferenceIdMapper extApiScenarioReferenceIdMapper;
+    @Resource
+    private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private NotificationService notificationService;
+    @Resource
+    private BaseProjectService baseProjectService;
+
+
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     private static final String DEFAULT_TIME_DATE = "-3D";
-
     //查询测试用例详情
     public ApiTestCaseWithBLOBs getInfoJenkins(String id) {
         ApiTestCaseWithBLOBs apiTest = apiTestCaseMapper.selectByPrimaryKey(id);
@@ -395,6 +405,7 @@ public class ApiTestCaseService {
         request.setRequest(tcpApiParamService.parseMsTestElement(request.getRequest()));
         final ApiTestCaseWithBLOBs test = apiTestCaseMapper.selectByPrimaryKey(request.getId());
         if (test != null) {
+            String requestOrg = test.getRequest();
             test.setName(request.getName());
             test.setCaseStatus(request.getCaseStatus());
             if (StringUtils.isEmpty(request.getCaseStatus())) {
@@ -420,6 +431,14 @@ public class ApiTestCaseService {
             }
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
             saveFollows(test.getId(), request.getFollows());
+            this.checkAndSendReviewMessage(test.getId(),
+                    test.getName(),
+                    test.getProjectId(),
+                    "接口用例通知",
+                    NoticeConstants.TaskType.API_DEFINITION_TASK,
+                    requestOrg,
+                    test.getRequest()
+                    );
         }
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.CASE.name());
@@ -486,6 +505,14 @@ public class ApiTestCaseService {
             apiTestCaseMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
+        this.checkAndSendReviewMessage(test.getId(),
+                test.getName(),
+                test.getProjectId(),
+                "接口用例通知",
+                NoticeConstants.TaskType.API_DEFINITION_TASK,
+                null,
+                test.getRequest()
+                );
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.CASE.name());
         return test;
@@ -1306,4 +1333,42 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.findPassRateById(id);
 
     }
+
+    //检查并发送脚本审核的通知
+    @Async
+    public void checkAndSendReviewMessage(String id,
+                                          String name,
+                                          String projectId,
+                                          String title,
+                                          String resourceType,
+                                          String requestOrg,
+                                          String requestTarget) {
+        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
+                projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
+            ProjectApplication reviewerConfig = baseProjectApplicationService.getProjectApplication(
+                    projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+            if (StringUtils.isNotEmpty(reviewerConfig.getTypeValue()) &&
+                baseProjectService.isProjectMember(projectId, reviewerConfig.getTypeValue())) {
+                Map<String, String> org = ElementUtil.scriptMap(requestOrg);
+                Map<String, String> target = ElementUtil.scriptMap(requestTarget);
+                boolean isSend = ElementUtil.isSend(org, target);
+                if (isSend) {
+                    Notification notification = new Notification();
+                    notification.setTitle(title);
+                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperation(NoticeConstants.Event.REVIEW);
+                    notification.setResourceId(id);
+                    notification.setResourceName(name);
+                    notification.setResourceType(resourceType);
+                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                    notification.setCreateTime(System.currentTimeMillis());
+                    notification.setReceiver(reviewerConfig.getTypeValue());
+                    notificationService.sendAnnouncement(notification);
+                }
+            }
+        }
+    }
+
 }

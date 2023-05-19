@@ -51,6 +51,7 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.*;
+import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.ext.ExtApiScheduleService;
 import io.metersphere.service.ext.ExtFileAssociationService;
@@ -162,6 +163,8 @@ public class ApiScenarioService {
     private BaseQuotaService baseQuotaService;
     @Resource
     private ApiAutomationRelationshipEdgeService apiAutomationRelationshipEdgeService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -266,7 +269,7 @@ public class ApiScenarioService {
         extApiScenarioMapper.removeToGcByExample(example);
     }
 
-    public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+    public ApiScenarioWithBLOBs create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         checkQuota(request.getProjectId());
         request.setId(UUID.randomUUID().toString());
         if (request.getScenarioDefinition() == null) {
@@ -294,6 +297,15 @@ public class ApiScenarioService {
         apiScenarioReferenceIdService.saveApiAndScenarioRelation(scenario);
         // 存储依赖关系
         apiAutomationRelationshipEdgeService.initRelationshipEdge(null, scenario);
+        apiTestCaseService.checkAndSendReviewMessage(
+                scenario.getId(),
+                scenario.getName(),
+                scenario.getProjectId(),
+                "场景用例通知",
+                NoticeConstants.TaskType.API_AUTOMATION_TASK,
+                null,
+                scenario.getScenarioDefinition()
+        );
 
         uploadFiles(request, bodyFiles, scenarioFiles);
         return scenario;
@@ -352,7 +364,7 @@ public class ApiScenarioService {
         }
     }
 
-    public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+    public ApiScenarioWithBLOBs update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         checkNameExist(request, false);
         checkScenarioNum(request);
         //如果场景有TCP步骤的话，也要做参数计算处理
@@ -398,6 +410,16 @@ public class ApiScenarioService {
 
         // 存储依赖关系
         apiAutomationRelationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
+
+        apiTestCaseService.checkAndSendReviewMessage(
+                scenario.getId(),
+                scenario.getName(),
+                scenario.getProjectId(),
+                "场景用例通知",
+                NoticeConstants.TaskType.API_AUTOMATION_TASK,
+                beforeScenario.getScenarioDefinition(),
+                scenario.getScenarioDefinition()
+        );
 
         String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
         if (StringUtils.equalsIgnoreCase(request.getVersionId(), defaultVersion)) {

@@ -116,4 +116,12 @@ public enum ProjectApplicationType {
      * 性能测试脚本评审人
      */
     PERFORMANCE_SCRIPT_REVIEWER,
+    /**
+     * 接口测试是否评审脚本
+     */
+    API_REVIEW_TEST_SCRIPT,
+    /**
+     * 接口测试脚本评审人
+     */
+    API_SCRIPT_REVIEWER,
 }

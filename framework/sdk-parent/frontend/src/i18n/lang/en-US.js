@@ -2710,6 +2710,8 @@ const message = {
       EXECUTE_COMPLETED: " Completed",
     },
     api_case: "API Case",
+    scenario_case: "Scenario Case",
+    env_task: "Environment",
   },
   permission: {
     common: {

@@ -8,10 +8,13 @@ const message = {
       "(Environment configuration with the same name filtered {0})",
     check_third_project_success: "inspection passed",
     api_run_pool_title: "Interface execution resource pool",
+    api_script_review: "Interface script review",
+    api_script_review_tips: "User review must be specified when interface use cases include script steps",
     reviewers: "Reviewers",
     load_test_script_review: "Performance test script review",
     load_test_script_review_detail:
       "Performance test script file upload must specify user review",
+    script_warning:"The script has enabled the review mechanism and cannot test the script on the current page"
   },
   file_manage: {
     my_file: "My File",
@@ -59,6 +62,7 @@ const message = {
     cancel_ui_relevane: "Relevant",
     re_ui_relevane: "Relevane",
     relevance_ui: "Relevance login scene/command",
+    get_env_failed: "Jump environment deleted!",
   },
 };
 

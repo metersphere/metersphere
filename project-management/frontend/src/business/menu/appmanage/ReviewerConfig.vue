@@ -21,7 +21,7 @@
     <template #middle>
       <span>{{ $t("pj.reviewers") }}</span>
       <el-select
-        v-model="config.performanceScriptReviewer"
+        v-model="reviewerSelect"
         @change="reviewerChange"
         size="mini"
         style="margin-left: 5px"
@@ -39,7 +39,7 @@
     </template>
     <template #append>
       <el-switch
-        v-model="config.performanceReviewLoadTestScript"
+        v-model="reviewerSwitchSelect"
         @change="switchChange"
       ></el-switch>
     </template>
@@ -56,23 +56,36 @@ export default {
     name: String,
     popTitle: String,
     reviewers: Array,
-    config: Object,
+    reviewer: String,
+    reviewerSwitch: Boolean,
   },
   setup() {
     return {};
   },
   data() {
-    return {};
+    return {
+      reviewerSelect: this.reviewer,
+      reviewerSwitchSelect: this.reviewerSwitch,
+    };
   },
   computed: {},
-  watch: {},
+  watch: {
+    reviewer(val) {
+      this.reviewerSelect = val;
+    },
+    reviewerSwitch(val) {
+      this.reviewerSwitchSelect = val;
+    },
+  },
   created() {},
   mounted() {},
   methods: {
-    switchChange() {
+    switchChange(val) {
+      this.$emit("update:reviewerSwitch", val);
       this.$emit("chooseChange");
     },
-    reviewerChange() {
+    reviewerChange(val) {
+      this.$emit("update:reviewer", val);
       this.$emit("reviewerChange");
     },
   },

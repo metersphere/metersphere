@@ -7,9 +7,12 @@ const message = {
     environment_import_repeat_tip: "(已過濾同名稱的環境配置 {0})",
     check_third_project_success: "檢查通過",
     api_run_pool_title: "接口執行資源池",
+    api_script_review: "接口腳本審核",
+    api_script_review_tips: "接口用例包含腳本步驟時須指定用戶審核",
     reviewers: "審核人",
     load_test_script_review: "性能腳本審核",
     load_test_script_review_detail: "上傳性能測試腳本文件須指定用戶審核",
+    script_warning:"腳本已啟用審核機制，無法在當前頁面測試腳本"
   },
   file_manage: {
     my_file: "我的文件",
@@ -57,6 +60,7 @@ const message = {
     cancel_ui_relevane: "取消關聯",
     re_ui_relevane: "重新關聯",
     relevance_ui: "關聯登錄場景/指令",
+    get_env_failed: "跳轉環境被删除！",
   },
 };
 

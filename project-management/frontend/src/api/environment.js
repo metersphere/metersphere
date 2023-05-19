@@ -4,6 +4,10 @@ export function getEnvironmentPages(goPage, pageSize, param) {
   return post(`/environment/list/${goPage}/${pageSize}`, param);
 }
 
+export function getEnvironment(id) {
+  return get(`/environment/get/${id}`);
+}
+
 export function getEnvironments(projectId) {
   return get(`/environment/list/${projectId}`);
 }

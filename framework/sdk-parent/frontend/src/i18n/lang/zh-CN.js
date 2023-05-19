@@ -2615,6 +2615,8 @@ const message = {
       EXECUTE_COMPLETED: "完成",
     },
     api_case: "接口用例",
+    scenario_case: "场景用例",
+    env_task: "环境",
   },
   permission: {
     common: {

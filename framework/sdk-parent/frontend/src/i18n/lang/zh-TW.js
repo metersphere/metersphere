@@ -2610,6 +2610,8 @@ const message = {
       EXECUTE_COMPLETED: "完成",
     },
     api_case: "接口用例",
+    scenario_case: "場景用例",
+    env_task: "環境",
   },
   permission: {
     common: {
