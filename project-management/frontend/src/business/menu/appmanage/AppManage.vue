@@ -725,16 +725,12 @@ export default {
     getResourcePools() {
       this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
-        let isDelPool = true;
-        this.resourcePools.forEach((item) => {
-          if (item.id === this.config.resourcePoolId) {
-            isDelPool = false;
-          }
-          if (isDelPool) {
-            this.config.resourcePoolId = undefined;
-            this.config.poolEnable = false;
-          }
-        });
+        let delIndex =  this.resourcePools.findIndex(item =>
+          item.id === this.config.resourcePoolId);
+        if (delIndex === -1) {
+          this.config.resourcePoolId = undefined;
+          this.config.poolEnable = false;
+        }
       });
     },
     runModeChange(value, other) {
