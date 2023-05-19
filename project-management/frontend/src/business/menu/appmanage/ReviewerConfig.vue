@@ -39,6 +39,7 @@
     </template>
     <template #append>
       <el-switch
+        :disabled="!reviewerSelect || reviewerSelect===''"
         v-model="reviewerSwitchSelect"
         @change="switchChange"
       ></el-switch>
