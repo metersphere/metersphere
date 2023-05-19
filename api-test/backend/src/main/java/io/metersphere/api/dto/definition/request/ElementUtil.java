@@ -87,6 +87,7 @@ public class ElementUtil {
         this.add(ElementConstants.JSR223_PRE);
         this.add(ElementConstants.JSR223_POST);
     }};
+    public static final String JSR = "jsr223";
 
 
 
@@ -1129,9 +1130,21 @@ public class ElementUtil {
                 if (elementTarget.has(ElementConstants.HASH_TREE)) {
                     elementTarget.remove(ElementConstants.HASH_TREE);
                 }
+                elementTarget.remove(MsHashTreeService.ACTIVE);
+                elementTarget.remove(MsHashTreeService.NAME);
                 map.put(StringUtils.join(element.optString(MsHashTreeService.ID),
                                 element.optString(MsHashTreeService.INDEX)),
                         elementTarget.toString());
+            }
+            JSONArray jsrArray = element.optJSONArray(JSR);
+            if (jsrArray != null) {
+                for (int j = 0; j < jsrArray.length(); j++) {
+                    JSONObject jsr223 = jsrArray.optJSONObject(j);
+                    if (jsr223 != null) {
+                        map.put(StringUtils.join(JSR, j),
+                                jsr223.toString());
+                    }
+                }
             }
             if (element.has(ElementConstants.HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
