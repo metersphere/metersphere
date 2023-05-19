@@ -1336,27 +1336,31 @@ public class ApiTestCaseService {
 
     //检查并发送脚本审核的通知
     @Async
-    public void checkAndSendReviewMessage(String id,
-                                          String name,
-                                          String projectId,
-                                          String title,
-                                          String resourceType,
-                                          String requestOrg,
-                                          String requestTarget) {
-        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
-                projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
-        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
-            ProjectApplication reviewerConfig = baseProjectApplicationService.getProjectApplication(
-                    projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
-            if (StringUtils.isNotEmpty(reviewerConfig.getTypeValue()) &&
-                baseProjectService.isProjectMember(projectId, reviewerConfig.getTypeValue())) {
-                Map<String, String> org = ElementUtil.scriptMap(requestOrg);
-                Map<String, String> target = ElementUtil.scriptMap(requestTarget);
+    public void checkAndSendReviewMessage(
+            String id,
+            String name,
+            String projectId,
+            String title,
+            String resourceType,
+            String requestOrg,
+            String requestTarget) {
+
+        ProjectApplication scriptEnable = baseProjectApplicationService
+                .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+
+        if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+            ProjectApplication reviewer = baseProjectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+
+            if (StringUtils.isNotEmpty(reviewer.getTypeValue()) &&
+                baseProjectService.isProjectMember(projectId, reviewer.getTypeValue())) {
+                List<String> org = ElementUtil.scriptList(requestOrg);
+                List<String> target = ElementUtil.scriptList(requestTarget);
                 boolean isSend = ElementUtil.isSend(org, target);
                 if (isSend) {
                     Notification notification = new Notification();
                     notification.setTitle(title);
-                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperator(reviewer.getTypeValue());
                     notification.setOperation(NoticeConstants.Event.REVIEW);
                     notification.setResourceId(id);
                     notification.setResourceName(name);
@@ -1364,7 +1368,7 @@ public class ApiTestCaseService {
                     notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
                     notification.setStatus(NotificationConstants.Status.UNREAD.name());
                     notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(reviewerConfig.getTypeValue());
+                    notification.setReceiver(reviewer.getTypeValue());
                     notificationService.sendAnnouncement(notification);
                 }
             }

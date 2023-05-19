@@ -1008,26 +1008,29 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     }
 
     @Async
-    public void checkAndSendReviewMessage(String id,
-                                          String name,
-                                          String projectId,
-                                          String resourceType,
-                                          String requestOrg,
-                                          String requestTarget) {
-        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
-                projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
-        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
-            ProjectApplication reviewerConfig = baseProjectApplicationService.getProjectApplication(
-                    projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
-            if (StringUtils.isNotEmpty(reviewerConfig.getTypeValue()) &&
-                baseProjectService.isProjectMember(projectId, reviewerConfig.getTypeValue())) {
-                Map<String, String> org = scriptMap(requestOrg);
-                Map<String, String> target = scriptMap(requestTarget);
+    public void checkAndSendReviewMessage(
+            String id,
+            String name,
+            String projectId,
+            String resourceType,
+            String requestOrg,
+            String requestTarget) {
+        ProjectApplication scriptEnable = baseProjectApplicationService
+                .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+
+        if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+            ProjectApplication reviewer = baseProjectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+
+            if (StringUtils.isNotEmpty(reviewer.getTypeValue()) &&
+                baseProjectService.isProjectMember(projectId, reviewer.getTypeValue())) {
+                List<String> org = scriptList(requestOrg);
+                List<String> target = scriptList(requestTarget);
                 boolean isSend = isSend(org, target);
                 if (isSend) {
                     Notification notification = new Notification();
                     notification.setTitle("环境设置");
-                    notification.setOperator(SessionUtils.getUserId());
+                    notification.setOperator(reviewer.getTypeValue());
                     notification.setOperation(NoticeConstants.Event.REVIEW);
                     notification.setResourceId(id);
                     notification.setResourceName(name);
@@ -1035,56 +1038,55 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                     notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
                     notification.setStatus(NotificationConstants.Status.UNREAD.name());
                     notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(reviewerConfig.getTypeValue());
+                    notification.setReceiver(reviewer.getTypeValue());
                     notificationService.sendAnnouncement(notification);
                 }
             }
         }
     }
 
-    public static Map<String, String> scriptMap(String request) {
-        Map<String, String> map = new HashMap<>();
+    public static List<String> scriptList(String request) {
+        List<String> list = new ArrayList<>();
         if (StringUtils.isNotBlank(request)){
             Map<Object, Object> configMap = JSON.parseObject(request, Map.class);
             JSONObject configObj = new JSONObject(configMap);
-            toMap(map, configObj, POST_STEP, PRE_STEP);
-            toMap(map, configObj, PRE, POST);
+            toList(list, configObj, POST_STEP, PRE_STEP);
+            toList(list, configObj, PRE, POST);
             JSONObject object = configObj.optJSONObject(ASSERTIONS);
             JSONArray jsrArray = object.optJSONArray(JSR);
             if (jsrArray != null) {
                 for (int j = 0; j < jsrArray.length(); j++) {
                     JSONObject jsr223 = jsrArray.optJSONObject(j);
                     if (jsr223 != null) {
-                        map.put(StringUtils.join(JSR, j),
-                                jsr223.toString());
+                        list.add(jsr223.optString(SCRIPT));
                     }
                 }
             }
 
         }
-        return map;
+        return list;
     }
 
-    private static void toMap(Map<String, String> map, JSONObject configObj, String pre, String post) {
+    private static void toList(List<String> list, JSONObject configObj, String pre, String post) {
         JSONObject preProcessor = configObj.optJSONObject(pre);
         if (StringUtils.isNotBlank(preProcessor.optString(SCRIPT))) {
-            map.put(pre, preProcessor.optString(SCRIPT));
+            list.add(StringUtils.join(pre,preProcessor.optString(SCRIPT)));
         }
         JSONObject postProcessor = configObj.optJSONObject(post);
         if (StringUtils.isNotBlank(postProcessor.optString(SCRIPT))) {
-            map.put(post, postProcessor.optString(SCRIPT));
+            list.add(StringUtils.join(post,postProcessor.optString(SCRIPT)));
         }
     }
 
-    public static boolean isSend(Map<String, String> orgMap, Map<String, String> targetMap) {
-        if (orgMap.size() != targetMap.size() &&
-                targetMap.size() > 0) {
+    public static boolean isSend(List<String> orgList, List<String> targetList) {
+        if (orgList.size() != targetList.size() && targetList.size() > 0) {
             return true;
         }
-        for (Map.Entry<String, String> entry : orgMap.entrySet()) {
-            if (targetMap.containsKey(entry.getKey()) && !StringUtils.equals(entry.getValue(), targetMap.get(entry.getKey()))) {
-                return true;
-            }
+        List<String> diff = orgList.stream()
+                .filter(s -> !targetList.contains(s))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(diff)) {
+            return true;
         }
         return false;
     }

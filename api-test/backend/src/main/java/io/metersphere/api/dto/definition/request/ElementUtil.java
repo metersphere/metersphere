@@ -1109,17 +1109,17 @@ public class ElementUtil {
         return false;
     }
 
-    public static Map<String, String> scriptMap(String request) {
-        Map<String, String> map = new HashMap<>();
+    public static List<String> scriptList(String request) {
+        List<String> list = new ArrayList<>();
         if (StringUtils.isBlank(request)) {
-            return map;
+            return list;
         }
         JSONObject element = JSONUtil.parseObject(request);
-        toMap(element.getJSONArray(ElementConstants.HASH_TREE), scriptList, map);
-        return map;
+        toList(element.getJSONArray(ElementConstants.HASH_TREE), scriptList, list);
+        return list;
     }
 
-    private static void toMap(JSONArray hashTree, List<String> scriptList, Map<String, String> map) {
+    private static void toList(JSONArray hashTree, List<String> scriptList, List<String> list) {
         for (int i = 0; i < hashTree.length(); i++) {
             JSONObject element = hashTree.optJSONObject(i);
             if (element == null) {
@@ -1131,36 +1131,34 @@ public class ElementUtil {
                     elementTarget.remove(ElementConstants.HASH_TREE);
                 }
                 elementTarget.remove(MsHashTreeService.ACTIVE);
-                elementTarget.remove(MsHashTreeService.NAME);
-                map.put(StringUtils.join(element.optString(MsHashTreeService.ID),
-                                element.optString(MsHashTreeService.INDEX)),
-                        elementTarget.toString());
+                elementTarget.remove(MsHashTreeService.INDEX);
+                list.add(elementTarget.toString());
             }
             JSONArray jsrArray = element.optJSONArray(JSR);
             if (jsrArray != null) {
                 for (int j = 0; j < jsrArray.length(); j++) {
                     JSONObject jsr223 = jsrArray.optJSONObject(j);
                     if (jsr223 != null) {
-                        map.put(StringUtils.join(JSR, j),
-                                jsr223.toString());
+                        list.add(jsr223.toString());
                     }
                 }
             }
             if (element.has(ElementConstants.HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(ElementConstants.HASH_TREE);
-                toMap(elementJSONArray, scriptList, map);
+                toList(elementJSONArray, scriptList, list);
             }
         }
     }
 
-    public static boolean isSend(Map<String, String> org, Map<String, String> target) {
+    public static boolean isSend(List<String> org, List<String> target) {
         if (org.size() != target.size() && target.size() > 0) {
             return true;
         }
-        for (Map.Entry<String, String> entry : org.entrySet()) {
-            if (target.containsKey(entry.getKey()) && !StringUtils.equals(entry.getValue(), target.get(entry.getKey()))) {
-                return true;
-            }
+        List<String> diff = org.stream()
+                .filter(s -> !target.contains(s))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(diff)) {
+            return true;
         }
         return false;
     }
