@@ -78,6 +78,7 @@ export function getIssuesByCaseId(refType, caseId, page) {
       .then((response) => {
         page.data = response.data;
         buildIssues(page);
+        parseFields(page);
       });
   }
 }
