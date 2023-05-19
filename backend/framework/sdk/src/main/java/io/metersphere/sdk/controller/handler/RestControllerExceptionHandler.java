@@ -1,7 +1,10 @@
 package io.metersphere.sdk.controller.handler;
 
-
+import io.metersphere.sdk.controller.handler.result.IResultCode;
+import io.metersphere.sdk.controller.handler.result.MsHttpResultCode;
+import io.metersphere.sdk.exception.MSException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +18,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class RestControllerExceptionHandler {
 
+    /**
+     * 处理数据校验异常
+     * 返回具体字段的校验信息
+     * http 状态码返回 400
+     * @param ex
+     * @return
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResultHolder handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -24,7 +34,34 @@ public class RestControllerExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        // 错误码待定
-        return ResultHolder.error(40000, "Validation failed", errors);
+        return ResultHolder.error(MsHttpResultCode.VALIDATE_FAILED.getCode(),
+                MsHttpResultCode.VALIDATE_FAILED.getMessage(), errors);
+    }
+
+    /**
+     * 根据 MSException 中的 errorCode
+     * 设置对应的 Http 状态码，以及业务状态码和错误提示
+     * @param e
+     * @return
+     */
+    @ExceptionHandler(MSException.class)
+    public ResponseEntity<ResultHolder> handlerMSException(MSException e) {
+        IResultCode errorCode = e.getErrorCode();
+        if (errorCode == null) {
+            // 如果抛出异常没有设置状态码，则返回错误 message
+            return ResponseEntity.ok()
+                    .body(new ResultHolder(MsHttpResultCode.FAILED.getCode(),
+                            MsHttpResultCode.FAILED.getMessage(), e.getMessage()));
+        }
+
+        if (errorCode instanceof MsHttpResultCode) {
+            // 如果是 MsHttpResultCode, 则设置响应的状态码
+            return ResponseEntity.status(errorCode.getCode() % 1000) // 取状态码的后三位
+                    .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
+        } else {
+            // 业务错误返回 200，以及业务状态码
+            return ResponseEntity.ok()
+                    .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
+        }
     }
 }
