@@ -80,11 +80,12 @@
                                  :title="$t('report.report_sharing_link')"/>
 
                     <!-- 接口测试资源池 -->
-                    <app-manage-item :title="$t('commons.api_run_pool_title')" :prepend-span="8" :middle-span="12" :append-span="4">
+                    <app-manage-item :title="$t('commons.api_run_pool_title')" :prepend-span="8" :middle-span="12"
+                                     :append-span="4">
                       <template #middle>
                         <el-select v-model="config.resourcePoolId"
                                    size="mini"
-                                   @change="runModeChange(true, ['RESOURCE_POOL_ID', config.resourcePoolId])" >
+                                   @change="runModeChange(true, ['RESOURCE_POOL_ID', config.resourcePoolId])">
                           <el-option
                             v-for="item in resourcePools"
                             :key="item.id"
@@ -95,7 +96,8 @@
                         </el-select>
                       </template>
                       <template #append>
-                        <el-switch v-model="config.poolEnable"  @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
+                        <el-switch v-model="config.poolEnable"
+                                   @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
                       </template>
                     </app-manage-item>
 
@@ -275,13 +277,9 @@ export default {
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
-        let isDelPool = true;
-        this.resourcePools.forEach(item =>{
-          if(item.id === this.config.resourcePoolId){
-            isDelPool = false;
-          }
-        })
-        if(isDelPool){
+        let delIndex = this.resourcePools.findIndex(item =>
+          item.id === this.config.resourcePoolId);
+        if (delIndex === -1) {
           this.config.resourcePoolId = undefined;
           this.config.poolEnable = false;
         }
