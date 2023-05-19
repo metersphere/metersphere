@@ -1119,7 +1119,15 @@ export default {
       if (!node.data.code) {
         node.data.code = 'SUCCESS';
       }
-      if (!status) {
+      if (node.data.code ==='SUCCESS' && status && status === 'SUCCESS') {
+        node.data.code = 'SUCCESS';
+      }
+      if ((node.data.code ==='SUCCESS' ||
+        node.data.code === 'FAKE_ERROR') &&
+        status && status === 'FAKE_ERROR') {
+        node.data.code = 'FAKE_ERROR';
+      }
+      if (status && status === 'ERROR') {
         node.data.code = 'ERROR';
       }
       node.data.testing = false;
@@ -1194,7 +1202,7 @@ export default {
               item.data.requestResult = [data];
             }
             // 更新父节点状态
-            this.resultEvaluation(data.resourceId, data.success);
+            this.resultEvaluation(data.resourceId, data.status);
             item.data.testing = false;
             item.data.debug = true;
           }
