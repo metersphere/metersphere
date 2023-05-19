@@ -60,8 +60,6 @@
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
         <jython.version>2.7.0</jython.version>
         <docker-java.version>3.2.14</docker-java.version>
-        <selenium-htmlunit.version>4.8.0</selenium-htmlunit.version>
-        <selenium.version>4.8.3</selenium.version>
         <jmeter-plugins-webdriver.version>4.8.3</jmeter-plugins-webdriver.version>
         <opentelemetry.version>1.24.0</opentelemetry.version>
         <oracle-database.version>19.7.0.0</oracle-database.version>
