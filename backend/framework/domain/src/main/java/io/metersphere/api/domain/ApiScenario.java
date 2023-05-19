@@ -122,7 +122,7 @@ public class ApiScenario implements Serializable {
     @ApiModelProperty(name = "模块全路径/用于导入模块创建", required = false, allowableValues = "range[1, 1000]")
     private String modulePath;
 
-    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 1000]")
+    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 500]")
     private String tags;
 
 }

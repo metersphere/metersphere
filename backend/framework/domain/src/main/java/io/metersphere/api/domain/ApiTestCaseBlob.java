@@ -14,7 +14,7 @@ import java.io.Serializable;
 @ApiModel(value = "接口用例详情")
 @TableName("api_test_case_blob")
 @Data
-public class ApiTestCaseBlob implements Serializable {
+public class ApiTestCaseBlob extends ApiTestCase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

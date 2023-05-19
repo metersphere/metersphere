@@ -24,10 +24,10 @@ public class ApiDefinitionMock implements Serializable {
     @ApiModelProperty(name = "mock pk", required = true, allowableValues = "range[1, 50]")
     private String id;
 
-    @ApiModelProperty(name = "接口路径", required = false, allowableValues = "range[1, 1000]")
+    @ApiModelProperty(name = "接口路径", required = false, allowableValues = "range[1, 500]")
     private String apiPath;
 
-    @ApiModelProperty(name = "接口类型", required = false, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "接口类型", required = false, allowableValues = "range[1, 50]")
     private String apiMethod;
 
     @ApiModelProperty(name = "创建时间", required = true, dataType = "Long")
@@ -36,9 +36,9 @@ public class ApiDefinitionMock implements Serializable {
     @ApiModelProperty(name = "修改时间", required = true, dataType = "Long")
     private Long updateTime;
 
-    @Size(min = 1, max = 64, message = "{api_definition_mock.create_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition_mock.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition_mock.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
     private String createUser;
 
     @Size(min = 1, max = 200, message = "{api_definition_mock.name.length_range}", groups = {Created.class, Updated.class})
@@ -46,11 +46,11 @@ public class ApiDefinitionMock implements Serializable {
     @ApiModelProperty(name = "mock 名称", required = true, allowableValues = "range[1, 200]")
     private String name;
 
-    @ApiModelProperty(name = "自定义标签", required = false, allowableValues = "range[1, 1000]")
+    @ApiModelProperty(name = "自定义标签", required = false, allowableValues = "range[1, 500]")
     private String tags;
 
-    @ApiModelProperty(name = "状态", required = false, allowableValues = "range[1, 10]")
-    private String status;
+    @ApiModelProperty(name = "启用/禁用", required = false, dataType = "boolean")
+    private boolean enable;
 
     @Size(min = 1, max = 50, message = "{api_definition_mock.expect_num.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition_mock.expect_num.not_blank}", groups = {Created.class})

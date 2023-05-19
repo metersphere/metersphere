@@ -27,22 +27,22 @@ public class ApiDefinition implements Serializable {
     @ApiModelProperty(name = "创建时间", required = true, dataType = "Long")
     private Long createTime;
 
-    @Size(min = 1, max = 100, message = "{api_definition.create_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 100]")
+    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
     private String createUser;
 
 
     @ApiModelProperty(name = "修改时间", required = true, dataType = "Long")
     private Long updateTime;
 
-    @Size(min = 1, max = 64, message = "{api_definition.update_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition.update_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition.update_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "修改人", required = true, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "修改人", required = true, allowableValues = "range[1, 50]")
     private String updateUser;
 
 
-    @ApiModelProperty(name = "删除人", required = false, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "删除人", required = false, allowableValues = "range[1, 50]")
     private String deleteUser;
 
 
@@ -59,12 +59,12 @@ public class ApiDefinition implements Serializable {
     @ApiModelProperty(name = "接口名称", required = true, allowableValues = "range[1, 255]")
     private String name;
 
-    @Size(min = 1, max = 64, message = "{api_definition.method.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition.method.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition.method.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "接口类型", required = true, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "接口类型", required = true, allowableValues = "range[1, 50]")
     private String method;
 
-    @Size(min = 1, max = 255, message = "{api_definition.protocol.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition.protocol.not_blank}", groups = {Created.class})
     @ApiModelProperty(name = "接口协议", required = true, allowableValues = "range[1, 255]")
     private String protocol;
@@ -77,9 +77,9 @@ public class ApiDefinition implements Serializable {
     @ApiModelProperty(name = "模块全路径-用于导入处理", required = false, allowableValues = "range[1, 1000]")
     private String modulePath;
 
-    @Size(min = 1, max = 64, message = "{api_definition.status.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition.status.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition.status.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "接口状态/进行中/已完成", required = true, allowableValues = "range[1, 64]")
+    @ApiModelProperty(name = "接口状态/进行中/已完成", required = true, allowableValues = "range[1, 50]")
     private String status;
 
 
@@ -91,7 +91,7 @@ public class ApiDefinition implements Serializable {
     private Integer num;
 
 
-    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 1000]")
+    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 500]")
     private String tags;
 
 

@@ -21,7 +21,7 @@ public class ApiDefinitionSwagger implements Serializable {
 
     @TableId
     @NotBlank(message = "{api_definition_swagger.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "主键", required = true, allowableValues = "range[1, 120]")
+    @ApiModelProperty(name = "主键", required = true, allowableValues = "range[1, 50]")
     private String id;
 
     @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})

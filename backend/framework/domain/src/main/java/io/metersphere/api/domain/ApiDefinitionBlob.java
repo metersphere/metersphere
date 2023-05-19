@@ -14,7 +14,7 @@ import java.io.Serializable;
 @ApiModel(value = "接口定义详情内容")
 @TableName("api_definition_blob")
 @Data
-public class ApiDefinitionBlob implements Serializable {
+public class ApiDefinitionBlob extends ApiDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

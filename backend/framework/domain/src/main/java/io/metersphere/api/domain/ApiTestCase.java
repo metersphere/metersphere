@@ -64,7 +64,7 @@ public class ApiTestCase implements Serializable {
     @ApiModelProperty(name = "接口用例编号id", required = false, dataType = "Integer")
     private Integer num;
 
-    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 1000]")
+    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 500]")
     private String tags;
 
     @ApiModelProperty(name = "用例状态", required = false, allowableValues = "range[1, 20]")

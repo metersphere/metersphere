@@ -13,10 +13,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-@ApiModel(value = "接口定义环境")
-@TableName("api_definition_env")
+@ApiModel(value = "接口定义公共部分环境")
+@TableName("api_environment_config")
 @Data
-public class ApiDefinitionEnv implements Serializable {
+public class ApiEnvironmentConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

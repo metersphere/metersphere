@@ -73,10 +73,10 @@ public class ApiReport implements Serializable {
     @ApiModelProperty(name = "执行模块/API/CASE/API_PLAN", required = true, allowableValues = "range[1, 20]")
     private String runMode;
 
-    @Size(min = 1, max = 50, message = "{api_report.resource_pool.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{api_report.resource_pool.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report.pool_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_report.pool_id.not_blank}", groups = {Created.class})
     @ApiModelProperty(name = "资源池", required = true, allowableValues = "range[1, 50]")
-    private String resourcePool;
+    private String poolId;
 
     @Size(min = 1, max = 50, message = "{api_report.trigger_mode.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_report.trigger_mode.not_blank}", groups = {Created.class})

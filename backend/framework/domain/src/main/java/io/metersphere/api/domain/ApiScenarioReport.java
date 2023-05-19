@@ -74,10 +74,10 @@ public class ApiScenarioReport implements Serializable {
     @ApiModelProperty(name = "执行模式", required = true, allowableValues = "range[1, 20]")
     private String runMode;
 
-    @Size(min = 1, max = 50, message = "{api_scenario_report.resource_pool.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{api_scenario_report.resource_pool.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report.pool_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_scenario_report.pool_id.not_blank}", groups = {Created.class})
     @ApiModelProperty(name = "资源池", required = true, allowableValues = "range[1, 50]")
-    private String resourcePool;
+    private String poolId;
 
 
     @ApiModelProperty(name = "版本fk", required = false, allowableValues = "range[1, 50]")

@@ -16,7 +16,7 @@ import java.io.Serializable;
 @ApiModel(value = "场景报告步骤结果")
 @TableName("api_scenario_report_detail")
 @Data
-public class ApiScenarioReportDetail implements Serializable {
+public class ApiScenarioReportDetail extends ApiScenarioReport implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
