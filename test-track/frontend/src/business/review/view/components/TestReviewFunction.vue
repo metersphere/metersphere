@@ -1,5 +1,5 @@
 <template>
-  <ms-test-plan-common-component>
+  <ms-test-plan-common-component class="test-review-container">
     <template v-slot:aside>
       <ms-node-tree
         v-loading="result.loading"
@@ -172,5 +172,9 @@ export default {
 <style scoped>
 .version-select {
   padding-left: 10px;
+}
+
+.test-review-container >>> .ms-main-container {
+  height: calc(100vh - 100px) !important;
 }
 </style>
