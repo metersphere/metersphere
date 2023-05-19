@@ -928,7 +928,8 @@ export default {
           }
         });
         if (!isExist) {
-          this.$set(this.config, "performanceScriptReviewer", "");
+          this.$set(this.config, "performanceScriptReviewer", null);
+          this.$set(this.config, "performanceReviewLoadTestScript", false);
         }
       });
     },
