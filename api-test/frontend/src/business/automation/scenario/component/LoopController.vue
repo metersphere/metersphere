@@ -176,8 +176,18 @@
         </span>
         <span
           class="ms-step-debug-code"
+          :class="'ms-req-error-report'"
+          v-if="
+            !loading && !node.data.testing && node.data.debug &&
+            node.data.code === 'FAKE_ERROR'
+          ">
+          FakeError
+        </span>
+        <span
+          class="ms-step-debug-code"
           :class="node.data.code && node.data.code.toUpperCase() === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-          v-if="!loading && !node.data.testing && node.data.debug">
+          v-if="!loading && !node.data.testing && node.data.debug &&
+                  node.data.code !== 'FAKE_ERROR'">
           {{ getCode() }}
         </span>
       </template>
@@ -332,10 +342,19 @@ export default {
     },
     debugCode(data) {
       if (data && this.node && this.node.data) {
-        if (data.error > 0) {
-          this.node.data.code = 'Error';
-        } else {
-          this.node.data.code = this.node.data.code !== 'ERROR' ? 'Success' : 'Error';
+        if (!this.node.data.code) {
+          this.node.data.code = 'SUCCESS';
+        }
+        if (this.node.data.code ==='SUCCESS' && data.status && data.status === 'SUCCESS') {
+          this.node.data.code = 'SUCCESS';
+        }
+        if ((this.node.data.code ==='SUCCESS' ||
+            this.node.data.code === 'FAKE_ERROR') &&
+          data.status && data.status === 'FAKE_ERROR') {
+          this.node.data.code = 'FAKE_ERROR';
+        }
+        if (data.status && data.status === 'ERROR') {
+          this.node.data.code = 'ERROR';
         }
       }
       this.reload();
@@ -535,5 +554,9 @@ export default {
   background-color: #409eff;
   color: white;
   padding: 5px;
+}
+
+.ms-req-error-report {
+  color: #f6972a;
 }
 </style>
