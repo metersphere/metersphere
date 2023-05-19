@@ -140,7 +140,7 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="openSetting(scope.row)"
-                @change="change" />
+                @blur="change"/>
             </span>
           </template>
         </ms-table-column>
@@ -152,7 +152,7 @@
         :total="total" />
     </div>
     <batch-add-parameter @batchSave="batchSave" ref="batchAdd" />
-    <api-variable-setting ref="apiVariableSetting"></api-variable-setting>
+    <api-variable-setting ref="apiVariableSetting" @changeData="change"></api-variable-setting>
     <variable-import ref="variableImport" @mergeData="mergeData"></variable-import>
   </div>
 </template>

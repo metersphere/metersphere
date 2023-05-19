@@ -67,6 +67,7 @@ export default {
           return;
         }
       }
+      this.$emit('changeData');
       this.visible = false;
     },
     handleCancel() {
