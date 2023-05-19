@@ -26,6 +26,7 @@ import io.metersphere.excel.handler.IssueTemplateHeadWriteHandler;
 import io.metersphere.excel.listener.IssueExcelListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -92,6 +93,9 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class IssuesService {
 
+    @Resource
+    @Lazy
+    private IssuesService issuesService;
     @Resource
     private BaseIntegrationService baseIntegrationService;
     @Resource
@@ -348,11 +352,11 @@ public class IssuesService {
         if (!org.springframework.util.CollectionUtils.isEmpty(addCaseIds)) {
             if (issuesRequest.getIsPlanEdit()) {
                 addCaseIds.forEach(caseId -> {
-                    testCaseIssueService.add(issuesId, caseId, issuesRequest.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
+                    issuesService.insertIssueRelateLog(issuesId, caseId, issuesRequest.getRefId(), IssueRefType.PLAN_FUNCTIONAL.name());
                     testCaseIssueService.updateIssuesCount(caseId);
                 });
             } else {
-                addCaseIds.forEach(caseId -> testCaseIssueService.add(issuesId, caseId, null, IssueRefType.FUNCTIONAL.name()));
+                addCaseIds.forEach(caseId -> issuesService.insertIssueRelateLog(issuesId, caseId, null, IssueRefType.FUNCTIONAL.name()));
             }
         }
     }
@@ -2011,5 +2015,10 @@ public class IssuesService {
             tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
         }
         return tapdUsers;
+    }
+
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getIssueLogDetails(#caseId, #issuesId)", msClass = TestCaseIssueService.class)
+    public void insertIssueRelateLog(String issuesId, String caseId, String refId, String refType) {
+        testCaseIssueService.add(issuesId, caseId, refId, refType);
     }
 }

@@ -139,4 +139,14 @@ public class TestCaseIssueService {
         }
         return null;
     }
+
+    public String getIssueLogDetails(String caseResourceId, String issuesId) {
+        TestCaseWithBLOBs bloBs = testCaseService.getTestCase(caseResourceId);
+        if (bloBs != null) {
+            IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesId);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), bloBs.getProjectId(), bloBs.getName() + " 关联 " + issuesWithBLOBs.getTitle(), bloBs.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }
