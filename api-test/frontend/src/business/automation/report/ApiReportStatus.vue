@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="status-layout">
     <el-tag size="mini" type="primary" effect="plain" v-if="getStatus(status) === 'running'">
       {{ showStatus(status) }}
     </el-tag>
@@ -47,4 +47,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.status-layout {
+  text-align: end;
+}
+</style>
