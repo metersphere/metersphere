@@ -748,7 +748,7 @@ export default {
         optionMethod: data.optionMethod,
         workspaceId: getCurrentWorkspaceId(),
         platform: this.issueTemplate.platform,
-        projectId: this.form.projectId,
+        projectId: this.form.projectId ? this.form.projectId : this.projectId,
         query
       }).then((r) => {
         data.options = r.data;
