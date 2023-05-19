@@ -158,20 +158,21 @@ export default {
       });
     },
     getProjectApplication() {
-      let hasPool = false;
-      this.resourcePools.forEach(item => {
-        if (item.id === this.runConfig.resourcePoolId) {
-          hasPool = true;
-          return;
+      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
         }
-      });
-      if (!hasPool) {
-        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        let hasPool = false;
+        this.resourcePools.forEach(item => {
+          if (item.id === this.runConfig.resourcePoolId) {
+            hasPool = true;
+            return;
           }
         });
-      }
+        if (!hasPool) {
+          this.runConfig.resourcePoolId = null;
+        }
+      });
     },
     changeMode() {
       this.runConfig.onSampleError = false;

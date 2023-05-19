@@ -137,21 +137,22 @@ export default {
       this.$emit('close');
     },
     getProjectApplication() {
-      let hasPool = false;
-      this.resourcePools.forEach(item => {
-        if (item.id === this.runConfig.resourcePoolId) {
-          hasPool = true;
-          return;
+      this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
+        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+          this.runConfig.resourcePoolId = res.data.resourcePoolId;
+        }
+        this.loading = false;
+        let hasPool = false;
+        this.resourcePools.forEach((item) => {
+          if (item.id === this.runConfig.resourcePoolId) {
+            hasPool = true;
+            return;
+          }
+        });
+        if (!hasPool) {
+          this.runConfig.resourcePoolId = null;
         }
       });
-      if (!hasPool) {
-        this.$get('/project_application/get/config/' + getCurrentProjectID(), res => {
-          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-            this.runConfig.resourcePoolId = res.data.resourcePoolId;
-          }
-          this.loading = false;
-        });
-      }
     },
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
