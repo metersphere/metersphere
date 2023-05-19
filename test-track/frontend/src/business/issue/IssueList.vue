@@ -172,7 +172,12 @@ import {
 import {
   getCustomFieldValue,
   getCustomTableWidth,
-  getPageInfo, getTableHeaderWithCustomFields, getLastTableSortField, getCustomFieldFilter, parseCustomFilesForList
+  getPageInfo,
+  getTableHeaderWithCustomFields,
+  getLastTableSortField,
+  getCustomFieldFilter,
+  parseCustomFilesForList,
+  parseCustomFilesForItem
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
@@ -635,6 +640,9 @@ export default {
       let id = this.$route.query.id;
       if (id) {
         getIssuesById(id).then((response) => {
+          response.data.fields.forEach(field => {
+            parseCustomFilesForItem(field);
+          });
           this.handleEdit(response.data)
         });
       } else {
