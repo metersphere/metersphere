@@ -930,6 +930,8 @@ export default {
         if (!isExist) {
           this.$set(this.config, "performanceScriptReviewer", null);
           this.$set(this.config, "performanceReviewLoadTestScript", false);
+          this.$set(this.config, "apiScriptReviewer", null);
+          this.$set(this.config, "apiReviewTestScript", false);
         }
       });
     },

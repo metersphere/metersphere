@@ -92,6 +92,8 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     public static final String POST = "postProcessor";
     public static final String PRE = "preProcessor";
     public static final String SCRIPT = "script";
+    public static final String JSR = "jsr223";
+    public static final String ASSERTIONS = "assertions";
 
     public BaseEnvironmentService() {
         super(ApiModuleDTO.class);
@@ -1041,11 +1043,25 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public static Map<String, String> scriptMap(String request) {
-        Map<Object, Object> configMap = JSON.parseObject(request, Map.class);
         Map<String, String> map = new HashMap<>();
-        JSONObject configObj = new JSONObject(configMap);
-        toMap(map, configObj, POST_STEP, PRE_STEP);
-        toMap(map, configObj, PRE, POST);
+        if (StringUtils.isNotBlank(request)){
+            Map<Object, Object> configMap = JSON.parseObject(request, Map.class);
+            JSONObject configObj = new JSONObject(configMap);
+            toMap(map, configObj, POST_STEP, PRE_STEP);
+            toMap(map, configObj, PRE, POST);
+            JSONObject object = configObj.optJSONObject(ASSERTIONS);
+            JSONArray jsrArray = object.optJSONArray(JSR);
+            if (jsrArray != null) {
+                for (int j = 0; j < jsrArray.length(); j++) {
+                    JSONObject jsr223 = jsrArray.optJSONObject(j);
+                    if (jsr223 != null) {
+                        map.put(StringUtils.join(JSR, j),
+                                jsr223.toString());
+                    }
+                }
+            }
+
+        }
         return map;
     }
 
