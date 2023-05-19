@@ -17,13 +17,14 @@ export default {
       type: String,
       default: '',
     },
-    // /**
-    //  * cMap的url地址(用于解决中文乱码或中文显示为空白的问题). 该资源的物理路径在: node_modules/pdfjs-dist/cmaps
-    //  */
-    // cMapUrl: {
-    //   type: String,
-    //   default: '',
-    // },
+    /**
+     * cMap的url地址(用于解决中文乱码或中文显示为空白的问题). 该资源的物理路径在: sdk-frontend/assets/pdfjs-cmaps/目录下
+     * 打包后通过gateway直接访问即可
+     */
+    cMapUrl: {
+      type: String,
+      default: '/assets/pdfjs-cmaps/',
+    },
     /**
      * pdf缩放比例
      */
@@ -38,15 +39,7 @@ export default {
       pdfDocRef: null,
     }
   },
-  computed: {
-    urlObj() {
-      return { pdfUrl: this.pdfUrl, cMapUrl: this.cMapUrl }
-    },
-  },
   watch: {
-    urlObj() {
-      this.renderPdf()
-    },
     scale() {
       this.renderPdf()
     },
@@ -62,7 +55,7 @@ export default {
         // 获取pdf文件
         const pdfLoadingTask = PdfJs.getDocument({
           url: this.pdfUrl,
-          cMapUrl: '/pdfjs-cmaps/',
+          cMapUrl: this.cMapUrl,
           cMapPacked: true
         })
         pdfLoadingTask.promise.then(pdfDoc => {
