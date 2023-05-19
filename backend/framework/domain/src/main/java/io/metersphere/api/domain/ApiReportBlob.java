@@ -14,7 +14,7 @@ import java.io.Serializable;
 @ApiModel(value = "API/CASE执行结果详情")
 @TableName("api_report_blob")
 @Data
-public class ApiReportBlob implements Serializable {
+public class ApiReportBlob extends ApiReport implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

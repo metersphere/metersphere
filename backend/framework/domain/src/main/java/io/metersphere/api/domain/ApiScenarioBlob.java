@@ -14,7 +14,7 @@ import java.io.Serializable;
 @ApiModel(value = "场景步骤详情")
 @TableName("api_scenario_blob")
 @Data
-public class ApiScenarioBlob implements Serializable {
+public class ApiScenarioBlob extends ApiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
