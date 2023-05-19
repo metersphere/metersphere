@@ -50,7 +50,7 @@ public class UserControllerTests {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code").value("40000"))
+                .andExpect(jsonPath("$.code").value("100400"))
                 .andDo(print());
     }
 
