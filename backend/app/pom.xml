@@ -59,6 +59,11 @@
             <artifactId>metersphere-workstation</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-issue-management</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
     <build>

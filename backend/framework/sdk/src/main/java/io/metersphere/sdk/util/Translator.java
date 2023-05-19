@@ -18,4 +18,11 @@ public class Translator {
     public static String get(String key) {
         return messageSource.getMessage(key, null, "Not Support Key: " + key, LocaleContextHolder.getLocale());
     }
+
+    /**
+     * 单Key翻译，并设置默认值
+     */
+    public static String get(String key, String defaultMessage) {
+        return messageSource.getMessage(key, null, defaultMessage, LocaleContextHolder.getLocale());
+    }
 }

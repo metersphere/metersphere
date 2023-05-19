@@ -1,7 +1,9 @@
 package io.metersphere.sdk.plugin.loader;
 
+import io.metersphere.sdk.controller.handler.result.CommonResultCode;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.plugin.storage.StorageStrategy;
+import io.metersphere.sdk.util.LogUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,12 +90,11 @@ public class PluginManager {
             Class<T> clazz = getImplClass(pluginId, superClazz);
             return clazz.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
-            // todo log and
-//            LogUtils.error(e);
-            MSException.throwException(e.getTargetException());
+            LogUtils.error(e);
+            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
         } catch (Exception e) {
-//            LogUtil.error(e);
-            MSException.throwException(e.getMessage());
+            LogUtils.error(e);
+            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
         }
         return null;
     }
@@ -103,11 +104,11 @@ public class PluginManager {
             Class<T> clazz = getImplClass(pluginId, superClazz);
             return clazz.getConstructor(param.getClass()).newInstance(param);
         } catch (InvocationTargetException e) {
-//            LogUtil.error(e.getTargetException());
-            MSException.throwException(e.getTargetException());
+            LogUtils.error(e.getTargetException());
+            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
         } catch (Exception e) {
-//            LogUtil.error(e);
-            MSException.throwException(e.getMessage());
+            LogUtils.error(e);
+            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
         }
         return null;
     }
