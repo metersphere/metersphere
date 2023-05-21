@@ -85,7 +85,7 @@
         <jgit.version>6.5.0.202303070854-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
-        <embedded.version>3.0.0-RC5</embedded.version>
+        <embedded.version>3.0.0-RC7</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
         <httpclient.version>4.5.14</httpclient.version>
         <!-- frontend -->
