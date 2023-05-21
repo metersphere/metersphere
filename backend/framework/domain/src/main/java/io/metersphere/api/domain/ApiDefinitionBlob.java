@@ -8,12 +8,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "接口定义详情内容")
 @TableName("api_definition_blob")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ApiDefinitionBlob extends ApiDefinition implements Serializable {
     private static final long serialVersionUID = 1L;
 

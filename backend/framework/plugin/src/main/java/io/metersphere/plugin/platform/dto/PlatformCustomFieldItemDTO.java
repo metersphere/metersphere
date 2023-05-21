@@ -1,8 +1,10 @@
 package io.metersphere.plugin.platform.dto;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class PlatformCustomFieldItemDTO extends CustomFieldDTO {
     private Object value;
     private String key;

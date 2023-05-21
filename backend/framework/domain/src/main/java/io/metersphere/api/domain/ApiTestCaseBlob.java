@@ -8,12 +8,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "接口用例详情")
 @TableName("api_test_case_blob")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ApiTestCaseBlob extends ApiTestCase implements Serializable {
     private static final long serialVersionUID = 1L;
 

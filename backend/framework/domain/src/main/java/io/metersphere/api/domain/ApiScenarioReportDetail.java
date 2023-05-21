@@ -10,12 +10,14 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "场景报告步骤结果")
 @TableName("api_scenario_report_detail")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ApiScenarioReportDetail extends ApiScenarioReport implements Serializable {
     private static final long serialVersionUID = 1L;
 

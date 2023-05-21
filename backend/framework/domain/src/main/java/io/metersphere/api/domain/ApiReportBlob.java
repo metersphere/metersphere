@@ -8,12 +8,14 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "API/CASE执行结果详情")
 @TableName("api_report_blob")
 @Data
+@EqualsAndHashCode(callSuper=false)
 public class ApiReportBlob extends ApiReport implements Serializable {
     private static final long serialVersionUID = 1L;
 
