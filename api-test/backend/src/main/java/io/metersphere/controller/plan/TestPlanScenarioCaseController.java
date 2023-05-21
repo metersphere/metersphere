@@ -104,7 +104,6 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping(value = "/run")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
     public List<MsExecResponseDTO> run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         if (request.getConfig() == null) {
@@ -117,7 +116,6 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping(value = "/jenkins/run")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public List<MsExecResponseDTO> runByRun(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.API.name());
