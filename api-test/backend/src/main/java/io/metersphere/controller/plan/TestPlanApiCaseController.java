@@ -5,24 +5,30 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.QueryReferenceRequest;
 import io.metersphere.api.dto.automation.TestPlanApiDTO;
 import io.metersphere.api.dto.automation.TestPlanDTO;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
+import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.plan.AutomationsRunInfoDTO;
 import io.metersphere.api.dto.plan.TestPlanApiCaseBatchRequest;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiScenarioReportWithBLOBs;
-import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.MsExecResponseDTO;
 import io.metersphere.dto.RunModeConfigDTO;
-import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -105,27 +111,23 @@ public class TestPlanApiCaseController {
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanApiCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanApiCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping("/batch/update/env")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.batchUpdateEnv(request);
     }
 
     @PostMapping(value = "/run")
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planIds)", msClass = TestPlanApiCaseService.class)
     public List<MsExecResponseDTO> run(@RequestBody BatchRunDefinitionRequest request) {
         return testPlanApiCaseService.run(request);
     }
