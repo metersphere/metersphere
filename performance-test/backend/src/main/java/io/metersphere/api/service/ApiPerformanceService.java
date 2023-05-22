@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtApiLoadTestMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -16,12 +17,12 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.EditTestPlanRequest;
 import io.metersphere.service.MicroService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -166,9 +167,13 @@ public class ApiPerformanceService {
     private void saveOtherFile(List<FileMetadata> fileNames, String loadTestId) {
         for (int i = 0; i < fileNames.size(); i++) {
             FileMetadata model = fileNames.get(i);
-            String fileName = model.getName();
-            File file = FileUtils.getFileByName(fileName);
-            saveUploadFile(file, loadTestId, i + 1);
+            if (StringUtils.equalsAnyIgnoreCase(model.getStorage(), StorageConstants.GIT.name(), StorageConstants.MINIO.name())) {
+                saveLoadTestFile(model, loadTestId, i + 1);
+            } else {
+                String fileName = model.getName();
+                File file = FileUtils.getFileByName(fileName);
+                saveUploadFile(file, loadTestId, i + 1);
+            }
         }
     }
 
