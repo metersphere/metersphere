@@ -22,7 +22,7 @@ public class ApiScenarioBlob extends ApiScenario implements Serializable {
     @TableId
     @NotBlank(message = "{api_scenario_blob.api_scenario_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "场景pk", required = true, allowableValues = "range[1, 50]")
-    private String apiScenarioId;
+    private String id;
 
     @ApiModelProperty(name = "场景步骤内容", required = false, dataType = "byte[]")
     private byte[] content;

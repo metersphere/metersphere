@@ -22,8 +22,7 @@ public class ApiDefinitionBlob extends ApiDefinition implements Serializable {
     @TableId
     @NotBlank(message = "{api_definition_blob.api_definition_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "接口fk/ 一对一关系", required = true, allowableValues = "range[1, 50]")
-    private String apiDefinitionId;
-
+    private String id;
 
     @ApiModelProperty(name = "请求内容", required = false, dataType = "byte[]")
     private byte[] request;

@@ -14,13 +14,13 @@ import java.io.Serializable;
 @ApiModel(value = "mock期望值配置")
 @TableName("api_definition_mock_config")
 @Data
-public class ApiDefinitionMockConfig implements Serializable {
+public class ApiDefinitionMockConfig extends ApiDefinitionMock implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
     @NotBlank(message = "{api_definition_mock_config.api_definition_mock_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "接口mock pk", required = true, allowableValues = "range[1, 50]")
-    private String apiDefinitionMockId;
+    private String id;
 
     @ApiModelProperty(name = "请求内容", required = false, allowableValues = "range[1, ]")
     private byte[] request;

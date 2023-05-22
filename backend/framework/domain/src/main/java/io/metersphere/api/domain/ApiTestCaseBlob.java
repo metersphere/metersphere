@@ -22,7 +22,7 @@ public class ApiTestCaseBlob extends ApiTestCase implements Serializable {
     @TableId
     @NotBlank(message = "{api_test_case_blob.api_test_case_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "接口用例pk", required = true, allowableValues = "range[1, 50]")
-    private String apiTestCaseId;
+    private String id;
 
     @ApiModelProperty(name = "请求内容", required = false, dataType = "byte[]")
     private byte[] request;
