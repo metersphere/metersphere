@@ -9,19 +9,21 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @ApiModel(value = "项目扩展")
 @TableName("project_extend")
 @Data
-public class ProjectExtend implements Serializable {
+@EqualsAndHashCode(callSuper = false)
+public class ProjectExtend extends Project implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
     @NotBlank(message = "{project_extend.project_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
-    private String projectId;
+    private String id;
 
 
     @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")

@@ -21,9 +21,9 @@ public class FakeErrorBlob extends FakeError implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{fake_error_blob.fake_error_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{fake_error_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "Test ID", required = true, allowableValues = "range[1, 50]")
-    private String fakeErrorId;
+    private String id;
 
 
     @ApiModelProperty(name = "内容", required = false, allowableValues = "range[1, ]")

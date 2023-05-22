@@ -13,13 +13,13 @@ import java.io.Serializable;
 @ApiModel(value = "用户扩展")
 @TableName("user_extend")
 @Data
-public class UserExtend implements Serializable {
+public class UserExtend extends User implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{user_extend.user_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_extend.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "用户ID", required = true, allowableValues = "range[1, 50]")
-    private String userId;
+    private String id;
 
 
     @ApiModelProperty(name = "其他平台对接信息", required = false, allowableValues = "range[1, 2000]")

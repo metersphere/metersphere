@@ -21,9 +21,9 @@ public class FileMetadataBlob extends FileMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{file_metadata_blob.file_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "文件ID", required = true, allowableValues = "range[1, 255]")
-    private String fileId;
+    private String id;
 
 
     @ApiModelProperty(name = "储存库", required = false, allowableValues = "range[1, ]")

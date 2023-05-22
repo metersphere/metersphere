@@ -23,7 +23,7 @@ public class FileModuleBlob extends FileModule implements Serializable {
     @TableId
     @NotBlank(message = "{file_module_blob.file_module_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
-    private String fileModuleId;
+    private String id;
 
 
     @ApiModelProperty(name = "存储库描述", required = false, allowableValues = "range[1, ]")
