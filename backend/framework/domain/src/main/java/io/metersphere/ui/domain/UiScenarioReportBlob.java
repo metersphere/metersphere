@@ -18,9 +18,9 @@ import java.io.Serializable;
 public class UiScenarioReportBlob extends UiScenarioReport implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
-    @NotBlank(message = "{ui_scenario_report_blob.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "报告ID", required = true, allowableValues = "range[1, 50]")
-    private String reportId;
+    private String id;
 
 
     @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, ]")

@@ -20,9 +20,9 @@ import java.io.Serializable;
 public class UiCustomCommandBlob extends UiCustomCommand implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
-    @NotBlank(message = "{ui_custom_command_blob.scenario_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_custom_command_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "场景ID", required = true, allowableValues="range[1, 255]")
-    private String scenarioId;
+    private String id;
     
     
     @ApiModelProperty(name = "场景定义", required = false, allowableValues="range[1, ]")
