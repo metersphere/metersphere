@@ -1,8 +1,9 @@
 package io.metersphere.system.controller;
 
 
-import io.metersphere.sdk.service.UserService;
 import io.metersphere.system.domain.User;
+import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public boolean addUser(@Validated({Created.class}) @RequestBody User user) {
+    public boolean addUser(@Validated({Created.class}) @RequestBody UserDTO user) {
         return userService.save(user);
     }
 }

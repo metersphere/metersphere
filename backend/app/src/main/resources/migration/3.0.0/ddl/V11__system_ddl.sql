@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS `user`
 
 CREATE TABLE IF NOT EXISTS `user_extend`
 (
-    `user_id`         VARCHAR(50) NOT NULL COMMENT '用户ID',
+    `id`         VARCHAR(50) NOT NULL COMMENT '用户ID',
     `platform_info`   BLOB COMMENT '其他平台对接信息',
     `selenium_server` VARCHAR(255) DEFAULT NULL COMMENT 'UI本地调试地址',
-    PRIMARY KEY (`user_id`)
+    PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='用户扩展';
