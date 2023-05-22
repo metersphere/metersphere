@@ -19,11 +19,6 @@ import java.io.Serializable;
 public class ApiTestCaseBlob extends ApiTestCase implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
-    @NotBlank(message = "{api_test_case_blob.api_test_case_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "接口用例pk", required = true, allowableValues = "range[1, 50]")
-    private String apiTestCaseId;
-
     @ApiModelProperty(name = "请求内容", required = false, dataType = "byte[]")
     private byte[] request;
 

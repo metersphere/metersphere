@@ -19,11 +19,6 @@ import java.io.Serializable;
 public class ApiReportBlob extends ApiReport implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
-    @NotBlank(message = "{api_report_blob.api_report_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "接口报告fk", required = true, allowableValues = "range[1, 50]")
-    private String apiReportId;
-
     @ApiModelProperty(name = "结果内容详情", required = false, dataType = "byte[]")
     private byte[] content;
 

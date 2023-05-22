@@ -19,11 +19,6 @@ import java.io.Serializable;
 public class ApiScenarioBlob extends ApiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
-    @NotBlank(message = "{api_scenario_blob.api_scenario_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "场景pk", required = true, allowableValues = "range[1, 50]")
-    private String apiScenarioId;
-
     @ApiModelProperty(name = "场景步骤内容", required = false, dataType = "byte[]")
     private byte[] content;
 
