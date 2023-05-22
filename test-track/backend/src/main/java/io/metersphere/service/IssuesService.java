@@ -1992,7 +1992,7 @@ public class IssuesService {
         return tapdUsers;
     }
 
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getIssueLogDetails(#caseId, #issuesId)", msClass = TestCaseIssueService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getIssueLogDetails(#caseId, #refId, #issuesId)", msClass = TestCaseIssueService.class)
     public void insertIssueRelateLog(String issuesId, String caseId, String refId, String refType) {
         testCaseIssueService.add(issuesId, caseId, refId, refType);
     }
