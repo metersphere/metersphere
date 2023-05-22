@@ -851,6 +851,10 @@ export default {
       contains_script_review: "has script step，review it please",
       load_test_script_review: "Performance test script review",
       load_test_script_review_detail: "Performance test script file upload must specify user review",
+      api_script_review: "Interface script review",
+      api_script_review_tips: "User review must be specified when interface use cases include script steps",
+      reviewers: "Reviewers",
+      script_warning:"The script has enabled the review mechanism and cannot test the script on the current page",
     }
   },
   member: {
@@ -1510,7 +1514,8 @@ export default {
       copy_warning: "Domain names whose enabling conditions are'none' do not support copying!",
       path_warning: "The path cannot be empty",
       project_warning: "project id cannot be empty",
-      module_warning: "The path cannot be empty"
+      module_warning: "The path cannot be empty",
+      get_env_failed: "Jump environment deleted!",
     },
     scenario: {
       id: "Scenario ID",
@@ -2901,6 +2906,8 @@ export default {
       'EXECUTE_COMPLETED': ' Completed',
     },
     api_case: 'API Case',
+    scenario_case: "Scenario Case",
+    env_task: "Environment",
   },
   permission: {
     project_error_report_library: {

@@ -156,6 +156,8 @@ public class ApiAutomationService {
 
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
     public ApiScenarioDTO getDto(String id) {
@@ -286,6 +288,16 @@ public class ApiAutomationService {
         if (relationshipEdgeService != null) {
             relationshipEdgeService.initRelationshipEdge(null, scenario);
         }
+        apiTestCaseService.checkAndSendReviewMessage(
+                scenario.getId(),
+                scenario.getName(),
+                scenario.getProjectId(),
+                "场景用例通知",
+                NoticeConstants.TaskType.API_AUTOMATION_TASK,
+                null,
+                scenario.getScenarioDefinition(),
+                scenario.getPrincipal()
+        );
         uploadFiles(request, bodyFiles, scenarioFiles);
 
         return scenario;
@@ -417,6 +429,16 @@ public class ApiAutomationService {
         if (relationshipEdgeService != null) {
             relationshipEdgeService.initRelationshipEdge(beforeScenario, scenario);
         }
+        apiTestCaseService.checkAndSendReviewMessage(
+                scenario.getId(),
+                scenario.getName(),
+                scenario.getProjectId(),
+                "场景用例通知",
+                NoticeConstants.TaskType.API_AUTOMATION_TASK,
+                beforeScenario.getScenarioDefinition(),
+                scenario.getScenarioDefinition(),
+                scenario.getPrincipal()
+        );
         checkAndSetLatestVersion(beforeScenario.getRefId());
         return scenario;
     }

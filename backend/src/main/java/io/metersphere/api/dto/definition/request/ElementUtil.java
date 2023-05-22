@@ -16,6 +16,7 @@ import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.service.MsHashTreeService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -59,6 +60,12 @@ public class ElementUtil {
     private static final String POST = "POST";
     private static final String ASSERTIONS = "ASSERTIONS";
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
+    public final static List<String> scriptList = new ArrayList<String>() {{
+        this.add("JSR223Processor");
+        this.add("JSR223PreProcessor");
+        this.add("JSR223PostProcessor");
+    }};
+    public static final String JSR = "jsr223";
 
     public static Arguments addArguments(ParameterConfig config, String projectId, String name) {
         if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null
@@ -821,5 +828,59 @@ public class ElementUtil {
                 coverArguments(node, process);
             }
         }
+    }
+
+    public static List<String> scriptList(String request) {
+        List<String> list = new ArrayList<>();
+        if (StringUtils.isBlank(request)) {
+            return list;
+        }
+        JSONObject element = JSONObject.parseObject(request);
+        toList(element.getJSONArray(MsHashTreeService.HASH_TREE), scriptList, list);
+        return list;
+    }
+
+    private static void toList(JSONArray hashTree, List<String> scriptList, List<String> list) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            if (element == null) {
+                continue;
+            }
+            if (scriptList.contains(element.getString(MsHashTreeService.TYPE))) {
+                JSONObject elementTarget = JSONObject.parseObject(element.toString());
+                if (elementTarget.containsKey(MsHashTreeService.HASH_TREE)) {
+                    elementTarget.remove(MsHashTreeService.HASH_TREE);
+                }
+                elementTarget.remove(MsHashTreeService.ACTIVE);
+                elementTarget.remove(MsHashTreeService.INDEX);
+                list.add(elementTarget.toString());
+            }
+            JSONArray jsrArray = element.getJSONArray(JSR);
+            if (jsrArray != null) {
+                for (int j = 0; j < jsrArray.size(); j++) {
+                    JSONObject jsr223 = jsrArray.getJSONObject(j);
+                    if (jsr223 != null) {
+                        list.add(jsr223.toString());
+                    }
+                }
+            }
+            if (element.containsKey(MsHashTreeService.HASH_TREE)) {
+                JSONArray elementJSONArray = element.getJSONArray(MsHashTreeService.HASH_TREE);
+                toList(elementJSONArray, scriptList, list);
+            }
+        }
+    }
+
+    public static boolean isSend(List<String> org, List<String> target) {
+        if (org.size() != target.size() && target.size() > 0) {
+            return true;
+        }
+        List<String> diff = org.stream()
+                .filter(s -> !target.contains(s))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(diff)) {
+            return true;
+        }
+        return false;
     }
 }

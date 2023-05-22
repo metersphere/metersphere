@@ -855,6 +855,9 @@ export default {
       load_test_script_review: "性能脚本审核",
       load_test_script_review_detail: "上传性能测试脚本文件须指定用户审核",
       contains_script_review: "包含脚本步骤，请审核",
+      api_script_review: "接口脚本审核",
+      api_script_review_tips: "接口用例包含脚本步骤时须指定用户审核",
+      script_warning:"脚本已启用审核机制，无法在当前页面测试脚本",
     }
   },
   member: {
@@ -1514,7 +1517,8 @@ export default {
       copy_warning: "启用条件为 '无' 的域名不支持复制！",
       path_warning: "路径不能为空",
       project_warning: "项目不能为空",
-      module_warning: "模块不能为空"
+      module_warning: "模块不能为空",
+      get_env_failed: "跳转环境被删除！",
     },
     scenario: {
       id: "场景ID",
@@ -2905,7 +2909,9 @@ export default {
       'EXECUTE_FAILED': '失败',
       'EXECUTE_COMPLETED': '完成',
     },
-    api_case: '接口用例'
+    api_case: '接口用例',
+    scenario_case: "场景用例",
+    env_task: "环境",
   },
   permission: {
     project_error_report_library: {

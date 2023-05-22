@@ -179,6 +179,20 @@ export default {
   created() {
   },
 
+  mounted() {
+    //跳转环境编辑页面
+    if (this.$route && this.$route.query && this.$route.query.resourceId) {
+      let id = this.$route.query.resourceId;
+      this.$get('/api/environment/get/' + id, response => {
+        if (response.data) {
+          this.editEnv(response.data);
+        } else {
+          this.$error(this.$t('environment.get_env_failed'));
+        }
+      });
+    }
+  },
+
   activated() {
     this.list();
   },
