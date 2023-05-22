@@ -527,7 +527,11 @@ export default {
         this.moduleOptions
       );
     },
-    handleRowClick(row, column) {
+    handleRowClick (row, column) {
+      // 多选框的列不触发点击行事件
+      if (column.type === 'selection') { 
+        return;
+      }
       this.$emit("handleRowClick", row, column);
     },
     handleRefresh() {
@@ -675,6 +679,16 @@ export default {
 /* 解决拖拽排序后hover阴影错乱问题 */
 .ms-table :deep(.el-table__body) tr:hover > td {
   background-color: #f5f7fa;
+}
+
+.ms-table :deep(.el-table__body .el-checkbox__inner) {
+  width: 16px;
+  height: 16px;
+}
+
+.ms-table :deep(.el-table__body .el-checkbox__inner::after) {
+  height: 9px;
+  left: 5px;
 }
 
 .disable-hover :deep(tr:hover > td) {
