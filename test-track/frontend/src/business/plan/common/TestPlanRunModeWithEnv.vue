@@ -187,26 +187,18 @@
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import { strMapToObj } from "metersphere-frontend/src/utils";
+import {strMapToObj} from "metersphere-frontend/src/utils";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
-import {
-  getCurrentProjectID,
-  getOwnerProjects,
-} from "@/business/utils/sdk-utils";
-import { getQuotaValidResourcePools } from "@/api/remote/resource-pool";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
+import {getCurrentProjectID, getOwnerProjects,} from "@/business/utils/sdk-utils";
+import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
 import EnvGroupPopover from "@/business/plan/env/EnvGroupPopover";
-import { getApiCaseEnv } from "@/api/remote/plan/test-plan-api-case";
-import {
-  getApiScenarioEnv,
-  getPlanCaseEnv,
-  getPlanCaseProjectIds,
-} from "@/api/remote/plan/test-plan";
+import {getApiCaseEnv} from "@/api/remote/plan/test-plan-api-case";
+import {getApiScenarioEnv, getPlanCaseEnv, getPlanCaseProjectIds,} from "@/api/remote/plan/test-plan";
 import EnvGroupWithOption from "../env/EnvGroupWithOption";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
 import EnvSelectPopover from "@/business/plan/env/EnvSelectPopover";
-import { getSystemBaseSetting } from "metersphere-frontend/src/api/system";
-import { getProjectConfig } from "@/api/project";
+import {getProjectConfig} from "@/api/project";
 
 export default {
   name: "MsTestPlanRunModeWithEnv",
@@ -310,18 +302,19 @@ export default {
       this.showPopover();
     },
     getProjectApplication() {
-      this.runConfig.resourcePoolId = null;
       getProjectConfig(getCurrentProjectID(), "").then((res) => {
-        if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-          this.runConfig.resourcePoolId = res.data.resourcePoolId;
-        }
         let hasPool = false;
         this.resourcePools.forEach((item) => {
           if (item.id === this.runConfig.resourcePoolId) {
             hasPool = true;
-            return;
           }
         });
+        if (!hasPool) {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+            hasPool = true;
+          }
+        }
         if (!hasPool) {
           this.runConfig.resourcePoolId = null;
         }
