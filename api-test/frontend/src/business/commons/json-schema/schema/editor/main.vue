@@ -95,7 +95,7 @@
       </el-col>
 
       <el-col v-if="showColumns('DEFAULT')" class="item kv-select ms-col-name" style="min-width: 200px; padding: 0 5px">
-        <el-input
+        <custom-input
           :disabled="
             disabled ||
             pickValue.type === 'object' ||
@@ -110,7 +110,7 @@
           size="small" />
       </el-col>
       <el-col v-if="showColumns('PATTERN')" class="ms-col-name" style="min-width: 200px; padding: 0 5px">
-        <el-input
+        <custom-input
           :disabled="
             disabled ||
             pickValue.type === 'object' ||
@@ -135,7 +135,8 @@
             "
             v-model="pickValue.format"
             style="width: 100%"
-            size="small">
+            size="small"
+            @change="formatChange">
             <el-option value="" :label="$t('schema.nothing')"></el-option>
             <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr.format.enums" />
           </el-select>
@@ -145,9 +146,7 @@
         </div>
       </el-col>
       <el-col v-if="showColumns('ENUM')" class="ms-col-name" style="min-width: 300px; padding: 0 5px">
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 1, maxRows: 2 }"
+        <custom-textarea
           :disabled="
             disabled ||
             pickValue.type === 'object' ||
@@ -158,10 +157,10 @@
           v-model="pickValue.enum"
           class="ms-col-title"
           :placeholder="$t('schema.enum')"
-          size="small" />
+          />
       </el-col>
       <el-col v-if="showColumns('DESCRIPTION')" class="ms-col-name" style="min-width: 300px; padding: 0 5px">
-        <el-input
+        <custom-input
           :disabled="disabled"
           v-model="pickValue.description"
           class="ms-col-title"
@@ -275,7 +274,7 @@
         </div>
       </el-form>
       <p class="tip">{{ $t('schema.preview') }}</p>
-      <pre style="width: 100%; white-space: pre-wrap;">{{ completeNodeValue }}</pre>
+      <pre style="width: 100%; white-space: pre-wrap">{{ completeNodeValue }}</pre>
 
       <span slot="footer" class="dialog-footer">
         <ms-dialog-footer @cancel="modalVisible = false" @confirm="handleOk" />
@@ -289,10 +288,12 @@ import { TYPE, TYPE_NAME, TYPES } from './type/type';
 import MsMock from './mock/MockComplete';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import { getUUID } from 'metersphere-frontend/src/utils';
+import CustomInput from '../custom-input/index';
+import CustomTextarea from '../custom-textarea/index';
 
 export default {
   name: 'JsonSchemaEditor',
-  components: { MsMock, MsDialogFooter },
+  components: { MsMock, MsDialogFooter, CustomInput, CustomTextarea },
   props: {
     value: {
       type: Object,
@@ -625,6 +626,12 @@ export default {
     },
     editScenarioAdvance(data) {
       this.$emit('editScenarioAdvance', data);
+    },
+    formatChange(value) {
+      this.pickValue.format = value;
+      this.$nextTick(() => {
+        this.reloadSelf();
+      });
     },
   },
 };
