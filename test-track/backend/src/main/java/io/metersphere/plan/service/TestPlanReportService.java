@@ -916,9 +916,13 @@ public class TestPlanReportService {
         if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
             List<String> scenarioReportIds = extTestPlanReportContentMapper.selectUiReportByTestPlanReportIds(testPlanReportIdList);
             if (CollectionUtils.isNotEmpty(scenarioReportIds)) {
-                extTestPlanReportContentMapper.deleteUiReportByIds(scenarioReportIds);
-                extTestPlanReportContentMapper.deleteUiReportResultByIds(scenarioReportIds);
-                extTestPlanReportContentMapper.deleteUiReportStructureByIds(scenarioReportIds);
+                try {
+                    extTestPlanReportContentMapper.deleteUiReportByIds(scenarioReportIds);
+                    extTestPlanReportContentMapper.deleteUiReportResultByIds(scenarioReportIds);
+                    extTestPlanReportContentMapper.deleteUiReportStructureByIds(scenarioReportIds);
+                } catch (Exception e) {
+                    LogUtil.error("删除UI报告出错!", e);
+                }
             }
         }
     }

@@ -102,7 +102,7 @@ public class PerformanceTestController {
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         //检查并发送审核脚本的通知
-        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, loadTest);
         return loadTest;
     }
 
@@ -115,10 +115,10 @@ public class PerformanceTestController {
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
-        LoadTest returnModel = performanceTestService.edit(request, files);
+        LoadTest loadTest = performanceTestService.edit(request, files);
         //检查并发送审核脚本的通知
-        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
-        return returnModel;
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, loadTest);
+        return loadTest;
     }
 
 

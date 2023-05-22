@@ -28,6 +28,7 @@ const message = {
     xmindFile: "思維導圖.xmind",
     default: "默認值",
     sort_default: "默認排序",
+    system_notification_logo: "系",
     please_select_import_mode: "請選擇導入模式",
     please_select_import_module: "請選擇導入模塊",
     pass_rate: "通過率",
