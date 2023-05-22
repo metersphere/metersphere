@@ -233,7 +233,7 @@ export default {
     handleMemberOptions(data) {
       this.data.options = data;
       this.data.options.forEach(item => {
-        item.value = item.id;
+        item.value = !isNaN(item.id) ? Number(item.id) : item.id;
         item.text = item.name;
       });
       if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
