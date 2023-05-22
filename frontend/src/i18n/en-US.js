@@ -13,6 +13,7 @@ export default {
     xmindFile: "Xmind",
     default: "default",
     sort_default: "Default",
+    system_notification_logo: "Sys",
     please_select_import_mode: 'Please select import mode',
     please_select_import_module: 'Please select import module',
     pass_rate: 'Pass Rate',

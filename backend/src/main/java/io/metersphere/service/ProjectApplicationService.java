@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.CaseFormat;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.tcp.TCPPool;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.ProjectApplication;
+import io.metersphere.base.domain.ProjectApplicationExample;
 import io.metersphere.base.mapper.ProjectApplicationMapper;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.commons.constants.ProjectApplicationType;
@@ -214,7 +216,10 @@ public class ProjectApplicationService {
         String projectId = conf.getProjectId();
         String type = conf.getType();
         String value = conf.getTypeValue();
-        if (StringUtils.isBlank(projectId) || StringUtils.isBlank(type) || StringUtils.isEmpty(value)) {
+
+        //性能测试审核人，允许value值为空
+        if (!StringUtils.equals(type, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name())
+                && (StringUtils.isBlank(projectId) || StringUtils.isBlank(type) || StringUtils.isEmpty(value))) {
             LogUtil.error("create or update project config error. project id or conf type or value is blank.");
             return;
         }

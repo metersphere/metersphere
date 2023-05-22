@@ -196,6 +196,7 @@
                   :reviewers="userInProject"
                   :reviewer.sync="config.performanceScriptReviewer"
                   :reviewerSwitch.sync="config.performanceReviewLoadTestScript"
+                  :placeholder="$t('commons.creator')"
                   @reviewerChange="
                     switchChange(
                       'PERFORMANCE_SCRIPT_REVIEWER',
@@ -297,8 +298,10 @@ export default {
   created() {
     this.init();
     this.getResourcePools();
-    this.selectUserInProject();
     this.isXpack = !!hasLicense();
+  },
+  activated() {
+    this.selectUserInProject();
   },
   computed: {
     projectId() {
