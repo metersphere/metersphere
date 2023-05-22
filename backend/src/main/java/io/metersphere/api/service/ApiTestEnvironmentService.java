@@ -7,11 +7,12 @@ import io.metersphere.api.dto.ApiMockEnvUpdateDTO;
 import io.metersphere.api.dto.ApiTestEnvironmentDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.tcp.TCPPool;
-import io.metersphere.base.domain.ApiTestEnvironmentExample;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
+import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestEnvironmentMapper;
+import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.NotificationConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -23,16 +24,18 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
-import io.metersphere.service.EnvironmentGroupProjectService;
-import io.metersphere.service.ProjectApplicationService;
-import io.metersphere.service.ProjectService;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.notice.service.NotificationService;
+import io.metersphere.service.*;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -55,6 +59,21 @@ public class ApiTestEnvironmentService {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private NotificationService notificationService;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+
+    public static final String POST_STEP = "postStepProcessor";
+    public static final String PRE_STEP = "preStepProcessor";
+    public static final String POST = "postProcessor";
+    public static final String PRE = "preProcessor";
+    public static final String SCRIPT = "script";
+    public static final String JSR = "jsr223";
+    public static final String ASSERTIONS = "assertions";
 
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
@@ -118,6 +137,14 @@ public class ApiTestEnvironmentService {
         request.setCreateTime(System.currentTimeMillis());
         request.setUpdateTime(System.currentTimeMillis());
         apiTestEnvironmentMapper.insert(request);
+        checkAndSendReviewMessage(request.getId(),
+                request.getName(),
+                request.getProjectId(),
+                NoticeConstants.TaskType.ENV_TASK,
+                null,
+                request.getConfig(),
+                request.getCreateUser()
+        );
         return request.getId();
     }
 
@@ -140,7 +167,35 @@ public class ApiTestEnvironmentService {
         checkEnvironmentExist(apiTestEnvironment);
         FileUtils.createFiles(apiTestEnvironment.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
         apiTestEnvironment.setUpdateTime(System.currentTimeMillis());
+        ApiTestEnvironmentWithBLOBs envOrg = apiTestEnvironmentMapper.selectByPrimaryKey(apiTestEnvironment.getId());
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
+
+        if (StringUtils.isBlank(apiTestEnvironment.getCreateUser())){
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andSourceIdEqualTo(apiTestEnvironment.getProjectId()).andGroupIdEqualTo("project_admin");
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+            if (CollectionUtils.isNotEmpty(userGroups)){
+                userGroups.forEach(userGroup -> {
+                    checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                            apiTestEnvironment.getName(),
+                            apiTestEnvironment.getProjectId(),
+                            NoticeConstants.TaskType.ENV_TASK,
+                            envOrg.getConfig(),
+                            apiTestEnvironment.getConfig(),
+                            userGroup.getUserId()
+                    );
+                });
+            }
+        } else {
+            checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                    apiTestEnvironment.getName(),
+                    apiTestEnvironment.getProjectId(),
+                    NoticeConstants.TaskType.ENV_TASK,
+                    envOrg.getConfig(),
+                    apiTestEnvironment.getConfig(),
+                    apiTestEnvironment.getCreateUser()
+            );
+        }
     }
 
     private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
@@ -605,5 +660,98 @@ public class ApiTestEnvironmentService {
             }
         }
         return returnStr;
+    }
+
+    @Async
+    public void checkAndSendReviewMessage(
+            String id,
+            String name,
+            String projectId,
+            String resourceType,
+            String requestOrg,
+            String requestTarget,
+            String sendUser) {
+        try {
+            ProjectApplication scriptEnable = projectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+
+            if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+                List<String> org = scriptList(requestOrg);
+                List<String> target = scriptList(requestTarget);
+                boolean isSend = isSend(org, target);
+                if (isSend) {
+
+                    ProjectApplication reviewer = projectApplicationService
+                            .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+                    if (StringUtils.isNotBlank(reviewer.getTypeValue())) {
+                        sendUser = reviewer.getTypeValue();
+                    }
+                    if (projectService.isProjectMember(projectId, sendUser)) {
+                        Notification notification = new Notification();
+                        notification.setTitle("环境设置");
+                        notification.setOperator(reviewer.getTypeValue());
+                        notification.setOperation(NoticeConstants.Event.REVIEW);
+                        notification.setResourceId(id);
+                        notification.setResourceName(name);
+                        notification.setResourceType(resourceType);
+                        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                        notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                        notification.setCreateTime(System.currentTimeMillis());
+                        notification.setReceiver(sendUser);
+                        notificationService.sendAnnouncement(notification);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("发送通知失败", e);
+        }
+
+    }
+
+    public static List<String> scriptList(String request) {
+        List<String> list = new ArrayList<>();
+        if (StringUtils.isNotBlank(request)){
+            JSONObject configObj = JSONObject.parseObject(request);
+            toList(list, configObj, POST_STEP, PRE_STEP);
+            toList(list, configObj, PRE, POST);
+            JSONObject object = configObj.getJSONObject(ASSERTIONS);
+            if (ObjectUtils.isNotEmpty(object)) {
+                JSONArray jsrArray = object.getJSONArray(JSR);
+                if (jsrArray != null) {
+                    for (int j = 0; j < jsrArray.size(); j++) {
+                        JSONObject jsr223 = jsrArray.getJSONObject(j);
+                        if (jsr223 != null) {
+                            list.add(jsr223.getString(SCRIPT));
+                        }
+                    }
+                }
+            }
+
+        }
+        return list;
+    }
+
+    private static void toList(List<String> list, JSONObject configObj, String pre, String post) {
+        JSONObject preProcessor = configObj.getJSONObject(pre);
+        if (ObjectUtils.isNotEmpty(preProcessor) && StringUtils.isNotBlank(preProcessor.getString(SCRIPT))) {
+            list.add(StringUtils.join(pre,preProcessor.getString(SCRIPT)));
+        }
+        JSONObject postProcessor = configObj.getJSONObject(post);
+        if (ObjectUtils.isNotEmpty(postProcessor) && StringUtils.isNotBlank(postProcessor.getString(SCRIPT))) {
+            list.add(StringUtils.join(post,postProcessor.getString(SCRIPT)));
+        }
+    }
+
+    public static boolean isSend(List<String> orgList, List<String> targetList) {
+        if (orgList.size() != targetList.size() && targetList.size() > 0) {
+            return true;
+        }
+        List<String> diff = orgList.stream()
+                .filter(s -> !targetList.contains(s))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(diff)) {
+            return true;
+        }
+        return false;
     }
 }

@@ -38,4 +38,7 @@ public class ProjectConfig {
     //性能测试脚本审核人
     private String performanceScriptReviewer;
 
+    private String apiScriptReviewer;
+    private Boolean apiReviewTestScript = false;
+
 }

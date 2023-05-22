@@ -14,6 +14,15 @@ export function getResource(d) {
 
   let resourceType = i18n.t('notice.resource.' + d.resourceType);
   if (!d.operation.startsWith('EXECUTE_')) {
+    if (d.operation.startsWith('REVIEW') && d.resourceType === 'API_DEFINITION_TASK') {
+      resourceType = i18n.t('notice.api_case');
+    }
+    if (d.operation.startsWith('REVIEW') && d.resourceType === 'API_AUTOMATION_TASK') {
+      resourceType = i18n.t('notice.scenario_case');
+    }
+    if (d.operation.startsWith('REVIEW') && d.resourceType === 'ENV_TASK') {
+      resourceType = i18n.t('notice.env_task');
+    }
     return resourceType;
   }
   switch (d.resourceType) {
@@ -88,7 +97,9 @@ export function getUrl(d) {
     case "API_DEFINITION_TASK" :
       if (d.operation.startsWith('CASE_') || d.operation.startsWith('EXECUTE_')) {
         url += "/api/definition?caseId=" + d.resourceId;
-      } else {
+      } else if (d.operation.startsWith('REVIEW')) {
+        url += "/api/definition?caseId=" + d.resourceId;
+      }else {
         url += "/api/definition?resourceId=" + d.resourceId;
       }
       break;
@@ -112,6 +123,9 @@ export function getUrl(d) {
       break;
     case "TRACK_REPORT_TASK" :
       url += "/track/testPlan/reportList";
+      break;
+    case"ENV_TASK" :
+      url += "/project/env?resourceId=" + d.resourceId;
       break;
     default:
       break;

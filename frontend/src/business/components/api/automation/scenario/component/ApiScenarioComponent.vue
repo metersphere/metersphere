@@ -256,6 +256,7 @@ export default {
       for (let i in arr) {
         arr[i].disabled = disabled;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
+        arr[i].notAddStep = true;
         // 处理子请求环境
         let typeArray = ["JDBCPostProcessor", "JDBCSampler", "JDBCPreProcessor"]
         if (typeArray.indexOf(arr[i].type) !== -1) {

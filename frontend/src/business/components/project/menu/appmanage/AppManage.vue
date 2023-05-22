@@ -36,13 +36,6 @@
                              :unit-options="applyUnitOptions"
                              @chooseChange="switchChange('TRACK_SHARE_REPORT_TIME', config.trackShareReportTime)"
                              :title="$t('report.report_sharing_link')"/>
-                <reviewer-config :name="$t('project.config.load_test_script_review')"
-                                 :popTitle="$t('project.config.load_test_script_review_detail')"
-                                 :reviewers="userInProject"
-                                 :config.sync="config"
-                                 @reviewerChange="switchChange('PERFORMANCE_SCRIPT_REVIEWER',config.performanceScriptReviewer)"
-                                 @chooseChange="switchChange('PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT',config.performanceReviewLoadTestScript)"
-                />
               </el-row>
             </el-tab-pane>
 
@@ -107,6 +100,26 @@
                                    @change="runModeChange($event, ['RESOURCE_POOL_ID', config.resourcePoolId])"></el-switch>
                       </template>
                     </app-manage-item>
+                    <!-- 接口审核 -->
+                    <reviewer-config
+                      :name="$t('project.config.api_script_review')"
+                      :popTitle="$t('project.config.api_script_review_tips')"
+                      :reviewers="userInProject"
+                      :reviewer.sync="config.apiScriptReviewer"
+                      :reviewerSwitch.sync="config.apiReviewTestScript"
+                      @reviewerChange="
+                    switchChange(
+                      'API_SCRIPT_REVIEWER',
+                      config.apiScriptReviewer
+                    )
+                  "
+                      @chooseChange="
+                    switchChange(
+                      'API_REVIEW_TEST_SCRIPT',
+                      config.apiReviewTestScript
+                    )
+                  "
+                    />
 
                   </el-row>
                 </el-col>
@@ -196,7 +209,7 @@
                   :reviewers="userInProject"
                   :reviewer.sync="config.performanceScriptReviewer"
                   :reviewerSwitch.sync="config.performanceReviewLoadTestScript"
-                  :placeholder="$t('commons.creator')"
+                  :placeholder="$t('commons.create_user')"
                   @reviewerChange="
                     switchChange(
                       'PERFORMANCE_SCRIPT_REVIEWER',
@@ -291,6 +304,8 @@ export default {
         shareReport: true,
         performanceScriptReviewer: "",
         performanceReviewLoadTestScript: false,
+        apiScriptReviewer: "",
+        apiReviewTestScript: false,
       },
       isPool: false
     };
@@ -390,6 +405,8 @@ export default {
         if (!isExist) {
           this.$set(this.config, "performanceScriptReviewer", null);
           this.$set(this.config, "performanceReviewLoadTestScript", false);
+          this.$set(this.config, "apiScriptReviewer", null);
+          this.$set(this.config, "apiReviewTestScript", false);
         }
       });
     },

@@ -34,8 +34,8 @@
             <el-col :span="codeSpan">
               <el-form-item>
                 <template v-slot>
-                  <div style="position: relative;">
-                    <el-tabs v-model="activeName">
+                  <div style="position: relative;" :class="{'button-color': apiReviewTestScript}">
+                    <el-tabs v-model="activeName" >
                       <el-tab-pane :label="$t('project.code_segment.segment')" name="code">
                         <ms-code-edit
                           v-if="isCodeEditAlive"
@@ -163,8 +163,16 @@ export default {
       response: {},
       request: {},
       debug: true,
-      console: this.$t('project.code_segment.no_result')
+      console: this.$t('project.code_segment.no_result'),
+      apiReviewTestScript: false
     }
+  },
+  activated() {
+    this.$get('/project_application/get/' + getCurrentProjectID() + '/API_REVIEW_TEST_SCRIPT', res => {
+      if (res.data && res.data.typeValue) {
+        this.apiReviewTestScript = res.data.typeValue === 'true';
+      }
+    });
   },
   methods: {
     open(data) {
@@ -264,6 +272,10 @@ export default {
       })
     },
     handleTest() {
+      if (this.apiReviewTestScript) {
+        this.$warning(this.$t('project.config.script_warning'));
+        return;
+      }
       this.activeName = "result";
       this.console = this.$t('project.code_segment.no_result');
       this.reloadResult();
@@ -300,7 +312,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .template-title {
   margin-bottom: 5px;
   font-weight: bold;
@@ -341,6 +353,14 @@ export default {
 }
 .show-menu:hover {
   color:#935aa1;
+}
+
+.button-color{
+  .el-button--primary{
+    color: #FFF !important;
+    background-color: rgb(188, 156, 195) !important;
+    border-color: rgb(188, 156, 195) !important;
+  }
 }
 
 </style>

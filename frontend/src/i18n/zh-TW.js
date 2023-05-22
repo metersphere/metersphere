@@ -855,6 +855,10 @@ export default {
       contains_script_review: "包含脚本步骤，请审核",
       load_test_script_review: "性能腳本審核",
       load_test_script_review_detail: "上傳性能測試腳本文件須指定用戶審核",
+      api_script_review: "接口腳本審核",
+      api_script_review_tips: "接口用例包含腳本步驟時須指定用戶審核",
+      reviewers: "審核人",
+      script_warning:"腳本已啟用審核機制，無法在當前頁面測試腳本",
     }
   },
   member: {
@@ -1514,7 +1518,8 @@ export default {
       copy_warning: "啟用條件為 '無' 的域名不支持複製！",
       path_warning: "路徑不能為空",
       project_warning: "項目不能為空",
-      module_warning: "模塊不能為空"
+      module_warning: "模塊不能為空",
+      get_env_failed: "跳轉環境被删除！",
     },
     scenario: {
       id: "場景ID",
@@ -2901,7 +2906,9 @@ export default {
       'EXECUTE_FAILED': '失敗',
       'EXECUTE_COMPLETED': '完成',
     },
-    api_case: '接口用例'
+    api_case: '接口用例',
+    scenario_case: "場景用例",
+    env_task: "環境",
   },
   permission: {
     project_error_report_library: {

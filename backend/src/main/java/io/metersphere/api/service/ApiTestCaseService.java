@@ -18,10 +18,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
@@ -31,8 +28,11 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.notice.service.NotificationService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ProjectApplicationService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -48,6 +48,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -113,6 +114,13 @@ public class ApiTestCaseService {
     private ObjectMapper mapper;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
+    @Resource
+    private NotificationService notificationService;
+    @Lazy
+    @Resource
+    private ProjectService projectService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -390,6 +398,7 @@ public class ApiTestCaseService {
 
         final ApiTestCaseWithBLOBs test = apiTestCaseMapper.selectByPrimaryKey(request.getId());
         if (test != null) {
+            String requestOrg = test.getRequest();
             test.setName(request.getName());
             test.setCaseStatus(request.getCaseStatus());
             if (StringUtils.isEmpty(request.getCaseStatus())) {
@@ -411,6 +420,15 @@ public class ApiTestCaseService {
             }
             apiTestCaseMapper.updateByPrimaryKeySelective(test);
             saveFollows(test.getId(), request.getFollows());
+            this.checkAndSendReviewMessage(test.getId(),
+                    test.getName(),
+                    test.getProjectId(),
+                    "接口用例通知",
+                    NoticeConstants.TaskType.API_DEFINITION_TASK,
+                    requestOrg,
+                    test.getRequest(),
+                    test.getCreateUserId()
+            );
         }
         return test;
     }
@@ -469,6 +487,15 @@ public class ApiTestCaseService {
             apiTestCaseMapper.insert(test);
             saveFollows(test.getId(), request.getFollows());
         }
+        this.checkAndSendReviewMessage(test.getId(),
+                test.getName(),
+                test.getProjectId(),
+                "接口用例通知",
+                NoticeConstants.TaskType.API_DEFINITION_TASK,
+                null,
+                test.getRequest(),
+                test.getCreateUserId()
+        );
         return test;
     }
 
@@ -1178,6 +1205,54 @@ public class ApiTestCaseService {
             return apiTestCaseWithBLOBs.get(0);
         }
         return null;
+    }
+
+    //检查并发送脚本审核的通知
+    @Async
+    public void checkAndSendReviewMessage(
+            String id,
+            String name,
+            String projectId,
+            String title,
+            String resourceType,
+            String requestOrg,
+            String requestTarget,
+            String sendUser) {
+
+        try {
+            ProjectApplication scriptEnable = projectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+
+            if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+
+                List<String> org = ElementUtil.scriptList(requestOrg);
+                List<String> target = ElementUtil.scriptList(requestTarget);
+                boolean isSend = ElementUtil.isSend(org, target);
+                if (isSend) {
+                    ProjectApplication reviewer = projectApplicationService
+                            .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+                    if (StringUtils.isNotEmpty(reviewer.getTypeValue())) {
+                        sendUser = reviewer.getTypeValue();
+                    }
+                    if (projectService.isProjectMember(projectId, sendUser)) {
+                        Notification notification = new Notification();
+                        notification.setTitle(title);
+                        notification.setOperator(reviewer.getTypeValue());
+                        notification.setOperation(NoticeConstants.Event.REVIEW);
+                        notification.setResourceId(id);
+                        notification.setResourceName(name);
+                        notification.setResourceType(resourceType);
+                        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                        notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                        notification.setCreateTime(System.currentTimeMillis());
+                        notification.setReceiver(sendUser);
+                        notificationService.sendAnnouncement(notification);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("发送通知失败", e);
+        }
     }
 
 }
