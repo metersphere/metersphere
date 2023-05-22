@@ -161,7 +161,7 @@ public class ApiScenarioExecuteService {
         DBTestQueue executionQueue = apiExecutionQueueService.add(
                 executeQueue, request.getConfig().getResourcePoolId(),
                 ApiRunMode.SCENARIO.name(), planReportId, reportType,
-                request.getRunMode(),  request.getConfig());
+                request.getRunMode(), request.getConfig());
 
         // 预生成报告
         if (!request.isRerun() && !GenerateHashTreeUtil.isSetReport(request.getConfig())) {
@@ -347,7 +347,7 @@ public class ApiScenarioExecuteService {
                 apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig() != null ? request.getConfig().getReportType() : null);
             }
             // 执行中资源锁住，防止重复更新造成LOCK WAIT
-            redisTemplateService.lock(planApiScenario.getId());
+            redisTemplateService.lock(planApiScenario.getId(), report.getId());
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
         }
