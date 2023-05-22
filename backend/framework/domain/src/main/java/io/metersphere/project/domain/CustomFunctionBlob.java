@@ -19,9 +19,9 @@ public class CustomFunctionBlob extends CustomFunction implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{custom_function_blob.function_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_function_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
-    private String functionId;
+    private String id;
 
 
     @ApiModelProperty(name = "参数列表", required = false, allowableValues = "range[1, ]")

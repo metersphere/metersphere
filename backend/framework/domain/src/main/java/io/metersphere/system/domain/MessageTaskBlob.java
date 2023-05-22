@@ -21,9 +21,9 @@ public class MessageTaskBlob extends MessageTask implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
-    @NotBlank(message = "{message_task_blob.message_task_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 255]")
-    private String messageTaskId;
+    @NotBlank(message = "{message_task_blob.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
+    private String id;
 
 
     @ApiModelProperty(name = "消息模版", required = false, allowableValues = "range[1, ]")
