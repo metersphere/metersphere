@@ -65,6 +65,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.jetbrains.annotations.NotNull;
@@ -868,6 +869,7 @@ public class ApiScenarioService {
     public int getScenarioStep(List<String> ids) {
         return extApiScenarioReferenceIdMapper.selectByScenarioIds(ids);
     }
+
     public List<ApiScenarioDTO> getScenarioDetail(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
@@ -2199,7 +2201,8 @@ public class ApiScenarioService {
             } else {
                 //将复制的或者类型不是引用case的步骤赋予当前项目id，目的是为了运行的时候可以配置运行环境
                 object.put("projectId", projectId);
-                if (StringUtils.isEmpty(object.optString("url"))) {
+                if (StringUtils.isEmpty(object.optString("url"))
+                        && StringUtils.equals(object.optString("type"), HTTPSamplerProxy.class.getCanonicalName())) {
                     object.put("isRefEnvironment", true);
                 }
             }
