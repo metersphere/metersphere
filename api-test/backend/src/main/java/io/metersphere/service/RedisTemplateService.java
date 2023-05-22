@@ -1,15 +1,18 @@
 package io.metersphere.service;
 
 import io.metersphere.api.jmeter.utils.JmxFileUtil;
-import io.metersphere.commons.enums.LockEnum;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -58,28 +61,41 @@ public class RedisTemplateService {
     /**
      * 加锁
      */
-    public boolean lock(String key) {
-        return redisTemplate.opsForValue().setIfAbsent(StringUtils.join(PRX, key), LockEnum.LOCK.name());
+    public boolean lock(String key, String value) {
+        boolean hasReport = redisTemplate.opsForValue().setIfAbsent(
+                StringUtils.join(PRX, key),
+                value,
+                TIME_OUT,
+                TimeUnit.MINUTES);
+        if (!hasReport) {
+            redisTemplate.opsForValue().setIfPresent(
+                    StringUtils.join(PRX, key),
+                    value,
+                    TIME_OUT,
+                    TimeUnit.MINUTES);
+        }
+        return hasReport;
     }
 
-    public boolean has(String key) {
+    public boolean has(String key, String reportId) {
         try {
             Object value = redisTemplate.opsForValue().get(StringUtils.join(PRX, key));
-            if (ObjectUtils.isNotEmpty(value)) {
-                if (StringUtils.equals(LockEnum.LOCK.name(), String.valueOf(value))) {
-                    // 设置一分钟超时
-                    redisTemplate.opsForValue().setIfPresent(StringUtils.join(PRX, key),
-                            LockEnum.WAITING.name(), TIME_OUT, TimeUnit.SECONDS);
-                    return false;
-                }
-            } else {
-                redisTemplate.opsForValue().setIfAbsent(StringUtils.join(PRX, key),
-                        LockEnum.WAITING.name(), TIME_OUT, TimeUnit.SECONDS);
-                return false;
-            }
-            return true;
+            return ObjectUtils.isNotEmpty(value) && StringUtils.equals(reportId, String.valueOf(value));
         } catch (Exception e) {
             LogUtil.error(e);
+        }
+        return false;
+    }
+
+    /**
+     * 解锁
+     */
+    public boolean unlock(String key, String value) {
+        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+        RedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
+        Long result = redisTemplate.execute(redisScript, Collections.singletonList(StringUtils.join(PRX, key)), value);
+        if (Objects.equals(1L, result)) {
+            return true;
         }
         return false;
     }

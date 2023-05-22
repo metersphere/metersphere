@@ -21,4 +21,11 @@ public class ApiCaseResultService {
             resultMapper.sqlInsert(new LinkedList<>(executeQueue.values()));
         }
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void batchSave(ApiDefinitionExecResultWithBLOBs result) {
+        if (result != null) {
+            resultMapper.sqlInsert(new LinkedList<>(){{this.add(result);}});
+        }
+    }
 }

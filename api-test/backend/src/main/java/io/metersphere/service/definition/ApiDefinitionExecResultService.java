@@ -103,12 +103,13 @@ public class ApiDefinitionExecResultService {
                     User user = getUser(dto, result);
                     //如果是测试计划用例，更新接口用例的上次执行结果
                     TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                    if (testPlanApiCase != null && !redisTemplateService.has(dto.getTestId())) {
+                    if (testPlanApiCase != null && redisTemplateService.has(dto.getTestId(), dto.getReportId())) {
                         ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                         if (apiTestCase != null) {
                             apiTestCase.setLastResultId(dto.getReportId());
                             apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
                         }
+                        redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
                     }
                     // 发送通知
                     LoggerUtil.info("执行结果【 " + result.getName() + " 】入库存储完成");
@@ -223,13 +224,11 @@ public class ApiDefinitionExecResultService {
     }
 
     public void setExecResult(String id, String status, Long time) {
-        if (!redisTemplateService.has(id)) {
-            TestPlanApiCase apiCase = new TestPlanApiCase();
-            apiCase.setId(id);
-            apiCase.setStatus(status);
-            apiCase.setUpdateTime(time);
-            testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
-        }
+        TestPlanApiCase apiCase = new TestPlanApiCase();
+        apiCase.setId(id);
+        apiCase.setStatus(status);
+        apiCase.setUpdateTime(time);
+        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
 
     public void editStatus(ApiDefinitionExecResult saveResult, String type, String status, Long time, String reportId, String testId) {
@@ -243,7 +242,7 @@ public class ApiDefinitionExecResultService {
                 ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
-            if (testPlanApiCase != null && !redisTemplateService.has(testId)) {
+            if (testPlanApiCase != null && redisTemplateService.has(testId, saveResult.getId())) {
                 this.setExecResult(testId, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                 testPlanApiCase.setStatus(status);
@@ -252,6 +251,7 @@ public class ApiDefinitionExecResultService {
                 if (LoggerUtil.getLogger().isDebugEnabled()) {
                     LoggerUtil.debug("更新测试计划用例【 " + testPlanApiCase.getId() + " 】");
                 }
+                redisTemplateService.unlock(testId, saveResult.getId());
             }
             if (caseWithBLOBs != null) {
                 name = caseWithBLOBs.getName();
@@ -265,7 +265,7 @@ public class ApiDefinitionExecResultService {
                 projectId = apiDefinition.getProjectId();
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
-                if (caseWithBLOBs != null && !redisTemplateService.has(testId)) {
+                if (caseWithBLOBs != null && redisTemplateService.has(testId, saveResult.getId())) {
                     // 更新用例最后执行结果
                     caseWithBLOBs.setLastResultId(reportId);
                     caseWithBLOBs.setStatus(status);
@@ -278,6 +278,7 @@ public class ApiDefinitionExecResultService {
                     name = caseWithBLOBs.getName();
                     version = caseWithBLOBs.getVersionId();
                     projectId = caseWithBLOBs.getProjectId();
+                    redisTemplateService.unlock(testId, saveResult.getId());
                 }
             }
         }
@@ -296,7 +297,7 @@ public class ApiDefinitionExecResultService {
                 ApiRunMode.SCHEDULE_API_PLAN.name(),
                 ApiRunMode.JENKINS_API_PLAN.name(),
                 ApiRunMode.MANUAL_PLAN.name())) {
-            if (!redisTemplateService.has(testId)) {
+            if (redisTemplateService.has(testId, reportId)) {
                 TestPlanApiCase apiCase = new TestPlanApiCase();
                 apiCase.setId(testId);
                 apiCase.setStatus(status);
@@ -307,6 +308,7 @@ public class ApiDefinitionExecResultService {
                 reviewApiCase.setId(testId);
                 reviewApiCase.setStatus(status);
                 reviewApiCase.setUpdateTime(System.currentTimeMillis());
+                redisTemplateService.unlock(testId, reportId);
             }
         } else {
             // 更新用例最后执行结果
@@ -339,7 +341,7 @@ public class ApiDefinitionExecResultService {
                     }
                     if (StringUtils.equalsAny(dto.getRunMode(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                         TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                        if (apiCase != null && !redisTemplateService.has(dto.getTestId())) {
+                        if (apiCase != null && redisTemplateService.has(dto.getTestId(), dto.getReportId())) {
                             String projectId = extTestPlanApiCaseMapper.selectProjectId(apiCase.getId());
                             ApiDefinition apiDefinition = extApiTestCaseMapper.selectApiBasicInfoByCaseId(apiCase.getId());
                             String version = apiDefinition == null ? "" : apiDefinition.getVersionId();
@@ -353,6 +355,7 @@ public class ApiDefinitionExecResultService {
                                 apiTestCase.setLastResultId(dto.getReportId());
                                 apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
                             }
+                            redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
                         }
                     } else {
                         this.setExecResult(dto.getTestId(), reportResult.getStatus(), item.getStartTime());

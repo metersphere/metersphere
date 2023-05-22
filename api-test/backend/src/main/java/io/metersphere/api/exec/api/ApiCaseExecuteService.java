@@ -71,6 +71,7 @@ public class ApiCaseExecuteService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private RedisTemplateService redisTemplateService;
+
     /**
      * 测试计划case执行
      *
@@ -134,7 +135,7 @@ public class ApiCaseExecuteService {
                 executeQueue.put(testPlanApiCase.getId(), report);
                 responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
                 // 执行中资源锁住，防止重复更新造成LOCK WAIT
-                redisTemplateService.lock(testPlanApiCase.getId());
+                redisTemplateService.lock(testPlanApiCase.getId(), report.getId());
 
                 LoggerUtil.info("预生成测试用例结果报告：" + report.getName(), report.getId());
             }

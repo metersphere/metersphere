@@ -305,7 +305,7 @@ public class ApiScenarioReportService {
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         // 当前资源正在执行中
-        if (redisTemplateService.has(dto.getTestId())) {
+        if (!redisTemplateService.has(dto.getTestId(), dto.getReportId())) {
             return report;
         }
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(dto.getTestId());
@@ -335,6 +335,7 @@ public class ApiScenarioReportService {
                 scenario.setExecuteTimes(executeTimes + 1);
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
+            redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
         }
         return report;
     }
@@ -345,7 +346,7 @@ public class ApiScenarioReportService {
         ResultVO resultVO = ReportStatusUtil.computedProcess(dto);
         ApiScenarioReport report = editReport(dto.getReportType(), dto.getReportId(), resultVO.getStatus(), dto.getRunMode());
         // 当前资源正在执行中
-        if (redisTemplateService.has(dto.getTestId())) {
+        if (!redisTemplateService.has(dto.getTestId(), dto.getReportId())) {
             return report;
         }
         if (report != null) {
@@ -375,6 +376,7 @@ public class ApiScenarioReportService {
                     scenario.setExecuteTimes(executeTimes + 1);
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
+                redisTemplateService.unlock(dto.getTestId(), dto.getReportId());
             }
         }
         return report;

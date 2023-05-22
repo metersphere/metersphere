@@ -34,11 +34,9 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.BaseProjectService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.ServiceUtils;
-import io.metersphere.service.definition.ApiDefinitionExecResultService;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiModuleService;
-import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.service.definition.*;
 import io.metersphere.service.plan.remote.TestPlanService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
@@ -96,6 +94,10 @@ public class TestPlanApiCaseService {
     private JMeterService jMeterService;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiCaseResultService apiCaseResultService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
@@ -783,7 +785,6 @@ public class TestPlanApiCaseService {
         if (apiCase == null) {
             MSException.throwException("用例已经被删除");
         }
-
         String reportName = apiCase.getName();
         ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, ApiReportStatus.RUNNING.name(), reportId, Objects.requireNonNull(SessionUtils.getUser()).getId());
         result.setName(reportName);
@@ -799,7 +800,7 @@ public class TestPlanApiCaseService {
             result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
         }
         result.setActuator(runModeConfigDTO.getResourcePoolId());
-        apiDefinitionExecResultMapper.insert(result);
+        apiCaseResultService.batchSave(result);
         apiCase.setId(testId);
 
         RunCaseRequest request = new RunCaseRequest();
@@ -812,6 +813,8 @@ public class TestPlanApiCaseService {
         request.setTestPlanId(testPlanApiCase.getTestPlanId());
         Map<String, Object> extendedParameters = new HashMap<>();
         extendedParameters.put(ExtendedParameter.SYNC_STATUS, true);
+
+        redisTemplateService.lock(testId, reportId);
         apiExecuteService.exec(request, extendedParameters);
     }
 

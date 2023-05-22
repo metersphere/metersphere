@@ -167,6 +167,8 @@ public class ApiDefinitionService {
     private BaseQuotaService baseQuotaService;
     @Resource
     private BaseEnvGroupProjectService environmentGroupProjectService;
+    @Resource
+    private ApiCaseResultService apiCaseResultService;
 
 
     private static final String COPY = "Copy";
@@ -2018,7 +2020,8 @@ public class ApiDefinitionService {
                 result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
             }
             result.setActuator(request.getConfig().getResourcePoolId());
-            apiDefinitionExecResultMapper.insert(result);
+            apiCaseResultService.batchSave(result);
+
         }
         if (request.isEditCaseRequest() && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree()) && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree())) {
             ApiTestCaseWithBLOBs record = new ApiTestCaseWithBLOBs();
