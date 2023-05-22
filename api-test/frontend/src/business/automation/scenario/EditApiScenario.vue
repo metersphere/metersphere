@@ -1752,9 +1752,9 @@ export default {
         this.$error('场景包含插件步骤，对应场景已经删除不能调试！');
         return;
       }
-      this.clearResult(this.scenarioDefinition);
       let hasRequest = runScenario && runScenario.hasRequest;
       if (!hasRequest) {
+        this.clearResult(this.scenarioDefinition);
         this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       }
       this.saved = runScenario && runScenario.stepScenario ? false : true;
@@ -2183,9 +2183,14 @@ export default {
       this.debugLoading = false;
       this.debugVisible = false;
       this.loading = false;
-      this.runScenario = undefined;
       this.message = 'stop';
       this.debugData = {};
+      let hasRequest = this.runScenario && this.runScenario.hasRequest;
+      if (hasRequest  && this.runScenario.hashTree) {
+        this.runScenario.hashTree[0].requestResult = [];
+        this.runScenario.hashTree[0].testing = false;
+      }
+      this.runScenario = undefined;
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
