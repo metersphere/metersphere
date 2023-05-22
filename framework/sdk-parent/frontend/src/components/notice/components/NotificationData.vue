@@ -51,18 +51,27 @@
             >
               <el-col :span="2">
                 <div class="icon-title">
-                  {{ row.resourceName.substring(0, 1) }}
+                  {{ $t("commons.system_notification_logo") }}
                 </div>
               </el-col>
               <el-col :span="22">
                 <span class="operation">
                   <span>{{ getResource(row) }}:</span>
-                  <span
-                    @click="clickResource(row)"
-                    style="color: #783887; cursor: pointer"
-                  >
-                    {{ row.resourceName }}
-                  </span>
+
+                  <el-popover
+                    placement="top-start"
+                    width="200"
+                    trigger="hover"
+                    :content="row.resourceName">
+                      <span slot="reference"
+                            @click="clickResource(row)"
+                            style="color: #783887; cursor: pointer"
+                      >
+                        {{ getShortResourceName(row.resourceName) }}
+                      </span>
+                </el-popover>
+
+
                   <span> {{ $t("commons.contains_script_review") }} </span>
                 </span>
               </el-col>
@@ -107,11 +116,8 @@
 </template>
 
 <script>
-import { getOperation, getResource, getUrl } from "../util";
-import {
-  searchNotifications,
-  updateUserByResourceId,
-} from "../../../api/notification";
+import {getOperation, getResource, getUrl} from "../util";
+import {searchNotifications, updateUserByResourceId,} from "../../../api/notification";
 
 export default {
   name: "NotificationData",
@@ -183,6 +189,9 @@ export default {
       updateUserByResourceId(resourceId).then(() => {
         this.toPage(uri);
       });
+    },
+    getShortResourceName(resourceName) {
+      return resourceName.length > 7 ? resourceName.substring(0, 7) + "..." : resourceName;
     },
     toPage(uri) {
       let id = "new_a";

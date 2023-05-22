@@ -406,6 +406,7 @@
                   :reviewers="userInProject"
                   :reviewer.sync="config.performanceScriptReviewer"
                   :reviewerSwitch.sync="config.performanceReviewLoadTestScript"
+                  :placeholder="$t('commons.creator')"
                   @reviewerChange="
                     switchChange(
                       'PERFORMANCE_SCRIPT_REVIEWER',
@@ -712,9 +713,11 @@ export default {
   },
   created() {
     this.init();
-    this.selectUserInProject();
     this.getResourcePools();
     this.isXpack = !!hasLicense();
+  },
+  activated() {
+    this.selectUserInProject();
   },
   computed: {
     projectId() {
@@ -725,7 +728,7 @@ export default {
     getResourcePools() {
       this.result = getTestResourcePools().then((response) => {
         this.resourcePools = response.data;
-        let delIndex =  this.resourcePools.findIndex(item =>
+        let delIndex = this.resourcePools.findIndex(item =>
           item.id === this.config.resourcePoolId);
         if (delIndex === -1) {
           this.config.resourcePoolId = undefined;

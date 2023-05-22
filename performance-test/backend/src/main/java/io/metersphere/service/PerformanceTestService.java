@@ -1004,31 +1004,42 @@ public class PerformanceTestService {
         return extLoadTestMapper.selectBaseCaseByProjectId(projectId);
     }
 
+    private boolean checkLoadTest(LoadTest loadTest) {
+        return loadTest != null && StringUtils.isNoneBlank(loadTest.getId(), loadTest.getName(), loadTest.getProjectId(), loadTest.getCreateUser());
+    }
+
     //检查并发送脚本审核的通知
-    public void checkAndSendReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files, String loadTestId, String loadTestName, String projectId) {
-        ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
-                projectId, ProjectApplicationType.PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT.name());
-        if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
-            ProjectApplication loadTestScriptReviewerConfig = baseProjectApplicationService.getProjectApplication(
-                    projectId, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name());
-            if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue()) && baseProjectService.isProjectMember(projectId, loadTestScriptReviewerConfig.getTypeValue())) {
+    public void checkAndSendReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files, LoadTest loadTest) {
+        if (checkLoadTest(loadTest)) {
+            String projectId = loadTest.getProjectId();
+            ProjectApplication reviewLoadTestScript = baseProjectApplicationService.getProjectApplication(
+                    projectId, ProjectApplicationType.PERFORMANCE_REVIEW_LOAD_TEST_SCRIPT.name());
+            if (BooleanUtils.toBoolean(reviewLoadTestScript.getTypeValue())) {
                 boolean isSend = this.isSendScriptReviewMessage(fileMetadataList, files);
                 if (isSend) {
-                    Notification notification = new Notification();
-                    notification.setTitle("性能测试通知");
-                    notification.setOperator(SessionUtils.getUserId());
-                    notification.setOperation(NoticeConstants.Event.REVIEW);
-                    notification.setResourceId(loadTestId);
-                    notification.setResourceName(loadTestName);
-                    notification.setResourceType(NoticeConstants.TaskType.PERFORMANCE_TEST_TASK);
-                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
-                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
-                    notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(loadTestScriptReviewerConfig.getTypeValue());
-                    notificationService.sendAnnouncement(notification);
+                    String sendUser = loadTest.getCreateUser();
+                    ProjectApplication loadTestScriptReviewerConfig = baseProjectApplicationService.getProjectApplication(projectId, ProjectApplicationType.PERFORMANCE_SCRIPT_REVIEWER.name());
+                    if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue())) {
+                        sendUser = loadTestScriptReviewerConfig.getTypeValue();
+                    }
+                    if (baseProjectService.isProjectMember(projectId, loadTestScriptReviewerConfig.getTypeValue())) {
+                        Notification notification = new Notification();
+                        notification.setTitle("性能测试通知");
+                        notification.setOperator(SessionUtils.getUserId());
+                        notification.setOperation(NoticeConstants.Event.REVIEW);
+                        notification.setResourceId(loadTest.getId());
+                        notification.setResourceName(loadTest.getName());
+                        notification.setResourceType(NoticeConstants.TaskType.PERFORMANCE_TEST_TASK);
+                        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                        notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                        notification.setCreateTime(System.currentTimeMillis());
+                        notification.setReceiver(sendUser);
+                        notificationService.sendAnnouncement(notification);
+                    }
                 }
             }
         }
+
     }
 
     private boolean isSendScriptReviewMessage(List<FileMetadata> fileMetadataList, List<MultipartFile> files) {
