@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.commons.constants.IssueRefType;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.TestCaseDTO;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.request.issues.IssuesRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -145,6 +146,22 @@ public class TestCaseIssueService {
         if (bloBs != null) {
             IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesId);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), bloBs.getProjectId(), bloBs.getName() + " 关联 " + issuesWithBLOBs.getTitle(), bloBs.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getIssueLogDetails(String caseResourceId, String refId, String issuesId) {
+        TestCaseWithBLOBs issue = null;
+        if (StringUtils.isNotBlank(refId)) {
+            issue = testCaseService.getTestCase(refId);
+        }
+        if (issue == null) {
+            issue = testCaseService.getTestCase(caseResourceId);
+        }
+        if (issue != null) {
+            IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(issuesId);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesId), issue.getProjectId(), issue.getName() + Translator.get("relate_resource") + issuesWithBLOBs.getTitle(), issue.getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
