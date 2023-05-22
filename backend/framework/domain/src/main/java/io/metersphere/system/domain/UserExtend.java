@@ -13,7 +13,7 @@ import java.io.Serializable;
 @ApiModel(value = "用户扩展")
 @TableName("user_extend")
 @Data
-public class UserExtend extends User implements Serializable {
+public class UserExtend implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

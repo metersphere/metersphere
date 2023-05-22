@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("functional_case_template_extend")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FunctionalCaseTemplateExtend extends FunctionalCaseTemplate implements Serializable {
+public class FunctionalCaseTemplateExtend implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

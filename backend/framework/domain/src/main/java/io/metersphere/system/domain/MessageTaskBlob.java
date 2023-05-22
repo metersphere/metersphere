@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("message_task_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class MessageTaskBlob extends MessageTask implements Serializable {
+public class MessageTaskBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("file_metadata_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class FileMetadataBlob extends FileMetadata implements Serializable {
+public class FileMetadataBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

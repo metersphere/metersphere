@@ -15,7 +15,7 @@ import java.io.Serializable;
 @ApiModel(value = "插件大字段")
 @TableName("plugin_blob")
 @Data
-public class PluginBlob extends Plugin implements Serializable {
+public class PluginBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

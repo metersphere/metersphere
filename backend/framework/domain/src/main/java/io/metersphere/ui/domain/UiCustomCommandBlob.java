@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("ui_custom_command_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class UiCustomCommandBlob extends UiCustomCommand implements Serializable {
+public class UiCustomCommandBlob implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{ui_custom_command_blob.id.not_blank}", groups = {Updated.class})

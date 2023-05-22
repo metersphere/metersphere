@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("issue_template_extend")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class IssueTemplateExtend extends IssueTemplate implements Serializable {
+public class IssueTemplateExtend implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("file_module_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class FileModuleBlob extends FileModule implements Serializable {
+public class FileModuleBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

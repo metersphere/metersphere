@@ -15,7 +15,7 @@ import java.io.Serializable;
 @TableName("load_test_report_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class LoadTestReportBlob extends LoadTestReport implements Serializable {
+public class LoadTestReportBlob implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{load_test_report_blob.report_id.not_blank}", groups = {Updated.class})

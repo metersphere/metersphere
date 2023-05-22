@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("ui_scenario_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class UiScenarioBlob extends UiScenario implements Serializable {
+public class UiScenarioBlob implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
     @NotBlank(message = "{ui_scenario_blob.id.not_blank}", groups = {Updated.class})

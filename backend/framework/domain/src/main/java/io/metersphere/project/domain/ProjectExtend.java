@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("project_extend")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ProjectExtend extends Project implements Serializable {
+public class ProjectExtend implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

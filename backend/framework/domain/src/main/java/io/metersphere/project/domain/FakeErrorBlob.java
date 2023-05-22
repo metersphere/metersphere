@@ -17,7 +17,7 @@ import java.io.Serializable;
 @TableName("fake_error_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class FakeErrorBlob extends FakeError implements Serializable {
+public class FakeErrorBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId

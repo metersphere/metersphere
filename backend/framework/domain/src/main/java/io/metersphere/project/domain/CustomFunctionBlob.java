@@ -15,7 +15,7 @@ import java.io.Serializable;
 @TableName("custom_function_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class CustomFunctionBlob extends CustomFunction implements Serializable {
+public class CustomFunctionBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId
