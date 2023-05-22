@@ -35,10 +35,7 @@ import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.ServiceUtils;
-import io.metersphere.service.definition.ApiDefinitionExecResultService;
-import io.metersphere.service.definition.ApiDefinitionService;
-import io.metersphere.service.definition.ApiModuleService;
-import io.metersphere.service.definition.ApiTestCaseService;
+import io.metersphere.service.definition.*;
 import io.metersphere.service.plan.remote.TestPlanService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
@@ -96,6 +93,8 @@ public class TestPlanApiCaseService {
     private JMeterService jMeterService;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiCaseResultService apiCaseResultService;
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
@@ -799,7 +798,7 @@ public class TestPlanApiCaseService {
             result.setEnvConfig(JSON.toJSONString(runModeConfigDTO));
         }
         result.setActuator(runModeConfigDTO.getResourcePoolId());
-        apiDefinitionExecResultMapper.insert(result);
+        apiCaseResultService.batchSave(result);
         apiCase.setId(testId);
 
         RunCaseRequest request = new RunCaseRequest();
