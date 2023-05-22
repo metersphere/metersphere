@@ -88,7 +88,7 @@ public class ElementUtil {
         this.add(ElementConstants.JSR223_POST);
     }};
     public static final String JSR = "jsr223";
-
+    public static final String CLAZZ = "clazzName";
 
 
 
@@ -401,7 +401,7 @@ public class ElementUtil {
     }
 
     public static void setDomain(JSONObject element, MsParameter msParameter) {
-        if (!StringUtils.equals(element.optString("type"), ElementConstants.HTTP_SAMPLER)) {
+        if (!StringUtils.equals(element.optString(MsHashTreeService.TYPE), ElementConstants.HTTP_SAMPLER) || !element.has(CLAZZ)) {
             return;
         }
         MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(element.toString(), MsHTTPSamplerProxy.class);
