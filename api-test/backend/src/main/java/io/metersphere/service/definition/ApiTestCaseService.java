@@ -1348,10 +1348,11 @@ public class ApiTestCaseService {
             String requestTarget,
             String sendUser) {
 
-        ProjectApplication scriptEnable = baseProjectApplicationService
-                .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+        try {
+            ProjectApplication scriptEnable = baseProjectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
 
-        if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+            if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
                 List<String> org = ElementUtil.scriptList(requestOrg);
                 List<String> target = ElementUtil.scriptList(requestTarget);
                 boolean isSend = ElementUtil.isSend(org, target);
@@ -1362,20 +1363,23 @@ public class ApiTestCaseService {
                         sendUser = reviewer.getTypeValue();
                     }
                     if (baseProjectService.isProjectMember(projectId, sendUser)) {
-                    Notification notification = new Notification();
-                    notification.setTitle(title);
-                    notification.setOperator(reviewer.getTypeValue());
-                    notification.setOperation(NoticeConstants.Event.REVIEW);
-                    notification.setResourceId(id);
-                    notification.setResourceName(name);
-                    notification.setResourceType(resourceType);
-                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
-                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
-                    notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(sendUser);
-                    notificationService.sendAnnouncement(notification);
+                        Notification notification = new Notification();
+                        notification.setTitle(title);
+                        notification.setOperator(reviewer.getTypeValue());
+                        notification.setOperation(NoticeConstants.Event.REVIEW);
+                        notification.setResourceId(id);
+                        notification.setResourceName(name);
+                        notification.setResourceType(resourceType);
+                        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                        notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                        notification.setCreateTime(System.currentTimeMillis());
+                        notification.setReceiver(sendUser);
+                        notificationService.sendAnnouncement(notification);
+                    }
                 }
             }
+        } catch (Exception e) {
+            LogUtil.error("发送通知失败", e);
         }
     }
 
