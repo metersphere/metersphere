@@ -23,12 +23,13 @@
         {{ $t("commons.reviewers") }}
       </span>
       <el-select
+        clearable
         v-model="reviewerSelect"
         @change="reviewerChange"
         size="mini"
         style="margin-left: 5px"
         filterable
-        :placeholder="$t('api_test.definition.api_principal')"
+        :placeholder="placeholder"
       >
         <el-option
           v-for="item in reviewers"
@@ -41,7 +42,6 @@
     </template>
     <template #append>
       <el-switch
-        :disabled="!reviewerSelect || reviewerSelect===''"
         v-model="reviewerSwitchSelect"
         @change="switchChange"
       ></el-switch>
@@ -61,6 +61,12 @@ export default {
     reviewers: Array,
     reviewer: String,
     reviewerSwitch: Boolean,
+    placeholder: {
+      type: String,
+      default() {
+        return this.$t('api_test.definition.api_principal');
+      }
+    }
   },
   setup() {
     return {};

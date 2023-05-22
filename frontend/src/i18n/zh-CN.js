@@ -13,6 +13,7 @@ export default {
     xmindFile: "思维导图.xmind",
     default: "默认值",
     sort_default: "默认排序",
+    system_notification_logo: "系",
     please_select_import_mode: '请选择导入模式',
     please_select_import_module: '请选择导入模块',
     pass_rate: '通过率',

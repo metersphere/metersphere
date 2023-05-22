@@ -33,18 +33,24 @@
             >
               <el-col :span="2">
                 <div class="icon-title">
-                  {{ row.resourceName.substring(0, 1) }}
+                  {{ $t("commons.system_notification_logo") }}
                 </div>
               </el-col>
               <el-col :span="22">
                 <span class="operation">
                   <span>{{ getResource(row) }}:</span>
-                  <span
-                    @click="clickResource(row)"
-                    style="color: #783887; cursor: pointer"
-                  >
-                    {{ row.resourceName }}
-                  </span>
+                  <el-popover
+                    placement="top-start"
+                    width="200"
+                    trigger="hover"
+                    :content="row.resourceName">
+                      <span slot="reference"
+                            @click="clickResource(row)"
+                            style="color: #783887; cursor: pointer"
+                      >
+                        {{ getShortResourceName(row.resourceName) }}
+                      </span>
+                </el-popover>
                   <span> {{ $t("project.config.contains_script_review") }} </span>
                 </span>
               </el-col>
@@ -167,6 +173,9 @@ export default {
 
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
+    },
+    getShortResourceName(resourceName) {
+      return resourceName.length > 7 ? resourceName.substring(0, 7) + "..." : resourceName;
     },
     isReviewNotice(row) {
       return row.operation === "REVIEW";

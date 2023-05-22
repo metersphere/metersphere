@@ -98,7 +98,7 @@ public class PerformanceTestController {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         LoadTest loadTest = performanceTestService.save(request, files);
         //检查并发送审核脚本的通知
-        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, loadTest);
         return loadTest;
     }
 
@@ -120,7 +120,7 @@ public class PerformanceTestController {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         LoadTest loadTest = performanceTestService.edit(request, files);
         //检查并发送审核脚本的通知
-        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, request.getId(), request.getName(), request.getProjectId());
+        performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, loadTest);
         return loadTest;
     }
 
