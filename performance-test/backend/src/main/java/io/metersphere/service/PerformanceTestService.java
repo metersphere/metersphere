@@ -1022,7 +1022,7 @@ public class PerformanceTestService {
                     if (StringUtils.isNotEmpty(loadTestScriptReviewerConfig.getTypeValue())) {
                         sendUser = loadTestScriptReviewerConfig.getTypeValue();
                     }
-                    if (baseProjectService.isProjectMember(projectId, loadTestScriptReviewerConfig.getTypeValue())) {
+                    if (baseProjectService.isProjectMember(projectId, sendUser)) {
                         Notification notification = new Notification();
                         notification.setTitle("性能测试通知");
                         notification.setOperator(SessionUtils.getUserId());

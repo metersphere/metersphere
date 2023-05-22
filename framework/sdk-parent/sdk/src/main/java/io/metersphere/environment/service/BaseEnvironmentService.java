@@ -420,7 +420,8 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                 request.getProjectId(),
                 NoticeConstants.TaskType.ENV_TASK,
                 null,
-                request.getConfig()
+                request.getConfig(),
+                request.getCreateUser()
                 );
         return request.getId();
     }
@@ -509,7 +510,8 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                 apiTestEnvironment.getProjectId(),
                 NoticeConstants.TaskType.ENV_TASK,
                 envOrg.getConfig(),
-                apiTestEnvironment.getConfig()
+                apiTestEnvironment.getConfig(),
+                apiTestEnvironment.getCreateUser()
         );
 
     }
@@ -1015,20 +1017,24 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
             String projectId,
             String resourceType,
             String requestOrg,
-            String requestTarget) {
+            String requestTarget,
+            String sendUser) {
         ProjectApplication scriptEnable = baseProjectApplicationService
                 .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
 
         if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
-            ProjectApplication reviewer = baseProjectApplicationService
-                    .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
 
-            if (StringUtils.isNotEmpty(reviewer.getTypeValue()) &&
-                baseProjectService.isProjectMember(projectId, reviewer.getTypeValue())) {
                 List<String> org = scriptList(requestOrg);
                 List<String> target = scriptList(requestTarget);
                 boolean isSend = isSend(org, target);
                 if (isSend) {
+
+                    ProjectApplication reviewer = baseProjectApplicationService
+                            .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+                    if (StringUtils.isNotBlank(reviewer.getTypeValue())) {
+                        sendUser = reviewer.getTypeValue();
+                    }
+                    if (baseProjectService.isProjectMember(projectId, sendUser)) {
                     Notification notification = new Notification();
                     notification.setTitle("环境设置");
                     notification.setOperator(reviewer.getTypeValue());
@@ -1039,7 +1045,7 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                     notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
                     notification.setStatus(NotificationConstants.Status.UNREAD.name());
                     notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(reviewer.getTypeValue());
+                    notification.setReceiver(sendUser);
                     notificationService.sendAnnouncement(notification);
                 }
             }

@@ -304,7 +304,8 @@ public class ApiScenarioService {
                 "场景用例通知",
                 NoticeConstants.TaskType.API_AUTOMATION_TASK,
                 null,
-                scenario.getScenarioDefinition()
+                scenario.getScenarioDefinition(),
+                scenario.getPrincipal()
         );
 
         uploadFiles(request, bodyFiles, scenarioFiles);
@@ -418,7 +419,8 @@ public class ApiScenarioService {
                 "场景用例通知",
                 NoticeConstants.TaskType.API_AUTOMATION_TASK,
                 beforeScenario.getScenarioDefinition(),
-                scenario.getScenarioDefinition()
+                scenario.getScenarioDefinition(),
+                scenario.getPrincipal()
         );
 
         String defaultVersion = baseProjectVersionMapper.getDefaultVersion(request.getProjectId());
