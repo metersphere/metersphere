@@ -1,6 +1,5 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
