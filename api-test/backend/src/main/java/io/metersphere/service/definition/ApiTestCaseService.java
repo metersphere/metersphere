@@ -437,7 +437,8 @@ public class ApiTestCaseService {
                     "接口用例通知",
                     NoticeConstants.TaskType.API_DEFINITION_TASK,
                     requestOrg,
-                    test.getRequest()
+                    test.getRequest(),
+                    test.getCreateUserId()
                     );
         }
         // 存储附件关系
@@ -511,7 +512,8 @@ public class ApiTestCaseService {
                 "接口用例通知",
                 NoticeConstants.TaskType.API_DEFINITION_TASK,
                 null,
-                test.getRequest()
+                test.getRequest(),
+                test.getCreateUserId()
                 );
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.CASE.name());
@@ -1343,21 +1345,23 @@ public class ApiTestCaseService {
             String title,
             String resourceType,
             String requestOrg,
-            String requestTarget) {
+            String requestTarget,
+            String sendUser) {
 
         ProjectApplication scriptEnable = baseProjectApplicationService
                 .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
 
         if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
-            ProjectApplication reviewer = baseProjectApplicationService
-                    .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
-
-            if (StringUtils.isNotEmpty(reviewer.getTypeValue()) &&
-                baseProjectService.isProjectMember(projectId, reviewer.getTypeValue())) {
                 List<String> org = ElementUtil.scriptList(requestOrg);
                 List<String> target = ElementUtil.scriptList(requestTarget);
                 boolean isSend = ElementUtil.isSend(org, target);
                 if (isSend) {
+                    ProjectApplication reviewer = baseProjectApplicationService
+                            .getProjectApplication(projectId, ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+                    if (StringUtils.isNotEmpty(reviewer.getTypeValue())) {
+                        sendUser = reviewer.getTypeValue();
+                    }
+                    if (baseProjectService.isProjectMember(projectId, sendUser)) {
                     Notification notification = new Notification();
                     notification.setTitle(title);
                     notification.setOperator(reviewer.getTypeValue());
@@ -1368,7 +1372,7 @@ public class ApiTestCaseService {
                     notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
                     notification.setStatus(NotificationConstants.Status.UNREAD.name());
                     notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(reviewer.getTypeValue());
+                    notification.setReceiver(sendUser);
                     notificationService.sendAnnouncement(notification);
                 }
             }
