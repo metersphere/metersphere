@@ -85,6 +85,8 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
     private BaseProjectApplicationService baseProjectApplicationService;
     @Resource
     private NotificationService notificationService;
+    @Resource
+    private UserGroupMapper userGroupMapper;
 
     public static final String MOCK_EVN_NAME = "Mock环境";
 
@@ -505,14 +507,32 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         ApiTestEnvironmentWithBLOBs envOrg = apiTestEnvironmentMapper.selectByPrimaryKey(apiTestEnvironment.getId());
 
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
-        checkAndSendReviewMessage(apiTestEnvironment.getId(),
-                apiTestEnvironment.getName(),
-                apiTestEnvironment.getProjectId(),
-                NoticeConstants.TaskType.ENV_TASK,
-                envOrg.getConfig(),
-                apiTestEnvironment.getConfig(),
-                apiTestEnvironment.getCreateUser()
-        );
+        if (StringUtils.isBlank(apiTestEnvironment.getCreateUser())) {
+            UserGroupExample example = new UserGroupExample();
+            example.createCriteria().andSourceIdEqualTo(apiTestEnvironment.getProjectId()).andGroupIdEqualTo("project_admin");
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(userGroups)) {
+                userGroups.forEach(userGroup -> {
+                    checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                            apiTestEnvironment.getName(),
+                            apiTestEnvironment.getProjectId(),
+                            NoticeConstants.TaskType.ENV_TASK,
+                            envOrg.getConfig(),
+                            apiTestEnvironment.getConfig(),
+                            userGroup.getUserId()
+                    );
+                });
+            }
+        } else {
+            checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                    apiTestEnvironment.getName(),
+                    apiTestEnvironment.getProjectId(),
+                    NoticeConstants.TaskType.ENV_TASK,
+                    envOrg.getConfig(),
+                    apiTestEnvironment.getConfig(),
+                    apiTestEnvironment.getCreateUser()
+            );
+        }
 
     }
 
@@ -1019,10 +1039,11 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
             String requestOrg,
             String requestTarget,
             String sendUser) {
-        ProjectApplication scriptEnable = baseProjectApplicationService
-                .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
+        try {
+            ProjectApplication scriptEnable = baseProjectApplicationService
+                    .getProjectApplication(projectId, ProjectApplicationType.API_REVIEW_TEST_SCRIPT.name());
 
-        if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
+            if (BooleanUtils.toBoolean(scriptEnable.getTypeValue())) {
 
                 List<String> org = scriptList(requestOrg);
                 List<String> target = scriptList(requestTarget);
@@ -1035,20 +1056,23 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
                         sendUser = reviewer.getTypeValue();
                     }
                     if (baseProjectService.isProjectMember(projectId, sendUser)) {
-                    Notification notification = new Notification();
-                    notification.setTitle("环境设置");
-                    notification.setOperator(reviewer.getTypeValue());
-                    notification.setOperation(NoticeConstants.Event.REVIEW);
-                    notification.setResourceId(id);
-                    notification.setResourceName(name);
-                    notification.setResourceType(resourceType);
-                    notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
-                    notification.setStatus(NotificationConstants.Status.UNREAD.name());
-                    notification.setCreateTime(System.currentTimeMillis());
-                    notification.setReceiver(sendUser);
-                    notificationService.sendAnnouncement(notification);
+                        Notification notification = new Notification();
+                        notification.setTitle("环境设置");
+                        notification.setOperator(reviewer.getTypeValue());
+                        notification.setOperation(NoticeConstants.Event.REVIEW);
+                        notification.setResourceId(id);
+                        notification.setResourceName(name);
+                        notification.setResourceType(resourceType);
+                        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
+                        notification.setStatus(NotificationConstants.Status.UNREAD.name());
+                        notification.setCreateTime(System.currentTimeMillis());
+                        notification.setReceiver(sendUser);
+                        notificationService.sendAnnouncement(notification);
+                    }
                 }
             }
+        } catch (Exception e) {
+            LogUtil.error("发送通知失败", e);
         }
     }
 
