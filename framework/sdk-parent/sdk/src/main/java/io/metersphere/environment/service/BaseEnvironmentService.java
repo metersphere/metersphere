@@ -32,6 +32,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -1053,27 +1054,28 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
             toList(list, configObj, POST_STEP, PRE_STEP);
             toList(list, configObj, PRE, POST);
             JSONObject object = configObj.optJSONObject(ASSERTIONS);
-            JSONArray jsrArray = object.optJSONArray(JSR);
-            if (jsrArray != null) {
-                for (int j = 0; j < jsrArray.length(); j++) {
-                    JSONObject jsr223 = jsrArray.optJSONObject(j);
-                    if (jsr223 != null) {
-                        list.add(jsr223.optString(SCRIPT));
+            if (ObjectUtils.isNotEmpty(object)) {
+                JSONArray jsrArray = object.optJSONArray(JSR);
+                if (jsrArray != null) {
+                    for (int j = 0; j < jsrArray.length(); j++) {
+                        JSONObject jsr223 = jsrArray.optJSONObject(j);
+                        if (jsr223 != null) {
+                            list.add(jsr223.optString(SCRIPT));
+                        }
                     }
                 }
             }
-
         }
         return list;
     }
 
     private static void toList(List<String> list, JSONObject configObj, String pre, String post) {
         JSONObject preProcessor = configObj.optJSONObject(pre);
-        if (StringUtils.isNotBlank(preProcessor.optString(SCRIPT))) {
+        if (ObjectUtils.isNotEmpty(preProcessor) && StringUtils.isNotBlank(preProcessor.optString(SCRIPT))) {
             list.add(StringUtils.join(pre,preProcessor.optString(SCRIPT)));
         }
         JSONObject postProcessor = configObj.optJSONObject(post);
-        if (StringUtils.isNotBlank(postProcessor.optString(SCRIPT))) {
+        if (ObjectUtils.isNotEmpty(postProcessor) && StringUtils.isNotBlank(postProcessor.optString(SCRIPT))) {
             list.add(StringUtils.join(post,postProcessor.optString(SCRIPT)));
         }
     }
