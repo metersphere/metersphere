@@ -2174,6 +2174,7 @@ public class TestPlanService {
                 }
                 runRequest.setTestPlanId(planExecutionQueue.getTestPlanId());
                 runRequest.setReportId(planExecutionQueue.getReportId());
+                runRequest.setTriggerMode(request.getTriggerMode());
                 runPlan(runRequest);
             } else {
                 for (TestPlanExecutionQueue planExecutionQueue : planExecutionQueues) {
@@ -2182,6 +2183,7 @@ public class TestPlanService {
                     TestPlanRequestUtil.changeStringToBoolean(jsonObject);
                     TestPlanRunRequest runRequest = JSON.parseObject(JSON.toJSONString(jsonObject), TestPlanRunRequest.class);
                     runRequest.setReportId(planExecutionQueue.getReportId());
+                    runRequest.setTriggerMode(request.getTriggerMode());
                     runPlan(runRequest);
                 }
             }

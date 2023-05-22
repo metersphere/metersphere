@@ -141,10 +141,10 @@
           :label="$t('test_track.report.list.pass_rate')"
         >
           <template v-slot:default="scope">
-            <span>{{
-              (scope.row.passRate ? (scope.row.passRate * 100).toFixed(1) : 0) +
-              "%"
-            }}</span>
+            <span v-if="scope.row.status  === 'RUNNING' || scope.row.status  === 'Running'"> - </span>
+            <span v-else> {{
+                (scope.row.passRate ? (scope.row.passRate * 100).toFixed(1) : 0) + "%"
+              }}</span>
           </template>
         </ms-table-column>
       </span>
@@ -169,7 +169,7 @@ import MsTablePagination from "metersphere-frontend/src/components/pagination/Ta
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator";
-import { TEST_PLAN_REPORT_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {TEST_PLAN_REPORT_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import ReportTriggerModeItem from "metersphere-frontend/src/components/tableItem/ReportTriggerModeItem";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import ShowMoreBtn from "metersphere-frontend/src/components/table/ShowMoreBtn";
@@ -180,7 +180,7 @@ import {
   initCondition,
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTableHeaderSelectPopover from "metersphere-frontend/src/components/table/MsTableHeaderSelectPopover";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import TestPlanDbReport from "@/business/report/components/TestPlanDbReport";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
