@@ -20,9 +20,9 @@ import java.io.Serializable;
 public class UiScenarioBlob extends UiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId
-    @NotBlank(message = "{ui_scenario_blob.scenario_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "场景ID", required = true, allowableValues = "range[1, 255]")
-    private String scenarioId;
+    @NotBlank(message = "{ui_scenario_blob.id.not_blank}", groups = {Updated.class})
+    @ApiModelProperty(name = "场景ID", required = true, allowableValues = "range[1, 50]")
+    private String id;
 
 
     @ApiModelProperty(name = "场景定义", required = false, allowableValues = "range[1, ]")
