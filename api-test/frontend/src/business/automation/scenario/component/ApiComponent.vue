@@ -45,7 +45,9 @@
         <el-tag size="small" class="ms-tag" v-if="request.referenced === 'REF'">
           {{ $t('api_test.scenario.reference') }}
         </el-tag>
-        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
+        <span class="ms-tag ms-step-name-api" v-show="getProjectName(request.projectId)">
+          {{ getProjectName(request.projectId) }}
+        </span>
       </template>
       <template v-slot:debugStepCode>
         <span v-if="request.testing" class="ms-test-running">
@@ -691,6 +693,12 @@ export default {
 
 .ms-step-name-api {
   padding-left: 5px;
+  display: inline-block;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  max-width: 100px;
 }
 
 .ms-tag {
