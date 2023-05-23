@@ -15,4 +15,8 @@
             #{application.type,jdbcType=VARCHAR},
             #{application.typeValue,jdbcType=VARCHAR})
 </insert>
+
+<select id="listByProjectId" resultType="io.metersphere.project.domain.ProjectApplication">
+    SELECT * FROM project_application WHERE project_id = #{projectId,jdbcType=VARCHAR}
+</select>
 </mapper>

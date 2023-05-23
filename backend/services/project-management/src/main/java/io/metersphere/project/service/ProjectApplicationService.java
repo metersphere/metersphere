@@ -31,9 +31,8 @@ public class ProjectApplicationService {
     }
 
     public List<ProjectApplication> list(String projectId) {
-        Query query = Query.query(Criteria.where("project_id").is(projectId));
+//        Query query = Query.query(Criteria.where("project_id").is(projectId));
 
-        Iterable<ProjectApplication> all = jdbcAggregateTemplate.findAll(query, ProjectApplication.class);
-        return IterableUtils.toList(all);
+        return projectApplicationMapper.listByProjectId(projectId);
     }
 }
