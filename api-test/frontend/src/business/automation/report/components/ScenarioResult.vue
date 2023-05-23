@@ -8,25 +8,25 @@
       ">
       <el-card class="ms-card">
         <el-row>
-        <el-col :span="22">
-        <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner">
-            {{ node.index }}
-          </div>
-        </div>
-        <el-tooltip effect="dark" :content="node.label" placement="top">
-          <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
-            {{ getLabel(node.label) }}
-          </el-link>
-          <span v-else>{{ getLabel(node.label) }}</span>
-        </el-tooltip>
-        </el-col>
-        <el-col :span="2">
-          <div style="float: right">
-          <ms-api-report-status :status="node.totalStatus"
-                                v-if="node.type !=='ConstantTimer'|| node.type !=='Assertion'"/>
+          <el-col :span="22">
+            <div class="el-step__icon is-text ms-api-col">
+              <div class="el-step__icon-inner">
+                {{ node.index }}
+              </div>
             </div>
-        </el-col>
+            <el-tooltip effect="dark" :content="node.label" placement="top">
+              <el-link v-if="node.redirect" class="report-label-head" @click="isLink">
+                {{ getLabel(node.label) }}
+              </el-link>
+              <span v-else>{{ getLabel(node.label) }}</span>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="2">
+            <div style="float: right">
+              <ms-api-report-status :status="node.totalStatus"
+                                    v-if="node.type !=='ConstantTimer'|| node.type !=='Assertion'"/>
+            </div>
+          </el-col>
         </el-row>
       </el-card>
     </div>
@@ -187,5 +187,9 @@ export default {
   width: 20px;
   height: 20px;
   font-size: 12px;
+}
+
+:deep(.ms-card .el-card__body) {
+  padding-right: 1px;
 }
 </style>
