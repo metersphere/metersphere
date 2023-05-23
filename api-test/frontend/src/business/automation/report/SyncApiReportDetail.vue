@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { baseSocket } from '@/api/base-network';
+import {baseSocket} from '@/api/base-network';
 import MsRequestResult from './components/RequestResult';
 import MsRequestResultTail from './components/RequestResultTail';
 import MsScenarioResult from './components/ScenarioResult';
@@ -88,11 +88,11 @@ import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsApiReportExport from './ApiReportExport';
 import MsApiReportViewHeader from './ApiReportViewHeader';
-import { RequestFactory } from '../../definition/model/ApiTestModel';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { windowPrint } from 'metersphere-frontend/src/utils';
-import { STEP } from '../scenario/Setting';
-import { getScenarioReport, updateReport } from '@/api/scenario-report';
+import {RequestFactory} from '../../definition/model/ApiTestModel';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {windowPrint} from 'metersphere-frontend/src/utils';
+import {STEP} from '../scenario/Setting';
+import {getScenarioReport, updateReport} from '@/api/scenario-report';
 
 export default {
   name: 'SyncApiReportDetail',
@@ -187,13 +187,13 @@ export default {
     getType(type) {
       switch (type) {
         case 'LoopController':
-          return '循环控制器';
+          return this.$t('api_test.automation.loop_controller');
         case 'TransactionController':
-          return '事物控制器';
+          return this.$t('api_test.automation.transaction_controller');
         case 'ConstantTimer':
-          return '等待控制器';
+          return this.$t('api_test.automation.wait_controller');
         case 'IfController':
-          return '条件控制器';
+          return this.$t('api_test.automation.if_controller');
       }
       return type;
     },

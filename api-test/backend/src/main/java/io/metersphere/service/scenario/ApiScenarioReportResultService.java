@@ -31,7 +31,7 @@ public class ApiScenarioReportResultService {
         if (CollectionUtils.isNotEmpty(queue)) {
             if (queue.size() == 1) {
                 queue.forEach(item -> {
-                    // 事物控制器出来的结果特殊处理
+                    // 事务控制器出来的结果特殊处理
                     if (StringUtils.isNotEmpty(item.getName())
                             && item.getName().startsWith(CommonConstants.PRE_TRANSACTION)
                             && CollectionUtils.isEmpty(item.getSubRequestResults())) {

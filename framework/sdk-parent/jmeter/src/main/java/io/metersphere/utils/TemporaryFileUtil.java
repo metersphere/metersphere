@@ -53,7 +53,11 @@ public class TemporaryFileUtil {
         if (StringUtils.endsWithIgnoreCase(fileName, "." + fileSuffix)) {
             return fileName;
         } else {
-            return StringUtils.join(fileName, ".", fileSuffix);
+            if (StringUtils.isNotBlank(fileSuffix)) {
+                return StringUtils.join(fileName, ".", fileSuffix);
+            } else {
+                return fileName;
+            }
         }
     }
 
