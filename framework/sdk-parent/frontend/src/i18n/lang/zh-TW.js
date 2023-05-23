@@ -2847,6 +2847,7 @@ const message = {
     project_track_report: {
       name: "報告",
       read: "查詢報告",
+      edit: "編輯報告",
       delete: "刪除報告",
       export: "導出報告",
     },

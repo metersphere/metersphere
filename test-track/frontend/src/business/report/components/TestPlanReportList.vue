@@ -30,7 +30,7 @@
         <ms-table-column
           prop="name"
           sortable="custom"
-          permission="PROJECT_TRACK_REPORT:READ+DELETE"
+          permission="PROJECT_TRACK_REPORT:READ+EDIT"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.report.list.name')"

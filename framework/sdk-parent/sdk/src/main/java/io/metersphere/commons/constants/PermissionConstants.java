@@ -122,6 +122,7 @@ public class PermissionConstants {
 
     public static final String PROJECT_TRACK_REPORT_READ = "PROJECT_TRACK_REPORT:READ";
     public static final String PROJECT_TRACK_REPORT_READ_DELETE = "PROJECT_TRACK_REPORT:READ+DELETE";
+    public static final String PROJECT_TRACK_REPORT_READ_EDIT = "PROJECT_TRACK_REPORT:READ+EDIT";
     public static final String PROJECT_TRACK_REPORT_READ_EXPORT = "PROJECT_TRACK_REPORT:READ+EXPORT";
 
     public static final String PROJECT_API_DEFINITION_READ = "PROJECT_API_DEFINITION:READ";

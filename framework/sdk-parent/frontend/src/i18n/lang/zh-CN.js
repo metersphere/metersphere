@@ -2852,6 +2852,7 @@ const message = {
     project_track_report: {
       name: "报告",
       read: "查询报告",
+      edit: "编辑报告",
       delete: "删除报告",
       export: "导出报告",
     },

@@ -26,6 +26,7 @@ import {editPlanReport} from "@/api/remote/plan/test-plan";
 import TestPlanReportContainer from "@/business/plan/view/comonents/report/detail/TestPlanReportContainer";
 import MsRichText from "@/business/case/components/MsRichText";
 import {testPlanDbReportEdit} from "@/api/remote/plan/test-plan-report";
+import {hasPermission} from "@/business/utils/sdk-utils";
 export default {
   name: "TestPlanSummaryReport",
   components: {MsRichText, TestPlanReportContainer, MsFormDivider},
@@ -44,7 +45,7 @@ export default {
   },
   computed: {
     showEdit() {
-      return !this.isTemplate && !this.isShare;
+      return !this.isTemplate && !this.isShare && hasPermission("PROJECT_TRACK_REPORT:READ+EDIT");
     }
   },
   methods: {
