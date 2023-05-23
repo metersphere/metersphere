@@ -133,6 +133,17 @@ public class TestPlanReportService {
 
     private final String GROUP = "GROUP";
 
+    //这个方法是消息通知时获取报告内容的。
+    public List<TestPlanReport> getReports(List<String> reportIdList) {
+        List<TestPlanReport> reportList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(reportIdList)) {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andIdIn(reportIdList);
+            reportList = testPlanReportMapper.selectByExample(example);
+        }
+        return reportList;
+    }
+
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
         if (StringUtils.isBlank(request.getProjectId())) {
             return new ArrayList<>();
@@ -683,6 +694,7 @@ public class TestPlanReportService {
                 runRequest.setTestPlanId(testPlanExecutionQueue.getTestPlanId());
                 runRequest.setReportId(testPlanExecutionQueue.getReportId());
                 runRequest.setTestPlanId(testPlan.getId());
+                runRequest.setTriggerMode(TriggerMode.BATCH.name());
                 try {
                     if (SessionUtils.getUser() == null) {
                         HttpHeaderUtils.runAsUser("admin");
