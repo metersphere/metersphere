@@ -222,6 +222,8 @@
             @suggestClick="suggestClick"
             @refReload="refReload"
             @openScenario="openScenario"
+            @runScenario="runScenario"
+            @stopScenario="stopScenario"
             v-if="selectedTreeNode && selectedNode" />
           <!-- 请求下还有的子步骤-->
           <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
@@ -241,6 +243,8 @@
                 @suggestClick="suggestClick"
                 @refReload="refReload"
                 @openScenario="openScenario"
+                @runScenario="runScenario"
+                @stopScenario="stopScenario"
                 v-show="
                   selectedTreeNode && selectedNode && stepFilter.get('ALlSamplerStep').indexOf(item.type) === -1
                 " />
