@@ -8,10 +8,7 @@ import io.metersphere.metadata.vo.FileRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -127,6 +124,23 @@ public class JmxParseUtil {
     }
 
     private static boolean nodeIsScript(Node node) {
-        return StringUtils.containsAnyIgnoreCase(node.getNodeName(), "JSR223", "Processor");
+        if (StringUtils.containsAnyIgnoreCase(node.getNodeName(), "JSR223", "Processor")) {
+            //JSR223 或者 Processor，判断里面是否有Script阶段。 存在即为脚本
+            NodeList childNodes = node.getChildNodes();
+            for (int index = 0; index < childNodes.getLength(); index++) {
+                Node childNode = childNodes.item(index);
+                NamedNodeMap namedNodeMap = childNode.getAttributes();
+                if (namedNodeMap != null) {
+                    for (int i = 0; i < namedNodeMap.getLength(); i++) {
+                        Node nameNodeItem = namedNodeMap.item(i);
+                        if (StringUtils.equalsIgnoreCase(nameNodeItem.getNodeValue(), "script")) {
+                            return true;
+                        }
+                    }
+                }
+
+            }
+        }
+        return false;
     }
 }
