@@ -1,8 +1,8 @@
 
 package io.metersphere.api.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,12 +14,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "场景环境")
-@TableName("api_scenario_environment")
+@Table("api_scenario_environment")
 @Data
 public class ApiScenarioEnvironment implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{api_scenario_environment.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "场景环境pk", required = true, allowableValues = "range[1, 50]")
     private String id;

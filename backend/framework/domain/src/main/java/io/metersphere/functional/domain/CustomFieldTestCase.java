@@ -1,16 +1,16 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
 @ApiModel(value = "自定义字段功能用例关系")
-@TableName("custom_field_test_case")
+@Table("custom_field_test_case")
 @Data
 public class CustomFieldTestCase implements Serializable {
     private static final long serialVersionUID = 1L;

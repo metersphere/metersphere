@@ -1,7 +1,7 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -13,11 +13,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "功能用例的前后置关系")
-@TableName("functional_case_relationship_edge")
+@Table("functional_case_relationship_edge")
 @Data
 public class FunctionalCaseRelationshipEdge implements Serializable {
     private static final long serialVersionUID = 1L;
-    @TableId
+    @Id
     @NotBlank(message = "{functional_case_relationship_edge.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;

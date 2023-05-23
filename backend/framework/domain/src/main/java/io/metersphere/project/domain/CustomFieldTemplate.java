@@ -1,7 +1,7 @@
 package io.metersphere.project.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -12,12 +12,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "自定义模版")
-@TableName("custom_field_template")
+@Table("custom_field_template")
 @Data
 public class CustomFieldTemplate implements Serializable {
     private static final long serialVersionUID = 1L;
     
-    @TableId
+    @Id
     @NotBlank(message = "{custom_field_template.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "自定义模版ID", required = true, allowableValues="range[1, 50]")
     private String id;

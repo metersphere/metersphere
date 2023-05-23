@@ -2,8 +2,8 @@ package io.metersphere.functional.domain;
 
 import java.io.Serializable;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -13,12 +13,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @ApiModel(value = "功能用例模块")
-@TableName("functional_case_module")
+@Table("functional_case_module")
 @Data
 public class FunctionalCaseModule implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{functional_case_module.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
     private String id;

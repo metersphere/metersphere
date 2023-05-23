@@ -6,12 +6,10 @@
  */
 package io.metersphere.functional.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import io.metersphere.functional.domain.FunctionalCaseRelationshipEdge;
 
 
 @Mapper
-public interface FunctionalCaseRelationshipEdgeMapper extends BaseMapper<FunctionalCaseRelationshipEdge> {
+public interface FunctionalCaseRelationshipEdgeMapper {
 
 }

@@ -1,7 +1,7 @@
 package io.metersphere.system.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,13 +14,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 @ApiModel(value = "消息通知任务大字段")
-@TableName("message_task_blob")
+@Table("message_task_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class MessageTaskBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{message_task_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;

@@ -1,7 +1,7 @@
 package io.metersphere.project.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -13,12 +13,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "API模版表")
-@TableName("api_template")
+@Table("api_template")
 @Data
 public class ApiTemplate implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{api_template.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "模版ID", required = true, allowableValues = "range[1, 100]")
     private String id;

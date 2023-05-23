@@ -1,7 +1,7 @@
 package io.metersphere.sdk.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -11,12 +11,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "分享")
-@TableName("share_info")
+@Table("share_info")
 @Data
 public class ShareInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{share_info.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "分享ID", required = true, allowableValues = "range[1, 50]")
     private String id;

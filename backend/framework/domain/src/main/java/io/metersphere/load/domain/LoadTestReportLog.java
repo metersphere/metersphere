@@ -1,7 +1,7 @@
 package io.metersphere.load.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -12,11 +12,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "报告日志jmeter.log")
-@TableName("load_test_report_log")
+@Table("load_test_report_log")
 @Data
 public class LoadTestReportLog implements Serializable {
     private static final long serialVersionUID = 1L;
-    @TableId
+    @Id
     @NotBlank(message = "{load_test_report_log.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "主键无实际意义", required = true, allowableValues="range[1, 50]")
     private String id;
