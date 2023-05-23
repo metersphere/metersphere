@@ -27,7 +27,7 @@ import java.util.Properties;
 
 @Configuration
 @MapperScan(basePackages = {"io.metersphere.*.mapper"}, sqlSessionFactoryRef = "sqlSessionFactory")
-@EnableJdbcRepositories(basePackages = {"io.metersphere.*.repository"})
+@EnableJdbcRepositories
 @EnableTransactionManagement
 public class MybatisConfig {
     @Bean
