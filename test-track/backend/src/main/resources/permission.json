@@ -213,6 +213,11 @@
       "resourceId": "PROJECT_TRACK_REPORT"
     },
     {
+      "id": "PROJECT_TRACK_REPORT:READ+EDIT",
+      "name": "permission.project_track_report.edit",
+      "resourceId": "PROJECT_TRACK_REPORT"
+    },
+    {
       "id": "PROJECT_TRACK_REPORT:READ+DELETE",
       "name": "permission.project_track_report.delete",
       "resourceId": "PROJECT_TRACK_REPORT"

@@ -2947,6 +2947,7 @@ const message = {
     project_track_report: {
       name: "Report",
       read: "READ",
+      edit: "EDIT",
       delete: "DELETE",
       export: "EXPORT",
     },
