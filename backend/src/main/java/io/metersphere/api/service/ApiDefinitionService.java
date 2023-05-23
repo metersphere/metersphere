@@ -1313,7 +1313,11 @@ public class ApiDefinitionService {
                     CollectionUtils.isNotEmpty(request.getTestElement().getHashTree().get(0).getHashTree()) ?
                     request.getTestElement().getHashTree().get(0).getHashTree().get(0).getName() : request.getId();
             String reportName = this.getReportNameByTestId(testId);
-            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId, APITestStatus.Running.name(), request.getId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
+            ApiDefinitionExecResult result = ApiDefinitionExecResultUtil.add(testId,
+                    APITestStatus.Running.name(),
+                    request.getId(),
+                    Objects.requireNonNull(SessionUtils.getUser()).getId());
+            result.setActuator(request.getConfig().getResourcePoolId());
             result.setName(reportName);
             result.setProjectId(request.getProjectId());
             result.setTriggerMode(TriggerMode.MANUAL.name());

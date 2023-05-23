@@ -87,7 +87,6 @@ public class ApiDefinitionExecResultUtil {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
-        apiResult.setActuator("LOCAL");
         apiResult.setUserId(userId);
         apiResult.setResourceId(resourceId);
         apiResult.setStartTime(System.currentTimeMillis());

@@ -91,10 +91,15 @@ public class ApiExecuteService {
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             request.setEnvironmentId(extApiTestCaseMapper.getApiCaseEnvironment(request.getCaseId()));
         }
-        jMeterService.verifyPool(caseWithBLOBs.getProjectId(), new RunModeConfigDTO());
+        RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
+        jMeterService.verifyPool(caseWithBLOBs.getProjectId(), runModeConfigDTO);
 
         //提前生成报告
-        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(), APITestStatus.Running.name(), request.getReportId(), Objects.requireNonNull(SessionUtils.getUser()).getId());
+        ApiDefinitionExecResult report = ApiDefinitionExecResultUtil.add(caseWithBLOBs.getId(),
+                APITestStatus.Running.name(),
+                request.getReportId(),
+                Objects.requireNonNull(SessionUtils.getUser()).getId());
+        report.setActuator(runModeConfigDTO.getResourcePoolId());
         report.setName(caseWithBLOBs.getName());
         report.setTriggerMode(ApiRunMode.JENKINS.name());
         report.setType(ApiRunMode.JENKINS.name());
