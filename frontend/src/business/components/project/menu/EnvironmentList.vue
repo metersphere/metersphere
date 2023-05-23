@@ -187,7 +187,7 @@ export default {
         if (response.data) {
           this.editEnv(response.data);
         } else {
-          this.$error(this.$t('environment.get_env_failed'));
+          this.$error(this.$t('api_test.environment.get_env_failed'));
         }
       });
     }

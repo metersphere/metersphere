@@ -396,15 +396,21 @@ export default {
       getProjectMember((data) => {
         this.userInProject = data;
         //判断审核人是否在其中，如果不在则置空。
-        let isExist = false;
+        let isExistPer = false;
+        let isExistApi = false;
         this.userInProject.forEach((item) => {
           if (item.id === this.config.performanceScriptReviewer) {
-            isExist = true;
+            isExistPer = true;
+          }
+          if (item.id === this.config.apiScriptReviewer) {
+            isExistApi = true;
           }
         });
-        if (!isExist) {
+        if (!isExistPer) {
           this.$set(this.config, "performanceScriptReviewer", null);
           this.$set(this.config, "performanceReviewLoadTestScript", false);
+        }
+        if (!isExistApi) {
           this.$set(this.config, "apiScriptReviewer", null);
           this.$set(this.config, "apiReviewTestScript", false);
         }
