@@ -21,6 +21,9 @@ public class ResultDTO {
     private Boolean hasEnded;
     // 失败重试
     private boolean retryEnable;
+    // 异常终止
+    private Boolean errorEnded;
+
     /**
      * 增加一个全局扩展的通传参数
      */
