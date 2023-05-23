@@ -466,6 +466,7 @@ export default {
               this.tableClear();
               this.$emit("refresh");
               this.$success(this.$t('test_track.cancel_relevance_success'));
+              this.$post('/test/case/review/edit/status/' + this.reviewId);
             });
           }
         }
@@ -476,6 +477,7 @@ export default {
       this.$post('/test/review/case/delete', {id: testCaseId, reviewId: testCase.reviewId}, () => {
         this.$emit("refresh");
         this.$success(this.$t('test_track.cancel_relevance_success'));
+        this.$post('/test/case/review/edit/status/' + testCase.reviewId);
       });
     },
     handleEditBatch() {
