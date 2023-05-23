@@ -304,6 +304,7 @@ export default {
     getProjectApplication() {
       getProjectConfig(getCurrentProjectID(), "").then((res) => {
         let hasPool = false;
+        //判断之前配置的资源池是否在可用资源池中
         this.resourcePools.forEach((item) => {
           if (item.id === this.runConfig.resourcePoolId) {
             hasPool = true;
@@ -311,8 +312,15 @@ export default {
         });
         if (!hasPool) {
           if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
-            this.runConfig.resourcePoolId = res.data.resourcePoolId;
-            hasPool = true;
+            //判断系统配置的默认资源池是否可用
+            this.resourcePools.forEach((item) => {
+              if (item.id === res.data.resourcePoolId) {
+                hasPool = true;
+              }
+            });
+            if (hasPool) {
+              this.runConfig.resourcePoolId = res.data.resourcePoolId;
+            }
           }
         }
         if (!hasPool) {
