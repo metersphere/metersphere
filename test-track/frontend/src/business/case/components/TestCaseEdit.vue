@@ -1013,7 +1013,9 @@ export default {
       this.form.prerequisite = this.testCaseTemplate.prerequisite;
       this.form.stepDescription = this.testCaseTemplate.stepDescription;
       this.form.expectedResult = this.testCaseTemplate.expectedResult;
-      this.form.steps = JSON.parse(this.testCaseTemplate.steps);
+      if (this.testCaseTemplate.steps) {
+        this.form.steps = JSON.parse(this.testCaseTemplate.steps);
+      }
     },
     async checkCurrentProject() {
       if (this.isPublicShow) {
