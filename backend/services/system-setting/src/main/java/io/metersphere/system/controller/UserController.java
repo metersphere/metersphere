@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
 
-import io.metersphere.system.domain.User;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import jakarta.annotation.Resource;

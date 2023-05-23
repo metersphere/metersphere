@@ -1,7 +1,7 @@
 package io.metersphere.project.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,13 +12,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 @ApiModel(value = "自定义函数-代码片段大字段")
-@TableName("custom_function_blob")
+@Table("custom_function_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class CustomFunctionBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{custom_function_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;

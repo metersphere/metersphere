@@ -1,7 +1,7 @@
 package io.metersphere.project.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,13 +14,13 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 @ApiModel(value = "项目扩展")
-@TableName("project_extend")
+@Table("project_extend")
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class ProjectExtend implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{project_extend.project_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String id;

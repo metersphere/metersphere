@@ -8,12 +8,9 @@ package io.metersphere.functional.service;
 
 
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.metersphere.functional.domain.FunctionalCaseFollow;
-import io.metersphere.functional.mapper.FunctionalCaseFollowMapper;
 
 
 @Service
-public class FunctionalCaseFollowService extends ServiceImpl<FunctionalCaseFollowMapper, FunctionalCaseFollow> {
+public class FunctionalCaseFollowService {
 
 }

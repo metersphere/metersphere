@@ -1,7 +1,7 @@
 package io.metersphere.system.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -13,12 +13,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "系统参数")
-@TableName("system_parameter")
+@Table("system_parameter")
 @Data
 public class SystemParameter implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{system_parameter.param_key.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "参数名称", required = true, allowableValues = "range[1, 64]")
     private String paramKey;

@@ -7,13 +7,10 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.FunctionalCaseBlob;
-import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 
 @Service
-public class FunctionalCaseBlobService extends ServiceImpl<FunctionalCaseBlobMapper, FunctionalCaseBlob> {
+public class FunctionalCaseBlobService {
 
 }

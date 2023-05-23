@@ -1,13 +1,15 @@
 package io.metersphere.system.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import io.metersphere.sdk.mapper.UserExtendMapper;
+import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.mapper.UserMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExtend;
-import io.metersphere.sdk.dto.UserDTO;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.IterableUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,14 +21,18 @@ public class UserService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private UserExtendMapper userExtendMapper;
+    private JdbcAggregateTemplate jdbcAggregateTemplate;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     public boolean save(UserDTO entity) {
-        userMapper.insert(entity);
+        User user = new User();
+        BeanUtils.copyBean(user, entity);
+        jdbcAggregateTemplate.insert(user);
 
         UserExtend userExtend = new UserExtend();
         BeanUtils.copyBean(userExtend, entity);
-        userExtendMapper.insert(userExtend);
+        jdbcAggregateTemplate.insert(userExtend);
         return true;
     }
 
@@ -35,7 +41,9 @@ public class UserService {
     }
 
     public List<User> list() {
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>(new User());
-        return userMapper.selectList(userQueryWrapper);
+
+        PageRequest pageable = PageRequest.of(2, 5);
+        Iterable<User> users = jdbcAggregateTemplate.findAll(User.class, pageable);
+        return IterableUtils.toList(users);
     }
 }

@@ -1,7 +1,7 @@
 package io.metersphere.ui.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,12 +14,12 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 @ApiModel(value = "自定义指令大字段")
-@TableName("ui_custom_command_blob")
+@Table("ui_custom_command_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class UiCustomCommandBlob implements Serializable {
     private static final long serialVersionUID = 1L;
-    @TableId
+    @Id
     @NotBlank(message = "{ui_custom_command_blob.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "场景ID", required = true, allowableValues="range[1, 255]")
     private String id;

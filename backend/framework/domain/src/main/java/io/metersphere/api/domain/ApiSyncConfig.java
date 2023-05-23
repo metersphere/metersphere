@@ -1,8 +1,8 @@
 
 package io.metersphere.api.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,12 +14,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "接口同步用例配置")
-@TableName("api_sync_config")
+@Table("api_sync_config")
 @Data
 public class ApiSyncConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{api_sync_config.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
     private String id;

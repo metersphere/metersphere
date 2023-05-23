@@ -1,7 +1,7 @@
 package io.metersphere.load.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -12,7 +12,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "测试报告文件关联表")
-@TableName("load_test_report_file")
+@Table("load_test_report_file")
 @Data
 public class LoadTestReportFile implements Serializable {
     private static final long serialVersionUID = 1L;

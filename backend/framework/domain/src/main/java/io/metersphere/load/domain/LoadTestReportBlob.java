@@ -1,7 +1,7 @@
 package io.metersphere.load.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,12 +12,12 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 
 @ApiModel(value = "性能报告大字段")
-@TableName("load_test_report_blob")
+@Table("load_test_report_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
 public class LoadTestReportBlob implements Serializable {
     private static final long serialVersionUID = 1L;
-    @TableId
+    @Id
     @NotBlank(message = "{load_test_report_blob.report_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "报告ID", required = true, allowableValues = "range[1, 50]")
     private String reportId;

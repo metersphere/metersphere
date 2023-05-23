@@ -1,16 +1,16 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
 @ApiModel(value = "评审和评审人中间表")
-@TableName("case_review_user")
+@Table("case_review_user")
 @Data
 public class CaseReviewUser implements Serializable {
     private static final long serialVersionUID = 1L;

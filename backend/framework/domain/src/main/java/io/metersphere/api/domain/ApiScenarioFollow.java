@@ -1,7 +1,6 @@
 
 package io.metersphere.api.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -9,11 +8,12 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
 @ApiModel(value = "关注记录")
-@TableName("api_scenario_follow")
+@Table("api_scenario_follow")
 @Data
 public class ApiScenarioFollow implements Serializable {
     private static final long serialVersionUID = 1L;

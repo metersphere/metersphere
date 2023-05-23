@@ -2,9 +2,6 @@ package io.metersphere.functional.service;
 
 
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import io.metersphere.functional.domain.FunctionalCaseTest;
-import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 
 
 /**
@@ -13,6 +10,6 @@ import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
  * @date : 2023-5-17
  */
 @Service
-public class FunctionalCaseTestService extends ServiceImpl<FunctionalCaseTestMapper, FunctionalCaseTest> {
+public class FunctionalCaseTestService {
 
 }

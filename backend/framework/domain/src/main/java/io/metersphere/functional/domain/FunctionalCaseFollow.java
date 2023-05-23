@@ -1,16 +1,16 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
 @ApiModel(value = "功能用例和关注人的中间表")
-@TableName("functional_case_follow")
+@Table("functional_case_follow")
 @Data
 public class FunctionalCaseFollow implements Serializable {
     private static final long serialVersionUID = 1L;

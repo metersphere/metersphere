@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.project.mapper.ProjectApplicationMapper">
+
+<update id="update">
+    UPDATE project_application
+    SET type_value = #{application.typeValue,jdbcType=VARCHAR}
+    WHERE project_id = #{application.projectId,jdbcType=VARCHAR}
+      AND type = #{application.type,jdbcType=VARCHAR}
+</update>
+
+<insert id="insert">
+    INSERT INTO project_application (project_id, type, type_value)
+    VALUES (#{application.projectId,jdbcType=VARCHAR},
+            #{application.type,jdbcType=VARCHAR},
+            #{application.typeValue,jdbcType=VARCHAR})
+</insert>
+</mapper>

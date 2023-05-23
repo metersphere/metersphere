@@ -1,8 +1,8 @@
 
 package io.metersphere.api.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -14,12 +14,12 @@ import lombok.Data;
 import java.io.Serializable;
 
 @ApiModel(value = "接口模块")
-@TableName("api_definition_module")
+@Table("api_definition_module")
 @Data
 public class ApiDefinitionModule implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId
+    @Id
     @NotBlank(message = "{api_definition_module.id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "接口模块pk", required = true, allowableValues = "range[1, 50]")
     private String id;

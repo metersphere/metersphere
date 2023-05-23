@@ -1,6 +1,5 @@
 package io.metersphere.functional.domain;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -8,11 +7,12 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
 @ApiModel(value = "功能用例评审和评审人的中间表")
-@TableName("case_review_functional_case_user")
+@Table("case_review_functional_case_user")
 @Data
 public class CaseReviewFunctionalCaseUser implements Serializable {
     private static final long serialVersionUID = 1L;
