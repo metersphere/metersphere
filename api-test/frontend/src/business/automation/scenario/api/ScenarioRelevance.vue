@@ -129,6 +129,7 @@ export default {
               variables: scenarioDefinition.variables,
               environmentMap: scenarioDefinition.environmentMap,
               referenced: referenced,
+              refType: 'scenario',
               resourceId: getUUID(),
               hashTree: scenarioDefinition.hashTree,
               projectId: item.projectId,
