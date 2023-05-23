@@ -30,6 +30,7 @@ import io.metersphere.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -267,7 +268,7 @@ public class TestResultService {
                     sendTask(reportTask, dto.getTestId());
                 }
             }
-        } else if (apiRunModes.contains(dto.getRunMode())) {
+        } else if (apiRunModes.contains(dto.getRunMode()) && BooleanUtils.isTrue(dto.getErrorEnded())) {
             // 只处理RUNNING中的执行报告
             updateRunningResult(dto);
         }
