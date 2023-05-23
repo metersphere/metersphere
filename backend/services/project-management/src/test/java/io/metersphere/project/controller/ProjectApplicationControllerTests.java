@@ -60,8 +60,7 @@ public class ProjectApplicationControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.get("/project/application/list/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data[0].typeValue").value("2"))
-                .andDo(print());
+                .andExpect(jsonPath("$.data[0].typeValue").value("2"));
     }
 
 }
