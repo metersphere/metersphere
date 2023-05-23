@@ -989,9 +989,6 @@ public class TestPlanService {
                         Map<String, String> envMap = testPlanRunRequest.getEnvMap();
                         String environmentGroupId = testPlanRunRequest.getEnvironmentGroupId();
                         runModeConfig = getRunModeConfigDTO(testPlanRunRequest, envType, envMap, environmentGroupId, testPlanID);
-                        if (!testPlanRunRequest.isRunWithinResourcePool()) {
-                            runModeConfig.setResourcePoolId(null);
-                        }
                     }
                 } catch (Exception e) {
                     LogUtil.error("获取测试计划保存的环境信息出错!", e);
@@ -2034,9 +2031,6 @@ public class TestPlanService {
         String environmentGroupId = testplanRunRequest.getEnvironmentGroupId();
         String testPlanId = testplanRunRequest.getTestPlanId();
         RunModeConfigDTO runModeConfig = getRunModeConfigDTO(testplanRunRequest, envType, envMap, environmentGroupId, testPlanId);
-        if (!testplanRunRequest.isRunWithinResourcePool()) {
-            runModeConfig.setResourcePoolId(null);
-        }
         String apiRunConfig = JSONObject.toJSONString(runModeConfig);
         return this.run(testPlanId, testplanRunRequest.getProjectId(),
                 testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), testplanRunRequest.getReportId(), apiRunConfig);

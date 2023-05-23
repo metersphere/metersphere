@@ -69,7 +69,7 @@ export default {
     open(objStr) {
       this.data = {};
       try {
-        let stringedJSON = objStr.replace(/(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g, ': "$1"');
+        let stringedJSON = objStr.replace(/(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g, '"$1"');
         let param;
         let JSONBig = require('json-bigint')({"storeAsString": true});
         // 解决精度丢失问题
