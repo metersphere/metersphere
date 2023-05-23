@@ -1278,6 +1278,9 @@ export default {
         this.stopDebug = 'stop';
         this.messageWebSocket.close();
         this.reload();
+        if (this.$refs.maximizeScenario) {
+          this.$refs.maximizeScenario.reload();
+        }
       }
     },
     handleCommand() {

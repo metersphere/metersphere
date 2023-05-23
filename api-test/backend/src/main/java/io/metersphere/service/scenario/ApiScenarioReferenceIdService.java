@@ -81,6 +81,15 @@ public class ApiScenarioReferenceIdService {
             for (int index = 0; index < hashTree.length(); index++) {
                 JSONObject item = hashTree.optJSONObject(index);
                 if (item == null || StringUtils.equals(item.optString(PropertyConstant.TYPE), ElementConstants.SCENARIO)) {
+                    ApiScenarioReferenceId saveItem = new ApiScenarioReferenceId();
+                    saveItem.setId(UUID.randomUUID().toString());
+                    saveItem.setApiScenarioId(scenario.getId());
+                    saveItem.setReferenceId(item.optString(MsHashTreeService.ID));
+                    saveItem.setReferenceType(item.optString(MsHashTreeService.REFERENCED));
+                    saveItem.setDataType(item.optString(MsHashTreeService.REF_TYPE));
+                    saveItem.setCreateTime(System.currentTimeMillis());
+                    saveItem.setCreateUserId(SessionUtils.getUserId());
+                    returnList.add(saveItem);
                     continue;
                 }
 
