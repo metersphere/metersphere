@@ -3,7 +3,10 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.dto.UserDTO;
 import jakarta.annotation.Resource;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -16,11 +19,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserControllerTests {
     @Resource
     private MockMvc mockMvc;
 
     @Test
+    @Order(4)
     public void testSelectAll() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/list-all"))
                 .andExpect(status().isOk())
@@ -30,6 +35,7 @@ public class UserControllerTests {
     }
 
     @Test
+    @Order(3)
     public void testGetUser() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/get/admin"))
                 .andExpect(status().isOk())
@@ -38,6 +44,7 @@ public class UserControllerTests {
     }
 
     @Test
+    @Order(1)
     public void testAddUser() throws Exception {
         UserDTO user = new UserDTO();
         user.setId("admin");
@@ -59,6 +66,7 @@ public class UserControllerTests {
     }
 
     @Test
+    @Order(2)
     public void testAddUserFailed() throws Exception {
         UserDTO user = new UserDTO();
         user.setId("admin2");
