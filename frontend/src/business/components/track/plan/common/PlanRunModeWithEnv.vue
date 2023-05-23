@@ -191,6 +191,11 @@ export default {
       this.$emit('close');
     },
     handleRunBatch() {
+      if (this.runConfig.resourcePoolId == null) {
+        this.$warning(
+          this.$t("workspace.env_group.please_select_run_within_resource_pool"));
+        return;
+      }
       this.$emit("handleRunBatch", this.runConfig);
       this.close();
     },
