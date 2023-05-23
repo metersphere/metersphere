@@ -55,6 +55,9 @@ public class NoviceService {
             NoviceStatistics noviceStatistics = noviceInfo.get(0);
             noviceStatistics.setGuideNum(noviceStatistics.getGuideNum() + 1);
             noviceStatistics.setUpdateTime(systemTime);
+            if(noviceStatistics.getGuideStep() == 0) {
+                noviceStatistics.setGuideStep(noviceRequest.getGuideStep());
+            }
             NoviceStatisticsExample example = new NoviceStatisticsExample();
             example.createCriteria().andUserIdEqualTo(SessionUtils.getUserId()).andIdEqualTo(noviceStatistics.getId());
 
