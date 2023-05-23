@@ -6,8 +6,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExtend;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections4.IterableUtils;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -41,9 +39,6 @@ public class UserService {
     }
 
     public List<User> list() {
-
-        PageRequest pageable = PageRequest.of(2, 5);
-        Iterable<User> users = jdbcAggregateTemplate.findAll(User.class, pageable);
-        return IterableUtils.toList(users);
+        return userMapper.findAll();
     }
 }

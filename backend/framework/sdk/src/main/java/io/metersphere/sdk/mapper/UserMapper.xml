@@ -8,4 +8,9 @@
              LEFT JOIN user_extend ON user.id = user_extend.id
     WHERE user.id = #{id}
 </select>
+
+<select id="findAll" resultType="io.metersphere.system.domain.User">
+    SELECT *
+    FROM user
+</select>
 </mapper>
