@@ -11,8 +11,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.dto.*;
 import io.metersphere.service.ProjectApplicationService;
+import io.metersphere.service.QuotaService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.utils.LoggerUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -89,15 +92,27 @@ public class ApiPoolDebugService {
             LoggerUtil.info("校验项目为：【" + projectId + "】", runConfig.getReportId());
             ProjectConfig config = projectApplicationService.getProjectConfig(projectId);
             List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
-            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
-                    .collect(Collectors.toList()).contains(config.getResourcePoolId());
 
-            if (StringUtils.isEmpty(config.getResourcePoolId()) || !contains || BooleanUtils.isFalse(config.getPoolEnable())) {
-                String id = systemParameterService.filterQuota(poolList);
-                if (StringUtils.isBlank(id)) {
-                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+            QuotaService baseQuotaService = CommonBeanFactory.getBean(QuotaService.class);
+            Set<String> poolSets = baseQuotaService.getQuotaResourcePools();
+            if (CollectionUtils.isNotEmpty(poolSets)) {
+                poolList = poolList.stream().filter(pool -> poolSets.contains(pool.getId())).collect(Collectors.toList());
+            }
+
+            if (CollectionUtils.isEmpty(poolList)) {
+                MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+            }
+
+            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
+                    .collect(Collectors.toList()).contains(config.getResourcePoolId()) && BooleanUtils.isTrue(config.getPoolEnable());
+
+            if (!contains) {
+                List<TestResourcePoolDTO> pools = poolList.stream().filter(pool ->
+                        StringUtils.equals(pool.getName(), "LOCAL")).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(pools)) {
+                    config.setResourcePoolId(pools.get(0).getId());
                 } else {
-                    config.setResourcePoolId(id);
+                    config.setResourcePoolId(poolList.get(0).getId());
                 }
             }
             runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
