@@ -44,17 +44,10 @@
 </template>
 
 <script>
-import {
-  getCurrentProjectID,
-  getCurrentUserId,
-} from "metersphere-frontend/src/utils/token";
-import {
-  getUUID,
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentUserId,} from "metersphere-frontend/src/utils/token";
+import {getUUID, listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import { createFileMeta, editFileMeta } from "@/api/file";
+import {createFileMeta, editFileMeta} from "@/api/file";
 
 export default {
   name: "FileMetadataDialog",
@@ -114,7 +107,6 @@ export default {
                 this.close();
               })
               .catch(() => {
-                this.$emit("refresh");
                 this.isSaveBtnLoading = false;
               });
           } else {
@@ -132,7 +124,6 @@ export default {
                 this.close();
               })
               .catch(() => {
-                this.$emit("refresh");
                 this.isSaveBtnLoading = false;
               });
           }
