@@ -4,7 +4,7 @@ import type { NotificationReturn } from '@arco-design/web-vue/es/notification/in
 import type { RouteRecordNormalized } from 'vue-router';
 import defaultSettings from '@/config/settings.json';
 import { getMenuList } from '@/api/modules/user';
-import { AppState, CustomTheme } from './types';
+import { AppState } from './types';
 
 const useAppStore = defineStore('app', {
   state: (): AppState => ({ ...defaultSettings }),

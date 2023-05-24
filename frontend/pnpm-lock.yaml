@@ -15,9 +15,9 @@ dependencies:
   '@arco-design/web-vue':
     specifier: ^2.46.0
     version: 2.46.0(vue@3.3.2)
-  '@arco-themes/vue-ms-theme':
-    specifier: ^0.0.1
-    version: 0.0.1(@arco-design/web-vue@2.46.0)
+  '@arco-themes/vue-ms-theme-default':
+    specifier: ^0.0.2
+    version: 0.0.2(@arco-design/web-vue@2.46.0)
   '@form-create/arco-design':
     specifier: ^3.1.21
     version: 3.1.21(vue@3.3.2)
@@ -339,8 +339,8 @@ packages:
       - supports-color
     dev: true
 
-  /@arco-themes/vue-ms-theme@0.0.1(@arco-design/web-vue@2.46.0):
-    resolution: {integrity: sha512-UUCflcjVtIgowMT9Hlzv/TD8LJzMqFfDfvohWkzwQLOUQJjbNdwoCnSCezdWEiFkV+IZfuJtABC7KbWIeug4eA==}
+  /@arco-themes/vue-ms-theme-default@0.0.2(@arco-design/web-vue@2.46.0):
+    resolution: {integrity: sha512-Cn+okkovXHAMMrDcaXKdG2LyL4EieRs3HySTEC1C5gHQyENgfFBPXWalNz5HfzlAMSZdKuzaq7/N7nRCkGvIvA==}
     peerDependencies:
       '@arco-design/web-vue': ^2.46.0
     dependencies:
@@ -9704,12 +9704,12 @@ packages:
       jest-worker: 27.5.1
       schema-utils: 3.1.2
       serialize-javascript: 6.0.1
-      terser: 5.17.5
+      terser: 5.17.6
       webpack: 5.83.1
     dev: true
 
-  /terser@5.17.5:
-    resolution: {integrity: sha512-NqFkzBX34WExkCbk3K5urmNCpEWqMPZnwGI1pMHwqvJ/zDlXC75u3NI7BrzoR8/pryy8Abx2e1i8ChrWkhH1Hg==}
+  /terser@5.17.6:
+    resolution: {integrity: sha512-V8QHcs8YuyLkLHsJO5ucyff1ykrLVsR4dNnS//L5Y3NiSXpbK1J+WMVUs67eI0KTxs9JtHhgEQpXQVHlHI92DQ==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
