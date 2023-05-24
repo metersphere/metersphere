@@ -6,10 +6,7 @@ import io.metersphere.commons.utils.XMLUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,7 +30,9 @@ public class JmxParseUtil {
     public static boolean isJmxHasScriptByStorage(List<FileContent> fileContentList) {
         for (FileContent fileContent : fileContentList) {
             try {
-                return jmxBytesHasScript(fileContent.getFile());
+                if (jmxBytesHasScript(fileContent.getFile())) {
+                    return true;
+                }
             } catch (Exception e) {
                 LogUtil.error("下载jmx文件解析是否含有脚本数据失败", e);
             }
@@ -107,6 +106,22 @@ public class JmxParseUtil {
     }
 
     private static boolean nodeIsScript(Node node) {
-        return StringUtils.containsAnyIgnoreCase(node.getNodeName(), "JSR223", "Processor");
+        if (StringUtils.containsAnyIgnoreCase(node.getNodeName(), "JSR223", "Processor")) {
+            //JSR223 或者 Processor，判断里面是否有Script字段。 存在Script字段就是脚本
+            final NodeList childNodes = node.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node childNode = childNodes.item(i);
+                NamedNodeMap namedNodeMap = childNode.getAttributes();
+                if (namedNodeMap != null) {
+                    for (int j = 0; j < namedNodeMap.getLength(); j++) {
+                        Node nodeJ = namedNodeMap.item(j);
+                        if (StringUtils.equalsIgnoreCase(nodeJ.getNodeValue(), "script")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
