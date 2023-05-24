@@ -110,7 +110,9 @@ export default {
         let width = getComputedStyle(element).getPropertyValue('width');
         localStorage.setItem(rememberKey, width);
         // 这里宽度变化设置下默认宽度，否则页面有更新，会导致宽度变回到原来的默认宽度
-        this.defaultWidth = width;
+        if (!this.asideHidden) {
+          this.defaultWidth = width;
+        }
       })
       this.observer.observe(element, { attributes: true, attributeFilter: ['style'], attributeOldValue: true })
     }
