@@ -1,0 +1,111 @@
+.nav-bar {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 10;
+  padding: 5px 0;
+  width: 35px;
+  height: 200px;
+  border-radius: 4px;
+  color: #ffffff;
+  background: #fc8383;
+  box-shadow: 3px 3px 10px rgb(0 0 0 / 20%);
+  transition: -webkit-transform 0.7s 0.1s ease;
+  transition: transform 0.7s 0.1s ease;
+  .nav-btn {
+    width: 35px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    .icon {
+      display: block;
+      margin: 2px auto;
+      width: 20px;
+      height: 20px;
+    }
+    &.active {
+      background-color: #5a6378;
+    }
+  }
+  .zoom-in .icon {
+    background-position: 0 -730px;
+  }
+  .zoom-out .icon {
+    background-position: 0 -750px;
+  }
+  .hand .icon {
+    margin: 0 auto;
+    width: 25px;
+    height: 25px;
+    background-position: 0 -770px;
+  }
+  .camera .icon {
+    margin: 0 auto;
+    width: 25px;
+    height: 25px;
+    background-position: 0 -870px;
+  }
+  .nav-trigger .icon {
+    margin: 0 auto;
+    width: 25px;
+    height: 25px;
+    background-position: 0 -845px;
+  }
+  .zoom-pan {
+    position: relative;
+    overflow: visible;
+    margin: 3px auto;
+    width: 2px;
+    height: 70px;
+    background: white;
+    box-shadow: 0 1px #e50000;
+    .origin {
+      position: absolute;
+      left: -9px;
+      margin-top: -4px;
+      width: 20px;
+      height: 8px;
+      background: transparent;
+      &::after {
+        position: absolute;
+        top: 3px;
+        left: 7px;
+        display: block;
+        width: 6px;
+        height: 2px;
+        background: white;
+        content: ' ';
+      }
+    }
+    .indicator {
+      position: absolute;
+      left: -3px;
+      margin-top: -4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 100%;
+      background: white;
+    }
+  }
+}
+.nav-previewer {
+  position: absolute;
+  bottom: 30px;
+  left: 45px;
+  z-index: 9;
+  padding: 1px;
+  width: 140px;
+  height: 120px;
+  border-radius: 0 2px 2px 0;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgb(0 0 0 / 20%);
+  transition: -webkit-transform 0.7s 0.1s ease;
+  transition: transform 0.7s 0.1s ease;
+  cursor: crosshair;
+  &.grab {
+    cursor: move;
+    cursor: grabbing;
+    cursor: grabbing;
+    cursor: grabbing;
+  }
+}

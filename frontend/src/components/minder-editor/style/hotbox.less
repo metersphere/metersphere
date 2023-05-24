@@ -1,0 +1,150 @@
+.hotbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  font-family: Arial, 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
+  .state {
+    position: absolute;
+    display: none;
+    overflow: visible;
+    .center,
+    .ring {
+      .button {
+        position: absolute;
+        margin-top: -35px;
+        margin-left: -35px;
+        width: 70px;
+        height: 70px;
+        border-radius: 100%;
+        box-shadow: 0 0 30px rgb(0 0 0 / 30%);
+      }
+      .label,
+      .key {
+        display: block;
+        text-align: center;
+        line-height: 1.4em;
+      }
+      .label {
+        margin-top: 17px;
+        font-size: 16px;
+        font-weight: normal;
+        color: black;
+        line-height: 1em;
+      }
+      .key {
+        font-size: 12px;
+        color: #999999;
+      }
+    }
+    .ring-shape {
+      position: absolute;
+      top: -25px;
+      left: -25px;
+      border: 25px solid rgb(0 0 0 / 30%);
+      border-radius: 100%;
+      box-sizing: content-box;
+    }
+    .top,
+    .bottom {
+      position: absolute;
+      white-space: nowrap;
+      .button {
+        position: relative;
+        display: inline-block;
+        margin: 0 10px;
+        padding: 8px 15px;
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgb(0 0 0 / 30%);
+        .label {
+          font-size: 14px;
+          line-height: 14px;
+          vertical-align: middle;
+          color: black;
+        }
+        .key {
+          margin-left: 3px;
+          font-size: 12px;
+          color: #999999;
+          line-height: 12px;
+          vertical-align: middle;
+          &::before {
+            content: '(';
+          }
+          &::after {
+            content: ')';
+          }
+        }
+      }
+    }
+    .button {
+      overflow: hidden;
+      background: #f9f9f9;
+      cursor: default;
+      .key,
+      .label {
+        opacity: 0.3;
+      }
+    }
+    .button.enabled {
+      background: white;
+      .key,
+      .label {
+        opacity: 1;
+      }
+      &:hover {
+        background: lighten(rgb(228 93 92), 5%);
+        .label {
+          color: white;
+        }
+        .key {
+          color: lighten(rgb(228 93 92), 30%);
+        }
+      }
+      &.selected {
+        animation: selected 0.1s ease;
+        background: rgb(228 93 92);
+        .label {
+          color: white;
+        }
+        .key {
+          color: lighten(rgb(228 93 92), 30%);
+        }
+      }
+      &.pressed,
+      &:active {
+        background: #ff974d;
+        .label {
+          color: white;
+        }
+        .key {
+          color: lighten(#ff974d, 30%);
+        }
+      }
+    }
+  }
+  .state.active {
+    display: block;
+  }
+}
+
+@keyframes selected {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.hotbox-key-receiver {
+  position: absolute;
+  top: -999999px;
+  left: -999999px;
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  outline: none;
+}
