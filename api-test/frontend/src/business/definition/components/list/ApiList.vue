@@ -192,7 +192,7 @@
             min-width="100px"
             :label="$t('api_test.definition.api_case_status')">
             <template v-slot:default="{ row }">
-              <ms-api-report-status :status="row.caseStatus"/>
+              <ms-api-report-status :status="row.caseStatus" style="text-align: left;"/>
             </template>
           </ms-table-column>
 
