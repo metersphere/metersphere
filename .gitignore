@@ -1,9 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-.DS_Store
-node_modules
-node/
-/dist
-
 # local env files
 .env.local
 .env.*.local
@@ -12,6 +6,7 @@ node/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-error.log*
 
 # Editor directories and files
 .idea/*
@@ -35,11 +30,7 @@ target
 .jython_cache
 qywx.json
 
-
-### VS Code ###
-.vscode/
 ### flattened
 .flattened-pom.xml
-
 .node/
 **/jmeter/lib/ext
