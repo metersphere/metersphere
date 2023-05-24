@@ -286,19 +286,6 @@ public class SystemParameterService {
         SystemParameterExample example = new SystemParameterExample();
 
         parameters.forEach(param -> {
-            if (param.getParamKey().equals("base.concurrency")) {
-                if (StringUtils.isNotEmpty(param.getParamValue())) {
-                    try {
-                        int poolSize = Integer.parseInt(param.getParamValue());
-                        if (poolSize > 10000) {
-                            MSException.throwException("并发数设置太大，请重新设置");
-                        }
-                        CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(poolSize);
-                    } catch (Exception e) {
-                        MSException.throwException("并发数设置不规范，请重新设置");
-                    }
-                }
-            }
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
             if (StringUtils.equals(param.getParamKey(), "base.url")) {

@@ -64,7 +64,7 @@
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
-    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%">
+    <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" top="50px" width="66%" destroy-on-close>
       <template #title>
         <ms-dialog-header :title="dialogTitle"
                           @cancel="dialogVisible = false"
