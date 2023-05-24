@@ -19,8 +19,17 @@
       </span>
       <span
         class="ms-step-debug-code"
+        :class="'ms-req-error-report'"
+        v-if="
+            !loading && !node.data.testing && node.data.debug &&
+            node.data.code === 'FAKE_ERROR'
+          ">
+          FakeError
+        </span>
+      <span
+        class="ms-step-debug-code"
         :class="node.data.code === 'ERROR' ? 'ms-req-error' : 'ms-req-success'"
-        v-if="!loading && !node.data.testing && node.data.debug">
+        v-if="!loading && !node.data.testing && node.data.debug && node.data.code !== 'FAKE_ERROR'">
         {{ getCode() }}
       </span>
     </template>
@@ -199,5 +208,9 @@ export default {
 
 .ms-test-running {
   color: #783887;
+}
+
+.ms-req-error-report {
+  color: #f6972a;
 }
 </style>
