@@ -24,7 +24,7 @@ public abstract class TestElementDTO {
     private String clazzName = TestElementDTO.class.getCanonicalName();
 
     // 当前组件唯一标示
-    private String resourceId;
+    private String uuid;
 
     // 组件标签名称
     private String name;
@@ -36,7 +36,7 @@ public abstract class TestElementDTO {
     private String index;
 
     // 是否禁用/启用标示
-    private boolean enable = true;
+    private boolean enable;
 
     // 子组件
     private LinkedList<TestElementDTO> hashTree;

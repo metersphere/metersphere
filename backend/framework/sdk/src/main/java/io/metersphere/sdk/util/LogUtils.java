@@ -1,5 +1,6 @@
 package io.metersphere.sdk.util;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,15 +201,12 @@ public class LogUtils {
      * @return
      */
     private static String getLogClass() {
-        String str = "";
-
         StackTraceElement[] stack = (new Throwable()).getStackTrace();
         if (stack.length > 3) {
             StackTraceElement ste = stack[3];
-            str = ste.getClassName();// 类名称
+            return ste.getClassName();
         }
-
-        return str;
+        return StringUtils.EMPTY;
     }
 
     /**
@@ -217,19 +215,15 @@ public class LogUtils {
      * @return
      */
     private static String getLogMethod() {
-        String str = "";
-
         StackTraceElement[] stack = (new Throwable()).getStackTrace();
-        if (stack.length > 4) {
+        if (ArrayUtils.isNotEmpty(stack) && stack.length > 4) {
             StackTraceElement ste = stack[4];
-            str = "Method[" + ste.getMethodName() + "]";// 方法名称
+            return "Method[" + ste.getMethodName() + "]";
         }
-
-        return str;
+        return StringUtils.EMPTY;
     }
 
     public static String toString(Throwable e) {
-
         try (StringWriter sw = new StringWriter();
              PrintWriter pw = new PrintWriter(sw);) {
             //将出错的栈信息输出到printWriter中
@@ -240,16 +234,5 @@ public class LogUtils {
         } catch (IOException ex) {
             return ex.getMessage();
         }
-    }
-
-    public static String getExceptionDetailsToStr(Exception e) {
-        StringBuilder sb = new StringBuilder(e.toString());
-        StackTraceElement[] stackElements = e.getStackTrace();
-        for (StackTraceElement stackTraceElement : stackElements) {
-            sb.append(stackTraceElement.toString());
-            sb.append(StringUtils.LF);
-        }
-        sb.append(StringUtils.LF);
-        return sb.toString();
     }
 }
