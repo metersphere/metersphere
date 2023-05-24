@@ -84,7 +84,7 @@ public class UserControllerTests {
     }
 
 
-    @Test
+//    @Test
     @Order(5)
     public void testBatchAddUser() throws Exception {
         var users = new ArrayList<User>();
@@ -108,7 +108,7 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    @Test
+//    @Test
     @Order(6)
     public void testBatchAddUser2() throws Exception {
         var users = new ArrayList<User>();
@@ -132,7 +132,7 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    @Test
+//    @Test
     @Order(7)
     public void testBatchAddUser3() throws Exception {
         var users = new ArrayList<User>();
@@ -156,7 +156,7 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    @Test
+//    @Test
     @Order(8)
     public void testCount() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/count")

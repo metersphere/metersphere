@@ -15,12 +15,12 @@
 
     <modules>
         <module>api-test</module>
+        <module>functional-test</module>
         <module>issue-management</module>
         <module>load-test</module>
         <module>project-management</module>
         <module>system-setting</module>
         <module>test-plan</module>
-        <module>functional-test</module>
         <module>ui-test</module>
         <module>workstation</module>
     </modules>
