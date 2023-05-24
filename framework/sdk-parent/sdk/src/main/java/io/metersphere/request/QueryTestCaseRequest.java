@@ -62,4 +62,5 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private Boolean toBeUpdated;
     private String apiCoverage;
     private String scenarioCoverage;
+    private String selectDataRange;
 }
