@@ -149,11 +149,25 @@
       ::-webkit-scrollbar-thumb {
         border: 4px solid transparent;
         border-radius: 7px;
-        background-color: var(--color-text-4);
+        background-color: var(--color-bg-6);
         background-clip: padding-box;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background-color: var(--color-text-3);
+        background-color: var(--color-bg-6);
+      }
+    }
+    :deep(.arco-menu-light) {
+      background-color: var(--color-bg-1) !important;
+      .arco-menu-item {
+        :hover {
+          background-color: var(--color-bg-6);
+        }
+        .arco-menu-selected {
+          background-color: var(--color-bg-6);
+          :hover {
+            background-color: var(--color-bg-6);
+          }
+        }
       }
     }
   }

@@ -220,7 +220,7 @@
     justify-content: space-between;
     height: 100%;
     border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-bg-2);
+    background-color: var(--color-bg-1);
   }
   .left-side {
     display: flex;
