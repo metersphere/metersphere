@@ -4,3 +4,7 @@ dist-ssr
 *.local
 .history
 coverage
+.node/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock

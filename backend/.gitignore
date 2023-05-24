@@ -24,8 +24,8 @@ yarn-error.log*
 *.sw?
 
 
-src/main/resources/static
-src/main/resources/public
+app/src/main/resources/static
+app/src/main/resources/public
 
 
 target
