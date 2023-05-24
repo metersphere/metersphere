@@ -32,5 +32,4 @@ qywx.json
 
 ### flattened
 .flattened-pom.xml
-.node/
 **/jmeter/lib/ext

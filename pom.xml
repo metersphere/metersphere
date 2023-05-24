@@ -90,8 +90,8 @@
         <httpclient.version>4.5.14</httpclient.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
-        <node.version>v16.10.0</node.version>
-        <npm.version>8.12.1</npm.version>
+        <node.version>v16.20.0</node.version>
+        <npm.version>8.19.4</npm.version>
         <!--        -->
         <skipAntRunForJenkins>false</skipAntRunForJenkins>
         <commons-dbcp2-version>2.9.0</commons-dbcp2-version>
