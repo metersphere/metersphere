@@ -60,7 +60,7 @@
 
         <!-- 创建、编辑、复制环境时的对话框 -->
         <el-dialog :visible.sync="dialogVisible" :close-on-click-modal="false" width="66%" top="50px"
-                   :fullscreen="isFullScreen">
+                   :fullscreen="isFullScreen" destroy-on-close>
           <template #title>
             <ms-dialog-header :title="dialogTitle" :hide-button="true"
                               @cancel="dialogVisible = false"

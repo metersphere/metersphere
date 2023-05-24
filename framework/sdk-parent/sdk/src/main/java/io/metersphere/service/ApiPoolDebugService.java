@@ -5,8 +5,10 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.*;
+import io.metersphere.quota.service.BaseQuotaService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +31,8 @@ public class ApiPoolDebugService {
     private SystemParameterService systemParameterService;
     @Resource
     private BaseProjectApplicationService baseProjectApplicationService;
+    @Resource
+    private BaseQuotaService baseQuotaService;
 
     public void run(JmeterRunRequestDTO request, List<TestResource> resources) throws MSException {
         try {
@@ -71,17 +76,29 @@ public class ApiPoolDebugService {
             LoggerUtil.info("校验项目为：【" + projectId + "】", runConfig.getReportId());
             ProjectConfig config = baseProjectApplicationService.getProjectConfig(projectId);
             List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
-            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
-                    .collect(Collectors.toList()).contains(config.getResourcePoolId());
 
-            if (StringUtils.isEmpty(config.getResourcePoolId()) || !contains || BooleanUtils.isFalse(config.getPoolEnable())) {
-                String id = systemParameterService.filterQuota(poolList, projectId);
-                if (StringUtils.isBlank(id)) {
-                    MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+            Set<String> poolSets = baseQuotaService.getQuotaResourcePools(projectId);
+            if (CollectionUtils.isNotEmpty(poolSets)) {
+                poolList = poolList.stream().filter(pool -> poolSets.contains(pool.getId())).collect(Collectors.toList());
+            }
+
+            if (CollectionUtils.isEmpty(poolList)) {
+                MSException.throwException("请在【项目设置-应用管理-接口测试】中选择资源池");
+            }
+
+            boolean contains = poolList.stream().map(TestResourcePoolDTO::getId)
+                    .collect(Collectors.toList()).contains(config.getResourcePoolId()) && BooleanUtils.isTrue(config.getPoolEnable());
+
+            if (!contains) {
+                List<TestResourcePoolDTO> pools = poolList.stream().filter(pool ->
+                        StringUtils.equals(pool.getName(), "LOCAL")).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(pools)) {
+                    config.setResourcePoolId(pools.get(0).getId());
                 } else {
-                    config.setResourcePoolId(id);
+                    config.setResourcePoolId(poolList.get(0).getId());
                 }
             }
+
             runConfig = runConfig == null ? new RunModeConfigDTO() : runConfig;
             runConfig.setResourcePoolId(config.getResourcePoolId());
         }
