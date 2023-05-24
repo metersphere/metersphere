@@ -1,4 +1,4 @@
-package io.metersphere.system.controller;
+package io.metersphere.plan.controller;
 
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.sdk.util.JSON;
