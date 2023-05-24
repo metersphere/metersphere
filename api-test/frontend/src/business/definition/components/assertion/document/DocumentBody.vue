@@ -8,7 +8,7 @@
             {{ $t('commons.import') }}
           </span>
           <span v-if="apiId !== 'none'">
-            <el-checkbox v-model="checked" @change="checkedAPI">{{ $t('commons.follow_api') }}</el-checkbox>
+            <el-checkbox v-model="checked" @change="checkedAPI" :disabled="isReadOnly">{{ $t('commons.follow_api') }}</el-checkbox>
           </span>
         </el-col>
       </el-row>
@@ -37,14 +37,15 @@
             v-model="scope.row.name"
             style="width: 140px"
             size="mini"
-            :placeholder="$t('api_test.definition.request.esb_table.name')" />
+            :placeholder="$t('api_test.definition.request.esb_table.name')"
+            :disabled="isReadOnly"/>
           <el-input
             v-else
-            :disabled="document.type === 'JSON'"
+            :disabled="document.type === 'JSON' || isReadOnly"
             v-model="scope.row.name"
             style="width: 140px"
             size="mini"
-            :placeholder="$t('api_test.definition.request.esb_table.name')" />
+            :placeholder="$t('api_test.definition.request.esb_table.name')"/>
         </template>
       </el-table-column>
 
@@ -52,12 +53,13 @@
         prop="include"
         width="85"
         :label="$t('api_test.request.assertions.must_contain')"
+        :disabled="isReadOnly"
         :render-header="renderHeader">
         <template slot-scope="scope">
           <el-checkbox
             v-model="scope.row.include"
             @change="handleCheckOneChange"
-            :disabled="checked || scope.row.type === 'array'" />
+            :disabled="checked || scope.row.type === 'array' || isReadOnly" />
         </template>
       </el-table-column>
 
@@ -67,7 +69,7 @@
         :label="$t('api_test.request.assertions.type_verification')"
         :render-header="renderHeaderType">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked" />
+          <el-checkbox v-model="scope.row.typeVerification" @change="handleCheckOneChange" :disabled="checked || isReadOnly" />
         </template>
       </el-table-column>
 
@@ -78,7 +80,7 @@
             :placeholder="$t('commons.please_select')"
             size="mini"
             @change="changeType(scope.row)"
-            :disabled="checked">
+            :disabled="checked || isReadOnly">
             <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -93,7 +95,7 @@
             v-model="scope.row.contentVerification"
             :placeholder="$t('commons.please_select')"
             size="mini"
-            :disabled="checked">
+            :disabled="checked || isReadOnly">
             <el-option v-for="item in verificationOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </template>
@@ -103,7 +105,7 @@
         :label="$t('api_test.request.assertions.expected_results')"
         min-width="200">
         <template slot-scope="scope">
-          <el-input v-if="scope.row.status && scope.column.fixed" v-model="scope.row.expectedOutcome" size="mini" />
+          <el-input v-if="scope.row.status && scope.column.fixed" v-model="scope.row.expectedOutcome" size="mini" :disabled="isReadOnly"/>
           <span v-else>{{ scope.row.expectedOutcome }}</span>
         </template>
       </el-table-column>
@@ -112,13 +114,14 @@
         prop="arrayVerification"
         width="140"
         :label="$t('api_test.request.assertions.check')"
+        :disabled="isReadOnly"
         :scoped-slot="renderHeaderArray">
         <template slot-scope="scope">
           <el-checkbox
             v-model="scope.row.arrayVerification"
             @change="handleCheckOneChange"
             v-if="scope.row.type === 'array'"
-            :disabled="checked" />
+            :disabled="checked || isReadOnly" />
         </template>
       </el-table-column>
 
@@ -133,7 +136,7 @@
                 size="mini"
                 @click="addVerification(scope.row)"
                 :disabled="
-                  scope.row.type === 'object' || scope.row.type === 'array' || checked || scope.row.id === 'root'
+                  scope.row.type === 'object' || scope.row.type === 'array' || checked || scope.row.id === 'root' || isReadOnly
                 " />
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('api_test.request.assertions.add_subfield')" placement="top-start">
@@ -144,7 +147,7 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="addRow(scope.row)"
-                :disabled="(scope.row.type !== 'object' && scope.row.type !== 'array') || checked" />
+                :disabled="(scope.row.type !== 'object' && scope.row.type !== 'array') || checked || isReadOnly" />
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
               <el-button
@@ -154,7 +157,7 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="remove(scope.row)"
-                :disabled="checked || scope.row.id === 'root'" />
+                :disabled="checked || scope.row.id === 'root' || isReadOnly" />
             </el-tooltip>
           </span>
         </template>
@@ -456,12 +459,12 @@ export default {
         h('span', column.label),
         h('el-checkbox', {
           style: 'margin-left:5px;',
-          disabled: this.checked,
           on: {
             change: this.handleCheckAllChange,
           },
           props: {
-            checked: this.document.data.include
+            checked: this.document.data.include,
+            disabled: this.checked || this.isReadOnly,
           },
         }),
         h(
@@ -486,12 +489,12 @@ export default {
         h('span', column.label),
         h('el-checkbox', {
           style: 'margin-left:5px;',
-          disabled: this.checked,
           on: {
             change: this.handleType,
           },
           props: {
-            checked: this.document.data.typeVerification
+            checked: this.document.data.typeVerification,
+            disabled: this.checked || this.isReadOnly,
           },
         }),
         h(
@@ -516,7 +519,7 @@ export default {
       return h('span', [
         h('el-checkbox', {
           style: 'margin-right:5px;',
-          disabled: this.checked,
+          disabled: this.checked || this.isReadOnly,
           on: {
             change: this.handleArray,
           },
@@ -599,7 +602,9 @@ export default {
     },
     handleCheckOneChange(val) {},
     importData() {
-      this.$refs.import.openOneClickOperation();
+      if (!this.isReadOnly){
+        this.$refs.import.openOneClickOperation();
+      }
     },
     remove(row) {
       this.removeTableRow(row);
