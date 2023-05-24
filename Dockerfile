@@ -16,9 +16,9 @@ COPY backend/src/main/resources/public /app/public
 COPY backend/src/main/resources/static /app/static
 
 
-RUN mv /app/lib/ms-jmeter-core-*.jar /app/lib/ms-jmeter-core.jar
+RUN mv /app/lib/metersphere-jmeter-core-*.jar /app/lib/metersphere-jmeter-core.jar
 
-ENV JAVA_CLASSPATH=/app:/app/lib/ms-jmeter-core.jar:/opt/jmeter/lib/ext/*:/app/lib/*
+ENV JAVA_CLASSPATH=/app:/app/lib/metersphere-jmeter-core.jar:/opt/jmeter/lib/ext/*:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}
