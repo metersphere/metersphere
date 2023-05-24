@@ -26,7 +26,6 @@
       <el-row>
         <el-upload
           class="issue-upload" drag action="alert"
-          :limit="1"
           :file-list="uploadFiles"
           :http-request="handleUpload"
           :on-remove="handleRemove" accept=".xls, .xlsx">
@@ -97,6 +96,7 @@ export default {
       this.errList = [];
     },
     handleUpload(file) {
+      this.uploadFiles = [];
       this.uploadFiles.push(file.file);
     },
     handleRemove(file) {
