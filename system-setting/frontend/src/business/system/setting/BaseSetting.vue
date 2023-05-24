@@ -8,9 +8,6 @@
             <el-input v-model="formInline.url" :placeholder="$t('system_config.base.url_tip')"/>
             <i>({{ $t('commons.examples') }}:https://rdmetersphere.fit2cloud.com)</i>
           </el-form-item>
-          <el-form-item :label="$t('report.max_users')" prop="concurrency">
-            <el-input v-model="formInline.concurrency" :placeholder="$t('report.max_users')"/>
-          </el-form-item>
           <el-form-item :label="$t('system_config.prometheus.host')" prop="prometheusHost">
             <el-input v-model="formInline.prometheusHost" :placeholder="$t('system_config.prometheus.host_tip')"/>
             <i>({{ $t('commons.examples') }}:http://ms-prometheus:9090)</i>

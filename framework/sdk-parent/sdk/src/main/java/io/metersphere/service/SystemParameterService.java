@@ -6,7 +6,6 @@ import io.metersphere.base.mapper.SystemHeaderMapper;
 import io.metersphere.base.mapper.SystemParameterMapper;
 import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.BaseSystemParameterMapper;
-import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.ProjectApplicationType;
 import io.metersphere.commons.constants.ResourceStatusEnum;
@@ -398,19 +397,6 @@ public class SystemParameterService {
         SystemParameterExample example = new SystemParameterExample();
 
         parameters.forEach(param -> {
-            if (param.getParamKey().equals("base.concurrency")) {
-                if (StringUtils.isNotEmpty(param.getParamValue())) {
-                    try {
-                        int poolSize = Integer.parseInt(param.getParamValue());
-                        if (poolSize > 10000) {
-                            MSException.throwException("并发数设置太大，请重新设置");
-                        }
-                        microService.getForData(MicroServiceName.API_TEST, "/exec/thread/pool/set-core-size/" + poolSize);
-                    } catch (Exception e) {
-                        MSException.throwException("并发数设置不规范，请重新设置");
-                    }
-                }
-            }
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
             if (StringUtils.equals(param.getParamKey(), "base.url")) {
