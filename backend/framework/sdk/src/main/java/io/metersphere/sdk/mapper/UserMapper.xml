@@ -13,4 +13,21 @@
     SELECT *
     FROM user
 </select>
+
+<insert id="insert">
+    INSERT INTO user(id, name, email, password, status, create_time, update_time, language, last_workspace_id, phone,
+                     source, last_project_id, create_user)
+    VALUES (#{id}, #{name}, #{email}, #{password}, #{status}, #{createTime}, #{updateTime}, #{language},
+            #{lastWorkspaceId}, #{phone}, #{source}, #{lastProjectId}, #{createUser})
+</insert>
+
+<insert id="batchSave">
+    INSERT INTO user(id, name, email, password, status, create_time, update_time, language, last_workspace_id, phone,
+                     source, last_project_id, create_user)
+    VALUES
+    <foreach collection="users" item="user" separator=",">
+        (#{user.id}, #{user.name}, #{user.email}, #{user.password}, #{user.status}, #{user.createTime}, #{user.updateTime}, #{user.language},
+         #{user.lastWorkspaceId}, #{user.phone}, #{user.source}, #{user.lastProjectId}, #{user.createUser})
+    </foreach>
+</insert>
 </mapper>

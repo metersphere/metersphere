@@ -2,6 +2,7 @@ package io.metersphere.sdk.mapper;
 
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.domain.User;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,4 +10,8 @@ public interface UserMapper {
     UserDTO selectById(String id);
 
     List<User> findAll();
+
+    void insert(User user);
+
+    void batchSave(@Param("users") List<User> users);
 }
