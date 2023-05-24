@@ -3,6 +3,7 @@ package io.metersphere.functional.domain;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.io.Serializable;
 @ApiModel(value = "功能用例")
 @Table("functional_case_blob")
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseBlob extends FunctionalCase implements Serializable {
     private static final long serialVersionUID = 1L;
 

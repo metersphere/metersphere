@@ -1,6 +1,7 @@
 
 package io.metersphere.api.domain;
 
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Updated;
@@ -14,6 +15,7 @@ import java.io.Serializable;
 @ApiModel(value = "mock期望值配置")
 @Table("api_definition_mock_config")
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionMockConfig extends ApiDefinitionMock implements Serializable {
     private static final long serialVersionUID = 1L;
 
