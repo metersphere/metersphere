@@ -14,7 +14,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "lint:styles": "stylelint 'src/**/*.{vue,html,css,scss,less}' --fix",
     "lint-staged": "npx lint-staged",
-    "prepare": "husky install",
+    "prepare": "cd .. && husky install frontend/.husky",
     "test": "vitest",
     "coverage": "vitest run --coverage"
   },
