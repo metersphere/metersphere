@@ -1803,6 +1803,11 @@ export default {
           this.initMessageSocket();
         } else {
           this.debugLoading = false;
+          let hasRequest = runScenario && runScenario.hasRequest;
+          if (hasRequest  && runScenario.hashTree) {
+            runScenario.hashTree[0].requestResult = [];
+            runScenario.hashTree[0].testing = false;
+          }
         }
       });
     },
