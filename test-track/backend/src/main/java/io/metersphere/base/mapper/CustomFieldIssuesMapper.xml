@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    resource_id, field_id, `value`
+    resource_id, field_id, `value`, text_value
   </sql>
   <sql id="Blob_Column_List">
     text_value
