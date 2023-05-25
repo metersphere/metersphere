@@ -192,7 +192,7 @@
           </el-col>
           <el-col :span="2">
             <div v-if="totalStatus" style="float:right;">
-              <el-tag size="mini"
+              <el-tag size="mini" type="info"
                       v-if="totalStatus === 'unexecute' || totalStatus === 'Pending'|| totalStatus === 'PENDING'"
               > Pending
               </el-tag>
