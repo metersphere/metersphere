@@ -265,7 +265,7 @@ public class ReflexObjectUtil {
                                 continue;
                             }
                         }
-                        if (column.getDiffValue() == null || StringUtils.isBlank(JSON.toJSONString(column.getDiffValue())) || (StringUtils.isBlank(JSON.toJSONString(column.getNewValue())) && StringUtils.isBlank(JSON.toJSONString(column.getOriginalValue())))) {
+                        if (StringUtils.isBlank(JSON.toJSONString(column.getNewValue())) && StringUtils.isBlank(JSON.toJSONString(column.getOriginalValue()))) {
                             continue;
                         }
 
