@@ -95,7 +95,6 @@ public class WorkstationService {
         operatorValue.put("operator", "current user");
         operatorValue.put("value", "current user");
         combine.put("creator", operatorValue);
-        Map<String, List<String>> filter = new HashMap<>(2);
         testPlanRequest.setCombine(combine);
         apiTestCaseRequest.setCombine(combine);
         ApiScenarioRequest apiScenarioRequest = new ApiScenarioRequest();
@@ -110,12 +109,6 @@ public class WorkstationService {
         if (isWeek) {
             testCaseRequest.setCreateTime(createTime);
         }
-        List<String> status = new ArrayList<>();
-        status.add("Prepare");
-        status.add("Pass");
-        status.add("UnPass");
-        filter.put("reviewStatus", status);
-        testCaseRequest.setFilters(filter);
         //query db
         int apiScenarioCaseCount = extApiScenarioMapper.listModule(apiScenarioRequest);
         int apiTestCaseCount = extApiTestCaseMapper.moduleCount(apiTestCaseRequest);
