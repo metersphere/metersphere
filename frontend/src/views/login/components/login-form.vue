@@ -1,5 +1,5 @@
 <template>
-  <div class="login-form">
+  <div class="login-form flex flex-col items-center">
     <div class="title">
       <div class="mt-40 flex justify-center">
         <svg-icon :width="'290px'" :height="'60px'" :name="'login-logo'" />
@@ -122,9 +122,11 @@
 
 <style lang="less" scoped>
   .login-form {
-    margin-left: 10px;
     .title-welcome {
       color: #783887;
+    }
+    .form {
+      width: 443px;
     }
   }
 </style>
