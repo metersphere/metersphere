@@ -1535,6 +1535,10 @@ export default {
           this.initMessageSocket();
         } else {
           this.debugLoading = false;
+          if (runScenario.hashTree) {
+            runScenario.hashTree[0].requestResult = [];
+            runScenario.hashTree[0].testing = false;
+          }
         }
       })
     },
