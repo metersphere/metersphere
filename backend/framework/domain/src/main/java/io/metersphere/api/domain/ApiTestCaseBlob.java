@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Table("api_test_case_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ApiTestCaseBlob extends ApiTestCase implements Serializable {
+public class ApiTestCaseBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

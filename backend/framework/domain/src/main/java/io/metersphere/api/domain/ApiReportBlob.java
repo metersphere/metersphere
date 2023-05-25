@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Table("api_report_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ApiReportBlob extends ApiReport implements Serializable {
+public class ApiReportBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

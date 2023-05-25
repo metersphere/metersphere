@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Table("functional_case_blob")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class FunctionalCaseBlob extends FunctionalCase implements Serializable {
+public class FunctionalCaseBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(name = "用例步骤（JSON)，step_model 为 0 时启用", required = false)

@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Table("api_definition_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ApiDefinitionBlob extends ApiDefinition implements Serializable {
+public class ApiDefinitionBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

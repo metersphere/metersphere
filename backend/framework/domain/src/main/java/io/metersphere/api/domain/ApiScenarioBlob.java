@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Table("api_scenario_blob")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ApiScenarioBlob extends ApiScenario implements Serializable {
+public class ApiScenarioBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

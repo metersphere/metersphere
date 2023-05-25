@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Table("api_definition_mock_config")
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiDefinitionMockConfig extends ApiDefinitionMock implements Serializable {
+public class ApiDefinitionMockConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id

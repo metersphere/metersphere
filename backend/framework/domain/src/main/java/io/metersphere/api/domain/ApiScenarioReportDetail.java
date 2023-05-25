@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Table("api_scenario_report_detail")
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ApiScenarioReportDetail extends ApiScenarioReport implements Serializable {
+public class ApiScenarioReportDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
