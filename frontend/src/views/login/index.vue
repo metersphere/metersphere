@@ -15,9 +15,8 @@
 
 <style lang="less" scoped>
   .my-container {
-    width: 1440px;
+    width: 100vw;
     height: 100vh;
-    background-color: #ffffff;
     .login-box {
       margin-top: calc(50vh - 400px);
       height: 730px;

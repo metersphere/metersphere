@@ -1,6 +1,6 @@
 <template>
-  <div class="banner-wrap ml-2.5 flex items-center">
-    <img class="h-365px w-567px m-auto block" :src="bannerImage" />
+  <div class="banner-wrap mt-40">
+    <img class="img w-567px m-auto block" :src="bannerImage" />
   </div>
 </template>
 
@@ -11,5 +11,8 @@
 <style lang="less" scoped>
   .banner-wrap {
     height: 760px;
+    .img {
+      height: 365px;
+    }
   }
 </style>
