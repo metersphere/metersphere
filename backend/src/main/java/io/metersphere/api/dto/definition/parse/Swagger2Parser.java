@@ -24,6 +24,7 @@ import io.swagger.models.auth.AuthorizationValue;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
 import io.swagger.parser.SwaggerParser;
+import lombok.val;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -226,28 +227,30 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         // todo 路径变量 {xxx} 是否要转换
 
         for (Parameter parameter : parameters) {
-            switch (parameter.getIn()) {
-                case SwaggerParameterType.PATH:
-                    parsePathParameters(parameter, request.getRest());
-                    break;
-                case SwaggerParameterType.QUERY:
-                    parseQueryParameters(parameter, request.getArguments());
-                    break;
-                case SwaggerParameterType.FORM_DATA:
-                    parseFormDataParameters((FormParameter) parameter, request.getBody());
-                    break;
-                case SwaggerParameterType.BODY:
-                    parseRequestBodyParameters(parameter, request.getBody());
-                    break;
-                case SwaggerParameterType.HEADER:
-                    parseHeaderParameters(parameter, request.getHeaders());
-                    break;
-                case SwaggerParameterType.COOKIE:
-                    parseCookieParameters(parameter, request.getHeaders());
-                    break;
+            if (StringUtils.isNotBlank(parameter.getIn())) {
+                switch (parameter.getIn()) {
+                    case SwaggerParameterType.PATH:
+                        parsePathParameters(parameter, request.getRest());
+                        break;
+                    case SwaggerParameterType.QUERY:
+                        parseQueryParameters(parameter, request.getArguments());
+                        break;
+                    case SwaggerParameterType.FORM_DATA:
+                        parseFormDataParameters((FormParameter) parameter, request.getBody());
+                        break;
+                    case SwaggerParameterType.BODY:
+                        parseRequestBodyParameters(parameter, request.getBody());
+                        break;
+                    case SwaggerParameterType.HEADER:
+                        parseHeaderParameters(parameter, request.getHeaders());
+                        break;
+                    case SwaggerParameterType.COOKIE:
+                        parseCookieParameters(parameter, request.getHeaders());
+                        break;
 //                case SwaggerParameterType.FILE:
 //                    parsePathParameters(parameter, request);
 //                    break;
+                }
             }
         }
     }

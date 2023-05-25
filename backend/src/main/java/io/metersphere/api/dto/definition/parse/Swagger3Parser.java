@@ -34,6 +34,7 @@ import io.swagger.v3.parser.core.models.AuthorizationValue;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 
@@ -626,16 +627,18 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         Schema schema = getSchema(parameter.getSchema());
         Set<String> refSet = new HashSet<>();
         JsonSchemaItem jsonSchemaItem = parseSchema(schema, refSet);
-        if (MapUtils.isEmpty(jsonSchemaItem.getProperties())) {
-            arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter, jsonSchemaItem), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired(), getMin(jsonSchemaItem), getMax(jsonSchemaItem)));
-        } else {
-            Map<String, JsonSchemaItem> properties = jsonSchemaItem.getProperties();
-            properties.forEach((key, value) -> {
-                arguments.add(new KeyValue(key, getDefaultValue(queryParameter, value),
-                        getDefaultStringValue(value.getDescription()),
-                        parameter.getRequired(),
-                        getMin(value), getMax(value)));
-            });
+        if (ObjectUtils.isNotEmpty(jsonSchemaItem)){
+            if (MapUtils.isEmpty(jsonSchemaItem.getProperties())) {
+                arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter, jsonSchemaItem), getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired(), getMin(jsonSchemaItem), getMax(jsonSchemaItem)));
+            } else {
+                Map<String, JsonSchemaItem> properties = jsonSchemaItem.getProperties();
+                properties.forEach((key, value) -> {
+                    arguments.add(new KeyValue(key, getDefaultValue(queryParameter, value),
+                            getDefaultStringValue(value.getDescription()),
+                            parameter.getRequired(),
+                            getMin(value), getMax(value)));
+                });
+            }
         }
     }
 
