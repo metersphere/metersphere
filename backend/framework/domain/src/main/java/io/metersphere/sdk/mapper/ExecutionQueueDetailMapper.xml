@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.sdk.mapper.ExecutionQueueDetailMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="queue_id" jdbcType="VARCHAR" property="queueId" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="test_id" jdbcType="VARCHAR" property="testId" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="retry_enable" jdbcType="BIT" property="retryEnable" />
+    <result column="retry_number" jdbcType="BIGINT" property="retryNumber" />
+    <result column="project_ids" jdbcType="VARCHAR" property="projectIds" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    <result column="evn_map" jdbcType="LONGVARCHAR" property="evnMap" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, queue_id, sort, report_id, test_id, `type`, create_time, retry_enable, retry_number, 
+    project_ids
+  </sql>
+  <sql id="Blob_Column_List">
+    evn_map
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetailExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from execution_queue_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetailExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from execution_queue_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from execution_queue_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from execution_queue_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetailExample">
+    delete from execution_queue_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    insert into execution_queue_detail (id, queue_id, sort, 
+      report_id, test_id, `type`, 
+      create_time, retry_enable, retry_number, 
+      project_ids, evn_map)
+    values (#{id,jdbcType=VARCHAR}, #{queueId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, 
+      #{reportId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{retryEnable,jdbcType=BIT}, #{retryNumber,jdbcType=BIGINT}, 
+      #{projectIds,jdbcType=VARCHAR}, #{evnMap,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    insert into execution_queue_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="queueId != null">
+        queue_id,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="reportId != null">
+        report_id,
+      </if>
+      <if test="testId != null">
+        test_id,
+      </if>
+      <if test="type != null">
+        `type`,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="retryEnable != null">
+        retry_enable,
+      </if>
+      <if test="retryNumber != null">
+        retry_number,
+      </if>
+      <if test="projectIds != null">
+        project_ids,
+      </if>
+      <if test="evnMap != null">
+        evn_map,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="queueId != null">
+        #{queueId,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        #{testId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="retryEnable != null">
+        #{retryEnable,jdbcType=BIT},
+      </if>
+      <if test="retryNumber != null">
+        #{retryNumber,jdbcType=BIGINT},
+      </if>
+      <if test="projectIds != null">
+        #{projectIds,jdbcType=VARCHAR},
+      </if>
+      <if test="evnMap != null">
+        #{evnMap,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetailExample" resultType="java.lang.Long">
+    select count(*) from execution_queue_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update execution_queue_detail
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.queueId != null">
+        queue_id = #{record.queueId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=INTEGER},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testId != null">
+        test_id = #{record.testId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.retryEnable != null">
+        retry_enable = #{record.retryEnable,jdbcType=BIT},
+      </if>
+      <if test="record.retryNumber != null">
+        retry_number = #{record.retryNumber,jdbcType=BIGINT},
+      </if>
+      <if test="record.projectIds != null">
+        project_ids = #{record.projectIds,jdbcType=VARCHAR},
+      </if>
+      <if test="record.evnMap != null">
+        evn_map = #{record.evnMap,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update execution_queue_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      queue_id = #{record.queueId,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=INTEGER},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      retry_enable = #{record.retryEnable,jdbcType=BIT},
+      retry_number = #{record.retryNumber,jdbcType=BIGINT},
+      project_ids = #{record.projectIds,jdbcType=VARCHAR},
+      evn_map = #{record.evnMap,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update execution_queue_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      queue_id = #{record.queueId,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=INTEGER},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      test_id = #{record.testId,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      retry_enable = #{record.retryEnable,jdbcType=BIT},
+      retry_number = #{record.retryNumber,jdbcType=BIGINT},
+      project_ids = #{record.projectIds,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    update execution_queue_detail
+    <set>
+      <if test="queueId != null">
+        queue_id = #{queueId,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="testId != null">
+        test_id = #{testId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="retryEnable != null">
+        retry_enable = #{retryEnable,jdbcType=BIT},
+      </if>
+      <if test="retryNumber != null">
+        retry_number = #{retryNumber,jdbcType=BIGINT},
+      </if>
+      <if test="projectIds != null">
+        project_ids = #{projectIds,jdbcType=VARCHAR},
+      </if>
+      <if test="evnMap != null">
+        evn_map = #{evnMap,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    update execution_queue_detail
+    set queue_id = #{queueId,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=INTEGER},
+      report_id = #{reportId,jdbcType=VARCHAR},
+      test_id = #{testId,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      retry_enable = #{retryEnable,jdbcType=BIT},
+      retry_number = #{retryNumber,jdbcType=BIGINT},
+      project_ids = #{projectIds,jdbcType=VARCHAR},
+      evn_map = #{evnMap,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.ExecutionQueueDetail">
+    update execution_queue_detail
+    set queue_id = #{queueId,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=INTEGER},
+      report_id = #{reportId,jdbcType=VARCHAR},
+      test_id = #{testId,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      retry_enable = #{retryEnable,jdbcType=BIT},
+      retry_number = #{retryNumber,jdbcType=BIGINT},
+      project_ids = #{projectIds,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

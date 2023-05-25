@@ -1,36 +1,29 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "操作日志关系记录")
-@Table("operating_log_resource")
 @Data
 public class OperatingLogResource implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    @Id
-    @NotBlank(message = "{operating_log_resource.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues="range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{operating_log_resource.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{operating_log_resource.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
-    
-    @Size(min = 1, max = 50, message = "{operating_log_resource.operating_log_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{operating_log_resource.operating_log_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "Operating log ID", required = true, allowableValues="range[1, 50]")
-    private String operatingLogId;
-    
-    @Size(min = 1, max = 50, message = "{operating_log_resource.source_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{operating_log_resource.source_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "operating source id", required = true, allowableValues="range[1, 50]")
-    private String sourceId;
-    
 
+    @Schema(title = "Operating log ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{operating_log_resource.operating_log_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{operating_log_resource.operating_log_id.length_range}", groups = {Created.class, Updated.class})
+    private String operatingLogId;
+
+    @Schema(title = "operating source id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{operating_log_resource.source_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{operating_log_resource.source_id.length_range}", groups = {Created.class, Updated.class})
+    private String sourceId;
+
+    private static final long serialVersionUID = 1L;
 }

@@ -1,12 +1,9 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections4.IterableUtils;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
-import org.springframework.data.relational.core.query.Criteria;
-import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,8 +13,6 @@ import java.util.List;
 @Transactional
 public class ProjectApplicationService {
     @Resource
-    private JdbcAggregateTemplate jdbcAggregateTemplate;
-    @Resource
     private ProjectApplicationMapper projectApplicationMapper;
 
     public ProjectApplication save(ProjectApplication application) {
@@ -26,13 +21,13 @@ public class ProjectApplicationService {
     }
 
     public ProjectApplication update(ProjectApplication application) {
-        projectApplicationMapper.update(application);
+        projectApplicationMapper.updateByPrimaryKey(application);
         return application;
     }
 
     public List<ProjectApplication> list(String projectId) {
-//        Query query = Query.query(Criteria.where("project_id").is(projectId));
-
-        return projectApplicationMapper.listByProjectId(projectId);
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        return projectApplicationMapper.selectByExample(example);
     }
 }

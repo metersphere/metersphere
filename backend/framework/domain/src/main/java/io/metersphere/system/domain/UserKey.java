@@ -1,50 +1,40 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "用户api key")
-@Table("user_key")
 @Data
 public class UserKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{user_key.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "user_key ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "user_key ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user_key.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{user_key.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user_key.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user_key.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "用户ID", required = true, allowableValues = "range[1, 50]")
     private String createUser;
 
+    @Schema(title = "access_key", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user_key.access_key.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.access_key.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user_key.access_key.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "access_key", required = true, allowableValues = "range[1, 50]")
     private String accessKey;
 
+    @Schema(title = "secret key", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user_key.secret_key.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.secret_key.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user_key.secret_key.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "secret key", required = true, allowableValues = "range[1, 50]")
     private String secretKey;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "状态", required = false, allowableValues = "range[1, 10]")
+    @Schema(title = "状态")
     private String status;
 
-
+    private static final long serialVersionUID = 1L;
 }

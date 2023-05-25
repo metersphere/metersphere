@@ -1,65 +1,50 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "文件管理模块")
-@Table("file_module")
 @Data
 public class FileModule implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{file_module.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{file_module.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{file_module.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{file_module.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_module.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{file_module.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
 
+    @Schema(title = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{file_module.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{file_module.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{file_module.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "模块名称", required = true, allowableValues = "range[1, 64]")
     private String name;
 
-
-    @ApiModelProperty(name = "父级ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "父级ID")
     private String parentId;
 
-
-    @ApiModelProperty(name = "层数", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "层数")
     private Integer level;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "排序用的标识", required = false, allowableValues = "range[1, 22]")
+    @Schema(title = "排序用的标识")
     private Double pos;
 
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人")
     private String createUser;
 
-
-    @ApiModelProperty(name = "模块类型: module/repository", required = false, allowableValues = "range[1, 20]")
+    @Schema(title = "模块类型: module/repository")
     private String moduleType;
 
-
+    private static final long serialVersionUID = 1L;
 }

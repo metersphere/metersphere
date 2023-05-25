@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.sdk.mapper.ExecutionQueueMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.ExecutionQueue">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="report_type" jdbcType="VARCHAR" property="reportType" />
+    <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
+    <result column="pool_id" jdbcType="VARCHAR" property="poolId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="failure" jdbcType="BIT" property="failure" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, report_id, report_type, run_mode, pool_id, create_time, failure
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from execution_queue
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from execution_queue
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from execution_queue
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueExample">
+    delete from execution_queue
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.ExecutionQueue">
+    insert into execution_queue (id, report_id, report_type, 
+      run_mode, pool_id, create_time, 
+      failure)
+    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{reportType,jdbcType=VARCHAR}, 
+      #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{failure,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.ExecutionQueue">
+    insert into execution_queue
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="reportId != null">
+        report_id,
+      </if>
+      <if test="reportType != null">
+        report_type,
+      </if>
+      <if test="runMode != null">
+        run_mode,
+      </if>
+      <if test="poolId != null">
+        pool_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="failure != null">
+        failure,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportType != null">
+        #{reportType,jdbcType=VARCHAR},
+      </if>
+      <if test="runMode != null">
+        #{runMode,jdbcType=VARCHAR},
+      </if>
+      <if test="poolId != null">
+        #{poolId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="failure != null">
+        #{failure,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.ExecutionQueueExample" resultType="java.lang.Long">
+    select count(*) from execution_queue
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update execution_queue
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportType != null">
+        report_type = #{record.reportType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.runMode != null">
+        run_mode = #{record.runMode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.poolId != null">
+        pool_id = #{record.poolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.failure != null">
+        failure = #{record.failure,jdbcType=BIT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update execution_queue
+    set id = #{record.id,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      report_type = #{record.reportType,jdbcType=VARCHAR},
+      run_mode = #{record.runMode,jdbcType=VARCHAR},
+      pool_id = #{record.poolId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      failure = #{record.failure,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.ExecutionQueue">
+    update execution_queue
+    <set>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportType != null">
+        report_type = #{reportType,jdbcType=VARCHAR},
+      </if>
+      <if test="runMode != null">
+        run_mode = #{runMode,jdbcType=VARCHAR},
+      </if>
+      <if test="poolId != null">
+        pool_id = #{poolId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="failure != null">
+        failure = #{failure,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.ExecutionQueue">
+    update execution_queue
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      report_type = #{reportType,jdbcType=VARCHAR},
+      run_mode = #{runMode,jdbcType=VARCHAR},
+      pool_id = #{poolId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      failure = #{failure,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

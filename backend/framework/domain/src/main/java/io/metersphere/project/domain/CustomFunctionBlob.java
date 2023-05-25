@@ -1,39 +1,28 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "自定义函数-代码片段大字段")
-@Table("custom_function_blob")
 @Data
-@EqualsAndHashCode(callSuper=false)
 public class CustomFunctionBlob implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{custom_function_blob.function_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{custom_function_blob.function_id.length_range}", groups = {Created.class, Updated.class})
+    private String functionId;
 
-    @Id
-    @NotBlank(message = "{custom_function_blob.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
-    private String id;
-
-
-    @ApiModelProperty(name = "参数列表", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "参数列表")
     private byte[] params;
 
-
-    @ApiModelProperty(name = "函数体", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "函数体")
     private byte[] script;
 
-
-    @ApiModelProperty(name = "执行结果", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "执行结果")
     private byte[] result;
 
-
+    private static final long serialVersionUID = 1L;
 }

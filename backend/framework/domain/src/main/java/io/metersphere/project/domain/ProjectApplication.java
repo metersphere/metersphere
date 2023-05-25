@@ -2,29 +2,26 @@ package io.metersphere.project.domain;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import org.springframework.data.relational.core.mapping.Table;
-
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "项目应用")
-@Table("project_application")
 @Data
 public class ProjectApplication implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @NotBlank(message = "{project_application.project_id.not_blank}", groups = {Created.class, Updated.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{project_application.project_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{project_application.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @NotBlank(message = "{project_application.type.not_blank}", groups = {Created.class, Updated.class})
-    @ApiModelProperty(name = "配置项", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "配置项", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{project_application.type.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{project_application.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-
-    @ApiModelProperty(name = "配置值", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "配置值")
     private String typeValue;
+
+    private static final long serialVersionUID = 1L;
 }

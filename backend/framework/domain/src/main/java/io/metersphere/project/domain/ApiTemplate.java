@@ -1,62 +1,45 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "API模版表")
-@Table("api_template")
 @Data
 public class ApiTemplate implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{api_template.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "模版ID", required = true, allowableValues = "range[1, 100]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{api_template.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_template.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{api_template.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{api_template.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{api_template.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "模版名称", required = true, allowableValues = "range[1, 64]")
     private String name;
 
-
-    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "描述")
     private String description;
 
+    @Schema(title = "是否是系统模板", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @NotBlank(message = "{api_template.system.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{api_template.system.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{api_template.system.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "是否是系统模版", required = true, allowableValues = "range[1, 1]")
     private Boolean system;
 
-    @Size(min = 1, max = 1, message = "{api_template.global.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{api_template.global.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "是否是全局模版", required = true, allowableValues = "range[1, 1]")
-    private Boolean global;
-
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
-    private Long updateTime;
-
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{api_template.create_user.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_template.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
-
-    @ApiModelProperty(name = "项目ID", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{api_template.project_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_template.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-
+    private static final long serialVersionUID = 1L;
 }

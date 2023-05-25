@@ -1,86 +1,63 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "自定义字段")
-@Table("custom_field")
 @Data
 public class CustomField implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    @Id
-    @NotBlank(message = "{custom_field.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "自定义字段ID", required = true, allowableValues="range[1, 100]")
+    @Schema(title = "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{custom_field.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 100, message = "{custom_field.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
-    
-    @Size(min = 1, max = 64, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{custom_field.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "自定义字段名称", required = true, allowableValues="range[1, 64]")
-    private String name;
-    
-    @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "使用场景", required = true, allowableValues="range[1, 30]")
-    private String scene;
-    
-    @Size(min = 1, max = 30, message = "{custom_field.type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{custom_field.type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "自定义字段类型", required = true, allowableValues="range[1, 30]")
-    private String type;
-    
-    
-    
-    @ApiModelProperty(name = "自定义字段备注", required = false, allowableValues="range[1, 255]")
-    private String remark;
-    
-    
-    
-    @ApiModelProperty(name = "自定义字段选项", required = false, allowableValues="range[1, ]")
-    private String options;
-    
-    
-    
-    @ApiModelProperty(name = "是否是系统字段", required = false, allowableValues="range[1, ]")
-    private Boolean system;
-    
-    
-    
-    @ApiModelProperty(name = "是否是全局字段", required = false, allowableValues="range[1, ]")
-    private Boolean global;
-    
-    
-    
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues="range[1, ]")
-    private Long createTime;
-    
-    
-    
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues="range[1, ]")
-    private Long updateTime;
-    
-    
-    
-    @ApiModelProperty(name = "创建人", required = false, allowableValues="range[1, 100]")
-    private String createUser;
-    
-    
-    
-    @ApiModelProperty(name = "项目ID", required = false, allowableValues="range[1, 64]")
-    private String projectId;
-    
-    
-    
-    @ApiModelProperty(name = "是否关联第三方", required = true, allowableValues="range[1, ]")
-    private Boolean thirdPart;
-    
 
+    @Schema(title = "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{custom_field.name.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 64, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
+    private String name;
+
+    @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 30]")
+    @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
+    private String scene;
+
+    @Schema(title = "自定义字段类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 30]")
+    @NotBlank(message = "{custom_field.type.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 30, message = "{custom_field.type.length_range}", groups = {Created.class, Updated.class})
+    private String type;
+
+    @Schema(title = "自定义字段备注")
+    private String remark;
+
+    @Schema(title = "是否是系统字段")
+    private Boolean system;
+
+    @Schema(title = "是否是全局字段")
+    private Boolean global;
+
+    @Schema(title = "创建时间")
+    private Long createTime;
+
+    @Schema(title = "更新时间")
+    private Long updateTime;
+
+    @Schema(title = "创建人")
+    private String createUser;
+
+    @Schema(title = "项目ID")
+    private String projectId;
+
+    @Schema(title = "是否关联第三方", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @NotBlank(message = "{custom_field.third_part.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 1, message = "{custom_field.third_part.length_range}", groups = {Created.class, Updated.class})
+    private Boolean thirdPart;
+
+    @Schema(title = "自定义字段选项")
+    private String options;
+
+    private static final long serialVersionUID = 1L;
 }

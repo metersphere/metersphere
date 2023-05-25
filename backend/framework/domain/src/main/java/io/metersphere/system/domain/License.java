@@ -1,39 +1,28 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "")
-@Table("license")
 @Data
 public class License implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{license.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{license.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{license.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "Create timestamp", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "Create timestamp")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "Update timestamp", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "Update timestamp")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "license_code", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "license_code")
     private String licenseCode;
 
-
+    private static final long serialVersionUID = 1L;
 }

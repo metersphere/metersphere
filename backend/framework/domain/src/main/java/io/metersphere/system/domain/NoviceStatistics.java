@@ -1,52 +1,41 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "新手村")
-@Table("novice_statistics")
 @Data
 public class NoviceStatistics implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{novice_statistics.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{novice_statistics.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{novice_statistics.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "用户id", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "用户id")
     private String userId;
 
+    @Schema(title = "新手引导完成的步骤", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @NotBlank(message = "{novice_statistics.guide_step.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{novice_statistics.guide_step.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{novice_statistics.guide_step.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "新手引导完成的步骤", required = true, allowableValues = "range[1, 1]")
     private Boolean guideStep;
 
-
-    @ApiModelProperty(name = "新手引导的次数", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "新手引导的次数", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
+    @NotBlank(message = "{novice_statistics.guide_num.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 10, message = "{novice_statistics.guide_num.length_range}", groups = {Created.class, Updated.class})
     private Integer guideNum;
 
-
-    @ApiModelProperty(name = "data option (JSON format)", required = false, allowableValues = "range[1, ]")
-    private byte[] dataOption;
-
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "")
     private Long updateTime;
 
+    @Schema(title = "data option (JSON format)")
+    private byte[] dataOption;
 
+    private static final long serialVersionUID = 1L;
 }

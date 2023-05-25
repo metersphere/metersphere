@@ -1,74 +1,54 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "项目扩展")
-@Table("project_extend")
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class ProjectExtend implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{project_extend.project_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
-    private String id;
+    @Size(min = 1, max = 50, message = "{project_extend.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "")
     private String tapdId;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "")
     private String jiraKey;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "")
     private String zentaoId;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "")
     private String azureDevopsId;
 
-
-    @ApiModelProperty(name = "用例模版ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "用例模版ID")
     private String caseTemplateId;
 
-
-    @ApiModelProperty(name = "azure 过滤需求的 parent workItem ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "azure 过滤需求的 parent workItem ID")
     private String azureFilterId;
 
+    @Schema(title = "项目使用哪个平台的模板", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 20]")
+    @NotBlank(message = "{project_extend.platform.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 20, message = "{project_extend.platform.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{project_extend.platform.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目使用哪个平台的模板", required = true, allowableValues = "range[1, 20]")
     private String platform;
 
-
-    @ApiModelProperty(name = "是否使用第三方平台缺陷模板", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否使用第三方平台缺陷模板")
     private Boolean thirdPartTemplate;
 
-
-    @ApiModelProperty(name = "是否开启版本管理", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否开启版本管理")
     private Boolean versionEnable;
 
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
-    private byte[] issueConfig;
-
-
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "")
     private String apiTemplateId;
 
+    @Schema(title = "")
+    private byte[] issueConfig;
 
+    private static final long serialVersionUID = 1L;
 }

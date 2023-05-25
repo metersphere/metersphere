@@ -17,7 +17,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -27,7 +26,6 @@ import java.util.Properties;
 
 @Configuration
 @MapperScan(basePackages = {"io.metersphere.*.mapper"}, sqlSessionFactoryRef = "sqlSessionFactory")
-@EnableJdbcRepositories
 @EnableTransactionManagement
 public class MybatisConfig {
     @Bean

@@ -1,40 +1,32 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "服务集成")
-@Table("service_integration")
 @Data
 public class ServiceIntegration implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{service_integration.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "平台", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{service_integration.platform.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{service_integration.platform.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{service_integration.platform.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "平台", required = true, allowableValues = "range[1, 50]")
     private String platform;
 
-
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, ]")
-    private byte[] configuration;
-
-
-    @ApiModelProperty(name = "工作空间ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "工作空间ID")
     private String workspaceId;
 
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 65535]")
+    @NotBlank(message = "{service_integration.configuration.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 65535, message = "{service_integration.configuration.length_range}", groups = {Created.class, Updated.class})
+    private byte[] configuration;
 
+    private static final long serialVersionUID = 1L;
 }

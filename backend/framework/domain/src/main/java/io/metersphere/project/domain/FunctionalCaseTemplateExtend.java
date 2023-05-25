@@ -1,58 +1,42 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "功能用例模版扩展")
-@Table("functional_case_template_extend")
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseTemplateExtend implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "模板ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{functional_case_template_extend.template_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case_template_extend.template_id.length_range}", groups = {Created.class, Updated.class})
+    private String templateId;
 
-    @Id
-    @NotBlank(message = "{functional_case_template_extend.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "模板ID", required = true, allowableValues = "range[1, 50]")
-    private String id;
-
-
-    @ApiModelProperty(name = "用例名称模板", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "用例名称模板")
     private String caseName;
 
-
-    @ApiModelProperty(name = "前置条件模板", required = false, allowableValues = "range[1, ]")
-    private String prerequisite;
-
-
-    @ApiModelProperty(name = "步骤描述模板", required = false, allowableValues = "range[1, ]")
-    private String stepDescription;
-
-
-    @ApiModelProperty(name = "预期结果模板", required = false, allowableValues = "range[1, ]")
-    private String expectedResult;
-
-
-    @ApiModelProperty(name = "实际结果模板", required = false, allowableValues = "range[1, ]")
-    private String actualResult;
-
+    @Schema(title = "编辑模式模板：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{functional_case_template_extend.step_model.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{functional_case_template_extend.step_model.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{functional_case_template_extend.step_model.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "编辑模式模板：步骤模式/文本模式", required = true, allowableValues = "range[1, 64]")
     private String stepModel;
 
+    @Schema(title = "前置条件模板")
+    private String prerequisite;
 
-    @ApiModelProperty(name = "用例步骤", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "步骤描述模板")
+    private String stepDescription;
+
+    @Schema(title = "预期结果模板")
+    private String expectedResult;
+
+    @Schema(title = "实际结果模板")
+    private String actualResult;
+
+    @Schema(title = "用例步骤")
     private String steps;
 
-
+    private static final long serialVersionUID = 1L;
 }

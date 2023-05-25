@@ -1,97 +1,76 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "文件基础信息")
-@Table("file_metadata")
 @Data
 public class FileMetadata implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "文件ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "文件名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 250]")
+    @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 250, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "文件名", required = true, allowableValues = "range[1, 250]")
     private String name;
 
-
-    @ApiModelProperty(name = "文件类型", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "文件类型")
     private String type;
 
-
-    @ApiModelProperty(name = "文件大小", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 19]")
+    @NotBlank(message = "{file_metadata.size.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 19, message = "{file_metadata.size.length_range}", groups = {Created.class, Updated.class})
     private Long size;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "项目ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID")
     private String projectId;
 
+    @Schema(title = "文件存储方式", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "文件存储方式", required = true, allowableValues = "range[1, 50]")
     private String storage;
 
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人")
     private String createUser;
 
-
-    @ApiModelProperty(name = "修改人", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "修改人")
     private String updateUser;
 
-
-    @ApiModelProperty(name = "标签", required = false, allowableValues = "range[1, 2000]")
+    @Schema(title = "标签")
     private String tags;
 
-
-    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "描述")
     private String description;
 
-
-    @ApiModelProperty(name = "文件所属模块", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "文件所属模块")
     private String moduleId;
 
-
-    @ApiModelProperty(name = "是否加载jar（开启后用于接口测试执行时使用）", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否加载jar（开启后用于接口测试执行时使用）")
     private Boolean loadJar;
 
-
-    @ApiModelProperty(name = "文件存储路径", required = false, allowableValues = "range[1, 1000]")
+    @Schema(title = "文件存储路径")
     private String path;
 
-
-    @ApiModelProperty(name = "资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据")
     private String resourceType;
 
-
-    @ApiModelProperty(name = "是否是最新版", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否是最新版")
     private Boolean latest;
 
-
-    @ApiModelProperty(name = "同版本数据关联的ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "同版本数据关联的ID")
     private String refId;
 
-
+    private static final long serialVersionUID = 1L;
 }

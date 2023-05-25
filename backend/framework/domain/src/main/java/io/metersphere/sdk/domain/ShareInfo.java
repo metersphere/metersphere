@@ -1,49 +1,37 @@
 package io.metersphere.sdk.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "分享")
-@Table("share_info")
 @Data
 public class ShareInfo implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{share_info.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "分享ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "分享ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{share_info.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{share_info.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "创建人")
     private String createUser;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "分享类型single batch", required = false, allowableValues = "range[1, 64]")
+    @Schema(title = "分享类型single batch")
     private String shareType;
 
-
-    @ApiModelProperty(name = "分享扩展数据", required = false, allowableValues = "range[1, ]")
-    private byte[] customData;
-
-
-    @ApiModelProperty(name = "语言", required = false, allowableValues = "range[1, 10]")
+    @Schema(title = "语言")
     private String lang;
 
+    @Schema(title = "分享扩展数据")
+    private byte[] customData;
 
+    private static final long serialVersionUID = 1L;
 }

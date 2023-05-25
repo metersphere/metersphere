@@ -1,42 +1,31 @@
 package io.metersphere.load.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "性能报告大字段")
-@Table("load_test_report_blob")
 @Data
-@EqualsAndHashCode(callSuper=false)
 public class LoadTestReportBlob implements Serializable {
-    private static final long serialVersionUID = 1L;
-    @Id
+    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{load_test_report_blob.report_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "报告ID", required = true, allowableValues = "range[1, 50]")
+    @Size(min = 1, max = 50, message = "{load_test_report_blob.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
-
-    @ApiModelProperty(name = "压力配置", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "压力配置")
     private byte[] loadConfiguration;
 
-
-    @ApiModelProperty(name = "JMX内容", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "JMX内容")
     private byte[] jmxContent;
 
-
-    @ApiModelProperty(name = "高级配置", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "高级配置")
     private byte[] advancedConfiguration;
 
-
-    @ApiModelProperty(name = "环境信息 (JSON format)", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "环境信息 (JSON format)")
     private byte[] envInfo;
 
-
+    private static final long serialVersionUID = 1L;
 }

@@ -1,53 +1,41 @@
 package io.metersphere.sdk.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "环境组")
-@Table("environment_group")
 @Data
 public class EnvironmentGroup implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{environment_group.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "环境组id", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "环境组id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{environment_group.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{environment_group.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "环境组名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{environment_group.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment_group.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{environment_group.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "环境组名", required = true, allowableValues = "range[1, 50]")
     private String name;
 
+    @Schema(title = "所属工作空间", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{environment_group.workspace_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{environment_group.workspace_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{environment_group.workspace_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "所属工作空间", required = true, allowableValues = "range[1, 64]")
     private String workspaceId;
 
-
-    @ApiModelProperty(name = "环境组描述", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "环境组描述")
     private String description;
 
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人")
     private String createUser;
 
-
-    @ApiModelProperty(name = "创建时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
+    private static final long serialVersionUID = 1L;
 }

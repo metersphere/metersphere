@@ -1,56 +1,44 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "三方认证源")
-@Table("auth_source")
 @Data
 public class AuthSource implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{auth_source.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "认证源ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "认证源ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{auth_source.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{auth_source.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "认证源配置", required = true, allowableValues = "range[1, ]")
-    private byte[] configuration;
-
+    @Schema(title = "状态 启用 禁用", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{auth_source.status.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{auth_source.status.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{auth_source.status.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "状态 启用 禁用", required = true, allowableValues = "range[1, 64]")
     private String status;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "描述")
     private String description;
 
-
-    @ApiModelProperty(name = "名称", required = false, allowableValues = "range[1, 60]")
+    @Schema(title = "名称")
     private String name;
 
-
-    @ApiModelProperty(name = "类型", required = false, allowableValues = "range[1, 30]")
+    @Schema(title = "类型")
     private String type;
 
+    @Schema(title = "认证源配置", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 65535]")
+    @NotBlank(message = "{auth_source.configuration.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 65535, message = "{auth_source.configuration.length_range}", groups = {Created.class, Updated.class})
+    private byte[] configuration;
 
+    private static final long serialVersionUID = 1L;
 }

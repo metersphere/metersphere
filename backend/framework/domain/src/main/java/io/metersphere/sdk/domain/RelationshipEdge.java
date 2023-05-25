@@ -2,47 +2,41 @@ package io.metersphere.sdk.domain;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "关系图")
-@Table("relationship_edge")
 @Data
 public class RelationshipEdge implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+    @Schema(title = "源节点的ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{relationship_edge.source_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "源节点的ID", required = true, allowableValues = "range[1, 50]")
+    @Size(min = 1, max = 50, message = "{relationship_edge.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;
 
+    @Schema(title = "目标节点的ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{relationship_edge.target_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "目标节点的ID", required = true, allowableValues = "range[1, 50]")
+    @Size(min = 1, max = 50, message = "{relationship_edge.target_id.length_range}", groups = {Created.class, Updated.class})
     private String targetId;
 
+    @Schema(title = "边的分类", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 20]")
+    @NotBlank(message = "{relationship_edge.type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 20, message = "{relationship_edge.type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{relationship_edge.type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "边的分类", required = true, allowableValues = "range[1, 20]")
     private String type;
 
+    @Schema(title = "所属关系图的ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{relationship_edge.graph_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{relationship_edge.graph_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{relationship_edge.graph_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "所属关系图的ID", required = true, allowableValues = "range[1, 50]")
     private String graphId;
 
-    @Size(min = 1, max = 50, message = "{relationship_edge.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{relationship_edge.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
-    private String createUser;
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{relationship_edge.creator.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{relationship_edge.creator.length_range}", groups = {Created.class, Updated.class})
+    private String creator;
 
-
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "")
     private Long createTime;
 
-
+    private static final long serialVersionUID = 1L;
 }

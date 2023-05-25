@@ -1,36 +1,27 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "系统参数")
-@Table("system_parameter")
 @Data
 public class SystemParameter implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
+    @Schema(title = "参数名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
     @NotBlank(message = "{system_parameter.param_key.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "参数名称", required = true, allowableValues = "range[1, 64]")
+    @Size(min = 1, max = 64, message = "{system_parameter.param_key.length_range}", groups = {Created.class, Updated.class})
     private String paramKey;
 
-
-    @ApiModelProperty(name = "参数值", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "参数值")
     private String paramValue;
 
+    @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{system_parameter.type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{system_parameter.type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{system_parameter.type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "类型", required = true, allowableValues = "range[1, 100]")
     private String type;
 
-
+    private static final long serialVersionUID = 1L;
 }

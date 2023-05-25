@@ -1,33 +1,22 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "文件基础信息大字段")
-@Table("file_metadata_blob")
 @Data
-@EqualsAndHashCode(callSuper=false)
 public class FileMetadataBlob implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{file_metadata_blob.file_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 255, message = "{file_metadata_blob.file_id.length_range}", groups = {Created.class, Updated.class})
+    private String fileId;
 
-    @Id
-    @NotBlank(message = "{file_metadata_blob.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "文件ID", required = true, allowableValues = "range[1, 255]")
-    private String id;
-
-
-    @ApiModelProperty(name = "储存库", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "储存库")
     private byte[] gitInfo;
 
-
+    private static final long serialVersionUID = 1L;
 }

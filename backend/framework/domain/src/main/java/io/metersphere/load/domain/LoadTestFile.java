@@ -2,33 +2,28 @@ package io.metersphere.load.domain;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "测试和文件的关联表")
-@Table("load_test_file")
 @Data
 public class LoadTestFile implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{load_test_file.test_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_file.test_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test_file.test_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "测试ID", required = true, allowableValues = "range[1, 64]")
     private String testId;
 
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{load_test_file.file_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_file.file_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test_file.file_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "文件ID", required = true, allowableValues = "range[1, 64]")
     private String fileId;
 
-
-    @ApiModelProperty(name = "文件排序", required = true, dataType = "Integer")
+    @Schema(title = "文件排序", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
+    @NotBlank(message = "{load_test_file.sort.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 10, message = "{load_test_file.sort.length_range}", groups = {Created.class, Updated.class})
     private Integer sort;
 
-
+    private static final long serialVersionUID = 1L;
 }

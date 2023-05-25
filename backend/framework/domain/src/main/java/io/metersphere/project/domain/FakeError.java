@@ -1,64 +1,53 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "误报库")
-@Table("fake_error")
 @Data
 public class FakeError implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{fake_error.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "误报ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "误报ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{fake_error.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{fake_error.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{fake_error.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{fake_error.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{fake_error.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{fake_error.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{fake_error.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{fake_error.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 64]")
     private String createUser;
 
+    @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{fake_error.update_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{fake_error.update_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{fake_error.update_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "更新人", required = true, allowableValues = "range[1, 64]")
     private String updateUser;
 
+    @Schema(title = "错误码", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{fake_error.error_code.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{fake_error.error_code.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{fake_error.error_code.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "错误码", required = true, allowableValues = "range[1, 255]")
     private String errorCode;
 
+    @Schema(title = "匹配类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{fake_error.match_type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{fake_error.match_type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{fake_error.match_type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "匹配类型", required = true, allowableValues = "range[1, 255]")
     private String matchType;
 
-
-    @ApiModelProperty(name = "状态", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "状态")
     private Boolean status;
 
-
+    private static final long serialVersionUID = 1L;
 }

@@ -1,32 +1,32 @@
 package io.metersphere.load.domain;
 
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import org.springframework.data.relational.core.mapping.Table;
-
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "部分报告结果")
-@Table("load_test_report_result_part")
 @Data
 public class LoadTestReportResultPart implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{load_test_report_result_part.report_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "报告ID", required = true, allowableValues = "range[1, 50]")
+    @Size(min = 1, max = 50, message = "{load_test_report_result_part.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
+    @Schema(title = "报告项目key", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
     @NotBlank(message = "{load_test_report_result_part.report_key.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "报告项目key", required = true, allowableValues = "range[1, 64]")
+    @Size(min = 1, max = 64, message = "{load_test_report_result_part.report_key.length_range}", groups = {Created.class, Updated.class})
     private String reportKey;
 
+    @Schema(title = "资源节点索引号", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
     @NotBlank(message = "{load_test_report_result_part.resource_index.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "资源节点索引号", required = true, dataType = "Integer")
+    @Size(min = 1, max = 10, message = "{load_test_report_result_part.resource_index.length_range}", groups = {Created.class, Updated.class})
     private Integer resourceIndex;
 
-
-    @ApiModelProperty(name = "报告项目内容", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "报告项目内容")
     private byte[] reportValue;
+
+    private static final long serialVersionUID = 1L;
 }

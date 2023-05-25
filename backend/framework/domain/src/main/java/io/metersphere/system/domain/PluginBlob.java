@@ -1,35 +1,25 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "插件大字段")
-@Table("plugin_blob")
 @Data
 public class PluginBlob implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{plugin_blob.plugin_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{plugin_blob.plugin_id.length_range}", groups = {Created.class, Updated.class})
+    private String pluginId;
 
-    @Id
-    @NotBlank(message = "{plugin_blob.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
-    private String id;
-
-
-    @ApiModelProperty(name = "plugin form option", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "plugin form option")
     private byte[] formOption;
 
-
-    @ApiModelProperty(name = "plugin form script", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "plugin form script")
     private byte[] formScript;
 
-
+    private static final long serialVersionUID = 1L;
 }

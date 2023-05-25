@@ -1,65 +1,55 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "消息通知任务")
-@Table("message_task")
 @Data
 public class MessageTask implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{message_task.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 255]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{message_task.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{message_task.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "消息类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{message_task.type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "消息类型", required = true, allowableValues = "range[1, 50]")
     private String type;
 
+    @Schema(title = "通知事件类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{message_task.event.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{message_task.event.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.event.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "通知事件类型", required = true, allowableValues = "range[1, 255]")
     private String event;
 
+    @Schema(title = "接收人id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.receiver.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "接收人id", required = true, allowableValues = "range[1, 50]")
     private String receiver;
 
+    @Schema(title = "任务类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{message_task.task_type.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "任务类型", required = true, allowableValues = "range[1, 64]")
     private String taskType;
 
-
-    @ApiModelProperty(name = "webhook地址", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "webhook地址")
     private String webhook;
 
+    @Schema(title = "具体测试的ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "具体测试的ID", required = true, allowableValues = "range[1, 255]")
     private String testId;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 64]")
     private String projectId;
 
-
+    private static final long serialVersionUID = 1L;
 }

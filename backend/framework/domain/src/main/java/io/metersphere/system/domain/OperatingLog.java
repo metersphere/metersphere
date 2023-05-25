@@ -1,76 +1,59 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "操作日志")
-@Table("operating_log")
 @Data
 public class OperatingLog implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{operating_log.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{operating_log.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{operating_log.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{operating_log.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{operating_log.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
 
-
-    @ApiModelProperty(name = "operating method", required = false, allowableValues = "range[1, 500]")
+    @Schema(title = "operating method")
     private String operMethod;
 
-
-    @ApiModelProperty(name = "创建人", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人")
     private String createUser;
 
-
-    @ApiModelProperty(name = "操作人", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "操作人")
     private String operUser;
 
-
-    @ApiModelProperty(name = "资源ID", required = false, allowableValues = "range[1, 6000]")
+    @Schema(title = "资源ID")
     private String sourceId;
 
-
-    @ApiModelProperty(name = "操作类型", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "操作类型")
     private String operType;
 
-
-    @ApiModelProperty(name = "操作模块", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "操作模块")
     private String operModule;
 
-
-    @ApiModelProperty(name = "操作标题", required = false, allowableValues = "range[1, 6000]")
+    @Schema(title = "操作标题")
     private String operTitle;
 
-
-    @ApiModelProperty(name = "操作路径", required = false, allowableValues = "range[1, 500]")
+    @Schema(title = "操作路径")
     private String operPath;
 
-
-    @ApiModelProperty(name = "操作内容", required = false, allowableValues = "range[1, ]")
-    private byte[] operContent;
-
-
-    @ApiModelProperty(name = "操作参数", required = false, allowableValues = "range[1, ]")
-    private byte[] operParams;
-
-
-    @ApiModelProperty(name = "操作时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "操作时间", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 19]")
+    @NotBlank(message = "{operating_log.oper_time.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 19, message = "{operating_log.oper_time.length_range}", groups = {Created.class, Updated.class})
     private Long operTime;
 
+    @Schema(title = "操作内容")
+    private byte[] operContent;
 
+    @Schema(title = "操作参数")
+    private byte[] operParams;
+
+    private static final long serialVersionUID = 1L;
 }

@@ -84,31 +84,7 @@ public class UserControllerTests {
     }
 
 
-//    @Test
-    @Order(5)
-    public void testBatchAddUser() throws Exception {
-        var users = new ArrayList<User>();
-        for (int i = 0; i < 1000; i++) {
-            User user = new User();
-            user.setId("batch1_" + i);
-            user.setName("batch1_" + i);
-            user.setCreateUser("system");
-            user.setSource("LOCAL");
-            user.setEmail("bin@fit2cloud.com");
-            user.setStatus("enabled");
-            user.setCreateTime(System.currentTimeMillis());
-            user.setUpdateTime(System.currentTimeMillis());
-            users.add(user);
-        }
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/batch-add")
-                        .content(JSON.toJSONString(users))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-//    @Test
+    //    @Test
     @Order(6)
     public void testBatchAddUser2() throws Exception {
         var users = new ArrayList<User>();
@@ -132,7 +108,7 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-//    @Test
+    //    @Test
     @Order(7)
     public void testBatchAddUser3() throws Exception {
         var users = new ArrayList<User>();
@@ -156,7 +132,7 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-//    @Test
+    //    @Test
     @Order(8)
     public void testCount() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/count")

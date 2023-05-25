@@ -1,75 +1,73 @@
-
 package io.metersphere.api.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@ApiModel(value = "场景报告步骤结果")
+@Schema(title = "场景报告步骤结果")
 @Table("api_scenario_report_detail")
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 public class ApiScenarioReportDetail implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
     @NotBlank(message = "{api_scenario_report_detail.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String id;
 
     @Size(min = 1, max = 50, message = "{api_scenario_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_report_detail.report_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "报告fk", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "报告fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String reportId;
 
     @Size(min = 1, max = 50, message = "{api_scenario_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_report_detail.resource_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "场景中各个步骤请求唯一标识", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "场景中各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String resourceId;
 
-    @ApiModelProperty(name = "开始时间", required = false, dataType = "Long")
+    @Schema(title = "开始时间", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long startTime;
 
-    @ApiModelProperty(name = "结果状态", required = false, allowableValues = "range[1, 20]")
+    @Schema(title = "结果状态", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 20]")
     private String status;
 
-    @ApiModelProperty(name = "单个请求步骤时间", required = false, dataType = "Long")
+    @Schema(title = "单个请求步骤时间", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long requestTime;
 
-    @ApiModelProperty(name = "总断言数", required = false, dataType = "Long")
+    @Schema(title = "总断言数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long assertionsTotal;
 
-    @ApiModelProperty(name = "失败断言数", required = false, dataType = "Long")
+    @Schema(title = "失败断言数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Long passAssertionsTotal;
 
-    @ApiModelProperty(name = "误报编号", required = false, allowableValues = "range[1, 200]")
+    @Schema(title = "误报编号", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 200]")
     private String fakeCode;
 
-    @ApiModelProperty(name = "请求名称", required = false, allowableValues = "range[1, 500]")
+    @Schema(title = "请求名称", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 500]")
     private String requestName;
 
-    @ApiModelProperty(name = "环境fk", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
     private String environmentId;
 
-    @ApiModelProperty(name = "项目fk", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
     private String projectId;
 
-    @ApiModelProperty(name = "失败总数", required = false, dataType = "Integer")
+    @Schema(title = "失败总数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer errorTotal;
 
-    @ApiModelProperty(name = "请求响应码", required = false, allowableValues = "range[1, 500]")
+    @Schema(title = "请求响应码", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 500]")
     private String code;
 
-    @ApiModelProperty(name = "执行结果", required = false, dataType = "byte[]")
+    @Schema(title = "执行结果", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] content;
 
 }

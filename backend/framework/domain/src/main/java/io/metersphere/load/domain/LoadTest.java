@@ -1,86 +1,78 @@
 package io.metersphere.load.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "性能测试用例")
-@Table("load_test")
 @Data
 public class LoadTest implements Serializable {
-    private static final long serialVersionUID = 1L;
-    @Id
-    @NotBlank(message = "{load_test.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "测试ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
 
+    @Schema(title = "测试名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @NotBlank(message = "{load_test.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{load_test.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "测试名称", required = true, allowableValues = "range[1, 255]")
     private String name;
 
-
-    @ApiModelProperty(name = "状态为Error时表示错误信息", required = false, allowableValues = "range[1, 500]")
+    @Schema(title = "状态为Error时表示错误信息")
     private String description;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, dataType = "Long")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, dataType = "Long")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
+    @Schema(title = "状态: Starting, Running, Completed, Error, etc.", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{load_test.status.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test.status.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.status.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "状态: Starting, Running, Completed, Error, etc.", required = true, allowableValues = "range[1, 64]")
     private String status;
 
+    @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test.test_resource_pool_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test.test_resource_pool_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.test_resource_pool_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "资源池ID", required = true, allowableValues = "range[1, 50]")
     private String testResourcePoolId;
 
-
-    @ApiModelProperty(name = "测试数字ID，例如: 100001", required = true, dataType = "Integer")
+    @Schema(title = "测试数字ID，例如: 100001", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
+    @NotBlank(message = "{load_test.num.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 10, message = "{load_test.num.length_range}", groups = {Created.class, Updated.class})
     private Integer num;
 
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{load_test.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{load_test.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 100]")
     private String createUser;
 
-
-    @ApiModelProperty(name = "自定义排序，间隔5000", required = true, dataType = "Long")
+    @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 19]")
+    @NotBlank(message = "{load_test.pos.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 19, message = "{load_test.pos.length_range}", groups = {Created.class, Updated.class})
     private Long pos;
 
+    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test.version_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test.version_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.version_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "版本ID", required = true, allowableValues = "range[1, 50]")
     private String versionId;
 
+    @Schema(title = "基版本数据ID，首条测试和测试ID相同", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test.ref_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test.ref_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.ref_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "基版本数据ID，首条测试和测试ID相同", required = true, allowableValues = "range[1, 50]")
     private String refId;
 
+    @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @NotBlank(message = "{load_test.latest.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{load_test.latest.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test.latest.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "是否为最新版本 0:否，1:是", required = true, allowableValues = "range[1, 1]")
     private Boolean latest;
 
-
+    private static final long serialVersionUID = 1L;
 }

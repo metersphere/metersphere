@@ -1,34 +1,29 @@
 package io.metersphere.load.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "测试报告文件关联表")
-@Table("load_test_report_file")
 @Data
 public class LoadTestReportFile implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test_report_file.report_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report_file.report_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test_report_file.report_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "报告ID", required = true, allowableValues="range[1, 50]")
     private String reportId;
-    
-    @Size(min = 1, max = 50, message = "{load_test_report_file.file_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{load_test_report_file.file_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "文件ID", required = true, allowableValues="range[1, 50]")
-    private String fileId;
-    
-    
-    @ApiModelProperty(name = "文件排序", required = true, dataType = "Integer")
-    private Integer sort;
-    
 
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{load_test_report_file.file_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_report_file.file_id.length_range}", groups = {Created.class, Updated.class})
+    private String fileId;
+
+    @Schema(title = "文件排序", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
+    @NotBlank(message = "{load_test_report_file.sort.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 10, message = "{load_test_report_file.sort.length_range}", groups = {Created.class, Updated.class})
+    private Integer sort;
+
+    private static final long serialVersionUID = 1L;
 }

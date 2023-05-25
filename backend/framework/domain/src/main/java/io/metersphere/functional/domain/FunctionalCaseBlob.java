@@ -1,36 +1,36 @@
 package io.metersphere.functional.domain;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@ApiModel(value = "功能用例")
+@Schema(title = "功能用例")
 @Table("functional_case_blob")
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class FunctionalCaseBlob implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(name = "用例步骤（JSON)，step_model 为 0 时启用", required = false)
+    @Schema(title = "用例步骤（JSON)，step_model 为 0 时启用", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String steps;
 
 
-    @ApiModelProperty(name = "步骤描述，step_model 为 1 时启用", required = false)
+    @Schema(title = "步骤描述，step_model 为 1 时启用", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String stepDescription;
 
 
-    @ApiModelProperty(name = "预期结果，step_model 为 1 时启用", required = false)
+    @Schema(title = "预期结果，step_model 为 1 时启用", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String expectedResult;
 
 
-    @ApiModelProperty(name = "前置条件", required = false)
+    @Schema(title = "前置条件", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String prerequisite;
 
 
-    @ApiModelProperty(name = "备注", required = false)
+    @Schema(title = "备注", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String description;
 }

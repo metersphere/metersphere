@@ -1,65 +1,49 @@
 package io.metersphere.sdk.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "执行链条目")
-@Table("execution_queue_detail")
 @Data
 public class ExecutionQueueDetail implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{execution_queue_detail.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{execution_queue_detail.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{execution_queue_detail.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "队列id", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "队列id")
     private String queueId;
 
-
-    @ApiModelProperty(name = "排序", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "排序")
     private Integer sort;
 
-
-    @ApiModelProperty(name = "报告id", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "报告id")
     private String reportId;
 
-
-    @ApiModelProperty(name = "资源id", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "资源id")
     private String testId;
 
-
-    @ApiModelProperty(name = "环境", required = false, allowableValues = "range[1, ]")
-    private String evnMap;
-
-
-    @ApiModelProperty(name = "资源类型", required = false, allowableValues = "range[1, 100]")
+    @Schema(title = "资源类型")
     private String type;
 
-
-    @ApiModelProperty(name = "创建时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "是否开启失败重试", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否开启失败重试")
     private Boolean retryEnable;
 
-
-    @ApiModelProperty(name = "失败重试次数", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "失败重试次数")
     private Long retryNumber;
 
-
-    @ApiModelProperty(name = "项目ID集合", required = false, allowableValues = "range[1, 2000]")
+    @Schema(title = "项目ID集合")
     private String projectIds;
 
+    @Schema(title = "环境")
+    private String evnMap;
 
+    private static final long serialVersionUID = 1L;
 }

@@ -2,79 +2,64 @@ package io.metersphere.system.domain;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "用户")
-@Table("user")
 @Data
 public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     @NotBlank(message = "{user.id.not_blank}", groups = {Created.class, Updated.class})
-    @ApiModelProperty(name = "用户ID", required = true, allowableValues = "range[1, 50]")
+    @Size(min = 1, max = 50, message = "{user.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "用户名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{user.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "用户名", required = true, allowableValues = "range[1, 64]")
     private String name;
 
+    @Schema(title = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @NotBlank(message = "{user.email.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{user.email.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user.email.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "用户邮箱", required = true, allowableValues = "range[1, 64]")
     private String email;
 
-
-    @ApiModelProperty(name = "用户密码", required = false, allowableValues = "range[1, 256]")
+    @Schema(title = "用户密码")
     private String password;
 
+    @Schema(title = "用户状态，启用或禁用", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user.status.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user.status.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user.status.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "用户状态，启用或禁用", required = true, allowableValues = "range[1, 50]")
     private String status;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "语言", required = false, allowableValues = "range[1, 30]")
+    @Schema(title = "语言")
     private String language;
 
-
-    @ApiModelProperty(name = "当前工作空间ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "当前工作空间ID")
     private String lastWorkspaceId;
 
-
-    @ApiModelProperty(name = "手机号", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "手机号")
     private String phone;
 
+    @Schema(title = "来源：LOCAL OIDC CAS", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{user.source.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user.source.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user.source.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "来源：LOCAL OIDC CAS", required = true, allowableValues = "range[1, 50]")
     private String source;
 
-
-    @ApiModelProperty(name = "当前项目ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "当前项目ID")
     private String lastProjectId;
 
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{user.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{user.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{user.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 100]")
     private String createUser;
 
-
+    private static final long serialVersionUID = 1L;
 }

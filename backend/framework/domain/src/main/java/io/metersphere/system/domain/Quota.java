@@ -1,79 +1,59 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "配额")
-@Table("quota")
 @Data
 public class Quota implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{quota.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{quota.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{quota.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-
-    @ApiModelProperty(name = "接口数量", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "接口数量")
     private Integer api;
 
-
-    @ApiModelProperty(name = "性能测试数量", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "性能测试数量")
     private Integer performance;
 
-
-    @ApiModelProperty(name = "最大并发数", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "最大并发数")
     private Integer maxThreads;
 
-
-    @ApiModelProperty(name = "最大执行时长", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "最大执行时长")
     private Integer duration;
 
-
-    @ApiModelProperty(name = "资源池列表", required = false, allowableValues = "range[1, 1000]")
+    @Schema(title = "资源池列表")
     private String resourcePool;
 
-
-    @ApiModelProperty(name = "工作空间ID", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "工作空间ID")
     private String workspaceId;
 
-
-    @ApiModelProperty(name = "是否使用默认值", required = false, allowableValues = "range[1, 1]")
+    @Schema(title = "是否使用默认值")
     private Boolean useDefault;
 
-
-    @ApiModelProperty(name = "更新时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-
-    @ApiModelProperty(name = "成员数量限制", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "成员数量限制")
     private Integer member;
 
-
-    @ApiModelProperty(name = "项目数量限制", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "项目数量限制")
     private Integer project;
 
-
-    @ApiModelProperty(name = "项目类型配额", required = false, allowableValues = "range[1, 50]")
+    @Schema(title = "项目类型配额")
     private String projectId;
 
+    @Schema(title = "总vum数")
+    private BigDecimal vumTotal;
 
-    @ApiModelProperty(name = "总vum数", required = false, allowableValues = "range[1, 10]")
-    private Double vumTotal;
+    @Schema(title = "消耗的vum数")
+    private BigDecimal vumUsed;
 
-
-    @ApiModelProperty(name = "消耗的vum数", required = false, allowableValues = "range[1, 10]")
-    private Double vumUsed;
-
-
+    private static final long serialVersionUID = 1L;
 }

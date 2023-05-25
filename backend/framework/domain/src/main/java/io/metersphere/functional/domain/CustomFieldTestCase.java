@@ -1,34 +1,33 @@
 package io.metersphere.functional.domain;
 
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@ApiModel(value = "自定义字段功能用例关系")
+@Schema(title = "自定义字段功能用例关系")
 @Table("custom_field_test_case")
 @Data
 public class CustomFieldTestCase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{custom_field_test_case.resource_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "资源ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "资源ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String resourceId;
 
     @NotBlank(message = "{custom_field_test_case.field_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "字段ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "字段ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String fieldId;
 
 
-    @ApiModelProperty(name = "字段值", required = false, allowableValues = "range[1, 1000]")
+    @Schema(title = "字段值", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1000]")
     private String value;
 
 
-    @ApiModelProperty(name = "", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
     private String textValue;
 
 

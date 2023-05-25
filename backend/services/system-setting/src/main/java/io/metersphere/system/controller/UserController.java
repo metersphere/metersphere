@@ -32,11 +32,6 @@ public class UserController {
         return userService.save(user);
     }
 
-    @PostMapping("/batch-add")
-    public boolean batchSaveUser(@Validated({Created.class}) @RequestBody List<User> user) {
-        return userService.batchSave(user);
-    }
-
     @PostMapping("/batch-add2")
     public boolean batchSaveUser2(@Validated({Created.class}) @RequestBody List<User> user) {
         return userService.batchSave2(user);

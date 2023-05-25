@@ -1,49 +1,38 @@
 package io.metersphere.system.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "工作空间")
-@Table("workspace")
 @Data
 public class Workspace implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{workspace.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "工作空间ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{workspace.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{workspace.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "工作空间名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{workspace.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{workspace.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{workspace.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "工作空间名称", required = true, allowableValues = "range[1, 100]")
     private String name;
 
-
-    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 255]")
+    @Schema(title = "描述")
     private String description;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-
-    @ApiModelProperty(name = "更新时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{workspace.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{workspace.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{workspace.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 50]")
     private String createUser;
 
-
+    private static final long serialVersionUID = 1L;
 }

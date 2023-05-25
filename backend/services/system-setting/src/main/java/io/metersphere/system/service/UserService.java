@@ -1,15 +1,16 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.mapper.UserMapper;
+import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserExtend;
-import io.metersphere.system.util.BatchSaveUtils;
+import io.metersphere.system.mapper.UserExtendMapper;
+import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.springframework.data.jdbc.core.JdbcAggregateTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,43 +20,36 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class UserService {
     @Resource
+    private BaseUserMapper baseUserMapper;
+    @Resource
     private UserMapper userMapper;
     @Resource
-    private JdbcAggregateTemplate jdbcAggregateTemplate;
+    private UserExtendMapper userExtendMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
     public boolean save(UserDTO entity) {
-        User user = new User();
-        BeanUtils.copyBean(user, entity);
-        jdbcAggregateTemplate.insert(user);
+        userMapper.insert(entity);
 
         UserExtend userExtend = new UserExtend();
         BeanUtils.copyBean(userExtend, entity);
-        jdbcAggregateTemplate.insert(userExtend);
+        userExtendMapper.insert(userExtend);
         return true;
     }
 
     public UserDTO getById(String id) {
-        return userMapper.selectById(id);
+        return baseUserMapper.selectById(id);
     }
 
     public List<User> list() {
-        return userMapper.findAll();
-    }
-
-    public boolean batchSave(List<User> users) {
-        long start = System.currentTimeMillis();
-        BatchSaveUtils.batchSave(users);
-        System.out.println("batch save cost: " + (System.currentTimeMillis() - start) + "ms");
-        return true;
+        return baseUserMapper.findAll();
     }
 
     public boolean batchSave2(List<User> users) {
         long start = System.currentTimeMillis();
 
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+            BaseUserMapper mapper = sqlSession.getMapper(BaseUserMapper.class);
             for (int i = 0, size = users.size(); i < size; i++) {
                 mapper.insert(users.get(i));
                 if (i % 100 == 0) {
@@ -75,7 +69,7 @@ public class UserService {
         int size = users.size();
         int pageSize = size / batchSize;
         if (pageSize == 0) {
-            userMapper.batchSave(users);
+            baseUserMapper.batchSave(users);
             System.out.println("batch save cost: " + (System.currentTimeMillis() - start) + "ms");
             return true;
         }
@@ -83,20 +77,20 @@ public class UserService {
         for (int i = 0; i < pageSize; i++) {
             int startIndex = i * batchSize;
             List<User> sub = users.subList(startIndex, startIndex + batchSize);
-            userMapper.batchSave(sub);
+            baseUserMapper.batchSave(sub);
         }
 
         if (size % batchSize != 0) {
             int startIndex = pageSize * batchSize;
             List<User> sub = users.subList(startIndex, size);
-            userMapper.batchSave(sub);
+            baseUserMapper.batchSave(sub);
         }
         System.out.println("batch save cost: " + (System.currentTimeMillis() - start) + "ms");
         return true;
     }
 
     public long count() {
-        return jdbcAggregateTemplate.count(User.class);
+        return userMapper.countByExample(new UserExample());
     }
 
 }

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.PluginBlobMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.PluginBlob">
+    <id column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.PluginBlob">
+    <result column="form_option" jdbcType="LONGVARBINARY" property="formOption" />
+    <result column="form_script" jdbcType="LONGVARBINARY" property="formScript" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    plugin_id
+  </sql>
+  <sql id="Blob_Column_List">
+    form_option, form_script
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.system.domain.PluginBlobExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from plugin_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.PluginBlobExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from plugin_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from plugin_blob
+    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from plugin_blob
+    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.PluginBlobExample">
+    delete from plugin_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.system.domain.PluginBlob">
+    insert into plugin_blob (plugin_id, form_option, form_script
+      )
+    values (#{pluginId,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARBINARY}, #{formScript,jdbcType=LONGVARBINARY}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.PluginBlob">
+    insert into plugin_blob
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="pluginId != null">
+        plugin_id,
+      </if>
+      <if test="formOption != null">
+        form_option,
+      </if>
+      <if test="formScript != null">
+        form_script,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="pluginId != null">
+        #{pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="formOption != null">
+        #{formOption,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="formScript != null">
+        #{formScript,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.system.domain.PluginBlobExample" resultType="java.lang.Long">
+    select count(*) from plugin_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update plugin_blob
+    <set>
+      <if test="record.pluginId != null">
+        plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.formOption != null">
+        form_option = #{record.formOption,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.formScript != null">
+        form_script = #{record.formScript,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update plugin_blob
+    set plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      form_option = #{record.formOption,jdbcType=LONGVARBINARY},
+      form_script = #{record.formScript,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update plugin_blob
+    set plugin_id = #{record.pluginId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.PluginBlob">
+    update plugin_blob
+    <set>
+      <if test="formOption != null">
+        form_option = #{formOption,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="formScript != null">
+        form_script = #{formScript,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.PluginBlob">
+    update plugin_blob
+    set form_option = #{formOption,jdbcType=LONGVARBINARY},
+      form_script = #{formScript,jdbcType=LONGVARBINARY}
+    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+  </update>
+</mapper>

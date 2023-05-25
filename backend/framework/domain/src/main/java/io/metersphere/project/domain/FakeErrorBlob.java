@@ -1,37 +1,25 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
 import java.io.Serializable;
+import lombok.Data;
 
-@ApiModel(value = "误报库大字段")
-@Table("fake_error_blob")
 @Data
-@EqualsAndHashCode(callSuper=false)
 public class FakeErrorBlob implements Serializable {
-    private static final long serialVersionUID = 1L;
+    @Schema(title = "Test ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{fake_error_blob.fake_error_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{fake_error_blob.fake_error_id.length_range}", groups = {Created.class, Updated.class})
+    private String fakeErrorId;
 
-    @Id
-    @NotBlank(message = "{fake_error_blob.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "Test ID", required = true, allowableValues = "range[1, 50]")
-    private String id;
-
-
-    @ApiModelProperty(name = "内容", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "内容")
     private byte[] content;
 
-
-    @ApiModelProperty(name = "报告内容", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "报告内容")
     private byte[] description;
 
-
+    private static final long serialVersionUID = 1L;
 }

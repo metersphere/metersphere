@@ -1,16 +1,15 @@
 package io.metersphere.functional.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
-@ApiModel(value = "用例评审关注人")
+@Schema(title = "用例评审关注人")
 @Table("case_review_follow")
 @Data
 public class CaseReviewFollow implements Serializable {
@@ -18,12 +17,12 @@ public class CaseReviewFollow implements Serializable {
 
     @Id
     @NotBlank(message = "{case_review_follow.review_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "评审ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String reviewId;
 
 
     @NotBlank(message = "{case_review_follow.follow_id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "关注人", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "关注人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
     private String followId;
 
 

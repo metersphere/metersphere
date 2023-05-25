@@ -1,71 +1,57 @@
 package io.metersphere.project.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.io.Serializable;
 import lombok.Data;
 
-import java.io.Serializable;
-
-@ApiModel(value = "版本管理")
-@Table("project_version")
 @Data
 public class ProjectVersion implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{project_version.id.not_blank}", groups = {Updated.class})
-    @ApiModelProperty(name = "版本ID", required = true, allowableValues = "range[1, 50]")
+    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{project_version.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{project_version.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @NotBlank(message = "{project_version.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project_version.project_id.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{project_version.project_id.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "项目ID", required = true, allowableValues = "range[1, 50]")
     private String projectId;
 
+    @Schema(title = "版本名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{project_version.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{project_version.name.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{project_version.name.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "版本名称", required = true, allowableValues = "range[1, 100]")
     private String name;
 
-
-    @ApiModelProperty(name = "描述", required = false, allowableValues = "range[1, 200]")
+    @Schema(title = "描述")
     private String description;
 
-
-    @ApiModelProperty(name = "状态", required = false, allowableValues = "range[1, 20]")
+    @Schema(title = "状态")
     private String status;
 
+    @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @NotBlank(message = "{project_version.latest.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{project_version.latest.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{project_version.latest.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "是否是最新版", required = true, allowableValues = "range[1, 1]")
     private Boolean latest;
 
-
-    @ApiModelProperty(name = "发布时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "发布时间")
     private Long publishTime;
 
-
-    @ApiModelProperty(name = "开始时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "开始时间")
     private Long startTime;
 
-
-    @ApiModelProperty(name = "结束时间", required = false, allowableValues = "range[1, ]")
+    @Schema(title = "结束时间")
     private Long endTime;
 
-
-    @ApiModelProperty(name = "创建时间", required = true, allowableValues = "range[1, ]")
+    @Schema(title = "创建时间")
     private Long createTime;
 
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @NotBlank(message = "{project_version.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{project_version.create_user.length_range}", groups = {Created.class, Updated.class})
-    @NotBlank(message = "{project_version.create_user.not_blank}", groups = {Created.class})
-    @ApiModelProperty(name = "创建人", required = true, allowableValues = "range[1, 100]")
     private String createUser;
 
-
+    private static final long serialVersionUID = 1L;
 }
