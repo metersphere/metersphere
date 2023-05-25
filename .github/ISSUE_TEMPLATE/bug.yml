@@ -25,7 +25,7 @@ body:
       required: true
     attributes:
       label: "MeterSphere 版本"
-      description: "可通过系统右上角下拉菜单中的`关于`选项，或查看安装目录中的 version 文件获取。v1.20 是 MeterSphere 的 LTS（长期支持）版本，建议优先升级到最新的 v1.20.x-lts 版本。"
+      description: "可通过系统右上角下拉菜单中的`关于`选项，或查看安装目录中的 version 文件获取。v2.10 是 MeterSphere 的 LTS（长期支持）版本，建议优先升级到最新的 v2.10.x-lts 版本。"
   - type: dropdown
     id: database
     validations:
