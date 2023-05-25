@@ -61,7 +61,6 @@
     display: flex;
     padding: 16px 20px;
     padding-bottom: 0;
-    background-color: var(--color-fill-2);
   }
   .left-side {
     flex: 1;
@@ -74,7 +73,7 @@
   .panel {
     overflow: auto;
     border-radius: 4px;
-    background-color: var(--color-bg-2);
+    background-color: var(--color-bg-1);
   }
   :deep(.panel-border) {
     margin-bottom: 0;
@@ -82,7 +81,7 @@
   }
   .moduler-wrap {
     border-radius: 4px;
-    background-color: var(--color-bg-2);
+    background-color: var(--color-bg-1);
     :deep(.text) {
       font-size: 12px;
       text-align: center;

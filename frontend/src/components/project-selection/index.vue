@@ -34,7 +34,7 @@
     & .arco-select-view-single {
       border: none;
       color: #323233;
-      background-color: var(--color-bg-2);
+      background-color: var(--color-bg-1);
     }
   }
 </style>
