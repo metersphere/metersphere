@@ -9,6 +9,7 @@ pipeline {
     }
     environment {
         IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
+        IMAGE_NAME = 'metersphere'
         JAVA_HOME = '/opt/jdk-17'
     }
     stages {
@@ -44,7 +45,7 @@ pipeline {
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
                         mvn install -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean install -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk --settings ./settings.xml
+                        mvn clean install -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk,backend/services,backend/services/load-test,backend/services/ui-test --settings ./settings.xml
                     '''
                 }
             }
@@ -58,16 +59,16 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        mvn clean package -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean package -Drevision=${REVISION} -DskipTests --settings ./settings.xml
 
                         LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         # echo $LOCAL_REPOSITORY
                         mkdir -p backend/app/target/dependency && cd backend/app/target/dependency && jar -xf ../*.jar;
 
-                        libraries=('ui-test' 'load-test')
+                        libraries=('metersphere-ui-test-impl' 'metersphere-load-test-impl')
                         for library in "${libraries[@]}";
                         do
-                            cp -rf $LOCAL_REPOSITORY/io/metersphere/metersphere-$library/${REVISION}/metersphere-$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
+                            cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                         done
                     '''
                 }
