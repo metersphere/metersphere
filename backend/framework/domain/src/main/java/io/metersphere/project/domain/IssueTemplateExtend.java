@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class IssueTemplateExtend implements Serializable {
-    @Schema(title = "缺陷模板ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @Schema(title = "缺陷模板ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{issue_template_extend.template_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{issue_template_extend.template_id.length_range}", groups = {Created.class, Updated.class})
     private String templateId;

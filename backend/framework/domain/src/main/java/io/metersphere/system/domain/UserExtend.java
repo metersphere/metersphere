@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class UserExtend implements Serializable {
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_extend.user_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_extend.user_id.length_range}", groups = {Created.class, Updated.class})
     private String userId;

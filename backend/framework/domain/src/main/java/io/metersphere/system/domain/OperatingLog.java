@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 public class OperatingLog implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
@@ -44,7 +44,7 @@ public class OperatingLog implements Serializable {
     @Schema(title = "操作路径")
     private String operPath;
 
-    @Schema(title = "操作时间", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 19]")
+    @Schema(title = "操作时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log.oper_time.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 19, message = "{operating_log.oper_time.length_range}", groups = {Created.class, Updated.class})
     private Long operTime;

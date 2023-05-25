@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 public class Quota implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{quota.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{quota.id.length_range}", groups = {Created.class, Updated.class})
     private String id;

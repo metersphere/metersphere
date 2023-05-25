@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class LoadTestReport implements Serializable {
-    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.test_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
-    @Schema(title = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
@@ -34,17 +34,17 @@ public class LoadTestReport implements Serializable {
     @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "状态: Starting, Running, Error,Completed etc.", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "状态: Starting, Running, Error,Completed etc.", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.status.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_report.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(title = "创建人(执行人)ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "创建人(执行人)ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_report.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
-    @Schema(title = "触发方式", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "触发方式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.trigger_mode.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_report.trigger_mode.length_range}", groups = {Created.class, Updated.class})
     private String triggerMode;
@@ -58,17 +58,17 @@ public class LoadTestReport implements Serializable {
     @Schema(title = "每秒事务数")
     private String tps;
 
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "测试名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "测试名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.test_name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{load_test_report.test_name.length_range}", groups = {Created.class, Updated.class})
     private String testName;
 
-    @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.test_resource_pool_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report.test_resource_pool_id.length_range}", groups = {Created.class, Updated.class})
     private String testResourcePoolId;
@@ -82,7 +82,7 @@ public class LoadTestReport implements Serializable {
     @Schema(title = "执行时长")
     private Long testDuration;
 
-    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.version_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_report.version_id.length_range}", groups = {Created.class, Updated.class})
     private String versionId;

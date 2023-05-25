@@ -53,34 +53,44 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 模型对象 -->
-        <javaModelGenerator targetPackage="io.metersphere.load.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="io.metersphere.system.domain" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- XML映射文件 -->
-        <sqlMapGenerator targetPackage="io.metersphere.load.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="io.metersphere.system.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 接口 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.load.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.system.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="Load_Test"/>
-        <table tableName="Load_Test_Api"/>
-        <table tableName="Load_Test_Blob"/>
-        <table tableName="Load_Test_File"/>
-        <table tableName="Load_Test_Follow"/>
-        <table tableName="Load_Test_Report"/>
-        <table tableName="Load_Test_Report_Blob"/>
-        <table tableName="Load_Test_Report_File"/>
-        <table tableName="Load_Test_Report_Log"/>
-        <table tableName="Load_Test_Report_Result"/>
-        <table tableName="Load_Test_Report_Result_Part"/>
-        <table tableName="Load_Test_Report_Result_Realtime"/>
-
+        <table tableName="auth_source"/>
+        <table tableName="license"/>
+        <table tableName="message_task"/>
+        <table tableName="message_task_blob"/>
+        <table tableName="notification"/>
+        <table tableName="novice_statistics"/>
+        <table tableName="operating_log"/>
+        <table tableName="operating_log_resource"/>
+        <table tableName="plugin"/>
+        <table tableName="plugin_blob"/>
+        <table tableName="quota"/>
+        <table tableName="schedule"/>
+        <table tableName="service_integration"/>
+        <table tableName="system_parameter"/>
+        <table tableName="test_resource"/>
+        <table tableName="test_resource_pool"/>
+        <table tableName="user"/>
+        <table tableName="user_extend"/>
+        <table tableName="user_key"/>
+        <table tableName="user_role"/>
+        <table tableName="user_role_permission"/>
+        <table tableName="user_role_relation"/>
+        <table tableName="workspace"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

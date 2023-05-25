@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class ProjectExtend implements Serializable {
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_extend.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project_extend.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
@@ -33,7 +33,7 @@ public class ProjectExtend implements Serializable {
     @Schema(title = "azure 过滤需求的 parent workItem ID")
     private String azureFilterId;
 
-    @Schema(title = "项目使用哪个平台的模板", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 20]")
+    @Schema(title = "项目使用哪个平台的模板", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_extend.platform.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 20, message = "{project_extend.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;

@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 public class FileMetadata implements Serializable {
-    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{file_metadata.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "文件名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 250]")
+    @Schema(title = "文件名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 250, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
@@ -23,7 +23,7 @@ public class FileMetadata implements Serializable {
     @Schema(title = "文件类型")
     private String type;
 
-    @Schema(title = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 19]")
+    @Schema(title = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.size.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 19, message = "{file_metadata.size.length_range}", groups = {Created.class, Updated.class})
     private Long size;
@@ -37,7 +37,7 @@ public class FileMetadata implements Serializable {
     @Schema(title = "项目ID")
     private String projectId;
 
-    @Schema(title = "文件存储方式", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "文件存储方式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
     private String storage;

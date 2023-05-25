@@ -10,22 +10,22 @@ import lombok.Data;
 
 @Data
 public class UserKey implements Serializable {
-    @Schema(title = "user_key ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "user_key ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_key.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_key.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
-    @Schema(title = "access_key", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "access_key", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_key.access_key.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.access_key.length_range}", groups = {Created.class, Updated.class})
     private String accessKey;
 
-    @Schema(title = "secret key", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "secret key", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_key.secret_key.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_key.secret_key.length_range}", groups = {Created.class, Updated.class})
     private String secretKey;

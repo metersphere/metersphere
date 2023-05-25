@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 public class CustomFunction implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_function.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{custom_function.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "函数名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @Schema(title = "函数名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_function.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{custom_function.name.length_range}", groups = {Created.class, Updated.class})
     private String name;

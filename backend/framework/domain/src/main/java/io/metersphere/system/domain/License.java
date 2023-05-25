@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class License implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{license.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{license.id.length_range}", groups = {Created.class, Updated.class})
     private String id;

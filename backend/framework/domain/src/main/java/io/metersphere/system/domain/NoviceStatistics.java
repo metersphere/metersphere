@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class NoviceStatistics implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{novice_statistics.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{novice_statistics.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
@@ -18,12 +18,12 @@ public class NoviceStatistics implements Serializable {
     @Schema(title = "用户id")
     private String userId;
 
-    @Schema(title = "新手引导完成的步骤", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "新手引导完成的步骤", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{novice_statistics.guide_step.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{novice_statistics.guide_step.length_range}", groups = {Created.class, Updated.class})
     private Boolean guideStep;
 
-    @Schema(title = "新手引导的次数", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 10]")
+    @Schema(title = "新手引导的次数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{novice_statistics.guide_num.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 10, message = "{novice_statistics.guide_num.length_range}", groups = {Created.class, Updated.class})
     private Integer guideNum;

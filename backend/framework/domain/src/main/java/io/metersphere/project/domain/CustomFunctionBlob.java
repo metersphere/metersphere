@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class CustomFunctionBlob implements Serializable {
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_function_blob.function_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{custom_function_blob.function_id.length_range}", groups = {Created.class, Updated.class})
     private String functionId;

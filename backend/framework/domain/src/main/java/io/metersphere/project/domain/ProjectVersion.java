@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class ProjectVersion implements Serializable {
-    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_version.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{project_version.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_version.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project_version.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "版本名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @Schema(title = "版本名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_version.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{project_version.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
@@ -31,7 +31,7 @@ public class ProjectVersion implements Serializable {
     @Schema(title = "状态")
     private String status;
 
-    @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_version.latest.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 1, message = "{project_version.latest.length_range}", groups = {Created.class, Updated.class})
     private Boolean latest;
@@ -48,7 +48,7 @@ public class ProjectVersion implements Serializable {
     @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project_version.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{project_version.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;

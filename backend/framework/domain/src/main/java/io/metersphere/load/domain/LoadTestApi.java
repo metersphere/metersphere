@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class LoadTestApi implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_api.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_api.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "接口场景或用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @Schema(title = "接口场景或用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_api.api_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 255, message = "{load_test_api.api_id.length_range}", groups = {Created.class, Updated.class})
     private String apiId;
 
-    @Schema(title = "性能测试ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "性能测试ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_api.load_test_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test_api.load_test_id.length_range}", groups = {Created.class, Updated.class})
     private String loadTestId;
@@ -28,7 +28,7 @@ public class LoadTestApi implements Serializable {
     @Schema(title = "环境ID")
     private String envId;
 
-    @Schema(title = "类型: SCENARIO, CASE", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 20]")
+    @Schema(title = "类型: SCENARIO, CASE", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_api.type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 20, message = "{load_test_api.type.length_range}", groups = {Created.class, Updated.class})
     private String type;

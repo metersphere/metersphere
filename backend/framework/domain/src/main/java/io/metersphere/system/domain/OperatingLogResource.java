@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class OperatingLogResource implements Serializable {
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log_resource.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log_resource.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "Operating log ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "Operating log ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log_resource.operating_log_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log_resource.operating_log_id.length_range}", groups = {Created.class, Updated.class})
     private String operatingLogId;
 
-    @Schema(title = "operating source id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "operating source id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{operating_log_resource.source_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{operating_log_resource.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;

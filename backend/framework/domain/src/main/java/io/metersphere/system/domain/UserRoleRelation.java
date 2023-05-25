@@ -10,22 +10,22 @@ import lombok.Data;
 
 @Data
 public class UserRoleRelation implements Serializable {
-    @Schema(title = "用户组关系ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户组关系ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.user_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.user_id.length_range}", groups = {Created.class, Updated.class})
     private String userId;
 
-    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.role_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.role_id.length_range}", groups = {Created.class, Updated.class})
     private String roleId;
 
-    @Schema(title = "工作空间或项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "工作空间或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.source_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_role_relation.source_id.length_range}", groups = {Created.class, Updated.class})
     private String sourceId;

@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class TestResourcePool implements Serializable {
-    @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{test_resource_pool.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 30]")
+    @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 30, message = "{test_resource_pool.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
@@ -28,7 +28,7 @@ public class TestResourcePool implements Serializable {
     @Schema(title = "描述")
     private String description;
 
-    @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.status.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{test_resource_pool.status.length_range}", groups = {Created.class, Updated.class})
     private String status;

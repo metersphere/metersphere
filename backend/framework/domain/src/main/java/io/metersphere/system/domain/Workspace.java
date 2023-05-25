@@ -10,12 +10,12 @@ import lombok.Data;
 
 @Data
 public class Workspace implements Serializable {
-    @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{workspace.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{workspace.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "工作空间名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @Schema(title = "工作空间名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{workspace.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 100, message = "{workspace.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
@@ -29,7 +29,7 @@ public class Workspace implements Serializable {
     @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{workspace.create_user.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{workspace.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
