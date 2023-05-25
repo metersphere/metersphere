@@ -18,12 +18,12 @@ public class ApiScenarioFollow implements Serializable {
 
     @Size(min = 1, max = 50, message = "{api_scenario_follow.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_follow.api_scenario_id.not_blank}", groups = {Created.class})
-    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String apiScenarioId;
 
     @Size(min = 1, max = 50, message = "{api_scenario_follow.follow_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_follow.follow_id.not_blank}", groups = {Created.class})
-    @Schema(title = "关注人/用户fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "关注人/用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String followId;
 
 }

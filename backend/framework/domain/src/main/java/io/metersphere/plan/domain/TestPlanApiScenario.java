@@ -18,17 +18,17 @@ public class TestPlanApiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_api_scenario.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{test_plan_api_scenario.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_scenario.test_plan_id.not_blank}", groups = {Created.class})
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanId;
 
     @Size(min = 1, max = 255, message = "{test_plan_api_scenario.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_scenario.api_scenario_id.not_blank}", groups = {Created.class})
-    @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 255]")
+    @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String apiScenarioId;
 
 
@@ -37,7 +37,7 @@ public class TestPlanApiScenario implements Serializable {
 
     @Size(min = 1, max = 100, message = "{test_plan_api_scenario.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_scenario.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 100]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
 
@@ -45,15 +45,15 @@ public class TestPlanApiScenario implements Serializable {
     private Long pos;
 
 
-    @Schema(title = "环境类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 20]")
+    @Schema(title = "环境类型", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String environmentType;
 
 
-    @Schema(title = "所属环境", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "所属环境", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String environment;
 
 
-    @Schema(title = "环境组ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境组ID", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String environmentGroupId;
 
 }

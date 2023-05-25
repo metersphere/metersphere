@@ -18,22 +18,22 @@ public class TestPlanUiScenario implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_ui_scenario.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{test_plan_ui_scenario.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_ui_scenario.test_plan_id.not_blank}", groups = {Created.class})
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanId;
 
     @Size(min = 1, max = 50, message = "{test_plan_ui_scenario.ui_scenario_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_ui_scenario.ui_scenario_id.not_blank}", groups = {Created.class})
-    @Schema(title = "UI场景ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "UI场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String uiScenarioId;
 
     @Size(min = 1, max = 50, message = "{test_plan_ui_scenario.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_ui_scenario.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
 
@@ -45,7 +45,7 @@ public class TestPlanUiScenario implements Serializable {
     private Long pos;
 
 
-    @Schema(title = "环境类型", allowableValues = "range[1, 20]")
+    @Schema(title = "环境类型")
     private String environmentType;
 
 
@@ -53,7 +53,7 @@ public class TestPlanUiScenario implements Serializable {
     private String environment;
 
 
-    @Schema(title = "环境组ID", allowableValues = "range[1, 50]")
+    @Schema(title = "环境组ID")
     private String environmentGroupId;
 
 

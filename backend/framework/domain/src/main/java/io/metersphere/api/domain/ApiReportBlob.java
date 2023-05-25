@@ -19,7 +19,7 @@ public class ApiReportBlob implements Serializable {
 
     @Id
     @NotBlank(message = "{api_report_blob.api_report_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "接口报告fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "接口报告fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Schema(title = "结果内容详情", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

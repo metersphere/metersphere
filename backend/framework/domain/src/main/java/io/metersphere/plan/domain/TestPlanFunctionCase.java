@@ -18,17 +18,17 @@ public class TestPlanFunctionCase implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_function_case.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{test_plan_function_case.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_function_case.test_plan_id.not_blank}", groups = {Created.class})
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanId;
 
     @Size(min = 1, max = 50, message = "{test_plan_function_case.function_case_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_function_case.function_case_id.not_blank}", groups = {Created.class})
-    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String functionCaseId;
 
 
@@ -37,7 +37,7 @@ public class TestPlanFunctionCase implements Serializable {
 
     @Size(min = 1, max = 50, message = "{test_plan_function_case.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_function_case.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
 

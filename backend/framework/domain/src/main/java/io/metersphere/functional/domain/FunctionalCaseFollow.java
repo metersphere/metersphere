@@ -15,11 +15,11 @@ public class FunctionalCaseFollow implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{functional_case_follow.case_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String caseId;
 
     @NotBlank(message = "{functional_case_follow.follow_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "关注人ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "关注人ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String followId;
 
 

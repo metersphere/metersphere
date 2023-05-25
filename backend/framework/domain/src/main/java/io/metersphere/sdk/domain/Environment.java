@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class Environment implements Serializable {
-    @Schema(title = "Api Test Environment ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "Api Test Environment ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{environment.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "Api Test Environment Name", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "Api Test Environment Name", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{environment.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "Project ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "Project ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;

@@ -19,22 +19,22 @@ public class FunctionalCaseTest implements Serializable {
 
     @Id
     @NotBlank(message = "{functional_case_test.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{functional_case_test.functional_case_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{functional_case_test.functional_case_id.not_blank}", groups = {Created.class})
-    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String functionalCaseId;
 
     @Size(min = 1, max = 50, message = "{functional_case_test.test_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{functional_case_test.test_id.not_blank}", groups = {Created.class})
-    @Schema(title = "其他类型用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "其他类型用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testId;
 
     @Size(min = 1, max = 64, message = "{functional_case_test.test_type.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{functional_case_test.test_type.not_blank}", groups = {Created.class})
-    @Schema(title = "用例类型：接口用例/场景用例/性能用例/UI用例", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "用例类型：接口用例/场景用例/性能用例/UI用例", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testType;
 
 

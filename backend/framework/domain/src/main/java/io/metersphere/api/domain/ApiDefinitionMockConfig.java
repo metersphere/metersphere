@@ -19,13 +19,13 @@ public class ApiDefinitionMockConfig implements Serializable {
 
     @Id
     @NotBlank(message = "{api_definition_mock_config.api_definition_mock_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "接口mock pk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "接口mock pk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
-    @Schema(title = "请求内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "请求内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] request;
 
-    @Schema(title = "响应内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "响应内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] response;
 
 }

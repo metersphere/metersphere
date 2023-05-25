@@ -15,19 +15,19 @@ public class CustomFieldTestCase implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{custom_field_test_case.resource_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "资源ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "资源ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String resourceId;
 
     @NotBlank(message = "{custom_field_test_case.field_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "字段ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String fieldId;
 
 
-    @Schema(title = "字段值", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1000]")
+    @Schema(title = "字段值", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String value;
 
 
-    @Schema(title = "", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String textValue;
 
 

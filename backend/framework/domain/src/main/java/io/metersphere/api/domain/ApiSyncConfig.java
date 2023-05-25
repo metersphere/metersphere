@@ -19,43 +19,43 @@ public class ApiSyncConfig implements Serializable {
 
     @Id
     @NotBlank(message = "{api_sync_config.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{api_sync_config.resource_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_sync_config.resource_id.not_blank}", groups = {Created.class})
-    @Schema(title = "API/CASE 来源fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "API/CASE 来源fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String resourceId;
 
     @Size(min = 1, max = 50, message = "{api_sync_config.resource_type.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_sync_config.resource_type.not_blank}", groups = {Created.class})
-    @Schema(title = "来源类型/API/CASE", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "来源类型/API/CASE", requiredMode = Schema.RequiredMode.REQUIRED)
     private String resourceType;
 
 
-    @Schema(title = "是否隐藏", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否隐藏", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Boolean hide;
 
 
-    @Schema(title = "同步规则", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "同步规则", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String ruleConfig;
 
     @Size(min = 1, max = 1, message = "{api_sync_config.notify_case_creator.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_sync_config.notify_case_creator.not_blank}", groups = {Created.class})
-    @Schema(title = "是否通知用例创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否通知用例创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean notifyCaseCreator;
 
     @Size(min = 1, max = 1, message = "{api_sync_config.notify_scenario_creator.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_sync_config.notify_scenario_creator.not_blank}", groups = {Created.class})
-    @Schema(title = "是否通知场景创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否通知场景创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean notifyScenarioCreator;
 
     @Size(min = 1, max = 1, message = "{api_sync_config.sync_enable.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_sync_config.sync_enable.not_blank}", groups = {Created.class})
-    @Schema(title = "是否同步用例", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否同步用例", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean syncEnable;
 
-    @Schema(title = "是否发送通知", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "是否发送通知", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Boolean noticeEnable;
 
 }

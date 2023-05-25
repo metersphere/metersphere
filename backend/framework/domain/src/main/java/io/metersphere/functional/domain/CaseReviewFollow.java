@@ -17,12 +17,12 @@ public class CaseReviewFollow implements Serializable {
 
     @Id
     @NotBlank(message = "{case_review_follow.review_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewId;
 
 
     @NotBlank(message = "{case_review_follow.follow_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "关注人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "关注人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String followId;
 
 

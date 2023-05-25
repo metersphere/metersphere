@@ -15,11 +15,11 @@ public class CaseReviewUser implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotBlank(message = "{case_review_user.review_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewId;
 
     @NotBlank(message = "{case_review_user.user_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "评审人ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "评审人ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
 
 

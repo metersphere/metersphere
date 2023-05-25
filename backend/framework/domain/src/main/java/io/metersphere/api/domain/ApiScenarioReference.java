@@ -19,12 +19,12 @@ public class ApiScenarioReference implements Serializable {
 
     @Id
     @NotBlank(message = "{api_scenario_reference.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "引用关系pk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "引用关系pk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{api_scenario_reference.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_reference.api_scenario_id.not_blank}", groups = {Created.class})
-    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String apiScenarioId;
 
     @Schema(title = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -32,18 +32,18 @@ public class ApiScenarioReference implements Serializable {
 
     @Size(min = 1, max = 50, message = "{api_scenario_reference.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_reference.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
     @Size(min = 1, max = 50, message = "{api_scenario_reference.reference_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_reference.reference_id.not_blank}", groups = {Created.class})
-    @Schema(title = "引用步骤fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "引用步骤fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String referenceId;
 
-    @Schema(title = "引用步骤类型/REF/COPY", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 20]")
+    @Schema(title = "引用步骤类型/REF/COPY", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String referenceType;
 
-    @Schema(title = "步骤类型/CASE/API", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 20]")
+    @Schema(title = "步骤类型/CASE/API", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String dataType;
 
 }

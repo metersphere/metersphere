@@ -19,7 +19,7 @@ public class ApiDefinitionBlob implements Serializable {
 
     @Id
     @NotBlank(message = "{api_definition_blob.api_definition_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "接口fk/ 一对一关系", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Schema(title = "请求内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

@@ -16,7 +16,7 @@ public class TestPlanExecuteRecordBlob implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_execute_record_blob.test_plan_execute_record.not_blank}", groups = {Updated.class})
-    @Schema(title = "测试计划执行记录ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划执行记录ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanExecuteRecord;
 
 

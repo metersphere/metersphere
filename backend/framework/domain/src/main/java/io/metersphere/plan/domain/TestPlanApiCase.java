@@ -18,21 +18,21 @@ public class TestPlanApiCase implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_api_case.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{test_plan_api_case.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_case.test_plan_id.not_blank}", groups = {Created.class})
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanId;
 
     @Size(min = 1, max = 50, message = "{test_plan_api_case.api_case_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_case.api_case_id.not_blank}", groups = {Created.class})
-    @Schema(title = "接口用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "接口用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String apiCaseId;
 
 
-    @Schema(title = "环境类型", allowableValues = "range[1, 20]")
+    @Schema(title = "环境类型")
     private String environmentType;
 
 
@@ -40,7 +40,7 @@ public class TestPlanApiCase implements Serializable {
     private String environment;
 
 
-    @Schema(title = "环境组ID", allowableValues = "range[1, 50]")
+    @Schema(title = "环境组ID")
     private String environmentGroupId;
 
 
@@ -49,7 +49,7 @@ public class TestPlanApiCase implements Serializable {
 
     @Size(min = 1, max = 40, message = "{test_plan_api_case.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_api_case.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 40]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
 

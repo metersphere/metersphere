@@ -19,22 +19,22 @@ public class CaseReviewFunctionalCase implements Serializable {
 
     @Id
     @NotBlank(message = "{case_review_functional_case.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{case_review_functional_case.review_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review_functional_case.review_id.not_blank}", groups = {Created.class})
-    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "评审ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewId;
 
     @Size(min = 1, max = 50, message = "{case_review_functional_case.case_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review_functional_case.case_id.not_blank}", groups = {Created.class})
-    @Schema(title = "用例ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String caseId;
 
     @Size(min = 1, max = 64, message = "{case_review_functional_case.status.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review_functional_case.status.not_blank}", groups = {Created.class})
-    @Schema(title = "评审状态：进行中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "评审状态：进行中/通过/不通过/重新提审", requiredMode = Schema.RequiredMode.REQUIRED)
     private String status;
 
 
@@ -47,7 +47,7 @@ public class CaseReviewFunctionalCase implements Serializable {
 
     @Size(min = 1, max = 50, message = "{case_review_functional_case.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review_functional_case.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
 
@@ -56,7 +56,7 @@ public class CaseReviewFunctionalCase implements Serializable {
 
     @Size(min = 1, max = 1, message = "{case_review_functional_case.deleted.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
-    @Schema(title = "关联的用例是否放入回收站", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "关联的用例是否放入回收站", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean deleted;
 
 

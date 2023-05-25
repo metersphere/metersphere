@@ -17,7 +17,7 @@ public class ApiScenarioReportLog implements Serializable {
 
     @Id
     @NotBlank(message = "{api_scenario_report_log.report_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reportId;
 
     @Schema(title = "执行日志", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

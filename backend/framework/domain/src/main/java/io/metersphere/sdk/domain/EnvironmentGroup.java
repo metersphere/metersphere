@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class EnvironmentGroup implements Serializable {
-    @Schema(title = "环境组id", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境组id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{environment_group.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "环境组名", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境组名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.name.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment_group.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "所属工作空间", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "所属工作空间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment_group.workspace_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{environment_group.workspace_id.length_range}", groups = {Created.class, Updated.class})
     private String workspaceId;

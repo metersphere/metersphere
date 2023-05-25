@@ -14,11 +14,11 @@ import java.io.Serializable;
 public class TestPlanPrincipal implements Serializable {
     private static final long serialVersionUID = 1L;
     @NotBlank(message = "{test_plan_principal.test_plan_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanId;
 
     @NotBlank(message = "{test_plan_principal.user_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
 
 }

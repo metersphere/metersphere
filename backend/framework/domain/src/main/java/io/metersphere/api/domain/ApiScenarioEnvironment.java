@@ -19,23 +19,23 @@ public class ApiScenarioEnvironment implements Serializable {
 
     @Id
     @NotBlank(message = "{api_scenario_environment.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "场景环境pk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "场景环境pk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{api_scenario_environment.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_environment.api_scenario_id.not_blank}", groups = {Created.class})
-    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String apiScenarioId;
 
     @Size(min = 1, max = 50, message = "{api_scenario_environment.project_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_scenario_environment.project_id.not_blank}", groups = {Created.class})
-    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;
 
-    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String environmentId;
 
-    @Schema(title = "环境组fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境组fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String environmentGroupId;
 
 }

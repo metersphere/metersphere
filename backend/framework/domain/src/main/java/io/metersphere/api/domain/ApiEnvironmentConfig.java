@@ -19,7 +19,7 @@ public class ApiEnvironmentConfig implements Serializable {
 
     @Id
     @NotBlank(message = "{api_definition_env.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
 
@@ -31,11 +31,11 @@ public class ApiEnvironmentConfig implements Serializable {
 
     @Size(min = 1, max = 50, message = "{api_definition_env.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition_env.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "用户fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
     @Size(min = 1, max = 50, message = "{api_definition_env.environment_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition_env.environment_id.not_blank}", groups = {Created.class})
-    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String environmentId;
 }

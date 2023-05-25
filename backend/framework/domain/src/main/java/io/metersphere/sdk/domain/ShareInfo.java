@@ -10,7 +10,7 @@ import lombok.Data;
 
 @Data
 public class ShareInfo implements Serializable {
-    @Schema(title = "分享ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "分享ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{share_info.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{share_info.id.length_range}", groups = {Created.class, Updated.class})
     private String id;

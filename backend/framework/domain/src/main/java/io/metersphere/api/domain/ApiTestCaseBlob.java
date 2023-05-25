@@ -19,7 +19,7 @@ public class ApiTestCaseBlob implements Serializable {
 
     @Id
     @NotBlank(message = "{api_test_case_blob.api_test_case_id.not_blank}", groups = {Updated.class})
-    @Schema(title = "接口用例pk", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "接口用例pk", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Schema(title = "请求内容", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

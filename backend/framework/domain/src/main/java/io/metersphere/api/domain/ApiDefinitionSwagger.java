@@ -19,30 +19,30 @@ public class ApiDefinitionSwagger implements Serializable {
 
     @Id
     @NotBlank(message = "{api_definition_swagger.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Created.class})
-    @Schema(title = "url地址", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 500]")
+    @Schema(title = "url地址", requiredMode = Schema.RequiredMode.REQUIRED)
     private String swaggerUrl;
 
-    @Schema(title = "模块fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "模块fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String moduleId;
 
-    @Schema(title = "模块路径", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 500]")
+    @Schema(title = "模块路径", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String modulePath;
 
-    @Schema(title = "鉴权配置信息", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, ]")
+    @Schema(title = "鉴权配置信息", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] config;
 
-    @Schema(title = "导入模式/覆盖/不覆盖", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1]")
+    @Schema(title = "导入模式/覆盖/不覆盖", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Boolean mode;
 
-    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String projectId;
 
-    @Schema(title = "导入版本", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "导入版本", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String versionId;
 
 }

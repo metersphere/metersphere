@@ -18,16 +18,16 @@ public class TestPlanReportContent implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @NotBlank(message = "{test_plan_report_content.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 50, message = "{test_plan_report_content.test_plan_report_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{test_plan_report_content.test_plan_report_id.not_blank}", groups = {Created.class})
-    @Schema(title = "测试计划报告ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "测试计划报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String testPlanReportId;
 
 
-    @Schema(title = "总结", allowableValues = "range[1, 2000]")
+    @Schema(title = "总结")
     private String summary;
 
 

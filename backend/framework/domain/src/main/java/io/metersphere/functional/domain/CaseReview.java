@@ -19,17 +19,17 @@ public class CaseReview implements Serializable {
 
     @Id
     @NotBlank(message = "{case_review.id.not_blank}", groups = {Updated.class})
-    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String id;
 
     @Size(min = 1, max = 200, message = "{case_review.name.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review.name.not_blank}", groups = {Created.class})
-    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 200]")
+    @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;
 
     @Size(min = 1, max = 64, message = "{case_review.status.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review.status.not_blank}", groups = {Created.class})
-    @Schema(title = "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "评审状态：未开始/进行中/已完成/已结束/已归档", requiredMode = Schema.RequiredMode.REQUIRED)
     private String status;
 
 
@@ -50,21 +50,21 @@ public class CaseReview implements Serializable {
 
     @Size(min = 1, max = 50, message = "{case_review.project_id.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review.project_id.not_blank}", groups = {Created.class})
-    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;
 
 
-    @Schema(title = "标签", requiredMode = Schema.RequiredMode.NOT_REQUIRED, allowableValues = "range[1, 1000]")
+    @Schema(title = "标签", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String tags;
 
     @Size(min = 1, max = 50, message = "{case_review.create_user.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review.create_user.not_blank}", groups = {Created.class})
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 50]")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     private String createUser;
 
     @Size(min = 1, max = 64, message = "{case_review.review_pass_rule.length_range}", groups = {Created.class, Updated.class})
     @NotBlank(message = "{case_review.review_pass_rule.not_blank}", groups = {Created.class})
-    @Schema(title = "评审规则：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = "range[1, 64]")
+    @Schema(title = "评审规则：单人通过/全部通过", requiredMode = Schema.RequiredMode.REQUIRED)
     private String reviewPassRule;
 
 
