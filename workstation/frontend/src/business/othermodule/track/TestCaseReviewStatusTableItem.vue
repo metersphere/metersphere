@@ -39,8 +39,10 @@ export default {
     return {
       reviewStatusFilters: [
         {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.review.again'), value: 'Again'},
         {text: this.$t('test_track.review.pass'), value: 'Pass'},
         {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.underway'), value: 'Underway'}
       ]
     }
   }

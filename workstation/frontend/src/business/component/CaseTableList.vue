@@ -424,14 +424,6 @@ export default {
       } else {
         this.condition.filters = { status: ["Trash"] };
       }
-    } else {
-      if (this.condition.filters) {
-        this.condition.filters.review_status = ["Prepare", "Underway", "Pass", "UnPass"];
-      } else {
-        this.condition.filters = {
-          review_status: ["Prepare", "Underway", "Pass", "UnPass"],
-        };
-      }
     }
     this.condition.versionId = this.currentVersion;
     this.initTableData();
@@ -445,11 +437,6 @@ export default {
   },
   activated() {
     this.getTemplateField();
-    if (this.condition.filters) {
-      this.condition.filters.review_status = ["Prepare", "Underway", "Pass", "UnPass"];
-    } else {
-      this.condition.filters = { review_status: ["Prepare", "Underway", "Pass", "UnPass"] };
-    }
     let ids = this.$route.params.ids;
     if (ids) {
       this.condition.ids = ids;
@@ -689,7 +676,6 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
-      this.condition.filters.review_status = ["Prepare", "Underway", "Pass", "UnPass"];
       switch (this.selectDataRange) {
         case "thisWeekCount":
           this.condition.selectThisWeedData = true;
