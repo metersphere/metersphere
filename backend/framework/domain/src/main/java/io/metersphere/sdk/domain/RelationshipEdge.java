@@ -1,7 +1,5 @@
 package io.metersphere.sdk.domain;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.annotations.ApiModel;
@@ -9,6 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.io.Serializable;
 
@@ -18,12 +17,10 @@ import java.io.Serializable;
 public class RelationshipEdge implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @Id
     @NotBlank(message = "{relationship_edge.source_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "源节点的ID", required = true, allowableValues = "range[1, 50]")
     private String sourceId;
 
-    @Id
     @NotBlank(message = "{relationship_edge.target_id.not_blank}", groups = {Updated.class})
     @ApiModelProperty(name = "目标节点的ID", required = true, allowableValues = "range[1, 50]")
     private String targetId;
