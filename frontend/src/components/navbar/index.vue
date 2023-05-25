@@ -219,8 +219,7 @@
     display: flex;
     justify-content: space-between;
     height: 100%;
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-bg-1);
+    background-color: var(--color-bg-3);
   }
   .left-side {
     display: flex;

@@ -51,12 +51,12 @@
 <style scoped lang="less">
   .tab-bar-container {
     position: relative;
-    background-color: var(--color-bg-2);
+    background-color: var(--color-bg-1);
     .tab-bar-box {
       display: flex;
       padding: 0 0 0 20px;
       border-bottom: 1px solid var(--color-border);
-      background-color: var(--color-bg-2);
+      background-color: var(--color-bg-1);
       .tab-bar-scroll {
         overflow: hidden;
         height: 32px;

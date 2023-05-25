@@ -13,7 +13,7 @@
           :collapsed="collapsed"
           :collapsible="true"
           :width="menuWidth"
-          :style="{ paddingTop: navbar ? '60px' : '' }"
+          :style="{ paddingTop: navbar ? navbarHeight : '' }"
           :hide-trigger="true"
           @collapse="setCollapsed"
         >
@@ -63,7 +63,7 @@
   const route = useRoute();
   const permission = usePermission();
   useResponsive(true);
-  const navbarHeight = `60px`;
+  const navbarHeight = `56px`;
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
   const hideMenu = computed(() => appStore.hideMenu);
@@ -102,7 +102,7 @@
 </script>
 
 <style scoped lang="less">
-  @nav-size-height: 60px;
+  @nav-size-height: 56px;
   @layout-max-width: 1100px;
   .layout {
     width: 100%;
@@ -123,16 +123,6 @@
     z-index: 99;
     height: 100%;
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
-    &::after {
-      position: absolute;
-      top: 0;
-      right: -1px;
-      display: block;
-      width: 1px;
-      height: 100%;
-      background-color: var(--color-border);
-      content: '';
-    }
     > :deep(.arco-layout-sider-children) {
       overflow-y: hidden;
     }
@@ -157,7 +147,7 @@
       }
     }
     :deep(.arco-menu-light) {
-      background-color: var(--color-bg-1) !important;
+      background-color: var(--color-bg-3) !important;
       .arco-menu-item {
         :hover {
           background-color: var(--color-bg-6);
