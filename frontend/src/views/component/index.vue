@@ -24,10 +24,6 @@
       </a-radio-group>
     </div>
     <a-divider />
-    <div class="mt-10">
-      <a-button type="primary">按钮</a-button>
-      <a-switch />
-    </div>
   </div>
 </template>
 
