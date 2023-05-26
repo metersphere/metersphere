@@ -6,11 +6,13 @@ import minder from '@/components/minder-editor/locale/zh-CN';
 import localeLogin from '@/views/login/locale/zh-CN';
 import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
 import localeThemebox from '@/components/theme-box/locale/zh-CN';
+import localeApiTest from '@/views/api-test/locale/zh-CN';
 
 export default {
   message: {
     'menu.component': '组件库',
     'menu.component.demo': '组件示例',
+    'menu.apitest': '接口测试',
     'menu.dashboard': '仪表盘',
     'menu.minder': '脑图',
     'menu.server.dashboard': '仪表盘-服务端',
@@ -31,6 +33,7 @@ export default {
     ...localeWorkplace,
     ...minder,
     ...localeThemebox,
+    ...localeApiTest,
   },
   dayjsLocale,
   dayjsLocaleName: 'zh-CN',
