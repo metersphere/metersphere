@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-public class ProjectCompressInterceptor {
+public class ProjectInterceptor {
     @Bean
     public List<MybatisInterceptorConfig> projectCompressConfigs() {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
