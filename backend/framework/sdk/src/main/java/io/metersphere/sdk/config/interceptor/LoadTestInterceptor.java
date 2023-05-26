@@ -12,7 +12,7 @@ import java.util.List;
 @Configuration
 public class LoadTestInterceptor {
     @Bean
-    public List<MybatisInterceptorConfig> projectCompressConfigs() {
+    public List<MybatisInterceptorConfig> loadTestCompressConfigs() {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
         configList.add(new MybatisInterceptorConfig(LoadTestBlob.class, "loadConfiguration", CompressUtils.class, "zip", "unzip"));
