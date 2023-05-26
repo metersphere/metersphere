@@ -51,6 +51,8 @@
         :highlightCurrentRow="true"
         :page-size="pageSize"
         :total="total"
+        enableSelection
+        :condition="condition"
         @refresh="onChange"
         ref="variableTable">
         <ms-table-column prop="num" sortable label="ID" min-width="60" />
@@ -234,6 +236,10 @@ export default {
         { text: this.$t('commons.api'), value: 'api' },
         { text: this.$t('commons.ui_test'), value: 'ui' },
       ],
+      condition: {
+       selectAll : false,
+        unSelectIds: [],
+      }
     };
   },
   watch: {
@@ -259,16 +265,12 @@ export default {
       this.nextPage();
     },
     nextPage() {
-      if (
-        this.$refs.variableTable &&
-        this.$refs.variableTable.selectRows &&
-        this.$refs.variableTable.selectRows.size > 0
-      ) {
-        return;
-      }
       // 如果是第一页，则截取0到pageSize（每页显示多少条数据）即可
       if (this.currentPage == 1) {
         this.variables = this.allData.slice(0, this.pageSize);
+        this.variables.forEach((item) => {
+          item.showMore = false;
+        });
         return;
       }
       let start = (this.currentPage - 1) * this.pageSize;
@@ -499,6 +501,9 @@ export default {
       let variablesJson = [];
       let messages = '';
       let rows = this.$refs.variableTable.selectRows;
+      if (this.condition.selectAll) {
+        rows = this.allData;
+      }
       rows.forEach((row) => {
         if (row.type === 'CSV') {
           messages = this.$t('variables.csv_download');
@@ -573,7 +578,4 @@ export default {
   width: 60px;
 }
 
-:deep(.table-select-icon) {
-  display: none !important;
-}
 </style>
