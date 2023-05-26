@@ -1788,6 +1788,7 @@ public class TestCaseService {
         if (filters != null && !filters.containsKey("status")) {
             filters.put("status", new ArrayList<>(0));
         }
+        ServiceUtils.buildCombineTagsToSupportMultiple(param.getCondition());
         ServiceUtils.getSelectAllIds(param, param.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
         return param;
