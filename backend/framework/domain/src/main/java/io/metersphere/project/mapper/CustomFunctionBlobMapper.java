@@ -10,7 +10,7 @@ public interface CustomFunctionBlobMapper {
 
     int deleteByExample(CustomFunctionBlobExample example);
 
-    int deleteByPrimaryKey(String functionId);
+    int deleteByPrimaryKey(String id);
 
     int insert(CustomFunctionBlob record);
 
@@ -20,7 +20,7 @@ public interface CustomFunctionBlobMapper {
 
     List<CustomFunctionBlob> selectByExample(CustomFunctionBlobExample example);
 
-    CustomFunctionBlob selectByPrimaryKey(String functionId);
+    CustomFunctionBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") CustomFunctionBlob record, @Param("example") CustomFunctionBlobExample example);
 

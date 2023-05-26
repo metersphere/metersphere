@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ProjectExtendMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.ProjectExtend">
-    <id column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="tapd_id" jdbcType="VARCHAR" property="tapdId" />
     <result column="jira_key" jdbcType="VARCHAR" property="jiraKey" />
     <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId" />
@@ -76,7 +76,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    project_id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
+    id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
     platform, third_part_template, version_enable, api_template_id
   </sql>
   <sql id="Blob_Column_List">
@@ -118,11 +118,11 @@
     ,
     <include refid="Blob_Column_List" />
     from project_extend
-    where project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from project_extend
-    where project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.ProjectExtendExample">
     delete from project_extend
@@ -131,12 +131,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.ProjectExtend">
-    insert into project_extend (project_id, tapd_id, jira_key, 
+    insert into project_extend (id, tapd_id, jira_key, 
       zentao_id, azure_devops_id, case_template_id, 
       azure_filter_id, platform, third_part_template, 
       version_enable, api_template_id, issue_config
       )
-    values (#{projectId,jdbcType=VARCHAR}, #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, 
       #{zentaoId,jdbcType=VARCHAR}, #{azureDevopsId,jdbcType=VARCHAR}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{azureFilterId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, 
       #{versionEnable,jdbcType=BIT}, #{apiTemplateId,jdbcType=VARCHAR}, #{issueConfig,jdbcType=LONGVARBINARY}
@@ -145,8 +145,8 @@
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.ProjectExtend">
     insert into project_extend
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="projectId != null">
-        project_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="tapdId != null">
         tapd_id,
@@ -183,8 +183,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="projectId != null">
-        #{projectId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="tapdId != null">
         #{tapdId,jdbcType=VARCHAR},
@@ -230,8 +230,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update project_extend
     <set>
-      <if test="record.projectId != null">
-        project_id = #{record.projectId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.tapdId != null">
         tapd_id = #{record.tapdId,jdbcType=VARCHAR},
@@ -273,7 +273,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update project_extend
-    set project_id = #{record.projectId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       tapd_id = #{record.tapdId,jdbcType=VARCHAR},
       jira_key = #{record.jiraKey,jdbcType=VARCHAR},
       zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
@@ -291,7 +291,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update project_extend
-    set project_id = #{record.projectId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       tapd_id = #{record.tapdId,jdbcType=VARCHAR},
       jira_key = #{record.jiraKey,jdbcType=VARCHAR},
       zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
@@ -343,7 +343,7 @@
         issue_config = #{issueConfig,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.ProjectExtend">
     update project_extend
@@ -358,7 +358,7 @@
       version_enable = #{versionEnable,jdbcType=BIT},
       api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
       issue_config = #{issueConfig,jdbcType=LONGVARBINARY}
-    where project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.ProjectExtend">
     update project_extend
@@ -372,6 +372,6 @@
       third_part_template = #{thirdPartTemplate,jdbcType=BIT},
       version_enable = #{versionEnable,jdbcType=BIT},
       api_template_id = #{apiTemplateId,jdbcType=VARCHAR}
-    where project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

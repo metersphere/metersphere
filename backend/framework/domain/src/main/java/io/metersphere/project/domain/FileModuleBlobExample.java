@@ -104,73 +104,73 @@ public class FileModuleBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andFileModuleIdIsNull() {
-            addCriterion("file_module_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdIsNotNull() {
-            addCriterion("file_module_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdEqualTo(String value) {
-            addCriterion("file_module_id =", value, "fileModuleId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdNotEqualTo(String value) {
-            addCriterion("file_module_id <>", value, "fileModuleId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdGreaterThan(String value) {
-            addCriterion("file_module_id >", value, "fileModuleId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdGreaterThanOrEqualTo(String value) {
-            addCriterion("file_module_id >=", value, "fileModuleId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdLessThan(String value) {
-            addCriterion("file_module_id <", value, "fileModuleId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdLessThanOrEqualTo(String value) {
-            addCriterion("file_module_id <=", value, "fileModuleId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdLike(String value) {
-            addCriterion("file_module_id like", value, "fileModuleId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdNotLike(String value) {
-            addCriterion("file_module_id not like", value, "fileModuleId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdIn(List<String> values) {
-            addCriterion("file_module_id in", values, "fileModuleId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdNotIn(List<String> values) {
-            addCriterion("file_module_id not in", values, "fileModuleId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdBetween(String value1, String value2) {
-            addCriterion("file_module_id between", value1, value2, "fileModuleId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFileModuleIdNotBetween(String value1, String value2) {
-            addCriterion("file_module_id not between", value1, value2, "fileModuleId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
 

@@ -10,7 +10,7 @@ public interface FunctionalCaseTemplateExtendMapper {
 
     int deleteByExample(FunctionalCaseTemplateExtendExample example);
 
-    int deleteByPrimaryKey(String templateId);
+    int deleteByPrimaryKey(String id);
 
     int insert(FunctionalCaseTemplateExtend record);
 
@@ -20,7 +20,7 @@ public interface FunctionalCaseTemplateExtendMapper {
 
     List<FunctionalCaseTemplateExtend> selectByExample(FunctionalCaseTemplateExtendExample example);
 
-    FunctionalCaseTemplateExtend selectByPrimaryKey(String templateId);
+    FunctionalCaseTemplateExtend selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FunctionalCaseTemplateExtend record, @Param("example") FunctionalCaseTemplateExtendExample example);
 

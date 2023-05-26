@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.FakeErrorBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FakeErrorBlob">
-    <id column="fake_error_id" jdbcType="VARCHAR" property="fakeErrorId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.FakeErrorBlob">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    fake_error_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     content, description
@@ -108,11 +108,11 @@
     ,
     <include refid="Blob_Column_List" />
     from fake_error_blob
-    where fake_error_id = #{fakeErrorId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from fake_error_blob
-    where fake_error_id = #{fakeErrorId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FakeErrorBlobExample">
     delete from fake_error_blob
@@ -121,16 +121,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FakeErrorBlob">
-    insert into fake_error_blob (fake_error_id, content, description
+    insert into fake_error_blob (id, content, description
       )
-    values (#{fakeErrorId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}, #{description,jdbcType=LONGVARBINARY}
+    values (#{id,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}, #{description,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FakeErrorBlob">
     insert into fake_error_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="fakeErrorId != null">
-        fake_error_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="content != null">
         content,
@@ -140,8 +140,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="fakeErrorId != null">
-        #{fakeErrorId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -160,8 +160,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update fake_error_blob
     <set>
-      <if test="record.fakeErrorId != null">
-        fake_error_id = #{record.fakeErrorId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
@@ -176,7 +176,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update fake_error_blob
-    set fake_error_id = #{record.fakeErrorId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY},
       description = #{record.description,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -185,7 +185,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update fake_error_blob
-    set fake_error_id = #{record.fakeErrorId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -200,12 +200,12 @@
         description = #{description,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where fake_error_id = #{fakeErrorId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FakeErrorBlob">
     update fake_error_blob
     set content = #{content,jdbcType=LONGVARBINARY},
       description = #{description,jdbcType=LONGVARBINARY}
-    where fake_error_id = #{fakeErrorId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

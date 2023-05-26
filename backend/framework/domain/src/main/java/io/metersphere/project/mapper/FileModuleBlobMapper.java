@@ -10,7 +10,7 @@ public interface FileModuleBlobMapper {
 
     int deleteByExample(FileModuleBlobExample example);
 
-    int deleteByPrimaryKey(String fileModuleId);
+    int deleteByPrimaryKey(String id);
 
     int insert(FileModuleBlob record);
 
@@ -20,7 +20,7 @@ public interface FileModuleBlobMapper {
 
     List<FileModuleBlob> selectByExample(FileModuleBlobExample example);
 
-    FileModuleBlob selectByPrimaryKey(String fileModuleId);
+    FileModuleBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FileModuleBlob record, @Param("example") FileModuleBlobExample example);
 

@@ -17,7 +17,7 @@ public class FileMetadata implements Serializable {
 
     @Schema(title = "文件名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 250, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "文件类型")
@@ -34,7 +34,9 @@ public class FileMetadata implements Serializable {
     @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "项目ID")
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata.project_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(title = "文件存储方式", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -42,10 +44,14 @@ public class FileMetadata implements Serializable {
     @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
     private String storage;
 
-    @Schema(title = "创建人")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata.create_user.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
-    @Schema(title = "修改人")
+    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata.update_user.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "标签")
@@ -66,10 +72,14 @@ public class FileMetadata implements Serializable {
     @Schema(title = "资源作用范围，主要兼容2.1版本前的历史数据，后续版本不再产生数据")
     private String resourceType;
 
-    @Schema(title = "是否是最新版")
+    @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata.latest.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 1, message = "{file_metadata.latest.length_range}", groups = {Created.class, Updated.class})
     private Boolean latest;
 
-    @Schema(title = "同版本数据关联的ID")
+    @Schema(title = "同版本数据关联的ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{file_metadata.ref_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{file_metadata.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
     private static final long serialVersionUID = 1L;

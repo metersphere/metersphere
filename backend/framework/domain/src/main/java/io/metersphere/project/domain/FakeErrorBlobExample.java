@@ -104,73 +104,73 @@ public class FakeErrorBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andFakeErrorIdIsNull() {
-            addCriterion("fake_error_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdIsNotNull() {
-            addCriterion("fake_error_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdEqualTo(String value) {
-            addCriterion("fake_error_id =", value, "fakeErrorId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdNotEqualTo(String value) {
-            addCriterion("fake_error_id <>", value, "fakeErrorId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdGreaterThan(String value) {
-            addCriterion("fake_error_id >", value, "fakeErrorId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdGreaterThanOrEqualTo(String value) {
-            addCriterion("fake_error_id >=", value, "fakeErrorId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdLessThan(String value) {
-            addCriterion("fake_error_id <", value, "fakeErrorId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdLessThanOrEqualTo(String value) {
-            addCriterion("fake_error_id <=", value, "fakeErrorId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdLike(String value) {
-            addCriterion("fake_error_id like", value, "fakeErrorId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdNotLike(String value) {
-            addCriterion("fake_error_id not like", value, "fakeErrorId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdIn(List<String> values) {
-            addCriterion("fake_error_id in", values, "fakeErrorId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdNotIn(List<String> values) {
-            addCriterion("fake_error_id not in", values, "fakeErrorId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdBetween(String value1, String value2) {
-            addCriterion("fake_error_id between", value1, value2, "fakeErrorId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFakeErrorIdNotBetween(String value1, String value2) {
-            addCriterion("fake_error_id not between", value1, value2, "fakeErrorId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
     }

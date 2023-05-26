@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.IssueTemplateExtendMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.IssueTemplateExtend">
-    <id column="template_id" jdbcType="VARCHAR" property="templateId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="title" jdbcType="VARCHAR" property="title" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.IssueTemplateExtend">
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    template_id, title
+    id, title
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -108,11 +108,11 @@
     ,
     <include refid="Blob_Column_List" />
     from issue_template_extend
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from issue_template_extend
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.IssueTemplateExtendExample">
     delete from issue_template_extend
@@ -121,16 +121,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.IssueTemplateExtend">
-    insert into issue_template_extend (template_id, title, content
+    insert into issue_template_extend (id, title, content
       )
-    values (#{templateId,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+    values (#{id,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.IssueTemplateExtend">
     insert into issue_template_extend
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="templateId != null">
-        template_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="title != null">
         title,
@@ -140,8 +140,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="templateId != null">
-        #{templateId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="title != null">
         #{title,jdbcType=VARCHAR},
@@ -160,8 +160,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update issue_template_extend
     <set>
-      <if test="record.templateId != null">
-        template_id = #{record.templateId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.title != null">
         title = #{record.title,jdbcType=VARCHAR},
@@ -176,7 +176,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update issue_template_extend
-    set template_id = #{record.templateId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       title = #{record.title,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -185,7 +185,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update issue_template_extend
-    set template_id = #{record.templateId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       title = #{record.title,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,17 +201,17 @@
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.IssueTemplateExtend">
     update issue_template_extend
     set title = #{title,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.IssueTemplateExtend">
     update issue_template_extend
     set title = #{title,jdbcType=VARCHAR}
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

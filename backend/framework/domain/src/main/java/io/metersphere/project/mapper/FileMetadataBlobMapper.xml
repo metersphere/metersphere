@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.FileMetadataBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadataBlob">
-    <id column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.FileMetadataBlob">
     <result column="git_info" jdbcType="LONGVARBINARY" property="gitInfo" />
@@ -66,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    file_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     git_info
@@ -107,11 +107,11 @@
     ,
     <include refid="Blob_Column_List" />
     from file_metadata_blob
-    where file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from file_metadata_blob
-    where file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FileMetadataBlobExample">
     delete from file_metadata_blob
@@ -120,22 +120,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileMetadataBlob">
-    insert into file_metadata_blob (file_id, git_info)
-    values (#{fileId,jdbcType=VARCHAR}, #{gitInfo,jdbcType=LONGVARBINARY})
+    insert into file_metadata_blob (id, git_info)
+    values (#{id,jdbcType=VARCHAR}, #{gitInfo,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadataBlob">
     insert into file_metadata_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="fileId != null">
-        file_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="gitInfo != null">
         git_info,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="fileId != null">
-        #{fileId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="gitInfo != null">
         #{gitInfo,jdbcType=LONGVARBINARY},
@@ -151,8 +151,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update file_metadata_blob
     <set>
-      <if test="record.fileId != null">
-        file_id = #{record.fileId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.gitInfo != null">
         git_info = #{record.gitInfo,jdbcType=LONGVARBINARY},
@@ -164,7 +164,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update file_metadata_blob
-    set file_id = #{record.fileId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       git_info = #{record.gitInfo,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +172,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update file_metadata_blob
-    set file_id = #{record.fileId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -184,11 +184,11 @@
         git_info = #{gitInfo,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FileMetadataBlob">
     update file_metadata_blob
     set git_info = #{gitInfo,jdbcType=LONGVARBINARY}
-    where file_id = #{fileId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -10,7 +10,7 @@ public interface FileMetadataBlobMapper {
 
     int deleteByExample(FileMetadataBlobExample example);
 
-    int deleteByPrimaryKey(String fileId);
+    int deleteByPrimaryKey(String id);
 
     int insert(FileMetadataBlob record);
 
@@ -20,7 +20,7 @@ public interface FileMetadataBlobMapper {
 
     List<FileMetadataBlob> selectByExample(FileMetadataBlobExample example);
 
-    FileMetadataBlob selectByPrimaryKey(String fileId);
+    FileMetadataBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FileMetadataBlob record, @Param("example") FileMetadataBlobExample example);
 

@@ -11,9 +11,9 @@ import lombok.Data;
 @Data
 public class FunctionalCaseTemplateExtend implements Serializable {
     @Schema(title = "模板ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_template_extend.template_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{functional_case_template_extend.template_id.length_range}", groups = {Created.class, Updated.class})
-    private String templateId;
+    @NotBlank(message = "{functional_case_template_extend.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{functional_case_template_extend.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
 
     @Schema(title = "用例名称模板")
     private String caseName;

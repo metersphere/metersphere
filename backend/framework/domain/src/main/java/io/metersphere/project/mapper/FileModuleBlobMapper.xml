@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.FileModuleBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileModuleBlob">
-    <id column="file_module_id" jdbcType="VARCHAR" property="fileModuleId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="repository_path" jdbcType="VARCHAR" property="repositoryPath" />
     <result column="repository_user_name" jdbcType="VARCHAR" property="repositoryUserName" />
     <result column="repository_token" jdbcType="VARCHAR" property="repositoryToken" />
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    file_module_id, repository_path, repository_user_name, repository_token
+    id, repository_path, repository_user_name, repository_token
   </sql>
   <sql id="Blob_Column_List">
     repository_desc
@@ -110,11 +110,11 @@
     ,
     <include refid="Blob_Column_List" />
     from file_module_blob
-    where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from file_module_blob
-    where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FileModuleBlobExample">
     delete from file_module_blob
@@ -123,16 +123,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FileModuleBlob">
-    insert into file_module_blob (file_module_id, repository_path, repository_user_name, 
+    insert into file_module_blob (id, repository_path, repository_user_name, 
       repository_token, repository_desc)
-    values (#{fileModuleId,jdbcType=VARCHAR}, #{repositoryPath,jdbcType=VARCHAR}, #{repositoryUserName,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{repositoryPath,jdbcType=VARCHAR}, #{repositoryUserName,jdbcType=VARCHAR}, 
       #{repositoryToken,jdbcType=VARCHAR}, #{repositoryDesc,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileModuleBlob">
     insert into file_module_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="fileModuleId != null">
-        file_module_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="repositoryPath != null">
         repository_path,
@@ -148,8 +148,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="fileModuleId != null">
-        #{fileModuleId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="repositoryPath != null">
         #{repositoryPath,jdbcType=VARCHAR},
@@ -174,8 +174,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update file_module_blob
     <set>
-      <if test="record.fileModuleId != null">
-        file_module_id = #{record.fileModuleId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.repositoryPath != null">
         repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
@@ -196,7 +196,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update file_module_blob
-    set file_module_id = #{record.fileModuleId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
       repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
       repository_token = #{record.repositoryToken,jdbcType=VARCHAR},
@@ -207,7 +207,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update file_module_blob
-    set file_module_id = #{record.fileModuleId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       repository_path = #{record.repositoryPath,jdbcType=VARCHAR},
       repository_user_name = #{record.repositoryUserName,jdbcType=VARCHAR},
       repository_token = #{record.repositoryToken,jdbcType=VARCHAR}
@@ -231,7 +231,7 @@
         repository_desc = #{repositoryDesc,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FileModuleBlob">
     update file_module_blob
@@ -239,13 +239,13 @@
       repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
       repository_token = #{repositoryToken,jdbcType=VARCHAR},
       repository_desc = #{repositoryDesc,jdbcType=LONGVARBINARY}
-    where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FileModuleBlob">
     update file_module_blob
     set repository_path = #{repositoryPath,jdbcType=VARCHAR},
       repository_user_name = #{repositoryUserName,jdbcType=VARCHAR},
       repository_token = #{repositoryToken,jdbcType=VARCHAR}
-    where file_module_id = #{fileModuleId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

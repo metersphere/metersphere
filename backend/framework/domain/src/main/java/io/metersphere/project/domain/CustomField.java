@@ -12,12 +12,12 @@ import lombok.Data;
 public class CustomField implements Serializable {
     @Schema(title = "自定义字段ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.id.not_blank}", groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 100, message = "{custom_field.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{custom_field.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(title = "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_field.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)

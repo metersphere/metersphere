@@ -104,73 +104,73 @@ public class CustomFunctionBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andFunctionIdIsNull() {
-            addCriterion("function_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdIsNotNull() {
-            addCriterion("function_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdEqualTo(String value) {
-            addCriterion("function_id =", value, "functionId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdNotEqualTo(String value) {
-            addCriterion("function_id <>", value, "functionId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdGreaterThan(String value) {
-            addCriterion("function_id >", value, "functionId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdGreaterThanOrEqualTo(String value) {
-            addCriterion("function_id >=", value, "functionId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdLessThan(String value) {
-            addCriterion("function_id <", value, "functionId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdLessThanOrEqualTo(String value) {
-            addCriterion("function_id <=", value, "functionId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdLike(String value) {
-            addCriterion("function_id like", value, "functionId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdNotLike(String value) {
-            addCriterion("function_id not like", value, "functionId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdIn(List<String> values) {
-            addCriterion("function_id in", values, "functionId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdNotIn(List<String> values) {
-            addCriterion("function_id not in", values, "functionId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdBetween(String value1, String value2) {
-            addCriterion("function_id between", value1, value2, "functionId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andFunctionIdNotBetween(String value1, String value2) {
-            addCriterion("function_id not between", value1, value2, "functionId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
     }

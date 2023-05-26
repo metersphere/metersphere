@@ -17,7 +17,7 @@ public class IssueTemplate implements Serializable {
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{issue_template.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{issue_template.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{issue_template.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "描述")

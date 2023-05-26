@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.FunctionalCaseTemplateExtendMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FunctionalCaseTemplateExtend">
-    <id column="template_id" jdbcType="VARCHAR" property="templateId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="case_name" jdbcType="VARCHAR" property="caseName" />
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
   </resultMap>
@@ -72,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    template_id, case_name, step_model
+    id, case_name, step_model
   </sql>
   <sql id="Blob_Column_List">
     prerequisite, step_description, expected_result, actual_result, steps
@@ -113,11 +113,11 @@
     ,
     <include refid="Blob_Column_List" />
     from functional_case_template_extend
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from functional_case_template_extend
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExtendExample">
     delete from functional_case_template_extend
@@ -126,11 +126,11 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExtend">
-    insert into functional_case_template_extend (template_id, case_name, step_model, 
+    insert into functional_case_template_extend (id, case_name, step_model, 
       prerequisite, step_description, 
       expected_result, actual_result, steps
       )
-    values (#{templateId,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
       #{prerequisite,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
       #{expectedResult,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}
       )
@@ -138,8 +138,8 @@
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExtend">
     insert into functional_case_template_extend
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="templateId != null">
-        template_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="caseName != null">
         case_name,
@@ -164,8 +164,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="templateId != null">
-        #{templateId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="caseName != null">
         #{caseName,jdbcType=VARCHAR},
@@ -199,8 +199,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update functional_case_template_extend
     <set>
-      <if test="record.templateId != null">
-        template_id = #{record.templateId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.caseName != null">
         case_name = #{record.caseName,jdbcType=VARCHAR},
@@ -230,7 +230,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update functional_case_template_extend
-    set template_id = #{record.templateId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       case_name = #{record.caseName,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
@@ -244,7 +244,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update functional_case_template_extend
-    set template_id = #{record.templateId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       case_name = #{record.caseName,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -276,7 +276,7 @@
         steps = #{steps,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExtend">
     update functional_case_template_extend
@@ -287,12 +287,12 @@
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       actual_result = #{actualResult,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR}
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExtend">
     update functional_case_template_extend
     set case_name = #{caseName,jdbcType=VARCHAR},
       step_model = #{stepModel,jdbcType=VARCHAR}
-    where template_id = #{templateId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

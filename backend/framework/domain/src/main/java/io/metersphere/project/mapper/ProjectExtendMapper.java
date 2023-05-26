@@ -10,7 +10,7 @@ public interface ProjectExtendMapper {
 
     int deleteByExample(ProjectExtendExample example);
 
-    int deleteByPrimaryKey(String projectId);
+    int deleteByPrimaryKey(String id);
 
     int insert(ProjectExtend record);
 
@@ -20,7 +20,7 @@ public interface ProjectExtendMapper {
 
     List<ProjectExtend> selectByExample(ProjectExtendExample example);
 
-    ProjectExtend selectByPrimaryKey(String projectId);
+    ProjectExtend selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ProjectExtend record, @Param("example") ProjectExtendExample example);
 

@@ -10,7 +10,7 @@ public interface IssueTemplateExtendMapper {
 
     int deleteByExample(IssueTemplateExtendExample example);
 
-    int deleteByPrimaryKey(String templateId);
+    int deleteByPrimaryKey(String id);
 
     int insert(IssueTemplateExtend record);
 
@@ -20,7 +20,7 @@ public interface IssueTemplateExtendMapper {
 
     List<IssueTemplateExtend> selectByExample(IssueTemplateExtendExample example);
 
-    IssueTemplateExtend selectByPrimaryKey(String templateId);
+    IssueTemplateExtend selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") IssueTemplateExtend record, @Param("example") IssueTemplateExtendExample example);
 

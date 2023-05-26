@@ -104,73 +104,73 @@ public class IssueTemplateExtendExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andTemplateIdIsNull() {
-            addCriterion("template_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdIsNotNull() {
-            addCriterion("template_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdEqualTo(String value) {
-            addCriterion("template_id =", value, "templateId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdNotEqualTo(String value) {
-            addCriterion("template_id <>", value, "templateId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdGreaterThan(String value) {
-            addCriterion("template_id >", value, "templateId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdGreaterThanOrEqualTo(String value) {
-            addCriterion("template_id >=", value, "templateId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdLessThan(String value) {
-            addCriterion("template_id <", value, "templateId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdLessThanOrEqualTo(String value) {
-            addCriterion("template_id <=", value, "templateId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdLike(String value) {
-            addCriterion("template_id like", value, "templateId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdNotLike(String value) {
-            addCriterion("template_id not like", value, "templateId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdIn(List<String> values) {
-            addCriterion("template_id in", values, "templateId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdNotIn(List<String> values) {
-            addCriterion("template_id not in", values, "templateId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdBetween(String value1, String value2) {
-            addCriterion("template_id between", value1, value2, "templateId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andTemplateIdNotBetween(String value1, String value2) {
-            addCriterion("template_id not between", value1, value2, "templateId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
 

@@ -10,7 +10,7 @@ public interface FakeErrorBlobMapper {
 
     int deleteByExample(FakeErrorBlobExample example);
 
-    int deleteByPrimaryKey(String fakeErrorId);
+    int deleteByPrimaryKey(String id);
 
     int insert(FakeErrorBlob record);
 
@@ -20,7 +20,7 @@ public interface FakeErrorBlobMapper {
 
     List<FakeErrorBlob> selectByExample(FakeErrorBlobExample example);
 
-    FakeErrorBlob selectByPrimaryKey(String fakeErrorId);
+    FakeErrorBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FakeErrorBlob record, @Param("example") FakeErrorBlobExample example);
 
