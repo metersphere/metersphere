@@ -85,11 +85,10 @@ export default {
     if (projectId) {
       sessionStorage.setItem(PROJECT_ID, projectId);
     }
-    this.$EventBus.$on('projectChange', () => {
-      if (this.$route.name === 'testCaseReviewView') {
-        this.$router.push('/track/review/all');
-      }
-    });
+    this.$EventBus.$on('projectChange', this.handleProjectChange);
+  },
+  destroyed() {
+    this.$EventBus.$off('projectChange', this.handleProjectChange);
   },
   mounted() {
     this.initData();
@@ -115,6 +114,13 @@ export default {
     this.genRedirectParam();
   },
   methods: {
+    handleProjectChange() {
+      if (this.$route.path.indexOf("track/review") > -1) {
+        this.$nextTick(() => {
+          this.$router.push('/track/review/all');
+        });
+      }
+    },
     handleSelect(key) {
       this.activeIndex = key;
     },
