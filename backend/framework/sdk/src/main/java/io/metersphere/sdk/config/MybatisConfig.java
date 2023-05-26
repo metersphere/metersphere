@@ -5,12 +5,8 @@ import com.github.pagehelper.PageInterceptor;
 import com.zaxxer.hikari.HikariDataSource;
 import io.metersphere.sdk.interceptor.MybatisInterceptor;
 import io.metersphere.sdk.interceptor.UserDesensitizationInterceptor;
-import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.sdk.util.MybatisInterceptorConfig;
-import io.metersphere.system.domain.AuthSource;
-import io.metersphere.system.domain.TestResource;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -29,7 +25,6 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class MybatisConfig {
     @Bean
-    @ConditionalOnMissingBean
     public PageInterceptor pageInterceptor() {
         PageInterceptor pageInterceptor = new PageInterceptor();
         Properties properties = new Properties();
@@ -43,13 +38,14 @@ public class MybatisConfig {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public MybatisInterceptor dbInterceptor() {
+    public MybatisInterceptor dbInterceptor(List<MybatisInterceptorConfig>[] interceptorConfigs) {
+        List<MybatisInterceptorConfig> mybatisInterceptorConfigs = new ArrayList<>();
+        for (List<MybatisInterceptorConfig> configList : interceptorConfigs) {
+            mybatisInterceptorConfigs.addAll(configList);
+        }
+        // 统一配置
         MybatisInterceptor interceptor = new MybatisInterceptor();
-        List<MybatisInterceptorConfig> configList = new ArrayList<>();
-        configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration", CompressUtils.class, "zip", "unzip"));
-        configList.add(new MybatisInterceptorConfig(AuthSource.class, "configuration", CompressUtils.class, "zip", "unzip"));
-        interceptor.setInterceptorConfigList(configList);
+        interceptor.setInterceptorConfigList(mybatisInterceptorConfigs);
         return interceptor;
     }
 
