@@ -10,46 +10,48 @@ import lombok.Data;
 
 @Data
 public class Environment implements Serializable {
-    @Schema(title = "Api Test Environment ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "环境ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{environment.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "Api Test Environment Name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "环境名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{environment.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{environment.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "Project ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{environment.project_id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(title = "Api Test Protocol")
+    @Schema(title = "协议")
     private String protocol;
 
-    @Schema(title = "Api Test Socket")
+    @Schema(title = "")
     private String socket;
 
-    @Schema(title = "Api Test Domain")
+    @Schema(title = "域名/IP")
     private String domain;
 
-    @Schema(title = "Api Test Port")
+    @Schema(title = "端口")
     private Integer port;
 
-    @Schema(title = "")
+    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{environment.create_user.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{environment.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
-    @Schema(title = "")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "Global ariables")
+    @Schema(title = "全局变量")
     private String variables;
 
-    @Schema(title = "Global Heards")
+    @Schema(title = "请求头")
     private String headers;
 
     @Schema(title = "Config Data (JSON format)")

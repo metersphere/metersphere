@@ -18,7 +18,7 @@ public class EnvironmentGroupProject implements Serializable {
     @Schema(title = "环境组id")
     private String environmentGroupId;
 
-    @Schema(title = "api test environment 环境ID")
+    @Schema(title = "环境ID")
     private String environmentId;
 
     @Schema(title = "项目id")

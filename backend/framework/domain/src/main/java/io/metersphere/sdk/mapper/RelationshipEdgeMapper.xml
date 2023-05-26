@@ -6,7 +6,7 @@
     <id column="target_id" jdbcType="VARCHAR" property="targetId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="graph_id" jdbcType="VARCHAR" property="graphId" />
-    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    source_id, target_id, `type`, graph_id, creator, create_time
+    source_id, target_id, `type`, graph_id, create_user, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.RelationshipEdgeExample" resultMap="BaseResultMap">
     select
@@ -104,10 +104,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.sdk.domain.RelationshipEdge">
     insert into relationship_edge (source_id, target_id, `type`, 
-      graph_id, creator, create_time
+      graph_id, create_user, create_time
       )
     values (#{sourceId,jdbcType=VARCHAR}, #{targetId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{graphId,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}
+      #{graphId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.RelationshipEdge">
@@ -125,8 +125,8 @@
       <if test="graphId != null">
         graph_id,
       </if>
-      <if test="creator != null">
-        creator,
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="createTime != null">
         create_time,
@@ -145,8 +145,8 @@
       <if test="graphId != null">
         #{graphId,jdbcType=VARCHAR},
       </if>
-      <if test="creator != null">
-        #{creator,jdbcType=VARCHAR},
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -174,8 +174,8 @@
       <if test="record.graphId != null">
         graph_id = #{record.graphId,jdbcType=VARCHAR},
       </if>
-      <if test="record.creator != null">
-        creator = #{record.creator,jdbcType=VARCHAR},
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -191,7 +191,7 @@
       target_id = #{record.targetId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       graph_id = #{record.graphId,jdbcType=VARCHAR},
-      creator = #{record.creator,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -206,8 +206,8 @@
       <if test="graphId != null">
         graph_id = #{graphId,jdbcType=VARCHAR},
       </if>
-      <if test="creator != null">
-        creator = #{creator,jdbcType=VARCHAR},
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -220,7 +220,7 @@
     update relationship_edge
     set `type` = #{type,jdbcType=VARCHAR},
       graph_id = #{graphId,jdbcType=VARCHAR},
-      creator = #{creator,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
     where source_id = #{sourceId,jdbcType=VARCHAR}
       and target_id = #{targetId,jdbcType=VARCHAR}

@@ -31,9 +31,9 @@ public class RelationshipEdge implements Serializable {
     private String graphId;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{relationship_edge.creator.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{relationship_edge.creator.length_range}", groups = {Created.class, Updated.class})
-    private String creator;
+    @NotBlank(message = "{relationship_edge.create_user.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{relationship_edge.create_user.length_range}", groups = {Created.class, Updated.class})
+    private String createUser;
 
     @Schema(title = "")
     private Long createTime;
