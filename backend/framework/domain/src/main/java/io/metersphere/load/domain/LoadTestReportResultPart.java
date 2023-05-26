@@ -11,17 +11,17 @@ import lombok.Data;
 @Data
 public class LoadTestReportResultPart implements Serializable {
     @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result_part.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_result_part.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{load_test_report_result_part.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
     @Schema(title = "报告项目key", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result_part.report_key.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_result_part.report_key.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{load_test_report_result_part.report_key.length_range}", groups = {Created.class, Updated.class})
     private String reportKey;
 
     @Schema(title = "资源节点索引号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result_part.resource_index.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_result_part.resource_index.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 10, message = "{load_test_report_result_part.resource_index.length_range}", groups = {Created.class, Updated.class})
     private Integer resourceIndex;
 

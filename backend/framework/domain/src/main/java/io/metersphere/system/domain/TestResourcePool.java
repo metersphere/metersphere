@@ -16,12 +16,12 @@ public class TestResourcePool implements Serializable {
     private String id;
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{test_resource_pool.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
@@ -29,7 +29,7 @@ public class TestResourcePool implements Serializable {
     private String description;
 
     @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{test_resource_pool.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{test_resource_pool.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 

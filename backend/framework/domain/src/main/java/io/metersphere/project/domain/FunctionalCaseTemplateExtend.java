@@ -19,7 +19,7 @@ public class FunctionalCaseTemplateExtend implements Serializable {
     private String caseName;
 
     @Schema(title = "编辑模式模板：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_template_extend.step_model.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{functional_case_template_extend.step_model.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{functional_case_template_extend.step_model.length_range}", groups = {Created.class, Updated.class})
     private String stepModel;
 

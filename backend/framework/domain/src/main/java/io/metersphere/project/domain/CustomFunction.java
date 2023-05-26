@@ -16,7 +16,7 @@ public class CustomFunction implements Serializable {
     private String id;
 
     @Schema(title = "函数名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_function.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_function.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{custom_function.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 

@@ -16,12 +16,12 @@ public class UiScenarioReportDetail implements Serializable {
     private String id;
 
     @Schema(title = "资源id（场景，接口）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.resource_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.resource_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
     @Schema(title = "报告 id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
@@ -29,12 +29,12 @@ public class UiScenarioReportDetail implements Serializable {
     private Long createTime;
 
     @Schema(title = "结果状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 100, message = "{ui_scenario_report_detail.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(title = "请求时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.request_time.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.request_time.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 19, message = "{ui_scenario_report_detail.request_time.length_range}", groups = {Created.class, Updated.class})
     private Long requestTime;
 
@@ -45,7 +45,7 @@ public class UiScenarioReportDetail implements Serializable {
     private Long passAssertions;
 
     @Schema(title = "执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.content.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.content.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 2147483647, message = "{ui_scenario_report_detail.content.length_range}", groups = {Created.class, Updated.class})
     private byte[] content;
 

@@ -16,12 +16,12 @@ public class Project implements Serializable {
     private String id;
 
     @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project.workspace_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{project.workspace_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project.workspace_id.length_range}", groups = {Created.class, Updated.class})
     private String workspaceId;
 
     @Schema(title = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{project.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{project.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 

@@ -16,7 +16,7 @@ public class LoadTestReportResult implements Serializable {
     private String id;
 
     @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_result.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{load_test_report_result.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 

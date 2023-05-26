@@ -16,12 +16,12 @@ public class User implements Serializable {
     private String id;
 
     @Schema(title = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.email.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.email.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{user.email.length_range}", groups = {Created.class, Updated.class})
     private String email;
 
@@ -29,7 +29,7 @@ public class User implements Serializable {
     private String password;
 
     @Schema(title = "用户状态，启用或禁用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
@@ -49,7 +49,7 @@ public class User implements Serializable {
     private String phone;
 
     @Schema(title = "来源：LOCAL OIDC CAS", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.source.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.source.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.source.length_range}", groups = {Created.class, Updated.class})
     private String source;
 
@@ -57,7 +57,7 @@ public class User implements Serializable {
     private String lastProjectId;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 

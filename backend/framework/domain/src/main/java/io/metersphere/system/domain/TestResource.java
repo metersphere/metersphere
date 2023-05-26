@@ -16,12 +16,12 @@ public class TestResource implements Serializable {
     private String id;
 
     @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource.test_resource_pool_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{test_resource.test_resource_pool_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_resource.test_resource_pool_id.length_range}", groups = {Created.class, Updated.class})
     private String testResourcePoolId;
 
     @Schema(title = "资源节点状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{test_resource.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{test_resource.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 

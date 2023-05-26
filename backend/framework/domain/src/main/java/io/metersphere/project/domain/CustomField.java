@@ -16,17 +16,17 @@ public class CustomField implements Serializable {
     private String id;
 
     @Schema(title = "自定义字段名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_field.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{custom_field.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "使用场景", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_field.scene.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{custom_field.scene.length_range}", groups = {Created.class, Updated.class})
     private String scene;
 
     @Schema(title = "自定义字段类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field.type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_field.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{custom_field.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
@@ -52,7 +52,7 @@ public class CustomField implements Serializable {
     private String projectId;
 
     @Schema(title = "是否关联第三方", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field.third_part.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{custom_field.third_part.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{custom_field.third_part.length_range}", groups = {Created.class, Updated.class})
     private Boolean thirdPart;
 
