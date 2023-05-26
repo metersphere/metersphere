@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.load.mapper.LoadTestBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.load.domain.LoadTestBlob">
-    <id column="test_id" jdbcType="VARCHAR" property="testId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.load.domain.LoadTestBlob">
     <result column="load_configuration" jdbcType="LONGVARBINARY" property="loadConfiguration" />
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration, env_info
@@ -109,11 +109,11 @@
     ,
     <include refid="Blob_Column_List" />
     from load_test_blob
-    where test_id = #{testId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from load_test_blob
-    where test_id = #{testId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.load.domain.LoadTestBlobExample">
     delete from load_test_blob
@@ -122,18 +122,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.load.domain.LoadTestBlob">
-    insert into load_test_blob (test_id, load_configuration, 
-      advanced_configuration, env_info
-      )
-    values (#{testId,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARBINARY}, 
-      #{advancedConfiguration,jdbcType=LONGVARBINARY}, #{envInfo,jdbcType=LONGVARBINARY}
-      )
+    insert into load_test_blob (id, load_configuration, advanced_configuration, 
+      env_info)
+    values (#{id,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARBINARY}, #{advancedConfiguration,jdbcType=LONGVARBINARY}, 
+      #{envInfo,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.load.domain.LoadTestBlob">
     insert into load_test_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="testId != null">
-        test_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -146,8 +144,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="testId != null">
-        #{testId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARBINARY},
@@ -169,8 +167,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update load_test_blob
     <set>
-      <if test="record.testId != null">
-        test_id = #{record.testId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARBINARY},
@@ -188,7 +186,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update load_test_blob
-    set test_id = #{record.testId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARBINARY},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARBINARY},
       env_info = #{record.envInfo,jdbcType=LONGVARBINARY}
@@ -198,7 +196,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update load_test_blob
-    set test_id = #{record.testId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -216,13 +214,13 @@
         env_info = #{envInfo,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where test_id = #{testId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.load.domain.LoadTestBlob">
     update load_test_blob
     set load_configuration = #{loadConfiguration,jdbcType=LONGVARBINARY},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARBINARY},
       env_info = #{envInfo,jdbcType=LONGVARBINARY}
-    where test_id = #{testId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

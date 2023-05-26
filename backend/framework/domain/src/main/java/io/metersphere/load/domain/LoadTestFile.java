@@ -12,12 +12,12 @@ import lombok.Data;
 public class LoadTestFile implements Serializable {
     @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_file.test_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{load_test_file.test_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_file.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
     @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_file.file_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{load_test_file.file_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_file.file_id.length_range}", groups = {Created.class, Updated.class})
     private String fileId;
 
     @Schema(title = "文件排序", requiredMode = Schema.RequiredMode.REQUIRED)

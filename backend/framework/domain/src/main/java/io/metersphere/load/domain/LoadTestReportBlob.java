@@ -11,9 +11,9 @@ import lombok.Data;
 @Data
 public class LoadTestReportBlob implements Serializable {
     @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_blob.report_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{load_test_report_blob.report_id.length_range}", groups = {Created.class, Updated.class})
-    private String reportId;
+    @NotBlank(message = "{load_test_report_blob.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_report_blob.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
 
     @Schema(title = "压力配置")
     private byte[] loadConfiguration;

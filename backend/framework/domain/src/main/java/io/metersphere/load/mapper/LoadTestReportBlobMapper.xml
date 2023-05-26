@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.load.mapper.LoadTestReportBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.load.domain.LoadTestReportBlob">
-    <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.load.domain.LoadTestReportBlob">
     <result column="load_configuration" jdbcType="LONGVARBINARY" property="loadConfiguration" />
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, jmx_content, advanced_configuration, env_info
@@ -110,11 +110,11 @@
     ,
     <include refid="Blob_Column_List" />
     from load_test_report_blob
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from load_test_report_blob
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.load.domain.LoadTestReportBlobExample">
     delete from load_test_report_blob
@@ -123,18 +123,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.load.domain.LoadTestReportBlob">
-    insert into load_test_report_blob (report_id, load_configuration, 
-      jmx_content, advanced_configuration, 
-      env_info)
-    values (#{reportId,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARBINARY}, 
-      #{jmxContent,jdbcType=LONGVARBINARY}, #{advancedConfiguration,jdbcType=LONGVARBINARY}, 
-      #{envInfo,jdbcType=LONGVARBINARY})
+    insert into load_test_report_blob (id, load_configuration, jmx_content, 
+      advanced_configuration, env_info
+      )
+    values (#{id,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARBINARY}, #{jmxContent,jdbcType=LONGVARBINARY}, 
+      #{advancedConfiguration,jdbcType=LONGVARBINARY}, #{envInfo,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.load.domain.LoadTestReportBlob">
     insert into load_test_report_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="reportId != null">
-        report_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -150,8 +150,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="reportId != null">
-        #{reportId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARBINARY},
@@ -176,8 +176,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update load_test_report_blob
     <set>
-      <if test="record.reportId != null">
-        report_id = #{record.reportId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARBINARY},
@@ -198,7 +198,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update load_test_report_blob
-    set report_id = #{record.reportId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARBINARY},
       jmx_content = #{record.jmxContent,jdbcType=LONGVARBINARY},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARBINARY},
@@ -209,7 +209,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update load_test_report_blob
-    set report_id = #{record.reportId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -230,7 +230,7 @@
         env_info = #{envInfo,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.load.domain.LoadTestReportBlob">
     update load_test_report_blob
@@ -238,6 +238,6 @@
       jmx_content = #{jmxContent,jdbcType=LONGVARBINARY},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARBINARY},
       env_info = #{envInfo,jdbcType=LONGVARBINARY}
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

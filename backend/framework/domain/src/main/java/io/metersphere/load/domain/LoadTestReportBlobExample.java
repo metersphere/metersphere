@@ -104,73 +104,73 @@ public class LoadTestReportBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andReportIdIsNull() {
-            addCriterion("report_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdIsNotNull() {
-            addCriterion("report_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdEqualTo(String value) {
-            addCriterion("report_id =", value, "reportId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdNotEqualTo(String value) {
-            addCriterion("report_id <>", value, "reportId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdGreaterThan(String value) {
-            addCriterion("report_id >", value, "reportId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdGreaterThanOrEqualTo(String value) {
-            addCriterion("report_id >=", value, "reportId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdLessThan(String value) {
-            addCriterion("report_id <", value, "reportId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdLessThanOrEqualTo(String value) {
-            addCriterion("report_id <=", value, "reportId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdLike(String value) {
-            addCriterion("report_id like", value, "reportId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdNotLike(String value) {
-            addCriterion("report_id not like", value, "reportId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdIn(List<String> values) {
-            addCriterion("report_id in", values, "reportId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdNotIn(List<String> values) {
-            addCriterion("report_id not in", values, "reportId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdBetween(String value1, String value2) {
-            addCriterion("report_id between", value1, value2, "reportId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andReportIdNotBetween(String value1, String value2) {
-            addCriterion("report_id not between", value1, value2, "reportId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
     }

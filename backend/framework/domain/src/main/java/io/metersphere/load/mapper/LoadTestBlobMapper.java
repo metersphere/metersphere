@@ -10,7 +10,7 @@ public interface LoadTestBlobMapper {
 
     int deleteByExample(LoadTestBlobExample example);
 
-    int deleteByPrimaryKey(String testId);
+    int deleteByPrimaryKey(String id);
 
     int insert(LoadTestBlob record);
 
@@ -20,7 +20,7 @@ public interface LoadTestBlobMapper {
 
     List<LoadTestBlob> selectByExample(LoadTestBlobExample example);
 
-    LoadTestBlob selectByPrimaryKey(String testId);
+    LoadTestBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") LoadTestBlob record, @Param("example") LoadTestBlobExample example);
 

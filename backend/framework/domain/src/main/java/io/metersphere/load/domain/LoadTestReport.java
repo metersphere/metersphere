@@ -22,7 +22,7 @@ public class LoadTestReport implements Serializable {
 
     @Schema(title = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{load_test_report.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{load_test_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "报告描述")
@@ -41,7 +41,7 @@ public class LoadTestReport implements Serializable {
 
     @Schema(title = "创建人(执行人)ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.create_user.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{load_test_report.create_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_report.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "触发方式", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -65,7 +65,7 @@ public class LoadTestReport implements Serializable {
 
     @Schema(title = "测试名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_report.test_name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{load_test_report.test_name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{load_test_report.test_name.length_range}", groups = {Created.class, Updated.class})
     private String testName;
 
     @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)

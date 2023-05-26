@@ -53,40 +53,33 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 模型对象 -->
-        <javaModelGenerator targetPackage="io.metersphere.project.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="io.metersphere.load.domain" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- XML映射文件 -->
-        <sqlMapGenerator targetPackage="io.metersphere.project.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="io.metersphere.load.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 接口 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.project.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.load.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="custom_field"/>
-        <table tableName="custom_field_template"/>
-        <table tableName="custom_function"/>
-        <table tableName="fake_error"/>
-        <table tableName="file_metadata"/>
-        <table tableName="file_module"/>
-        <table tableName="project"/>
-        <table tableName="project_application"/>
-        <table tableName="project_version"/>
-        <table tableName="file_module_blob"/>
-        <table tableName="custom_function_blob"/>
-        <table tableName="fake_error_blob"/>
-        <table tableName="file_metadata_blob"/>
-        <table tableName="project_extend"/>
-        <table tableName="functional_case_template"/>
-        <table tableName="functional_case_template_extend"/>
-        <table tableName="issue_template_extend"/>
-        <table tableName="issue_template"/>
-        <table tableName="api_template"/>
+        <table tableName="load_test_api"/>
+        <table tableName="load_test"/>
+        <table tableName="load_test_file"/>
+        <table tableName="load_test_follow"/>
+        <table tableName="load_test_report"/>
+        <table tableName="load_test_report_file"/>
+        <table tableName="load_test_report_log"/>
+        <table tableName="load_test_report_result"/>
+        <table tableName="load_test_report_result_part"/>
+        <table tableName="load_test_report_result_realtime"/>
+        <table tableName="load_test_blob"/>
+        <table tableName="load_test_report_blob"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
