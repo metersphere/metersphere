@@ -27,8 +27,6 @@ public class TestPlanApiScenario implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_api_scenario.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 100, message = "{test_plan_api_scenario.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -24,16 +24,12 @@ public class ApiTestCase implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_test_case.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_test_case.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "更新时间")
     private Long updateTime;
 
     @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_test_case.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_test_case.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "删除时间")

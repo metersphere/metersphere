@@ -38,8 +38,6 @@ public class Environment implements Serializable {
     private Integer port;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{environment.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "创建时间")

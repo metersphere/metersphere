@@ -32,13 +32,9 @@ public class ApiReport implements Serializable {
     private Long updateTime;
 
     @Schema(title = "创建人fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_report.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_report.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -24,8 +24,6 @@ public class ApiScenarioReport implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "删除时间")
@@ -40,8 +38,6 @@ public class ApiScenarioReport implements Serializable {
     private Boolean deleted;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "更新时间")

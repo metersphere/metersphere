@@ -32,8 +32,6 @@ public class IssueTemplate implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{issue_template.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{issue_template.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)

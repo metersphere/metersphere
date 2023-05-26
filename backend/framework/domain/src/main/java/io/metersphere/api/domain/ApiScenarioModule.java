@@ -37,13 +37,9 @@ public class ApiScenarioModule implements Serializable {
     private Long updateTime;
 
     @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_module.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_module.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_module.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_module.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)

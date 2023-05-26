@@ -27,13 +27,9 @@ public class FakeError implements Serializable {
     private Long updateTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{fake_error.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{fake_error.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{fake_error.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{fake_error.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "错误码", requiredMode = Schema.RequiredMode.REQUIRED)

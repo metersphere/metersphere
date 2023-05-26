@@ -30,8 +30,6 @@ public class Workspace implements Serializable {
     private Long updateTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{workspace.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{workspace.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     private static final long serialVersionUID = 1L;

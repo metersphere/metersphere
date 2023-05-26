@@ -19,16 +19,12 @@ public class ApiDefinition implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.create_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_definition.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "修改时间")
     private Long updateTime;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.update_user.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_definition.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
     @Schema(title = "删除人")

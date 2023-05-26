@@ -47,8 +47,6 @@ public class UiElementModule implements Serializable {
     private Double pos;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_element_module.create_user.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{ui_element_module.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     private static final long serialVersionUID = 1L;
