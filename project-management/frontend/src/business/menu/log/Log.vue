@@ -64,7 +64,8 @@
                                    :placeholder="$t('operating_log.object')"
                                    :props="props"
                                    class="ms-case"
-                                   @change="initTableData" ref="cascade"/>
+                                   clearable
+                                   @change="initTableData(condition.operModules)" ref="cascade"/>
                     </el-form-item>
                   </el-col>
 
@@ -292,6 +293,8 @@ export default {
     initTableData() {
       if (this.condition.operModules && this.condition.operModules.length > 0) {
         this.condition.operModule = this.condition.operModules[1];
+      } else {
+        this.condition.operModule = undefined;
       }
       this.condition.projectIds = [getCurrentProjectID()];
       this.condition.projectId = getCurrentProjectID();
