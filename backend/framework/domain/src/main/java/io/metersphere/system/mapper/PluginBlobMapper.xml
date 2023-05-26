@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.PluginBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.PluginBlob">
-    <id column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.PluginBlob">
     <result column="form_option" jdbcType="LONGVARBINARY" property="formOption" />
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    plugin_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     form_option, form_script
@@ -108,11 +108,11 @@
     ,
     <include refid="Blob_Column_List" />
     from plugin_blob
-    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from plugin_blob
-    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.system.domain.PluginBlobExample">
     delete from plugin_blob
@@ -121,16 +121,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.PluginBlob">
-    insert into plugin_blob (plugin_id, form_option, form_script
+    insert into plugin_blob (id, form_option, form_script
       )
-    values (#{pluginId,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARBINARY}, #{formScript,jdbcType=LONGVARBINARY}
+    values (#{id,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARBINARY}, #{formScript,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.PluginBlob">
     insert into plugin_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="pluginId != null">
-        plugin_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="formOption != null">
         form_option,
@@ -140,8 +140,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="pluginId != null">
-        #{pluginId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="formOption != null">
         #{formOption,jdbcType=LONGVARBINARY},
@@ -160,8 +160,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update plugin_blob
     <set>
-      <if test="record.pluginId != null">
-        plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.formOption != null">
         form_option = #{record.formOption,jdbcType=LONGVARBINARY},
@@ -176,7 +176,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update plugin_blob
-    set plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       form_option = #{record.formOption,jdbcType=LONGVARBINARY},
       form_script = #{record.formScript,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -185,7 +185,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update plugin_blob
-    set plugin_id = #{record.pluginId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -200,12 +200,12 @@
         form_script = #{formScript,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.PluginBlob">
     update plugin_blob
     set form_option = #{formOption,jdbcType=LONGVARBINARY},
       form_script = #{formScript,jdbcType=LONGVARBINARY}
-    where plugin_id = #{pluginId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

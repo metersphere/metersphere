@@ -27,7 +27,7 @@ public class Notification implements Serializable {
 
     @Schema(title = "标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.title.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 100, message = "{notification.title.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{notification.title.length_range}", groups = {Created.class, Updated.class})
     private String title;
 
     @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -60,7 +60,7 @@ public class Notification implements Serializable {
 
     @Schema(title = "资源名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.resource_name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 100, message = "{notification.resource_name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{notification.resource_name.length_range}", groups = {Created.class, Updated.class})
     private String resourceName;
 
     private static final long serialVersionUID = 1L;

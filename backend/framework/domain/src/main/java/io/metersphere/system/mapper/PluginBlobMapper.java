@@ -10,7 +10,7 @@ public interface PluginBlobMapper {
 
     int deleteByExample(PluginBlobExample example);
 
-    int deleteByPrimaryKey(String pluginId);
+    int deleteByPrimaryKey(String id);
 
     int insert(PluginBlob record);
 
@@ -20,7 +20,7 @@ public interface PluginBlobMapper {
 
     List<PluginBlob> selectByExample(PluginBlobExample example);
 
-    PluginBlob selectByPrimaryKey(String pluginId);
+    PluginBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") PluginBlob record, @Param("example") PluginBlobExample example);
 

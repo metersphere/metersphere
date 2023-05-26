@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.UserExtendMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.UserExtend">
-    <id column="user_id" jdbcType="VARCHAR" property="userId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="selenium_server" jdbcType="VARCHAR" property="seleniumServer" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.UserExtend">
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    user_id, selenium_server
+    id, selenium_server
   </sql>
   <sql id="Blob_Column_List">
     platform_info
@@ -108,11 +108,11 @@
     ,
     <include refid="Blob_Column_List" />
     from user_extend
-    where user_id = #{userId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from user_extend
-    where user_id = #{userId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.system.domain.UserExtendExample">
     delete from user_extend
@@ -121,16 +121,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserExtend">
-    insert into user_extend (user_id, selenium_server, platform_info
+    insert into user_extend (id, selenium_server, platform_info
       )
-    values (#{userId,jdbcType=VARCHAR}, #{seleniumServer,jdbcType=VARCHAR}, #{platformInfo,jdbcType=LONGVARBINARY}
+    values (#{id,jdbcType=VARCHAR}, #{seleniumServer,jdbcType=VARCHAR}, #{platformInfo,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserExtend">
     insert into user_extend
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="userId != null">
-        user_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="seleniumServer != null">
         selenium_server,
@@ -140,8 +140,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="userId != null">
-        #{userId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="seleniumServer != null">
         #{seleniumServer,jdbcType=VARCHAR},
@@ -160,8 +160,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update user_extend
     <set>
-      <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.seleniumServer != null">
         selenium_server = #{record.seleniumServer,jdbcType=VARCHAR},
@@ -176,7 +176,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update user_extend
-    set user_id = #{record.userId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       selenium_server = #{record.seleniumServer,jdbcType=VARCHAR},
       platform_info = #{record.platformInfo,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -185,7 +185,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update user_extend
-    set user_id = #{record.userId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       selenium_server = #{record.seleniumServer,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,17 +201,17 @@
         platform_info = #{platformInfo,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where user_id = #{userId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.UserExtend">
     update user_extend
     set selenium_server = #{seleniumServer,jdbcType=VARCHAR},
       platform_info = #{platformInfo,jdbcType=LONGVARBINARY}
-    where user_id = #{userId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.UserExtend">
     update user_extend
     set selenium_server = #{seleniumServer,jdbcType=VARCHAR}
-    where user_id = #{userId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

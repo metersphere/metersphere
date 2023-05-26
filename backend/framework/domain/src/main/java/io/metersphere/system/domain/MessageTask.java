@@ -12,7 +12,7 @@ import lombok.Data;
 public class MessageTask implements Serializable {
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.id.not_blank}", groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 255, message = "{message_task.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{message_task.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(title = "消息类型", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -40,7 +40,7 @@ public class MessageTask implements Serializable {
 
     @Schema(title = "具体测试的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 255, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
     @Schema(title = "创建时间")
@@ -48,7 +48,7 @@ public class MessageTask implements Serializable {
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     private static final long serialVersionUID = 1L;

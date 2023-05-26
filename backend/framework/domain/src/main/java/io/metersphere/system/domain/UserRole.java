@@ -17,7 +17,7 @@ public class UserRole implements Serializable {
 
     @Schema(title = "组名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "描述")
@@ -41,12 +41,12 @@ public class UserRole implements Serializable {
 
     @Schema(title = "创建人(操作人）", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.create_user.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{user_role.create_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{user_role.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "应用范围", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.scope_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
     private String scopeId;
 
     private static final long serialVersionUID = 1L;

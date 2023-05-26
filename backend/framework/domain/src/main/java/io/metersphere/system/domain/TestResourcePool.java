@@ -17,7 +17,7 @@ public class TestResourcePool implements Serializable {
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -30,7 +30,7 @@ public class TestResourcePool implements Serializable {
 
     @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.status.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{test_resource_pool.status.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 20, message = "{test_resource_pool.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(title = "创建时间")

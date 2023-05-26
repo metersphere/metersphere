@@ -11,9 +11,9 @@ import lombok.Data;
 @Data
 public class PluginBlob implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{plugin_blob.plugin_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{plugin_blob.plugin_id.length_range}", groups = {Created.class, Updated.class})
-    private String pluginId;
+    @NotBlank(message = "{plugin_blob.id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{plugin_blob.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
 
     @Schema(title = "plugin form option")
     private byte[] formOption;

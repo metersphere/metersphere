@@ -104,73 +104,73 @@ public class PluginBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andPluginIdIsNull() {
-            addCriterion("plugin_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdIsNotNull() {
-            addCriterion("plugin_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdEqualTo(String value) {
-            addCriterion("plugin_id =", value, "pluginId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdNotEqualTo(String value) {
-            addCriterion("plugin_id <>", value, "pluginId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdGreaterThan(String value) {
-            addCriterion("plugin_id >", value, "pluginId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdGreaterThanOrEqualTo(String value) {
-            addCriterion("plugin_id >=", value, "pluginId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdLessThan(String value) {
-            addCriterion("plugin_id <", value, "pluginId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdLessThanOrEqualTo(String value) {
-            addCriterion("plugin_id <=", value, "pluginId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdLike(String value) {
-            addCriterion("plugin_id like", value, "pluginId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdNotLike(String value) {
-            addCriterion("plugin_id not like", value, "pluginId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdIn(List<String> values) {
-            addCriterion("plugin_id in", values, "pluginId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdNotIn(List<String> values) {
-            addCriterion("plugin_id not in", values, "pluginId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdBetween(String value1, String value2) {
-            addCriterion("plugin_id between", value1, value2, "pluginId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andPluginIdNotBetween(String value1, String value2) {
-            addCriterion("plugin_id not between", value1, value2, "pluginId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
     }

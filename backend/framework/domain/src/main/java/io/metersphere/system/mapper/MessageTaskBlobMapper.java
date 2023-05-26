@@ -10,7 +10,7 @@ public interface MessageTaskBlobMapper {
 
     int deleteByExample(MessageTaskBlobExample example);
 
-    int deleteByPrimaryKey(String messageTaskId);
+    int deleteByPrimaryKey(String id);
 
     int insert(MessageTaskBlob record);
 
@@ -20,7 +20,7 @@ public interface MessageTaskBlobMapper {
 
     List<MessageTaskBlob> selectByExample(MessageTaskBlobExample example);
 
-    MessageTaskBlob selectByPrimaryKey(String messageTaskId);
+    MessageTaskBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") MessageTaskBlob record, @Param("example") MessageTaskBlobExample example);
 

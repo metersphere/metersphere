@@ -22,7 +22,7 @@ public class TestResource implements Serializable {
 
     @Schema(title = "资源节点状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource.status.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{test_resource.status.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 20, message = "{test_resource.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(title = "创建时间")

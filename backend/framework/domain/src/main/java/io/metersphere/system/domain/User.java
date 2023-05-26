@@ -17,7 +17,7 @@ public class User implements Serializable {
 
     @Schema(title = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.name.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 64, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{user.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -58,7 +58,7 @@ public class User implements Serializable {
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.create_user.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 100, message = "{user.create_user.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{user.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     private static final long serialVersionUID = 1L;

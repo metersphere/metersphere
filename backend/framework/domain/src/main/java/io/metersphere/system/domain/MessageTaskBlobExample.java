@@ -104,73 +104,73 @@ public class MessageTaskBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andMessageTaskIdIsNull() {
-            addCriterion("message_task_id is null");
+        public Criteria andIdIsNull() {
+            addCriterion("id is null");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdIsNotNull() {
-            addCriterion("message_task_id is not null");
+        public Criteria andIdIsNotNull() {
+            addCriterion("id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdEqualTo(String value) {
-            addCriterion("message_task_id =", value, "messageTaskId");
+        public Criteria andIdEqualTo(String value) {
+            addCriterion("id =", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdNotEqualTo(String value) {
-            addCriterion("message_task_id <>", value, "messageTaskId");
+        public Criteria andIdNotEqualTo(String value) {
+            addCriterion("id <>", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdGreaterThan(String value) {
-            addCriterion("message_task_id >", value, "messageTaskId");
+        public Criteria andIdGreaterThan(String value) {
+            addCriterion("id >", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdGreaterThanOrEqualTo(String value) {
-            addCriterion("message_task_id >=", value, "messageTaskId");
+        public Criteria andIdGreaterThanOrEqualTo(String value) {
+            addCriterion("id >=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdLessThan(String value) {
-            addCriterion("message_task_id <", value, "messageTaskId");
+        public Criteria andIdLessThan(String value) {
+            addCriterion("id <", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdLessThanOrEqualTo(String value) {
-            addCriterion("message_task_id <=", value, "messageTaskId");
+        public Criteria andIdLessThanOrEqualTo(String value) {
+            addCriterion("id <=", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdLike(String value) {
-            addCriterion("message_task_id like", value, "messageTaskId");
+        public Criteria andIdLike(String value) {
+            addCriterion("id like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdNotLike(String value) {
-            addCriterion("message_task_id not like", value, "messageTaskId");
+        public Criteria andIdNotLike(String value) {
+            addCriterion("id not like", value, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdIn(List<String> values) {
-            addCriterion("message_task_id in", values, "messageTaskId");
+        public Criteria andIdIn(List<String> values) {
+            addCriterion("id in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdNotIn(List<String> values) {
-            addCriterion("message_task_id not in", values, "messageTaskId");
+        public Criteria andIdNotIn(List<String> values) {
+            addCriterion("id not in", values, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdBetween(String value1, String value2) {
-            addCriterion("message_task_id between", value1, value2, "messageTaskId");
+        public Criteria andIdBetween(String value1, String value2) {
+            addCriterion("id between", value1, value2, "id");
             return (Criteria) this;
         }
 
-        public Criteria andMessageTaskIdNotBetween(String value1, String value2) {
-            addCriterion("message_task_id not between", value1, value2, "messageTaskId");
+        public Criteria andIdNotBetween(String value1, String value2) {
+            addCriterion("id not between", value1, value2, "id");
             return (Criteria) this;
         }
     }

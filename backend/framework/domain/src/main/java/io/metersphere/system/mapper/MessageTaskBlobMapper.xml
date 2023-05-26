@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.MessageTaskBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.MessageTaskBlob">
-    <id column="message_task_id" jdbcType="VARCHAR" property="messageTaskId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.MessageTaskBlob">
     <result column="template" jdbcType="LONGVARCHAR" property="template" />
@@ -66,7 +66,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    message_task_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     `template`
@@ -107,11 +107,11 @@
     ,
     <include refid="Blob_Column_List" />
     from message_task_blob
-    where message_task_id = #{messageTaskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from message_task_blob
-    where message_task_id = #{messageTaskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.system.domain.MessageTaskBlobExample">
     delete from message_task_blob
@@ -120,22 +120,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.MessageTaskBlob">
-    insert into message_task_blob (message_task_id, `template`)
-    values (#{messageTaskId,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR})
+    insert into message_task_blob (id, `template`)
+    values (#{id,jdbcType=VARCHAR}, #{template,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.MessageTaskBlob">
     insert into message_task_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="messageTaskId != null">
-        message_task_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="template != null">
         `template`,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="messageTaskId != null">
-        #{messageTaskId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="template != null">
         #{template,jdbcType=LONGVARCHAR},
@@ -151,8 +151,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update message_task_blob
     <set>
-      <if test="record.messageTaskId != null">
-        message_task_id = #{record.messageTaskId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.template != null">
         `template` = #{record.template,jdbcType=LONGVARCHAR},
@@ -164,7 +164,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update message_task_blob
-    set message_task_id = #{record.messageTaskId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       `template` = #{record.template,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +172,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update message_task_blob
-    set message_task_id = #{record.messageTaskId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -184,11 +184,11 @@
         `template` = #{template,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where message_task_id = #{messageTaskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.MessageTaskBlob">
     update message_task_blob
     set `template` = #{template,jdbcType=LONGVARCHAR}
-    where message_task_id = #{messageTaskId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
