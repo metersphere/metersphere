@@ -508,20 +508,33 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
 
         apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
         if (StringUtils.isBlank(apiTestEnvironment.getCreateUser())) {
-            UserGroupExample example = new UserGroupExample();
-            example.createCriteria().andSourceIdEqualTo(apiTestEnvironment.getProjectId()).andGroupIdEqualTo("project_admin");
-            List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(userGroups)) {
-                userGroups.forEach(userGroup -> {
-                    checkAndSendReviewMessage(apiTestEnvironment.getId(),
-                            apiTestEnvironment.getName(),
-                            apiTestEnvironment.getProjectId(),
-                            NoticeConstants.TaskType.ENV_TASK,
-                            envOrg.getConfig(),
-                            apiTestEnvironment.getConfig(),
-                            userGroup.getUserId()
-                    );
-                });
+            ProjectApplication reviewer = baseProjectApplicationService
+                    .getProjectApplication(apiTestEnvironment.getProjectId(), ProjectApplicationType.API_SCRIPT_REVIEWER.name());
+            if (StringUtils.isNotBlank(reviewer.getTypeValue())) {
+                checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                        apiTestEnvironment.getName(),
+                        apiTestEnvironment.getProjectId(),
+                        NoticeConstants.TaskType.ENV_TASK,
+                        envOrg.getConfig(),
+                        apiTestEnvironment.getConfig(),
+                        reviewer.getTypeValue()
+                );
+            } else {
+                UserGroupExample example = new UserGroupExample();
+                example.createCriteria().andSourceIdEqualTo(apiTestEnvironment.getProjectId()).andGroupIdEqualTo("project_admin");
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(example);
+                if ( CollectionUtils.isNotEmpty(userGroups)) {
+                    userGroups.forEach(userGroup -> {
+                        checkAndSendReviewMessage(apiTestEnvironment.getId(),
+                                apiTestEnvironment.getName(),
+                                apiTestEnvironment.getProjectId(),
+                                NoticeConstants.TaskType.ENV_TASK,
+                                envOrg.getConfig(),
+                                apiTestEnvironment.getConfig(),
+                                userGroup.getUserId()
+                        );
+                    });
+                }
             }
         } else {
             checkAndSendReviewMessage(apiTestEnvironment.getId(),
