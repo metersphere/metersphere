@@ -139,7 +139,7 @@
           </el-table-column>
           <el-table-column :label="$t('commons.status')" :filters="statusFilters" column-key="status" prop="status">
             <template v-slot:default="{ row }">
-              <ms-api-report-status :status="row.status" />
+              <ms-api-report-status :status="row.status" style="text-align: left"/>
             </template>
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
