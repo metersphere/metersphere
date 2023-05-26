@@ -48,7 +48,7 @@ curl -sSL https://resource.fit2cloud.com/metersphere/metersphere/releases/latest
 
 -   [在线文档](https://metersphere.io/docs/)
 -   [社区论坛](https://space.bilibili.com/510493147/channel/collectiondetail?sid=397323)
--   [在线体验](https://metersphere.com/)
+-   [在线体验](https://metersphere.com/?utm_source=github)
 
 **加入微信交流群**
 
@@ -63,9 +63,11 @@ v1.0.1 是 v1.0.0 之后的Bug修复版本；
 v1.1.0 是 v1.0.0 之后的功能版本。
 ```
 
-像其它优秀开源项目一样，MeterSphere 将按月发布功能版本、按年度发布 LTS（Long Term Support）版本。
+MeterSphere 按年发布 LTS（Long Term Support）版本。
 
-MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本为 v2.10 LTS，预计在 2023 年第二季度发布。
+- v1.10-lts：发布时间为 2021 年 5 月 27 日，目前已经停止维护；
+- v1.20-lts：发布时间为 2022 年 4 月 27 日，目前仅进行必要的安全类 Bug 修复和严重 Bug 修复；
+- v2.10-lts：发布时间为 2023 年 5 月 25 日，每两周发布小版本，持续进行 Bug 修复和部分功能的有限优化。
 
 ## 技术栈
 
@@ -79,7 +81,7 @@ MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本
 
 如果您在使用过程中发现任何安全问题，请通过以下方式直接联系我们：
 
-- 邮箱：support@fit2cloud.com 
+- 邮箱：support@fit2cloud.com
 - 电话：400-052-0755
 
 ## 致谢
@@ -87,6 +89,11 @@ MeterSphere 的最新 LTS 版本为 v1.20 LTS。MeterSphere 下一个 LTS 版本
 -   [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
 -   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
+
+## FOSSA Status
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fmetersphere%2Fmetersphere?ref=badge_large)
+
 
 ## License & Copyright
 
