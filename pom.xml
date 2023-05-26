@@ -20,7 +20,7 @@
     <properties>
         <revision>2.10</revision>
         <java.version>17</java.version>
-        <spring-cloud.version>2022.0.2</spring-cloud.version>
+        <spring-cloud.version>2022.0.3</spring-cloud.version>
         <dubbo.version>2.7.22</dubbo.version>
         <platform-plugin-sdk.version>1.6.0</platform-plugin-sdk.version>
         <shiro.version>1.11.0</shiro.version>
@@ -72,8 +72,8 @@
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <org-json.version>20220924</org-json.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
-        <nacos.version>1.4.4</nacos.version>
-        <minio.version>8.5.2</minio.version>
+        <nacos.version>2.2.3</nacos.version>
+        <minio.version>8.5.3</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
