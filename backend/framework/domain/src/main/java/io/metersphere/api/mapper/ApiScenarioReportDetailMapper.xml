@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiScenarioReportDetailMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReportDetail">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="request_time" jdbcType="BIGINT" property="requestTime" />
+    <result column="assertions_total" jdbcType="BIGINT" property="assertionsTotal" />
+    <result column="pass_assertions_total" jdbcType="BIGINT" property="passAssertionsTotal" />
+    <result column="fake_code" jdbcType="VARCHAR" property="fakeCode" />
+    <result column="request_name" jdbcType="VARCHAR" property="requestName" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="error_total" jdbcType="INTEGER" property="errorTotal" />
+    <result column="code" jdbcType="VARCHAR" property="code" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioReportDetail">
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, report_id, resource_id, start_time, `status`, request_time, assertions_total, 
+    pass_assertions_total, fake_code, request_name, environment_id, project_id, error_total, 
+    code
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_scenario_report_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_scenario_report_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample">
+    delete from api_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
+    insert into api_scenario_report_detail (id, report_id, resource_id, 
+      start_time, `status`, request_time, 
+      assertions_total, pass_assertions_total, fake_code, 
+      request_name, environment_id, project_id, 
+      error_total, code, content
+      )
+    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
+      #{startTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{requestTime,jdbcType=BIGINT}, 
+      #{assertionsTotal,jdbcType=BIGINT}, #{passAssertionsTotal,jdbcType=BIGINT}, #{fakeCode,jdbcType=VARCHAR}, 
+      #{requestName,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{errorTotal,jdbcType=INTEGER}, #{code,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
+    insert into api_scenario_report_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="reportId != null">
+        report_id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="requestTime != null">
+        request_time,
+      </if>
+      <if test="assertionsTotal != null">
+        assertions_total,
+      </if>
+      <if test="passAssertionsTotal != null">
+        pass_assertions_total,
+      </if>
+      <if test="fakeCode != null">
+        fake_code,
+      </if>
+      <if test="requestName != null">
+        request_name,
+      </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="errorTotal != null">
+        error_total,
+      </if>
+      <if test="code != null">
+        code,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="requestTime != null">
+        #{requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="assertionsTotal != null">
+        #{assertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertionsTotal != null">
+        #{passAssertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="fakeCode != null">
+        #{fakeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="requestName != null">
+        #{requestName,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="errorTotal != null">
+        #{errorTotal,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_scenario_report_detail
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startTime != null">
+        start_time = #{record.startTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestTime != null">
+        request_time = #{record.requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.assertionsTotal != null">
+        assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="record.passAssertionsTotal != null">
+        pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="record.fakeCode != null">
+        fake_code = #{record.fakeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestName != null">
+        request_name = #{record.requestName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.errorTotal != null">
+        error_total = #{record.errorTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.code != null">
+        code = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_scenario_report_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      request_time = #{record.requestTime,jdbcType=BIGINT},
+      assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
+      pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
+      fake_code = #{record.fakeCode,jdbcType=VARCHAR},
+      request_name = #{record.requestName,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      error_total = #{record.errorTotal,jdbcType=INTEGER},
+      code = #{record.code,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_scenario_report_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      request_time = #{record.requestTime,jdbcType=BIGINT},
+      assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
+      pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
+      fake_code = #{record.fakeCode,jdbcType=VARCHAR},
+      request_name = #{record.requestName,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      error_total = #{record.errorTotal,jdbcType=INTEGER},
+      code = #{record.code,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
+    update api_scenario_report_detail
+    <set>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="requestTime != null">
+        request_time = #{requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="assertionsTotal != null">
+        assertions_total = #{assertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertionsTotal != null">
+        pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
+      </if>
+      <if test="fakeCode != null">
+        fake_code = #{fakeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="requestName != null">
+        request_name = #{requestName,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="errorTotal != null">
+        error_total = #{errorTotal,jdbcType=INTEGER},
+      </if>
+      <if test="code != null">
+        code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
+    update api_scenario_report_detail
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      request_time = #{requestTime,jdbcType=BIGINT},
+      assertions_total = #{assertionsTotal,jdbcType=BIGINT},
+      pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
+      fake_code = #{fakeCode,jdbcType=VARCHAR},
+      request_name = #{requestName,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      error_total = #{errorTotal,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
+    update api_scenario_report_detail
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      start_time = #{startTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      request_time = #{requestTime,jdbcType=BIGINT},
+      assertions_total = #{assertionsTotal,jdbcType=BIGINT},
+      pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
+      fake_code = #{fakeCode,jdbcType=VARCHAR},
+      request_name = #{requestName,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      error_total = #{errorTotal,jdbcType=INTEGER},
+      code = #{code,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiSyncConfigMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiSyncConfig">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <result column="hide" jdbcType="BIT" property="hide" />
+    <result column="notify_case_creator" jdbcType="BIT" property="notifyCaseCreator" />
+    <result column="notify_scenario_creator" jdbcType="BIT" property="notifyScenarioCreator" />
+    <result column="sync_enable" jdbcType="BIT" property="syncEnable" />
+    <result column="notice_enable" jdbcType="BIT" property="noticeEnable" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiSyncConfig">
+    <result column="rule_config" jdbcType="LONGVARCHAR" property="ruleConfig" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, resource_id, resource_type, hide, notify_case_creator, notify_scenario_creator, 
+    sync_enable, notice_enable
+  </sql>
+  <sql id="Blob_Column_List">
+    rule_config
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiSyncConfigExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_sync_config
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiSyncConfigExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_sync_config
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_sync_config
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_sync_config
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiSyncConfigExample">
+    delete from api_sync_config
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiSyncConfig">
+    insert into api_sync_config (id, resource_id, resource_type, 
+      hide, notify_case_creator, notify_scenario_creator, 
+      sync_enable, notice_enable, rule_config
+      )
+    values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
+      #{hide,jdbcType=BIT}, #{notifyCaseCreator,jdbcType=BIT}, #{notifyScenarioCreator,jdbcType=BIT}, 
+      #{syncEnable,jdbcType=BIT}, #{noticeEnable,jdbcType=BIT}, #{ruleConfig,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiSyncConfig">
+    insert into api_sync_config
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
+      </if>
+      <if test="hide != null">
+        hide,
+      </if>
+      <if test="notifyCaseCreator != null">
+        notify_case_creator,
+      </if>
+      <if test="notifyScenarioCreator != null">
+        notify_scenario_creator,
+      </if>
+      <if test="syncEnable != null">
+        sync_enable,
+      </if>
+      <if test="noticeEnable != null">
+        notice_enable,
+      </if>
+      <if test="ruleConfig != null">
+        rule_config,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="hide != null">
+        #{hide,jdbcType=BIT},
+      </if>
+      <if test="notifyCaseCreator != null">
+        #{notifyCaseCreator,jdbcType=BIT},
+      </if>
+      <if test="notifyScenarioCreator != null">
+        #{notifyScenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="syncEnable != null">
+        #{syncEnable,jdbcType=BIT},
+      </if>
+      <if test="noticeEnable != null">
+        #{noticeEnable,jdbcType=BIT},
+      </if>
+      <if test="ruleConfig != null">
+        #{ruleConfig,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiSyncConfigExample" resultType="java.lang.Long">
+    select count(*) from api_sync_config
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_sync_config
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hide != null">
+        hide = #{record.hide,jdbcType=BIT},
+      </if>
+      <if test="record.notifyCaseCreator != null">
+        notify_case_creator = #{record.notifyCaseCreator,jdbcType=BIT},
+      </if>
+      <if test="record.notifyScenarioCreator != null">
+        notify_scenario_creator = #{record.notifyScenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="record.syncEnable != null">
+        sync_enable = #{record.syncEnable,jdbcType=BIT},
+      </if>
+      <if test="record.noticeEnable != null">
+        notice_enable = #{record.noticeEnable,jdbcType=BIT},
+      </if>
+      <if test="record.ruleConfig != null">
+        rule_config = #{record.ruleConfig,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_sync_config
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      hide = #{record.hide,jdbcType=BIT},
+      notify_case_creator = #{record.notifyCaseCreator,jdbcType=BIT},
+      notify_scenario_creator = #{record.notifyScenarioCreator,jdbcType=BIT},
+      sync_enable = #{record.syncEnable,jdbcType=BIT},
+      notice_enable = #{record.noticeEnable,jdbcType=BIT},
+      rule_config = #{record.ruleConfig,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_sync_config
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      hide = #{record.hide,jdbcType=BIT},
+      notify_case_creator = #{record.notifyCaseCreator,jdbcType=BIT},
+      notify_scenario_creator = #{record.notifyScenarioCreator,jdbcType=BIT},
+      sync_enable = #{record.syncEnable,jdbcType=BIT},
+      notice_enable = #{record.noticeEnable,jdbcType=BIT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiSyncConfig">
+    update api_sync_config
+    <set>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="hide != null">
+        hide = #{hide,jdbcType=BIT},
+      </if>
+      <if test="notifyCaseCreator != null">
+        notify_case_creator = #{notifyCaseCreator,jdbcType=BIT},
+      </if>
+      <if test="notifyScenarioCreator != null">
+        notify_scenario_creator = #{notifyScenarioCreator,jdbcType=BIT},
+      </if>
+      <if test="syncEnable != null">
+        sync_enable = #{syncEnable,jdbcType=BIT},
+      </if>
+      <if test="noticeEnable != null">
+        notice_enable = #{noticeEnable,jdbcType=BIT},
+      </if>
+      <if test="ruleConfig != null">
+        rule_config = #{ruleConfig,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiSyncConfig">
+    update api_sync_config
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      hide = #{hide,jdbcType=BIT},
+      notify_case_creator = #{notifyCaseCreator,jdbcType=BIT},
+      notify_scenario_creator = #{notifyScenarioCreator,jdbcType=BIT},
+      sync_enable = #{syncEnable,jdbcType=BIT},
+      notice_enable = #{noticeEnable,jdbcType=BIT},
+      rule_config = #{ruleConfig,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiSyncConfig">
+    update api_sync_config
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      hide = #{hide,jdbcType=BIT},
+      notify_case_creator = #{notifyCaseCreator,jdbcType=BIT},
+      notify_scenario_creator = #{notifyScenarioCreator,jdbcType=BIT},
+      sync_enable = #{syncEnable,jdbcType=BIT},
+      notice_enable = #{noticeEnable,jdbcType=BIT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
