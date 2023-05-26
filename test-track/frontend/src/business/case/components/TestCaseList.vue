@@ -365,7 +365,7 @@ export default {
       tableHeaderKey: "TRACK_TEST_CASE",
       tableHeaderDragKey: "TRACK_TEST_CASE_DRAG",
       screenHeight: 'calc(100vh - 185px)',
-      maxHeight: 'calc(100vh - 287px)',
+      maxHeight: 'calc(100vh - 285px)',
       enableOrderDrag: true,
       isMoveBatch: true,
       loading: false,
