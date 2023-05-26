@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ApiEnvironmentConfig implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_environment_config.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_environment_config.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_environment_config.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
@@ -22,12 +22,12 @@ public class ApiEnvironmentConfig implements Serializable {
     private Long updateTime;
 
     @Schema(title = "用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_environment_config.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_environment_config.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_environment_config.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_environment_config.environment_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_environment_config.environment_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_environment_config.environment_id.length_range}", groups = {Created.class, Updated.class})
     private String environmentId;
 

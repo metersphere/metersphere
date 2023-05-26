@@ -5,14 +5,13 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiDefinition implements Serializable {
     @Schema(title = "接口pk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_definition.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
@@ -20,7 +19,7 @@ public class ApiDefinition implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
@@ -28,7 +27,7 @@ public class ApiDefinition implements Serializable {
     private Long updateTime;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.update_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.update_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
@@ -39,22 +38,22 @@ public class ApiDefinition implements Serializable {
     private Long deleteTime;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.deleted.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.deleted.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{api_definition.deleted.length_range}", groups = {Created.class, Updated.class})
     private Boolean deleted;
 
     @Schema(title = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_definition.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "接口类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.method.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.method.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.method.length_range}", groups = {Created.class, Updated.class})
     private String method;
 
     @Schema(title = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.protocol.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.protocol.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}", groups = {Created.class, Updated.class})
     private String protocol;
 
@@ -65,7 +64,7 @@ public class ApiDefinition implements Serializable {
     private String modulePath;
 
     @Schema(title = "接口状态/进行中/已完成", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
@@ -79,12 +78,12 @@ public class ApiDefinition implements Serializable {
     private String tags;
 
     @Schema(title = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.pos.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.pos.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 19, message = "{api_definition.pos.length_range}", groups = {Created.class, Updated.class})
     private Long pos;
 
     @Schema(title = "是否启用同步", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.sync_enable.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.sync_enable.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{api_definition.sync_enable.length_range}", groups = {Created.class, Updated.class})
     private Boolean syncEnable;
 
@@ -92,7 +91,7 @@ public class ApiDefinition implements Serializable {
     private Long syncTime;
 
     @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.project_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
@@ -100,7 +99,7 @@ public class ApiDefinition implements Serializable {
     private String environmentId;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.latest.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition.latest.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{api_definition.latest.length_range}", groups = {Created.class, Updated.class})
     private Boolean latest;
 

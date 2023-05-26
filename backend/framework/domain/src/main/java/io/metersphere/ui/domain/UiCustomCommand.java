@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class UiCustomCommand implements Serializable {
     @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_custom_command.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ui_custom_command.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{ui_custom_command.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

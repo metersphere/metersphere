@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class FunctionalCaseTemplate implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_template.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{functional_case_template.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{functional_case_template.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class Workspace implements Serializable {
     @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{workspace.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{workspace.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{workspace.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

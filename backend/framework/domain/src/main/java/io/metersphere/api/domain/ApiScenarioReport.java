@@ -11,12 +11,12 @@ import lombok.Data;
 @Data
 public class ApiScenarioReport implements Serializable {
     @Schema(title = "场景报告pk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_scenario_report.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(title = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_scenario_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
@@ -24,7 +24,7 @@ public class ApiScenarioReport implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
@@ -35,12 +35,12 @@ public class ApiScenarioReport implements Serializable {
     private String deleteUser;
 
     @Schema(title = "删除标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.deleted.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.deleted.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{api_scenario_report.deleted.length_range}", groups = {Created.class, Updated.class})
     private Boolean deleted;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.update_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.update_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
@@ -51,22 +51,22 @@ public class ApiScenarioReport implements Serializable {
     private Long passRate;
 
     @Schema(title = "报告状态/SUCCESS/ERROR", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.status.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_scenario_report.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(title = "触发方式", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.trigger_mode.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.trigger_mode.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_scenario_report.trigger_mode.length_range}", groups = {Created.class, Updated.class})
     private String triggerMode;
 
     @Schema(title = "执行模式", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.run_mode.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.run_mode.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_scenario_report.run_mode.length_range}", groups = {Created.class, Updated.class})
     private String runMode;
 
     @Schema(title = "资源池", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.pool_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.pool_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.pool_id.length_range}", groups = {Created.class, Updated.class})
     private String poolId;
 
@@ -74,17 +74,17 @@ public class ApiScenarioReport implements Serializable {
     private String versionId;
 
     @Schema(title = "是否是集成报告", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.integrated.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.integrated.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{api_scenario_report.integrated.length_range}", groups = {Created.class, Updated.class})
     private Boolean integrated;
 
     @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.project_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(title = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.scenario_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_scenario_report.scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String scenarioId;
 

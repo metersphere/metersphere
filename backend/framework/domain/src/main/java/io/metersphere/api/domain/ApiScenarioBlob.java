@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ApiScenarioBlob implements Serializable {
     @Schema(title = "场景pk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_blob.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_scenario_blob.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_scenario_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ServiceIntegration implements Serializable {
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{service_integration.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{service_integration.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{service_integration.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

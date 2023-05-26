@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class Environment implements Serializable {
     @Schema(title = "环境ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{environment.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{environment.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

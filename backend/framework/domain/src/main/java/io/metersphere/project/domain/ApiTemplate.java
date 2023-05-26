@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ApiTemplate implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_template.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_template.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_template.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

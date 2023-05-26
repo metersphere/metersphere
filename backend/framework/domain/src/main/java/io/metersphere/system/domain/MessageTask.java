@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class MessageTask implements Serializable {
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{message_task.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{message_task.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

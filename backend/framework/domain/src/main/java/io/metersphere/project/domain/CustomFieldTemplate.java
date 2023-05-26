@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CustomFieldTemplate implements Serializable {
     @Schema(title = "自定义模版ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field_template.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{custom_field_template.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{custom_field_template.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

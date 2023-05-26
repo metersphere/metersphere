@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class Notification implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{notification.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{notification.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 19, message = "{notification.id.length_range}", groups = {Created.class, Updated.class})
     private Long id;
 

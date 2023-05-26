@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class LoadTest implements Serializable {
     @Schema(title = "测试ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{load_test.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{load_test.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

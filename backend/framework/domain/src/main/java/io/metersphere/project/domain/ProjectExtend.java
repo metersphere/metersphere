@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class ProjectExtend implements Serializable {
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_extend.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_extend.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project_extend.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

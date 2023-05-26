@@ -11,12 +11,12 @@ import lombok.Data;
 @Data
 public class ApiDefinitionSwagger implements Serializable {
     @Schema(title = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_swagger.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_definition_swagger.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition_swagger.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(title = "url地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})
     private String swaggerUrl;
 

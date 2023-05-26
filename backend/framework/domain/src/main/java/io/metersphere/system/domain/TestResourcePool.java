@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class TestResourcePool implements Serializable {
     @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_resource_pool.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_resource_pool.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

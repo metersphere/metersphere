@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class FileMetadata implements Serializable {
     @Schema(title = "文件ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{file_metadata.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{file_metadata.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

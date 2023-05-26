@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class UiScenarioReportDetail implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{ui_scenario_report_detail.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_report_detail.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 

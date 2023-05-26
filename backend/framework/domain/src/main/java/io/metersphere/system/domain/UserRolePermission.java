@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class UserRolePermission implements Serializable {
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role_permission.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user_role_permission.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 64, message = "{user_role_permission.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
