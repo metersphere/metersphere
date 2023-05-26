@@ -71,7 +71,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>fit2cloud-public</id>
-            <url>https://repository.fit2cloud.com/repository/fit2cloud-public/</url>
+            <url>https://repository.fit2cloud.com/repository/public/</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
