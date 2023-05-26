@@ -1,7 +1,6 @@
 package io.metersphere.sdk.config.interceptor;
 
 import io.metersphere.load.domain.*;
-import io.metersphere.project.domain.*;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.sdk.util.MybatisInterceptorConfig;
 import org.springframework.context.annotation.Bean;

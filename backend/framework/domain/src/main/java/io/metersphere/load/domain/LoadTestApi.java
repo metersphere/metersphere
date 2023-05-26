@@ -17,7 +17,7 @@ public class LoadTestApi implements Serializable {
 
     @Schema(title = "接口场景或用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{load_test_api.api_id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 255, message = "{load_test_api.api_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{load_test_api.api_id.length_range}", groups = {Created.class, Updated.class})
     private String apiId;
 
     @Schema(title = "性能测试ID", requiredMode = Schema.RequiredMode.REQUIRED)
