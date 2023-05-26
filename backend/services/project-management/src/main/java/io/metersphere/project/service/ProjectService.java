@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -17,5 +18,18 @@ public class ProjectService {
 
     public List<Project> list() {
         return projectMapper.selectByExample(new ProjectExample());
+    }
+
+    public Project add(Project project) {
+        project.setId(UUID.randomUUID().toString());
+        project.setCreateTime(System.currentTimeMillis());
+        project.setUpdateTime(System.currentTimeMillis());
+        projectMapper.insertSelective(project);
+        return project;
+    }
+
+    public Project edit(Project project) {
+        projectMapper.updateByPrimaryKeySelective(project);
+        return projectMapper.selectByPrimaryKey(project.getId());
     }
 }
