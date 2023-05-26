@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.ui.mapper.UiElementMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.ui.domain.UiElement">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="location_type" jdbcType="VARCHAR" property="locationType" />
+    <result column="location" jdbcType="VARCHAR" property="location" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, num, module_id, project_id, `name`, location_type, `location`, create_user, update_user, 
+    version_id, ref_id, pos, latest, description, create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.ui.domain.UiElementExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ui_element
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from ui_element
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from ui_element
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.ui.domain.UiElementExample">
+    delete from ui_element
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.ui.domain.UiElement">
+    insert into ui_element (id, num, module_id, 
+      project_id, `name`, location_type, 
+      `location`, create_user, update_user, 
+      version_id, ref_id, pos, 
+      latest, description, create_time, 
+      update_time)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{moduleId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{locationType,jdbcType=VARCHAR}, 
+      #{location,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
+      #{latest,jdbcType=BIT}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.ui.domain.UiElement">
+    insert into ui_element
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="moduleId != null">
+        module_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="locationType != null">
+        location_type,
+      </if>
+      <if test="location != null">
+        `location`,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="pos != null">
+        pos,
+      </if>
+      <if test="latest != null">
+        latest,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="locationType != null">
+        #{locationType,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null">
+        #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="latest != null">
+        #{latest,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.ui.domain.UiElementExample" resultType="java.lang.Long">
+    select count(*) from ui_element
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update ui_element
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.locationType != null">
+        location_type = #{record.locationType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.location != null">
+        `location` = #{record.location,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update ui_element
+    set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      location_type = #{record.locationType,jdbcType=VARCHAR},
+      `location` = #{record.location,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT},
+      latest = #{record.latest,jdbcType=BIT},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.ui.domain.UiElement">
+    update ui_element
+    <set>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="locationType != null">
+        location_type = #{locationType,jdbcType=VARCHAR},
+      </if>
+      <if test="location != null">
+        `location` = #{location,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.ui.domain.UiElement">
+    update ui_element
+    set num = #{num,jdbcType=INTEGER},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      location_type = #{locationType,jdbcType=VARCHAR},
+      `location` = #{location,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT},
+      latest = #{latest,jdbcType=BIT},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

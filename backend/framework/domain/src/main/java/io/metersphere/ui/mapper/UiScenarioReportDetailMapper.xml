@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.ui.mapper.UiScenarioReportDetailMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.ui.domain.UiScenarioReportDetail">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="request_time" jdbcType="BIGINT" property="requestTime" />
+    <result column="total_assertions" jdbcType="BIGINT" property="totalAssertions" />
+    <result column="pass_assertions" jdbcType="BIGINT" property="passAssertions" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.ui.domain.UiScenarioReportDetail">
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
+    <result column="base_info" jdbcType="LONGVARBINARY" property="baseInfo" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, resource_id, report_id, create_time, `status`, request_time, total_assertions, 
+    pass_assertions
+  </sql>
+  <sql id="Blob_Column_List">
+    content, base_info
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.ui.domain.UiScenarioReportDetailExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from ui_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.ui.domain.UiScenarioReportDetailExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from ui_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from ui_scenario_report_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from ui_scenario_report_detail
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.ui.domain.UiScenarioReportDetailExample">
+    delete from ui_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.ui.domain.UiScenarioReportDetail">
+    insert into ui_scenario_report_detail (id, resource_id, report_id, 
+      create_time, `status`, request_time, 
+      total_assertions, pass_assertions, content, 
+      base_info)
+    values (#{id,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{requestTime,jdbcType=BIGINT}, 
+      #{totalAssertions,jdbcType=BIGINT}, #{passAssertions,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}, 
+      #{baseInfo,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.ui.domain.UiScenarioReportDetail">
+    insert into ui_scenario_report_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="reportId != null">
+        report_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="requestTime != null">
+        request_time,
+      </if>
+      <if test="totalAssertions != null">
+        total_assertions,
+      </if>
+      <if test="passAssertions != null">
+        pass_assertions,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="baseInfo != null">
+        base_info,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="requestTime != null">
+        #{requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="totalAssertions != null">
+        #{totalAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertions != null">
+        #{passAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="baseInfo != null">
+        #{baseInfo,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.ui.domain.UiScenarioReportDetailExample" resultType="java.lang.Long">
+    select count(*) from ui_scenario_report_detail
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update ui_scenario_report_detail
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestTime != null">
+        request_time = #{record.requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.totalAssertions != null">
+        total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="record.passAssertions != null">
+        pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.baseInfo != null">
+        base_info = #{record.baseInfo,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update ui_scenario_report_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      request_time = #{record.requestTime,jdbcType=BIGINT},
+      total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
+      pass_assertions = #{record.passAssertions,jdbcType=BIGINT},
+      content = #{record.content,jdbcType=LONGVARBINARY},
+      base_info = #{record.baseInfo,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update ui_scenario_report_detail
+    set id = #{record.id,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      request_time = #{record.requestTime,jdbcType=BIGINT},
+      total_assertions = #{record.totalAssertions,jdbcType=BIGINT},
+      pass_assertions = #{record.passAssertions,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.ui.domain.UiScenarioReportDetail">
+    update ui_scenario_report_detail
+    <set>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="requestTime != null">
+        request_time = #{requestTime,jdbcType=BIGINT},
+      </if>
+      <if test="totalAssertions != null">
+        total_assertions = #{totalAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertions != null">
+        pass_assertions = #{passAssertions,jdbcType=BIGINT},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="baseInfo != null">
+        base_info = #{baseInfo,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.ui.domain.UiScenarioReportDetail">
+    update ui_scenario_report_detail
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      request_time = #{requestTime,jdbcType=BIGINT},
+      total_assertions = #{totalAssertions,jdbcType=BIGINT},
+      pass_assertions = #{passAssertions,jdbcType=BIGINT},
+      content = #{content,jdbcType=LONGVARBINARY},
+      base_info = #{baseInfo,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.ui.domain.UiScenarioReportDetail">
+    update ui_scenario_report_detail
+    set resource_id = #{resourceId,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      request_time = #{requestTime,jdbcType=BIGINT},
+      total_assertions = #{totalAssertions,jdbcType=BIGINT},
+      pass_assertions = #{passAssertions,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
