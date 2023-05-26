@@ -152,7 +152,6 @@
                       :defaultKey="data.moduleId"
                       @getValue="setModule"
                       :obj="moduleObj"
-                      clearable
                       checkStrictly
                     />
                   </el-form-item>
@@ -230,17 +229,12 @@
 </template>
 
 <script>
-import { operationConfirm } from "metersphere-frontend/src/utils";
-import { getCurrentProjectID } from "metersphere-frontend/src/utils/token";
-import {
-  getFileMetaPages,
-  modifyFileMeta,
-  pullGitFile,
-  uploadFileMeta,
-} from "../../../../api/file";
+import {operationConfirm} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {getFileMetaPages, modifyFileMeta, pullGitFile, uploadFileMeta,} from "../../../../api/file";
 import FileVersionList from "@/business/menu/file/list/FileVersionList";
 import FileCaseRelevanceList from "@/business/menu/file/list/FileCaseRelevanceList";
-import { hasPermission } from "metersphere-frontend/src/utils/permission";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "MsEditFileMetadata",
