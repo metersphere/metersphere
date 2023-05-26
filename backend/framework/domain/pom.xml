@@ -59,7 +59,7 @@
                         <version>1.3.10</version>
                     </dependency>
                     <dependency>
-                        <groupId>com.fit2cloud</groupId>
+                        <groupId>io.metersphere</groupId>
                         <artifactId>mybatis-tools</artifactId>
                         <version>3.0.0</version>
                     </dependency>
