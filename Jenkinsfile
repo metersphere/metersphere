@@ -70,6 +70,8 @@ pipeline {
                         do
                             cp -rf $LOCAL_REPOSITORY/io/metersphere/$library/${REVISION}/$library-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                         done
+
+                        cp $LOCAL_REPOSITORY/io/metersphere/metersphere-xpack/${REVISION}/metersphere-xpack-${REVISION}.jar backend/app/target/dependency/BOOT-INF/lib/
                     '''
                 }
             }
