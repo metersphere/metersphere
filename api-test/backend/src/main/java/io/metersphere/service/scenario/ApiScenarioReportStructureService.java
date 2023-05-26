@@ -308,8 +308,8 @@ public class ApiScenarioReportStructureService {
                 dto.setValue(new RequestResultExpandDTO(dto.getLabel(), ApiReportStatus.PENDING.name()));
             } else if (StringUtils.isNotEmpty(dto.getType()) && CONTROLS.contains(dto.getType()) && dto.getValue() == null) {
                 // 条件控制步骤
-                dto.setTotalStatus(ApiReportStatus.SUCCESS.name());
-                dto.setValue(new RequestResultExpandDTO(dto.getLabel(), ApiReportStatus.SUCCESS.name()));
+                dto.setTotalStatus(ApiReportStatus.PENDING.name());
+                dto.setValue(new RequestResultExpandDTO(dto.getLabel(), ApiReportStatus.PENDING.name()));
             } else if (dto.getValue() instanceof RequestResultExpandDTO && StringUtils.isNotEmpty((dto.getValue()).getStatus())) {
                 dto.setTotalStatus((dto.getValue()).getStatus());
             } else if (dto.getValue() != null && StringUtils.isEmpty(dto.getTotalStatus())) {
