@@ -16,22 +16,22 @@ public class MessageTask implements Serializable {
     private String id;
 
     @Schema(title = "消息类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
     @Schema(title = "通知事件类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.event.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.event.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{message_task.event.length_range}", groups = {Created.class, Updated.class})
     private String event;
 
     @Schema(title = "接收人id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.receiver.length_range}", groups = {Created.class, Updated.class})
     private String receiver;
 
     @Schema(title = "任务类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{message_task.task_type.length_range}", groups = {Created.class, Updated.class})
     private String taskType;
 
@@ -39,7 +39,7 @@ public class MessageTask implements Serializable {
     private String webhook;
 
     @Schema(title = "具体测试的ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.test_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.test_id.length_range}", groups = {Created.class, Updated.class})
     private String testId;
 
@@ -47,7 +47,7 @@ public class MessageTask implements Serializable {
     private Long createTime;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{message_task.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 

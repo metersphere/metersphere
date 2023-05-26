@@ -16,7 +16,7 @@ public class UiScenarioReference implements Serializable {
     private String id;
 
     @Schema(title = "场景ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_reference.ui_scenario_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_reference.ui_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_reference.ui_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String uiScenarioId;
 
@@ -24,17 +24,17 @@ public class UiScenarioReference implements Serializable {
     private Long createTime;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_reference.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_reference.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_reference.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "被引用的ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_reference.reference_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_reference.reference_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_reference.reference_id.length_range}", groups = {Created.class, Updated.class})
     private String referenceId;
 
     @Schema(title = "引用的数据类型（场景，指令）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_reference.data_type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_reference.data_type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{ui_scenario_reference.data_type.length_range}", groups = {Created.class, Updated.class})
     private String dataType;
 

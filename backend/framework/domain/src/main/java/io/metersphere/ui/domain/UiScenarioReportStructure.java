@@ -16,7 +16,7 @@ public class UiScenarioReportStructure implements Serializable {
     private String id;
 
     @Schema(title = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_structure.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_structure.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{ui_scenario_report_structure.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
@@ -24,7 +24,7 @@ public class UiScenarioReportStructure implements Serializable {
     private Long createTime;
 
     @Schema(title = "资源步骤结构树", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_structure.resource_tree.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{ui_scenario_report_structure.resource_tree.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 2147483647, message = "{ui_scenario_report_structure.resource_tree.length_range}", groups = {Created.class, Updated.class})
     private byte[] resourceTree;
 

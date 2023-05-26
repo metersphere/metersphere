@@ -16,12 +16,12 @@ public class LoadTestReportLog implements Serializable {
     private String id;
 
     @Schema(title = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_log.report_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_log.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{load_test_report_log.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
     @Schema(title = "资源节点ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_log.resource_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{load_test_report_log.resource_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{load_test_report_log.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 

@@ -16,7 +16,7 @@ public class UserRole implements Serializable {
     private String id;
 
     @Schema(title = "组名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_role.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{user_role.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
@@ -24,12 +24,12 @@ public class UserRole implements Serializable {
     private String description;
 
     @Schema(title = "是否是系统用户组", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.system.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_role.system.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{user_role.system.length_range}", groups = {Created.class, Updated.class})
     private Boolean system;
 
     @Schema(title = "所属类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
@@ -40,12 +40,12 @@ public class UserRole implements Serializable {
     private Long updateTime;
 
     @Schema(title = "创建人(操作人）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_role.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "应用范围", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.scope_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{user_role.scope_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
     private String scopeId;
 

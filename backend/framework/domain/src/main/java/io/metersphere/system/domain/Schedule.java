@@ -19,17 +19,17 @@ public class Schedule implements Serializable {
     private String key;
 
     @Schema(title = "资源类型", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{schedule.type.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{schedule.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{schedule.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
     @Schema(title = "Schedule value", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{schedule.value.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{schedule.value.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{schedule.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
 
     @Schema(title = "Schedule Job Class Name", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{schedule.job.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{schedule.job.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{schedule.job.length_range}", groups = {Created.class, Updated.class})
     private String job;
 
@@ -40,7 +40,7 @@ public class Schedule implements Serializable {
     private String resourceId;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{schedule.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{schedule.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{schedule.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 

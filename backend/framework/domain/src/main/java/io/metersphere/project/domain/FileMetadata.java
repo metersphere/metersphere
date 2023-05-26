@@ -16,7 +16,7 @@ public class FileMetadata implements Serializable {
     private String id;
 
     @Schema(title = "文件名", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{file_metadata.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
@@ -24,7 +24,7 @@ public class FileMetadata implements Serializable {
     private String type;
 
     @Schema(title = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.size.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.size.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 19, message = "{file_metadata.size.length_range}", groups = {Created.class, Updated.class})
     private Long size;
 
@@ -35,22 +35,22 @@ public class FileMetadata implements Serializable {
     private Long updateTime;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.project_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(title = "文件存储方式", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.storage.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
     private String storage;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 
     @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.update_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.update_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.update_user.length_range}", groups = {Created.class, Updated.class})
     private String updateUser;
 
@@ -73,12 +73,12 @@ public class FileMetadata implements Serializable {
     private String resourceType;
 
     @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.latest.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.latest.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 1, message = "{file_metadata.latest.length_range}", groups = {Created.class, Updated.class})
     private Boolean latest;
 
     @Schema(title = "同版本数据关联的ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.ref_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{file_metadata.ref_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{file_metadata.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 

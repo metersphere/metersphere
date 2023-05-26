@@ -16,12 +16,12 @@ public class Environment implements Serializable {
     private String id;
 
     @Schema(title = "环境名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment.name.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{environment.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{environment.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment.project_id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{environment.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{environment.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
@@ -38,7 +38,7 @@ public class Environment implements Serializable {
     private Integer port;
 
     @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment.create_user.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{environment.create_user.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{environment.create_user.length_range}", groups = {Created.class, Updated.class})
     private String createUser;
 

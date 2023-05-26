@@ -34,7 +34,7 @@ public class ProjectExtend implements Serializable {
     private String azureFilterId;
 
     @Schema(title = "项目使用哪个平台的模板", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_extend.platform.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{project_extend.platform.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{project_extend.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
