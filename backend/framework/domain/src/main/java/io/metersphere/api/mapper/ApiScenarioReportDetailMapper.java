@@ -1,0 +1,36 @@
+package io.metersphere.api.mapper;
+
+import io.metersphere.api.domain.ApiScenarioReportDetail;
+import io.metersphere.api.domain.ApiScenarioReportDetailExample;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface ApiScenarioReportDetailMapper {
+    long countByExample(ApiScenarioReportDetailExample example);
+
+    int deleteByExample(ApiScenarioReportDetailExample example);
+
+    int deleteByPrimaryKey(String id);
+
+    int insert(ApiScenarioReportDetail record);
+
+    int insertSelective(ApiScenarioReportDetail record);
+
+    List<ApiScenarioReportDetail> selectByExampleWithBLOBs(ApiScenarioReportDetailExample example);
+
+    List<ApiScenarioReportDetail> selectByExample(ApiScenarioReportDetailExample example);
+
+    ApiScenarioReportDetail selectByPrimaryKey(String id);
+
+    int updateByExampleSelective(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
+
+    int updateByExampleWithBLOBs(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
+
+    int updateByExample(@Param("record") ApiScenarioReportDetail record, @Param("example") ApiScenarioReportDetailExample example);
+
+    int updateByPrimaryKeySelective(ApiScenarioReportDetail record);
+
+    int updateByPrimaryKeyWithBLOBs(ApiScenarioReportDetail record);
+
+    int updateByPrimaryKey(ApiScenarioReportDetail record);
+}

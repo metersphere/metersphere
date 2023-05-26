@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiDefinitionSwaggerMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionSwagger">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="swagger_url" jdbcType="VARCHAR" property="swaggerUrl" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
+    <result column="mode" jdbcType="BIT" property="mode" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiDefinitionSwagger">
+    <result column="config" jdbcType="LONGVARBINARY" property="config" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, swagger_url, module_id, module_path, `mode`, project_id, version_id
+  </sql>
+  <sql id="Blob_Column_List">
+    config
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_definition_swagger
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_definition_swagger
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_definition_swagger
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_definition_swagger
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample">
+    delete from api_definition_swagger
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
+    insert into api_definition_swagger (id, swagger_url, module_id, 
+      module_path, `mode`, project_id, 
+      version_id, config)
+    values (#{id,jdbcType=VARCHAR}, #{swaggerUrl,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
+      #{modulePath,jdbcType=VARCHAR}, #{mode,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR}, #{config,jdbcType=LONGVARBINARY})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
+    insert into api_definition_swagger
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="swaggerUrl != null">
+        swagger_url,
+      </if>
+      <if test="moduleId != null">
+        module_id,
+      </if>
+      <if test="modulePath != null">
+        module_path,
+      </if>
+      <if test="mode != null">
+        `mode`,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="config != null">
+        config,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="swaggerUrl != null">
+        #{swaggerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="mode != null">
+        #{mode,jdbcType=BIT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="config != null">
+        #{config,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultType="java.lang.Long">
+    select count(*) from api_definition_swagger
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_definition_swagger
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.swaggerUrl != null">
+        swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modulePath != null">
+        module_path = #{record.modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mode != null">
+        `mode` = #{record.mode,jdbcType=BIT},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.config != null">
+        config = #{record.config,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_definition_swagger
+    set id = #{record.id,jdbcType=VARCHAR},
+      swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      module_path = #{record.modulePath,jdbcType=VARCHAR},
+      `mode` = #{record.mode,jdbcType=BIT},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      config = #{record.config,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_definition_swagger
+    set id = #{record.id,jdbcType=VARCHAR},
+      swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      module_path = #{record.modulePath,jdbcType=VARCHAR},
+      `mode` = #{record.mode,jdbcType=BIT},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
+    update api_definition_swagger
+    <set>
+      <if test="swaggerUrl != null">
+        swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        module_path = #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="mode != null">
+        `mode` = #{mode,jdbcType=BIT},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="config != null">
+        config = #{config,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
+    update api_definition_swagger
+    set swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      `mode` = #{mode,jdbcType=BIT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      config = #{config,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
+    update api_definition_swagger
+    set swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      `mode` = #{mode,jdbcType=BIT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

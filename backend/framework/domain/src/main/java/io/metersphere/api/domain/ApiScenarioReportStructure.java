@@ -1,26 +1,22 @@
 package io.metersphere.api.domain;
 
+import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
-
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import lombok.Data;
 
-@Schema(title = "场景报告结构")
-@Table("api_scenario_report_structure")
 @Data
 public class ApiScenarioReportStructure implements Serializable {
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    @NotBlank(message = "{api_scenario_report_structure.report_id.not_blank}", groups = {Updated.class})
     @Schema(title = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_report_structure.report_id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_structure.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
-    @Schema(title = "资源步骤结构树", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(title = "资源步骤结构树")
     private byte[] resourceTree;
 
+    private static final long serialVersionUID = 1L;
 }
