@@ -9,6 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class TestPlanService {
 
     public boolean add(TestPlan testPlan) {
-        return true;
+        return testPlan == null;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,6 +29,7 @@ public class TestPlanControllerTests {
     @Order(1)
     public void testAddUserTrue() throws Exception {
         TestPlan testPlan = new TestPlan();
+        testPlan.setId("test");
         testPlan.setName("test");
         testPlan.setProjectId("1");
         testPlan.setParentId("1");
@@ -40,7 +42,7 @@ public class TestPlanControllerTests {
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andDo(print());
     }
 
     @Test

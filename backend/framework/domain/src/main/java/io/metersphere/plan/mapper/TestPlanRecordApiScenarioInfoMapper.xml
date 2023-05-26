@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.plan.mapper.TestPlanRecordApiScenarioInfoMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfo">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="test_plan_execute_record_id" jdbcType="VARCHAR" property="testPlanExecuteRecordId" />
+    <result column="test_plan_api_scenario_id" jdbcType="VARCHAR" property="testPlanApiScenarioId" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, test_plan_execute_record_id, test_plan_api_scenario_id, report_id
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from test_plan_record_api_scenario_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from test_plan_record_api_scenario_info
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from test_plan_record_api_scenario_info
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfoExample">
+    delete from test_plan_record_api_scenario_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfo">
+    insert into test_plan_record_api_scenario_info (id, test_plan_execute_record_id, test_plan_api_scenario_id, 
+      report_id)
+    values (#{id,jdbcType=VARCHAR}, #{testPlanExecuteRecordId,jdbcType=VARCHAR}, #{testPlanApiScenarioId,jdbcType=VARCHAR}, 
+      #{reportId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfo">
+    insert into test_plan_record_api_scenario_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="testPlanExecuteRecordId != null">
+        test_plan_execute_record_id,
+      </if>
+      <if test="testPlanApiScenarioId != null">
+        test_plan_api_scenario_id,
+      </if>
+      <if test="reportId != null">
+        report_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanExecuteRecordId != null">
+        #{testPlanExecuteRecordId,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanApiScenarioId != null">
+        #{testPlanApiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfoExample" resultType="java.lang.Long">
+    select count(*) from test_plan_record_api_scenario_info
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update test_plan_record_api_scenario_info
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testPlanExecuteRecordId != null">
+        test_plan_execute_record_id = #{record.testPlanExecuteRecordId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testPlanApiScenarioId != null">
+        test_plan_api_scenario_id = #{record.testPlanApiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update test_plan_record_api_scenario_info
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_execute_record_id = #{record.testPlanExecuteRecordId,jdbcType=VARCHAR},
+      test_plan_api_scenario_id = #{record.testPlanApiScenarioId,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfo">
+    update test_plan_record_api_scenario_info
+    <set>
+      <if test="testPlanExecuteRecordId != null">
+        test_plan_execute_record_id = #{testPlanExecuteRecordId,jdbcType=VARCHAR},
+      </if>
+      <if test="testPlanApiScenarioId != null">
+        test_plan_api_scenario_id = #{testPlanApiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanRecordApiScenarioInfo">
+    update test_plan_record_api_scenario_info
+    set test_plan_execute_record_id = #{testPlanExecuteRecordId,jdbcType=VARCHAR},
+      test_plan_api_scenario_id = #{testPlanApiScenarioId,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
