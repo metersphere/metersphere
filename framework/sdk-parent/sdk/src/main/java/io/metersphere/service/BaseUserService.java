@@ -26,6 +26,7 @@ import io.metersphere.request.LoginRequest;
 import io.metersphere.request.member.EditPassWordRequest;
 import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -36,7 +37,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -770,7 +770,7 @@ public class BaseUserService {
     public void updateCurrentUserByResourceId(String resourceId) {
         Project project = baseProjectMapper.selectProjectByResourceId(resourceId);
         if (project == null) {
-            return;
+            MSException.throwException(Translator.get("select_resource_error_and_check"));
         }
         SessionUser user = SessionUtils.getUser();
         user.setLastProjectId(project.getId());
