@@ -790,4 +790,18 @@ public class FileMetadataService {
         fileMetadataExample.createCriteria().andIdIn(idList).andTypeEqualTo("JMX");
         return fileMetadataMapper.selectByExampleWithBLOBs(fileMetadataExample);
     }
+
+    //检查项目下的文件，存在所属模块不存在的文件，将其挪到默认目录下
+    public void checkProjectFileHasModuleId(String projectId) {
+        List<String> illegalModuleFileIdList = baseFileMetadataMapper.selectIllegalModuleIdListByProjectId(projectId);
+        if (CollectionUtils.isNotEmpty(illegalModuleFileIdList)) {
+            FileModule fileModule = fileModuleService.initDefaultNode(projectId);
+            FileMetadataExample example = new FileMetadataExample();
+            example.createCriteria().andIdIn(illegalModuleFileIdList);
+            FileMetadataWithBLOBs updateModel = new FileMetadataWithBLOBs();
+            updateModel.setModuleId(fileModule.getId());
+            fileMetadataMapper.updateByExampleSelective(updateModel, example);
+        }
+
+    }
 }

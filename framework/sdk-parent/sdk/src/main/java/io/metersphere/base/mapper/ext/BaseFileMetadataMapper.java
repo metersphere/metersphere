@@ -23,4 +23,6 @@ public interface BaseFileMetadataMapper {
     void updateModuleIdByProjectId(@Param("moduleId") String moduleId, @Param("projectId") String projectId);
 
     List<String> selectRefIdsByIds(@Param("ids") List<String> nodeIds);
+
+    List<String> selectIllegalModuleIdListByProjectId(String projectId);
 }
