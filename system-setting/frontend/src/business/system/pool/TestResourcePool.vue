@@ -554,7 +554,9 @@ export default {
       if (row.status === 'INVALID') {
         this.checkHaveTestUsePool(row).then(() => {
           if (this.updatePool && this.updatePool.haveTestUsePool) {
-            this.$confirm(this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), this.$t('commons.prompt'), {
+            let testIndex = this.updatePool.testName.indexOf(";")
+            let subPrompt = this.updatePool.testName.substring(0, testIndex);
+            this.$confirm(this.$t('test_resource_pool.update_prompt', [subPrompt]), this.$t('commons.prompt'), {
               confirmButtonText: this.$t('commons.confirm'),
               cancelButtonText: this.$t('commons.cancel'),
               type: 'warning'
