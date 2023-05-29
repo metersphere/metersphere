@@ -137,7 +137,7 @@ export default {
     userFilter(val) {
       if (val) {
         this.userList = this.userListCopy.filter((item) => {
-          if (!!~item.id.indexOf(val) || (item.name && !!~item.name.indexOf(val))) {
+          if (item.name && !!~item.name.indexOf(val)) {
             return true;
           }
         })
