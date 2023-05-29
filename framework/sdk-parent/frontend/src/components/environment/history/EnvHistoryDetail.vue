@@ -21,8 +21,8 @@
 </template>
 
 <script>
-  const jsondiffpatch = require('jsondiffpatch');
-  const formattersHtml = jsondiffpatch.formatters.html;
+  import {formatters,diff} from 'jsondiffpatch';
+  const formattersHtml = formatters.html;
   export default {
     name: "MsEnvHistoryDetail",
     components: {},
@@ -39,10 +39,10 @@
     methods: {
       getDiff(v1, v2) {
         if (this.detail.columnName==='request' && v1 && v2){
-          let delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
+          let delta = diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v2)));
           return formattersHtml.format(delta, JSON.parse(JSON.stringify(v1)));
         }
-        let delta = jsondiffpatch.diff(v1 , v2);
+        let delta = diff(v1 , v2);
         return formattersHtml.format(delta, v1);
       },
       handleClose() {

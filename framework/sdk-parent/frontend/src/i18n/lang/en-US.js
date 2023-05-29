@@ -1,4 +1,4 @@
-import el from "element-ui/lib/locale/lang/en";
+import el from "./ele-en-US";
 import fu from "fit2cloud-ui/src/locale/lang/en_US"; // 加载fit2cloud的内容
 import test_track from "./track/en-US";
 

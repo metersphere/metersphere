@@ -1,4 +1,4 @@
-import el from "element-ui/lib/locale/lang/zh-TW";
+import el from "./ele-zh-TW";
 import fu from "fit2cloud-ui/src/locale/lang/zh-TW"; // 加载fit2cloud的内容
 import test_track from "./track/zh-TW";
 

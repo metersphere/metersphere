@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import {concat} from "lodash";
+import {concat} from "lodash-es";
 import {_findByKey} from "./custom-component";
 
 export default {

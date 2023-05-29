@@ -6,7 +6,23 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
     <title><%= htmlWebpackPlugin.options.title %></title>
+    <% if (process.env.NODE_ENV==='development' ) { %>
+      <link rel="stylesheet" href="http://localhost:3000/js/dev/element-ui/element-ui.css" />
+      <script src="http://localhost:3000/js/dev/vue.js"></script>
+      <script src="http://localhost:3000/js/dev/element-ui/element-ui.js"></script>
+      <script src="http://localhost:3000/js/dev/vue-router.js"></script>
+      <script src="http://localhost:3000/js/prd/vue-shepherd.min.js"></script>
+      <script src="http://localhost:3000/js/prd/mavon-editor.js"></script>
+    <% } else { %>
+      <link rel="stylesheet" href="<%= BASE_URL %>js/prd/element-ui/element-ui.min.css" />
+      <script src="<%= BASE_URL %>js/prd/vue.min.js"></script>
+      <script src="<%= BASE_URL %>js/prd/element-ui/element-ui.min.js"></script>
+      <script src="<%= BASE_URL %>js/prd/vue-router.min.js"></script>
+      <script src="<%= BASE_URL %>js/prd/vue-shepherd.min.js"></script>
+      <script src="<%= BASE_URL %>js/prd/mavon-editor.js"></script>
+    <% } %>
   </head>
+
   <body>
     <noscript>
       <strong

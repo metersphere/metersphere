@@ -115,13 +115,14 @@ import { getUUID } from 'metersphere-frontend/src/utils';
 import { hasPermission } from 'metersphere-frontend/src/utils/permission';
 import { PROJECT_ID, WORKSPACE_ID } from 'metersphere-frontend/src/utils/constants';
 import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
+import {diff} from 'jsondiffpatch';
 import { getScenarioById, getScenarioByTrash } from '@/api/scenario';
 import { getOwnerProjectIds, getProject, getProjectConfig } from '@/api/project';
 import { getModuleByProjectId } from '@/api/scenario-module';
 import { useApiStore } from '@/store';
 
 const store = useApiStore();
-const jsondiffpatch = require('jsondiffpatch');
+
 export default {
   name: 'ApiAutomation',
   components: {
@@ -484,7 +485,7 @@ export default {
         }
         let delta;
         if (v1 && v3) {
-          delta = jsondiffpatch.diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
+          delta = diff(JSON.parse(JSON.stringify(v1)), JSON.parse(JSON.stringify(v3)));
         }
         if (delta) {
           this.isSave = true;

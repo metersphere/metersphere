@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import {mavonEditor} from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
 import {getCurrentUser} from "../utils/token";
 import {getUUID} from "../utils";
 import {deleteMarkDownImg, uploadMarkDownImg} from "../api/img";
@@ -26,7 +28,7 @@ import {DEFAULT_XSS_ATTR} from "../utils/constants";
 
 export default {
   name: "MsMarkDownText",
-  components: {},
+  components: {mavonEditor},
   props: {
     data: Object,
     placeholder: String,

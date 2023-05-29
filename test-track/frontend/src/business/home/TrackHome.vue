@@ -59,7 +59,7 @@ import MsRunningTaskList from "./components/RunningTaskList";
 import { getUUID } from "metersphere-frontend/src/utils";
 import MsFailureTestCaseList from "@/business/home/components/FailureTestCaseList";
 
-require("echarts/lib/component/legend");
+// require("echarts/lib/component/legend");
 export default {
   name: "TrackHome",
   components: {

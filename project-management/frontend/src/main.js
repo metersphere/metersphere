@@ -13,8 +13,6 @@ import plugins from "metersphere-frontend/src/plugins";
 import directives from "metersphere-frontend/src/directive";
 import filters from "metersphere-frontend/src/filters";
 import "metersphere-frontend/src/router/permission";
-import mavonEditor from "mavon-editor";
-import "mavon-editor/dist/css/index.css";
 import VuePapaParse from "vue-papa-parse";
 import VueShepherd from 'vue-shepherd' // 新手引导
 import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css'
@@ -29,7 +27,6 @@ Vue.use(ElementUI, {
   i18n: (key, value) => i18n.t(key, value),
 });
 
-Vue.use(mavonEditor);
 Vue.use(svg);
 Vue.use(icons);
 Vue.use(plugins);

@@ -80,9 +80,9 @@
 <script>
 import MsJsonCodeEdit from './json-view/ComparedEditor';
 import MsApiKeyValueDetail from './common/ApiKeyValueDetail';
+import {formatters, diff} from 'jsondiffpatch';
 
-const jsondiffpatch = require('jsondiffpatch');
-const formattersHtml = jsondiffpatch.formatters.html;
+const formattersHtml = formatters.html;
 
 export default {
   name: 'MsApiTcpParameters',
@@ -161,7 +161,7 @@ export default {
   },
   methods: {
     getDiff(v1, v2) {
-      let delta = jsondiffpatch.diff(v1, v2);
+      let delta = diff(v1, v2);
       return formattersHtml.format(delta, v1);
     },
   },

@@ -15,11 +15,8 @@ import filters from 'metersphere-frontend/src/filters';
 import 'metersphere-frontend/src/router/permission';
 import chart from 'metersphere-frontend/src/chart';
 import VueFab from 'vue-float-action-button';
-import JSONPathPicker from 'vue-jsonpath-picker';
 import VueClipboard from 'vue-clipboard2';
-import formCreate from '@form-create/element-ui';
-import mavonEditor from 'mavon-editor';
-import 'mavon-editor/dist/css/index.css';
+// import formCreate from '@form-create/element-ui';
 import VuePapaParse from 'vue-papa-parse';
 import VueShepherd from 'vue-shepherd'; // 新手引导
 import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css';
@@ -43,9 +40,8 @@ Vue.use(PiniaVuePlugin);
 Vue.use(chart);
 Vue.use(VueClipboard);
 Vue.use(VueFab);
-Vue.use(JSONPathPicker);
-Vue.use(mavonEditor);
-Vue.use(formCreate);
+// Vue.use(JSONPathPicker);
+// Vue.use(formCreate);
 Vue.use(VuePapaParse);
 Vue.use(VueShepherd);
 
