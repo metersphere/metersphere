@@ -2,7 +2,9 @@ package io.metersphere.plan.dto;
 
 
 import io.metersphere.base.domain.TestPlanReportContent;
+import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.xpack.track.dto.IssuesDao;
@@ -109,5 +111,112 @@ public class TestPlanReportDataStruct extends TestPlanReportContent {
             }
         }
         return false;
+    }
+
+    public TestPlanReportDataStruct() {
+    }
+
+    public TestPlanReportDataStruct(TestPlanReportContentWithBLOBs testPlanReportContent) {
+        if (testPlanReportContent == null) {
+            return;
+        }
+        this.setExecuteRate(testPlanReportContent.getExecuteRate());
+        this.setPassRate(testPlanReportContent.getPassRate());
+        if (StringUtils.isNotEmpty(testPlanReportContent.getSummary())) {
+            this.setSummary(testPlanReportContent.getSummary());
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getConfig())) {
+            this.setConfig(testPlanReportContent.getConfig());
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getFunctionResult())) {
+            TestPlanFunctionResultReportDTO dto = this.parseJsonStringToObj(testPlanReportContent.getFunctionResult(), TestPlanFunctionResultReportDTO.class);
+            this.setFunctionResult(dto);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getApiResult())) {
+            TestPlanApiResultReportDTO dto = this.parseJsonStringToObj(testPlanReportContent.getApiResult(), TestPlanApiResultReportDTO.class);
+            this.setApiResult(dto);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getLoadResult())) {
+            TestPlanLoadResultReportDTO dto = this.parseJsonStringToObj(testPlanReportContent.getLoadResult(), TestPlanLoadResultReportDTO.class);
+            this.setLoadResult(dto);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getUiResult())) {
+            TestPlanUiResultReportDTO dto = this.parseJsonStringToObj(testPlanReportContent.getUiResult(), TestPlanUiResultReportDTO.class);
+            this.setUiResult(dto);
+        }
+
+        if (StringUtils.isNotEmpty(testPlanReportContent.getFunctionAllCases())) {
+            List<TestPlanCaseDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getFunctionAllCases(), TestPlanCaseDTO.class);
+            this.setFunctionAllCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getIssueList())) {
+            List<IssuesDao> dtoList = this.parseJsonStringToArray(testPlanReportContent.getIssueList(), IssuesDao.class);
+            this.setIssueList(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getLoadAllCases())) {
+            List<TestPlanLoadCaseDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getLoadAllCases(), TestPlanLoadCaseDTO.class);
+            this.setLoadAllCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getLoadFailureCases())) {
+            List<TestPlanLoadCaseDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getLoadFailureCases(), TestPlanLoadCaseDTO.class);
+            this.setLoadFailureCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getApiAllCases())) {
+            List<TestPlanApiDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getApiAllCases(), TestPlanApiDTO.class);
+            this.setApiAllCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getErrorReportCases())) {
+            List<TestPlanApiDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getErrorReportCases(), TestPlanApiDTO.class);
+            this.setErrorReportCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getApiFailureCases())) {
+            List<TestPlanApiDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getApiFailureCases(), TestPlanApiDTO.class);
+            this.setApiFailureCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getUnExecuteCases())) {
+            List<TestPlanApiDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getUnExecuteCases(), TestPlanApiDTO.class);
+            this.setUnExecuteCases(dtoList);
+        }
+
+        if (StringUtils.isNotEmpty(testPlanReportContent.getScenarioAllCases())) {
+            List<TestPlanScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getScenarioAllCases(), TestPlanScenarioDTO.class);
+            this.setScenarioAllCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getErrorReportScenarios())) {
+            List<TestPlanScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getErrorReportScenarios(), TestPlanScenarioDTO.class);
+            this.setErrorReportScenarios(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getScenarioFailureCases())) {
+            List<TestPlanScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getScenarioFailureCases(), TestPlanScenarioDTO.class);
+            this.setScenarioFailureCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getUnExecuteScenarios())) {
+            List<TestPlanScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getUnExecuteScenarios(), TestPlanScenarioDTO.class);
+            this.setUnExecuteScenarios(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getUiAllCases())) {
+            List<TestPlanUiScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getUiAllCases(), TestPlanUiScenarioDTO.class);
+            this.setUiAllCases(dtoList);
+        }
+        if (StringUtils.isNotEmpty(testPlanReportContent.getUiFailureCases())) {
+            List<TestPlanUiScenarioDTO> dtoList = this.parseJsonStringToArray(testPlanReportContent.getUiFailureCases(), TestPlanUiScenarioDTO.class);
+            this.setUiFailureCases(dtoList);
+        }
+    }
+
+    private <T> T parseJsonStringToObj(String jsonString, Class<T> valueType) {
+        try {
+            return JSON.parseObject(jsonString, valueType);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private <T> List<T> parseJsonStringToArray(String jsonString, Class<T> valueType) {
+        try {
+            return JSON.parseArray(jsonString, valueType);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
