@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -31,7 +30,7 @@ public class ProjectApplicationControllerTests {
         projectApplication.setProjectId("1");
         projectApplication.setType("1");
         projectApplication.setTypeValue("1");
-        mockMvc.perform(MockMvcRequestBuilders.post("/project/application/save")
+        mockMvc.perform(MockMvcRequestBuilders.post("/project/application/add")
                         .content(JSON.toJSONString(projectApplication))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -46,6 +45,7 @@ public class ProjectApplicationControllerTests {
         projectApplication.setProjectId("1");
         projectApplication.setType("1");
         projectApplication.setTypeValue("2");
+
         mockMvc.perform(MockMvcRequestBuilders.post("/project/application/update")
                         .content(JSON.toJSONString(projectApplication))
                         .contentType(MediaType.APPLICATION_JSON))

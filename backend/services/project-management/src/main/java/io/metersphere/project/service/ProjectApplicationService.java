@@ -15,7 +15,7 @@ public class ProjectApplicationService {
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
 
-    public ProjectApplication save(ProjectApplication application) {
+    public ProjectApplication add(ProjectApplication application) {
         projectApplicationMapper.insert(application);
         return application;
     }

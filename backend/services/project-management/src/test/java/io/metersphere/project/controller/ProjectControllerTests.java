@@ -55,7 +55,7 @@ public class ProjectControllerTests {
         project.setCreateUser("admin");
         project.setWorkspaceId("default");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/project/edit")
+        mockMvc.perform(MockMvcRequestBuilders.post("/project/update")
                         .content(JSON.toJSONString(project))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -66,7 +66,7 @@ public class ProjectControllerTests {
     @Test
     @Order(3)
     public void testSelectAll() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/project/list-all"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/project/list_all"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
 //                .andExpect(jsonPath("$.person.name").value("Jason"))

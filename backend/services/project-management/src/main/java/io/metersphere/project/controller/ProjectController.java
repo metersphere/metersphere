@@ -16,7 +16,7 @@ public class ProjectController {
     @Resource
     private ProjectService projectService;
 
-    @GetMapping("list-all")
+    @GetMapping("list_all")
     public List<Project> selectAll() {
         return projectService.list();
     }
@@ -26,8 +26,8 @@ public class ProjectController {
         return projectService.add(project);
     }
 
-    @PostMapping("edit")
-    public Project edit(@Validated({Updated.class}) @RequestBody Project project) {
-        return projectService.edit(project);
+    @PostMapping("update")
+    public Project update(@Validated({Updated.class}) @RequestBody Project project) {
+        return projectService.update(project);
     }
 }

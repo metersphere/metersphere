@@ -16,9 +16,9 @@ public class ProjectApplicationController {
     @Resource
     private ProjectApplicationService projectApplicationService;
 
-    @PostMapping("save")
-    public ProjectApplication save(@Validated({Created.class}) @RequestBody ProjectApplication application) {
-        return projectApplicationService.save(application);
+    @PostMapping("add")
+    public ProjectApplication add(@Validated({Created.class}) @RequestBody ProjectApplication application) {
+        return projectApplicationService.add(application);
     }
 
     /**
@@ -30,7 +30,7 @@ public class ProjectApplicationController {
     }
 
     @GetMapping("list/{projectId}")
-    public List<ProjectApplication> update(@PathVariable String projectId) {
+    public List<ProjectApplication> getList(@PathVariable String projectId) {
         return projectApplicationService.list(projectId);
     }
 }

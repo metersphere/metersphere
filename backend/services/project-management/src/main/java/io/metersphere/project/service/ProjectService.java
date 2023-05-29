@@ -28,7 +28,7 @@ public class ProjectService {
         return project;
     }
 
-    public Project edit(Project project) {
+    public Project update(Project project) {
         projectMapper.updateByPrimaryKeySelective(project);
         return projectMapper.selectByPrimaryKey(project.getId());
     }
