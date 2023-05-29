@@ -956,10 +956,6 @@ public class TestPlanReportService {
         TestPlanReportDataMapper planReportDataMapper = sqlSession.getMapper(TestPlanReportDataMapper.class);
         TestPlanReportContentMapper planReportContentMapper = sqlSession.getMapper(TestPlanReportContentMapper.class);
 
-        //        ApiDefinitionExecResultMapper batchDefinitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
-        //        ApiScenarioReportMapper batchScenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
-        //        LoadTestReportMapper batchLoadTestReportMapper = sqlSession.getMapper(LoadTestReportMapper.class);
-
         try {
             while (reportIds.size() > handleCount) {
                 handleIdList = new ArrayList<>(handleCount);
@@ -1124,6 +1120,8 @@ public class TestPlanReportService {
         if (this.isDynamicallyGenerateReports(testPlanReportContent) || StringUtils.isNotEmpty(testPlanReportContent.getApiBaseCount())) {
             TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
             testPlanReportDTO = testPlanService.generateReportStruct(testPlan, testPlanReport, testPlanReportContent, false);
+        } else {
+            testPlanReportDTO = new TestPlanReportDataStruct(testPlanReportContent);
         }
         if (StringUtils.isNotEmpty(testPlanReportContent.getSummary())) {
             testPlanReportDTO.setSummary(testPlanReportContent.getSummary());

@@ -2286,7 +2286,7 @@ public class TestPlanService {
         TestPlanReportDataStruct testPlanReportDataStruct = new TestPlanReportDataStruct();
         try {
             testPlanReportDataStruct = this.generateReportStruct(testPlanWithBLOBs, testPlanReport, testPlanReportContent, false);
-            if (StringUtils.isBlank(testPlanReportContent.getApiBaseCount())
+            if (testPlanReportContent != null && StringUtils.isBlank(testPlanReportContent.getApiBaseCount())
                     && !testPlanReportDataStruct.hasRunningCase()
                     && StringUtils.equalsAnyIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.FAILED.name(), TestPlanReportStatus.COMPLETED.name(), TestPlanReportStatus.SUCCESS.name())) {
                 //旧版本的测试计划报告，没有重新统计过测试计划报告时，且当不存在运行中的用例，会将结果保存下来
