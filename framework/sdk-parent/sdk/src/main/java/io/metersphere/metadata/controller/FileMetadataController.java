@@ -40,6 +40,7 @@ public class FileMetadataController {
     public Pager<List<FileMetadataDTO>> getProjectFiles(@PathVariable String projectId,
                                                         @PathVariable int goPage, @PathVariable int pageSize,
                                                         @RequestBody QueryProjectFileRequest request) {
+        fileMetadataService.checkProjectFileHasModuleId(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, fileMetadataService.getFileMetadataByProject(projectId, request));
     }

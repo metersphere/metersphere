@@ -159,6 +159,12 @@
             #{value}
         </foreach>
     </select>
+    <select id="selectIllegalModuleIdListByProjectId" resultType="java.lang.String">
+        SELECT id
+        FROM file_metadata
+        WHERE project_id = #{0}
+          AND module_id = '';
+    </select>
 
     <update id="updateModuleIdByProjectId">
         update file_metadata

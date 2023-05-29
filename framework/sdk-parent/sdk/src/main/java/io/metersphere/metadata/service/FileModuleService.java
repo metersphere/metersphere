@@ -21,6 +21,7 @@ import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.metadata.vo.DragFileModuleRequest;
 import io.metersphere.metadata.vo.FileModuleVo;
 import io.metersphere.service.NodeTreeService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +32,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +61,7 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
     public List<FileModuleVo> getNodeTreeByProjectId(String projectId) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.initDefaultNode(projectId);
+
 
         List<FileModuleVo> modules = baseFileModuleMapper.getNodeTreeByProjectId(projectId);
         List<String> ids = modules.stream().map(FileModuleVo::getId).collect(Collectors.toList());
@@ -350,7 +351,7 @@ public class FileModuleService extends NodeTreeService<FileModuleVo> {
         return fileModuleMapper.countByExample(example);
     }
 
-    private FileModule initDefaultNode(String projectId) {
+    public FileModule initDefaultNode(String projectId) {
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ApiTestConstants.DEF_MODULE).andParentIdIsNull();
         List<FileModule> list = fileModuleMapper.selectByExample(example);
