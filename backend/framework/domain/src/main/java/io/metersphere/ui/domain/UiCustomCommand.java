@@ -96,7 +96,7 @@ public class UiCustomCommand implements Serializable {
 
     @Schema(title = "指向初始版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_command.ref_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 255, message = "{ui_custom_command.ref_id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{ui_custom_command.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
