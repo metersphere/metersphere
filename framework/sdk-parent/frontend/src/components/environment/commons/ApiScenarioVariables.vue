@@ -170,7 +170,7 @@ import ApiVariableSetting from './ApiVariableSetting';
 import CsvFileUpload from './variable/CsvFileUpload';
 import { downloadFile, getUUID, operationConfirm } from '../../../utils';
 import VariableImport from './variable/VariableImport';
-import _ from 'lodash';
+import {forEach} from 'lodash-es';
 import MsTablePagination from '../../pagination/TablePagination';
 
 export default {
@@ -546,7 +546,7 @@ export default {
       this.items.push(new KeyValue({ enable: true, scope: 'api' }));
     } else {
       //历史数据默认是 api 应用场景
-      _.forEach(this.items, (item) => {
+      forEach(this.items, (item) => {
         delete item.hidden;
         if (!item.scope) {
           this.$set(item, 'scope', 'api');

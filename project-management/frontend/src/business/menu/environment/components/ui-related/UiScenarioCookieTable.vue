@@ -156,7 +156,7 @@ import ApiVariableSetting from "metersphere-frontend/src/components/environment/
 import CsvFileUpload from "metersphere-frontend/src/components/environment/commons/variable/CsvFileUpload";
 import {downloadFile, getUUID, operationConfirm} from "metersphere-frontend/src/utils";
 import VariableImport from "metersphere-frontend/src/components/environment/VariableImport";
-import _ from "lodash";
+import {cloneDeep} from "lodash-es";
 import MiniTimingItem from "metersphere-frontend/src/components/environment/commons/MiniTimingItem";
 import UiScenarioEditRelevance from "@/business/menu/environment/components/ui-related/UiScenarioEditRelevance";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
@@ -376,7 +376,7 @@ export default {
     },
     filterScope(scope) {
       let datas = [];
-      let variables = _.cloneDeep(this.variables);
+      let variables = cloneDeep(this.variables);
       variables.forEach((item) => {
         if (scope == "api") {
           if (

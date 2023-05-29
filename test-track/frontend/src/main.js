@@ -16,9 +16,6 @@ import directives from "metersphere-frontend/src/directive";
 import filters from "metersphere-frontend/src/filters";
 import "metersphere-frontend/src/router/permission";
 import chart from "metersphere-frontend/src/chart";
-import mavonEditor from 'mavon-editor';
-import 'mavon-editor/dist/css/index.css';
-import vueMinderEditor from 'vue-minder-editor-plus'
 import VueClipboard from 'vue-clipboard2'
 import VueFab from 'vue-float-action-button';
 import CKEditor from '@ckeditor/ckeditor5-vue';
@@ -41,9 +38,6 @@ pinia.use(PersistedState)//开启缓存，存储在localstorage
 Vue.use(ElementUI, {
   i18n: (key, value) => i18n.t(key, value)
 });
-Vue.use(vueMinderEditor, {
-  i18n: (key, value) => i18n.t(key, value)
-});
 
 Vue.use(svg);
 Vue.use(icons);
@@ -53,7 +47,6 @@ Vue.use(filters);
 Vue.use(chart);
 Vue.use(YanProgress);
 Vue.use(PiniaVuePlugin);
-Vue.use(mavonEditor);
 Vue.use(VueFab);
 Vue.use(VueClipboard);
 Vue.use(CKEditor);

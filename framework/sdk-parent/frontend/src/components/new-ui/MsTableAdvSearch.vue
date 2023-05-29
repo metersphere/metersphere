@@ -35,7 +35,7 @@
 
 <script>
 import components from "../search/search-components";
-import {cloneDeep, concat, slice} from "lodash";
+import {cloneDeep, concat, slice} from "lodash-es";
 import {_findByKey, _findIndexByKey} from "../search/custom-component";
 
 export default {

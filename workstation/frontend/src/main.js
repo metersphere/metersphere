@@ -14,9 +14,7 @@ import plugins from "metersphere-frontend/src/plugins";
 import directives from "metersphere-frontend/src/directive";
 import filters from "metersphere-frontend/src/filters";
 import "metersphere-frontend/src/router/permission";
-import mavonEditor from 'mavon-editor';
 import chart from "metersphere-frontend/src/chart";
-import 'mavon-editor/dist/css/index.css';
 import VueShepherd from 'vue-shepherd' // 新手引导
 import 'metersphere-frontend/src/assets/shepherd/shepherd-theme.css'
 import { gotoCancel, gotoNext } from "metersphere-frontend/src/utils";
@@ -37,7 +35,6 @@ Vue.use(plugins);
 Vue.use(directives);
 Vue.use(filters);
 Vue.use(PiniaVuePlugin);
-Vue.use(mavonEditor);
 Vue.use(chart);
 Vue.use(VueShepherd);
 

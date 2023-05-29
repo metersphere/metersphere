@@ -586,7 +586,6 @@ import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/sr
 
 const store = useApiStore();
 
-let jsonPath = require('jsonpath');
 export default {
   name: 'EditApiScenario',
   props: {

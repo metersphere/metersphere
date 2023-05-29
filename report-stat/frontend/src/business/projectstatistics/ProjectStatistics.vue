@@ -108,7 +108,7 @@ import TestAnalysisContainer from "@/business/projectstatistics/track/TestAnalys
 import MsDrawer from "metersphere-frontend/src/components/MsDrawer";
 import ReportHeader from "@/business/base/ReportHeader";
 import TestCaseCountContainer from "@/business/projectstatistics/casecount/TestCaseCountContainer";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 
 export default {
   name: "ReportAnalysis",

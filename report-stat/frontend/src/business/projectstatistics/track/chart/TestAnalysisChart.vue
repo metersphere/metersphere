@@ -71,7 +71,7 @@
 
 <script>
 // 这个引用不能删除，删除后图例不显示
-import echarts from "echarts";
+// import echarts from "echarts";
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
 
 export default {

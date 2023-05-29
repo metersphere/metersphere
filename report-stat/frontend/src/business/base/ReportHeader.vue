@@ -43,7 +43,7 @@
 
 <script>
 import { hasPermission } from "metersphere-frontend/src/utils/permission";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 
 export default {
   name: "ReportHeader",

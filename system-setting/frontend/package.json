@@ -5,7 +5,8 @@
   "scripts": {
     "setting": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "report": "NODE_ENV=analyze vue-cli-service build"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^18.0.0",
@@ -83,7 +84,8 @@
     "sass": "^1.43.4",
     "sass-loader": "^10.1.1",
     "svg-sprite-loader": "^6.0.11",
-    "vue-template-compiler": "^2.7.3"
+    "vue-template-compiler": "^2.7.3",
+    "webpack-bundle-analyzer": "^4.8.0"
   },
   "eslintConfig": {
     "root": true,

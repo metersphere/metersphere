@@ -8,6 +8,8 @@
   </template>
 
   <script>
+  import {mavonEditor} from 'mavon-editor';
+  import 'mavon-editor/dist/css/index.css';
   import {getCurrentUser} from "metersphere-frontend/src/utils/token";
   import {getUUID} from "metersphere-frontend/src/utils";
   import {deleteMarkDownImg, uploadMarkDownImg} from "metersphere-frontend/src/api/img";
@@ -15,7 +17,7 @@
 
   export default {
     name: "MsMarkDownText",
-    components: {},
+    components: {mavonEditor},
     props: {
       data: Object,
       prop: String,

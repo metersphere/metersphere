@@ -7,7 +7,8 @@
     "gateway": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build-lib": "vue-cli-service build --target lib --name metersphere-frontend --dest lib ./src/index.js --formats commonjs",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "report": "NODE_ENV=analyze vue-cli-service build"
   },
   "files": [
     "src"
@@ -25,6 +26,7 @@
     "js-cookie": "^2.2.1",
     "jsencrypt": "^3.1.0",
     "jsondiffpatch": "^0.4.1",
+    "lodash-es": "^4.17.21",
     "mavon-editor": "2.10.4",
     "normalize.css": "^8.0.1",
     "nprogress": "^0.2.0",
@@ -52,7 +54,8 @@
     "sass": "^1.43.4",
     "sass-loader": "^10.1.1",
     "svg-sprite-loader": "^6.0.11",
-    "vue-template-compiler": "^2.7.3"
+    "vue-template-compiler": "^2.7.3",
+    "webpack-bundle-analyzer": "^4.8.0"
   },
   "eslintConfig": {
     "root": true,

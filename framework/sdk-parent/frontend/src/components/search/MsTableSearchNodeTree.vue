@@ -49,7 +49,7 @@
 <script>
 import MsTableSearchComponent from "./MsTableSearchComponet";
 import MsNodeTree from "../module/MsNodeTree";
-import {cloneDeep} from "lodash";
+import {cloneDeep} from "lodash-es";
 import {getCurrentProjectID} from "../../utils/token";
 import {get, post} from "../../plugins/request";
 

@@ -318,8 +318,8 @@
 import { getApiScenarioEnv } from '@/api/scenario';
 import { API_STATUS, PRIORITY } from '../../../definition/model/JsonData';
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
-import { ELEMENT_TYPE, STEP } from '../Setting';
-import { exportPdf, getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
+import { STEP } from '../Setting';
+import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import OutsideClick from '../common/outside-click';
@@ -328,7 +328,7 @@ import { buttons, setComponent } from '../menu/Menu';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 import { useApiStore } from '@/store';
 import { getPluginList } from '@/api/plugin';
@@ -1263,18 +1263,18 @@ export default {
         item.checkBox = this.isBatchProcess;
       });
     },
-    handleExport() {
-      let name = this.$t('commons.report_statistics.test_case_analysis');
-      this.$nextTick(function () {
-        setTimeout(() => {
-          html2canvas(document.getElementById('reportAnalysis'), {
-            scale: 2,
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
-          });
-        }, 1000);
-      });
-    },
+    // handleExport() {
+    //   let name = this.$t('commons.report_statistics.test_case_analysis');
+    //   this.$nextTick(function () {
+    //     setTimeout(() => {
+    //       html2canvas(document.getElementById('reportAnalysis'), {
+    //         scale: 2,
+    //       }).then(function (canvas) {
+    //         exportPdf(name, [canvas]);
+    //       });
+    //     }, 1000);
+    //   });
+    // },
     stop() {
       this.debugLoading = false;
       this.$emit('stop');
