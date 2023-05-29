@@ -439,6 +439,12 @@ export default {
       }
       let pId = parent ? (parent.newId ? parent.newId : parent.id) : null;
 
+      if (!parent && this.selectNode && this.selectNode.data
+        && this.selectNode.data.id === data.id) {
+        // 当前头节点没有 parent, 参数中没有 parentId，校验重名会不准确
+        pId = this.selectNode.data.parentId;
+      }
+
       if (parent && !isModuleNodeData(parent)) {
         this.throwError(this.$t('test_track.case.minder_not_module_tip', [data.text]));
       }
