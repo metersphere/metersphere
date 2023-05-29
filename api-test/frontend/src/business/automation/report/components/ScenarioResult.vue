@@ -23,8 +23,8 @@
           </el-col>
           <el-col :span="2">
             <div style="float: right">
-              <ms-api-report-status :status="node.totalStatus"
-                                    v-if="node.type !=='ConstantTimer'|| node.type !=='Assertion'"/>
+              <ms-api-report-status :status="node.totalStatus" v-if="node.type !=='ConstantTimer' && node.type !=='Assertion'
+                                     && node.children && node.children.length > 0"/>
             </div>
           </el-col>
         </el-row>
