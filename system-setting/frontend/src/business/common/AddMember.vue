@@ -177,8 +177,7 @@ export default {
     },
     createFilter(queryString) {
       return item => {
-        return (item.id.toLowerCase().indexOf(queryString.toLowerCase()) !== -1
-          || (item.name && item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1));
+        return (item.name && item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
       };
     },
     resetUserOption(val) {
