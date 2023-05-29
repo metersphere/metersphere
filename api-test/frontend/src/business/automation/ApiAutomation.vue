@@ -312,7 +312,7 @@ export default {
     addTab(tab) {
       this.trashEnable = tab.name === 'trash';
       if (tab.name === 'default') {
-        this.$refs.apiScenarioList.condition = {};
+        this.$refs.apiScenarioList.condition.combine = {};
         this.trashEnable = false;
         this.$refs.nodeTree.list(this.projectId);
       } else if (tab.name === 'trash') {
