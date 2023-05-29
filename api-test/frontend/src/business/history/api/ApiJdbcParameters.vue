@@ -42,9 +42,9 @@
 
 <script>
 import MsApiKeyValueDetail from './common/ApiKeyValueDetail';
+import {formatters, diff} from 'jsondiffpatch';
 
-const jsondiffpatch = require('jsondiffpatch');
-const formattersHtml = jsondiffpatch.formatters.html;
+const formattersHtml = formatters.html;
 
 export default {
   name: 'MsApiJdbcParameters',
@@ -96,7 +96,7 @@ export default {
   computed: {},
   methods: {
     getDiff(v1, v2) {
-      let delta = jsondiffpatch.diff(v1, v2);
+      let delta = diff(v1, v2);
       return formattersHtml.format(delta, v1);
     },
   },

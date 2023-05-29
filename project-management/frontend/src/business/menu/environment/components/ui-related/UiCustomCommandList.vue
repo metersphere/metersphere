@@ -212,7 +212,7 @@ import {TYPE_TO_C} from "metersphere-frontend/src/model/Setting";
 import MsTableSearchBar from "metersphere-frontend/src/components/MsTableSearchBar";
 import MsTableAdvSearchBar from "metersphere-frontend/src/components/search/MsTableAdvSearchBar";
 import ListItemDeleteConfirm from "metersphere-frontend/src/components/ListItemDeleteConfirm";
-import _ from "lodash";
+import {set} from "lodash-es";
 import MsSearch from "metersphere-frontend/src/components/search/MsSearch";
 import PlanStatusTableItem from "@/business/menu/environment/components/ui-related/PlanStatusTableItem";
 import PriorityTableItem from "@/business/menu/common/PriorityTableItem";
@@ -776,7 +776,7 @@ export default {
       this.runRequest = run;
       this.$refs.runMode.open();
       this.runRows = new Set();
-      this.runRows.add(_.set(this.orderBySelectRows("row")));
+      this.runRows.add(set(this.orderBySelectRows("row")));
     },
     orderBySelectRows(type) {
       let selectIds = this.$refs.scenarioTable.selectIds;

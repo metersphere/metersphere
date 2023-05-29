@@ -212,12 +212,12 @@ import BatchAddParameter from '../../../definition/components/basis/BatchAddPara
 import { KeyValue } from '../../../definition/model/ApiTestModel';
 import { REQUEST_HEADERS } from 'metersphere-frontend/src/utils/constants';
 
+import {diff} from 'jsondiffpatch';
 import MsTable from 'metersphere-frontend/src/components/table/MsTable';
 import MsTableColumn from 'metersphere-frontend/src/components/table/MsTableColumn';
 import { getCustomTableHeader, getCustomTableWidth } from 'metersphere-frontend/src/utils/tableUtils';
 import VariableImport from '@/business/automation/scenario/variable/VariableImport';
 
-const jsondiffpatch = require('jsondiffpatch');
 
 export default {
   name: 'MsVariableList',
@@ -494,8 +494,8 @@ export default {
       this.selectType = 'CONSTANT';
       this.editData = {};
       if (
-        jsondiffpatch.diff(JSON.parse(JSON.stringify(this.variables)), this.variablesOld) ||
-        jsondiffpatch.diff(JSON.parse(JSON.stringify(this.headers)), this.headersOld)
+        diff(JSON.parse(JSON.stringify(this.variables)), this.variablesOld) ||
+        diff(JSON.parse(JSON.stringify(this.headers)), this.headersOld)
       ) {
         this.$emit('setVariables', saveVariables, this.headers);
       }

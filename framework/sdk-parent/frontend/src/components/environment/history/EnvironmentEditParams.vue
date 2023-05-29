@@ -102,8 +102,8 @@
 </template>
 
 <script>
-const jsondiffpatch = require('jsondiffpatch');
-const formattersHtml = jsondiffpatch.formatters.html;
+  import {formatters,diff} from 'jsondiffpatch';
+  const formattersHtml = formatters.html;
 export default {
   name: "EnvironmentEditParams",
   components: {},
@@ -155,10 +155,10 @@ export default {
     },
     getDiff(v1, v2) {
       if (typeof v1 === 'string' && typeof v2 === 'string' && v1.indexOf("{") !== -1 && v2.indexOf("{") !== -1) {
-        let delta = jsondiffpatch.diff(JSON.parse(v1), JSON.parse(v2));
+        let delta = diff(JSON.parse(v1), JSON.parse(v2));
         return formattersHtml.format(delta, delta);
       } else {
-        let delta = jsondiffpatch.diff(v1, v2);
+        let delta = diff(v1, v2);
         return formattersHtml.format(delta, v1);
       }
     },

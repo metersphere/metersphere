@@ -87,7 +87,7 @@
 
 <script>
 import MsChart from "metersphere-frontend/src/components/chart/MsChart";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 
 export default {
   name: "TestCaseCountChart",
