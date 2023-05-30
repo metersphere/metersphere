@@ -166,7 +166,7 @@
                 "
                 style="color: #5daf34"
               >
-                {{ request.responseResult.responseTime }}
+                {{ request.responseResult.responseTime }} ms
               </div>
               <div
                 v-else-if="
@@ -175,10 +175,13 @@
                 "
                 style="color: #f6972a"
               >
-                {{ request.responseResult.responseTime }}
+                {{ request.responseResult.responseTime }} ms
               </div>
-              <div style="color: #fe6f71" v-else>
-                {{ request.responseResult.responseTime }}
+              <div style="color: #fe6f71" v-else-if="totalStatus === 'ERROR'">
+                {{ request.responseResult.responseTime }} ms
+              </div>
+              <div v-else>
+                {{ request.responseResult.responseTime }} ms
               </div>
             </div>
             <div v-else>
