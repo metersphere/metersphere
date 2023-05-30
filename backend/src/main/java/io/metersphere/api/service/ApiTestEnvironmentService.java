@@ -756,14 +756,18 @@ public class ApiTestEnvironmentService {
     }
 
     public static boolean isSend(List<String> orgList, List<String> targetList) {
-        if (orgList.size() != targetList.size() && CollectionUtils.isEmpty(orgList)) {
+        if (orgList.size() != targetList.size()) {
+            if (CollectionUtils.isEmpty(targetList)) {
+                return false;
+            }
+            if (CollectionUtils.isEmpty(orgList)) {
+                return true;
+            }
             return true;
         }
-        if (orgList.size() != targetList.size() && CollectionUtils.isEmpty(targetList)) {
-            return false;
-        }
-        List<String> diff = orgList.stream()
-                .filter(s -> !targetList.contains(s))
+
+        List<String> diff = targetList.stream()
+                .filter(s -> !orgList.contains(s))
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(diff)) {
             return true;
