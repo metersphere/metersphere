@@ -258,6 +258,10 @@
                 UNION
                 SELECT project_id
                 FROM load_test_report
+                WHERE id = #{resourceId}
+                UNION
+                SELECT project_id
+                FROM api_test_environment
                 WHERE id = #{resourceId})
         LIMIT 1
     </select>
