@@ -534,6 +534,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 });
             }
             item.getMock().put(PropertyConstant.MOCK, JSONUtil.toJSONString(mock));
+            if (arrayItem != null) {
+                item.getItems().add(arrayItem);
+            }
         } else if (schema instanceof ObjectSchema) {
             item.setType(PropertyConstant.OBJECT);
             item.setProperties(parseSchemaProperties(schema, refSet));
