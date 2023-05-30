@@ -11,7 +11,7 @@
 
     <select id="listWorkspaceQuota" resultMap="BaseResultMap">
         select w.name as workspace_name, w.id as workspace_id, q.id, q.api, q.performance,
-        q.max_threads, q.duration, q.resource_pool, q.workspace_id, q.use_default, q.update_time,
+        q.max_threads, q.duration, q.resource_pool, q.workspace_id, COALESCE(q.use_default,1) use_default, q.update_time,
         q.member, q.project, q.project_id, q.vum_total, temp.vum_used, temp.project_used
         from workspace as w
         left join quota as q on w.id = q.workspace_id
@@ -103,7 +103,7 @@
     </select>
 
     <select id="listProjectQuota" resultMap="BaseResultMap">
-        SELECT p.name AS project_name, p.id AS project_id, p.workspace_id AS workspace_id, q.*
+        SELECT p.name AS project_name, p.id AS project_id, p.workspace_id AS workspace_id, COALESCE(q.use_default,1) use_default, q.*
         FROM project AS p LEFT JOIN quota AS q
         ON p.id = q.project_id
         <where>
