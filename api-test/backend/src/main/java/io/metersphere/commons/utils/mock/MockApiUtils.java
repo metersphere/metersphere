@@ -753,9 +753,20 @@ public class MockApiUtils {
                             return true;
                         }
                     }
+                    // 去除URL中前缀后匹配
+                    return isPathMatchWithoutPrefix(path, url);
                 }
             }
         }
         return false;
+    }
+
+    public static boolean isPathMatchWithoutPrefix(String path, String url) {
+        String pathNoProtocol = path.replaceAll("http[s]?://", "");
+        int firstIndex = pathNoProtocol.indexOf("/");
+        if (firstIndex > 0) {
+            pathNoProtocol = pathNoProtocol.substring(firstIndex);
+        }
+        return StringUtils.equalsAny(pathNoProtocol, url, "/" + url);
     }
 }
