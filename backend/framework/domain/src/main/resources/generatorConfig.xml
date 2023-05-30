@@ -53,39 +53,29 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 模型对象 -->
-        <javaModelGenerator targetPackage="io.metersphere.plan.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="io.metersphere.issue.domain" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- XML映射文件 -->
-        <sqlMapGenerator targetPackage="io.metersphere.plan.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="io.metersphere.issue.mapper" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 接口 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.plan.mapper"
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.issue.mapper"
                              targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="test_plan" />
-        <table tableName="test_plan_api_case" />
-        <table tableName="test_plan_api_scenario" />
-        <table tableName="test_plan_follow" />
-        <table tableName="test_plan_load_case" />
-        <table tableName="test_plan_principal" />
-        <table tableName="test_plan_report" />
-        <table tableName="test_plan_report_content" />
-        <table tableName="test_plan_function_case" />
-        <table tableName="test_plan_ui_scenario" />
-        <table tableName="test_plan_config" />
-        <table tableName="test_plan_execution_queue" />
-        <table tableName="test_plan_execute_record" />
-        <table tableName="test_plan_function_case_result" />
-        <table tableName="test_plan_record_api_case_info" />
-        <table tableName="test_plan_record_api_scenario_info" />
-        <table tableName="test_plan_record_load_case_info" />
-        <table tableName="test_plan_record_ui_scenario_info" />
+        <table tableName="issue" />
+        <table tableName="issue_blob" />
+        <table tableName="issues_functional_case" />
+        <table tableName="issue_attachment" />
+        <table tableName="issue_comment" />
+        <table tableName="issue_follow" />
+        <table tableName="custom_field_issues" />
+
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
