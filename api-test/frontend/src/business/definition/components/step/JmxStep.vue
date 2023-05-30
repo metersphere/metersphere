@@ -13,7 +13,6 @@
         @click="add"
         type="primary"
         v-if="tabType !== 'assertionsRule'"
-        :disabled="request.notAddStep"
         style="background-color: var(--primary_color); border-color: var(--primary_color)">
         {{ $t('api_test.request.assertions.add') }}
       </el-button>
