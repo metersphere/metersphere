@@ -17,15 +17,18 @@ import io.metersphere.quota.dto.QuotaConstants;
 import io.metersphere.quota.dto.QuotaResult;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Quota 中 project_id 和 workspace_id 不同时存在
@@ -62,6 +65,15 @@ public class QuotaManagementService {
         }
         String workspaceGlobalQuotaId = getWorkspaceGlobalQuotaId(workspaceId);
         Quota quota = quotaMapper.selectByPrimaryKey(workspaceGlobalQuotaId);
+        Quota workspaceQuota = getWorkspaceQuota(workspaceId);
+        if (ObjectUtils.isNotEmpty(workspaceQuota) && ObjectUtils.isNotEmpty(quota) && StringUtils.isNotBlank(workspaceQuota.getResourcePool())) {
+            List<String> works = Arrays.asList(workspaceQuota.getResourcePool().split(","));
+            List<String> projects = Arrays.asList(quota.getResourcePool().split(","));
+            List<String> intersection = works.stream()
+                    .filter(projects::contains)
+                    .collect(Collectors.toList());
+            quota.setResourcePool(String.join(",", intersection));
+        }
         if (quota == null) {
             quota = new Quota();
             quota.setId(workspaceGlobalQuotaId);
