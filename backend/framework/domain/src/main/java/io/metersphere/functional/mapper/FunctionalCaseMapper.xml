@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.FunctionalCaseMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCase">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="review_status" jdbcType="VARCHAR" property="reviewStatus" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+    <result column="last_execute_result" jdbcType="VARCHAR" property="lastExecuteResult" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="public_case" jdbcType="BIT" property="publicCase" />
+    <result column="latest" jdbcType="BIT" property="latest" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, num, custom_num, module_id, project_id, `name`, review_status, tags, step_model, 
+    pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, 
+    delete_user, create_time, update_time, delete_time
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from functional_case
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from functional_case
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from functional_case
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseExample">
+    delete from functional_case
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCase">
+    insert into functional_case (id, num, custom_num, 
+      module_id, project_id, `name`, 
+      review_status, tags, step_model, 
+      pos, version_id, ref_id, 
+      last_execute_result, deleted, public_case, 
+      latest, create_user, delete_user, 
+      create_time, update_time, delete_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{customNum,jdbcType=VARCHAR}, 
+      #{moduleId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
+      #{lastExecuteResult,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{publicCase,jdbcType=BIT}, 
+      #{latest,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCase">
+    insert into functional_case
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="customNum != null">
+        custom_num,
+      </if>
+      <if test="moduleId != null">
+        module_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="reviewStatus != null">
+        review_status,
+      </if>
+      <if test="tags != null">
+        tags,
+      </if>
+      <if test="stepModel != null">
+        step_model,
+      </if>
+      <if test="pos != null">
+        pos,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
+      <if test="lastExecuteResult != null">
+        last_execute_result,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="publicCase != null">
+        public_case,
+      </if>
+      <if test="latest != null">
+        latest,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="deleteUser != null">
+        delete_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="customNum != null">
+        #{customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewStatus != null">
+        #{reviewStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="stepModel != null">
+        #{stepModel,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastExecuteResult != null">
+        #{lastExecuteResult,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="publicCase != null">
+        #{publicCase,jdbcType=BIT},
+      </if>
+      <if test="latest != null">
+        #{latest,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteUser != null">
+        #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseExample" resultType="java.lang.Long">
+    select count(*) from functional_case
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update functional_case
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.customNum != null">
+        custom_num = #{record.customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reviewStatus != null">
+        review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stepModel != null">
+        step_model = #{record.stepModel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastExecuteResult != null">
+        last_execute_result = #{record.lastExecuteResult,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
+      <if test="record.publicCase != null">
+        public_case = #{record.publicCase,jdbcType=BIT},
+      </if>
+      <if test="record.latest != null">
+        latest = #{record.latest,jdbcType=BIT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteUser != null">
+        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update functional_case
+    set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      step_model = #{record.stepModel,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=VARCHAR},
+      last_execute_result = #{record.lastExecuteResult,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
+      public_case = #{record.publicCase,jdbcType=BIT},
+      latest = #{record.latest,jdbcType=BIT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.FunctionalCase">
+    update functional_case
+    <set>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="customNum != null">
+        custom_num = #{customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewStatus != null">
+        review_status = #{reviewStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="stepModel != null">
+        step_model = #{stepModel,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="lastExecuteResult != null">
+        last_execute_result = #{lastExecuteResult,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="publicCase != null">
+        public_case = #{publicCase,jdbcType=BIT},
+      </if>
+      <if test="latest != null">
+        latest = #{latest,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteUser != null">
+        delete_user = #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCase">
+    update functional_case
+    set num = #{num,jdbcType=INTEGER},
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      review_status = #{reviewStatus,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
+      step_model = #{stepModel,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      last_execute_result = #{lastExecuteResult,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
+      public_case = #{publicCase,jdbcType=BIT},
+      latest = #{latest,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      delete_user = #{deleteUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      delete_time = #{deleteTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
