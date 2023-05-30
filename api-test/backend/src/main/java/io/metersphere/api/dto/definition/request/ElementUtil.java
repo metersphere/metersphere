@@ -1151,14 +1151,18 @@ public class ElementUtil {
     }
 
     public static boolean isSend(List<String> org, List<String> target) {
-        if (org.size() != target.size() && CollectionUtils.isEmpty(org)) {
+        if (org.size() != target.size()) {
+            if (CollectionUtils.isEmpty(org)) {
+                return true;
+            }
+            if (CollectionUtils.isEmpty(target)) {
+                return false;
+            }
             return true;
+
         }
-        if (org.size() != target.size() && CollectionUtils.isEmpty(target)) {
-            return false;
-        }
-        List<String> diff = org.stream()
-                .filter(s -> !target.contains(s))
+        List<String> diff = target.stream()
+                .filter(s -> !org.contains(s))
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(diff)) {
             return true;

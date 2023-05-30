@@ -1125,13 +1125,16 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
 
     public static boolean isSend(List<String> orgList, List<String> targetList) {
         if (orgList.size() != targetList.size() && CollectionUtils.isEmpty(orgList)) {
+            if (CollectionUtils.isEmpty(orgList)) {
+                return true;
+            }
+            if (CollectionUtils.isEmpty(targetList)) {
+                return false;
+            }
             return true;
         }
-        if (orgList.size() != targetList.size() && CollectionUtils.isEmpty(targetList)) {
-            return false;
-        }
-        List<String> diff = orgList.stream()
-                .filter(s -> !targetList.contains(s))
+        List<String> diff = targetList.stream()
+                .filter(s -> !orgList.contains(s))
                 .collect(Collectors.toList());
         if (CollectionUtils.isNotEmpty(diff)) {
             return true;
