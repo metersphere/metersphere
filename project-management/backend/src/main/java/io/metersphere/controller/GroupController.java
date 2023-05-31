@@ -19,12 +19,12 @@ import io.metersphere.request.GroupRequest;
 import io.metersphere.request.group.EditGroupRequest;
 import io.metersphere.request.group.EditGroupUserRequest;
 import io.metersphere.service.GroupService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -46,6 +46,7 @@ public class GroupController {
     }
 
     @GetMapping("/get/all")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.SYSTEM_USER_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<GroupDTO> getAllGroup() {
         return groupService.getAllGroup();
     }
@@ -149,6 +150,7 @@ public class GroupController {
 
     @PostMapping("/edit/member")
     @MsRequestLog(module = OperLogModule.GROUP_PERMISSION)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.PROJECT_GROUP_READ_EDIT}, logical = Logical.OR)
     public void editGroupUser(@RequestBody EditGroupUserRequest request) {
         groupService.editGroupUser(request);
     }

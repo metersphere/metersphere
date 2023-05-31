@@ -6,9 +6,10 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.service.NoticeService;
+import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 
 @RestController
@@ -24,6 +25,7 @@ public class NoticeController {
     }
 
     @PostMapping("update/message/task")
+    @RequiresPermissions("PROJECT_MESSAGE:READ+EDIT")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#messageDetail.id)", content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
     public void updateMessage(@RequestBody MessageDetail messageDetail) {
         noticeService.saveMessageTask(messageDetail);
@@ -41,6 +43,7 @@ public class NoticeController {
     }
 
     @GetMapping("/delete/message/{identification}")
+    @RequiresPermissions("PROJECT_MESSAGE:READ+DELETE")
     @MsAuditLog(module = OperLogModule.WORKSPACE_MESSAGE_SETTINGS, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getDelLogDetails(#identification)", msClass = NoticeService.class)
     public int deleteMessage(@PathVariable String identification) {
         return noticeService.delMessage(identification);
