@@ -509,7 +509,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         if (this.components.getSchemas() != null) {
             Schema schema = this.components.getSchemas().get(ref);
-            schema.setName(ref);
+            if (ObjectUtils.isNotEmpty(schema)) {
+                schema.setName(ref);
+            }
             return schema;
         }
         return null;

@@ -55,6 +55,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             try {
+                if (StringUtils.isNotBlank(sourceStr)){
+                    sourceStr = replaceStr(sourceStr);
+                }
                 JsonNode jsonNode = objectMapper.readTree(sourceStr);
                 if (!jsonNode.has("swagger") && !jsonNode.has("openapi")) {
                     MSException.throwException("wrong format");
@@ -80,6 +83,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(swagger, request));
         return definitionImport;
+    }
+
+    public static String replaceStr(String sourceStr) {
+        return sourceStr.replaceAll("\"required\": \"(.*?)\"", "\"required\": []");
     }
 
     // 鉴权设置
