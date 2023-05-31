@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import lombok.Data;
@@ -25,15 +26,14 @@ public class TestPlanUiScenario implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_ui_scenario.ui_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String uiScenarioId;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "创建时间")
     private Long createTime;
 
     @Schema(title = "排序，默认值5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_ui_scenario.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{test_plan_ui_scenario.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{test_plan_ui_scenario.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "环境类型")

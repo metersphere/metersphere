@@ -30,7 +30,7 @@ public class TestPlanFunctionCaseResult implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_function_case_result.result.length_range}", groups = {Created.class, Updated.class})
     private String result;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "创建时间")
