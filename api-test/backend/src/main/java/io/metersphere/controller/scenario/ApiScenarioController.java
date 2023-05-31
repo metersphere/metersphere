@@ -191,8 +191,8 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/scenario-env")
-    public ScenarioEnv getScenarioDefinition(@RequestBody ApiScenarioEnvRequest request) {
-        return apiAutomationService.getApiScenarioEnv(request.getDefinition());
+    public ScenarioEnv getScenarioDefinition(@RequestBody byte[] request) {
+        return apiAutomationService.getApiScenarioEnv(request);
     }
 
     @GetMapping("/env-project-ids/{id}")

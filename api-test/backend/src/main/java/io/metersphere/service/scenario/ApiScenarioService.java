@@ -2111,7 +2111,8 @@ public class ApiScenarioService {
         return follows.stream().map(ApiScenarioFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 
-    public ScenarioEnv getApiScenarioEnv(String definition) {
+    public ScenarioEnv getApiScenarioEnv(byte[] request) {
+        String definition = new String(request, StandardCharsets.UTF_8);
         return apiScenarioEnvService.getApiScenarioEnv(definition);
     }
 
@@ -2161,7 +2162,7 @@ public class ApiScenarioService {
         List<String> strings = new LinkedList<>();
         apiScenarios.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
-                ScenarioEnv env = getApiScenarioEnv(item.getScenarioDefinition());
+                ScenarioEnv env = apiScenarioEnvService.getApiScenarioEnv(item.getScenarioDefinition());
                 if (!strings.contains(item.getProjectId())) {
                     strings.add(item.getProjectId());
                 }
