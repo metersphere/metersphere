@@ -8,6 +8,10 @@ export function modifyFileMeta(param) {
   return post('/file/metadata/update', param);
 }
 
+export function getFileBytes(id) {
+  return get('/file/metadata/info/' + id);
+}
+
 export function pullGitFile(data) {
   let formData = new FormData();
   formData.append("request", new Blob([JSON.stringify(data)], {type: "application/json"}));

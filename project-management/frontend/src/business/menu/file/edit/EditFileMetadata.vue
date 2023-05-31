@@ -52,12 +52,14 @@
               <el-col :span="18" style="padding-top: 80px">
                 <el-card
                   :body-style="{ padding: '0px' }"
-                  v-if="isImage(data.type) && !isRepositoryFile()"
+                  v-if="isImage(data) && !isRepositoryFile()"
                 >
-                  <img
-                    :src="'/project/file/metadata/info/' + data.id"
-                    class="ms-edit-image"
-                  />
+                  <div v-loading="fileBase64Str==='' || fileBase64Str === 'loading'">
+                    <img
+                      :src="fileBase64Str"
+                      class="ms-edit-image"
+                    />
+                  </div>
                 </el-card>
                 <el-card :body-style="{ padding: '0px' }" v-else>
                   <div class="ms-edit-image">
@@ -231,7 +233,7 @@
 <script>
 import {operationConfirm} from "metersphere-frontend/src/utils";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {getFileMetaPages, modifyFileMeta, pullGitFile, uploadFileMeta,} from "../../../../api/file";
+import {getFileBytes, getFileMetaPages, modifyFileMeta, pullGitFile, uploadFileMeta,} from "../../../../api/file";
 import FileVersionList from "@/business/menu/file/list/FileVersionList";
 import FileCaseRelevanceList from "@/business/menu/file/list/FileCaseRelevanceList";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
@@ -249,6 +251,7 @@ export default {
     return {
       data: {},
       visible: false,
+      fileBase64Str: '',
       isFirst: false,
       isLast: false,
       isPullBtnLoading: false,
@@ -389,6 +392,7 @@ export default {
       this.showPanel = "baseInfo";
       this.pageSize = size;
       this.currentPage = page;
+      this.fileBase64Str = '';
       this.total = t;
       this.data = data;
       this.results = this.metadataArray;
@@ -436,8 +440,17 @@ export default {
         return type || "";
       }
     },
-    isImage(type) {
-      return type && this.images.indexOf(type.toLowerCase()) !== -1;
+    isImage(data) {
+      let type = data.type;
+      let isImage = type && this.images.indexOf(type.toLowerCase()) !== -1;
+      if (isImage && this.fileBase64Str === '') {
+        this.fileBase64Str = 'loading';
+        getFileBytes(data.id).then(res => {
+          let fileRsp = res.data;
+          this.fileBase64Str = "data:image/png;base64," + fileRsp.bytes;
+        })
+      }
+      return isImage;
     },
     download() {
       this.$emit("download", this.data);

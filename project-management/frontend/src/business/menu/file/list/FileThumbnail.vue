@@ -4,7 +4,9 @@
       <el-row :gutter="20">
         <el-col :span="4" v-for="item in data" :key="item.id">
           <el-card :body-style="{ padding: '0px' }" class="ms-card-item" @click.native="handleView(item)">
-            <img :src="'/project/file/metadata/info/'+item.id" class="ms-image" v-if="isImage(item.type)"/>
+            <div v-loading="fileBase64Str==='' || fileBase64Str === 'loading'" v-if="isImage(item)">
+              <img :src="fileBase64Str" class="ms-edit-image"/>
+            </div>
             <div class="ms-image" v-else>
               <div class="ms-file">
                 <div class="icon-title">{{ getType(item.type) }}</div>
@@ -35,6 +37,7 @@
 <script>
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsEditFileMetadata from "../edit/EditFileMetadata";
+import {getFileBytes} from "@/api/file";
 
 export default {
   name: "MsFileThumbnail",
@@ -44,6 +47,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      fileBase64Str: '',
       images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng", "jpeg"]
     };
   },
@@ -56,6 +60,7 @@ export default {
     nodeTree: []
   },
   created() {
+    this.fileBase64Str = '';
     this.currentPage = this.page;
     this.pageSize = this.size;
     this.total = this.pageTotal;
@@ -86,10 +91,22 @@ export default {
       return type || "";
     },
     change() {
+      this.fileBase64Str = '';
       this.$emit("change", this.pageSize, this.currentPage);
     },
-    isImage(type) {
-      return (type && this.images.indexOf(type.toLowerCase()) !== -1);
+    isImage(item) {
+      let type = item.type;
+      let isImage = (type && this.images.indexOf(type.toLowerCase()) !== -1);
+      if (isImage) {
+        if (isImage && this.fileBase64Str === '') {
+          this.fileBase64Str = 'loading';
+          getFileBytes(item.id).then(res => {
+            let fileRsp = res.data;
+            this.fileBase64Str = "data:image/png;base64," + fileRsp.bytes;
+          })
+        }
+      }
+      return isImage;
     }
   },
 }
