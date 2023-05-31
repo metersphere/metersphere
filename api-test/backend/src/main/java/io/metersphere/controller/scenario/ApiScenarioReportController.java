@@ -11,6 +11,7 @@ import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.PlanReportCaseDTO;
@@ -20,6 +21,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,22 +37,26 @@ public class ApiScenarioReportController {
     private ShareInfoService shareInfoService;
 
     @GetMapping("/get/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult get(@PathVariable String reportId) {
         return apiReportService.get(reportId, false);
     }
 
     @GetMapping("/get/{shareId}/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validateExpired(shareId);
         return apiReportService.get(reportId, false);
     }
 
     @GetMapping("/get/detail/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult getAll(@PathVariable String reportId) {
         return apiReportService.get(reportId, true);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public Pager<List<ApiScenarioReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiReportService.list(request));
@@ -68,6 +74,7 @@ public class ApiScenarioReportController {
     }
 
     @PostMapping("/delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id, false)", targetClass = ApiScenarioReportService.class,
             subject = "接口报告通知")
@@ -76,6 +83,7 @@ public class ApiScenarioReportController {
     }
 
     @PostMapping("/batch/delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION_REPORT, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getByIds(#request.ids)", targetClass = ApiScenarioReportService.class,
             subject = "接口报告通知")
