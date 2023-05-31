@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -24,8 +22,7 @@ public class UserRole implements Serializable {
     private String description;
 
     @Schema(title = "是否是系统用户组", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user_role.system.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{user_role.system.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{user_role.system.not_blank}", groups = {Created.class})
     private Boolean system;
 
     @Schema(title = "所属类型", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -39,7 +36,7 @@ public class UserRole implements Serializable {
     @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "创建人(操作人）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人(操作人）")
     private String createUser;
 
     @Schema(title = "应用范围", requiredMode = Schema.RequiredMode.REQUIRED)

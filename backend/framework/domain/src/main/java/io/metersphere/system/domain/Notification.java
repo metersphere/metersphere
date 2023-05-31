@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -12,7 +10,6 @@ import lombok.Data;
 public class Notification implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{notification.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 19, message = "{notification.id.length_range}", groups = {Created.class, Updated.class})
     private Long id;
 
     @Schema(title = "通知类型", requiredMode = Schema.RequiredMode.REQUIRED)

@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -24,8 +22,7 @@ public class ServiceIntegration implements Serializable {
     private String workspaceId;
 
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 65535, message = "{service_integration.configuration.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{service_integration.configuration.not_blank}", groups = {Created.class})
     private byte[] configuration;
 
     private static final long serialVersionUID = 1L;

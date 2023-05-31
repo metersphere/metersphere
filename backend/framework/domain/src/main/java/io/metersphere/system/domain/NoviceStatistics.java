@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -19,13 +17,11 @@ public class NoviceStatistics implements Serializable {
     private String userId;
 
     @Schema(title = "新手引导完成的步骤", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{novice_statistics.guide_step.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{novice_statistics.guide_step.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{novice_statistics.guide_step.not_blank}", groups = {Created.class})
     private Boolean guideStep;
 
     @Schema(title = "新手引导的次数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{novice_statistics.guide_num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{novice_statistics.guide_num.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{novice_statistics.guide_num.not_blank}", groups = {Created.class})
     private Integer guideNum;
 
     @Schema(title = "")

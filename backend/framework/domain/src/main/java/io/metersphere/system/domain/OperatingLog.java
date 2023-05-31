@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -45,8 +43,7 @@ public class OperatingLog implements Serializable {
     private String operPath;
 
     @Schema(title = "操作时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{operating_log.oper_time.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{operating_log.oper_time.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{operating_log.oper_time.not_blank}", groups = {Created.class})
     private Long operTime;
 
     @Schema(title = "操作内容")

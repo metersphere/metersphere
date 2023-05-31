@@ -1,10 +1,8 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -36,8 +34,7 @@ public class AuthSource implements Serializable {
     private String type;
 
     @Schema(title = "认证源配置", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{auth_source.configuration.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 65535, message = "{auth_source.configuration.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{auth_source.configuration.not_blank}", groups = {Created.class})
     private byte[] configuration;
 
     private static final long serialVersionUID = 1L;
