@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -24,8 +22,7 @@ public class UiScenarioReportStructure implements Serializable {
     private Long createTime;
 
     @Schema(title = "资源步骤结构树", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_structure.resource_tree.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 2147483647, message = "{ui_scenario_report_structure.resource_tree.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_report_structure.resource_tree.not_blank}", groups = {Created.class})
     private byte[] resourceTree;
 
     private static final long serialVersionUID = 1L;

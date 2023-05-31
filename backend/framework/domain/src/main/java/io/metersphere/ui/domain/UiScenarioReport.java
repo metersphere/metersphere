@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -56,7 +54,7 @@ public class UiScenarioReport implements Serializable {
     @Size(min = 1, max = 50, message = "{ui_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String scenarioId;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -65,13 +63,11 @@ public class UiScenarioReport implements Serializable {
     private String poolId;
 
     @Schema(title = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report.end_time.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{ui_scenario_report.end_time.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_report.end_time.not_blank}", groups = {Created.class})
     private Long endTime;
 
     @Schema(title = "报告类型（集合，独立）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report.integrated.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{ui_scenario_report.integrated.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_report.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
 
     @Schema(title = "关联的测试计划报告ID（可以为空)")

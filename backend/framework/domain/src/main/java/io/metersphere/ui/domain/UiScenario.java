@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -49,8 +47,7 @@ public class UiScenario implements Serializable {
     private String principal;
 
     @Schema(title = "步骤总数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario.step_total.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{ui_scenario.step_total.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario.step_total.not_blank}", groups = {Created.class})
     private Integer stepTotal;
 
     @Schema(title = "创建时间")
@@ -66,19 +63,17 @@ public class UiScenario implements Serializable {
     private String reportId;
 
     @Schema(title = "num", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario.num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{ui_scenario.num.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario.num.not_blank}", groups = {Created.class})
     private Integer num;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario.deleted.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{ui_scenario.deleted.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     @Schema(title = "自定义num")
     private String customNum;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "删除时间")
@@ -88,8 +83,7 @@ public class UiScenario implements Serializable {
     private String deleteUser;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{ui_scenario.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -103,8 +97,7 @@ public class UiScenario implements Serializable {
     private String refId;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{ui_scenario.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "描述")

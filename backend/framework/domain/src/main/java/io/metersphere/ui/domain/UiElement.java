@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -16,8 +14,7 @@ public class UiElement implements Serializable {
     private String id;
 
     @Schema(title = "元素num", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_element.num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{ui_element.num.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_element.num.not_blank}", groups = {Created.class})
     private Integer num;
 
     @Schema(title = "元素所属模块id", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -45,10 +42,10 @@ public class UiElement implements Serializable {
     @Size(min = 1, max = 300, message = "{ui_element.location.length_range}", groups = {Created.class, Updated.class})
     private String location;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
-    @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "更新人")
     private String updateUser;
 
     @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -62,13 +59,11 @@ public class UiElement implements Serializable {
     private String refId;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_element.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{ui_element.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_element.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_element.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{ui_element.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_element.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "元素描述")

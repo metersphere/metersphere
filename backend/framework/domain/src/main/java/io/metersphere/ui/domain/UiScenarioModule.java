@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -31,8 +29,7 @@ public class UiScenarioModule implements Serializable {
     private String parentId;
 
     @Schema(title = "模块等级", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_module.level.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{ui_scenario_module.level.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
     @Schema(title = "创建时间")
@@ -42,11 +39,10 @@ public class UiScenarioModule implements Serializable {
     private Long updateTime;
 
     @Schema(title = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_module.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 22, message = "{ui_scenario_module.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_module.pos.not_blank}", groups = {Created.class})
     private Double pos;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     private static final long serialVersionUID = 1L;

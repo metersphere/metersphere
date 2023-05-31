@@ -1,10 +1,8 @@
 package io.metersphere.ui.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -34,8 +32,7 @@ public class UiScenarioReportDetail implements Serializable {
     private String status;
 
     @Schema(title = "请求时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.request_time.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{ui_scenario_report_detail.request_time.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_report_detail.request_time.not_blank}", groups = {Created.class})
     private Long requestTime;
 
     @Schema(title = "总断言数")
@@ -45,8 +42,7 @@ public class UiScenarioReportDetail implements Serializable {
     private Long passAssertions;
 
     @Schema(title = "执行结果", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{ui_scenario_report_detail.content.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 2147483647, message = "{ui_scenario_report_detail.content.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{ui_scenario_report_detail.content.not_blank}", groups = {Created.class})
     private byte[] content;
 
     @Schema(title = "记录截图断言等结果")
