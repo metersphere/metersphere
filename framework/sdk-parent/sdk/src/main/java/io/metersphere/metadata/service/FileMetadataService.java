@@ -1,6 +1,6 @@
 package io.metersphere.metadata.service;
 
-import com.alibaba.nacos.common.utils.ByteUtils;
+
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileAssociationMapper;
 import io.metersphere.base.mapper.FileContentMapper;
@@ -265,7 +265,7 @@ public class FileMetadataService {
         if (StringUtils.isEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
             bytes = getContent(fileMetadata.getId());
         }
-        if (ByteUtils.isEmpty(bytes)) {
+        if (bytes == null || bytes.length == 0) {
             FileRequest request = new FileRequest(fileMetadata.getProjectId(), fileMetadata.getName(), fileMetadata.getType());
             request.setResourceType(fileMetadata.getResourceType());
             request.setPath(fileMetadata.getPath());
