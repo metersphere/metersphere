@@ -3,14 +3,14 @@ package io.metersphere.load.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadTestFollowExample {
+public class LoadTestFollowerExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public LoadTestFollowExample() {
+    public LoadTestFollowerExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -174,73 +174,73 @@ public class LoadTestFollowExample {
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdIsNull() {
-            addCriterion("follow_id is null");
+        public Criteria andUserIdIsNull() {
+            addCriterion("user_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdIsNotNull() {
-            addCriterion("follow_id is not null");
+        public Criteria andUserIdIsNotNull() {
+            addCriterion("user_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdEqualTo(String value) {
-            addCriterion("follow_id =", value, "followId");
+        public Criteria andUserIdEqualTo(String value) {
+            addCriterion("user_id =", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdNotEqualTo(String value) {
-            addCriterion("follow_id <>", value, "followId");
+        public Criteria andUserIdNotEqualTo(String value) {
+            addCriterion("user_id <>", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdGreaterThan(String value) {
-            addCriterion("follow_id >", value, "followId");
+        public Criteria andUserIdGreaterThan(String value) {
+            addCriterion("user_id >", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdGreaterThanOrEqualTo(String value) {
-            addCriterion("follow_id >=", value, "followId");
+        public Criteria andUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("user_id >=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdLessThan(String value) {
-            addCriterion("follow_id <", value, "followId");
+        public Criteria andUserIdLessThan(String value) {
+            addCriterion("user_id <", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdLessThanOrEqualTo(String value) {
-            addCriterion("follow_id <=", value, "followId");
+        public Criteria andUserIdLessThanOrEqualTo(String value) {
+            addCriterion("user_id <=", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdLike(String value) {
-            addCriterion("follow_id like", value, "followId");
+        public Criteria andUserIdLike(String value) {
+            addCriterion("user_id like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdNotLike(String value) {
-            addCriterion("follow_id not like", value, "followId");
+        public Criteria andUserIdNotLike(String value) {
+            addCriterion("user_id not like", value, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdIn(List<String> values) {
-            addCriterion("follow_id in", values, "followId");
+        public Criteria andUserIdIn(List<String> values) {
+            addCriterion("user_id in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdNotIn(List<String> values) {
-            addCriterion("follow_id not in", values, "followId");
+        public Criteria andUserIdNotIn(List<String> values) {
+            addCriterion("user_id not in", values, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdBetween(String value1, String value2) {
-            addCriterion("follow_id between", value1, value2, "followId");
+        public Criteria andUserIdBetween(String value1, String value2) {
+            addCriterion("user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
-        public Criteria andFollowIdNotBetween(String value1, String value2) {
-            addCriterion("follow_id not between", value1, value2, "followId");
+        public Criteria andUserIdNotBetween(String value1, String value2) {
+            addCriterion("user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
     }
