@@ -1,10 +1,8 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -32,8 +30,7 @@ public class ProjectVersion implements Serializable {
     private String status;
 
     @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_version.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{project_version.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{project_version.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "发布时间")
@@ -48,7 +45,7 @@ public class ProjectVersion implements Serializable {
     @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     private static final long serialVersionUID = 1L;

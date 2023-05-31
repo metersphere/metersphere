@@ -1,10 +1,8 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -52,8 +50,7 @@ public class CustomField implements Serializable {
     private String projectId;
 
     @Schema(title = "是否关联第三方", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{custom_field.third_part.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{custom_field.third_part.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{custom_field.third_part.not_blank}", groups = {Created.class})
     private Boolean thirdPart;
 
     @Schema(title = "自定义字段选项")

@@ -1,10 +1,8 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -24,8 +22,7 @@ public class FileMetadata implements Serializable {
     private String type;
 
     @Schema(title = "文件大小", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.size.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{file_metadata.size.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{file_metadata.size.not_blank}", groups = {Created.class})
     private Long size;
 
     @Schema(title = "创建时间")
@@ -44,10 +41,10 @@ public class FileMetadata implements Serializable {
     @Size(min = 1, max = 50, message = "{file_metadata.storage.length_range}", groups = {Created.class, Updated.class})
     private String storage;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
-    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "修改人")
     private String updateUser;
 
     @Schema(title = "标签")
@@ -69,8 +66,7 @@ public class FileMetadata implements Serializable {
     private String resourceType;
 
     @Schema(title = "是否是最新版", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{file_metadata.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{file_metadata.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{file_metadata.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "同版本数据关联的ID", requiredMode = Schema.RequiredMode.REQUIRED)

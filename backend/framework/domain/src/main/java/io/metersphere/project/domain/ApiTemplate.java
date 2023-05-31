@@ -1,10 +1,8 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -24,14 +22,13 @@ public class ApiTemplate implements Serializable {
     private String description;
 
     @Schema(title = "是否是系统模板", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_template.system.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_template.system.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_template.system.not_blank}", groups = {Created.class})
     private Boolean system;
 
     @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
