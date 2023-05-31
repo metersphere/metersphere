@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.load.mapper.LoadTestFollowMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.load.domain.LoadTestFollow">
+<mapper namespace="io.metersphere.load.mapper.LoadTestFollowerMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.load.domain.LoadTestFollower">
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
-    <result column="follow_id" jdbcType="VARCHAR" property="followId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -64,15 +64,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_id, follow_id
+    test_id, user_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.load.domain.LoadTestFollowExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.load.domain.LoadTestFollowerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from load_test_follow
+    from load_test_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -80,49 +80,49 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="io.metersphere.load.domain.LoadTestFollowExample">
-    delete from load_test_follow
+  <delete id="deleteByExample" parameterType="io.metersphere.load.domain.LoadTestFollowerExample">
+    delete from load_test_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.load.domain.LoadTestFollow">
-    insert into load_test_follow (test_id, follow_id)
-    values (#{testId,jdbcType=VARCHAR}, #{followId,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="io.metersphere.load.domain.LoadTestFollower">
+    insert into load_test_follower (test_id, user_id)
+    values (#{testId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.load.domain.LoadTestFollow">
-    insert into load_test_follow
+  <insert id="insertSelective" parameterType="io.metersphere.load.domain.LoadTestFollower">
+    insert into load_test_follower
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="testId != null">
         test_id,
       </if>
-      <if test="followId != null">
-        follow_id,
+      <if test="userId != null">
+        user_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="testId != null">
         #{testId,jdbcType=VARCHAR},
       </if>
-      <if test="followId != null">
-        #{followId,jdbcType=VARCHAR},
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.load.domain.LoadTestFollowExample" resultType="java.lang.Long">
-    select count(*) from load_test_follow
+  <select id="countByExample" parameterType="io.metersphere.load.domain.LoadTestFollowerExample" resultType="java.lang.Long">
+    select count(*) from load_test_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update load_test_follow
+    update load_test_follower
     <set>
       <if test="record.testId != null">
         test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
-      <if test="record.followId != null">
-        follow_id = #{record.followId,jdbcType=VARCHAR},
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -130,9 +130,9 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update load_test_follow
+    update load_test_follower
     set test_id = #{record.testId,jdbcType=VARCHAR},
-      follow_id = #{record.followId,jdbcType=VARCHAR}
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
