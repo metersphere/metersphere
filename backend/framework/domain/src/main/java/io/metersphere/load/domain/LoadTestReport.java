@@ -1,10 +1,8 @@
 package io.metersphere.load.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -39,7 +37,7 @@ public class LoadTestReport implements Serializable {
     @Size(min = 1, max = 64, message = "{load_test_report.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(title = "创建人(执行人)ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人(执行人)ID")
     private String createUser;
 
     @Schema(title = "触发方式", requiredMode = Schema.RequiredMode.REQUIRED)

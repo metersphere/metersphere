@@ -1,10 +1,8 @@
 package io.metersphere.load.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -45,16 +43,14 @@ public class LoadTest implements Serializable {
     private String testResourcePoolId;
 
     @Schema(title = "测试数字ID，例如: 100001", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test.num.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{load_test.num.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{load_test.num.not_blank}", groups = {Created.class})
     private Integer num;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{load_test.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{load_test.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -68,8 +64,7 @@ public class LoadTest implements Serializable {
     private String refId;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{load_test.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{load_test.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     private static final long serialVersionUID = 1L;

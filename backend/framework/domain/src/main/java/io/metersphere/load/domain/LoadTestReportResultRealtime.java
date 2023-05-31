@@ -1,10 +1,8 @@
 package io.metersphere.load.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -21,13 +19,11 @@ public class LoadTestReportResultRealtime implements Serializable {
     private String reportKey;
 
     @Schema(title = "资源节点索引号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result_realtime.resource_index.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{load_test_report_result_realtime.resource_index.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{load_test_report_result_realtime.resource_index.not_blank}", groups = {Created.class})
     private Integer resourceIndex;
 
     @Schema(title = "报告项目内容排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{load_test_report_result_realtime.sort.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{load_test_report_result_realtime.sort.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{load_test_report_result_realtime.sort.not_blank}", groups = {Created.class})
     private Integer sort;
 
     @Schema(title = "报告项目内容")
