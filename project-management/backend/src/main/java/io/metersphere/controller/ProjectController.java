@@ -16,7 +16,6 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
-import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.request.AddProjectRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.member.AddMemberRequest;
@@ -39,8 +38,6 @@ import java.util.List;
 public class ProjectController {
     @Resource
     private ProjectService projectService;
-    @Resource
-    private BaseProjectService baseProjectService;
     @Resource
     private BaseUserService baseUserService;
     @Resource
@@ -92,6 +89,7 @@ public class ProjectController {
     }
 
     @PostMapping("/member/update")
+    @RequiresPermissions("PROJECT_USER:READ+EDIT")
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MEMBER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = BaseProjectService.class)
     public void updateMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         projectService.updateMember(memberDTO);
@@ -125,7 +123,7 @@ public class ProjectController {
     }
 
     @GetMapping("/member/delete/{projectId}/{userId}")
-    @MsRequestLog(module = OperLogModule.PROJECT_PROJECT_MEMBER)
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ_DELETE)
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
@@ -140,6 +138,7 @@ public class ProjectController {
     }
 
     @PostMapping("/member/add")
+    @RequiresPermissions("PROJECT_USER:READ+CREATE")
     public void addProjectMember(@RequestBody AddMemberRequest request) {
         projectService.addProjectMember(request);
     }

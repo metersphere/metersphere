@@ -17,12 +17,13 @@ import io.metersphere.environment.utils.TcpTreeTableDataParser;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.EnvironmentRequest;
+import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class TestEnvironmentController {
     private BaseEnvGroupProjectService baseEnvGroupProjectService;
 
     @GetMapping("/list/{projectId}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
         return baseEnvironmentService.list(projectId);
     }
@@ -51,23 +53,27 @@ public class TestEnvironmentController {
      * @return
      */
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseEnvironmentService.listByConditions(environmentRequest));
     }
 
     @GetMapping("/get/{id}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public ApiTestEnvironmentWithBLOBs get(@PathVariable String id) {
         return baseEnvironmentService.get(id);
     }
 
 
     @PostMapping(value = "/get/entry")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<KeyStoreEntry> getEntry(@RequestPart("request") String password, @RequestPart(value = "file") MultipartFile sslFiles) {
         return commandService.get(password, sslFiles);
     }
 
     @PostMapping("/add")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ+CREATE")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, title = "#apiTestEnvironmentWithBLOBs.name", project = "#apiTestEnvironmentWithBLOBs.projectId", msClass = BaseEnvironmentService.class)
     public String create(@RequestPart("request") TestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironmentWithBLOBs);
@@ -75,12 +81,14 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/import")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ+IMPORT")
     public String create(@RequestBody List<TestEnvironmentDTO> environments) {
         environments.forEach(this::checkParams);
         return baseEnvironmentService.importEnvironment(environments);
     }
 
     @PostMapping(value = "/update")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ+EDIT")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = BaseEnvironmentService.class)
     public void update(@RequestPart("request") TestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironment);
@@ -115,6 +123,7 @@ public class TestEnvironmentController {
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ+DELETE")
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = BaseEnvironmentService.class)
     public void delete(@PathVariable String id) {
         baseEnvironmentService.delete(id);
@@ -122,11 +131,13 @@ public class TestEnvironmentController {
 
 
     @GetMapping("/group/map/{groupId}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public Map<String, String> getEnvMap(@PathVariable String groupId) {
         return baseEnvGroupProjectService.getEnvMap(groupId);
     }
 
     @GetMapping("/module/list/{projectId}/{protocol}")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol) {
         return baseEnvironmentService.getNodeTreeByProjectId(projectId, protocol);
     }
@@ -137,6 +148,7 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/database/validate")
+    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public void validate(@RequestBody DatabaseConfig databaseConfig) {
         try {
             DriverManager.getConnection(databaseConfig.getDbUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());
