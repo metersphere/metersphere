@@ -132,14 +132,7 @@
                             <skip>${skipAntRunForJenkins}</skip>
                             <target>
                                 <copy todir="src/main/resources/static">
-                                    <fileset dir="../../frontend/dist">
-                                        <exclude name="*.html"/>
-                                    </fileset>
-                                </copy>
-                                <copy todir="src/main/resources/public">
-                                    <fileset dir="../../frontend/dist">
-                                        <include name="*.html"/>
-                                    </fileset>
+                                    <fileset dir="../../frontend/dist"/>
                                 </copy>
                             </target>
                         </configuration>

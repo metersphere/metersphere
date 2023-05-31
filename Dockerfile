@@ -9,9 +9,6 @@ COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY ${DEPENDENCY}/META-INF /app/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /app
 
-# html 文件
-COPY backend/src/main/resources/public /app/public
-
 # 静态文件
 COPY backend/src/main/resources/static /app/static
 
