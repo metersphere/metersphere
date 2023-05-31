@@ -203,23 +203,16 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission,
-} from "metersphere-frontend/src/utils/permission";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
 import ScheduleConfig from "./components/ScheduleConfig";
 import MsChangeHistory from "metersphere-frontend/src/components/history/ChangeHistory";
 import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOperatorButton";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import MxVersionHistory from "metersphere-frontend/src/components/version/MxVersionHistory";
 import DiffVersion from "./DiffVersion";
-import { PROJECT_ID } from "metersphere-frontend/src/utils/constants";
-import { getProjectUsers } from "metersphere-frontend/src/api/user";
+import {PROJECT_ID} from "metersphere-frontend/src/utils/constants";
+import {getProjectUsers} from "metersphere-frontend/src/api/user";
 import {
   deleteCurrentVersionTest,
   getFollows,
@@ -232,10 +225,7 @@ import {
   saveTest,
   syncScenario,
 } from "@/api/performance";
-import {
-  getDefaultVersion,
-  setLatestVersionById,
-} from "metersphere-frontend/src/api/version";
+import {getDefaultVersion, setLatestVersionById,} from "metersphere-frontend/src/api/version";
 
 export default {
   name: "EditPerformanceTest",
@@ -443,6 +433,7 @@ export default {
                 this.projectEnvMap = null;
               }
             }
+            this.$refs.pressureConfig.getJmxContent();
             this.getDefaultFollow(testId);
           }
         });
@@ -682,7 +673,7 @@ export default {
       });
       let csvFiles = [];
       for (const f of csvSet) {
-        csvFiles.push({ name: f, csvSplit: false, csvHasHeader: true });
+        csvFiles.push({name: f, csvSplit: false, csvHasHeader: true});
       }
 
       this.$set(handler, "threadGroups", threadGroups);
