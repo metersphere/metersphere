@@ -50,7 +50,7 @@ public class ApiScenarioController {
     private ExtApiTaskService apiTaskService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         // 查询场景环境
@@ -59,18 +59,19 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/scenario/schedule")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public Map<String, ScheduleDTO> scenarioScheduleInfo(@RequestBody List<String> scenarioIds) {
         return apiAutomationService.selectScheduleInfo(scenarioIds);
     }
 
     @PostMapping("/list")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.list(request);
     }
 
     @PostMapping("/select/by/id")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenario> selectByIds(@RequestBody ApiScenarioRequest request) {
         if (CollectionUtils.isNotEmpty(request.getIds())) {
             return apiAutomationService.selectByIds(request.getIds());
@@ -80,37 +81,38 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/get/{id}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public ApiScenarioDTO getById(@PathVariable String id) {
         return apiAutomationService.getDto(id);
     }
 
     @PostMapping("/list/all")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listAll(request);
     }
 
     @PostMapping("/list/all/trash")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public int listAllTrash(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listAllTrash(request);
     }
 
     @PostMapping("/list-blobs")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenarioWithBLOBs> listWithIds(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listWithIds(request);
     }
 
 
     @PostMapping("/id/all")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<String> idAll(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.idAll(request);
     }
 
     @GetMapping("/list/{projectId}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenarioDTO> list(@PathVariable String projectId) {
         ApiScenarioRequest request = new ApiScenarioRequest();
         request.setProjectId(projectId);
@@ -147,6 +149,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/del-ids")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, subject = "接口自动化通知")
     public void deleteBatch(@RequestBody List<String> ids) {
@@ -160,6 +163,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/move-gc-ids")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
     public void removeToGc(@RequestBody List<String> ids) {
@@ -167,6 +171,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/move-gc-batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
     public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
@@ -186,6 +191,7 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/scenario-details/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getNewApiScenario(id);
     }
@@ -206,6 +212,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/get-scenario-list")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<ApiScenarioDTO> getApiScenarios(@RequestBody List<String> ids) {
         return apiAutomationService.getScenarioDetail(ids);
     }
@@ -216,6 +223,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/run/debug")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         try {
@@ -230,6 +238,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/run")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_RUN)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     public List<MsExecResponseDTO> run(@RequestBody RunScenarioRequest request) {
         if (!StringUtils.equals(request.getExecuteType(), ExecuteType.Saved.name())) {
@@ -256,6 +265,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/run/batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_RUN)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     public List<MsExecResponseDTO> runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
@@ -292,24 +302,28 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/schedule/update")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_SCHEDULE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION_SCHEDULE, type = OperLogConstants.UPDATE, title = "#request.name", beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioService.class)
     public void updateSchedule(@RequestBody Schedule request) {
         apiAutomationService.updateSchedule(request);
     }
 
     @PostMapping(value = "/schedule/create")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_SCHEDULE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION_SCHEDULE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiScenarioService.class)
     public void createSchedule(@RequestBody ScheduleRequest request) {
         apiAutomationService.createSchedule(request);
     }
 
     @PostMapping(value = "/gen-jmx")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE)
     public ScenarioToPerformanceInfoDTO genPerformanceTestJmx(@RequestBody GenScenarioRequest runRequest) throws Exception {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
 
     @PostMapping("/gen-jmx-batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE_BATCH)
     public ScenarioToPerformanceInfoDTO batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.batchGenPerformanceTestJmx(request);
     }
@@ -445,7 +459,7 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/get-base-case/{projectId}")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
         return apiAutomationService.getBaseCaseByProjectId(projectId);
     }
