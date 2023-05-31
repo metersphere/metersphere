@@ -1,10 +1,8 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -31,15 +29,14 @@ public class ApiReport implements Serializable {
     @Schema(title = "修改时间")
     private Long updateTime;
 
-    @Schema(title = "创建人fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人fk")
     private String createUser;
 
-    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "修改人")
     private String updateUser;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.deleted.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_report.deleted.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_report.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     @Schema(title = "结果状态", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -82,8 +79,7 @@ public class ApiReport implements Serializable {
     private String integratedReportId;
 
     @Schema(title = "是否为集成报告，默认否", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.integrated.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_report.integrated.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_report.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
 
     private static final long serialVersionUID = 1L;

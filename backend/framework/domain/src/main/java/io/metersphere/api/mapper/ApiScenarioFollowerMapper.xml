@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiDefinitionFollowMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionFollow">
-    <id column="api_definition_id" jdbcType="VARCHAR" property="apiDefinitionId" />
-    <id column="follow_id" jdbcType="VARCHAR" property="followId" />
+<mapper namespace="io.metersphere.api.mapper.ApiScenarioFollowerMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioFollower">
+    <id column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
+    <id column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -64,15 +64,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    api_definition_id, follow_id
+    api_scenario_id, user_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionFollowExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioFollowerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from api_definition_follow
+    from api_scenario_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -81,53 +81,53 @@
     </if>
   </select>
   <delete id="deleteByPrimaryKey" parameterType="map">
-    delete from api_definition_follow
-    where api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR}
-      and follow_id = #{followId,jdbcType=VARCHAR}
+    delete from api_scenario_follower
+    where api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR}
+      and user_id = #{userId,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDefinitionFollowExample">
-    delete from api_definition_follow
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioFollowerExample">
+    delete from api_scenario_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionFollow">
-    insert into api_definition_follow (api_definition_id, follow_id)
-    values (#{apiDefinitionId,jdbcType=VARCHAR}, #{followId,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioFollower">
+    insert into api_scenario_follower (api_scenario_id, user_id)
+    values (#{apiScenarioId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionFollow">
-    insert into api_definition_follow
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioFollower">
+    insert into api_scenario_follower
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="apiDefinitionId != null">
-        api_definition_id,
+      <if test="apiScenarioId != null">
+        api_scenario_id,
       </if>
-      <if test="followId != null">
-        follow_id,
+      <if test="userId != null">
+        user_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="apiDefinitionId != null">
-        #{apiDefinitionId,jdbcType=VARCHAR},
+      <if test="apiScenarioId != null">
+        #{apiScenarioId,jdbcType=VARCHAR},
       </if>
-      <if test="followId != null">
-        #{followId,jdbcType=VARCHAR},
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionFollowExample" resultType="java.lang.Long">
-    select count(*) from api_definition_follow
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioFollowerExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_definition_follow
+    update api_scenario_follower
     <set>
-      <if test="record.apiDefinitionId != null">
-        api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
+      <if test="record.apiScenarioId != null">
+        api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
       </if>
-      <if test="record.followId != null">
-        follow_id = #{record.followId,jdbcType=VARCHAR},
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -135,9 +135,9 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_definition_follow
-    set api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
-      follow_id = #{record.followId,jdbcType=VARCHAR}
+    update api_scenario_follower
+    set api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

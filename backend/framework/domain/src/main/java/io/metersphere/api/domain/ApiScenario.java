@@ -1,10 +1,8 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -20,7 +18,7 @@ public class ApiScenario implements Serializable {
     @Size(min = 1, max = 255, message = "{api_scenario.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "创建时间")
@@ -32,7 +30,7 @@ public class ApiScenario implements Serializable {
     @Schema(title = "删除人")
     private String deleteUser;
 
-    @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "更新人")
     private String updateUser;
 
     @Schema(title = "更新时间")
@@ -54,13 +52,11 @@ public class ApiScenario implements Serializable {
     private String principal;
 
     @Schema(title = "场景步骤总数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.step_total.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_scenario.step_total.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario.step_total.not_blank}", groups = {Created.class})
     private Integer stepTotal;
 
     @Schema(title = "通过率", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.pass_rate.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{api_scenario.pass_rate.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario.pass_rate.not_blank}", groups = {Created.class})
     private Long passRate;
 
     @Schema(title = "最后一次执行的结果状态")
@@ -73,13 +69,11 @@ public class ApiScenario implements Serializable {
     private String customNum;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.deleted.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_scenario.deleted.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     @Schema(title = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{api_scenario.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "版本fk")
@@ -112,8 +106,7 @@ public class ApiScenario implements Serializable {
     private String tags;
 
     @Schema(title = "是否为环境组", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.grouped.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_scenario.grouped.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario.grouped.not_blank}", groups = {Created.class})
     private Boolean grouped;
 
     private static final long serialVersionUID = 1L;
