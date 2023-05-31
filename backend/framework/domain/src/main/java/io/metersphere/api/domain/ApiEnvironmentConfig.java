@@ -1,10 +1,8 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -21,7 +19,7 @@ public class ApiEnvironmentConfig implements Serializable {
     @Schema(title = "修改时间")
     private Long updateTime;
 
-    @Schema(title = "用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "用户fk")
     private String createUser;
 
     @Schema(title = "环境fk", requiredMode = Schema.RequiredMode.REQUIRED)

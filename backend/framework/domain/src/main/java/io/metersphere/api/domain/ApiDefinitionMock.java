@@ -4,9 +4,11 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiDefinitionMock implements Serializable {
@@ -27,7 +29,7 @@ public class ApiDefinitionMock implements Serializable {
     @Schema(title = "修改时间")
     private Long updateTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "mock 名称", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -39,8 +41,7 @@ public class ApiDefinitionMock implements Serializable {
     private String tags;
 
     @Schema(title = "启用/禁用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_mock.enable.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_definition_mock.enable.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition_mock.enable.not_blank}", groups = {Created.class})
     private Boolean enable;
 
     @Schema(title = "mock编号", requiredMode = Schema.RequiredMode.REQUIRED)

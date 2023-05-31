@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiTestCaseFollowMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiTestCaseFollow">
+<mapper namespace="io.metersphere.api.mapper.ApiTestCaseFollowerMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiTestCaseFollower">
     <id column="case_id" jdbcType="VARCHAR" property="caseId" />
-    <id column="follow_id" jdbcType="VARCHAR" property="followId" />
+    <id column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -64,15 +64,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    case_id, follow_id
+    case_id, user_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from api_test_case_follow
+    from api_test_case_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -81,53 +81,53 @@
     </if>
   </select>
   <delete id="deleteByPrimaryKey" parameterType="map">
-    delete from api_test_case_follow
+    delete from api_test_case_follower
     where case_id = #{caseId,jdbcType=VARCHAR}
-      and follow_id = #{followId,jdbcType=VARCHAR}
+      and user_id = #{userId,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowExample">
-    delete from api_test_case_follow
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowerExample">
+    delete from api_test_case_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiTestCaseFollow">
-    insert into api_test_case_follow (case_id, follow_id)
-    values (#{caseId,jdbcType=VARCHAR}, #{followId,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiTestCaseFollower">
+    insert into api_test_case_follower (case_id, user_id)
+    values (#{caseId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiTestCaseFollow">
-    insert into api_test_case_follow
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiTestCaseFollower">
+    insert into api_test_case_follower
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="caseId != null">
         case_id,
       </if>
-      <if test="followId != null">
-        follow_id,
+      <if test="userId != null">
+        user_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
       </if>
-      <if test="followId != null">
-        #{followId,jdbcType=VARCHAR},
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowExample" resultType="java.lang.Long">
-    select count(*) from api_test_case_follow
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiTestCaseFollowerExample" resultType="java.lang.Long">
+    select count(*) from api_test_case_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_test_case_follow
+    update api_test_case_follower
     <set>
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.followId != null">
-        follow_id = #{record.followId,jdbcType=VARCHAR},
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -135,9 +135,9 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_test_case_follow
+    update api_test_case_follower
     set case_id = #{record.caseId,jdbcType=VARCHAR},
-      follow_id = #{record.followId,jdbcType=VARCHAR}
+      user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

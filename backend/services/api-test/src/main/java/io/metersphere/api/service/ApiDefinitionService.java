@@ -10,6 +10,6 @@ import java.util.List;
 public class ApiDefinitionService {
 
     public ApiDefinitionDTO create(ApiDefinitionDTO request, List<MultipartFile> bodyFiles) {
-        return new ApiDefinitionDTO();
+        return request;
     }
 }

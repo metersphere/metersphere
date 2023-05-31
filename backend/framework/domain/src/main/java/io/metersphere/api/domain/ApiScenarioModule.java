@@ -1,10 +1,8 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -21,13 +19,11 @@ public class ApiScenarioModule implements Serializable {
     private String name;
 
     @Schema(title = "模块级别", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_module.level.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_scenario_module.level.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
     @Schema(title = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_module.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_scenario_module.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario_module.pos.not_blank}", groups = {Created.class})
     private Integer pos;
 
     @Schema(title = "创建时间")
@@ -36,10 +32,10 @@ public class ApiScenarioModule implements Serializable {
     @Schema(title = "更新时间")
     private Long updateTime;
 
-    @Schema(title = "更新人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "更新人")
     private String updateUser;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)

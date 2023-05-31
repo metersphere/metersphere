@@ -4,9 +4,11 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiDefinitionModule implements Serializable {
@@ -21,10 +23,10 @@ public class ApiDefinitionModule implements Serializable {
     @Schema(title = "修改时间")
     private Long updateTime;
 
-    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "修改人")
     private String updateUser;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -48,13 +50,11 @@ public class ApiDefinitionModule implements Serializable {
     private String projectId;
 
     @Schema(title = "树节点级别", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_module.level.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_definition_module.level.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
     @Schema(title = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_module.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_definition_module.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition_module.pos.not_blank}", groups = {Created.class})
     private Integer pos;
 
     private static final long serialVersionUID = 1L;

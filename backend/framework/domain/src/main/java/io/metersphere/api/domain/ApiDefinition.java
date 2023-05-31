@@ -4,9 +4,11 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiDefinition implements Serializable {
@@ -18,13 +20,13 @@ public class ApiDefinition implements Serializable {
     @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "修改时间")
     private Long updateTime;
 
-    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "修改人")
     private String updateUser;
 
     @Schema(title = "删除人")
@@ -34,8 +36,7 @@ public class ApiDefinition implements Serializable {
     private Long deleteTime;
 
     @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.deleted.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_definition.deleted.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     @Schema(title = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -74,13 +75,11 @@ public class ApiDefinition implements Serializable {
     private String tags;
 
     @Schema(title = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.pos.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 19, message = "{api_definition.pos.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "是否启用同步", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.sync_enable.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_definition.sync_enable.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition.sync_enable.not_blank}", groups = {Created.class})
     private Boolean syncEnable;
 
     @Schema(title = "同步开始时间")
@@ -95,8 +94,7 @@ public class ApiDefinition implements Serializable {
     private String environmentId;
 
     @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition.latest.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_definition.latest.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_definition.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "版本fk")

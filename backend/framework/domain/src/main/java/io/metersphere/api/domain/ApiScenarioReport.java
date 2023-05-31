@@ -1,10 +1,8 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -23,7 +21,7 @@ public class ApiScenarioReport implements Serializable {
     @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "删除时间")
@@ -33,11 +31,10 @@ public class ApiScenarioReport implements Serializable {
     private String deleteUser;
 
     @Schema(title = "删除标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.deleted.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_scenario_report.deleted.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario_report.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
-    @Schema(title = "修改人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "修改人")
     private String updateUser;
 
     @Schema(title = "更新时间")
@@ -70,8 +67,7 @@ public class ApiScenarioReport implements Serializable {
     private String versionId;
 
     @Schema(title = "是否是集成报告", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.integrated.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 1, message = "{api_scenario_report.integrated.length_range}", groups = {Created.class, Updated.class})
+    @NotNull(message = "{api_scenario_report.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
 
     @Schema(title = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
