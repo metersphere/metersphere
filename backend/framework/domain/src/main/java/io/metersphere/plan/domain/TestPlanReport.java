@@ -25,7 +25,7 @@ public class TestPlanReport implements Serializable {
     @Size(min = 1, max = 255, message = "{test_plan_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "创建人", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "创建时间")
