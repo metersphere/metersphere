@@ -9,6 +9,8 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.request.CustomFunctionRequest;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,16 +27,19 @@ public class CustomFunctionController {
     private CustomFunctionService customFunctionService;
 
     @PostMapping("/save")
+    @RequiresPermissions("PROJECT_CUSTOM_CODE:READ+CREATE")
     public CustomFunctionWithBLOBs save(@RequestBody CustomFunctionRequest request) {
         return customFunctionService.save(request);
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresPermissions("PROJECT_CUSTOM_CODE:READ+DELETE")
     public void delete(@PathVariable String id) {
         customFunctionService.delete(id);
     }
 
     @PostMapping("/update")
+    @RequiresPermissions("PROJECT_CUSTOM_CODE:READ+EDIT")
     public void update(@RequestBody CustomFunctionRequest request) {
         customFunctionService.update(request);
     }
@@ -46,6 +51,7 @@ public class CustomFunctionController {
     }
 
     @GetMapping("/copy/{id}")
+    @RequiresPermissions("PROJECT_CUSTOM_CODE:READ+COPY")
     public CustomFunctionWithBLOBs copy(@PathVariable String id) {
         return customFunctionService.copy(id);
     }
@@ -56,6 +62,7 @@ public class CustomFunctionController {
     }
 
     @PostMapping("/run")
+    @RequiresPermissions(value = {"PROJECT_CUSTOM_CODE:READ+CREATE", "PROJECT_CUSTOM_CODE:READ+COPY"}, logical = Logical.OR)
     public void run(@RequestBody Object request) {
         customFunctionService.run(request);
     }
