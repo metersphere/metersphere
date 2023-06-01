@@ -12,7 +12,6 @@ pnpm-error.log*
 .idea/*
 !.idea/icon.png
 **/*.iml
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
@@ -20,6 +19,7 @@ pnpm-error.log*
 *.sw?
 .mvn
 !.mvn/maven-wrapper.properties
+.history
 
 src/main/resources/static
 src/main/resources/templates
