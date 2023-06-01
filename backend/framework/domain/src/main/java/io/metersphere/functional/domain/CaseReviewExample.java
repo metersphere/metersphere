@@ -174,76 +174,6 @@ public class CaseReviewExample {
             return (Criteria) this;
         }
 
-        public Criteria andReviewPassRuleIsNull() {
-            addCriterion("review_pass_rule is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleIsNotNull() {
-            addCriterion("review_pass_rule is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleEqualTo(String value) {
-            addCriterion("review_pass_rule =", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleNotEqualTo(String value) {
-            addCriterion("review_pass_rule <>", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleGreaterThan(String value) {
-            addCriterion("review_pass_rule >", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleGreaterThanOrEqualTo(String value) {
-            addCriterion("review_pass_rule >=", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleLessThan(String value) {
-            addCriterion("review_pass_rule <", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleLessThanOrEqualTo(String value) {
-            addCriterion("review_pass_rule <=", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleLike(String value) {
-            addCriterion("review_pass_rule like", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleNotLike(String value) {
-            addCriterion("review_pass_rule not like", value, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleIn(List<String> values) {
-            addCriterion("review_pass_rule in", values, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleNotIn(List<String> values) {
-            addCriterion("review_pass_rule not in", values, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleBetween(String value1, String value2) {
-            addCriterion("review_pass_rule between", value1, value2, "reviewPassRule");
-            return (Criteria) this;
-        }
-
-        public Criteria andReviewPassRuleNotBetween(String value1, String value2) {
-            addCriterion("review_pass_rule not between", value1, value2, "reviewPassRule");
-            return (Criteria) this;
-        }
-
         public Criteria andNameIsNull() {
             addCriterion("`name` is null");
             return (Criteria) this;
@@ -771,6 +701,76 @@ public class CaseReviewExample {
 
         public Criteria andCreateUserNotBetween(String value1, String value2) {
             addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleIsNull() {
+            addCriterion("review_pass_rule is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleIsNotNull() {
+            addCriterion("review_pass_rule is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleEqualTo(String value) {
+            addCriterion("review_pass_rule =", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleNotEqualTo(String value) {
+            addCriterion("review_pass_rule <>", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleGreaterThan(String value) {
+            addCriterion("review_pass_rule >", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleGreaterThanOrEqualTo(String value) {
+            addCriterion("review_pass_rule >=", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleLessThan(String value) {
+            addCriterion("review_pass_rule <", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleLessThanOrEqualTo(String value) {
+            addCriterion("review_pass_rule <=", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleLike(String value) {
+            addCriterion("review_pass_rule like", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleNotLike(String value) {
+            addCriterion("review_pass_rule not like", value, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleIn(List<String> values) {
+            addCriterion("review_pass_rule in", values, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleNotIn(List<String> values) {
+            addCriterion("review_pass_rule not in", values, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleBetween(String value1, String value2) {
+            addCriterion("review_pass_rule between", value1, value2, "reviewPassRule");
+            return (Criteria) this;
+        }
+
+        public Criteria andReviewPassRuleNotBetween(String value1, String value2) {
+            addCriterion("review_pass_rule not between", value1, value2, "reviewPassRule");
             return (Criteria) this;
         }
     }

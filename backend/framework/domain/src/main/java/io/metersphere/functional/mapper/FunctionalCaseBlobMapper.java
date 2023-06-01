@@ -10,7 +10,7 @@ public interface FunctionalCaseBlobMapper {
 
     int deleteByExample(FunctionalCaseBlobExample example);
 
-    int deleteByPrimaryKey(String functionalCaseId);
+    int deleteByPrimaryKey(String id);
 
     int insert(FunctionalCaseBlob record);
 
@@ -20,7 +20,7 @@ public interface FunctionalCaseBlobMapper {
 
     List<FunctionalCaseBlob> selectByExample(FunctionalCaseBlobExample example);
 
-    FunctionalCaseBlob selectByPrimaryKey(String functionalCaseId);
+    FunctionalCaseBlob selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") FunctionalCaseBlob record, @Param("example") FunctionalCaseBlobExample example);
 

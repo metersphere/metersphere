@@ -1,8 +1,10 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -38,11 +40,11 @@ public class CaseReviewFunctionalCase implements Serializable {
     private String createUser;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.pos.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{case_review_functional_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "关联的用例是否放入回收站", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{case_review_functional_case.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     private static final long serialVersionUID = 1L;

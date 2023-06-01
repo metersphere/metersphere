@@ -10,7 +10,7 @@ public interface CaseReviewMapper {
 
     int deleteByExample(CaseReviewExample example);
 
-    int deleteByPrimaryKey(@Param("id") String id, @Param("reviewPassRule") String reviewPassRule);
+    int deleteByPrimaryKey(String id);
 
     int insert(CaseReview record);
 
@@ -20,7 +20,7 @@ public interface CaseReviewMapper {
 
     List<CaseReview> selectByExample(CaseReviewExample example);
 
-    CaseReview selectByPrimaryKey(@Param("id") String id, @Param("reviewPassRule") String reviewPassRule);
+    CaseReview selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") CaseReview record, @Param("example") CaseReviewExample example);
 

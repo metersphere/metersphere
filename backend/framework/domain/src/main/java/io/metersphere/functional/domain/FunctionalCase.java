@@ -1,8 +1,10 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -14,7 +16,7 @@ public class FunctionalCase implements Serializable {
     private String id;
 
     @Schema(title = "业务ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case.num.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case.num.not_blank}", groups = {Created.class})
     private Integer num;
 
     @Schema(title = "自定义业务ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -51,7 +53,7 @@ public class FunctionalCase implements Serializable {
     private String stepModel;
 
     @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case.pos.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "版本ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -70,15 +72,15 @@ public class FunctionalCase implements Serializable {
     private String lastExecuteResult;
 
     @Schema(title = "是否在回收站：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case.deleted.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
     @Schema(title = "是否是公共用例：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case.public_case.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case.public_case.not_blank}", groups = {Created.class})
     private Boolean publicCase;
 
     @Schema(title = "是否为最新版本：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case.latest.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(title = "创建人")

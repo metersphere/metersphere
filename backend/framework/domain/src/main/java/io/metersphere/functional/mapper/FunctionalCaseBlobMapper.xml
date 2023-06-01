@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.functional.mapper.FunctionalCaseBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseBlob">
-    <id column="functional_case_id" jdbcType="VARCHAR" property="functionalCaseId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.FunctionalCaseBlob">
     <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
@@ -70,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    functional_case_id
+    id
   </sql>
   <sql id="Blob_Column_List">
     steps, step_description, expected_result, prerequisite, description
@@ -111,11 +111,11 @@
     ,
     <include refid="Blob_Column_List" />
     from functional_case_blob
-    where functional_case_id = #{functionalCaseId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from functional_case_blob
-    where functional_case_id = #{functionalCaseId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseBlobExample">
     delete from functional_case_blob
@@ -124,18 +124,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseBlob">
-    insert into functional_case_blob (functional_case_id, steps, step_description, 
+    insert into functional_case_blob (id, steps, step_description, 
       expected_result, prerequisite, description
       )
-    values (#{functionalCaseId,jdbcType=VARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
       #{expectedResult,jdbcType=LONGVARCHAR}, #{prerequisite,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseBlob">
     insert into functional_case_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="functionalCaseId != null">
-        functional_case_id,
+      <if test="id != null">
+        id,
       </if>
       <if test="steps != null">
         steps,
@@ -154,8 +154,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="functionalCaseId != null">
-        #{functionalCaseId,jdbcType=VARCHAR},
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="steps != null">
         #{steps,jdbcType=LONGVARCHAR},
@@ -183,8 +183,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update functional_case_blob
     <set>
-      <if test="record.functionalCaseId != null">
-        functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.steps != null">
         steps = #{record.steps,jdbcType=LONGVARCHAR},
@@ -208,7 +208,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update functional_case_blob
-    set functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
@@ -220,7 +220,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update functional_case_blob
-    set functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -244,7 +244,7 @@
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
     </set>
-    where functional_case_id = #{functionalCaseId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.functional.domain.FunctionalCaseBlob">
     update functional_case_blob
@@ -253,6 +253,6 @@
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
-    where functional_case_id = #{functionalCaseId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
