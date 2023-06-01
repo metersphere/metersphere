@@ -46,6 +46,10 @@
                 <configuration>
                     <verbose>true</verbose>
                     <overwrite>true</overwrite>
+                    <configurationFile>src/main/resources/loadGeneratorConfig.xml</configurationFile>
+                    <configurationFile>src/main/resources/sdkGeneratorConfig.xml</configurationFile>
+                    <configurationFile>src/main/resources/projectGeneratorConfig.xml</configurationFile>
+                    <configurationFile>src/main/resources/systemGeneratorConfig.xml</configurationFile>
                 </configuration>
                 <dependencies>
                     <dependency>
