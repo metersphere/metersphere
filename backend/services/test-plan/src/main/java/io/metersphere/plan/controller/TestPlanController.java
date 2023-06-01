@@ -1,6 +1,6 @@
 package io.metersphere.plan.controller;
 
-import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.validation.groups.Created;
 import jakarta.annotation.Resource;
@@ -17,7 +17,7 @@ public class TestPlanController {
     private TestPlanService testPlanService;
 
     @PostMapping("/add")
-    public boolean addUser(@Validated({Created.class}) @RequestBody TestPlan testPlan) {
+    public TestPlanDTO addUser(@Validated({Created.class}) @RequestBody TestPlanDTO testPlan) {
         return testPlanService.add(testPlan);
     }
 }
