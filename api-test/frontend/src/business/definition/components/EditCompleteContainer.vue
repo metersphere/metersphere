@@ -141,7 +141,7 @@ import ApiBaseInfo from '@/business/definition/components/complete/ApiBaseInfo';
 import { getProjectMemberOption } from '@/api/project';
 import { buildCustomFields, parseCustomField } from 'metersphere-frontend/src/utils/custom_field';
 import { getApiTemplate } from '@/api/api-template';
-
+import { parseCustomFilesForItem } from 'metersphere-frontend/src/utils/tableUtils';
 const store = useApiStore();
 export default {
   name: 'EditCompleteContainer',
@@ -201,6 +201,11 @@ export default {
     getApiTemplate(this.projectId).then((template) => {
       this.apiTemplate = template;
       store.apiTemplate = this.apiTemplate;
+      if (this.currentApi.fields) {
+        this.currentApi.fields.forEach(i => {
+          parseCustomFilesForItem(i);
+        });
+      }
       this.customFieldForm = parseCustomField(this.currentApi, this.apiTemplate, this.customFieldRules);
     });
     if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP')) {
@@ -369,6 +374,12 @@ export default {
         this.$warning(this.currentValidateName + this.$t('commons.cannot_be_null'));
         this.currentValidateName = '';
         return false;
+      }
+      if(this.currentApi.isCopy && this.apiTemplate && Array.isArray(this.apiTemplate.customFields)){
+        this.apiTemplate.customFields.forEach(item => {
+          delete item.isEdit;
+          delete item.hasParse;
+        })
       }
       buildCustomFields(this.currentApi, data, this.apiTemplate);
       this.$refs.apiConfig.saveApi(data);
