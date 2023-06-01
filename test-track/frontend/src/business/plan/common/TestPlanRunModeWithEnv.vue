@@ -346,7 +346,7 @@ export default {
       this.$emit("close");
     },
     handleRunBatch() {
-      if (this.runConfig.resourcePoolId == null) {
+      if (this.runConfig.resourcePoolId == null && this.haveOtherExecCase) {
         this.$warning(
           this.$t("workspace.env_group.please_select_run_within_resource_pool"));
         return;
