@@ -29,7 +29,7 @@ public class UserService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    public boolean add(UserDTO entity) {
+    public UserDTO add(UserDTO entity) {
         // todo 后台直接获取在线用户
         entity.setCreateUser("admin");
         entity.setCreateTime(System.currentTimeMillis());
@@ -39,10 +39,10 @@ public class UserService {
         UserExtend userExtend = new UserExtend();
         BeanUtils.copyBean(userExtend, entity);
         userExtendMapper.insert(userExtend);
-        return true;
+        return entity;
     }
 
-    public boolean update(UserDTO entity) {
+    public UserDTO update(UserDTO entity) {
         entity.setCreateUser(null);
         entity.setCreateTime(null);
         entity.setUpdateTime(System.currentTimeMillis());
@@ -53,7 +53,7 @@ public class UserService {
             BeanUtils.copyBean(userExtend, entity);
             userExtendMapper.updateByPrimaryKeySelective(userExtend);
         }
-        return true;
+        return baseUserMapper.selectById(entity.getId());
     }
 
     public UserDTO getById(String id) {
@@ -87,11 +87,12 @@ public class UserService {
         int batchSize = 100;
         int size = users.size();
         int pageSize = size / batchSize;
-        if (pageSize == 0) {
-            baseUserMapper.batchSave(users);
-            System.out.println("batch save cost: " + (System.currentTimeMillis() - start) + "ms");
-            return true;
-        }
+
+        users.forEach(user -> {
+            user.setCreateUser("admin");
+            user.setCreateTime(System.currentTimeMillis());
+            user.setUpdateTime(System.currentTimeMillis());
+        });
 
         for (int i = 0; i < pageSize; i++) {
             int startIndex = i * batchSize;
@@ -112,4 +113,10 @@ public class UserService {
         return userMapper.countByExample(new UserExample());
     }
 
+    public UserDTO delete(String userId) {
+        UserDTO userDTO = baseUserMapper.selectById(userId);
+        userMapper.deleteByPrimaryKey(userId);
+        userExtendMapper.deleteByPrimaryKey(userId);
+        return userDTO;
+    }
 }

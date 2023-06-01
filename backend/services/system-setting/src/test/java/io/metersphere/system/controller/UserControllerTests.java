@@ -85,43 +85,22 @@ public class UserControllerTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-
     @Test
     @Order(5)
-    public void testSelectAll() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/list-all"))
+    public void testDeleteUser() throws Exception {
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/delete/admin"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data[0].id").value("admin"));
+                .andExpect(jsonPath("$.data.id").value("admin"));
     }
 
-
-    //    @Test
-    @Order(6)
-    public void testBatchAddUser2() throws Exception {
-        var users = new ArrayList<User>();
-        for (int i = 0; i < 1000; i++) {
-            User user = new User();
-            user.setId("batch2_" + i);
-            user.setName("batch2_" + i);
-            user.setSource("LOCAL");
-            user.setEmail("bin@fit2cloud.com");
-            user.setStatus("enabled");
-            users.add(user);
-        }
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/user/batch-add2")
-                        .content(JSON.toJSONString(users))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
-
-    //    @Test
+    @Test
     @Order(7)
     public void testBatchAddUser3() throws Exception {
         var users = new ArrayList<User>();
-        for (int i = 0; i < 1000; i++) {
+        int size = 123;
+        for (int i = 0; i < size; i++) {
             User user = new User();
             user.setId("batch3_" + i);
             user.setName("batch3_" + i);
@@ -136,16 +115,11 @@ public class UserControllerTests {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-    }
 
-    //    @Test
-    @Order(8)
-    public void testCount() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/count")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data").value(3001));
+                .andExpect(jsonPath("$.data").value(size));
     }
-
 }
