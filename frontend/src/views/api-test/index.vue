@@ -79,7 +79,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, { columns, data: [] });
+  const { propsRes, propsEvent, loadList } = useTable(getTableList, { columns, scroll: { x: 2000 } });
 
   const fetchData = async () => {
     await loadList();

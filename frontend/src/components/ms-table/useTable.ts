@@ -20,11 +20,11 @@ export interface QueryParams {
 }
 
 type GetListFunc = (v: QueryParams) => Promise<CommonReponse<ApiTestListI>>;
-export default function useTbleProps(loadListFunc: GetListFunc, props?: MsTabelProps) {
+export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
   const defaultProps: MsTabelProps = {
     'bordered': true,
     'size': 'small',
-    'scroll': { y: 550, x: '100%' },
+    'scroll': { y: 550, x: '1400px' },
     'expandable': false,
     'loading': true,
     'data': [] as MsTableData,
@@ -67,10 +67,12 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: MsTabelP
   };
 
   // 单独设置默认属性
-  const setProps = (params: MsTabelProps) => {
+  const setProps = (params: Partial<MsTabelProps>) => {
+    const tmpProps = propsRes.value;
     Object.keys(params).forEach((key) => {
-      defaultProps[key] = params[key];
+      tmpProps[key] = params[key];
     });
+    propsRes.value = tmpProps;
   };
 
   // 设置请求参数，如果出了分页参数还有搜索参数，在模板页面调用此方法，可以加入参数
