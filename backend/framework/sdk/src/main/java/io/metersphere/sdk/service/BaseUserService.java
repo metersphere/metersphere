@@ -1,8 +1,399 @@
 package io.metersphere.sdk.service;
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.UserRoleConstants;
+import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.constants.UserSource;
+import io.metersphere.sdk.constants.UserStatus;
+import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.dto.*;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.BaseProjectMapper;
+import io.metersphere.sdk.mapper.BaseUserMapper;
+import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRolePermissionMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.UnauthorizedException;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class BaseUserService {
+    @Resource
+    private BaseUserMapper baseUserMapper;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private UserRolePermissionMapper userRolePermissionMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private BaseProjectMapper baseProjectMapper;
+
+
+    public UserDTO getUserDTO(String userId) {
+        UserDTO userDTO = baseUserMapper.selectById(userId);
+        if (userDTO == null) {
+            return null;
+        }
+        if (StringUtils.equals(userDTO.getStatus(), UserStatus.DISABLED)) {
+            throw new DisabledAccountException();
+        }
+        UserRolePermissionDTO dto = getUserRolePermission(userId);
+        userDTO.setUserRoleRelations(dto.getUserRoleRelations());
+        userDTO.setUserRoles(dto.getUserRoles());
+        userDTO.setUserRolePermissions(dto.getList());
+        return userDTO;
+    }
+
+    public ResultHolder login(LoginRequest request) {
+        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
+        String username = StringUtils.trim(request.getUsername());
+        String password = StringUtils.EMPTY;
+        if (!StringUtils.equals(login, UserSource.LDAP.name())) {
+            password = StringUtils.trim(request.getPassword());
+        }
+
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        Subject subject = SecurityUtils.getSubject();
+        try {
+            subject.login(token);
+            if (subject.isAuthenticated()) {
+                SessionUser sessionUser = SessionUtils.getUser();
+                autoSwitch(sessionUser);
+                // 放入session中
+                SessionUtils.putUser(sessionUser);
+                return ResultHolder.success(sessionUser);
+            } else {
+                throw new MSException(Translator.get("login_fail"));
+            }
+        } catch (ExcessiveAttemptsException e) {
+            throw new ExcessiveAttemptsException(Translator.get("excessive_attempts"));
+        } catch (LockedAccountException e) {
+            throw new LockedAccountException(Translator.get("user_locked"));
+        } catch (DisabledAccountException e) {
+            throw new DisabledAccountException(Translator.get("user_has_been_disabled"));
+        } catch (ExpiredCredentialsException e) {
+            throw new ExpiredCredentialsException(Translator.get("user_expires"));
+        } catch (AuthenticationException e) {
+            throw new AuthenticationException(e.getMessage());
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
+        }
+    }
+
+    private void autoSwitch(UserDTO user) {
+        // 用户有 last_project_id 权限
+        if (hasLastProjectPermission(user)) {
+            return;
+        }
+        // 用户有 last_workspace_id 权限
+        if (hasLastWorkspacePermission(user)) {
+            return;
+        }
+        // 判断其他权限
+        checkNewWorkspaceAndProject(user);
+    }
+
+    private void checkNewWorkspaceAndProject(UserDTO user) {
+        List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations();
+        List<String> projectRoleIds = user.getUserRoles()
+                .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT))
+                .map(UserRole::getId)
+                .toList();
+        List<UserRoleRelation> project = userRoleRelations.stream().filter(ug -> projectRoleIds.contains(ug.getRoleId()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(project)) {
+            List<String> workspaceIds = user.getUserRoles()
+                    .stream()
+                    .filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.WORKSPACE))
+                    .map(UserRole::getId)
+                    .toList();
+            List<UserRoleRelation> workspaces = userRoleRelations.stream().filter(ug -> workspaceIds.contains(ug.getRoleId()))
+                    .toList();
+            if (workspaces.size() > 0) {
+                String wsId = workspaces.get(0).getSourceId();
+                switchUserResource("workspace", wsId, user);
+            } else {
+                List<String> superRoleIds = user.getUserRoles()
+                        .stream()
+                        .map(UserRole::getId)
+                        .filter(id -> StringUtils.equals(id, UserRoleConstants.SUPER_ROLE))
+                        .collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(superRoleIds)) {
+                    Project p = baseProjectMapper.selectOne();
+                    if (p != null) {
+                        switchSuperUserResource(p.getId(), p.getWorkspaceId(), user);
+                    }
+                } else {
+                    // 用户登录之后没有项目和工作空间的权限就把值清空
+                    user.setLastWorkspaceId(StringUtils.EMPTY);
+                    user.setLastProjectId(StringUtils.EMPTY);
+                    updateUser(user);
+                }
+            }
+        } else {
+            UserRoleRelation userRoleRelation = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
+                    .toList().get(0);
+            String projectId = userRoleRelation.getSourceId();
+            Project p = projectMapper.selectByPrimaryKey(projectId);
+            String wsId = p.getWorkspaceId();
+            user.setId(user.getId());
+            user.setLastProjectId(projectId);
+            user.setLastWorkspaceId(wsId);
+            updateUser(user);
+        }
+    }
+
+    private boolean hasLastProjectPermission(UserDTO user) {
+        if (StringUtils.isNotBlank(user.getLastProjectId())) {
+            List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+                Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
+                if (StringUtils.equals(project.getWorkspaceId(), user.getLastWorkspaceId())) {
+                    return true;
+                }
+                // last_project_id 和 last_workspace_id 对应不上了
+                user.setLastWorkspaceId(project.getWorkspaceId());
+                updateUser(user);
+                return true;
+            } else {
+                return baseUserMapper.isSuperUser(user.getId());
+            }
+        }
+        return false;
+    }
+
+    private boolean hasLastWorkspacePermission(UserDTO user) {
+        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
+            List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+                ProjectExample example = new ProjectExample();
+                example.createCriteria().andWorkspaceIdEqualTo(user.getLastWorkspaceId());
+                List<Project> projects = projectMapper.selectByExample(example);
+                // 工作空间下没有项目
+                if (CollectionUtils.isEmpty(projects)) {
+                    return true;
+                }
+                // 工作空间下有项目，选中有权限的项目
+                List<String> projectIds = projects.stream()
+                        .map(Project::getId)
+                        .toList();
+
+                List<UserRoleRelation> roleRelations = user.getUserRoleRelations();
+                List<String> projectRoleIds = user.getUserRoles()
+                        .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT))
+                        .map(UserRole::getId)
+                        .toList();
+                List<String> projectIdsWithPermission = roleRelations.stream().filter(ug -> projectRoleIds.contains(ug.getRoleId()))
+                        .map(UserRoleRelation::getSourceId)
+                        .filter(StringUtils::isNotBlank)
+                        .filter(projectIds::contains)
+                        .toList();
+
+                List<String> intersection = projectIds.stream().filter(projectIdsWithPermission::contains).collect(Collectors.toList());
+                // 当前工作空间下的所有项目都没有权限
+                if (CollectionUtils.isEmpty(intersection)) {
+                    return true;
+                }
+                Project project = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst().get();
+                String wsId = project.getWorkspaceId();
+                user.setId(user.getId());
+                user.setLastProjectId(project.getId());
+                user.setLastWorkspaceId(wsId);
+                updateUser(user);
+                return true;
+            } else {
+                return baseUserMapper.isSuperUser(user.getId());
+            }
+        }
+        return false;
+    }
+
+
+    public void switchUserResource(String sign, String sourceId, UserDTO sessionUser) {
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+        User newUser = new User();
+        boolean isSuper = baseUserMapper.isSuperUser(sessionUser.getId());
+        if (StringUtils.equals("workspace", sign)) {
+            user.setLastWorkspaceId(sourceId);
+            sessionUser.setLastWorkspaceId(sourceId);
+            List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
+            if (CollectionUtils.isNotEmpty(projects)) {
+                user.setLastProjectId(projects.get(0).getId());
+            } else {
+                if (isSuper) {
+                    ProjectExample example = new ProjectExample();
+                    example.createCriteria().andWorkspaceIdEqualTo(sourceId);
+                    List<Project> allWsProject = projectMapper.selectByExample(example);
+                    if (CollectionUtils.isNotEmpty(allWsProject)) {
+                        user.setLastProjectId(allWsProject.get(0).getId());
+                    }
+                } else {
+                    user.setLastProjectId(StringUtils.EMPTY);
+                }
+            }
+        }
+        BeanUtils.copyProperties(user, newUser);
+        // 切换工作空间或组织之后更新 session 里的 user
+        SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
+        userMapper.updateByPrimaryKeySelective(newUser);
+    }
+
+    private void switchSuperUserResource(String projectId, String workspaceId, UserDTO sessionUser) {
+        // 获取最新UserDTO
+        UserDTO user = getUserDTO(sessionUser.getId());
+        User newUser = new User();
+        user.setLastWorkspaceId(workspaceId);
+        sessionUser.setLastWorkspaceId(workspaceId);
+        user.setLastProjectId(projectId);
+        BeanUtils.copyProperties(user, newUser);
+        // 切换工作空间或组织之后更新 session 里的 user
+        SessionUtils.putUser(SessionUser.fromUser(user, SessionUtils.getSessionId()));
+        userMapper.updateByPrimaryKeySelective(newUser);
+    }
+
+    public void updateUser(User user) {
+        // todo 提取重复代码
+        if (StringUtils.isNotBlank(user.getEmail())) {
+            UserExample example = new UserExample();
+            UserExample.Criteria criteria = example.createCriteria();
+            criteria.andEmailEqualTo(user.getEmail());
+            criteria.andIdNotEqualTo(user.getId());
+            if (userMapper.countByExample(example) > 0) {
+                MSException.throwException(Translator.get("user_email_already_exists"));
+            }
+        }
+        user.setPassword(null);
+        user.setUpdateTime(System.currentTimeMillis());
+        // 变更前
+        User userFromDB = userMapper.selectByPrimaryKey(user.getId());
+        // last workspace id 变了
+        if (user.getLastWorkspaceId() != null && !StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
+            List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastWorkspaceId());
+            if (projects.size() > 0) {
+                // 如果传入的 last_project_id 是 last_workspace_id 下面的
+                boolean present = projects.stream().anyMatch(p -> StringUtils.equals(p.getId(), user.getLastProjectId()));
+                if (!present) {
+                    user.setLastProjectId(projects.get(0).getId());
+                }
+            } else {
+                user.setLastProjectId(StringUtils.EMPTY);
+            }
+        }
+        // 执行变更
+        userMapper.updateByPrimaryKeySelective(user);
+        if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
+            SessionUtils.kickOutUser(user.getId());
+        }
+    }
+
+    private List<Project> getProjectListByWsAndUserId(String userId, String workspaceId) {
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        List<Project> projectList = new ArrayList<>();
+        userRoleRelations.forEach(userRoleRelation -> projects.forEach(project -> {
+            if (StringUtils.equals(userRoleRelation.getSourceId(), project.getId())) {
+                if (!projectList.contains(project)) {
+                    projectList.add(project);
+                }
+            }
+        }));
+        return projectList;
+    }
+
+
+    public UserDTO getUserDTOByEmail(String email, String... source) {
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andEmailEqualTo(email);
+
+        if (!CollectionUtils.isEmpty(Arrays.asList(source))) {
+            criteria.andSourceIn(Arrays.asList(source));
+        }
+
+        List<User> users = userMapper.selectByExample(example);
+
+        if (users == null || users.size() == 0) {
+            return null;
+        }
+
+        return getUserDTO(users.get(0).getId());
+    }
+
+    public boolean checkUserPassword(String userId, String password) {
+        if (StringUtils.isBlank(userId)) {
+            MSException.throwException(Translator.get("user_name_is_null"));
+        }
+        if (StringUtils.isBlank(password)) {
+            MSException.throwException(Translator.get("password_is_null"));
+        }
+        UserExample example = new UserExample();
+        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));
+        return userMapper.countByExample(example) > 0;
+    }
+
+    private UserRolePermissionDTO getUserRolePermission(String userId) {
+        UserRolePermissionDTO permissionDTO = new UserRolePermissionDTO();
+        List<UserRoleResourceDTO> list = new ArrayList<>();
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        if (CollectionUtils.isEmpty(userRoleRelations)) {
+            return permissionDTO;
+        }
+        permissionDTO.setUserRoleRelations(userRoleRelations);
+        List<String> roleList = userRoleRelations.stream().map(UserRoleRelation::getRoleId).collect(Collectors.toList());
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andIdIn(roleList);
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        permissionDTO.setUserRoles(userRoles);
+        for (UserRole gp : userRoles) {
+            UserRoleResourceDTO dto = new UserRoleResourceDTO();
+            dto.setUserRole(gp);
+            UserRolePermissionExample userRolePermissionExample = new UserRolePermissionExample();
+            userRolePermissionExample.createCriteria().andRoleIdEqualTo(gp.getId());
+            List<UserRolePermission> userRolePermissions = userRolePermissionMapper.selectByExample(userRolePermissionExample);
+            dto.setUserRolePermissions(userRolePermissions);
+            list.add(dto);
+        }
+        permissionDTO.setList(list);
+        return permissionDTO;
+    }
+
 }

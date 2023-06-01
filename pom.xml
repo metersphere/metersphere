@@ -219,13 +219,12 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
                 <configuration>
-                    <includes>
-                        <include>io/metersphere/*/controller/*Controller.*</include>
-                    </includes>
                     <excludes>
-                        <exclude>io/metersphere/*/service/**</exclude>
                         <exclude>io/metersphere/*/mapper/**</exclude>
                         <exclude>io/metersphere/*/domain/**</exclude>
+                        <exclude>io/metersphere/**/dto/**</exclude>
+                        <exclude>io/metersphere/**/config/**</exclude>
+                        <exclude>io/metersphere/**/constants/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
