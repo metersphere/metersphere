@@ -1,5 +1,5 @@
 <template>
-  <el-form class="tcp" :model="config" :rules="rules" ref="config" label-width="130px" :disabled="isReadOnly"
+  <el-form class="tcp" :model="config" :rules="rules" ref="config" label-width="150px" :disabled="isReadOnly"
            size="small">
 
     <el-form-item label="TCPClient" prop="classname">
