@@ -1,21 +1,29 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ApiDefinitionDTO;
+import io.metersphere.api.dto.ApiDefinitionListRequest;
+import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.junit.Before;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -68,4 +76,75 @@ public class ApiDefinitionControllerTests {
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.id").value("test-api-id"));
     }
+
+    //正常接口获取
+    @Test
+    @Sql(scripts = {"/sql/init_api_definition.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Order(2)
+    public void listSuccess() throws Exception {
+        int pageSize = 10;
+        int current = 1;
+        ApiDefinitionListRequest request = new ApiDefinitionListRequest();
+        request.setCurrent(current);
+        request.setPageSize(pageSize);
+        request.setProjectId("test-project-id");
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(JsonUtils.toJSONString(request)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
+
+        MockHttpServletResponse mockResponse = mvcResult.getResponse();
+
+        String returnData = mockResponse.getContentAsString();
+        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+
+        //返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+        Pager<ApiDefinition> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        //返回值的页码和当前页码相同
+        Assertions.assertEquals(returnPager.getCurrent(), current);
+        //返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(((List<ApiDefinition>) returnPager.getList()).size() <= pageSize);
+    }
+
+    //没有传入必填值
+    @Test
+    @Order(3)
+    public void listError() throws Exception {
+        // projectId为空
+        ApiDefinitionListRequest request = new ApiDefinitionListRequest();
+        request.setCurrent(1);
+        request.setPageSize(20);
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(JsonUtils.toJSONString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        //pageSize为空
+        request = new ApiDefinitionListRequest();
+        request.setCurrent(1);
+        request.setProjectId("test-project-id");
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(JsonUtils.toJSONString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        //current为空
+        request = new ApiDefinitionListRequest();
+        request.setPageSize(20);
+        request.setProjectId("test-project-id");
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(JsonUtils.toJSONString(request)))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
 }
