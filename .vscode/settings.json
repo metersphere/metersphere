@@ -3,6 +3,7 @@
   "editor.codeActionsOnSave": {
     "eslint.autoFixOnSave": true,
     "source.fixAll.stylelint": true, // 开启stylelint自动修复
+    "source.fixAll.eslint": true, // 开启eslint自动修复
   },
   "editor.formatOnSave": true,
   "eslint.validate": [
