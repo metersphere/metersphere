@@ -13,8 +13,6 @@
     "html",
     "vue",
     "markdown",
-    "json",
-    "jsonc"
   ],
   // 配置stylelint检查的文件类型范围
   "stylelint.validate": [
