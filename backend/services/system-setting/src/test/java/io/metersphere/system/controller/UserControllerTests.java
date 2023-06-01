@@ -32,12 +32,9 @@ public class UserControllerTests {
         UserDTO user = new UserDTO();
         user.setId("admin");
         user.setName("admin");
-        user.setCreateUser("system");
         user.setSource("LOCAL");
         user.setEmail("bin@fit2cloud.com");
         user.setStatus("enabled");
-        user.setCreateTime(System.currentTimeMillis());
-        user.setUpdateTime(System.currentTimeMillis());
 
         user.setSeleniumServer("http://localhost:4444");
 
@@ -53,8 +50,6 @@ public class UserControllerTests {
     public void testAddUserFailed() throws Exception {
         UserDTO user = new UserDTO();
         user.setId("admin2");
-        user.setCreateTime(System.currentTimeMillis());
-        user.setUpdateTime(System.currentTimeMillis());
 
         user.setSeleniumServer("http://localhost:4444");
 
@@ -74,13 +69,30 @@ public class UserControllerTests {
                 .andExpect(jsonPath("$.data.id").value("admin"));
     }
 
+
     @Test
     @Order(4)
+    public void testUpdateUser() throws Exception {
+        UserDTO user = new UserDTO();
+        user.setId("admin");
+        user.setName("Administrator");
+
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/user/update")
+                        .content(JSON.toJSONString(user))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+
+    @Test
+    @Order(5)
     public void testSelectAll() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/user/list-all"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.data[0].name").value("admin"));
+                .andExpect(jsonPath("$.data[0].id").value("admin"));
     }
 
 
@@ -92,12 +104,9 @@ public class UserControllerTests {
             User user = new User();
             user.setId("batch2_" + i);
             user.setName("batch2_" + i);
-            user.setCreateUser("system");
             user.setSource("LOCAL");
             user.setEmail("bin@fit2cloud.com");
             user.setStatus("enabled");
-            user.setCreateTime(System.currentTimeMillis());
-            user.setUpdateTime(System.currentTimeMillis());
             users.add(user);
         }
 
@@ -116,12 +125,9 @@ public class UserControllerTests {
             User user = new User();
             user.setId("batch3_" + i);
             user.setName("batch3_" + i);
-            user.setCreateUser("system");
             user.setSource("LOCAL");
             user.setEmail("bin@fit2cloud.com");
             user.setStatus("enabled");
-            user.setCreateTime(System.currentTimeMillis());
-            user.setUpdateTime(System.currentTimeMillis());
             users.add(user);
         }
 

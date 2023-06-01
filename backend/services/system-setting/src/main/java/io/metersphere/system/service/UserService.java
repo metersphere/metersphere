@@ -9,6 +9,7 @@ import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
@@ -28,12 +29,30 @@ public class UserService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    public boolean save(UserDTO entity) {
+    public boolean add(UserDTO entity) {
+        // todo 后台直接获取在线用户
+        entity.setCreateUser("admin");
+        entity.setCreateTime(System.currentTimeMillis());
+        entity.setUpdateTime(System.currentTimeMillis());
         userMapper.insert(entity);
 
         UserExtend userExtend = new UserExtend();
         BeanUtils.copyBean(userExtend, entity);
         userExtendMapper.insert(userExtend);
+        return true;
+    }
+
+    public boolean update(UserDTO entity) {
+        entity.setCreateUser(null);
+        entity.setCreateTime(null);
+        entity.setUpdateTime(System.currentTimeMillis());
+        userMapper.updateByPrimaryKeySelective(entity);
+        // 扩展属性按需更新
+        if (entity.getPlatformInfo() != null || StringUtils.isNotEmpty(entity.getSeleniumServer())) {
+            UserExtend userExtend = new UserExtend();
+            BeanUtils.copyBean(userExtend, entity);
+            userExtendMapper.updateByPrimaryKeySelective(userExtend);
+        }
         return true;
     }
 

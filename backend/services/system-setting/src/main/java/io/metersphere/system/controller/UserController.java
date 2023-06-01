@@ -5,6 +5,7 @@ import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,12 @@ public class UserController {
 
     @PostMapping("/add")
     public boolean addUser(@Validated({Created.class}) @RequestBody UserDTO user) {
-        return userService.save(user);
+        return userService.add(user);
+    }
+
+    @PostMapping("/update")
+    public boolean updateUser(@Validated({Updated.class}) @RequestBody UserDTO user) {
+        return userService.update(user);
     }
 
     @PostMapping("/batch-add2")
