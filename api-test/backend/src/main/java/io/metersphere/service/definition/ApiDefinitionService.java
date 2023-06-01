@@ -1908,6 +1908,10 @@ public class ApiDefinitionService {
                 // 检查附件复制出附件
                 ApiFileUtil.copyBodyFiles(sourceId, api.getId());
 
+                List<CustomFieldResourceDTO> byResourceId = customFieldApiService.getByResourceId(sourceId);
+                if (CollectionUtils.isNotEmpty(byResourceId)){
+                    customFieldApiService.addFields(api.getId(), byResourceId);
+                }
                 mapper.insert(api);
                 if (i % 50 == 0) sqlSession.flushStatements();
             }
