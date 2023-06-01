@@ -76,6 +76,7 @@ public class ApiJMeterFileService {
         this.add(ApiRunMode.API_PLAN.name());
         this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
         this.add(ApiRunMode.MANUAL_PLAN.name());
+        this.add(ApiRunMode.JENKINS.name());
 
     }};
     private static final List<String> PLAN_SCENARIO = List.of(
