@@ -287,6 +287,7 @@ import {API_DEFINITION_CONFIGS} from 'metersphere-frontend/src/components/search
 import {API_DEFINITION_CONFIGS_TRASH, getProtocolFilter} from '@/business/definition/api-definition';
 import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
 import CaseBatchMove from '@/business/definition/components/basis/BatchMove';
+import {getProjectMember} from "@/api/user";
 import {
   buildBatchParam,
   deepClone,
@@ -507,6 +508,7 @@ export default {
       versionEnable: false,
       isFirstInitTable: true,
       visibleSearch: true,
+      members: [],
     };
   },
   props: {
@@ -606,10 +608,7 @@ export default {
       }
     }
     this.setAdvSearchParam();
-    getApiTemplate(this.projectId).then((template) => {
-      let comp = getAdvSearchCustomField(this.condition, template.customFields);
-      this.condition.components.push(...comp)
-    });
+    this.getTemplateField();
   },
   watch: {
     selectNodeIds() {
@@ -653,6 +652,36 @@ export default {
     },
   },
   methods: {
+    async getTemplateField() {
+      this.loading = true;
+      // 防止第一次渲染版本字段展示顺序错乱
+      let p1 = getProjectMember()
+        .then((response) => {
+          this.members = response.data;
+        });
+      let p2 = getApiTemplate(this.projectId);
+      Promise.all([p1, p2]).then((data) => {
+        this.loading = false;
+        let template = data[1];
+        this.getCustomFields(template.customFields, this.members);
+        let comp = getAdvSearchCustomField(this.condition, template.customFields);
+        this.condition.components.push(...comp)
+      });
+    },
+    getCustomFields(customFields, projectMembers = []) {
+      projectMembers.forEach(member => {
+        member['text'] = member.name;
+        // 高级搜索使用
+        member['label'] = member.name;
+        member['value'] = member.id;
+        member['showLabel'] = member.name + "(" + member.id + ")";
+      })
+      customFields.forEach(item => {
+        if ((item.type === 'member' || item.type === 'multipleMember') && projectMembers && projectMembers.length > 0) {
+          item.options = projectMembers;
+        }
+      });
+    },
     setAdvSearchParam() {
       let comp = this.condition.components.find((c) => c.key === 'moduleIds');
       if (comp) {
