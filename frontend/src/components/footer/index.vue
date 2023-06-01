@@ -1,8 +1,17 @@
 <template>
-  <a-layout-footer class="footer">MeterSphere</a-layout-footer>
+  <a-layout-footer class="footer">{{ props.text }}</a-layout-footer>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  const props = withDefaults(
+    defineProps<{
+      text: string;
+    }>(),
+    {
+      text: 'MeterSphere',
+    }
+  );
+</script>
 
 <style lang="less" scoped>
   .footer {
