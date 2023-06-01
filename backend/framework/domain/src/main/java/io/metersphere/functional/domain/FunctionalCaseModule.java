@@ -1,8 +1,10 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -27,7 +29,7 @@ public class FunctionalCaseModule implements Serializable {
     private String parentId;
 
     @Schema(title = "节点的层级", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.level.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case_module.level.not_blank}", groups = {Created.class})
     private Integer level;
 
     @Schema(title = "创建时间")
@@ -37,7 +39,7 @@ public class FunctionalCaseModule implements Serializable {
     private Long updateTime;
 
     @Schema(title = "同一节点下的顺序", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{functional_case_module.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
     @Schema(title = "创建人")

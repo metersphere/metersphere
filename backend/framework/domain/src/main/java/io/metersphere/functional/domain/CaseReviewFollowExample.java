@@ -3,14 +3,14 @@ package io.metersphere.functional.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionalCaseBlobExample {
+public class CaseReviewFollowExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public FunctionalCaseBlobExample() {
+    public CaseReviewFollowExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -104,73 +104,143 @@ public class FunctionalCaseBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andIdIsNull() {
-            addCriterion("id is null");
+        public Criteria andReviewIdIsNull() {
+            addCriterion("review_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+        public Criteria andReviewIdIsNotNull() {
+            addCriterion("review_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIdEqualTo(String value) {
-            addCriterion("id =", value, "id");
+        public Criteria andReviewIdEqualTo(String value) {
+            addCriterion("review_id =", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotEqualTo(String value) {
-            addCriterion("id <>", value, "id");
+        public Criteria andReviewIdNotEqualTo(String value) {
+            addCriterion("review_id <>", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThan(String value) {
-            addCriterion("id >", value, "id");
+        public Criteria andReviewIdGreaterThan(String value) {
+            addCriterion("review_id >", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThanOrEqualTo(String value) {
-            addCriterion("id >=", value, "id");
+        public Criteria andReviewIdGreaterThanOrEqualTo(String value) {
+            addCriterion("review_id >=", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThan(String value) {
-            addCriterion("id <", value, "id");
+        public Criteria andReviewIdLessThan(String value) {
+            addCriterion("review_id <", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThanOrEqualTo(String value) {
-            addCriterion("id <=", value, "id");
+        public Criteria andReviewIdLessThanOrEqualTo(String value) {
+            addCriterion("review_id <=", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLike(String value) {
-            addCriterion("id like", value, "id");
+        public Criteria andReviewIdLike(String value) {
+            addCriterion("review_id like", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotLike(String value) {
-            addCriterion("id not like", value, "id");
+        public Criteria andReviewIdNotLike(String value) {
+            addCriterion("review_id not like", value, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdIn(List<String> values) {
-            addCriterion("id in", values, "id");
+        public Criteria andReviewIdIn(List<String> values) {
+            addCriterion("review_id in", values, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotIn(List<String> values) {
-            addCriterion("id not in", values, "id");
+        public Criteria andReviewIdNotIn(List<String> values) {
+            addCriterion("review_id not in", values, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdBetween(String value1, String value2) {
-            addCriterion("id between", value1, value2, "id");
+        public Criteria andReviewIdBetween(String value1, String value2) {
+            addCriterion("review_id between", value1, value2, "reviewId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotBetween(String value1, String value2) {
-            addCriterion("id not between", value1, value2, "id");
+        public Criteria andReviewIdNotBetween(String value1, String value2) {
+            addCriterion("review_id not between", value1, value2, "reviewId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdIsNull() {
+            addCriterion("follow_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdIsNotNull() {
+            addCriterion("follow_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdEqualTo(String value) {
+            addCriterion("follow_id =", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdNotEqualTo(String value) {
+            addCriterion("follow_id <>", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdGreaterThan(String value) {
+            addCriterion("follow_id >", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdGreaterThanOrEqualTo(String value) {
+            addCriterion("follow_id >=", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdLessThan(String value) {
+            addCriterion("follow_id <", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdLessThanOrEqualTo(String value) {
+            addCriterion("follow_id <=", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdLike(String value) {
+            addCriterion("follow_id like", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdNotLike(String value) {
+            addCriterion("follow_id not like", value, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdIn(List<String> values) {
+            addCriterion("follow_id in", values, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdNotIn(List<String> values) {
+            addCriterion("follow_id not in", values, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdBetween(String value1, String value2) {
+            addCriterion("follow_id between", value1, value2, "followId");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowIdNotBetween(String value1, String value2) {
+            addCriterion("follow_id not between", value1, value2, "followId");
             return (Criteria) this;
         }
     }
