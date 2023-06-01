@@ -1,7 +1,9 @@
 package io.metersphere.plan.controller;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.plan.dto.TestPlanDTO;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
@@ -29,6 +32,10 @@ public class TestPlanControllerTests {
     @Resource
     private MockMvc mockMvc;
 
+    private static String sessionId;
+    private static String csrfToken;
+
+
     private TestPlanDTO getSimpleTestPlan() {
         TestPlanDTO testPlan = new TestPlanDTO();
         testPlan.setId("test");
@@ -40,6 +47,20 @@ public class TestPlanControllerTests {
         testPlan.setStatus("PREPARE");
         testPlan.setCreateUser("JianGuo");
         return testPlan;
+    }
+
+
+    @Test
+    @Order(0)
+    public void login() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signin")
+                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
     }
 
     @Test
@@ -60,6 +81,8 @@ public class TestPlanControllerTests {
         testPlan.setPrincipals(participantList);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -79,6 +102,8 @@ public class TestPlanControllerTests {
         testPlan.setFollowers(followerList);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -96,6 +121,8 @@ public class TestPlanControllerTests {
         testPlan.setPrincipals(participantList);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -108,6 +135,8 @@ public class TestPlanControllerTests {
         TestPlanDTO testPlan = this.getSimpleTestPlan();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -121,6 +150,8 @@ public class TestPlanControllerTests {
         testPlan.setName("test");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/test-plan/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(testPlan))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
