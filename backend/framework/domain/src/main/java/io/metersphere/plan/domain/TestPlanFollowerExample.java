@@ -3,14 +3,14 @@ package io.metersphere.plan.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestPlanFollowExample {
+public class TestPlanFollowerExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TestPlanFollowExample() {
+    public TestPlanFollowerExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
