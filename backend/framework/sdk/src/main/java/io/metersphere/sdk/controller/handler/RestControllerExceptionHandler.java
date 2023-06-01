@@ -55,12 +55,12 @@ public class RestControllerExceptionHandler {
         }
 
         if (errorCode instanceof MsHttpResultCode) {
-            // 如果是 MsHttpResultCode, 则设置响应的状态码
-            return ResponseEntity.status(errorCode.getCode() % 1000) // 取状态码的后三位
+            // 如果是 MsHttpResultCode，则设置响应的状态码，取状态码的后三位
+            return ResponseEntity.status(errorCode.getCode() % 1000)
                     .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
         } else {
-            // 业务错误返回 200，以及业务状态码
-            return ResponseEntity.ok()
+            // 响应码返回 500，设置业务状态码
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
         }
     }
