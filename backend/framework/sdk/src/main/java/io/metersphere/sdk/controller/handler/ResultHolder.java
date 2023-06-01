@@ -1,15 +1,15 @@
 package io.metersphere.sdk.controller.handler;
 
 import lombok.Data;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Data
 public class ResultHolder {
     // 请求是否成功
     private int code = 0;
-    // 描述信息
+    // 描述信息，一般是错误信息
     private String message;
+    // 详细描述信息, 如有异常，这里是详细日志
+    private String messageDetail;
     // 返回数据
     private Object data = "";
 
@@ -33,6 +33,13 @@ public class ResultHolder {
         this.data = data;
     }
 
+    public ResultHolder(int code, String msg, String messageDetail, Object data) {
+        this.code = code;
+        this.message = msg;
+        this.messageDetail = messageDetail;
+        this.data = data;
+    }
+
     public static ResultHolder success(Object obj) {
         return new ResultHolder(obj);
     }
@@ -41,11 +48,15 @@ public class ResultHolder {
         return new ResultHolder(code, message, null);
     }
 
-    public static ResultHolder error(int code, String message, Object object) {
-        return new ResultHolder(code, message, object);
+    public static ResultHolder error(int code, String message, Object data) {
+        return new ResultHolder(code, message, data);
     }
 
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    public static ResultHolder error(String message, String messageDetail) {
+        return new ResultHolder(-1, message, messageDetail, null);
+    }
+
+    public static ResultHolder error(int code, String message, String messageDetail) {
+        return new ResultHolder(code, message, messageDetail, null);
     }
 }
