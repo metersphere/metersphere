@@ -47,7 +47,3 @@ export function isEmptyObject(obj: any): boolean {
 export function isExist(obj: any): boolean {
   return obj || obj === 0;
 }
-
-export function isWindow(el: any): el is Window {
-  return el === window;
-}
