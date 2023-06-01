@@ -1,8 +1,10 @@
 package io.metersphere.api.controller;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.ApiDefinitionDTO;
 import io.metersphere.api.dto.ApiDefinitionListRequest;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -25,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -35,10 +37,27 @@ public class ApiDefinitionControllerTests {
     @Resource
     private MockMvc mockMvc;
     private final static String prefix = "/api/definition";
+    private static String sessionId;
+    private static String csrfToken;
 
     @Before
     public void init() {
         LogUtils.info("init base api test");
+    }
+
+
+
+    @Test
+    @Order(0)
+    public void login() throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signin")
+                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
     }
 
     @Test
@@ -71,9 +90,11 @@ public class ApiDefinitionControllerTests {
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/add")
                         .file(file)
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JsonUtils.toJSONString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.id").value("test-api-id"));
     }
 
@@ -93,8 +114,10 @@ public class ApiDefinitionControllerTests {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                        .content(JsonUtils.toJSONString(request))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
                 .andReturn();
 
         MockHttpServletResponse mockResponse = mvcResult.getResponse();
@@ -125,8 +148,10 @@ public class ApiDefinitionControllerTests {
         request.setPageSize(20);
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                        .content(JsonUtils.toJSONString(request))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isBadRequest());
 
         //pageSize为空
         request = new ApiDefinitionListRequest();
@@ -134,8 +159,10 @@ public class ApiDefinitionControllerTests {
         request.setProjectId("test-project-id");
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                        .content(JsonUtils.toJSONString(request))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isBadRequest());
 
         //current为空
         request = new ApiDefinitionListRequest();
@@ -143,8 +170,10 @@ public class ApiDefinitionControllerTests {
         request.setProjectId("test-project-id");
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request)))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                        .content(JsonUtils.toJSONString(request))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isBadRequest());
     }
 
 }

@@ -3,6 +3,10 @@ package io.metersphere.sdk.controller.handler;
 import io.metersphere.sdk.controller.handler.result.IResultCode;
 import io.metersphere.sdk.controller.handler.result.MsHttpResultCode;
 import io.metersphere.sdk.exception.MSException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.shiro.ShiroException;
+import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -22,6 +26,7 @@ public class RestControllerExceptionHandler {
      * 处理数据校验异常
      * 返回具体字段的校验信息
      * http 状态码返回 400
+     *
      * @param ex
      * @return
      */
@@ -41,6 +46,7 @@ public class RestControllerExceptionHandler {
     /**
      * 根据 MSException 中的 errorCode
      * 设置对应的 Http 状态码，以及业务状态码和错误提示
+     *
      * @param e
      * @return
      */
@@ -64,4 +70,20 @@ public class RestControllerExceptionHandler {
                     .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
         }
     }
+
+    /*=========== Shiro 异常拦截==============*/
+    @ExceptionHandler(ShiroException.class)
+    public ResultHolder exceptionHandler(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        return ResultHolder.error(HttpStatus.UNAUTHORIZED.value(), exception.getMessage());
+    }
+
+    /*=========== Shiro 异常拦截==============*/
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResultHolder unauthorizedExceptionHandler(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        return ResultHolder.error(HttpStatus.FORBIDDEN.value(), exception.getMessage());
+    }
+
+
 }

@@ -7,16 +7,16 @@ public class MSException extends RuntimeException {
 
     protected IResultCode errorCode;
 
-    protected MSException(String message) {
+    public MSException(String message) {
         super(message);
     }
 
-    protected MSException(IResultCode errorCode, String message) {
+    public MSException(IResultCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    protected MSException(IResultCode errorCode, Throwable t) {
+    public MSException(IResultCode errorCode, Throwable t) {
         super(t);
         this.errorCode = errorCode;
     }

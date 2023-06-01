@@ -1,0 +1,38 @@
+package io.metersphere.sdk.dto;
+
+import io.metersphere.sdk.util.CodingUtil;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
+@Setter
+@Getter
+public class SessionUser extends UserDTO implements Serializable {
+    public static final String secret = "9a9rdqPlTqhpZzkq";
+    public static final String iv = "1Av7hf9PgHusUHRm";
+
+    private static final long serialVersionUID = -7149638440406959033L;
+    private String csrfToken;
+    private String sessionId;
+    private String loginUrl; // 三方登录地址，如果有值，前端跳转到该地址
+
+    private SessionUser() {
+    }
+
+    public static SessionUser fromUser(UserDTO user, String sessionId) {
+        SessionUser sessionUser = new SessionUser();
+        BeanUtils.copyProperties(user, sessionUser);
+
+        List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.randomAlphabetic(6), sessionId, StringUtils.EMPTY + System.currentTimeMillis());
+        sessionUser.csrfToken = CodingUtil.aesEncrypt(StringUtils.join(infos, "|"), secret, iv);
+        sessionUser.sessionId = sessionId;
+        return sessionUser;
+    }
+
+}
