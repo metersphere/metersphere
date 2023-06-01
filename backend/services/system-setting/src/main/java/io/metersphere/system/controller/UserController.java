@@ -29,13 +29,18 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public boolean addUser(@Validated({Created.class}) @RequestBody UserDTO user) {
+    public UserDTO addUser(@Validated({Created.class}) @RequestBody UserDTO user) {
         return userService.add(user);
     }
 
     @PostMapping("/update")
-    public boolean updateUser(@Validated({Updated.class}) @RequestBody UserDTO user) {
+    public UserDTO updateUser(@Validated({Updated.class}) @RequestBody UserDTO user) {
         return userService.update(user);
+    }
+
+    @GetMapping("/delete/{userId}")
+    public UserDTO deleteUser(@PathVariable String userId) {
+        return userService.delete(userId);
     }
 
     @PostMapping("/batch-add2")
