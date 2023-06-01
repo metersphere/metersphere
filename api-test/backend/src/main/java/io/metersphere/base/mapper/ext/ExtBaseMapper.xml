@@ -57,8 +57,37 @@
             <when test='${object}.operator == "le"'>
                 &lt;= #{${object}.value}
             </when>
-            <when test='${object}.operator == "current user"'>
-                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="includeCondition">
+        <choose>
+            <when test='${object}.operator == "like" or ${object}.operator == "not like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in" or ${object}.operator == "not in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
             </when>
             <otherwise>
                 = #{${object}.value}

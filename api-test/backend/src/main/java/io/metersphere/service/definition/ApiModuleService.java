@@ -22,6 +22,7 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
+import io.metersphere.service.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -161,6 +162,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             request.setVersionId(versionId);
         }
         apiDefinitionService.checkFilterHasCoverage(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<ApiModuleDTO> countMNodes;
         if (isCaseRelevance) {
             countMNodes = extApiDefinitionMapper.moduleCaseCountByCollection(request);

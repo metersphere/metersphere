@@ -203,7 +203,8 @@ export default {
       })
       this.newCustomFiled = newConfig.components.filter(co => co.custom);
       for (let customField of this.newCustomFiled) {
-        this.$set(customField, 'disable', false)
+        let co = _findByKey(this.optional.components, customField.key);
+        co ? this.$set(co, 'disable', true) : this.$set(customField, 'disable', false);
       }
       this.config.components[1] = {label: this.$t('custom_field.name'), child: this.newCustomFiled};
     },

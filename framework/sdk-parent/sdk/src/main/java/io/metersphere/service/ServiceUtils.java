@@ -9,6 +9,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.request.BaseQueryRequest;
 import io.metersphere.request.OrderRequest;
 import io.metersphere.request.ResetOrderRequest;
@@ -387,18 +388,16 @@ public class ServiceUtils {
         if (MapUtils.isNotEmpty(request.getCombine()) && ObjectUtils.isNotEmpty((request.getCombine().get("customs")))) {
             List<Map<String, Object>> customs = (List<Map<String, Object>>) request.getCombine().get("customs");
             customs.forEach(custom -> {
+                if(StringUtils.equalsIgnoreCase(custom.get("operator").toString(), "current user")){
+                    String userId = SessionUtils.getUserId();
+                    custom.put("value", userId);
+                }
                 if (StringUtils.equalsAny(custom.get("type").toString(), CustomFieldType.MULTIPLE_MEMBER.getValue(),
                         CustomFieldType.CHECKBOX.getValue(), CustomFieldType.MULTIPLE_SELECT.getValue())
                         && StringUtils.isNotEmpty(custom.get("value").toString())) {
                     List<String> customValues = JSON.parseArray(custom.get("value").toString(), String.class);
-                    List<String> jsonValues;
-                    if (StringUtils.equalsIgnoreCase(custom.get("operator").toString(), OperatorTypeConstants.NOT_IN)) {
-                        jsonValues = customValues.stream().map(item -> "locate('"+item+"',`value`) = 0").collect(Collectors.toList());
-                        custom.put("value", "(".concat(StringUtils.join(jsonValues, " and ")).concat(")"));
-                    } else {
-                        jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).collect(Collectors.toList());
-                        custom.put("value", "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));
-                    }
+                    List<String> jsonValues = customValues.stream().map(item -> "JSON_CONTAINS(`value`, '[\"".concat(item).concat("\"]')")).collect(Collectors.toList());
+                    custom.put("value", "(".concat(StringUtils.join(jsonValues, " OR ")).concat(")"));
 
                 }
             });

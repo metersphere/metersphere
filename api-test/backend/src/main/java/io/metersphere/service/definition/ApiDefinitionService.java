@@ -181,7 +181,7 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
-        setCustomFieldsOrder(request);
+        ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         buildUserInfo(resList);
         if (StringUtils.isNotBlank(request.getProjectId())) {
