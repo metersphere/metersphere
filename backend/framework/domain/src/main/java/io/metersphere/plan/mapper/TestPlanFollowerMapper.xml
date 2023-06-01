@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.plan.mapper.TestPlanFollowMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanFollow">
+<mapper namespace="io.metersphere.plan.mapper.TestPlanFollowerMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanFollower">
     <id column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <id column="user_id" jdbcType="VARCHAR" property="userId" />
   </resultMap>
@@ -66,13 +66,13 @@
   <sql id="Base_Column_List">
     test_plan_id, user_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from test_plan_follow
+    from test_plan_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -81,22 +81,22 @@
     </if>
   </select>
   <delete id="deleteByPrimaryKey" parameterType="map">
-    delete from test_plan_follow
+    delete from test_plan_follower
     where test_plan_id = #{testPlanId,jdbcType=VARCHAR}
       and user_id = #{userId,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowExample">
-    delete from test_plan_follow
+  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowerExample">
+    delete from test_plan_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanFollow">
-    insert into test_plan_follow (test_plan_id, user_id)
+  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanFollower">
+    insert into test_plan_follower (test_plan_id, user_id)
     values (#{testPlanId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanFollow">
-    insert into test_plan_follow
+  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanFollower">
+    insert into test_plan_follower
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="testPlanId != null">
         test_plan_id,
@@ -114,14 +114,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowExample" resultType="java.lang.Long">
-    select count(*) from test_plan_follow
+  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanFollowerExample" resultType="java.lang.Long">
+    select count(*) from test_plan_follower
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update test_plan_follow
+    update test_plan_follower
     <set>
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
@@ -135,7 +135,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update test_plan_follow
+    update test_plan_follower
     set test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR}
     <if test="_parameter != null">
