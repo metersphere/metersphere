@@ -1965,7 +1965,7 @@ export default {
       return new Promise((resolve) => {
         const encoder = new TextEncoder();
         const bytes = encoder.encode(definition, 'utf-8');
-        getApiScenarioEnv({ definition: bytes }).then((res) => {
+        getApiScenarioEnv(bytes ).then((res) => {
           if (res.data) {
             this.projectIds = new Set(res.data.projectIds);
             this.projectIds.add(this.projectId);
