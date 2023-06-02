@@ -18,7 +18,7 @@
     <description>MeterSphere</description>
 
     <properties>
-        <revision>2.10</revision>
+        <revision>2.10.x</revision>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.3</spring-cloud.version>
         <dubbo.version>2.7.22</dubbo.version>
