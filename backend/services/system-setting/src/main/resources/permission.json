@@ -1,0 +1,382 @@
+{
+  "permissions": [
+    {
+      "id": "SYSTEM_USER:READ",
+      "name": "permission.system_user.read",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_USER:READ+CREATE",
+      "name": "permission.system_user.create",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_USER:READ+IMPORT",
+      "name": "permission.system_user.import",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_USER:READ+EDIT",
+      "name": "permission.system_user.edit",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_USER:READ+DELETE",
+      "name": "permission.system_user.delete",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_USER:READ+EDIT_PASSWORD",
+      "name": "permission.system_user.edit_password",
+      "resourceId": "SYSTEM_USER"
+    },
+    {
+      "id": "SYSTEM_WORKSPACE:READ",
+      "name": "permission.system_workspace.read",
+      "resourceId": "SYSTEM_WORKSPACE"
+    },
+    {
+      "id": "SYSTEM_WORKSPACE:READ+CREATE",
+      "name": "permission.system_workspace.create",
+      "resourceId": "SYSTEM_WORKSPACE"
+    },
+    {
+      "id": "SYSTEM_WORKSPACE:READ+EDIT",
+      "name": "permission.system_workspace.edit",
+      "resourceId": "SYSTEM_WORKSPACE"
+    },
+    {
+      "id": "SYSTEM_WORKSPACE:READ+DELETE",
+      "name": "permission.system_workspace.delete",
+      "resourceId": "SYSTEM_WORKSPACE"
+    },
+    {
+      "id": "SYSTEM_ROLE:READ",
+      "name": "permission.system_role.read",
+      "resourceId": "SYSTEM_ROLE"
+    },
+    {
+      "id": "SYSTEM_ROLE:READ+CREATE",
+      "name": "permission.system_role.create",
+      "resourceId": "SYSTEM_ROLE"
+    },
+    {
+      "id": "SYSTEM_ROLE:READ+EDIT",
+      "name": "permission.system_role.edit",
+      "resourceId": "SYSTEM_ROLE"
+    },
+    {
+      "id": "SYSTEM_ROLE:READ+SETTING_PERMISSION",
+      "name": "permission.system_role.setting_permission",
+      "resourceId": "SYSTEM_ROLE"
+    },
+    {
+      "id": "SYSTEM_ROLE:READ+DELETE",
+      "name": "permission.system_role.delete",
+      "resourceId": "SYSTEM_ROLE"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ",
+      "name": "permission.system_test_pool.read",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+CREATE",
+      "name": "permission.system_test_pool.create",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+EDIT",
+      "name": "permission.system_test_pool.edit",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+DELETE",
+      "name": "permission.system_test_pool.delete",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_SETTING:READ",
+      "name": "permission.system_setting.read",
+      "resourceId": "SYSTEM_SETTING"
+    },
+    {
+      "id": "SYSTEM_SETTING:READ+EDIT",
+      "name": "permission.system_setting.edit",
+      "resourceId": "SYSTEM_SETTING"
+    },
+    {
+      "id": "SYSTEM_QUOTA:READ",
+      "name": "permission.system_quota.read",
+      "resourceId": "SYSTEM_QUOTA"
+    },
+    {
+      "id": "SYSTEM_QUOTA:READ+EDIT",
+      "name": "permission.system_quota.edit",
+      "resourceId": "SYSTEM_QUOTA"
+    },
+    {
+      "id": "SYSTEM_AUTH:READ",
+      "name": "permission.system_auth.read",
+      "resourceId": "SYSTEM_AUTH"
+    },
+    {
+      "id": "SYSTEM_AUTH:READ+EDIT",
+      "name": "permission.system_auth.edit",
+      "resourceId": "SYSTEM_AUTH"
+    },
+    {
+      "id": "SYSTEM_OPERATING_LOG:READ",
+      "name": "permission.system_operation_log.read",
+      "resourceId": "SYSTEM_OPERATING_LOG"
+    },
+    {
+      "id": "WORKSPACE_SERVICE:READ",
+      "name": "permission.workspace_service.read",
+      "resourceId": "WORKSPACE_SERVICE"
+    },
+    {
+      "id": "WORKSPACE_SERVICE:READ+EDIT",
+      "name": "permission.workspace_service.edit",
+      "resourceId": "WORKSPACE_SERVICE"
+    },
+    {
+      "id": "WORKSPACE_USER:READ",
+      "name": "permission.workspace_user.read",
+      "resourceId": "WORKSPACE_USER"
+    },
+    {
+      "id": "WORKSPACE_USER:READ+CREATE",
+      "name": "permission.workspace_user.create",
+      "resourceId": "WORKSPACE_USER"
+    },
+    {
+      "id": "WORKSPACE_USER:READ+EDIT",
+      "name": "permission.workspace_user.edit",
+      "resourceId": "WORKSPACE_USER"
+    },
+    {
+      "id": "WORKSPACE_USER:READ+DELETE",
+      "name": "permission.workspace_user.delete",
+      "resourceId": "WORKSPACE_USER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ",
+      "name": "permission.workspace_project_manager.read",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+CREATE",
+      "name": "permission.workspace_project_manager.create",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+EDIT",
+      "name": "permission.workspace_project_manager.edit",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+DELETE",
+      "name": "permission.workspace_project_manager.delete",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+ENVIRONMENT_CONFIG",
+      "name": "permission.workspace_project_manager.environment_config",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+ADD_USER",
+      "name": "permission.workspace_user.create",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+EDIT_USER",
+      "name": "permission.workspace_user.edit",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+DELETE_USER",
+      "name": "permission.workspace_user.delete",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
+      "name": "permission.workspace_project_environment.read",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE",
+      "name": "permission.workspace_project_environment.create",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT",
+      "name": "permission.workspace_project_environment.edit",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE",
+      "name": "permission.workspace_project_environment.delete",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY",
+      "name": "permission.workspace_project_environment.copy",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT",
+      "name": "permission.workspace_project_environment.import",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT",
+      "name": "permission.workspace_project_environment.export",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP",
+      "name": "permission.workspace_project_environment.create_group",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP",
+      "name": "permission.workspace_project_environment.edit_group",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY_GROUP",
+      "name": "permission.workspace_project_environment.copy_group",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE_GROUP",
+      "name": "permission.workspace_project_environment.delete_group",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_QUOTA:READ",
+      "name": "permission.workspace_quota.read",
+      "resourceId": "WORKSPACE_QUOTA"
+    },
+    {
+      "id": "WORKSPACE_QUOTA:READ+EDIT",
+      "name": "permission.workspace_quota.edit",
+      "resourceId": "WORKSPACE_QUOTA"
+    },
+    {
+      "id": "WORKSPACE_OPERATING_LOG:READ",
+      "name": "permission.workspace_operation_log.read",
+      "resourceId": "WORKSPACE_OPERATING_LOG"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:UPLOAD",
+      "name": "permission.system_plugin.upload",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:DEL",
+      "name": "permission.system_plugin.delete",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "SYSTEM_PLUGIN:READ",
+      "name": "permission.system_plugin.read",
+      "resourceId": "SYSTEM_PLUGIN"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT",
+      "name": "permission.personal_information.personal_setting",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+API_KEYS",
+      "name": "permission.personal_information.api_keys",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+EDIT_PASSWORD",
+      "name": "permission.personal_information.edit_password",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+THIRD_ACCOUNT",
+      "name": "permission.personal_information.third_account",
+      "resourceId": "PERSONAL_INFORMATION"
+    },
+    {
+      "id": "PERSONAL_INFORMATION:READ+UI_SETTING",
+      "name": "permission.personal_information.ui_setting",
+      "resourceId": "PERSONAL_INFORMATION",
+      "license": true
+    }
+  ],
+  "resource": [
+    {
+      "id": "SYSTEM_USER",
+      "name": "permission.system_user.name"
+    },
+    {
+      "id": "SYSTEM_WORKSPACE",
+      "name": "permission.system_workspace.name"
+    },
+    {
+      "id": "SYSTEM_ROLE",
+      "name": "permission.system_role.name"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL",
+      "name": "permission.system_test_pool.name"
+    },
+    {
+      "id": "SYSTEM_SETTING",
+      "name": "permission.system_setting.name"
+    },
+    {
+      "id": "SYSTEM_QUOTA",
+      "name": "permission.system_quota.name"
+    },
+    {
+      "id": "SYSTEM_AUTH",
+      "name": "permission.system_auth.name"
+    },
+    {
+      "id": "SYSTEM_OPERATING_LOG",
+      "name": "permission.system_operation_log.name"
+    },
+    {
+      "id": "SYSTEM_PLUGIN",
+      "name": "permission.system_plugin.name"
+    },
+    {
+      "id": "WORKSPACE_USER",
+      "name": "permission.workspace_user.name"
+    },
+    {
+      "id": "WORKSPACE_SERVICE",
+      "name": "permission.workspace_service.name"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER",
+      "name": "permission.workspace_project_manager.name"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT",
+      "name": "permission.workspace_project_environment.name"
+    },
+    {
+      "id": "WORKSPACE_QUOTA",
+      "name": "permission.workspace_quota.name"
+    },
+    {
+      "id": "WORKSPACE_OPERATING_LOG",
+      "name": "permission.workspace_operation_log.name"
+    },
+    {
+      "id": "PERSONAL_INFORMATION",
+      "name": "permission.personal_information.name",
+      "global": true
+    }
+  ]
+}

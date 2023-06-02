@@ -132,12 +132,12 @@ public class SessionUtils {
 
     public static boolean hasPermission(String workspaceId, String projectId, String permission) {
         Map<String, List<UserRolePermission>> userRolePermissions = new HashMap<>();
-        Map<String, UserRole> group = new HashMap<>();
+        Map<String, UserRole> role = new HashMap<>();
         SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
         user.getUserRoleRelations().forEach(ug -> user.getUserRolePermissions().forEach(gp -> {
             if (StringUtils.equals(gp.getUserRole().getId(), ug.getRoleId())) {
                 userRolePermissions.put(ug.getId(), gp.getUserRolePermissions());
-                group.put(ug.getId(), gp.getUserRole());
+                role.put(ug.getId(), gp.getUserRole());
             }
         }));
 
@@ -151,41 +151,41 @@ public class SessionUtils {
         }
 
 
-        Set<String> currentProjectPermissions = getCurrentProjectPermissions(userRolePermissions, projectId, group, user);
+        Set<String> currentProjectPermissions = getCurrentProjectPermissions(userRolePermissions, projectId, role, user);
         if (currentProjectPermissions.contains(permission)) {
             return true;
         }
 
-        Set<String> currentWorkspacePermissions = getCurrentWorkspacePermissions(userRolePermissions, workspaceId, group, user);
+        Set<String> currentWorkspacePermissions = getCurrentWorkspacePermissions(userRolePermissions, workspaceId, role, user);
         if (currentWorkspacePermissions.contains(permission)) {
             return true;
         }
 
-        Set<String> systemPermissions = getSystemPermissions(userRolePermissions, group, user);
+        Set<String> systemPermissions = getSystemPermissions(userRolePermissions, role, user);
         return systemPermissions.contains(permission);
     }
 
-    private static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> group, SessionUser user) {
+    private static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "SYSTEM"))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "SYSTEM"))
                 .filter(ug -> StringUtils.equals(ug.getSourceId(), "system") || StringUtils.equals(ug.getSourceId(), "'adminSourceId'"))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());
     }
 
-    private static Set<String> getCurrentWorkspacePermissions(Map<String, List<UserRolePermission>> userRolePermissions, String workspaceId, Map<String, UserRole> group, SessionUser user) {
+    private static Set<String> getCurrentWorkspacePermissions(Map<String, List<UserRolePermission>> userRolePermissions, String workspaceId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "WORKSPACE"))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "WORKSPACE"))
                 .filter(ug -> StringUtils.equals(ug.getSourceId(), workspaceId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());
     }
 
-    private static Set<String> getCurrentProjectPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String projectId, Map<String, UserRole> group, SessionUser user) {
+    private static Set<String> getCurrentProjectPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String projectId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> group.get(ug.getId()) != null && StringUtils.equals(group.get(ug.getId()).getType(), "PROJECT"))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "PROJECT"))
                 .filter(ug -> StringUtils.equals(ug.getSourceId(), projectId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)

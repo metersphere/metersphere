@@ -37,6 +37,6 @@
         SELECT COUNT(*)
         FROM user_role_relation
         WHERE user_id = #{userId}
-          AND role_id = 'super_group'
+          AND role_id = 'super'
     </select>
 </mapper>

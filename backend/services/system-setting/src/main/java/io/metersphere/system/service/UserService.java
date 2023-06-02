@@ -60,10 +60,6 @@ public class UserService {
         return baseUserMapper.selectById(id);
     }
 
-    public List<User> list() {
-        return baseUserMapper.findAll();
-    }
-
     public boolean batchSave2(List<User> users) {
         long start = System.currentTimeMillis();
 
