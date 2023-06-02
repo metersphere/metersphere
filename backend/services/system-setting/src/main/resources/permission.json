@@ -6,8 +6,8 @@
       "resourceId": "SYSTEM_USER"
     },
     {
-      "id": "SYSTEM_USER:READ+CREATE",
-      "name": "permission.system_user.create",
+      "id": "SYSTEM_USER:READ+ADD",
+      "name": "permission.system_user.add",
       "resourceId": "SYSTEM_USER"
     },
     {
@@ -36,8 +36,8 @@
       "resourceId": "SYSTEM_WORKSPACE"
     },
     {
-      "id": "SYSTEM_WORKSPACE:READ+CREATE",
-      "name": "permission.system_workspace.create",
+      "id": "SYSTEM_WORKSPACE:READ+ADD",
+      "name": "permission.system_workspace.add",
       "resourceId": "SYSTEM_WORKSPACE"
     },
     {
@@ -56,8 +56,8 @@
       "resourceId": "SYSTEM_ROLE"
     },
     {
-      "id": "SYSTEM_ROLE:READ+CREATE",
-      "name": "permission.system_role.create",
+      "id": "SYSTEM_ROLE:READ+ADD",
+      "name": "permission.system_role.add",
       "resourceId": "SYSTEM_ROLE"
     },
     {
@@ -81,8 +81,8 @@
       "resourceId": "SYSTEM_TEST_POOL"
     },
     {
-      "id": "SYSTEM_TEST_POOL:READ+CREATE",
-      "name": "permission.system_test_pool.create",
+      "id": "SYSTEM_TEST_POOL:READ+ADD",
+      "name": "permission.system_test_pool.add",
       "resourceId": "SYSTEM_TEST_POOL"
     },
     {
@@ -146,8 +146,8 @@
       "resourceId": "WORKSPACE_USER"
     },
     {
-      "id": "WORKSPACE_USER:READ+CREATE",
-      "name": "permission.workspace_user.create",
+      "id": "WORKSPACE_USER:READ+ADD",
+      "name": "permission.workspace_user.add",
       "resourceId": "WORKSPACE_USER"
     },
     {
@@ -166,8 +166,8 @@
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
-      "id": "WORKSPACE_PROJECT_MANAGER:READ+CREATE",
-      "name": "permission.workspace_project_manager.create",
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+ADD",
+      "name": "permission.workspace_project_manager.add",
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
@@ -187,7 +187,7 @@
     },
     {
       "id": "WORKSPACE_PROJECT_MANAGER:READ+ADD_USER",
-      "name": "permission.workspace_user.create",
+      "name": "permission.workspace_user.add",
       "resourceId": "WORKSPACE_PROJECT_MANAGER"
     },
     {
@@ -206,8 +206,8 @@
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
-      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE",
-      "name": "permission.workspace_project_environment.create",
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+ADD",
+      "name": "permission.workspace_project_environment.add",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
@@ -236,8 +236,8 @@
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
-      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE_GROUP",
-      "name": "permission.workspace_project_environment.create_group",
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+ADD_GROUP",
+      "name": "permission.workspace_project_environment.add_group",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
