@@ -21,11 +21,11 @@ module.exports = {
     webSocketServer: 'sockjs',
     proxy: {
       ['^((?!/login)(?!/document))']: {
-        target: 'http://192.168.0.41:8005',
+        target: 'http://localhost:8005',
         ws: false
       },
       '/websocket': {
-        target: 'http://192.168.0.41:8005',
+        target: 'http://localhost:8005',
         ws: true
       },
     },
@@ -220,7 +220,7 @@ module.exports = {
         rootpath: '../../framework/sdk-parent/frontend/public/js',
         noAssetMatch: 'warn'
       }), [HtmlWebpackPlugin]);
-    
+
     config.plugin('inline-source-html-planReport')
       .after('html-planReport')
       .use(HtmlWebpackInlineSourcePlugin, [HtmlWebpackPlugin]);

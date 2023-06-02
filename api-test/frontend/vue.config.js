@@ -17,11 +17,11 @@ module.exports = {
     webSocketServer: 'sockjs',
     proxy: {
       ['^((?!/login)(?!/document))']: {
-        target: 'http://192.168.0.41:8004',
+        target: 'http://localhost:8004',
         ws: false,
       },
       '/websocket': {
-        target: 'http://192.168.0.41:8004',
+        target: 'http://localhost:8004',
         ws: true,
       },
     },

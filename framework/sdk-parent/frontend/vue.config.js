@@ -16,11 +16,11 @@ module.exports = {
     allowedHosts: 'all',
     proxy: {
       ['^((?!/login)(?!/document))']: {
-        target: 'http://192.168.0.41:8000',
+        target: 'http://localhost:8000',
         ws: false
       },
       '/websocket': {
-        target: 'http://192.168.0.41:8000',
+        target: 'http://localhost:8000',
         ws: true
       },
     },
@@ -112,7 +112,7 @@ module.exports = {
       .options({
         symbolId: 'icon-[name]'
       })
-    
+
       if (process.env.NODE_ENV === 'analyze') {
         config.plugin('webpack-report').use(BundleAnalyzerPlugin, [
           {
