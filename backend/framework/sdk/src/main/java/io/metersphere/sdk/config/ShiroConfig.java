@@ -1,6 +1,7 @@
 package io.metersphere.sdk.config;
 
 
+import io.metersphere.sdk.security.ApiKeyFilter;
 import io.metersphere.sdk.security.CsrfFilter;
 import io.metersphere.sdk.security.MsPermissionAnnotationMethodInterceptor;
 import io.metersphere.sdk.security.realm.LocalRealm;
@@ -39,17 +40,15 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/403");
         shiroFilterFactoryBean.setSuccessUrl("/");
 
-//        shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
+        shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
 
         filterChainDefinitionMap.putAll(FilterChainUtils.loadBaseFilterChain());
-        // todo ignore csrf
-//        filterChainDefinitionMap.putAll(FilterChainUtils.ignoreCsrfFilter());
 
-        filterChainDefinitionMap.put("/**", "csrf, authc");
-        // todo
-//        filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
+        filterChainDefinitionMap.putAll(FilterChainUtils.ignoreCsrfFilter());
+
+        filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
         return shiroFilterFactoryBean;
     }
 
