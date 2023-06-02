@@ -48,7 +48,7 @@
   import { PropType, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import { useTabBarStore } from '@/store';
-  import type { TagProps } from '@/store/modules/tab-bar/types';
+  import type { TabProps } from '@/store/modules/tab-bar/types';
   import { DEFAULT_ROUTE_NAME, REDIRECT_ROUTE_NAME } from '@/router/constants';
 
   // eslint-disable-next-line no-shadow
@@ -63,7 +63,7 @@
 
   const props = defineProps({
     itemData: {
-      type: Object as PropType<TagProps>,
+      type: Object as PropType<TabProps>,
       default() {
         return [];
       },
@@ -78,7 +78,7 @@
   const route = useRoute();
   const tabBarStore = useTabBarStore();
 
-  const goto = (tag: TagProps) => {
+  const goto = (tag: TabProps) => {
     router.push({ ...tag });
   };
   const tabList = computed(() => {
@@ -101,7 +101,7 @@
     return props.index === tabList.value.length - 1;
   });
 
-  const tagClose = (tag: TagProps, idx: number) => {
+  const tagClose = (tag: TabProps, idx: number) => {
     tabBarStore.deleteTag(idx, tag);
     if (props.itemData.fullPath === route.fullPath) {
       const latest = tabList.value[idx - 1]; // 获取队列的前一个tab

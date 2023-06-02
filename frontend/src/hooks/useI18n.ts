@@ -11,22 +11,12 @@ type I18nGlobalTranslation = {
 
 type I18nTranslationRestParameters = [string, any];
 
-function getKey(namespace: string | undefined, key: string) {
-  if (!namespace) {
-    return key;
-  }
-  if (key.startsWith(namespace)) {
-    return key;
-  }
-  return `${namespace}.${key}`;
-}
-
 export function useI18n(namespace?: string): {
   t: I18nGlobalTranslation;
 } {
   const normalFn = {
     t: (key: string) => {
-      return getKey(namespace, key);
+      return key;
     },
   };
 
@@ -40,7 +30,7 @@ export function useI18n(namespace?: string): {
     if (!key) return '';
     if (!key.includes('.') && !namespace) return key;
     // @ts-ignore
-    return t(getKey(namespace, key), ...(arg as I18nTranslationRestParameters));
+    return t(key, ...(arg as I18nTranslationRestParameters));
   };
   return {
     ...methods,

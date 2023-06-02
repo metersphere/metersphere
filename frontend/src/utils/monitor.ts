@@ -1,6 +1,12 @@
 import { App, ComponentPublicInstance } from 'vue';
 import axios from 'axios';
 
+/**
+ * TODO:错误捕获
+ * @param Vue
+ * @param baseUrl
+ * @returns
+ */
 export default function handleError(Vue: App, baseUrl: string) {
   if (!baseUrl) {
     return;

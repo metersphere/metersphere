@@ -73,6 +73,7 @@ module.exports = {
     'global-require': 0,
     'no-plusplus': 'off',
     'no-underscore-dangle': 'off',
+    'vue/attributes-order': 1,
   },
   // 对特定文件进行配置
   overrides: [

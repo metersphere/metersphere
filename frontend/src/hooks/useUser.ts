@@ -3,6 +3,10 @@ import { Message } from '@arco-design/web-vue';
 import { useUserStore } from '@/store';
 import { useI18n } from '@/hooks/useI18n';
 
+/**
+ * 用户相关
+ * @returns 调用方法
+ */
 export default function useUser() {
   const router = useRouter();
   const userStore = useUserStore();

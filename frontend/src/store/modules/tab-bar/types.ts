@@ -1,4 +1,4 @@
-export interface TagProps {
+export interface TabProps {
   title: string;
   name: string;
   fullPath: string;
@@ -7,6 +7,6 @@ export interface TagProps {
 }
 
 export interface TabBarState {
-  tabList: TagProps[];
+  tabList: TabProps[];
   cacheTabList: Set<string>;
 }

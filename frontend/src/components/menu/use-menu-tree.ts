@@ -4,6 +4,10 @@ import usePermission from '@/hooks/usePermission';
 import appClientMenus from '@/router/app-menus';
 import { cloneDeep } from 'lodash-es';
 
+/**
+ * 获取菜单树
+ * @returns
+ */
 export default function useMenuTree() {
   const permission = usePermission();
   const menuTree = computed(() => {
@@ -14,7 +18,7 @@ export default function useMenuTree() {
     function travel(_routes: RouteRecordRaw[], layer: number) {
       if (!_routes) return null;
 
-      const collector: any = _routes.map((element) => {
+      const collector = _routes.map((element) => {
         // 权限校验不通过
         if (!permission.accessRouter(element)) {
           return null;
@@ -32,13 +36,13 @@ export default function useMenuTree() {
         // 解析子菜单
         const subItem = travel(element.children, layer + 1);
 
-        if (subItem.length) {
-          element.children = subItem;
+        if (subItem && subItem.length) {
+          element.children = subItem as RouteRecordRaw[];
           return element;
         }
         // the else logic
         if (layer > 1) {
-          element.children = subItem;
+          element.children = subItem as RouteRecordRaw[];
           return element;
         }
 

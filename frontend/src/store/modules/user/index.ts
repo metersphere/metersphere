@@ -40,24 +40,24 @@ const useUserStore = defineStore('user', {
         resolve(this.role);
       });
     },
-    // Set user's information
+    // 设置用户信息
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
     },
 
-    // Reset user's information
+    // 重置用户信息
     resetInfo() {
       this.$reset();
     },
 
-    // Get user's information
+    // 获取用户信息
     async info() {
       const res = await getUserInfo();
 
       this.setInfo(res);
     },
 
-    // Login
+    // 登录
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
@@ -67,6 +67,7 @@ const useUserStore = defineStore('user', {
         throw err;
       }
     },
+    // 登出回调
     logoutCallBack() {
       const appStore = useAppStore();
       this.resetInfo();
@@ -74,7 +75,7 @@ const useUserStore = defineStore('user', {
       removeRouteListener();
       appStore.clearServerMenu();
     },
-    // Logout
+    // 登出
     async logout() {
       try {
         await userLogout();

@@ -10,6 +10,9 @@ interface optionsFn {
   (isDark: boolean): EChartsOption;
 }
 
+/**
+ * echarts 配置
+ */
 export default function useChartOption(sourceOption: optionsFn) {
   const appStore = useAppStore();
   const isDark = computed(() => {

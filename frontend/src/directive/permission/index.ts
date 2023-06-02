@@ -1,6 +1,11 @@
 import { DirectiveBinding } from 'vue';
 import { useUserStore } from '@/store';
 
+/**
+ * 权限指令,TODO:权限判定按权限点来
+ * @param el dom 节点
+ * @param binding vue 绑定的数据
+ */
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   const { value } = binding;
   const userStore = useUserStore();
