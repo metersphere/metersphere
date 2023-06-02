@@ -3,7 +3,6 @@
 
 import { ref } from 'vue';
 import { MsTabelProps, MsTableData, MsTableColumn } from './type';
-import CommonReponse from '@/models/common';
 import { ApiTestListI } from '@/models/api-test';
 
 export interface Pagination {
@@ -19,11 +18,11 @@ export interface QueryParams {
   [key: string]: any;
 }
 
-type GetListFunc = (v: QueryParams) => Promise<CommonReponse<ApiTestListI>>;
+type GetListFunc = (v: QueryParams) => Promise<ApiTestListI>;
 export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
   const defaultProps: MsTabelProps = {
     'bordered': true,
-    'size': 'small',
+    'size': 'mini',
     'scroll': { y: 550, x: '1400px' },
     'expandable': false,
     'loading': true,
@@ -85,7 +84,7 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
   const loadList = async () => {
     const { current, pageSize } = propsRes.value.pagination as Pagination;
     setLoading(true);
-    const { data } = await loadListFunc({
+    const data = await loadListFunc({
       current,
       pageSize,
       ...loadListParams.value,

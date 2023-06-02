@@ -76,12 +76,12 @@ const transform: AxiosTransform = {
       throw new Error(t('api.apiRequestFailed'));
     }
     //  这里 code，result，message为 后台统一的字段
-    const { code, result, message } = data;
+    const { code, data: dataResult, message } = data;
 
     // TODO:定义完成功code后需要重写
     const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
     if (hasSuccess) {
-      return result;
+      return dataResult;
     }
 
     // 在此处根据自己项目的实际情况对不同的code执行不同的操作

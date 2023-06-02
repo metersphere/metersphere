@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="layout" :class="{ mobile: appStore.hideMenu }">
+  <a-layout class="layout arco-reset" :class="{ mobile: appStore.hideMenu }">
     <div v-if="navbar" class="layout-navbar">
       <NavBar />
     </div>
