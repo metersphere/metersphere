@@ -20,7 +20,7 @@ public class UiCustomCommandModule implements Serializable {
 
     @Schema(title = "模块名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{ui_custom_command_module.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{ui_custom_command_module.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{ui_custom_command_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(title = "父级ID", requiredMode = Schema.RequiredMode.REQUIRED)
