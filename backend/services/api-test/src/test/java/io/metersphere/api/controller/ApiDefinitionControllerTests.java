@@ -2,8 +2,8 @@ package io.metersphere.api.controller;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.dto.ApiDefinitionDTO;
-import io.metersphere.api.dto.ApiDefinitionListRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.definition.ListRequestDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
@@ -23,7 +23,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
 
@@ -45,8 +44,6 @@ public class ApiDefinitionControllerTests {
         LogUtils.info("init base api test");
     }
 
-
-
     @Test
     @Order(0)
     public void login() throws Exception {
@@ -62,7 +59,7 @@ public class ApiDefinitionControllerTests {
 
     @Test
     @Order(1)
-    public void testCreate() throws Exception {
+    public void testAdd() throws Exception {
         LogUtils.info("create api test");
         // 创建一个 MockMultipartFile 对象，用于模拟文件上传
         MockMultipartFile file = new MockMultipartFile("files", "files", MediaType.APPLICATION_OCTET_STREAM_VALUE, "Test content".getBytes());
@@ -104,10 +101,10 @@ public class ApiDefinitionControllerTests {
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Order(2)
-    public void listSuccess() throws Exception {
+    public void testPageSuccess() throws Exception {
         int pageSize = 10;
         int current = 1;
-        ApiDefinitionListRequest request = new ApiDefinitionListRequest();
+        ListRequestDTO request = new ListRequestDTO();
         request.setCurrent(current);
         request.setPageSize(pageSize);
         request.setProjectId("test-project-id");
@@ -141,9 +138,9 @@ public class ApiDefinitionControllerTests {
     //没有传入必填值
     @Test
     @Order(3)
-    public void listError() throws Exception {
+    public void testPageError() throws Exception {
         // projectId为空
-        ApiDefinitionListRequest request = new ApiDefinitionListRequest();
+        ListRequestDTO request = new ListRequestDTO();
         request.setCurrent(1);
         request.setPageSize(20);
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
@@ -154,7 +151,7 @@ public class ApiDefinitionControllerTests {
                 .andExpect(status().isBadRequest());
 
         //pageSize为空
-        request = new ApiDefinitionListRequest();
+        request = new ListRequestDTO();
         request.setCurrent(1);
         request.setProjectId("test-project-id");
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
@@ -165,7 +162,7 @@ public class ApiDefinitionControllerTests {
                 .andExpect(status().isBadRequest());
 
         //current为空
-        request = new ApiDefinitionListRequest();
+        request = new ListRequestDTO();
         request.setPageSize(20);
         request.setProjectId("test-project-id");
         mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
