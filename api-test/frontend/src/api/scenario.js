@@ -103,8 +103,20 @@ export function listWithIds(params) {
   return post('/api/automation/list-blobs', params);
 }
 
+export function getUploadConfig(url, formData) {
+  return {
+    method: 'POST',
+    url: url,
+    data: formData,
+    headers: {
+      'Content-Type': "application/octet-stream",
+    },
+  };
+}
+
 export function getApiScenarioEnv(params) {
-  return post('/api/automation/scenario-env', params);
+  let reqParams = getUploadConfig('/api/automation/scenario-env', params);
+  return request( reqParams);
 }
 
 export function batchEditScenario(params) {

@@ -133,9 +133,6 @@ public class ApiExecuteService {
                         : request.getReportId(), request.getRunMode(), null);
         if (testCase != null && StringUtils.isNotEmpty(testCase.getRequest())) {
             try {
-                HashTree jmeterHashTree = this.generateHashTree(request, testCase, runModeConfigDTO);
-                // 调用执行方法
-                runRequest.setHashTree(jmeterHashTree);
                 if (MapUtils.isNotEmpty(extendedParameters)) {
                     runRequest.setExtendedParameters(extendedParameters);
                 }
