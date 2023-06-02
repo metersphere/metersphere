@@ -1332,23 +1332,27 @@ public class IssuesService {
 
     public void calculatePlanReport(List<PlanReportIssueDTO> planReportIssueDTOList, TestPlanReportDataStruct report) {
         planReportIssueDTOList = DistinctKeyUtil.distinctByKey(planReportIssueDTOList, PlanReportIssueDTO::getId);
+        // 缺陷状态为自定义字段
+        List<String> issueIds = planReportIssueDTOList.stream().map(PlanReportIssueDTO::getId).collect(Collectors.toList());
+        Map<String, String> customStatusMap = customFieldIssuesService.getIssueStatusMap(issueIds, SessionUtils.getCurrentProjectId());
+        CustomField customField = baseCustomFieldService.getCustomFieldByName(SessionUtils.getCurrentProjectId(), SystemCustomField.ISSUE_STATUS);
+        JSONArray statusArray = JSONArray.parseArray(customField.getOptions());
+
         TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
         List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
         Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
 
         planReportIssueDTOList.forEach(item -> {
             String status;
-            // 本地缺陷
             if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())
                     || StringUtils.isBlank(item.getPlatform())) {
-                status = item.getStatus();
+                // Local平台, 取自定义状态(如果为空, 则为新增)
+                status = customStatusMap.getOrDefault(item.getId(), IssuesStatus.NEW.name());
             } else {
-                status = item.getPlatformStatus();
+                // 第三方平台, 取平台状态(如果为空, 则为新增)
+                status = Optional.ofNullable(item.getPlatformStatus()).orElse(IssuesStatus.NEW.name());
             }
-            if (StringUtils.isBlank(status)) {
-                status = IssuesStatus.NEW.toString();
-            }
-            TestPlanStatusCalculator.buildStatusResultMap(statusResultMap, status);
+            TestPlanStatusCalculator.buildStatusResultMap(statusResultMap, parseIssueStatus(status, statusArray));
         });
         Set<String> status = statusResultMap.keySet();
         status.forEach(item -> {
@@ -1425,6 +1429,26 @@ public class IssuesService {
                 resource.setValue(JSON.toJSONString(status));
                 customFieldIssuesService.editFields(issue.getId(), Collections.singletonList(resource));
             }
+        }
+    }
+
+    private String parseIssueStatus(String status, JSONArray statusArray) {
+        status = status.replaceAll("\"", StringUtils.EMPTY);
+        // 遗留缺陷状态是否存在枚举
+        IssueStatus statusEnum = IssueStatus.getEnumByName(status);
+        if (statusEnum != null) {
+            // 存在缺陷状态枚举类型则获取国际化Key
+            return Translator.get(statusEnum.getI18nKey());
+        } else {
+            // 不存在枚举类型, 则在自定义状态字段option数组中取文本值
+            for (Object item : statusArray) {
+                JSONObject statusObj = (JSONObject) item;
+                if (StringUtils.equals(status, statusObj.get("value").toString())) {
+                    return statusObj.get("text").toString();
+                }
+            }
+            // 如果不在自定义状态字段option数组中, 则直接展示状态
+            return status;
         }
     }
 
