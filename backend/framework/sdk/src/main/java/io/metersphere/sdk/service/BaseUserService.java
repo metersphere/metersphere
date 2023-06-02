@@ -107,7 +107,7 @@ public class BaseUserService {
         }
     }
 
-    private void autoSwitch(UserDTO user) {
+    public void autoSwitch(UserDTO user) {
         // 用户有 last_project_id 权限
         if (hasLastProjectPermission(user)) {
             return;

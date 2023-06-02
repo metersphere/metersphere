@@ -8,8 +8,6 @@ import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserService;
-import io.metersphere.sdk.util.RsaKey;
-import io.metersphere.sdk.util.RsaUtil;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
@@ -30,15 +28,13 @@ public class LoginController {
 
     @GetMapping(value = "/is-login")
     public ResultHolder isLogin() throws Exception {
-        RsaKey rsaKey = RsaUtil.getRsaKey();
         SessionUser user = SessionUtils.getUser();
         if (user != null) {
             UserDTO userDTO = baseUserService.getUserDTO((String) MethodUtils.invokeMethod(user, "getId"));
             if (StringUtils.isBlank(userDTO.getLanguage())) {
                 userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
             }
-            // todo 跳转用户
-//            baseUserService.autoSwitch(userDTO);
+            baseUserService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
             // 用户只有工作空间权限
@@ -47,9 +43,7 @@ public class LoginController {
             }
             return ResultHolder.success(sessionUser);
         }
-        MSException.throwException(rsaKey.getPublicKey());
-        //
-        return null;
+        throw new MSException(Translator.get("please_login"));
     }
 
     @PostMapping(value = "/signin")
