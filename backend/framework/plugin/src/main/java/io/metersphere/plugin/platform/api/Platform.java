@@ -21,10 +21,10 @@ public interface Platform {
     /**
      * 创建缺陷并封装 MS 返回
      * 创建缺陷时调用
-     * @param issuesRequest issueRequest
+     * @param bugsRequest bugRequest
      * @return MS 缺陷
      */
-    MsIssueDTO addIssue(PlatformIssuesUpdateRequest issuesRequest);
+    MsBugDTO addBug(PlatformBugUpdateRequest bugsRequest);
 
     /**
      * 项目设置和缺陷表单中，调用接口获取下拉框选项
@@ -39,14 +39,14 @@ public interface Platform {
      * @param request
      * @return MS 缺陷
      */
-    MsIssueDTO updateIssue(PlatformIssuesUpdateRequest request);
+    MsBugDTO updateBug(PlatformBugUpdateRequest request);
 
     /**
      * 删除缺陷平台缺陷
      * 删除缺陷时调用
      * @param id 平台的缺陷 ID
      */
-    void deleteIssue(String id);
+    void deleteBug(String id);
 
     /**
      * 校验服务集成配置
@@ -69,7 +69,7 @@ public interface Platform {
     /**
      * 支持附件上传
      * 编辑缺陷上传附件是会调用判断是否支持附件上传
-     * 如果支持会调用 syncIssuesAttachment 上传缺陷到第三方平台
+     * 如果支持会调用 syncBugsAttachment 上传缺陷到第三方平台
      */
     boolean isAttachmentUploadSupport();
 
@@ -77,13 +77,13 @@ public interface Platform {
      * 同步缺陷最新变更
      * 开源用户点击同步缺陷时调用
      */
-    SyncIssuesResult syncIssues(SyncIssuesRequest request);
+    SyncBugResult syncBugs(SyncBugRequest request);
 
     /**
      * 同步项目下所有的缺陷
      * 企业版用户会调用同步缺陷
      */
-    void syncAllIssues(SyncAllIssuesRequest request);
+    void syncAllBugs(SyncAllBugRequest request);
 
     /**
      * 获取附件内容
@@ -113,7 +113,7 @@ public interface Platform {
      * 同步 MS 缺陷附件到第三方平台
      * isAttachmentUploadSupport 返回为 true 时，同步和创建缺陷时会调用
      */
-    void syncIssuesAttachment(SyncIssuesAttachmentRequest request);
+    void syncBugsAttachment(SyncBugAttachmentRequest request);
 
     /**
      * 获取第三方平台的状态列表
@@ -126,10 +126,10 @@ public interface Platform {
      * 获取第三方平台的状态转移列表
      * 即编辑缺陷时的可选状态
      * 默认会调用 getStatusList，可重写覆盖
-     * @param issueId
+     * @param bugId
      * @return
      */
-    List<PlatformStatusDTO> getTransitions(String projectConfig, String issueId);
+    List<PlatformStatusDTO> getTransitions(String projectConfig, String bugId);
 
     /**
      * 用例关联需求时调用

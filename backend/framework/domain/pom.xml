@@ -49,7 +49,9 @@
                     <configurationFile>src/main/resources/loadGeneratorConfig.xml</configurationFile>
                     <configurationFile>src/main/resources/sdkGeneratorConfig.xml</configurationFile>
                     <configurationFile>src/main/resources/projectGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/systemGeneratorConfig.xml</configurationFile>
+<!--                    <configurationFile>src/main/resources/systemGeneratorConfig.xml</configurationFile>-->
+<!--                    <configurationFile>src/main/resources/bugGeneratorConfig.xml</configurationFile>-->
+<!--                    <configurationFile>src/main/resources/functionalGeneratorConfig.xml</configurationFile>-->
                 </configuration>
                 <dependencies>
                     <dependency>

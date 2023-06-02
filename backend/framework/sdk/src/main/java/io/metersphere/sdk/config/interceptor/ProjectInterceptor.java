@@ -16,7 +16,6 @@ public class ProjectInterceptor {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
         configList.add(new MybatisInterceptorConfig(FileModuleBlob.class, "repositoryDesc", CompressUtils.class, "zip", "unzip"));
-        configList.add(new MybatisInterceptorConfig(ProjectExtend.class, "issueConfig", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(FileMetadataBlob.class, "gitInfo", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(FakeErrorBlob.class, "description", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(FakeErrorBlob.class, "content", CompressUtils.class, "zip", "unzip"));

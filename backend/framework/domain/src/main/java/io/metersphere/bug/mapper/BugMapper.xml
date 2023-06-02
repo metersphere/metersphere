@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.bug.mapper.BugMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.bug.domain.Bug">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="platform" jdbcType="VARCHAR" property="platform" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
+    <result column="platform_status" jdbcType="VARCHAR" property="platformStatus" />
+    <result column="platform_id" jdbcType="VARCHAR" property="platformId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, num, title, create_time, update_time, platform, project_id, create_user, source_id, 
+    platform_status, platform_id
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from bug
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bug
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from bug
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.bug.domain.BugExample">
+    delete from bug
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.bug.domain.Bug">
+    insert into bug (id, num, title, 
+      create_time, update_time, platform, 
+      project_id, create_user, source_id, 
+      platform_status, platform_id)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{platform,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
+      #{platformStatus,jdbcType=VARCHAR}, #{platformId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
+    insert into bug
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="platform != null">
+        platform,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="sourceId != null">
+        source_id,
+      </if>
+      <if test="platformStatus != null">
+        platform_status,
+      </if>
+      <if test="platformId != null">
+        platform_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="platform != null">
+        #{platform,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceId != null">
+        #{sourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null">
+        #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="platformId != null">
+        #{platformId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.bug.domain.BugExample" resultType="java.lang.Long">
+    select count(*) from bug
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update bug
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.platform != null">
+        platform = #{record.platform,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sourceId != null">
+        source_id = #{record.sourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.platformStatus != null">
+        platform_status = #{record.platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.platformId != null">
+        platform_id = #{record.platformId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update bug
+    set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      title = #{record.title,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      platform = #{record.platform,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      source_id = #{record.sourceId,jdbcType=VARCHAR},
+      platform_status = #{record.platformStatus,jdbcType=VARCHAR},
+      platform_id = #{record.platformId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.bug.domain.Bug">
+    update bug
+    <set>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="platform != null">
+        platform = #{platform,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="sourceId != null">
+        source_id = #{sourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null">
+        platform_status = #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="platformId != null">
+        platform_id = #{platformId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.bug.domain.Bug">
+    update bug
+    set num = #{num,jdbcType=INTEGER},
+      title = #{title,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      platform = #{platform,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      source_id = #{sourceId,jdbcType=VARCHAR},
+      platform_status = #{platformStatus,jdbcType=VARCHAR},
+      platform_id = #{platformId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -43,10 +43,10 @@ public class ProjectExtend implements Serializable {
     private Boolean versionEnable;
 
     @Schema(title = "")
-    private String apiTemplateId;
+    private String issueConfig;
 
     @Schema(title = "")
-    private byte[] issueConfig;
+    private String apiTemplateId;
 
     private static final long serialVersionUID = 1L;
 }

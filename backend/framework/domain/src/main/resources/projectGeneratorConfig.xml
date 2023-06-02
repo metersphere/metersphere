@@ -84,8 +84,8 @@
         <table tableName="project_extend"/>
         <table tableName="functional_case_template"/>
         <table tableName="functional_case_template_extend"/>
-        <table tableName="issue_template_extend"/>
-        <table tableName="issue_template"/>
+        <table tableName="bug_template_extend"/>
+        <table tableName="bug_template"/>
         <table tableName="api_template"/>
 
         <!--        要忽略的字段-->
