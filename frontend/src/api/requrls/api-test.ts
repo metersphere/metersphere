@@ -1,2 +1,2 @@
 export const GetApiTestListUrl = '/mock/list/menu';
-export const GetApiTestList = '/mock/api-test/define/list/';
+export const GetApiTestList = '/api/definition/page';

@@ -13,7 +13,7 @@ export interface MsTabelProps extends MsPaginationI {
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
   data: TableData[];
   // 表格尺寸
-  size?: 'small' | 'default' | 'large';
+  size?: 'mini' | 'small' | 'default' | 'large';
   // 表格是否可滚动
   scroll?: {
     x?: number | string;
