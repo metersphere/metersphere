@@ -1,4 +1,4 @@
-package io.metersphere.api.dto;
+package io.metersphere.api.dto.definition;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -1,4 +1,4 @@
-package io.metersphere.api.dto;
+package io.metersphere.api.dto.definition;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -6,7 +6,7 @@ import lombok.Data;
 
 
 @Data
-public class ApiDefinitionListRequest {
+public class ListRequestDTO {
     private String name;
     private String path;
     private String method;

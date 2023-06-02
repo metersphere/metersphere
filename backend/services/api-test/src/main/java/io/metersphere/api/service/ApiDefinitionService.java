@@ -2,8 +2,8 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionExample;
-import io.metersphere.api.dto.ApiDefinitionDTO;
-import io.metersphere.api.dto.ApiDefinitionListRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionDTO;
+import io.metersphere.api.dto.definition.ListRequestDTO;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
@@ -24,7 +24,7 @@ public class ApiDefinitionService {
     }
 
 
-    public List<ApiDefinition> list(@NotNull ApiDefinitionListRequest request) {
+    public List<ApiDefinition> list(@NotNull ListRequestDTO request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         ApiDefinitionExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdEqualTo(request.getProjectId());
