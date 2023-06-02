@@ -1,7 +1,7 @@
 // 核心的封装方法，详细参数看文档  https://arco.design/vue/component/table
 // hook/table-props.ts
 
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { MsTabelProps, MsTableData, MsTableColumn } from './type';
 import { ApiTestListI } from '@/models/api-test';
 
@@ -20,10 +20,18 @@ export interface QueryParams {
 
 type GetListFunc = (v: QueryParams) => Promise<ApiTestListI>;
 export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
+  // 行选择
+  const rowSelection = reactive({
+    type: 'checkbox',
+    showCheckedAll: true,
+    onlyCurrent: false,
+  });
+
   const defaultProps: MsTabelProps = {
     'bordered': true,
-    'size': 'mini',
-    'scroll': { y: 550, x: '1400px' },
+    'size': 'small',
+    'scroll': { y: '550px', x: '1400px' },
+    'checkable': true,
     'expandable': false,
     'loading': true,
     'data': [] as MsTableData,
@@ -41,6 +49,11 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
 
   // 属性组
   const propsRes = ref(defaultProps);
+
+  // 是否可选中
+  if (propsRes.value.selectable) {
+    propsRes.value['row-selection'] = rowSelection;
+  }
 
   // 加载效果
   const setLoading = (status: boolean) => {

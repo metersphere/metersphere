@@ -11,9 +11,9 @@
     <div class="form mt-20">
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
         <a-form-item field="radio" hide-label>
-          <a-radio-group v-model="userInfo.radio">
+          <a-radio-group v-model="userInfo.authenticate">
             <a-radio value="LDAP">LDAP</a-radio>
-            <a-radio value="normal">普通登陆</a-radio>
+            <a-radio value="LOCAL">普通登陆</a-radio>
             <a-radio value="OIDC 90">OIDC 90</a-radio>
           </a-radio-group>
         </a-form-item>
@@ -23,7 +23,11 @@
           :validate-trigger="['change', 'blur']"
           hide-label
         >
-          <a-input v-model="userInfo.username" :placeholder="$t('login.form.userName.placeholder')" class="rounded-3xl">
+          <a-input
+            v-model="userInfo.username"
+            :placeholder="$t('login.form.userName.placeholder')"
+            style="border-radius: 1.5rem"
+          >
             <template #prefix>
               <icon-user />
             </template>
@@ -39,7 +43,7 @@
             v-model="userInfo.password"
             :placeholder="$t('login.form.password.placeholder')"
             allow-clear
-            class="rounded-3xl"
+            style="border-radius: 1.5rem"
           >
             <template #prefix>
               <icon-lock />
@@ -47,7 +51,7 @@
           </a-input-password>
         </a-form-item>
         <div class="mt-4">
-          <a-button class="rounded-3xl" type="primary" html-type="submit" long :loading="loading">
+          <a-button style="border-radius: 1.5rem" type="primary" html-type="submit" long :loading="loading">
             {{ $t('login.form.login') }}
           </a-button>
         </div>
@@ -75,14 +79,14 @@
 
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
-    username: 'admin', // 演示默认值
-    password: 'admin', // demo default value
+    username: 'admin',
+    password: 'metersphere',
   });
 
   const userInfo = reactive({
-    radio: 'normal',
-    username: '',
-    password: '',
+    authenticate: 'LOCAL',
+    username: 'admin',
+    password: 'metersphere',
   });
 
   const handleSubmit = async ({

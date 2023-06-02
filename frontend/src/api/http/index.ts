@@ -162,6 +162,8 @@ const transform: AxiosTransform = {
   },
 };
 
+const { sessionId, csrfToken } = getToken();
+
 function createAxios(opt?: Partial<CreateAxiosOptions>) {
   return new MSAxios(
     deepMerge(
@@ -170,9 +172,9 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // authentication schemes，e.g: Bearer
         // authenticationScheme: 'Bearer',
         authenticationScheme: '',
+        baseURL: import.meta.env.VITE_API_BASE_URL as string,
         timeout: 30 * 1000,
-
-        headers: { 'Content-Type': ContentTypeEnum.JSON },
+        headers: { 'Content-Type': ContentTypeEnum.JSON, 'X-AUTH-TOKEN': sessionId, 'CSRF-TOKEN': csrfToken },
         // 如果是form-data格式
         // headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
         // 数据处理方式

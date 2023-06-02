@@ -2,9 +2,11 @@
 export interface LoginData {
   username: string;
   password: string;
+  authenticate: string;
 }
 
 // 登录返回
 export interface LoginRes {
-  token: string;
+  sessionId: string;
+  csrfToken: string;
 }
