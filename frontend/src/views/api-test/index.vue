@@ -26,6 +26,7 @@
     {
       title: '接口名称',
       dataIndex: 'name',
+      width: 200,
     },
     {
       title: '请求类型',
@@ -66,6 +67,7 @@
     {
       title: '创建时间',
       slotName: 'createTime',
+      width: 200,
     },
     {
       title: '描述',
@@ -79,7 +81,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, { columns, scroll: { x: 2000 } });
+  const { propsRes, propsEvent, loadList } = useTable(getTableList, { columns, scroll: { y: 750, x: 2000 } });
 
   const fetchData = async () => {
     await loadList();

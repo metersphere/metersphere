@@ -12,9 +12,10 @@ export default mergeConfig(
         strict: true,
       },
       proxy: {
-        '/api': {
-          target: 'http://192.168.200.10:8081',
+        '/front': {
+          target: 'http://101.43.186.75:8081/',
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/front/, ''),
         },
       },
     },
