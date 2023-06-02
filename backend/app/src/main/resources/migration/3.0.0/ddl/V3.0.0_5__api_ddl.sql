@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS api_definition;
-CREATE TABLE api_definition(
+CREATE TABLE IF NOT EXISTS api_definition(
                                `id` VARCHAR(50) NOT NULL   COMMENT '接口pk' ,
                                `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                                `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
@@ -46,8 +45,7 @@ CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 CREATE INDEX idx_path ON api_definition(path);
 
-DROP TABLE IF EXISTS api_definition_blob;
-CREATE TABLE api_definition_blob(
+CREATE TABLE IF NOT EXISTS api_definition_blob(
                                     `id` VARCHAR(50) NOT NULL   COMMENT '接口fk/ 一对一关系' ,
                                     `request` LONGBLOB    COMMENT '请求内容' ,
                                     `response` LONGBLOB    COMMENT '响应内容' ,

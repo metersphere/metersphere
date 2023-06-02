@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS test_plan;
-CREATE TABLE test_plan(
+CREATE TABLE IF NOT EXISTS test_plan(
                           `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                           `project_id` VARCHAR(50) NOT NULL   COMMENT '测试计划所属项目' ,
                           `parent_id` VARCHAR(50) NOT NULL   COMMENT '测试计划父ID;测试计划要改为树结构。最上层的为root，其余则是父节点ID' ,
@@ -28,22 +27,19 @@ CREATE INDEX idx_project_id ON test_plan(project_id);
 CREATE INDEX idx_create_user ON test_plan(create_user);
 CREATE INDEX idx_status ON test_plan(status);
 
-DROP TABLE IF EXISTS test_plan_follower;
-CREATE TABLE test_plan_follower(
+CREATE TABLE IF NOT EXISTS test_plan_follower(
                                    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID;联合主键' ,
                                    `user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID;联合主键' ,
                                    PRIMARY KEY (test_plan_id,user_id)
 )  COMMENT = '测试计划关注人';
 
-DROP TABLE IF EXISTS test_plan_principal;
-CREATE TABLE test_plan_principal(
+CREATE TABLE IF NOT EXISTS test_plan_principal(
                                     `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                     `user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID' ,
                                     PRIMARY KEY (test_plan_id,user_id)
 )  COMMENT = '测试计划责任人';
 
-DROP TABLE IF EXISTS test_plan_config;
-CREATE TABLE test_plan_config(
+CREATE TABLE IF NOT EXISTS test_plan_config(
                                  `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                  `run_mode_config` TEXT NOT NULL   COMMENT '运行模式' ,
                                  `automatic_status_update` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否自定更新功能用例状态' ,
