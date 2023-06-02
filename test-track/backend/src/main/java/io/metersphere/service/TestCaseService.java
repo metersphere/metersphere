@@ -883,6 +883,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> publicListTestCase(QueryTestCaseRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestCaseDTO> returnList = extTestCaseMapper.publicList(request);
         ServiceUtils.buildProjectInfo(returnList);
         buildUserInfo(returnList);

@@ -288,20 +288,13 @@
         project_version.id as versionId,
         test_case.last_execute_result,
         test_case.prerequisite, test_case.steps, remark, test_case.expected_result, test_case.step_description,
-        <if test="request.selectFields != null and request.selectFields.size() > 0">
-            <foreach collection="request.selectFields" item="field" separator=",">
-                ${field}
-            </foreach>
-        </if>
-        <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
-            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
-            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.ref_id,test_case.latest
-        </if>
+        test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+        test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+        test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+        test_case.review_status, test_case.tags,
+        test_case.demand_id, test_case.demand_name, test_case.`status`,
+        test_case.custom_num, test_case.step_model, test_case.create_user,
+        test_case.ref_id,test_case.latest
         from test_case
         left join project_version on project_version.id = test_case.version_id
         <include refid="queryWhereCondition"/>
@@ -311,22 +304,15 @@
     <select id="publicList" resultType="io.metersphere.dto.TestCaseDTO">
         select
         test_case.last_execute_result,
-        <if test="request.selectFields != null and request.selectFields.size() > 0">
-            <foreach collection="request.selectFields" item="field" separator=",">
-                ${field}
-            </foreach>
-        </if>
-        <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
-            test_case.version_id,
-            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
-            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.custom_fields,test_case.case_public ,
-            project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
-        </if>
+        test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+        test_case.version_id,
+        test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+        test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+        test_case.review_status, test_case.tags,
+        test_case.demand_id, test_case.demand_name, test_case.`status`,
+        test_case.custom_num, test_case.step_model, test_case.create_user,
+        test_case.custom_fields,test_case.case_public ,
+        project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
         from test_case
         inner join project on test_case.project_id = project.id and workspace_id = #{request.workspaceId}
         inner join project_version ON test_case.version_id = project_version.id
@@ -397,9 +383,6 @@
             <foreach collection="request.condition.orders" separator="," item="order">
                 test_case.`${order.name}` ${order.type}
             </foreach>
-        </if>
-        <if test="request.pageCount != 0">
-            limit ${request.pageStart}, ${request.pageCount}
         </if>
     </select>
 
