@@ -63,7 +63,7 @@ pipeline {
 
                         LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         # echo $LOCAL_REPOSITORY
-                        mkdir -p backend/app/target/dependency && cd backend/app/target/dependency && jar -xf ../*.jar;
+                        mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
 
                         libraries=('metersphere-ui-test-impl' 'metersphere-load-test-impl')
                         for library in "${libraries[@]}";
