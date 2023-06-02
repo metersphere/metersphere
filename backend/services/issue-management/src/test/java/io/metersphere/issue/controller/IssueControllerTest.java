@@ -37,7 +37,7 @@ public class IssueControllerTest {
     @Test
     @Order(0)
     public void login() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/signin")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

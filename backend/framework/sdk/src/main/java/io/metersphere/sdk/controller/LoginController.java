@@ -53,7 +53,7 @@ public class LoginController {
         return null;
     }
 
-    @PostMapping(value = "/signin")
+    @PostMapping(value = "/login")
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {

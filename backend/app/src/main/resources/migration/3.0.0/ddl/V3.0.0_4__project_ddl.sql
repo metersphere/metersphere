@@ -1,7 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-CREATE TABLE `project`
+CREATE TABLE IF NOT EXISTS `project`
 (
     `id`           VARCHAR(50) NOT NULL COMMENT '项目ID',
     `workspace_id` VARCHAR(50) NOT NULL COMMENT '工作空间ID',
@@ -17,7 +17,7 @@ CREATE TABLE `project`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='项目';
 
-CREATE TABLE `project_application`
+CREATE TABLE IF NOT EXISTS `project_application`
 (
     `project_id` VARCHAR(50) NOT NULL COMMENT '项目ID',
     `type`       VARCHAR(50) NOT NULL COMMENT '配置项',
@@ -30,7 +30,7 @@ CREATE TABLE `project_application`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='项目应用';
 
-CREATE TABLE `project_extend`
+CREATE TABLE IF NOT EXISTS `project_extend`
 (
     `project_id`          VARCHAR(50) NOT NULL COMMENT '项目ID',
     `tapd_id`             VARCHAR(50)          DEFAULT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE `project_extend`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='项目扩展';
 
-CREATE TABLE `project_version`
+CREATE TABLE IF NOT EXISTS `project_version`
 (
     `id`           VARCHAR(50)  NOT NULL COMMENT '版本ID',
     `project_id`   VARCHAR(50)  NOT NULL COMMENT '项目ID',

@@ -8,8 +8,8 @@ public class FilterChainUtils {
     public static Map<String, String> loadBaseFilterChain() {
         Map<String, String> filterChainDefinitionMap = new HashMap<>();
         filterChainDefinitionMap.put("/*.html", "anon");
-        filterChainDefinitionMap.put("/signin", "anon");
-        filterChainDefinitionMap.put("/ldap/signin", "anon");
+        filterChainDefinitionMap.put("/login", "anon");
+        filterChainDefinitionMap.put("/ldap/login", "anon");
         filterChainDefinitionMap.put("/ldap/open", "anon");
         filterChainDefinitionMap.put("/signout", "anon");
         filterChainDefinitionMap.put("/is-login", "anon");
