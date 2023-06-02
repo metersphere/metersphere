@@ -25,13 +25,19 @@ const useAppStore = defineStore('app', {
   },
 
   actions: {
-    // Update app settings
+    /**
+     * 更新设置
+     * @param partial 设置
+     */
     updateSettings(partial: Partial<AppState>) {
       // @ts-ignore-next-line
       this.$patch(partial);
     },
 
-    // Change theme color
+    /**
+     * 切换暗黑模式
+     * @param dark 是否暗黑模式
+     */
     toggleTheme(dark: boolean) {
       if (dark) {
         this.theme = 'dark';
@@ -41,12 +47,23 @@ const useAppStore = defineStore('app', {
         document.body.removeAttribute('MS-theme');
       }
     },
+    /**
+     * 切换显示模式
+     * @param device 显示模式：mobile | desktop
+     */
     toggleDevice(device: string) {
       this.device = device;
     },
+    /**
+     * 切换菜单显示
+     * @param value 是否隐藏菜单
+     */
     toggleMenu(value: boolean) {
       this.hideMenu = value;
     },
+    /**
+     * 获取服务端菜单配置
+     */
     async fetchServerMenuConfig() {
       let notifyInstance: NotificationReturn | null = null;
       try {
@@ -71,6 +88,9 @@ const useAppStore = defineStore('app', {
         });
       }
     },
+    /**
+     * 清空服务端菜单配置
+     */
     clearServerMenu() {
       this.serverMenu = [];
     },

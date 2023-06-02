@@ -16,6 +16,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
           await userStore.info();
           next();
         } catch (error) {
+          // 获取用户信息错误则先退出，重定向到登录页
           await userStore.logout();
           next({
             name: 'login',
@@ -27,6 +28,7 @@ export default function setupUserLoginInfoGuard(router: Router) {
         }
       }
     } else {
+      // 未登录的都直接跳转至登录页，访问的页面地址缓存到 query 上
       if (to.name === 'login') {
         next();
         return;

@@ -5,13 +5,24 @@ import { addEventListen, removeEventListen } from '@/utils/event';
 
 const WIDTH = 992; // https://arco.design/vue/component/grid#responsivevalue
 
+/**
+ * 判断设备是否为移动端
+ * @returns 是否为移动端
+ */
 function queryDevice() {
   const rect = document.body.getBoundingClientRect();
   return rect.width - 1 < WIDTH;
 }
 
+/**
+ * 响应布局变化
+ * @param immediate 是否立即执行
+ */
 export default function useResponsive(immediate?: boolean) {
   const appStore = useAppStore();
+  /**
+   * 切换布局
+   */
   function resizeHandler() {
     if (!document.hidden) {
       const isMobile = queryDevice();

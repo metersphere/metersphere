@@ -6,11 +6,13 @@ import svgLoader from 'vite-svg-loader';
 import configArcoStyleImportPlugin from './plugin/arcoStyleImport';
 import configArcoResolverPlugin from './plugin/arcoResolver';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 
 export default defineConfig({
   plugins: [
     vue(),
     vueJsx(),
+    vueSetupExtend(),
     svgLoader({ svgoConfig: {} }),
     configArcoResolverPlugin(),
     configArcoStyleImportPlugin(),
