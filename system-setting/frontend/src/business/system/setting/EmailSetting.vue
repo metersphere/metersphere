@@ -89,6 +89,14 @@ import {getSystemMailServerInfo, modifySystemMailServerInfo, testMailServerConne
 export default {
   name: "EmailSetting",
   data() {
+    const validatorPortNum = (value, callback) => {
+      const numExp = /^[0-9]*$/
+      if (!numExp.test(value)) {
+        callback(new Error("Port" + this.$t("commons.type_of_num")))
+      }else{
+        callback()
+      }
+    }
     return {
       formInline: {},
       input: '',
@@ -112,7 +120,10 @@ export default {
           {
             required: true,
             message: this.$t('system_parameter_setting.port'),
-            trigger: ['change', 'blur']
+            trigger: ['change', 'blur'],
+          },
+          {
+            validator: validatorPortNum, trigger: ['change', 'blur'],
           }
         ],
         account: [

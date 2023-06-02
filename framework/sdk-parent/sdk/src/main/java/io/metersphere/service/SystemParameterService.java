@@ -125,10 +125,11 @@ public class SystemParameterService {
     }
 
     public void testConnection(HashMap<String, String> hashMap) {
-        JavaMailSenderImpl javaMailSender = mailNoticeSender.getMailSender(hashMap);
+        JavaMailSenderImpl javaMailSender = null;
         try {
+            javaMailSender = mailNoticeSender.getMailSender(hashMap);
             javaMailSender.testConnection();
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("connection_failed"));
         }
