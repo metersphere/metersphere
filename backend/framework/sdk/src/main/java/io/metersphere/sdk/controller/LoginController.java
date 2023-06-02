@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.SecurityUtils;
@@ -37,8 +38,8 @@ public class LoginController {
             if (StringUtils.isBlank(userDTO.getLanguage())) {
                 userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
             }
-            // todo 跳转用户
-//            baseUserService.autoSwitch(userDTO);
+
+            baseUserService.autoSwitch(userDTO);
             SessionUser sessionUser = SessionUser.fromUser(userDTO, SessionUtils.getSessionId());
             SessionUtils.putUser(sessionUser);
             // 用户只有工作空间权限
@@ -62,9 +63,9 @@ public class LoginController {
         }
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LOCAL.name());
         ResultHolder result = baseUserService.login(request);
-        // todo 登录是否提示修改密码
-//        boolean changePassword = baseUserService.checkWhetherChangePasswordOrNot(request);
-//        result.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
+        // 检查管理员是否需要改密码
+        boolean changePassword = baseUserService.checkWhetherChangePasswordOrNot(request);
+        result.setMessage(BooleanUtils.toStringTrueFalse(changePassword));
         return result;
     }
 

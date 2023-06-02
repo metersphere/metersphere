@@ -107,7 +107,7 @@ public class BaseUserService {
         }
     }
 
-    private void autoSwitch(UserDTO user) {
+    public void autoSwitch(UserDTO user) {
         // 用户有 last_project_id 权限
         if (hasLastProjectPermission(user)) {
             return;
@@ -396,4 +396,15 @@ public class BaseUserService {
         return permissionDTO;
     }
 
+    public boolean checkWhetherChangePasswordOrNot(LoginRequest request) {
+        // 升级之后 admin 还使用弱密码也提示修改
+        if (StringUtils.equals("admin", request.getUsername())) {
+            UserExample example = new UserExample();
+            example.createCriteria().andIdEqualTo("admin")
+                    .andPasswordEqualTo(CodingUtil.md5("metersphere"));
+            return userMapper.countByExample(example) > 0;
+        }
+
+        return false;
+    }
 }
