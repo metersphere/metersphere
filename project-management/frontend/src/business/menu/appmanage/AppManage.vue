@@ -902,8 +902,10 @@ export default {
     setSyncTime() {
       let configs = [];
       this.buildSyncTime(configs);
-      let params = { configs };
-      this.startSaveData(params);
+      if (configs.length > 0 ) {
+        let params = { configs };
+        this.startSaveData(params);
+      }
     },
     saveSync() {
       let configs = [];
