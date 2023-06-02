@@ -269,15 +269,15 @@
         <appender-ref ref="testPlanRefAppender"/>
     </logger>
 
-    <!-- 自定义functional-test模块日志 -->
+    <!-- 自定义case-management模块日志 -->
     <appender name="testTrackAppender"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <File>${logging.file.path}/functional-test.log</File>
+        <File>${logging.file.path}/case-management.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/functional-test.%d{yyyyMMdd}-%i.log</FileNamePattern>
+            <FileNamePattern>${logging.file.path}/history/case-management.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
             <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
@@ -355,15 +355,15 @@
         <appender-ref ref="workstationRefAppender"/>
     </logger>
 
-    <!-- 自定义issue模块日志 -->
-    <appender name="issueAppender"
+    <!-- 自定义bug模块日志 -->
+    <appender name="bugAppender"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
-        <File>${logging.file.path}/issue.log</File>
+        <File>${logging.file.path}/bug.log</File>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <FileNamePattern>${logging.file.path}/history/issue.%d{yyyyMMdd}-%i.log</FileNamePattern>
+            <FileNamePattern>${logging.file.path}/history/bug.%d{yyyyMMdd}-%i.log</FileNamePattern>
             <maxHistory>${logger.max.history:-30}</maxHistory>
             <maxFileSize>50MB</maxFileSize>
         </rollingPolicy>
@@ -372,15 +372,15 @@
             <Pattern>%d %t %-5level %logger{36} %line - %msg%n</Pattern>
         </encoder>
     </appender>
-    <appender name="issueRefAppender" class="ch.qos.logback.classic.AsyncAppender">
+    <appender name="bugRefAppender" class="ch.qos.logback.classic.AsyncAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
         </filter>
         <queueSize>10000</queueSize>
-        <appender-ref ref="issueAppender"/>
+        <appender-ref ref="bugAppender"/>
     </appender>
-    <logger name="io.metersphere.issue" additivity="false" level="${logger.level:INFO}">
-        <appender-ref ref="issueRefAppender"/>
+    <logger name="io.metersphere.bug" additivity="false" level="${logger.level:INFO}">
+        <appender-ref ref="bugRefAppender"/>
     </logger>
 
     <!-- 自定义API执行过程日志 -->

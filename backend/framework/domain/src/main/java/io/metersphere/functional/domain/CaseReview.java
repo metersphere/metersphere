@@ -1,10 +1,8 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import lombok.Data;
 
@@ -32,6 +30,7 @@ public class CaseReview implements Serializable {
     private Long updateTime;
 
     @Schema(title = "评审结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review.end_time.not_blank}", groups = {Created.class})
     private Long endTime;
 
     @Schema(title = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
