@@ -265,6 +265,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getPublicCaseNode(String workspaceId, QueryTestCaseRequest request) {
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         request.setWorkspaceId(workspaceId);
         request.setProjectId(null);
         request.setNodeIds(null);
