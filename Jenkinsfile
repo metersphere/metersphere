@@ -44,8 +44,8 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        mvn install -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean install -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk,backend/services,backend/services/load-test,backend/services/ui-test --settings ./settings.xml
+                        mvn deploy -N -Drevision=${REVISION} --settings ./settings.xml
+                        mvn clean deploy -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk,backend/services,backend/services/load-test,backend/services/ui-test --settings ./settings.xml
                     '''
                 }
             }
