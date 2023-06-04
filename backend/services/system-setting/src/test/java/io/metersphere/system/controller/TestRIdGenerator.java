@@ -21,13 +21,10 @@ public class TestRIdGenerator {
     public void testId1() throws Exception {
         String projectId = "projectId";
         RIdGenerator idGenerator = redisson.getIdGenerator(projectId);
-        long capacity = 1000000; // 容量，代表每个项目最多可以生成多少个id
+        long capacity = 5000; // 一次性分配容量，默认是5000
         long init = 1000000_1000001L; // 代表从100_0000_100_0001开始，项目的num
         idGenerator.tryInit(init, capacity);
         long nextId = idGenerator.nextId();
         Assertions.assertEquals(nextId, init);
-//        for (int i = 0; i < capacity; i++) {
-//            long nextId = idGenerator.nextId();
-//        }
     }
 }
