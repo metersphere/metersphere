@@ -229,7 +229,7 @@ export default {
           } else {
             this.data = data;
           }
-
+          this.$emit("setCount", this.data.length);
           this.notInIds = this.data.map((i) => i.testId);
         });
       }

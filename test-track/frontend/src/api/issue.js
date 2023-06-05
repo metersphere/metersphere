@@ -83,7 +83,7 @@ export function getIssuesByCaseId(refType, caseId, page) {
   }
 }
 
-function like(key, target) {
+export function like(key, target) {
   if (key === undefined || target === undefined) {
     return false;
   }
@@ -93,22 +93,7 @@ function like(key, target) {
 
 export function getIssuesByCaseIdWithSearch(refType, caseId, page, condition) {
   if (caseId) {
-    return get('issues/get/case/' + refType + '/' + caseId)
-      .then((response) => {
-        if(condition && condition.name && response.data){
-          //过滤
-          page.data = response.data.filter((v) => {
-            return (
-              like(condition.name, v.title) ||
-              like(condition.name, v.num)
-            );
-          });
-        } else{
-          page.data = response.data;
-        }
-        buildIssues(page);
-        parseFields(page);
-      });
+    return get('issues/get/case/' + refType + '/' + caseId);
   }
 }
 
