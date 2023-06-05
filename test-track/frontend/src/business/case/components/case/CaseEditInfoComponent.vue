@@ -3,6 +3,7 @@
     <!-- 非创建状态下 展示 -->
     <div class="tab-pane-wrap" v-if="!editable">
       <el-tabs v-model="caseActiveName" @tab-click="tabClick">
+        <!-- 用例详情 -->
         <el-tab-pane :label="$t('case.use_case_detail')" name="detail">
           <div
             class="tab-container"
@@ -31,10 +32,17 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
+        <!-- 关联用例 -->
         <el-tab-pane
           :label="$t('case.associate_test_cases')"
           name="associateTestCases"
         >
+          <span slot="label">
+            {{ $t('case.associate_test_cases') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="relateCaseCount && relateCaseCount > 0">
+              <div class="el-step__icon-inner">{{ relateCaseCount }}</div>
+            </div>
+          </span>
           <div
             class="tab-container"
             :class="{ 'comment-edit-tab-container': isCommentEdit }"
@@ -42,6 +50,7 @@
             <el-scrollbar>
               <div class="content-container">
                 <case-test-relate
+                  @setCount="setRelateCaseCount"
                   ref="relateTest"
                   :case-id="caseId"
                   :read-only="readOnly"
@@ -56,6 +65,12 @@
           :label="$t('test_track.case.relate_issue')"
           name="associatedDefects"
         >
+          <span slot="label">
+            {{ $t('test_track.case.relate_issue') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="relateIssueCount && relateIssueCount > 0">
+              <div class="el-step__icon-inner">{{ relateIssueCount }}</div>
+            </div>
+          </span>
           <div
             class="tab-container"
             :class="{ 'comment-edit-tab-container': isCommentEdit }"
@@ -63,6 +78,7 @@
             <el-scrollbar>
               <div class="content-container">
                 <case-issue-relate
+                  @setCount="setRelateIssueCount"
                   :plan-id="planId"
                   :is-copy="isCopy"
                   :copy-case-id="copyCaseId"
@@ -75,13 +91,14 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
+        <!-- 依赖关系 -->
         <el-tab-pane :label="$t('case.dependencies')" name="dependencies">
-          <template v-slot:label>
-            <tab-pane-count
-              :title="$t('commons.relationship.name')"
-              :count="relationshipCount"
-            />
-          </template>
+          <span slot="label">
+            {{ $t('commons.relationship.name') }}
+            <div class="el-step__icon is-text ms-api-col ms-header" v-if="relationshipCount && relationshipCount > 0">
+              <div class="el-step__icon-inner">{{ relationshipCount }}</div>
+            </div>
+          </span>
           <div
             class="tab-container"
             :class="{ 'comment-edit-tab-container': isCommentEdit }"
@@ -101,6 +118,7 @@
             </el-scrollbar>
           </div>
         </el-tab-pane>
+        <!-- 评论 -->
         <el-tab-pane :label="$t('case.comment')" name="comment">
           <span slot="label">
             {{ $t('case.comment') }}
@@ -236,6 +254,8 @@ export default {
       fileList: [],
       tableData: [],
       demandOptions: [],
+      relateCaseCount: 0,
+      relateIssueCount: 0,
       relationshipCount: 0,
       demandValue: [],
       demandLabel: "",
@@ -343,6 +363,12 @@ export default {
     },
     setRelationshipCount(count) {
       this.relationshipCount = count;
+    },
+    setRelateCaseCount(count) {
+      this.relateCaseCount = count;
+    },
+    setRelateIssueCount(count) {
+      this.relateIssueCount = count;
     },
     setRelationshipGraph(val) {
       this.$emit("syncRelationGraphOpen", val);

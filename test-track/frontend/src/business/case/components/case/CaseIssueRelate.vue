@@ -185,23 +185,19 @@ import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableIte
 import {ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
 import IssueRelateList from "./CaseIssueRelateList";
 import {
+  buildIssues,
   closeIssue,
   deleteIssueRelate,
   getIssuePartTemplateWithProject,
-  getIssuesByCaseId,
+  getIssuesByCaseIdWithSearch,
+  getPlatformStatus,
   issueStatusChange,
-  getIssuesByCaseIdWithSearch, getPlatformStatus,
+  like,
+  parseFields,
 } from "@/api/issue";
-import {
-  getCustomFieldValue,
-  getTableHeaderWithCustomFields,
-} from "metersphere-frontend/src/utils/tableUtils";
+import {getCustomFieldValue, getTableHeaderWithCustomFields,} from "metersphere-frontend/src/utils/tableUtils";
 import {LOCAL} from "metersphere-frontend/src/utils/constants";
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
-import {operationConfirm} from "@/business/utils/sdk-utils";
+import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
 import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 
 export default {
@@ -297,6 +293,7 @@ export default {
     });
   },
   activated() {
+    this.search();
     getPlatformStatus({
       projectId: getCurrentProjectID(),
       workspaceId: getCurrentWorkspaceId()
@@ -326,12 +323,23 @@ export default {
     getIssues() {
       if (!this.isCopy) {
         this.page.result = true;
-        let result = getIssuesByCaseIdWithSearch(
-          this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL",
-          this.getCaseResourceId(),
-          this.page,
-          this.condition
-        );
+        let result = getIssuesByCaseIdWithSearch(this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL", this.getCaseResourceId())
+                      .then((response) => {
+                        if(this.condition && this.condition.name && response.data){
+                          //过滤
+                          this.page.data = response.data.filter((v) => {
+                            return (
+                              like(condition.name, v.title) ||
+                              like(condition.name, v.num)
+                            );
+                          });
+                        } else {
+                          this.page.data = response.data;
+                        }
+                        this.$emit("setCount", this.page.data.length);
+                        buildIssues(page);
+                        parseFields(page);
+                      });
         if (result) {
           this.page.result = result;
         }
