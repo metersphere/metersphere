@@ -161,14 +161,18 @@ import {OPTION_LABEL_PREFIX} from "../../utils/tableUtils";
 export default {
   name: "CustomFiledComponent",
   components: {MsMarkDownText, MsInputTag, MsTableColumn},
-  props: [
-    'data',
-    'prop',
-    'form',
-    'disabled',
-    'defaultOpen',
-    'isTemplateEdit'
-  ],
+  props: {
+    data: Object,
+    prop: String,
+    form: Object,
+    disabled: Boolean,
+    defaultOpen: String,
+    isTemplateEdit: Boolean,
+    formProp: {
+      type: String,
+      default: 'name'
+    }
+  },
   data() {
     return {
       memberOptions: [],
@@ -223,10 +227,10 @@ export default {
       return item.system ? this.$t(item.text) : item.text;
     },
     handleChange() {
-      if (this.form) {
-        this.$set(this.form, this.data.name, this.data[this.prop]);
-      }
-      this.$emit('change', this.data.name);
+
+      this.setFormData();
+
+      this.$emit('change', this.data[this.formProp]);
       this.$forceUpdate();
       if (this.data.inputSearch) {
         // 将选项的选项名保存在 optionLabel 中
@@ -285,7 +289,7 @@ export default {
     },
     setFormData() {
       if (this.form && this.data && this.data[this.prop]) {
-        this.$set(this.form, this.data.name, this.data[this.prop]);
+        this.$set(this.form, this.data[this.formProp], this.data[this.prop]);
       }
     }
   }

@@ -4,7 +4,7 @@
     <span class="custom-item" v-for="(item, j) in sortCustomFields" :key="j">
       <span v-if="j >= (i - 1)*3 && j < (i - 1)*3+3">
         <el-col :span="8" v-if="item.type !== 'richText'">
-          <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+          <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item[formProp]"
                         :label-width="formLabelWidth">
             <custom-filed-component
               prop="defaultValue"
@@ -12,6 +12,7 @@
               :form="form"
               :default-open="defaultOpen"
               :disabled="isPublic"
+              :form-prop="formProp"
               @inputSearch="handleInputSearch"
               ref="customFiled"
             />
@@ -21,12 +22,13 @@
           <el-col :span="24">
             <el-form-item
               :label="item.system ? $t(systemNameMap[item.name]) : item.name"
-              :prop="item.name"
+              :prop="item[formProp]"
               :default-open="defaultOpen"
               :label-width="formLabelWidth">
                <custom-filed-component
                  :data="item"
                  :form="form"
+                 :form-prop="formProp"
                  prop="defaultValue"
                  @inputSearch="handleInputSearch"
                  ref="customFiled"/>
@@ -59,7 +61,11 @@ export default {
       type: Boolean,
       default() {
         return false;
-      }
+      },
+    },
+    formProp: {
+      type: String,
+      default: 'name'
     },
     defaultOpen: {
       type: String,
