@@ -89,6 +89,11 @@ export default {
     },
     projectId: String
   },
+  data() {
+    return {
+      sortCustomFields: Object
+    }
+  },
   computed: {
     customFieldRowNums() {
       let size = this.issueTemplate.customFields
@@ -100,10 +105,10 @@ export default {
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
     },
-    sortCustomFields() {
-      return sortCustomFields(this.issueTemplate.customFields);
-    },
   },
+  mounted() {
+    this.sortCustomFields = sortCustomFields(this.issueTemplate.customFields);
+  }
 };
 </script>
 
