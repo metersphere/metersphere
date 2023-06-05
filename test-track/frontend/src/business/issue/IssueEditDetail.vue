@@ -43,6 +43,7 @@
             :default-open="richTextDefaultOpen"
             :form-label-width="formLabelWidth"
             :issue-template="issueTemplate"
+            form-prop="id"
             @inputSearch="handleInputSearch"
             ref="customFieldItem"
           />
@@ -188,7 +189,7 @@
 import TemplateComponentEditHeader from "@/business/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "metersphere-frontend/src/components/MsFormDivider";
 import FormRichTextItem from "metersphere-frontend/src/components/FormRichTextItem";
-import {buildCustomFields, parseCustomField} from "metersphere-frontend/src/utils/custom_field";
+import {buildCustomFields, parseCustomField, parseCustomFieldForId} from "metersphere-frontend/src/utils/custom_field";
 import CustomFiledComponent from "metersphere-frontend/src/components/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/issue/IssueEditDetail";
@@ -495,7 +496,7 @@ export default {
           this.form.creator = getCurrentUserId();
         }
       }
-      this.customFieldForm = parseCustomField(this.form, this.issueTemplate, this.customFieldRules);
+      this.customFieldForm = parseCustomFieldForId(this.form, this.issueTemplate, this.customFieldRules);
       this.comments = [];
       this.$nextTick(() => {
         if (this.$refs.testCaseIssueList) {
