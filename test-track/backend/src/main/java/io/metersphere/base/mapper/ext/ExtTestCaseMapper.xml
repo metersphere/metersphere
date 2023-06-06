@@ -182,7 +182,11 @@
         test_case.type,
         test_case.review_status,
         project_version.name as versionName,
-        project_version.id as versionId
+        project_version.id as versionId,
+        test_case.num,
+        test_case.custom_num,
+        test_case.create_time,
+        test_case.update_time
         from test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
         left join project_version on test_case.version_id = project_version.id and test_case.project_id =
