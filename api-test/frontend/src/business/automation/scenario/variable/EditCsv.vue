@@ -142,7 +142,7 @@ export default {
       this.previewData = [];
     },
     step(results, parser) {
-      if (this.allData.length < 500) {
+      if (this.allData.length < 501) {
         this.allData.push(results.data);
       } else {
         this.showMessage = true;
