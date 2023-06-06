@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -124,16 +125,39 @@ public class ApiPerformanceService {
         if (!CollectionUtils.isEmpty(scenarioIds)) {
             ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
             scenarioRequest.setIds(scenarioIds);
-            List<ApiScenarioExportJmxDTO> apiScenrioExportJmxes = this.exportJmx(scenarioRequest).getScenarioJmxList();
-
-            deleteLoadTestFiles(loadTest.getId());
-
-            apiScenrioExportJmxes.forEach(item -> {
+            List<ApiScenarioExportJmxDTO> apiScenarioExportJmxDTOList = this.exportJmx(scenarioRequest).getScenarioJmxList();
+            List<String> attachFileIds = this.getScenarioAttachFileIds(apiScenarioExportJmxDTOList);
+            deleteLoadTestFiles(loadTest.getId(), attachFileIds);
+            apiScenarioExportJmxDTOList.forEach(item -> {
                 this.updateVersion(loadTest.getId(), item.getId(), item.getVersion());
                 saveJmxFile(item.getJmx(), item.getName(), loadTest.getProjectId(), loadTest.getId());
                 saveOtherFile(item.getFileMetadataList(), loadTest.getId());
             });
         }
+    }
+
+    private List<String> getScenarioAttachFileIds(List<ApiScenarioExportJmxDTO> apiScenarioExportJmxDTOList) {
+        List<String> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(apiScenarioExportJmxDTOList)) {
+            for (ApiScenarioExportJmxDTO item : apiScenarioExportJmxDTOList) {
+                if (CollectionUtils.isNotEmpty(item.getFileMetadataList())) {
+                    returnList.addAll(item.getFileMetadataList().stream().map(FileMetadata::getId).toList());
+                }
+            }
+        }
+        return returnList;
+    }
+
+    private List<String> getAttachFileIds(List<JmxInfoDTO> jmxInfoDTOS) {
+        List<String> returnList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(jmxInfoDTOS)) {
+            for (JmxInfoDTO item : jmxInfoDTOS) {
+                if (CollectionUtils.isNotEmpty(item.getFileMetadataList())) {
+                    returnList.addAll(item.getFileMetadataList().stream().map(FileMetadata::getId).toList());
+                }
+            }
+        }
+        return returnList;
     }
 
     public void syncApiCase(LoadTestWithBLOBs loadTest, List<ApiLoadTest> apiLoadTests) {
@@ -146,7 +170,8 @@ public class ApiPerformanceService {
             request.setCaseIds(caseIds);
             request.setEnvId(apiLoadTests.get(0).getEnvId());
             List<JmxInfoDTO> jmxInfoDTOS = this.exportApiCaseJmx(request);
-            deleteLoadTestFiles(loadTest.getId());
+            List<String> attachmentFileIds = this.getAttachFileIds(jmxInfoDTOS);
+            deleteLoadTestFiles(loadTest.getId(), attachmentFileIds);
             jmxInfoDTOS.forEach(item -> {
                 this.updateVersion(loadTest.getId(), item.getId(), item.getVersion());
                 saveJmxFile(item.getXml(), item.getName(), loadTest.getProjectId(), loadTest.getId());
@@ -207,9 +232,12 @@ public class ApiPerformanceService {
         }
     }
 
-    private void deleteLoadTestFiles(String testId) {
+    private void deleteLoadTestFiles(String testId, List<String> notDeleteFileIds) {
         List<FileMetadata> originFiles = extLoadTestMapper.getFileMetadataByIds(testId);
         List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(notDeleteFileIds)) {
+            originFileIds.removeAll(notDeleteFileIds);
+        }
         LoadTestFileExample example = new LoadTestFileExample();
         example.createCriteria().andTestIdEqualTo(testId);
         loadTestFileMapper.deleteByExample(example);
