@@ -265,7 +265,10 @@ export default {
               return data;
             }
           } else if (status === 'UN_EXECUTE') {
-            if (data.value && data.value.status === 'PENDING') {
+            if (data.value && data.value.status === 'PENDING' && data.type !== 'IfController') {
+              return data;
+            }
+            if (data.type === 'IfController' && data.totalStatus === 'PENDING') {
               return data;
             }
           } else if (status === 'ERROR') {
