@@ -55,7 +55,7 @@ public class RestControllerExceptionHandler {
         IResultCode errorCode = e.getErrorCode();
         if (errorCode == null) {
             // 如果抛出异常没有设置状态码，则返回错误 message
-            return ResponseEntity.ok()
+            return ResponseEntity.internalServerError()
                     .body(new ResultHolder(MsHttpResultCode.FAILED.getCode(),
                             MsHttpResultCode.FAILED.getMessage(), e.getMessage()));
         }
@@ -69,6 +69,13 @@ public class RestControllerExceptionHandler {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResultHolder(errorCode.getCode(), errorCode.getMessage(), e.getMessage()));
         }
+    }
+
+    @ExceptionHandler({Exception.class})
+    public ResponseEntity<ResultHolder> handlerMSException(Exception e) {
+        return ResponseEntity.internalServerError()
+                .body(new ResultHolder(MsHttpResultCode.FAILED.getCode(),
+                        MsHttpResultCode.FAILED.getMessage(), e.getMessage()));
     }
 
     /*=========== Shiro 异常拦截==============*/

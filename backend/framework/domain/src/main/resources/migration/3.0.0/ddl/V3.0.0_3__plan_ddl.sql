@@ -41,12 +41,105 @@ CREATE TABLE IF NOT EXISTS test_plan_principal(
 
 CREATE TABLE IF NOT EXISTS test_plan_config(
                                  `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
-                                 `run_mode_config` TEXT NOT NULL   COMMENT '运行模式' ,
+                                 `run_mode_config` TEXT COMMENT '运行模式' ,
                                  `automatic_status_update` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否自定更新功能用例状态' ,
                                  `repeat_case` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否允许重复添加用例' ,
                                  `pass_threshold` INT(3) NOT NULL  DEFAULT 100 COMMENT '测试计划通过阈值;0-100' ,
                                  PRIMARY KEY (test_plan_id)
 )  COMMENT = '测试计划配置';
+
+DROP TABLE IF EXISTS test_plan_api_case;
+CREATE TABLE test_plan_api_case(
+                                   `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                   `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+                                   `api_case_id` VARCHAR(50) NOT NULL   COMMENT '接口用例ID' ,
+                                   `environment_type` VARCHAR(20)    COMMENT '环境类型' ,
+                                   `environment` LONGTEXT    COMMENT '所属环境' ,
+                                   `environment_group_id` VARCHAR(50)    COMMENT '环境组ID' ,
+                                   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                   `create_user` VARCHAR(40) NOT NULL   COMMENT '创建人' ,
+                                   `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
+                                   PRIMARY KEY (id)
+)  COMMENT = '测试计划关联接口用例';
+
+
+CREATE INDEX idx_api_case_id ON test_plan_api_case(api_case_id);
+CREATE INDEX idx_test_plan_id ON test_plan_api_case(test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_api_case(create_user);
+
+DROP TABLE IF EXISTS test_plan_api_scenario;
+CREATE TABLE test_plan_api_scenario(
+                                       `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                       `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+                                       `api_scenario_id` VARCHAR(255)    COMMENT '场景ID' ,
+                                       `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                       `create_user` VARCHAR(100) NOT NULL   COMMENT '创建人' ,
+                                       `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
+                                       `environment_type` VARCHAR(20)    COMMENT '环境类型' ,
+                                       `environment` LONGTEXT    COMMENT '所属环境' ,
+                                       `environment_group_id` VARCHAR(50)    COMMENT '环境组ID' ,
+                                       PRIMARY KEY (id)
+)  COMMENT = '测试计划关联场景用例';
+
+
+CREATE INDEX idx_api_scenario_id ON test_plan_api_scenario(api_scenario_id);
+CREATE INDEX idx_test_plan_id ON test_plan_api_scenario(test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_api_scenario(create_user);
+
+DROP TABLE IF EXISTS test_plan_load_case;
+CREATE TABLE test_plan_load_case(
+                                    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+                                    `load_case_id` VARCHAR(50) NOT NULL   COMMENT '性能用例ID' ,
+                                    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+                                    `test_resource_pool_id` VARCHAR(50)    COMMENT '所用测试资源池ID' ,
+                                    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
+                                    `load_configuration` LONGTEXT    COMMENT '压力配置' ,
+                                    `advanced_configuration` TEXT    COMMENT '高级配置' ,
+                                    PRIMARY KEY (id)
+)  COMMENT = '测试计划关联性能测试用例';
+
+
+CREATE INDEX idx_load_case_id ON test_plan_load_case(load_case_id);
+CREATE INDEX idx_test_plan_id ON test_plan_load_case(test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_load_case(create_user);
+
+DROP TABLE IF EXISTS test_plan_function_case;
+CREATE TABLE test_plan_function_case(
+                                        `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                        `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+                                        `function_case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
+                                        `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                        `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+                                        `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
+                                        PRIMARY KEY (id)
+)  COMMENT = '测试计划关联功能用例';
+
+
+CREATE INDEX idx_function_case_id ON test_plan_function_case(function_case_id);
+CREATE INDEX idx_test_plan_id ON test_plan_function_case(test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_function_case(create_user);
+
+DROP TABLE IF EXISTS test_plan_ui_scenario;
+CREATE TABLE test_plan_ui_scenario(
+                                      `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                      `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
+                                      `ui_scenario_id` VARCHAR(50) NOT NULL   COMMENT 'UI场景ID' ,
+                                      `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+                                      `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                      `pos` BIGINT NOT NULL   COMMENT '排序，默认值5000' ,
+                                      `environment_type` VARCHAR(20)    COMMENT '环境类型' ,
+                                      `environment` LONGTEXT    COMMENT '所属环境' ,
+                                      `environment_group_id` VARCHAR(50)    COMMENT '环境组ID' ,
+                                      PRIMARY KEY (id)
+)  COMMENT = '测试计划关联UI场景';
+
+
+CREATE INDEX idx_ui_scenario_id ON test_plan_ui_scenario(ui_scenario_id);
+CREATE INDEX idx_test_plan_id ON test_plan_ui_scenario(test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_ui_scenario(create_user);
+
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
