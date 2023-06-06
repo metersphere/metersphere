@@ -236,6 +236,7 @@ export default {
       this.moduleOptions = data;
     },
     refresh() {
+      this.$refs.nodeTree.refresh(this.projectId);
       if (this.isApiListEnable) {
         this.$refs.apiList.initTable(this.projectId);
       } else {
