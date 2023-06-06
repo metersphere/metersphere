@@ -144,7 +144,7 @@
         test_case.type, test_case.node_path, test_case.num,
         test_case.custom_num, test_case_review_test_case.status review_status,
         test_case.remark as remark, test_case.maintainer, test_case.steps as steps, test_case.node_id as nodeId,
-        test_case.project_id, test_case_node.name as model, test_case.version_id, test_case.tags
+        test_case.project_id, test_case_node.name as model, test_case.version_id, test_case.tags, test_case.create_time
         from test_case_review_test_case
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id

@@ -165,7 +165,8 @@ const TRACK_HEADER = {
     {id: 'reviewStatus', key: '8', label: 'test_track.case.status'},
     {id: 'updateTime', key: '9', label: 'commons.update_time'},
     {id: 'maintainerName', key: 'a', label: 'custom_field.case_maintainer'},
-    {id: 'versionId', key: 'b', label: 'commons.version'}
+    {id: 'versionId', key: 'b', label: 'commons.version'},
+    {id: 'createTime', key: 'c', label: 'commons.create_time'},
   ],
 }
 

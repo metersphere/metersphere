@@ -57,6 +57,20 @@
                       ref="table">
 
               <el-table-column
+                v-if="!customNum"
+                prop="num"
+                sortable
+                :label="$t('commons.id')">
+              </el-table-column>
+
+              <el-table-column
+                v-if="customNum"
+                prop="customNum"
+                sortable
+                :label="$t('commons.id')">
+              </el-table-column>
+
+              <el-table-column
                 prop="name"
                 :label="$t('test_track.case.name')"
                 style="width: 100%">
@@ -97,6 +111,9 @@
                   <review-status :value="scope.row.reviewStatus"/>
                 </template>
               </el-table-column>
+
+              <ms-update-time-column/>
+              <ms-create-time-column/>
 
             </ms-table>
             <ms-table-pagination :change="getReviews" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -142,6 +159,9 @@ import {getVersionFilters} from "@/business/utils/sdk-utils";
 import {projectRelated} from "@/api/project";
 import {getTestTemplate} from "@/api/custom-field-template";
 import {initTestCaseConditionComponents} from "@/business/case/test-case";
+import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
+import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
+import {getProjectApplicationConfig} from "@/api/project-application";
 
 export default {
   name: "TestReviewRelevance",
@@ -160,7 +180,9 @@ export default {
     'VersionSelect': VersionSelect,
     MsTablePagination,
     MsDialogHeader,
-    MsTable
+    MsTable,
+    MsUpdateTimeColumn,
+    MsCreateTimeColumn,
   },
   directives: {
     'el-table-infinite-scroll': elTableInfiniteScroll
@@ -186,6 +208,7 @@ export default {
       currentPage: 1,
       total: 0,
       lineStatus: true,
+      customNum: false,
       condition: {
         components: TEST_REVIEW_RELEVANCE_CASE_CONFIGS
       },
@@ -226,6 +249,7 @@ export default {
       this.condition.versionId = null;
       this.getVersionOptions();
       this.getProjectNode();
+      this.getCustomNum();
     }
   },
   mounted() {
@@ -412,7 +436,18 @@ export default {
     changeVersion(version) {
       this.condition.versionId = version || null;
       this.search();
-    }
+    },
+    getCustomNum() {
+      getProjectApplicationConfig('CASE_CUSTOM_NUM')
+        .then(result => {
+          let data = result.data;
+          if (data && data.typeValue === 'true') {
+            this.customNum = true;
+          } else {
+            this.customNum = false;
+          }
+        });
+    },
   }
 }
 </script>
