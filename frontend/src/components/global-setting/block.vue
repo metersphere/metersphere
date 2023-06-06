@@ -1,7 +1,7 @@
 <template>
-  <div class="block">
-    <h5 class="title">{{ title }}</h5>
-    <div v-for="option in options" :key="option.name" class="switch-wrapper">
+  <div class="mb-[24px]">
+    <h5 class="title my-[10px] p-0 text-[14px]">{{ title }}</h5>
+    <div v-for="option in options" :key="option.name" class="switch-wrapper h-[32px]">
       <span>{{ $t(option.name) }}</span>
       <form-wrapper
         :type="option.type || 'switch'"
@@ -51,18 +51,10 @@
 </script>
 
 <style scoped lang="less">
-  .block {
-    margin-bottom: 24px;
-  }
   .title {
-    margin: 10px 0;
-    padding: 0;
-    font-size: 14px;
+    @apply mx-0 p-0;
   }
   .switch-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 32px;
+    @apply flex items-center justify-between;
   }
 </style>

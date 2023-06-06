@@ -207,33 +207,33 @@
 
 <style scoped lang="less">
   .navbar {
-    display: flex;
-    justify-content: space-between;
-    height: 100%;
+    @apply flex h-full justify-between;
+
     background-color: var(--color-bg-3);
   }
   .left-side {
-    display: flex;
-    align-items: center;
+    @apply flex items-center;
+
     padding-left: 20px;
   }
   .center-side {
-    flex: 1;
+    @apply flex-1;
   }
   .right-side {
-    display: flex;
+    @apply flex list-none;
+
     padding-right: 20px;
-    list-style: none;
     :deep(.locale-select) {
       border-radius: 20px;
     }
     li {
-      display: flex;
-      align-items: center;
+      @apply flex items-center;
+
       padding: 0 10px;
     }
     a {
-      text-decoration: none;
+      @apply no-underline;
+
       color: var(--color-text-1);
     }
     .nav-btn {
@@ -243,7 +243,8 @@
     }
     .trigger-btn,
     .ref-btn {
-      position: absolute;
+      @apply absolute;
+
       bottom: 14px;
     }
     .trigger-btn {
@@ -255,7 +256,7 @@
 <style lang="less">
   .message-popover {
     .arco-popover-content {
-      margin-top: 0;
+      @apply mt-0;
     }
   }
 </style>

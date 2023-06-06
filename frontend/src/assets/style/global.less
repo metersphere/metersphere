@@ -4,21 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 * {
-  box-sizing: border-box;
+  @apply box-border;
 }
 html,
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
+  @apply m-0 h-full w-full p-0;
+
   font-size: 14px;
   background-color: var(--color-bg-1);
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
 }
 .echarts-tooltip-diy {
-  border: none !important;
+  @apply !border-none;
 
   /* Note: backdrop-filter has minimal browser support */
 
@@ -26,8 +24,8 @@ body {
   background: linear-gradient(304.17deg, rgb(253 254 255 / 60%) -6.04%, rgb(244 247 252 / 60%) 85.2%) !important;
   backdrop-filter: blur(10px) !important;
   .content-panel {
-    display: flex;
-    justify-content: space-between;
+    @apply flex justify-between;
+
     margin-bottom: 4px;
     padding: 0 9px;
     width: 164px;
@@ -41,20 +39,19 @@ body {
     margin: 0 0 10px;
   }
   p {
-    margin: 0;
+    @apply m-0;
   }
   .tooltip-title,
   .tooltip-value {
-    display: flex;
-    align-items: center;
+    @apply flex items-center text-right font-bold;
+
     font-size: 13px;
-    font-weight: bold;
-    text-align: right;
     color: #1d2129;
     line-height: 15px;
   }
   .tooltip-item-icon {
-    display: inline-block;
+    @apply inline-block;
+
     margin-right: 8px;
     width: 10px;
     height: 10px;
@@ -62,12 +59,13 @@ body {
   }
 }
 .general-card {
-  border: none;
+  @apply border-none;
+
   border-radius: 4px;
   & > .arco-card-header {
+    @apply h-auto border-none;
+
     padding: 20px;
-    height: auto;
-    border: none;
   }
   & > .arco-card-body {
     padding: 0 20px 20px;

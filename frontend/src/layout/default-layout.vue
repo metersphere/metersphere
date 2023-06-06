@@ -1,6 +1,6 @@
 <template>
   <a-layout class="layout arco-reset" :class="{ mobile: appStore.hideMenu }">
-    <div v-if="navbar" class="layout-navbar">
+    <div v-if="navbar" class="layout-navbar z-[100]">
       <NavBar />
     </div>
     <a-layout>
@@ -8,7 +8,7 @@
         <a-layout-sider
           v-if="renderMenu"
           v-show="!hideMenu"
-          class="layout-sider"
+          class="layout-sider z-[99]"
           breakpoint="xl"
           :collapsed="collapsed"
           :collapsible="true"
@@ -105,42 +105,33 @@
   @nav-size-height: 56px;
   @layout-max-width: 1100px;
   .layout {
-    width: 100%;
-    height: 100%;
+    @apply h-full w-full;
   }
   .layout-navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    width: 100%;
+    @apply fixed left-0 top-0 w-full;
+
     height: @nav-size-height;
   }
   .layout-sider {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 99;
-    height: 100%;
+    @apply fixed left-0 top-0 h-full shadow-none;
+
     transition: all 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     > :deep(.arco-layout-sider-children) {
-      overflow-y: hidden;
+      @apply overflow-y-hidden;
     }
   }
   .menu-wrapper {
-    overflow: auto;
-    overflow-x: hidden;
-    height: 100%;
+    @apply h-full overflow-auto overflow-x-hidden;
     :deep(.arco-menu) {
       ::-webkit-scrollbar {
         width: 12px;
         height: 4px;
       }
       ::-webkit-scrollbar-thumb {
+        @apply bg-clip-padding;
+
         border: 4px solid transparent;
-        border-radius: 7px;
         background-color: var(--color-bg-6);
-        background-clip: padding-box;
       }
       ::-webkit-scrollbar-thumb:hover {
         background-color: var(--color-bg-6);
@@ -162,9 +153,13 @@
     }
   }
   .layout-content {
-    overflow-y: hidden;
+    @apply overflow-y-hidden;
+
     min-height: 100vh;
-    background-color: var(--color-fill-2);
+    background-color: var(--color-bg-3);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
+    .arco-layout-content {
+      padding: 16px 0 0 16px;
+    }
   }
 </style>

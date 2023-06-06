@@ -2,58 +2,40 @@
 @import url('navigator.less');
 @import url('hotbox.less');
 .km-editor {
+  @apply overflow-hidden;
+
   z-index: 2;
-  overflow: hidden;
 }
 .km-editor > .mask {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: block;
-  background-color: transparent;
+  @apply absolute bottom-0 left-0 right-0 top-0 block bg-transparent;
 }
 .km-editor > .receiver {
-  position: absolute;
-  top: 0;
-  left: 0;
+  @apply pointer-events-none absolute left-0 top-0 box-border w-auto select-text overflow-hidden break-words break-all border-none bg-white opacity-0 outline-none;
+
   z-index: -1000;
-  overflow: hidden;
   margin-top: -5px;
   margin-left: -3px;
   padding: 3px 5px;
-  width: auto;
   max-width: 300px;
   min-height: 1.4em;
   font-size: 14px;
-  border: none;
-  background: white;
-  opacity: 0;
-  outline: none;
   box-shadow: 0 0 20px;
   line-height: 1.4em;
-  box-sizing: border-box;
-  word-break: break-all;
-  word-wrap: break-word;
-  user-select: text;
-  pointer-events: none;
   &.debug {
-    z-index: 0;
-    background: none;
-    opacity: 1;
+    @apply z-0 bg-none opacity-100;
+
     outline: 1px solid green;
   }
   &.input {
+    @apply bg-white opacity-100 outline-none;
+
     z-index: 999;
-    background: white;
-    opacity: 1;
-    outline: none;
     pointer-events: all;
   }
 }
 div.minder-editor-container {
-  position: absolute;
+  @apply absolute bottom-0 left-0 right-0;
+
   top: 40px;
   right: 0;
   bottom: 0;
@@ -61,35 +43,25 @@ div.minder-editor-container {
   font-family: Arial, 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif;
 }
 .minder-editor {
-  position: absolute;
+  @apply absolute bottom-0 left-0 right-0;
+
   top: 92px;
-  right: 0;
-  bottom: 0;
-  left: 0;
 }
 .minder-viewer {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  @apply absolute bottom-0 left-0 right-0 top-0;
 }
 .control-panel {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  @apply absolute bottom-0 right-0 top-0;
+
   width: 250px;
   border-left: 1px solid #cccccc;
 }
 .minder-divider {
-  position: absolute;
-  top: 0;
+  @apply absolute bottom-0 top-0 cursor-ew-resize;
+
   right: 250px;
-  bottom: 0;
   width: 2px;
   background-color: rgb(251 251 251);
-  cursor: ew-resize;
 }
 .hotbox .state .button.enabled.selected .key,
 .hotbox .state .ring .key {
@@ -98,12 +70,12 @@ div.minder-editor-container {
 }
 .hotbox .state .bottom .button .label,
 .hotbox .state .top .button .label {
-  font-weight: 600;
+  @apply font-semibold;
 }
 .hotbox .exp .ring .button .label {
   margin-top: 28px;
   margin-left: -2px;
 }
 .hotbox .exp .ring .button .key {
-  display: none;
+  @apply hidden;
 }

@@ -1,6 +1,6 @@
 <template>
   <div ref="mec" class="minder-container" :style="{ height: `${props.height}px` }">
-    <a-button type="primary" :disabled="props.disabled" class="save-btn" @click="save">{{
+    <a-button type="primary" :disabled="props.disabled" class="save-btn bottom-[30px] right-[30px]" @click="save">{{
       t('minder.main.main.save')
     }}</a-button>
     <navigator />
@@ -131,11 +131,9 @@
 <style lang="less">
   @import '../style/editor.less';
   .save-btn {
-    position: absolute;
-    right: 30px;
-    bottom: 30px;
+    @apply absolute;
   }
   .minder-container {
-    position: relative;
+    @apply relative;
   }
 </style>

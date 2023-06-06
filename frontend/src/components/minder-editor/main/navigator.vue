@@ -309,8 +309,8 @@
   });
 </script>
 
-<style scoped>
+<style lang="less" scoped>
   .nav-btn .icon {
-    background: url('@/assets/images/minder/icons.png');
+    background-image: url('@/assets/images/minder/icons.png');
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <a-layout-footer class="footer">{{ props.text }}</a-layout-footer>
+  <a-layout-footer class="footer h-[40px]">{{ props.text }}</a-layout-footer>
 </template>
 
 <script lang="ts" setup>
@@ -15,11 +15,8 @@
 
 <style lang="less" scoped>
   .footer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 40px;
-    text-align: center;
+    @apply flex items-center justify-center text-center;
+
     color: var(--color-text-2);
   }
 </style>

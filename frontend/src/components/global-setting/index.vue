@@ -1,5 +1,6 @@
+<!-- eslint-disable prettier/prettier -->
 <template>
-  <div v-if="!appStore.navbar" class="fixed-settings" @click="setVisible">
+  <div v-if="!appStore.navbar" class="fixed-settings top-[280px]" @click="setVisible">
     <a-button type="primary">
       <template #icon>
         <icon-settings />
@@ -82,9 +83,7 @@
 
 <style scoped lang="less">
   .fixed-settings {
-    position: fixed;
-    top: 280px;
-    right: 0;
+    @apply fixed right-0;
     svg {
       font-size: 18px;
       vertical-align: -4px;

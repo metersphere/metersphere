@@ -1,7 +1,7 @@
 <template>
-  <div class="my-container">
+  <div class="my-container h-[calc(100% - 40px)] px-[20px] pb-[20px] pt-0">
     <Breadcrumb :items="['menu.exception', 'menu.exception.404']" />
-    <div class="content">
+    <div class="content rounded-[4px]">
       <a-result class="result" status="404" :subtitle="$t('exception.result.404.description')"> </a-result>
       <div class="operation-row">
         <a-button key="again" style="margin-right: 16px">
@@ -25,18 +25,10 @@
 
 <style scoped lang="less">
   .my-container {
-    padding: 0 20px 20px;
-    height: calc(100% - 40px);
     :deep(.content) {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      border-radius: 4px;
-      text-align: center;
+      @apply relative flex h-full flex-col items-center justify-center text-center;
+
       background-color: var(--color-bg-1);
-      flex-direction: column;
     }
   }
 </style>

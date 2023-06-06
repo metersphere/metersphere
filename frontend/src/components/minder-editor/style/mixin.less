@@ -1,21 +1,16 @@
 @btn-hover-color: #eee;
 *[disabled='true'] {
-  opacity: 0.5;
+  @apply opacity-50;
 }
 
 .block() {
-  width: 100%;
-  height: 100%;
+  @apply h-full w-full;
 }
 
 .button() {
-  border: none;
-  background: transparent;
-  outline: none;
+  @apply border-none bg-transparent outline-none;
 }
 
 .flexcenter() {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @apply flex items-center justify-center;
 }

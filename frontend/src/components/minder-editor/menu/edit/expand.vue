@@ -34,6 +34,6 @@
 
 <style lang="less" scoped>
   .dropdown-link {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
 </style>

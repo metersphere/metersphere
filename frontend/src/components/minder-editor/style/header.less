@@ -1,40 +1,39 @@
 @import 'mixin.less';
 @import 'dropdown-list.less';
 .mind-tab-panel {
-  width: 100%;
-  height: 100%;
+  @apply h-full w-full;
   .menu-container {
-    display: flex;
+    @apply flex;
     & > div {
-      display: inline-flex;
-      align-items: center;
-      overflow: hidden;
+      @apply inline-flex flex-wrap items-center overflow-hidden;
+
       border-right: 1px dashed #eeeeee;
-      flex-wrap: wrap;
     }
     & > div:last-of-type {
-      border-right: none;
+      @apply border-r-0;
     }
   }
   .menu-btn {
-    display: inline-flex;
-    cursor: pointer;
+    @apply inline-flex cursor-pointer;
     @include flexcenter;
   }
   .menu-btn:not([disabled='true']):hover {
     background-color: @btn-hover-color;
   }
   .tab-icons {
-    display: inline-block;
+    @apply inline-flex;
+
     width: 20px;
     height: 20px;
   }
   .do-group {
+    @apply h-full w-[40px];
+
     padding: 0 5px;
     width: 40px;
-    height: 100%;
     p {
-      margin: 0;
+      @apply m-0;
+
       height: 50%;
       @include flexcenter;
     }
@@ -48,7 +47,7 @@
   .insert-group {
     width: 110px;
     & > div {
-      margin: 0 5px;
+      margin: 5px 0;
     }
     .insert-sibling-box {
       i {
@@ -94,12 +93,11 @@
     width: 185px;
     @include flexcenter;
     button {
-      padding: 0;
+      @apply bg-no-repeat p-0;
+
       width: 45px;
       height: 20px;
-      font-size: inherit;
       background-position: right;
-      background-repeat: no-repeat;
       @include button;
       @include flexcenter;
       span {
@@ -110,15 +108,15 @@
       background-color: @btn-hover-color;
     }
     & > div {
+      @apply h-full flex-wrap;
+
       width: 60px;
-      height: 100%;
-      font-size: inherit;
-      flex-wrap: wrap;
       @include flexcenter;
     }
     .insert {
+      @apply bg-no-repeat;
+
       height: 25px;
-      background-repeat: no-repeat;
     }
     .link {
       .insert {
@@ -141,12 +139,12 @@
     width: 135px;
     @include flexcenter;
     ul {
-      margin: 0;
-      padding: 0;
+      @apply m-0 list-none p-0;
+
       width: 120px;
-      list-style: none;
       li {
-        display: inline-block;
+        @apply inline-block;
+
         margin: 2px;
         width: 20px;
         height: 20px;
@@ -174,37 +172,35 @@
   .arrange-group {
     width: 65px;
     .arrange {
-      flex-wrap: wrap;
+      @apply flex-wrap;
       @include flexcenter;
     }
     .tab-icons {
-      display: inline-block;
-      margin: 0;
+      @apply m-0 inline-block bg-no-repeat;
+
       width: 25px;
       height: 25px;
       background-position: 0 -150px;
-      background-repeat: no-repeat;
     }
   }
   .style-group {
-    width: 150px;
+    @apply w-[150px];
     .clear-style-btn {
-      flex-wrap: wrap;
-      width: 65px;
+      @apply w-[65px] flex-wrap;
       @include flexcenter;
       .tab-icons {
-        display: inline-block;
-        margin: 0;
+        @apply m-0 inline-block bg-no-repeat;
+
         width: 25px;
         height: 25px;
         background-position: 0 -175px;
-        background-repeat: no-repeat;
       }
     }
     .copy-paste-panel {
-      width: 70px;
+      @apply w-[70px];
       .tab-icons {
-        display: inline-block;
+        @apply inline-block;
+
         width: 20px;
         height: 20px;
       }
@@ -234,7 +230,8 @@
     }
     .font-bold,
     .font-italic {
-      display: inline-block;
+      @apply my-0 inline-block;
+
       margin: 0 3px;
       width: 20px;
       height: 20px;
@@ -251,8 +248,7 @@
     margin: 0 5px;
     width: 60px;
     button {
-      border: none;
-      outline: none;
+      @apply border-none outline-none;
     }
     @include flexcenter;
     span {

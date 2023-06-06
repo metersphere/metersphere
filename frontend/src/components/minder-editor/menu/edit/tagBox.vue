@@ -81,12 +81,12 @@
 
 <style lang="less" scoped>
   .arco-tag {
+    @apply border-none text-black;
+
     margin-right: 4px;
-    border: 0;
-    color: black;
   }
   .arco-tag:hover {
-    cursor: pointer;
+    @apply cursor-pointer;
   }
   .arco-tag:first-child {
     margin-left: 4px;

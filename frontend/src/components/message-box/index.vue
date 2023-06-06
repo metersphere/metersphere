@@ -97,17 +97,21 @@
 
 <style scoped lang="less">
   :deep(.arco-popover-popup-content) {
-    padding: 0;
+    @apply p-0;
   }
   :deep(.arco-list-item-meta) {
-    align-items: flex-start;
+    @apply items-start;
   }
   :deep(.arco-tabs-nav) {
-    padding: 14px 0 12px 16px;
+    @apply pr-0;
+
+    padding-top: 14px;
+    padding-bottom: 12px;
+    padding-left: 16px;
     border-bottom: 1px solid var(--color-neutral-3);
   }
   :deep(.arco-tabs-content) {
-    padding-top: 0;
+    @apply pt-0;
     .arco-result-subtitle {
       color: rgb(var(--gray-6));
     }

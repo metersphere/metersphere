@@ -1,5 +1,5 @@
 <template>
-  <div class="my-container">
+  <div class="h-[100vh] bg-white px-[20px] py-[16px] pb-0">
     <div>流程编辑器</div>
     <FlowEditor />
     <a-divider />
@@ -40,12 +40,3 @@
   const aceTheme = ref<ThemeType>('github_dark');
   const aceLang = ref<LangType>('javascript');
 </script>
-
-<style>
-  .my-container {
-    padding: 16px 20px;
-    padding-bottom: 0;
-    height: 100vh;
-    background-color: #ffffff;
-  }
-</style>

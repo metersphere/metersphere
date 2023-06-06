@@ -1,6 +1,6 @@
 <template>
-  <div class="my-container">
-    <a-row class="login-box flex flex-row">
+  <div class="my-container h-[100vh] w-[100vw] min-w-[1440px]">
+    <a-row class="flex h-[730px] flex-row">
       <a-col :span="11"> <loginForm /></a-col>
       <a-divider direction="vertical" />
       <a-col :span="11"> <banner /></a-col>
@@ -15,12 +15,8 @@
 
 <style lang="less" scoped>
   .my-container {
-    width: 100vw;
-    min-width: 1440px;
-    height: 100vh;
     .login-box {
       margin-top: calc(50vh - 400px);
-      height: 730px;
     }
     .arco-divider-vertical {
       height: 52em;

@@ -97,32 +97,34 @@
       border-bottom: 1px solid rgb(var(--gray-3));
     }
     .arco-list-item-extra {
-      position: absolute;
+      @apply absolute;
+
       right: 20px;
     }
     .arco-list-item-meta-content {
-      flex: 1;
+      @apply flex-1;
     }
     .item-wrap {
-      cursor: pointer;
+      @apply cursor-pointer;
     }
     .time-text {
       font-size: 12px;
       color: rgb(var(--gray-6));
     }
     .arco-empty {
-      display: none;
+      @apply hidden;
     }
     .arco-list-footer {
-      padding: 0;
-      height: 50px;
-      border-top: none;
+      @apply border-t-0 p-0;
+
       line-height: 50px;
+      height: 50px;
       .arco-space-item {
-        width: 100%;
+        @apply w-full;
+
         border-right: 1px solid rgb(var(--gray-3));
         &:last-child {
-          border-right: none;
+          @apply border-r-0;
         }
       }
       .add-border-top {
@@ -130,10 +132,10 @@
       }
     }
     .footer-wrap {
-      text-align: center;
+      @apply text-center;
     }
     .arco-typography {
-      margin-bottom: 0;
+      @apply mb-0;
     }
     .add-border {
       border-top: 1px solid rgb(var(--gray-3));

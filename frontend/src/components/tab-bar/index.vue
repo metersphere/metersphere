@@ -1,13 +1,13 @@
 <template>
   <div class="tab-bar-container">
     <a-affix ref="affixRef" :offset-top="offsetTop">
-      <div class="tab-bar-box">
-        <div class="tab-bar-scroll">
-          <div class="tags-wrap">
+      <div class="tab-bar-box pl-[20px]">
+        <div class="tab-bar-scroll leading-[32px]">
+          <div class="tags-wrap h-[48px] px-0 py-[4px]">
             <tab-item v-for="(tag, index) in tabList" :key="tag.fullPath" :index="index" :item-data="tag" />
           </div>
         </div>
-        <div class="tag-bar-operation"></div>
+        <div class="tag-bar-operation h-[32px] w-[100px]"></div>
       </div>
     </a-affix>
   </div>
@@ -50,39 +50,30 @@
 
 <style scoped lang="less">
   .tab-bar-container {
-    position: relative;
+    @apply relative;
+
     background-color: var(--color-bg-1);
     .tab-bar-box {
-      display: flex;
-      padding: 0 0 0 20px;
+      @apply flex p-0;
+
       border-bottom: 1px solid var(--color-border);
       background-color: var(--color-bg-1);
       .tab-bar-scroll {
-        overflow: hidden;
-        height: 32px;
-        flex: 1;
+        @apply flex-1 overflow-hidden;
         .tags-wrap {
-          overflow-x: auto;
-          padding: 4px 0;
-          height: 48px;
-          white-space: nowrap;
+          @apply overflow-x-auto whitespace-nowrap;
           :deep(.arco-tag) {
-            display: inline-flex;
-            align-items: center;
+            @apply inline-flex cursor-pointer items-center;
+
             margin-right: 6px;
-            cursor: pointer;
             &:first-child {
               .arco-tag-close-btn {
-                display: none;
+                @apply hidden;
               }
             }
           }
         }
       }
-    }
-    .tag-bar-operation {
-      width: 100px;
-      height: 32px;
     }
   }
 </style>

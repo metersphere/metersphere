@@ -29,7 +29,8 @@
   .menu-container {
     height: 60px;
     i {
-      display: inline-block;
+      @apply inline-block;
+
       width: 20px;
       height: 20px;
     }
