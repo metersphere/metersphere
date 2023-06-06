@@ -25,12 +25,12 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.ProjectService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 
@@ -125,6 +125,7 @@ public class ProjectController {
     }
 
     @GetMapping("/member/delete/{projectId}/{userId}")
+    @MsRequestLog(module = OperLogModule.PROJECT_PROJECT_MEMBER)
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
