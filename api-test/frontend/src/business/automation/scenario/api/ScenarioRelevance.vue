@@ -254,6 +254,7 @@ export default {
       this.moduleOptions = data;
     },
     refresh() {
+      this.$refs.nodeTree.refresh(this.projectId);
       this.$refs.apiScenarioList.search(this.projectId);
     },
     setData(data) {
