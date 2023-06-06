@@ -57,9 +57,9 @@
 <style lang="less">
   .toggle {
     .arco-dropdown-list {
-      display: grid;
+      @apply col-span-2 grid;
+
       padding: 5px;
-      grid-template-columns: 1fr 1fr;
       gap: 5px;
     }
   }
@@ -72,27 +72,27 @@
     background-repeat: no-repeat;
   }
   .mold-group {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @apply relative flex items-center justify-center;
+
     width: 80px;
     .dropdown-toggle {
-      display: flex;
+      @apply flex;
+
       margin-top: 5px;
       width: 50px;
       height: 50px;
     }
   }
   .dropdown-link {
-    position: absolute;
+    @apply absolute cursor-pointer;
+
     right: 3px;
     bottom: 2px;
-    cursor: pointer;
   }
   .mold-loop(@i) when (@i > 0) {
     .mold-@{i} {
-      display: flex;
+      @apply flex;
+
       margin-top: 5px;
       width: 50px;
       height: 50px;

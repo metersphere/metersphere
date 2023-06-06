@@ -24,7 +24,8 @@
 
 <style scoped lang="less">
   .c-icon {
-    position: relative;
+    @apply relative;
+
     width: v-bind(width);
     height: v-bind(height);
   }

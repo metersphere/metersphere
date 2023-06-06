@@ -1,5 +1,5 @@
 <template>
-  <a-badge class="theme-badge" :count="theme ? 1 : 0" dot>
+  <a-badge class="theme-badge bottom-[124px] right-[70px]" :count="theme ? 1 : 0" dot>
     <a-button
       class="theme-badge-button"
       :shape="hover ? 'round' : 'circle'"
@@ -16,7 +16,7 @@
   </a-badge>
   <a-modal :visible="modalVisible" :width="900" @ok="modalVisible = false" @cancel="modalVisible = false">
     <template #title>
-      <div class="theme-box-header">
+      <div class="theme-box-header pr-[24px]">
         <span>{{ t('themeBox.installTheme') }}</span>
       </div>
     </template>
@@ -82,7 +82,7 @@
         </Empty>
       </template>
     </a-row>
-    <div class="theme-box-bottom">
+    <div class="theme-box-bottom mt-[20px]">
       <a-pagination :total="total" :current="page" :page-size="6" @change="onPageChange" />
     </div>
     <template v-if="theme" #footer>
@@ -242,39 +242,30 @@
 <style scoped lang="less">
   .theme-box {
     &-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-right: 24px;
-      width: 100%;
+      @apply flex w-full items-center justify-between;
     }
     &-card {
       &-link {
-        opacity: 0;
+        @apply opacity-0;
+
         transition: opacity 100ms;
       }
       &:hover &-link {
-        opacity: 1;
+        @apply opacity-100;
       }
       :deep(.arco-card-meta-title) {
         line-height: 25px;
       }
     }
     &-bottom {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 20px;
+      @apply flex justify-end;
     }
     &-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      @apply flex items-center justify-between;
     }
   }
   .theme-badge {
-    position: fixed;
-    right: 70px;
-    bottom: 124px;
+    @apply fixed;
     &-button {
       border: 1px solid var(--color-fill-3) !important;
       background: var(--color-bg-5) !important;

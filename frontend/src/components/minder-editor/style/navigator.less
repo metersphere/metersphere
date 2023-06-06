@@ -1,24 +1,25 @@
 .nav-bar {
-  position: absolute;
+  @apply absolute z-10 text-white;
+
   bottom: 10px;
   left: 10px;
-  z-index: 10;
   padding: 5px 0;
   width: 35px;
   height: 200px;
   border-radius: 4px;
-  color: #ffffff;
-  background: #fc8383;
+  background-color: #fc8383;
   box-shadow: 3px 3px 10px rgb(0 0 0 / 20%);
   transition: -webkit-transform 0.7s 0.1s ease;
   transition: transform 0.7s 0.1s ease;
   .nav-btn {
+    @apply text-center;
+
     width: 35px;
     height: 24px;
     line-height: 24px;
-    text-align: center;
     .icon {
-      display: block;
+      @apply block;
+
       margin: 2px auto;
       width: 20px;
       height: 20px;
@@ -34,62 +35,63 @@
     background-position: 0 -750px;
   }
   .hand .icon {
-    margin: 0 auto;
+    @apply mx-auto my-0;
+
     width: 25px;
     height: 25px;
     background-position: 0 -770px;
   }
   .camera .icon {
-    margin: 0 auto;
+    @apply mx-auto my-0;
+
     width: 25px;
     height: 25px;
     background-position: 0 -870px;
   }
   .nav-trigger .icon {
-    margin: 0 auto;
+    @apply mx-auto my-0;
+
     width: 25px;
     height: 25px;
     background-position: 0 -845px;
   }
   .zoom-pan {
-    position: relative;
-    overflow: visible;
+    @apply relative mx-auto overflow-visible bg-white;
+
     margin: 3px auto;
     width: 2px;
     height: 70px;
-    background: white;
     box-shadow: 0 1px #e50000;
     .origin {
-      position: absolute;
+      @apply absolute bg-transparent;
+
       left: -9px;
       margin-top: -4px;
       width: 20px;
       height: 8px;
-      background: transparent;
       &::after {
-        position: absolute;
+        @apply absolute  block bg-white;
+
         top: 3px;
         left: 7px;
-        display: block;
         width: 6px;
         height: 2px;
-        background: white;
         content: ' ';
       }
     }
     .indicator {
-      position: absolute;
+      @apply absolute  rounded-full bg-white;
+
       left: -3px;
       margin-top: -4px;
       width: 8px;
       height: 8px;
-      border-radius: 100%;
-      background: white;
     }
   }
 }
 .nav-previewer {
-  position: absolute;
+  @apply absolute cursor-crosshair bg-white;
+
   bottom: 30px;
   left: 45px;
   z-index: 9;
@@ -97,15 +99,10 @@
   width: 140px;
   height: 120px;
   border-radius: 0 2px 2px 0;
-  background: #ffffff;
   box-shadow: 0 0 8px rgb(0 0 0 / 20%);
   transition: -webkit-transform 0.7s 0.1s ease;
   transition: transform 0.7s 0.1s ease;
-  cursor: crosshair;
   &.grab {
-    cursor: move;
-    cursor: grabbing;
-    cursor: grabbing;
-    cursor: grabbing;
+    @apply cursor-grabbing;
   }
 }

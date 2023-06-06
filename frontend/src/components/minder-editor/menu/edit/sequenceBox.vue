@@ -1,6 +1,6 @@
 ﻿<template>
   <div :disabled="commandDisabled">
-    <a-button class="delete-btn" shape="circle" @click="execCommand()">
+    <a-button class="delete-btn mx-[4px] my-0 h-[23px] w-[23px] !p-[2px]" shape="circle" @click="execCommand()">
       <template #icon>
         <icon-delete />
       </template>
@@ -9,7 +9,7 @@
       <a-button
         v-if="pIndex != 0"
         :key="item"
-        class="priority-btn"
+        class="priority-btn mr-[4px] h-[22px] w-[22px] rounded-[8px] pr-[5px] text-[12px]"
         :class="'priority-btn_' + pIndex"
         size="small"
         @click="execCommand(pIndex)"
@@ -83,26 +83,13 @@
 
 <style lang="less" scoped>
   .delete-btn {
-    margin: 0 4px;
-    padding: 2px !important;
-    width: 23px;
-    height: 23px;
     i {
       width: 1em !important;
       height: 1em !important;
     }
   }
   .priority-btn {
-    margin-right: 4px;
-    padding: 0;
-    padding-right: 5px;
-    width: 22px;
-    height: 22px;
-    font-size: 12px;
-    border: 0;
-    border-radius: 8px;
-    color: white;
-    font-style: italic;
+    @apply border-none p-0 italic text-white;
   }
   .priority-btn_1 {
     border-bottom: 3px solid #840023;

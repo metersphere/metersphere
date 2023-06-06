@@ -157,7 +157,8 @@
 
 <style scoped lang="less">
   .tag-link {
-    text-decoration: none;
+    @apply no-underline;
+
     color: var(--color-text-2);
   }
   .link-activated {

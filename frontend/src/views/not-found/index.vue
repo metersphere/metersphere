@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="absolute left-[50%] top-[50%] ml-[-95px] mt-[-121px] text-center">
     <a-result class="result" status="404" :subtitle="'not found'"> </a-result>
     <div class="operation-row">
       <a-button key="back" type="primary" @click="back"> back </a-button>
@@ -16,15 +16,3 @@
     router.push({ name: 'Workplace' });
   };
 </script>
-
-<style scoped lang="less">
-  .content {
-    // padding-top: 100px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    margin-top: -121px;
-    margin-left: -95px;
-    text-align: center;
-  }
-</style>

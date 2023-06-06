@@ -1,5 +1,5 @@
 <template>
-  <div class="my-container">
+  <div class="h-[100vh] bg-white px-[20px] py-[16px] pb-0">
     <div class="mb-10">表格</div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
       <template #createTime="{ record }">
@@ -91,12 +91,3 @@
     fetchData();
   });
 </script>
-
-<style>
-  .my-container {
-    padding: 16px 20px;
-    padding-bottom: 0;
-    height: 100vh;
-    background-color: #ffffff;
-  }
-</style>

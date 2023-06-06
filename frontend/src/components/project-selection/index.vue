@@ -32,7 +32,8 @@
 <style lang="less" scoped>
   .project-selection {
     & .arco-select-view-single {
-      border: none;
+      @apply border-none;
+
       color: #323233;
       background-color: var(--color-bg-1);
     }

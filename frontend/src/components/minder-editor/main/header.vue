@@ -62,34 +62,30 @@
   @import '../style/header';
   .mind_tab-content {
     .tab-icons {
-      background-image: url('@/assets/images/minder/icons.png');
-      background-repeat: no-repeat;
+      @apply bg-[url('@/assets/images/minder/icons.png')] bg-no-repeat;
     }
   }
 </style>
 
 <style lang="less" scoped>
   header {
+    @apply bg-white;
+
     font-size: 12px;
-    background-color: #ffffff;
     & > ul {
-      display: flex;
-      align-items: center;
-      margin: 0;
-      padding: 0;
+      @apply m-0 flex items-center p-0;
+
       height: 30px;
       background-color: #e1e1e1;
       li {
-        line-height: 30px;
-        display: inline-flex;
+        @apply inline-flex h-full  list-none;
+
         width: 80px;
-        height: 100%;
-        list-style: none;
+        line-height: 30px;
         a {
-          width: inherit;
+          @apply text-center no-underline;
+
           font-size: 14px;
-          text-align: center;
-          text-decoration: none;
           color: #337ab7;
         }
         a:hover,
@@ -98,9 +94,9 @@
         }
       }
       li.selected {
-        background: #ffffff;
+        @apply bg-white;
         a {
-          color: #000000;
+          @apply text-black;
         }
       }
     }

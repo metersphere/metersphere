@@ -1,5 +1,5 @@
 <template>
-  <div class="font-group">
+  <div class="font-group ml-[10px]">
     <a-select
       v-model="fontFamilyDefaultValue"
       :placeholder="t('minder.menu.font.font')"
@@ -37,7 +37,7 @@
         }"
       />
     </a-select>
-    <span class="font-btn">
+    <span class="font-btn mt-[2px]">
       <span
         class="menu-btn tab-icons font-bold"
         :class="{ selected: boldSelected }"
@@ -258,12 +258,3 @@
     }
   }
 </script>
-
-<style lang="less" scoped>
-  .font-group {
-    margin-left: 10px;
-  }
-  .font-btn {
-    margin-top: 2px;
-  }
-</style>
