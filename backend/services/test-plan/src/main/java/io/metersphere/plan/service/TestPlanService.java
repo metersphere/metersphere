@@ -1,15 +1,21 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanFollower;
-import io.metersphere.plan.domain.TestPlanPrincipal;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanDTO;
+import io.metersphere.plan.mapper.ExtTestPlanMapper;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.User;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -21,23 +27,59 @@ import java.util.UUID;
 public class TestPlanService {
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
 
+    @Resource
+    private TestPlanConfigService testPlanConfigService;
     @Resource
     private TestPlanPrincipalService testPlanPrincipalService;
     @Resource
     private TestPlanFollowerService testPlanFollowerService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanApiScenarioService testPlanApiScenarioService;
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
+    @Resource
+    private TestPlanUiScenarioService testPlanUiScenarioService;
+    @Resource
+    private TestPlanFunctionCaseService testPlanFunctionCaseService;
 
-    public TestPlanDTO add(@NotNull TestPlanDTO testPlanDTO) {
+    public TestPlanDTO add(@NotNull TestPlanDTO testPlanCreateRequest) {
+        User user = SessionUtils.getUser();
+        if (user == null) {
+            MSException.throwException("Cannot find user!");
+        }
+        if (StringUtils.equals(testPlanCreateRequest.getParentId(), testPlanCreateRequest.getId())) {
+            MSException.throwException("The parent test plan cannot be the same as the current test plan!");
+        }
+
+        if (StringUtils.isBlank(testPlanCreateRequest.getId())) {
+            testPlanCreateRequest.setId(UUID.randomUUID().toString());
+        }
+        testPlanCreateRequest.setCreateUser(user.getId());
+        testPlanCreateRequest.setUpdateUser(user.getId());
+        testPlanCreateRequest.setCreateTime(System.currentTimeMillis());
+        testPlanCreateRequest.setUpdateTime(System.currentTimeMillis());
+
         TestPlan testPlan = new TestPlan();
-        BeanUtils.copyBean(testPlan, testPlanDTO);
-        testPlan.setId(UUID.randomUUID().toString());
-        //todo SongTianyang:暂时没有SessionUtil，创建人先根据前台传值保存
-        testPlan.setCreateTime(System.currentTimeMillis());
+        BeanUtils.copyBean(testPlan, testPlanCreateRequest);
         testPlanMapper.insert(testPlan);
 
-        if (CollectionUtils.isNotEmpty(testPlanDTO.getFollowers())) {
+        TestPlanConfig testPlanConfig = new TestPlanConfig();
+        testPlanConfig.setTestPlanId(testPlan.getId());
+        testPlanConfig.setAutomaticStatusUpdate(testPlanCreateRequest.isAutomaticStatusUpdate());
+        testPlanConfig.setRepeatCase(testPlanCreateRequest.isRepeatCase());
+        testPlanConfig.setPassThreshold(testPlanCreateRequest.getPassThreshold());
+        testPlanConfigMapper.insert(testPlanConfig);
+
+        if (CollectionUtils.isNotEmpty(testPlanCreateRequest.getFollowers())) {
             List<TestPlanFollower> testPlanFollowerList = new ArrayList<>();
-            for (String follower : testPlanDTO.getFollowers()) {
+            for (String follower : testPlanCreateRequest.getFollowers()) {
                 TestPlanFollower testPlanFollower = new TestPlanFollower();
                 testPlanFollower.setTestPlanId(testPlan.getId());
                 testPlanFollower.setUserId(follower);
@@ -46,9 +88,9 @@ public class TestPlanService {
             testPlanFollowerService.batchSave(testPlanFollowerList);
         }
 
-        if (CollectionUtils.isNotEmpty(testPlanDTO.getPrincipals())) {
+        if (CollectionUtils.isNotEmpty(testPlanCreateRequest.getPrincipals())) {
             List<TestPlanPrincipal> testPlanPrincipalList = new ArrayList<>();
-            for (String principal : testPlanDTO.getPrincipals()) {
+            for (String principal : testPlanCreateRequest.getPrincipals()) {
                 TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
                 testPlanPrincipal.setTestPlanId(testPlan.getId());
                 testPlanPrincipal.setUserId(principal);
@@ -56,6 +98,60 @@ public class TestPlanService {
             }
             testPlanPrincipalService.batchSave(testPlanPrincipalList);
         }
-        return testPlanDTO;
+        return testPlanCreateRequest;
+    }
+
+    public void batchDelete(List<String> idList) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdIn(idList);
+        testPlanMapper.deleteByExample(example);
+
+        this.cascadeDelete(idList);
+    }
+
+    public void delete(@NotBlank String id) {
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andIdEqualTo(id);
+        testPlanMapper.deleteByExample(example);
+        this.cascadeDelete(id);
+    }
+
+    public void deleteByParentId(String parentTestPlanId) {
+        List<String> childrenTestPlanIdList = extTestPlanMapper.selectByParentId(parentTestPlanId);
+        if (CollectionUtils.isNotEmpty(childrenTestPlanIdList)) {
+            this.batchDelete(childrenTestPlanIdList);
+        }
+    }
+
+    @Validated
+    public void deleteBatchByParentId(List<String> parentTestPlanId) {
+        List<String> childrenTestPlanIdList = extTestPlanMapper.selectByParentIdList(parentTestPlanId);
+        if (CollectionUtils.isNotEmpty(childrenTestPlanIdList)) {
+            this.batchDelete(childrenTestPlanIdList);
+        }
+    }
+
+    private void cascadeDelete(String id) {
+        //删除子计划
+        this.deleteByParentId(id);
+        //删除当前计划对应的资源
+        this.testPlanConfigService.delete(id);
+        this.testPlanFunctionCaseService.deleteByTestPlanId(id);
+        this.testPlanApiCaseService.deleteByTestPlanId(id);
+        this.testPlanApiScenarioService.deleteByTestPlanId(id);
+        this.testPlanUiScenarioService.deleteByTestPlanId(id);
+        this.testPlanLoadCaseService.deleteByTestPlanId(id);
+    }
+
+    private void cascadeDelete(List<String> idList) {
+        //删除子计划
+        this.deleteBatchByParentId(idList);
+        //删除当前计划对应的资源
+        this.testPlanConfigService.deleteBatch(idList);
+        this.testPlanFunctionCaseService.deleteBatchByTestPlanId(idList);
+        this.testPlanApiCaseService.deleteBatchByTestPlanId(idList);
+        this.testPlanApiScenarioService.deleteBatchByTestPlanId(idList);
+        this.testPlanUiScenarioService.deleteBatchByTestPlanId(idList);
+        this.testPlanLoadCaseService.deleteBatchByTestPlanId(idList);
     }
 }

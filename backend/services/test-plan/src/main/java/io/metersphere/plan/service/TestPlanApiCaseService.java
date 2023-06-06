@@ -9,6 +9,8 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanApiCaseService {
@@ -44,5 +46,17 @@ public class TestPlanApiCaseService {
         }
         BeanUtils.copyBean(testPlanApiCaseDTO, testPlanApiCase);
         return testPlanApiCaseDTO;
+    }
+
+    public int deleteByTestPlanId(String testPlanId) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId);
+        return testPlanApiCaseMapper.deleteByExample(example);
+    }
+
+    public int deleteBatchByTestPlanId(List<String> testPlanIdList) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdIn(testPlanIdList);
+        return testPlanApiCaseMapper.deleteByExample(example);
     }
 }

@@ -5,13 +5,14 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class TestPlanFunctionCaseResult implements Serializable {
     @Schema(title = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_function_case_result.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_plan_function_case_result.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{test_plan_function_case_result.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
