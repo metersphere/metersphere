@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.project.mapper.ProjectMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.Project">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="organization_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -70,7 +70,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, organization_id, `name`, description, create_time, update_time, create_user, system_id
+    id, organization_id, `name`, description, create_time, update_time, create_user, 
+    system_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -103,10 +104,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.Project">
-    insert into project (id, organization_id, `name`,
+    insert into project (id, organization_id, `name`, 
       description, create_time, update_time, 
       create_user, system_id)
-    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR})
   </insert>
@@ -116,7 +117,7 @@
       <if test="id != null">
         id,
       </if>
-      <if test="workspaceId != null">
+      <if test="organizationId != null">
         organization_id,
       </if>
       <if test="name != null">
@@ -142,8 +143,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -177,8 +178,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.workspaceId != null">
-        organization_id = #{record.workspaceId,jdbcType=VARCHAR},
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -206,7 +207,7 @@
   <update id="updateByExample" parameterType="map">
     update project
     set id = #{record.id,jdbcType=VARCHAR},
-      organization_id = #{record.workspaceId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -220,8 +221,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.Project">
     update project
     <set>
-      <if test="workspaceId != null">
-        organization_id = #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -246,7 +247,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.Project">
     update project
-    set organization_id = #{workspaceId,jdbcType=VARCHAR},
+    set organization_id = #{organizationId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},

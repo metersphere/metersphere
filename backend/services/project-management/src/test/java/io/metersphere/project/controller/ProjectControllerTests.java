@@ -53,7 +53,7 @@ public class ProjectControllerTests {
         Project project = new Project();
         project.setName("test");
         project.setCreateUser("admin");
-        project.setWorkspaceId("default");
+        project.setOrganizationId("default");
 
         var result = mockMvc.perform(MockMvcRequestBuilders.post("/project/add")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -73,7 +73,7 @@ public class ProjectControllerTests {
         project.setId(projectId);
         project.setName("test2");
         project.setCreateUser("admin");
-        project.setWorkspaceId("default");
+        project.setOrganizationId("default");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/project/edit")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
