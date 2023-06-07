@@ -60,7 +60,7 @@ pipeline {
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
                         # mvn clean package -Drevision=${REVISION} -DskipTests --settings ./settings.xml
-                        mvn clean package -Drevision=${REVISION} -DskipTests --file backend/pom.xml --settings ./settings.xml
+                        mvn clean package -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins --file backend/pom.xml --settings ./settings.xml
 
                         LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         # echo $LOCAL_REPOSITORY
