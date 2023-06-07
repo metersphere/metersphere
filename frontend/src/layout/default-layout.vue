@@ -159,7 +159,7 @@
     background-color: var(--color-bg-3);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
-      padding: 16px 0 0 16px;
+      padding: 16px 16px 0;
     }
   }
 </style>
