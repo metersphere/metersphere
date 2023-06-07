@@ -156,6 +156,8 @@
                     'PROJECT_API_SCENARIO:READ+EDIT',
                     'PROJECT_API_SCENARIO:READ+CREATE',
                     'PROJECT_API_SCENARIO:READ+COPY',
+                    'PROJECT_API_SCENARIO:READ+DEBUG',
+                    'PROJECT_API_SCENARIO:READ+RUN'
                   ]">
                   {{ $t('api_test.request.debug') }}
                   <el-dropdown-menu slot="dropdown">
