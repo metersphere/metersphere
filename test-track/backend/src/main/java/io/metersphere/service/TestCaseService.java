@@ -1835,7 +1835,7 @@ public class TestCaseService {
             buildExportCustomField(customSelectValueMap, customNameMap, t, data, textFields);
             buildExportOtherField(data, t, otherHeaders);
 
-            this.validateExportTextField(t);
+            this.validateExportTextField(data);
             if (CollectionUtils.isNotEmpty(stepDescList)) {
                 // 如果有多条步骤则添加多条数据，之后合并单元格
                 buildExportMergeData(rowMergeInfo, list, stepDescList, stepResultList, data);
@@ -1846,19 +1846,20 @@ public class TestCaseService {
         return list;
     }
 
-    private void validateExportTextField(TestCaseDTO data) {
-        List<String> textValues= Arrays.asList(data.getPrerequisite(), data.getStepDescription(), data.getExpectedResult(), data.getRemark());
-        for (String textValue : textValues) {
-            validateExportText(data.getName(), textValue);
-        }
+    private void validateExportTextField(TestCaseExcelData data) {
+        data.setPrerequisite(validateExportText(data.getPrerequisite()));
+        data.setRemark(validateExportText(data.getRemark()));
+        data.setStepDesc(validateExportText(data.getStepDesc()));
+        data.setStepResult(validateExportText(data.getStepResult()));
     }
 
-    private void validateExportText(String name, String textValue) {
+    private String validateExportText(String textValue) {
         // poi 导出的单个单元格最大字符数量为 32767 ，这里添加校验提示
         int maxLength = 32767;
         if (StringUtils.isNotBlank(textValue) && textValue.length() > maxLength) {
-            MSException.throwException(String.format(Translator.get("case_export_text_validate_tip"), name, maxLength));
+            return String.format(Translator.get("case_export_text_validate_tip"), maxLength);
         }
+        return textValue;
     }
 
     private void buildExportOtherField(TestCaseExcelData data, TestCaseDTO t, List<TestCaseExportRequest.TestCaseExportHeader> otherHeaders) {
@@ -1926,8 +1927,7 @@ public class TestCaseService {
                 //进行key value对换
                 String id = field.getFieldId();
                 if (textFields.contains(id)) {
-                    map.put(customNameMap.get(id), field.getTextValue());
-                    this.validateExportText(data.getName(), field.getTextValue());
+                    map.put(customNameMap.get(id), this.validateExportText(field.getTextValue()));
                     continue;
                 }
                 if (StringUtils.isNotBlank(field.getValue())) {
