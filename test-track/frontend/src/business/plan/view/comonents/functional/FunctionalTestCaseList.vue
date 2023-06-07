@@ -436,6 +436,13 @@ export default {
     planStatus: {
       type: String
     },
+    searchSelectNodeIds: {
+      type: Array
+    },
+    searchSelect: {
+      type: Boolean,
+      default: false
+    },
   },
   computed: {
     editTestPlanTestCaseOrder() {
@@ -636,8 +643,14 @@ export default {
         this.status = 'all';
       }
       this.condition.nodeIds = [];
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        this.condition.nodeIds = this.selectNodeIds;
+      if (!this.searchSelect) {
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          this.condition.nodeIds = this.selectNodeIds;
+        }
+      } else {
+        if (this.searchSelectNodeIds && this.searchSelectNodeIds.length > 0) {
+          this.condition.nodeIds = this.searchSelectNodeIds;
+        }
       }
       this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
@@ -720,8 +733,8 @@ export default {
       this.initTableData();
     },
     search() {
-      this.initTableData();
       this.$emit('search');
+      this.initTableData();
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
