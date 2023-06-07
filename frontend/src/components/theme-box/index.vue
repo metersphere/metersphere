@@ -175,10 +175,10 @@
       };
 
       onMounted(() => {
-        const _theme = getLocalStorage<ThemeData>('vue-custom-theme', true) as ThemeData;
-        if (_theme) {
-          useTheme(_theme, false);
-        }
+        // const _theme = getLocalStorage<ThemeData>('vue-custom-theme', true) as ThemeData;
+        // if (_theme) {
+        //   useTheme(_theme, false);
+        // }
       });
 
       const fetchThemeList = async (current: number, search: string) => {

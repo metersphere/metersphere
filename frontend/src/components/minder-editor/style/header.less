@@ -1,4 +1,3 @@
-@import 'mixin.less';
 @import 'dropdown-list.less';
 .mind-tab-panel {
   @apply h-full w-full;
@@ -14,11 +13,13 @@
     }
   }
   .menu-btn {
-    @apply inline-flex cursor-pointer;
-    @include flexcenter;
+    @apply flex cursor-pointer items-center justify-center;
   }
   .menu-btn:not([disabled='true']):hover {
-    background-color: @btn-hover-color;
+    background-color: var(--color-fill-2);
+  }
+  .menu-btn[disabled='true'] {
+    opacity: 0.7;
   }
   .tab-icons {
     @apply inline-flex;
@@ -27,15 +28,14 @@
     height: 20px;
   }
   .do-group {
-    @apply h-full w-[40px];
+    @apply h-full;
 
     padding: 0 5px;
     width: 40px;
     p {
-      @apply m-0;
+      @apply m-0 flex items-center justify-center;
 
       height: 50%;
-      @include flexcenter;
     }
     .undo i {
       background-position: 0 -1240px;
@@ -47,7 +47,7 @@
   .insert-group {
     width: 110px;
     & > div {
-      margin: 5px 0;
+      margin: 0 5px;
     }
     .insert-sibling-box {
       i {
@@ -62,8 +62,9 @@
   }
   .edit-del-group,
   .move-group {
+    @apply flex items-center justify-center;
+
     width: 70px;
-    @include flexcenter;
   }
   .move-group {
     .move-up {
@@ -90,28 +91,26 @@
     }
   }
   .attachment-group {
+    @apply flex items-center justify-center;
+
     width: 185px;
-    @include flexcenter;
     button {
-      @apply bg-no-repeat p-0;
+      @apply flex items-center justify-center border-none bg-transparent bg-no-repeat p-0 outline-none;
 
       width: 45px;
       height: 20px;
       background-position: right;
-      @include button;
-      @include flexcenter;
       span {
         margin-left: 15px;
       }
     }
     button:hover {
-      background-color: @btn-hover-color;
+      background-color: var(--color-fill-2);
     }
     & > div {
-      @apply h-full flex-wrap;
+      @apply flex h-full flex-wrap items-center justify-center;
 
       width: 60px;
-      @include flexcenter;
     }
     .insert {
       @apply bg-no-repeat;
@@ -136,8 +135,9 @@
   }
   .progress-group,
   .sequence-group {
+    @apply flex items-center justify-center;
+
     width: 135px;
-    @include flexcenter;
     ul {
       @apply m-0 list-none p-0;
 
@@ -172,8 +172,7 @@
   .arrange-group {
     width: 65px;
     .arrange {
-      @apply flex-wrap;
-      @include flexcenter;
+      @apply flex flex-wrap items-center justify-center;
     }
     .tab-icons {
       @apply m-0 inline-block bg-no-repeat;
@@ -184,10 +183,11 @@
     }
   }
   .style-group {
-    @apply w-[150px];
+    width: 150px;
     .clear-style-btn {
-      @apply w-[65px] flex-wrap;
-      @include flexcenter;
+      @apply flex flex-wrap items-center justify-center;
+
+      width: 65px;
       .tab-icons {
         @apply m-0 inline-block bg-no-repeat;
 
@@ -197,7 +197,7 @@
       }
     }
     .copy-paste-panel {
-      @apply w-[70px];
+      width: 70px;
       .tab-icons {
         @apply inline-block;
 
@@ -245,12 +245,13 @@
   }
   .expand-group,
   .selection-group {
+    @apply flex items-center justify-center;
+
     margin: 0 5px;
     width: 60px;
     button {
       @apply border-none outline-none;
     }
-    @include flexcenter;
     span {
       font-size: 12px;
     }
