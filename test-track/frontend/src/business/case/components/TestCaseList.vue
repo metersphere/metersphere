@@ -651,6 +651,15 @@ export default {
           name: this.$t('commons.tag')
         })
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
+        this.$nextTick(() => {
+          if (this.$refs.table) {
+            this.$refs.table.resetHeader(() => {
+              this.loading = false;
+            });
+          } else {
+            this.loading = false;
+          }
+        });
       });
     },
     checkCurrentProject() {
