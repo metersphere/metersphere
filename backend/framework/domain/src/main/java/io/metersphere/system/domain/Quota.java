@@ -29,8 +29,8 @@ public class Quota implements Serializable {
     @Schema(title = "资源池列表")
     private String resourcePool;
 
-    @Schema(title = "工作空间ID")
-    private String workspaceId;
+    @Schema(title = "组织ID")
+    private String organizationId;
 
     @Schema(title = "是否使用默认值")
     private Boolean useDefault;

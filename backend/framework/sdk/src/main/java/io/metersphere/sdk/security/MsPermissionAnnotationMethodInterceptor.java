@@ -54,11 +54,11 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
             }
         }
         try {
-            SessionUtils.setCurrentWorkspaceId(workspaceId);
+            SessionUtils.setCurrentOrganizationId(workspaceId);
             SessionUtils.setCurrentProjectId(projectId);
             super.assertAuthorized(mi);
         } finally {
-            SessionUtils.clearCurrentWorkspaceId();
+            SessionUtils.clearCurrentOrganizationId();
             SessionUtils.clearCurrentProjectId();
         }
     }

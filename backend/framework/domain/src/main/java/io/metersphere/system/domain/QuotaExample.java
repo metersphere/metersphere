@@ -485,73 +485,73 @@ public class QuotaExample {
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIsNull() {
-            addCriterion("workspace_id is null");
+        public Criteria andOrganizationIdIsNull() {
+            addCriterion("organization_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIsNotNull() {
-            addCriterion("workspace_id is not null");
+        public Criteria andOrganizationIdIsNotNull() {
+            addCriterion("organization_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdEqualTo(String value) {
-            addCriterion("workspace_id =", value, "workspaceId");
+        public Criteria andOrganizationIdEqualTo(String value) {
+            addCriterion("organization_id =", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotEqualTo(String value) {
-            addCriterion("workspace_id <>", value, "workspaceId");
+        public Criteria andOrganizationIdNotEqualTo(String value) {
+            addCriterion("organization_id <>", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdGreaterThan(String value) {
-            addCriterion("workspace_id >", value, "workspaceId");
+        public Criteria andOrganizationIdGreaterThan(String value) {
+            addCriterion("organization_id >", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdGreaterThanOrEqualTo(String value) {
-            addCriterion("workspace_id >=", value, "workspaceId");
+        public Criteria andOrganizationIdGreaterThanOrEqualTo(String value) {
+            addCriterion("organization_id >=", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLessThan(String value) {
-            addCriterion("workspace_id <", value, "workspaceId");
+        public Criteria andOrganizationIdLessThan(String value) {
+            addCriterion("organization_id <", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLessThanOrEqualTo(String value) {
-            addCriterion("workspace_id <=", value, "workspaceId");
+        public Criteria andOrganizationIdLessThanOrEqualTo(String value) {
+            addCriterion("organization_id <=", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdLike(String value) {
-            addCriterion("workspace_id like", value, "workspaceId");
+        public Criteria andOrganizationIdLike(String value) {
+            addCriterion("organization_id like", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotLike(String value) {
-            addCriterion("workspace_id not like", value, "workspaceId");
+        public Criteria andOrganizationIdNotLike(String value) {
+            addCriterion("organization_id not like", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdIn(List<String> values) {
-            addCriterion("workspace_id in", values, "workspaceId");
+        public Criteria andOrganizationIdIn(List<String> values) {
+            addCriterion("organization_id in", values, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotIn(List<String> values) {
-            addCriterion("workspace_id not in", values, "workspaceId");
+        public Criteria andOrganizationIdNotIn(List<String> values) {
+            addCriterion("organization_id not in", values, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdBetween(String value1, String value2) {
-            addCriterion("workspace_id between", value1, value2, "workspaceId");
+        public Criteria andOrganizationIdBetween(String value1, String value2) {
+            addCriterion("organization_id between", value1, value2, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andWorkspaceIdNotBetween(String value1, String value2) {
-            addCriterion("workspace_id not between", value1, value2, "workspaceId");
+        public Criteria andOrganizationIdNotBetween(String value1, String value2) {
+            addCriterion("organization_id not between", value1, value2, "organizationId");
             return (Criteria) this;
         }
 

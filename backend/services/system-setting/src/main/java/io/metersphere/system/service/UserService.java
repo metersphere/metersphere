@@ -60,23 +60,6 @@ public class UserService {
         return baseUserMapper.selectById(id);
     }
 
-    public boolean batchSave2(List<User> users) {
-        long start = System.currentTimeMillis();
-
-        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-            BaseUserMapper mapper = sqlSession.getMapper(BaseUserMapper.class);
-            for (int i = 0, size = users.size(); i < size; i++) {
-                mapper.insert(users.get(i));
-                if (i % 100 == 0) {
-                    sqlSession.flushStatements();
-                }
-            }
-            sqlSession.flushStatements();
-        }
-        System.out.println("batch save cost: " + (System.currentTimeMillis() - start) + "ms");
-        return true;
-    }
-
     public boolean batchSave3(List<User> users) {
 
         long start = System.currentTimeMillis();

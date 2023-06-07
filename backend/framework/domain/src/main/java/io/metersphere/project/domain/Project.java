@@ -14,8 +14,8 @@ public class Project implements Serializable {
     private String id;
 
     @Schema(title = "工作空间ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project.workspace_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{project.workspace_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{project.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String workspaceId;
 
     @Schema(title = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)

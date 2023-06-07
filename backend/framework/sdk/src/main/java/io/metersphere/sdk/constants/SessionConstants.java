@@ -9,7 +9,7 @@ public class SessionConstants {
     public final static String CSRF_TOKEN = "CSRF-TOKEN";
     public final static String SSO_TOKEN = "SSO-TOKEN";
     public final static String CURRENT_PROJECT = "PROJECT";
-    public final static String CURRENT_WORKSPACE = "WORKSPACE";
+    public final static String CURRENT_ORGANIZATION = "ORGANIZATION";
     public final static String ACCESS_KEY = "accessKey";
     public final static String SIGNATURE = "signature";
 }

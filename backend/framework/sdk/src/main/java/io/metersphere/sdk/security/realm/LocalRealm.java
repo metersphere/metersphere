@@ -74,7 +74,7 @@ public class LocalRealm extends AuthorizingRealm {
 
     @Override
     public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return SessionUtils.hasPermission(SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId(), permission);
+        return SessionUtils.hasPermission(SessionUtils.getCurrentOrganizationId(), SessionUtils.getCurrentProjectId(), permission);
     }
 
     private UserDTO getUserWithOutAuthenticate(String userId) {

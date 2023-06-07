@@ -112,7 +112,7 @@ public class MybatisInterceptor implements Interceptor {
         if (MapUtils.isEmpty(localInterceptorConfigMap)) {
             return obj;
         }
-        Object newObject = obj.getClass().newInstance();
+        Object newObject = obj.getClass().getDeclaredConstructor().newInstance();
         BeanUtils.copyBean(newObject, obj);
         for (String attrName : localInterceptorConfigMap.keySet()) {
             if (MapUtils.isEmpty(localInterceptorConfigMap.get(attrName))) {
@@ -145,7 +145,7 @@ public class MybatisInterceptor implements Interceptor {
         if (MapUtils.isEmpty(localDecryptConfigMap)) {
             return obj;
         }
-        result = obj.getClass().newInstance();
+        result = obj.getClass().getDeclaredConstructor().newInstance();
         BeanUtils.copyBean(result, obj);
         for (String attrName : localDecryptConfigMap.keySet()) {
             if (MapUtils.isEmpty(localDecryptConfigMap.get(attrName))) {

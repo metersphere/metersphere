@@ -44,12 +44,6 @@ public class UserController {
         return userService.delete(userId);
     }
 
-    @PostMapping("/batch-add2")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
-    public boolean batchSaveUser2(@Validated({Created.class}) @RequestBody List<User> user) {
-        return userService.batchSave2(user);
-    }
-
     @PostMapping("/batch-add3")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public boolean batchSaveUser3(@Validated({Created.class}) @RequestBody List<User> user) {

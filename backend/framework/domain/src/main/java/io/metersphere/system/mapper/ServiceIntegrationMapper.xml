@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.ServiceIntegration">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.ServiceIntegration">
     <result column="configuration" jdbcType="LONGVARBINARY" property="configuration" />
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, platform, workspace_id
+    id, platform, organization_id
   </sql>
   <sql id="Blob_Column_List">
     configuration
@@ -122,9 +122,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.ServiceIntegration">
-    insert into service_integration (id, platform, workspace_id, 
+    insert into service_integration (id, platform, organization_id, 
       configuration)
-    values (#{id,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
       #{configuration,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.ServiceIntegration">
@@ -136,8 +136,8 @@
       <if test="platform != null">
         platform,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="configuration != null">
         configuration,
@@ -150,8 +150,8 @@
       <if test="platform != null">
         #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="configuration != null">
         #{configuration,jdbcType=LONGVARBINARY},
@@ -173,8 +173,8 @@
       <if test="record.platform != null">
         platform = #{record.platform,jdbcType=VARCHAR},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
       <if test="record.configuration != null">
         configuration = #{record.configuration,jdbcType=LONGVARBINARY},
@@ -188,7 +188,7 @@
     update service_integration
     set id = #{record.id,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       configuration = #{record.configuration,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -198,7 +198,7 @@
     update service_integration
     set id = #{record.id,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
+      organization_id = #{record.organizationId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -209,8 +209,8 @@
       <if test="platform != null">
         platform = #{platform,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="configuration != null">
         configuration = #{configuration,jdbcType=LONGVARBINARY},
@@ -221,14 +221,14 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.ServiceIntegration">
     update service_integration
     set platform = #{platform,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       configuration = #{configuration,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.ServiceIntegration">
     update service_integration
     set platform = #{platform,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR}
+      organization_id = #{organizationId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
