@@ -4,24 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.metersphere.plugin.util.PluginLogUtils;
 import lombok.Data;
-
 import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "clazzName")
 @Data
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class TestElementDTO {
+public abstract class TestElementDTO implements Serializable {
     // 组件类型
     private String type;
-
-    // 用于数据反射对象
-    private String clazzName = TestElementDTO.class.getCanonicalName();
 
     // 当前组件唯一标示
     private String uuid;
