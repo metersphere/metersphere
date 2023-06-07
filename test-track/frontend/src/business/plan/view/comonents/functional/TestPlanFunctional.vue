@@ -27,6 +27,8 @@
           :plan-status="planStatus "
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
+          :search-select-node-ids="searchSelectNodeIds"
+          :search-select.sync="searchSelect"
           :version-enable="versionEnable"
           @refresh="refresh"
           @refreshTree="refreshTree"
@@ -94,7 +96,9 @@ export default {
       condition: {},
       tmpActiveDom: null,
       tmpPath: null,
-      currentNode: null
+      currentNode: null,
+      searchSelectNodeIds: [],
+      searchSelect: false,
     };
   },
   props: [
@@ -143,6 +147,7 @@ export default {
     },
     clearSelectNode() {
       this.selectNodeIds = [];
+      this.searchSelectNodeIds = [];
       useStore().testPlanViewSelectNode = {};
     },
     initData() {
@@ -158,6 +163,7 @@ export default {
       this.selectNodeIds = nodeIds;
       useStore().testPlanViewSelectNode = node;
       this.currentNode = node;
+      this.searchSelect = false;
       // 切换node后，重置分页数
       if (this.$refs.testPlanTestCaseList) {
         this.$refs.testPlanTestCaseList.currentPage = 1;
@@ -181,7 +187,39 @@ export default {
               this.loading = false;
               this.treeNodes = r.data;
               this.setCurrentKey();
+              this.$refs.testPlanTestCaseList.$nextTick(() => {
+                this.setSearchSelectNodeIds(r)
+              });
             });
+        }
+      }
+    },
+    setSearchSelectNodeIds(treeNodes) {
+      this.searchSelectNodeIds = []
+      this.getChildNodeId(treeNodes.data[0], this.searchSelectNodeIds);
+      this.searchSelect = true;
+    },
+    getChildNodeId(rootNode, nodeIds) {
+      if (rootNode && this.currentNode) {
+        if (rootNode.id === this.currentNode.data.id) {
+          this.pushNode(rootNode, nodeIds);
+        } else {
+          if (rootNode.children) {
+            for (let i = 0; i < rootNode.children.length; i++) {
+              if (rootNode.children[i].id === this.currentNode.data.id) {
+                this.pushNode(rootNode.children[i], nodeIds)
+              }
+            }
+          }
+        }
+      }
+    },
+    pushNode(rootNode, nodeIds) {
+      //递归获取所有子节点ID
+      nodeIds.push(rootNode.id);
+      if (rootNode.children) {
+        for (let i = 0; i < rootNode.children.length; i++) {
+          this.pushNode(rootNode.children[i], nodeIds);
         }
       }
     },
