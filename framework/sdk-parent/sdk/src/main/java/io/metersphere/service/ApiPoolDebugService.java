@@ -91,14 +91,11 @@ public class ApiPoolDebugService {
 
             if (!contains) {
                 List<TestResourcePoolDTO> pools = poolList.stream().filter(pool ->
-                        StringUtils.equals(pool.getName(), "LOCAL") &&
-                                !StringUtils.equals(config.getResourcePoolId(),pool.getId())).collect(Collectors.toList());
+                        StringUtils.equals(pool.getName(), "LOCAL")).collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(pools)) {
                     config.setResourcePoolId(pools.get(0).getId());
                 } else {
-                    List<TestResourcePoolDTO> other = poolList.stream().filter(pool ->
-                            !StringUtils.equals(config.getResourcePoolId() ,pool.getId())).collect(Collectors.toList());
-                    config.setResourcePoolId(other.get(0).getId());
+                    config.setResourcePoolId(poolList.get(0).getId());
                 }
             }
 
