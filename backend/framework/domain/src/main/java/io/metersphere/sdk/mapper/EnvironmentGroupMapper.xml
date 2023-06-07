@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.EnvironmentGroup">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, workspace_id, description, create_user, create_time, update_time
+    id, `name`, organization_id, description, create_user, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupExample" resultMap="BaseResultMap">
     select
@@ -102,10 +102,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.sdk.domain.EnvironmentGroup">
-    insert into environment_group (id, `name`, workspace_id, 
+    insert into environment_group (id, `name`, organization_id, 
       description, create_user, create_time, 
       update_time)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT})
   </insert>
@@ -118,8 +118,8 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="description != null">
         description,
@@ -141,8 +141,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
@@ -173,8 +173,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
@@ -197,7 +197,7 @@
     update environment_group
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -212,8 +212,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
@@ -233,7 +233,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.EnvironmentGroup">
     update environment_group
     set `name` = #{name,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},

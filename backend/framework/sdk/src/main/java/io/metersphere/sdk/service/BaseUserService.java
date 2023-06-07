@@ -112,7 +112,7 @@ public class BaseUserService {
         if (hasLastProjectPermission(user)) {
             return;
         }
-        // 用户有 last_workspace_id 权限
+        // 用户有 last_organization_id 权限
         if (hasLastWorkspacePermission(user)) {
             return;
         }
@@ -152,7 +152,7 @@ public class BaseUserService {
                     }
                 } else {
                     // 用户登录之后没有项目和工作空间的权限就把值清空
-                    user.setLastWorkspaceId(StringUtils.EMPTY);
+                    user.setLastOrganizationId(StringUtils.EMPTY);
                     user.setLastProjectId(StringUtils.EMPTY);
                     updateUser(user);
                 }
@@ -165,7 +165,7 @@ public class BaseUserService {
             String wsId = p.getWorkspaceId();
             user.setId(user.getId());
             user.setLastProjectId(projectId);
-            user.setLastWorkspaceId(wsId);
+            user.setLastOrganizationId(wsId);
             updateUser(user);
         }
     }
@@ -177,11 +177,11 @@ public class BaseUserService {
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
                 Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
-                if (StringUtils.equals(project.getWorkspaceId(), user.getLastWorkspaceId())) {
+                if (StringUtils.equals(project.getWorkspaceId(), user.getLastOrganizationId())) {
                     return true;
                 }
-                // last_project_id 和 last_workspace_id 对应不上了
-                user.setLastWorkspaceId(project.getWorkspaceId());
+                // last_project_id 和 last_organization_id 对应不上了
+                user.setLastOrganizationId(project.getWorkspaceId());
                 updateUser(user);
                 return true;
             } else {
@@ -192,13 +192,13 @@ public class BaseUserService {
     }
 
     private boolean hasLastWorkspacePermission(UserDTO user) {
-        if (StringUtils.isNotBlank(user.getLastWorkspaceId())) {
+        if (StringUtils.isNotBlank(user.getLastOrganizationId())) {
             List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations().stream()
-                    .filter(ug -> StringUtils.equals(user.getLastWorkspaceId(), ug.getSourceId()))
+                    .filter(ug -> StringUtils.equals(user.getLastOrganizationId(), ug.getSourceId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
                 ProjectExample example = new ProjectExample();
-                example.createCriteria().andWorkspaceIdEqualTo(user.getLastWorkspaceId());
+                example.createCriteria().andWorkspaceIdEqualTo(user.getLastOrganizationId());
                 List<Project> projects = projectMapper.selectByExample(example);
                 // 工作空间下没有项目
                 if (CollectionUtils.isEmpty(projects)) {
@@ -229,7 +229,7 @@ public class BaseUserService {
                 String wsId = project.getWorkspaceId();
                 user.setId(user.getId());
                 user.setLastProjectId(project.getId());
-                user.setLastWorkspaceId(wsId);
+                user.setLastOrganizationId(wsId);
                 updateUser(user);
                 return true;
             } else {
@@ -246,8 +246,8 @@ public class BaseUserService {
         User newUser = new User();
         boolean isSuper = baseUserMapper.isSuperUser(sessionUser.getId());
         if (StringUtils.equals("workspace", sign)) {
-            user.setLastWorkspaceId(sourceId);
-            sessionUser.setLastWorkspaceId(sourceId);
+            user.setLastOrganizationId(sourceId);
+            sessionUser.setLastOrganizationId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
             if (CollectionUtils.isNotEmpty(projects)) {
                 user.setLastProjectId(projects.get(0).getId());
@@ -274,8 +274,8 @@ public class BaseUserService {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-        user.setLastWorkspaceId(workspaceId);
-        sessionUser.setLastWorkspaceId(workspaceId);
+        user.setLastOrganizationId(workspaceId);
+        sessionUser.setLastOrganizationId(workspaceId);
         user.setLastProjectId(projectId);
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
@@ -299,10 +299,10 @@ public class BaseUserService {
         // 变更前
         User userFromDB = userMapper.selectByPrimaryKey(user.getId());
         // last workspace id 变了
-        if (user.getLastWorkspaceId() != null && !StringUtils.equals(user.getLastWorkspaceId(), userFromDB.getLastWorkspaceId())) {
-            List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastWorkspaceId());
+        if (user.getLastOrganizationId() != null && !StringUtils.equals(user.getLastOrganizationId(), userFromDB.getLastOrganizationId())) {
+            List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastOrganizationId());
             if (projects.size() > 0) {
-                // 如果传入的 last_project_id 是 last_workspace_id 下面的
+                // 如果传入的 last_project_id 是 last_organization_id 下面的
                 boolean present = projects.stream().anyMatch(p -> StringUtils.equals(p.getId(), user.getLastProjectId()));
                 if (!present) {
                     user.setLastProjectId(projects.get(0).getId());

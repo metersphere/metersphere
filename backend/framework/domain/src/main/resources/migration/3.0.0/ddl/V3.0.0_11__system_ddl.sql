@@ -204,23 +204,23 @@ CREATE TABLE IF NOT EXISTS `plugin`
 
 CREATE TABLE IF NOT EXISTS `quota`
 (
-    `id`            VARCHAR(50) NOT NULL,
-    `api`           INT            DEFAULT NULL COMMENT '接口数量',
-    `performance`   INT            DEFAULT NULL COMMENT '性能测试数量',
-    `max_threads`   INT            DEFAULT NULL COMMENT '最大并发数',
-    `duration`      INT            DEFAULT NULL COMMENT '最大执行时长',
-    `resource_pool` VARCHAR(1000)  DEFAULT NULL COMMENT '资源池列表',
-    `workspace_id`  VARCHAR(50)    DEFAULT NULL COMMENT '工作空间ID',
-    `use_default`   BIT(1)         DEFAULT NULL COMMENT '是否使用默认值',
-    `update_time`   BIGINT         DEFAULT NULL COMMENT '更新时间',
-    `member`        INT            DEFAULT NULL COMMENT '成员数量限制',
-    `project`       INT            DEFAULT NULL COMMENT '项目数量限制',
-    `project_id`    VARCHAR(50)    DEFAULT NULL COMMENT '项目类型配额',
-    `vum_total`     DECIMAL(10, 2) DEFAULT NULL COMMENT '总vum数',
-    `vum_used`      DECIMAL(10, 2) DEFAULT NULL COMMENT '消耗的vum数',
+    `id`              VARCHAR(50) NOT NULL,
+    `api`             INT            DEFAULT NULL COMMENT '接口数量',
+    `performance`     INT            DEFAULT NULL COMMENT '性能测试数量',
+    `max_threads`     INT            DEFAULT NULL COMMENT '最大并发数',
+    `duration`        INT            DEFAULT NULL COMMENT '最大执行时长',
+    `resource_pool`   VARCHAR(1000)  DEFAULT NULL COMMENT '资源池列表',
+    `organization_id` VARCHAR(50)    DEFAULT NULL COMMENT '组织ID',
+    `use_default`     BIT(1)         DEFAULT NULL COMMENT '是否使用默认值',
+    `update_time`     BIGINT         DEFAULT NULL COMMENT '更新时间',
+    `member`          INT            DEFAULT NULL COMMENT '成员数量限制',
+    `project`         INT            DEFAULT NULL COMMENT '项目数量限制',
+    `project_id`      VARCHAR(50)    DEFAULT NULL COMMENT '项目类型配额',
+    `vum_total`       DECIMAL(10, 2) DEFAULT NULL COMMENT '总vum数',
+    `vum_used`        DECIMAL(10, 2) DEFAULT NULL COMMENT '消耗的vum数',
     PRIMARY KEY (`id`),
     KEY `idx_quota_project_id` (`project_id`),
-    KEY `idx_quota_workspace_id` (`workspace_id`)
+    KEY `idx_quota_organization_id` (`organization_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='配额';
@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS `schedule`
     `create_time` BIGINT        DEFAULT NULL COMMENT 'Create timestamp',
     `update_time` BIGINT        DEFAULT NULL COMMENT 'Update timestamp',
     `project_id`  VARCHAR(50)   DEFAULT NULL COMMENT '项目ID',
-    `name`        VARCHAR(100)  DEFAULT NULL COMMENT '名称',
+    `name`        VARCHAR(255)  DEFAULT NULL COMMENT '名称',
     `config`      VARCHAR(1000) DEFAULT NULL COMMENT '配置',
     PRIMARY KEY (`id`),
     KEY `idx_resource_id` (`resource_id`),
@@ -263,12 +263,12 @@ CREATE TABLE IF NOT EXISTS `schedule`
 
 CREATE TABLE IF NOT EXISTS `service_integration`
 (
-    `id`            VARCHAR(50) NOT NULL,
-    `platform`      VARCHAR(50) NOT NULL COMMENT '平台',
-    `configuration` BLOB        NOT NULL,
-    `workspace_id`  VARCHAR(50) DEFAULT NULL COMMENT '工作空间ID',
+    `id`              VARCHAR(50) NOT NULL,
+    `platform`        VARCHAR(50) NOT NULL COMMENT '平台',
+    `configuration`   BLOB        NOT NULL,
+    `organization_id` VARCHAR(50) DEFAULT NULL COMMENT '组织ID',
     PRIMARY KEY (`id`),
-    KEY `idx_workspace_id` (`workspace_id`)
+    KEY `idx_organization_id` (`organization_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT ='服务集成';
@@ -344,25 +344,25 @@ CREATE TABLE IF NOT EXISTS `test_resource_pool`
 
 CREATE TABLE IF NOT EXISTS `user`
 (
-    `id`                VARCHAR(50)  NOT NULL COMMENT '用户ID',
-    `name`              VARCHAR(255) NOT NULL COMMENT '用户名',
-    `email`             VARCHAR(64)  NOT NULL COMMENT '用户邮箱',
-    `password`          VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户密码',
-    `status`            VARCHAR(50)  NOT NULL COMMENT '用户状态，启用或禁用',
-    `create_time`       BIGINT       NOT NULL COMMENT '创建时间',
-    `update_time`       BIGINT       NOT NULL COMMENT '更新时间',
-    `language`          VARCHAR(30)                                            DEFAULT NULL COMMENT '语言',
-    `last_workspace_id` VARCHAR(50)                                            DEFAULT NULL COMMENT '当前工作空间ID',
-    `phone`             VARCHAR(50)                                            DEFAULT NULL COMMENT '手机号',
-    `source`            VARCHAR(50)  NOT NULL COMMENT '来源：LOCAL OIDC CAS',
-    `last_project_id`   VARCHAR(50)                                            DEFAULT NULL COMMENT '当前项目ID',
-    `create_user`       VARCHAR(50)  NOT NULL COMMENT '创建人',
+    `id`                   VARCHAR(50)  NOT NULL COMMENT '用户ID',
+    `name`                 VARCHAR(255) NOT NULL COMMENT '用户名',
+    `email`                VARCHAR(64)  NOT NULL COMMENT '用户邮箱',
+    `password`             VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户密码',
+    `status`               VARCHAR(50)  NOT NULL COMMENT '用户状态，启用或禁用',
+    `create_time`          BIGINT       NOT NULL COMMENT '创建时间',
+    `update_time`          BIGINT       NOT NULL COMMENT '更新时间',
+    `language`             VARCHAR(30)                                            DEFAULT NULL COMMENT '语言',
+    `last_organization_id` VARCHAR(50)                                            DEFAULT NULL COMMENT '当前组织ID',
+    `phone`                VARCHAR(50)                                            DEFAULT NULL COMMENT '手机号',
+    `source`               VARCHAR(50)  NOT NULL COMMENT '来源：LOCAL OIDC CAS',
+    `last_project_id`      VARCHAR(50)                                            DEFAULT NULL COMMENT '当前项目ID',
+    `create_user`          VARCHAR(50)  NOT NULL COMMENT '创建人',
     PRIMARY KEY (`id`),
     KEY `idx_name` (`name`),
     KEY `idx_email` (`email`),
     KEY `idx_create_time` (`create_time`),
     KEY `idx_update_time` (`update_time`),
-    KEY `idx_workspace_id` (`last_workspace_id`),
+    KEY `idx_organization_id` (`last_organization_id`),
     KEY `idx_project_id` (`last_project_id`),
     KEY `idx_create_user` (`create_user`)
 ) ENGINE = InnoDB
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS `user_role_relation`
     `id`          VARCHAR(50) NOT NULL COMMENT '用户组关系ID',
     `user_id`     VARCHAR(50) NOT NULL COMMENT '用户ID',
     `role_id`     VARCHAR(50) NOT NULL COMMENT '组ID',
-    `source_id`   VARCHAR(50) NOT NULL COMMENT '工作空间或项目ID',
+    `source_id`   VARCHAR(50) NOT NULL COMMENT '组织或项目ID',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
     PRIMARY KEY (`id`),
@@ -428,13 +428,13 @@ CREATE TABLE IF NOT EXISTS `user_key`
   COLLATE = utf8mb4_general_ci COMMENT ='用户api key';
 
 --
--- Table structure for table `workspace`
+-- Table structure for table `organization`
 --
 
-CREATE TABLE IF NOT EXISTS `workspace`
+CREATE TABLE IF NOT EXISTS `organization`
 (
-    `id`          VARCHAR(50)  NOT NULL COMMENT '工作空间ID',
-    `name`        VARCHAR(100) NOT NULL COMMENT '工作空间名称',
+    `id`          VARCHAR(50)  NOT NULL COMMENT '组织ID',
+    `name`        VARCHAR(255) NOT NULL COMMENT '组织名称',
     `description` VARCHAR(500) DEFAULT NULL COMMENT '描述',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
@@ -446,7 +446,7 @@ CREATE TABLE IF NOT EXISTS `workspace`
     KEY `idx_update_time` (`update_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='工作空间';
+  COLLATE = utf8mb4_general_ci COMMENT ='组织';
 
 --
 -- Table structure for table `user_extend`

@@ -18,10 +18,10 @@ public class EnvironmentGroup implements Serializable {
     @Size(min = 1, max = 255, message = "{environment_group.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "所属工作空间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{environment_group.workspace_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{environment_group.workspace_id.length_range}", groups = {Created.class, Updated.class})
-    private String workspaceId;
+    @Schema(title = "所属组织", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{environment_group.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{environment_group.organization_id.length_range}", groups = {Created.class, Updated.class})
+    private String organizationId;
 
     @Schema(title = "环境组描述")
     private String description;

@@ -103,7 +103,7 @@ public interface Platform {
      * Get请求的代理
      * 目前使用场景：富文本框中如果有图片是存储在第三方平台，MS 通过 url 访问
      * 这时如果第三方平台需要登入才能访问到静态资源，可以通过将富文本框图片内容构造如下格式访问
-     * ![name](/resource/md/get/path?platform=Jira?project_id=&workspace_id=&path=)
+     * ![name](/resource/md/get/path?platform=Jira?project_id=&organization_id=&path=)
      * @param path
      * @return
      */

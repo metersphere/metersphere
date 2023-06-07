@@ -11,8 +11,6 @@ public interface BaseUserMapper {
 
     List<User> findAll();
 
-    void insert(User user);
-
     void batchSave(@Param("users") List<User> users);
 
     boolean isSuperUser(String userId);

@@ -24,7 +24,7 @@ import static io.metersphere.sdk.constants.SessionConstants.ATTR_USER;
 public class SessionUtils {
 
     private static final ThreadLocal<String> projectId = new ThreadLocal<>();
-    private static final ThreadLocal<String> workspaceId = new ThreadLocal<>();
+    private static final ThreadLocal<String> organizationId = new ThreadLocal<>();
 
     public static String getUserId() {
         SessionUser user = getUser();
@@ -73,10 +73,10 @@ public class SessionUtils {
     }
 
     /**
-     * 权限验证时从 controller 参数列表中找到 workspaceId 传入
+     * 权限验证时从 controller 参数列表中找到 organizationId 传入
      */
-    public static void setCurrentWorkspaceId(String workspaceId) {
-        SessionUtils.workspaceId.set(workspaceId);
+    public static void setCurrentOrganizationId(String organizationId) {
+        SessionUtils.organizationId.set(organizationId);
     }
 
     /**
@@ -86,20 +86,20 @@ public class SessionUtils {
         SessionUtils.projectId.set(projectId);
     }
 
-    public static String getCurrentWorkspaceId() {
-        if (StringUtils.isNotEmpty(workspaceId.get())) {
-            return workspaceId.get();
+    public static String getCurrentOrganizationId() {
+        if (StringUtils.isNotEmpty(organizationId.get())) {
+            return organizationId.get();
         }
         try {
             HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-            LogUtils.debug("WORKSPACE: {}", request.getHeader("WORKSPACE"));
-            if (request.getHeader("WORKSPACE") != null) {
-                return request.getHeader("WORKSPACE");
+            LogUtils.debug("ORGANIZATION: {}", request.getHeader("ORGANIZATION"));
+            if (request.getHeader("ORGANIZATION") != null) {
+                return request.getHeader("ORGANIZATION");
             }
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
         }
-        return getUser().getLastWorkspaceId();
+        return getUser().getLastOrganizationId();
     }
 
     public static String getCurrentProjectId() {
@@ -130,7 +130,7 @@ public class SessionUtils {
         }
     }
 
-    public static boolean hasPermission(String workspaceId, String projectId, String permission) {
+    public static boolean hasPermission(String organizationId, String projectId, String permission) {
         Map<String, List<UserRolePermission>> userRolePermissions = new HashMap<>();
         Map<String, UserRole> role = new HashMap<>();
         SessionUser user = Objects.requireNonNull(SessionUtils.getUser());
@@ -156,8 +156,8 @@ public class SessionUtils {
             return true;
         }
 
-        Set<String> currentWorkspacePermissions = getCurrentWorkspacePermissions(userRolePermissions, workspaceId, role, user);
-        if (currentWorkspacePermissions.contains(permission)) {
+        Set<String> currentOrganizationPermissions = getCurrentOrganizationPermissions(userRolePermissions, organizationId, role, user);
+        if (currentOrganizationPermissions.contains(permission)) {
             return true;
         }
 
@@ -174,10 +174,10 @@ public class SessionUtils {
                 .collect(Collectors.toSet());
     }
 
-    private static Set<String> getCurrentWorkspacePermissions(Map<String, List<UserRolePermission>> userRolePermissions, String workspaceId, Map<String, UserRole> role, SessionUser user) {
+    private static Set<String> getCurrentOrganizationPermissions(Map<String, List<UserRolePermission>> userRolePermissions, String organizationId, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "WORKSPACE"))
-                .filter(ug -> StringUtils.equals(ug.getSourceId(), workspaceId))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "ORGANIZATION"))
+                .filter(ug -> StringUtils.equals(ug.getSourceId(), organizationId))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());
@@ -192,8 +192,8 @@ public class SessionUtils {
                 .collect(Collectors.toSet());
     }
 
-    public static void clearCurrentWorkspaceId() {
-        workspaceId.remove();
+    public static void clearCurrentOrganizationId() {
+        organizationId.remove();
     }
 
     public static void clearCurrentProjectId() {
