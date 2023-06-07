@@ -113,14 +113,14 @@ public class BaseUserService {
             return;
         }
         // 用户有 last_organization_id 权限
-        if (hasLastWorkspacePermission(user)) {
+        if (hasLastOrganizationPermission(user)) {
             return;
         }
         // 判断其他权限
-        checkNewWorkspaceAndProject(user);
+        checkNewOrganizationAndProject(user);
     }
 
-    private void checkNewWorkspaceAndProject(UserDTO user) {
+    private void checkNewOrganizationAndProject(UserDTO user) {
         List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations();
         List<String> projectRoleIds = user.getUserRoles()
                 .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT))
@@ -129,16 +129,16 @@ public class BaseUserService {
         List<UserRoleRelation> project = userRoleRelations.stream().filter(ug -> projectRoleIds.contains(ug.getRoleId()))
                 .collect(Collectors.toList());
         if (CollectionUtils.isEmpty(project)) {
-            List<String> workspaceIds = user.getUserRoles()
+            List<String> organizationIds = user.getUserRoles()
                     .stream()
-                    .filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.WORKSPACE))
+                    .filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.ORGANIZATION))
                     .map(UserRole::getId)
                     .toList();
-            List<UserRoleRelation> workspaces = userRoleRelations.stream().filter(ug -> workspaceIds.contains(ug.getRoleId()))
+            List<UserRoleRelation> organizations = userRoleRelations.stream().filter(ug -> organizationIds.contains(ug.getRoleId()))
                     .toList();
-            if (workspaces.size() > 0) {
-                String wsId = workspaces.get(0).getSourceId();
-                switchUserResource("workspace", wsId, user);
+            if (organizations.size() > 0) {
+                String wsId = organizations.get(0).getSourceId();
+                switchUserResource("organization", wsId, user);
             } else {
                 List<String> superRoleIds = user.getUserRoles()
                         .stream()
@@ -148,7 +148,7 @@ public class BaseUserService {
                 if (CollectionUtils.isNotEmpty(superRoleIds)) {
                     Project p = baseProjectMapper.selectOne();
                     if (p != null) {
-                        switchSuperUserResource(p.getId(), p.getWorkspaceId(), user);
+                        switchSuperUserResource(p.getId(), p.getOrganizationId(), user);
                     }
                 } else {
                     // 用户登录之后没有项目和工作空间的权限就把值清空
@@ -162,7 +162,7 @@ public class BaseUserService {
                     .toList().get(0);
             String projectId = userRoleRelation.getSourceId();
             Project p = projectMapper.selectByPrimaryKey(projectId);
-            String wsId = p.getWorkspaceId();
+            String wsId = p.getOrganizationId();
             user.setId(user.getId());
             user.setLastProjectId(projectId);
             user.setLastOrganizationId(wsId);
@@ -177,11 +177,11 @@ public class BaseUserService {
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
                 Project project = projectMapper.selectByPrimaryKey(user.getLastProjectId());
-                if (StringUtils.equals(project.getWorkspaceId(), user.getLastOrganizationId())) {
+                if (StringUtils.equals(project.getOrganizationId(), user.getLastOrganizationId())) {
                     return true;
                 }
                 // last_project_id 和 last_organization_id 对应不上了
-                user.setLastOrganizationId(project.getWorkspaceId());
+                user.setLastOrganizationId(project.getOrganizationId());
                 updateUser(user);
                 return true;
             } else {
@@ -191,14 +191,14 @@ public class BaseUserService {
         return false;
     }
 
-    private boolean hasLastWorkspacePermission(UserDTO user) {
+    private boolean hasLastOrganizationPermission(UserDTO user) {
         if (StringUtils.isNotBlank(user.getLastOrganizationId())) {
             List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations().stream()
                     .filter(ug -> StringUtils.equals(user.getLastOrganizationId(), ug.getSourceId()))
                     .collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(userRoleRelations)) {
                 ProjectExample example = new ProjectExample();
-                example.createCriteria().andWorkspaceIdEqualTo(user.getLastOrganizationId());
+                example.createCriteria().andOrganizationIdEqualTo(user.getLastOrganizationId());
                 List<Project> projects = projectMapper.selectByExample(example);
                 // 工作空间下没有项目
                 if (CollectionUtils.isEmpty(projects)) {
@@ -226,7 +226,7 @@ public class BaseUserService {
                     return true;
                 }
                 Project project = projects.stream().filter(p -> StringUtils.equals(intersection.get(0), p.getId())).findFirst().get();
-                String wsId = project.getWorkspaceId();
+                String wsId = project.getOrganizationId();
                 user.setId(user.getId());
                 user.setLastProjectId(project.getId());
                 user.setLastOrganizationId(wsId);
@@ -245,7 +245,7 @@ public class BaseUserService {
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
         boolean isSuper = baseUserMapper.isSuperUser(sessionUser.getId());
-        if (StringUtils.equals("workspace", sign)) {
+        if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
             sessionUser.setLastOrganizationId(sourceId);
             List<Project> projects = getProjectListByWsAndUserId(sessionUser.getId(), sourceId);
@@ -254,7 +254,7 @@ public class BaseUserService {
             } else {
                 if (isSuper) {
                     ProjectExample example = new ProjectExample();
-                    example.createCriteria().andWorkspaceIdEqualTo(sourceId);
+                    example.createCriteria().andOrganizationIdEqualTo(sourceId);
                     List<Project> allWsProject = projectMapper.selectByExample(example);
                     if (CollectionUtils.isNotEmpty(allWsProject)) {
                         user.setLastProjectId(allWsProject.get(0).getId());
@@ -270,12 +270,12 @@ public class BaseUserService {
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
-    private void switchSuperUserResource(String projectId, String workspaceId, UserDTO sessionUser) {
+    private void switchSuperUserResource(String projectId, String organizationId, UserDTO sessionUser) {
         // 获取最新UserDTO
         UserDTO user = getUserDTO(sessionUser.getId());
         User newUser = new User();
-        user.setLastOrganizationId(workspaceId);
-        sessionUser.setLastOrganizationId(workspaceId);
+        user.setLastOrganizationId(organizationId);
+        sessionUser.setLastOrganizationId(organizationId);
         user.setLastProjectId(projectId);
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
@@ -298,7 +298,7 @@ public class BaseUserService {
         user.setUpdateTime(System.currentTimeMillis());
         // 变更前
         User userFromDB = userMapper.selectByPrimaryKey(user.getId());
-        // last workspace id 变了
+        // last organization id 变了
         if (user.getLastOrganizationId() != null && !StringUtils.equals(user.getLastOrganizationId(), userFromDB.getLastOrganizationId())) {
             List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastOrganizationId());
             if (projects.size() > 0) {
@@ -318,9 +318,9 @@ public class BaseUserService {
         }
     }
 
-    private List<Project> getProjectListByWsAndUserId(String userId, String workspaceId) {
+    private List<Project> getProjectListByWsAndUserId(String userId, String organizationId) {
         ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
         List<Project> projects = projectMapper.selectByExample(projectExample);
 
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();

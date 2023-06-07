@@ -24,7 +24,7 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
     @Override
     public void assertAuthorized(MethodInvocation mi) throws AuthorizationException {
         String projectId = null;
-        String workspaceId = null;
+        String organizationId = null;
         Object[] arguments = mi.getArguments();
         if (ArrayUtils.isNotEmpty(arguments)) {
             Parameter[] parameters = mi.getMethod().getParameters();
@@ -34,8 +34,8 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
                     if (StringUtils.equals(parameters[i].getName(), "projectId")) {
                         projectId = (String) argument;
                     }
-                    if (StringUtils.equals(parameters[i].getName(), "workspaceId")) {
-                        workspaceId = (String) argument;
+                    if (StringUtils.equals(parameters[i].getName(), "organizationId")) {
+                        organizationId = (String) argument;
                     }
                 } else {
                     try {
@@ -45,8 +45,8 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
                         if (StringUtils.equals(parameters[i].getName(), "project") && argument instanceof Project) {
                             projectId = ((Project) argument).getId();
                         }
-                        if (StringUtils.isEmpty(workspaceId) && isExistField(argument, "workspaceId")) {
-                            workspaceId = (String) MethodUtils.invokeMethod(argument, "getWorkspaceId");
+                        if (StringUtils.isEmpty(organizationId) && isExistField(argument, "organizationId")) {
+                            organizationId = (String) MethodUtils.invokeMethod(argument, "getOrganizationId");
                         }
                     } catch (Exception e) {
                     }
@@ -54,7 +54,7 @@ public class MsPermissionAnnotationMethodInterceptor extends PermissionAnnotatio
             }
         }
         try {
-            SessionUtils.setCurrentOrganizationId(workspaceId);
+            SessionUtils.setCurrentOrganizationId(organizationId);
             SessionUtils.setCurrentProjectId(projectId);
             super.assertAuthorized(mi);
         } finally {
