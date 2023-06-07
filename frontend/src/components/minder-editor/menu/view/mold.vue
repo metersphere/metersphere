@@ -57,7 +57,7 @@
 <style lang="less">
   .toggle {
     .arco-dropdown-list {
-      @apply col-span-2 grid;
+      @apply grid grid-cols-2;
 
       padding: 5px;
       gap: 5px;

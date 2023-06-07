@@ -1,6 +1,6 @@
 ﻿<template>
   <div :disabled="commandDisabled">
-    <a-button class="delete-btn mx-[4px] my-0 h-[23px] w-[23px] !p-[2px]" shape="circle" @click="execCommand()">
+    <a-button class="delete-btn !mx-[4px] !my-0 !h-[23px] !w-[23px] !p-[2px]" shape="circle" @click="execCommand()">
       <template #icon>
         <icon-delete />
       </template>
@@ -83,6 +83,8 @@
 
 <style lang="less" scoped>
   .delete-btn {
+    border-color: #909399;
+    background-color: #909399;
     i {
       width: 1em !important;
       height: 1em !important;

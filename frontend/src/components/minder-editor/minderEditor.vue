@@ -15,6 +15,10 @@
       :distinct-tags="props.distinctTags"
       :default-mold="props.defaultMold"
       :del-confirm="props.delConfirm"
+      :arrange-enable="props.arrangeEnable"
+      :mold-enable="props.moldEnable"
+      :font-enable="props.fontEnable"
+      :style-enable="props.styleEnable"
       @mold-change="handleMoldChange"
     />
     <main-editor
@@ -42,7 +46,7 @@
   import { onMounted } from 'vue';
   import headerMenu from './main/header.vue';
   import mainEditor from './main/mainEditor.vue';
-  import { editMenuProps, mainEditorProps, moleProps, priorityProps, tagProps, delProps } from './props';
+  import { editMenuProps, mainEditorProps, moleProps, priorityProps, tagProps, delProps, viewMenuProps } from './props';
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;
@@ -57,6 +61,7 @@
     ...priorityProps,
     ...tagProps,
     ...delProps,
+    ...viewMenuProps,
   });
 
   onMounted(async () => {

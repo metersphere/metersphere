@@ -1,9 +1,9 @@
 <template>
   <div class="menu-container">
-    <mold :default-mold="props.defaultMold" @mold-change="handleMoldChange" />
-    <arrange />
-    <style-operation />
-    <font-operation />
+    <mold v-if="moldEnable" :default-mold="props.defaultMold" @mold-change="handleMoldChange" />
+    <arrange v-if="arrangeEnable" />
+    <style-operation v-if="styleEnable" />
+    <font-operation v-if="fontEnable" />
   </div>
 </template>
 
@@ -12,9 +12,9 @@
   import arrange from './arrange.vue';
   import styleOperation from './styleOperation.vue';
   import fontOperation from './fontOperation.vue';
-  import { moleProps } from '../../props';
+  import { moleProps, viewMenuProps } from '../../props';
 
-  const props = defineProps(moleProps);
+  const props = defineProps({ ...moleProps, ...viewMenuProps });
 
   const emit = defineEmits<{
     (e: 'moldChange', data: number): void;

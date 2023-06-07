@@ -131,7 +131,7 @@
 <style lang="less">
   @import '../style/editor.less';
   .save-btn {
-    @apply absolute;
+    @apply !absolute;
   }
   .minder-container {
     @apply relative;

@@ -111,3 +111,26 @@ export const delProps = {
     default: null,
   },
 };
+
+export const viewMenuProps = {
+  viewMenuEnable: {
+    type: Boolean,
+    default: true,
+  },
+  moldEnable: {
+    type: Boolean,
+    default: true,
+  },
+  arrangeEnable: {
+    type: Boolean,
+    default: true,
+  },
+  styleEnable: {
+    type: Boolean,
+    default: true,
+  },
+  fontEnable: {
+    type: Boolean,
+    default: true,
+  },
+};

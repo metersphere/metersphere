@@ -36,3 +36,15 @@
 
   const props = defineProps({ ...editMenuProps, ...priorityProps, ...tagProps, ...delProps });
 </script>
+
+<style lang="less" scoped>
+  .menu-container {
+    height: 60px;
+    i {
+      @apply inline-block;
+
+      width: 20px;
+      height: 20px;
+    }
+  }
+</style>

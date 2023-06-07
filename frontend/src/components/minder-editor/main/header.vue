@@ -23,7 +23,16 @@
       </a-tab-pane>
       <a-tab-pane key="viewMenu" :title="t('minder.main.header.style')">
         <div class="mind-tab-panel">
-          <view-menu :minder="minder" :default-mold="props.defaultMold" @mold-change="handleMoldChange" />
+          <view-menu
+            v-if="props.viewMenuEnable"
+            :minder="minder"
+            :default-mold="props.defaultMold"
+            :arrange-enable="props.arrangeEnable"
+            :mold-enable="props.moldEnable"
+            :font-enable="props.fontEnable"
+            :style-enable="props.styleEnable"
+            @mold-change="handleMoldChange"
+          />
         </div>
       </a-tab-pane>
     </a-tabs>
@@ -35,7 +44,7 @@
   import editMenu from '../menu/edit/editMenu.vue';
   import viewMenu from '../menu/view/viewMenu.vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { editMenuProps, moleProps, priorityProps, tagProps, delProps } from '../props';
+  import { editMenuProps, moleProps, priorityProps, tagProps, delProps, viewMenuProps } from '../props';
 
   const { t } = useI18n();
 
@@ -45,6 +54,7 @@
     ...priorityProps,
     ...tagProps,
     ...delProps,
+    ...viewMenuProps,
     minder: null,
   });
 
@@ -59,10 +69,11 @@
 </script>
 
 <style lang="less">
-  @import '../style/header';
+  @import '../style/header.less';
   .mind_tab-content {
     .tab-icons {
-      @apply bg-[url('@/assets/images/minder/icons.png')] bg-no-repeat;
+      background-image: url('@/assets/images/minder/icons.png');
+      background-repeat: no-repeat;
     }
   }
 </style>
