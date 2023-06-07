@@ -8,7 +8,7 @@
     <result column="max_threads" jdbcType="INTEGER" property="maxThreads" />
     <result column="duration" jdbcType="INTEGER" property="duration" />
     <result column="resource_pool" jdbcType="VARCHAR" property="resourcePool" />
-    <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="use_default" jdbcType="BIT" property="useDefault" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="member" jdbcType="INTEGER" property="member" />
@@ -76,7 +76,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, api, performance, max_threads, duration, resource_pool, workspace_id, use_default, 
+    id, api, performance, max_threads, duration, resource_pool, organization_id, use_default, 
     update_time, `member`, project, project_id, vum_total, vum_used
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.QuotaExample" resultMap="BaseResultMap">
@@ -112,12 +112,12 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.Quota">
     insert into quota (id, api, performance, 
       max_threads, duration, resource_pool, 
-      workspace_id, use_default, update_time, 
+      organization_id, use_default, update_time, 
       `member`, project, project_id, 
       vum_total, vum_used)
     values (#{id,jdbcType=VARCHAR}, #{api,jdbcType=INTEGER}, #{performance,jdbcType=INTEGER}, 
       #{maxThreads,jdbcType=INTEGER}, #{duration,jdbcType=INTEGER}, #{resourcePool,jdbcType=VARCHAR}, 
-      #{workspaceId,jdbcType=VARCHAR}, #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, 
+      #{organizationId,jdbcType=VARCHAR}, #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, 
       #{member,jdbcType=INTEGER}, #{project,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, 
       #{vumTotal,jdbcType=DECIMAL}, #{vumUsed,jdbcType=DECIMAL})
   </insert>
@@ -142,8 +142,8 @@
       <if test="resourcePool != null">
         resource_pool,
       </if>
-      <if test="workspaceId != null">
-        workspace_id,
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="useDefault != null">
         use_default,
@@ -186,8 +186,8 @@
       <if test="resourcePool != null">
         #{resourcePool,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="useDefault != null">
         #{useDefault,jdbcType=BIT},
@@ -239,8 +239,8 @@
       <if test="record.resourcePool != null">
         resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
       </if>
-      <if test="record.workspaceId != null">
-        workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
       <if test="record.useDefault != null">
         use_default = #{record.useDefault,jdbcType=BIT},
@@ -276,7 +276,7 @@
       max_threads = #{record.maxThreads,jdbcType=INTEGER},
       duration = #{record.duration,jdbcType=INTEGER},
       resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       use_default = #{record.useDefault,jdbcType=BIT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `member` = #{record.member,jdbcType=INTEGER},
@@ -306,8 +306,8 @@
       <if test="resourcePool != null">
         resource_pool = #{resourcePool,jdbcType=VARCHAR},
       </if>
-      <if test="workspaceId != null">
-        workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="useDefault != null">
         use_default = #{useDefault,jdbcType=BIT},
@@ -340,7 +340,7 @@
       max_threads = #{maxThreads,jdbcType=INTEGER},
       duration = #{duration,jdbcType=INTEGER},
       resource_pool = #{resourcePool,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       use_default = #{useDefault,jdbcType=BIT},
       update_time = #{updateTime,jdbcType=BIGINT},
       `member` = #{member,jdbcType=INTEGER},

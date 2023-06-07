@@ -99,7 +99,7 @@ public class SessionUtils {
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
         }
-        return getUser().getLastWorkspaceId();
+        return getUser().getLastOrganizationId();
     }
 
     public static String getCurrentProjectId() {

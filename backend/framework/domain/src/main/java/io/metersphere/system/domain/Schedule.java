@@ -21,7 +21,7 @@ public class Schedule implements Serializable {
     @Size(min = 1, max = 50, message = "{schedule.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(title = "Schedule value", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "cron 表达式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{schedule.value.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{schedule.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
@@ -31,7 +31,7 @@ public class Schedule implements Serializable {
     @Size(min = 1, max = 64, message = "{schedule.job.length_range}", groups = {Created.class, Updated.class})
     private String job;
 
-    @Schema(title = "Schedule Eable")
+    @Schema(title = "是否开启")
     private Boolean enable;
 
     @Schema(title = "")
@@ -40,10 +40,10 @@ public class Schedule implements Serializable {
     @Schema(title = "创建人")
     private String createUser;
 
-    @Schema(title = "Create timestamp")
+    @Schema(title = "创建时间")
     private Long createTime;
 
-    @Schema(title = "Update timestamp")
+    @Schema(title = "更新时间")
     private Long updateTime;
 
     @Schema(title = "项目ID")

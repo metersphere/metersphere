@@ -40,8 +40,8 @@ public class User implements Serializable {
     @Schema(title = "语言")
     private String language;
 
-    @Schema(title = "当前工作空间ID")
-    private String lastWorkspaceId;
+    @Schema(title = "当前组织ID")
+    private String lastOrganizationId;
 
     @Schema(title = "手机号")
     private String phone;
