@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.constants.TestPlanReportStatus;
 import io.metersphere.commons.enums.ApiReportStatus;
@@ -23,11 +24,14 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.service.scenario.ApiScenarioReportService;
+import io.metersphere.utils.JsonUtils;
 import io.metersphere.utils.LoggerUtil;
+import io.metersphere.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.services.FileServer;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -177,22 +181,34 @@ public class ApiExecutionQueueService {
     private boolean failure(DBTestQueue executionQueue, ResultDTO dto) {
         LoggerUtil.info("进入失败停止处理：" + executionQueue.getId());
         boolean isError = false;
-        if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
-            if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-                ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
-                example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ApiReportStatus.ERROR.name());
-                long error = apiScenarioReportResultMapper.countByExample(example);
-                isError = error > 0;
+        String status = null;
+        if (MapUtils.isNotEmpty(dto.getArbitraryData()) && dto.getArbitraryData().containsKey(CommonConstants.LOCAL_STATUS_KEY)) {
+            ResultVO resultVO = JsonUtils.convertValue(dto.getArbitraryData().get(CommonConstants.LOCAL_STATUS_KEY), ResultVO.class);
+            if (ObjectUtils.isNotEmpty(resultVO)) {
+                status = resultVO.getStatus();
+            }
+            if (StringUtils.equalsIgnoreCase(status, ApiReportStatus.ERROR.name())) {
+                isError = true;
+            }
+        }
+        if (StringUtils.isBlank(status)) {
+            if (StringUtils.contains(dto.getRunMode(), ApiRunMode.SCENARIO.name())) {
+                if (StringUtils.equals(dto.getReportType(), RunModeConstants.SET_REPORT.toString())) {
+                    ApiScenarioReportResultExample example = new ApiScenarioReportResultExample();
+                    example.createCriteria().andReportIdEqualTo(dto.getReportId()).andStatusEqualTo(ApiReportStatus.ERROR.name());
+                    long error = apiScenarioReportResultMapper.countByExample(example);
+                    isError = error > 0;
+                } else {
+                    ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
+                    if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), ApiReportStatus.ERROR.name())) {
+                        isError = true;
+                    }
+                }
             } else {
-                ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
-                if (report != null && StringUtils.equalsIgnoreCase(report.getStatus(), ApiReportStatus.ERROR.name())) {
+                ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
+                if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), ApiReportStatus.ERROR.name())) {
                     isError = true;
                 }
-            }
-        } else {
-            ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(executionQueue.getCompletedReportId());
-            if (result != null && StringUtils.equalsIgnoreCase(result.getStatus(), ApiReportStatus.ERROR.name())) {
-                isError = true;
             }
         }
         if (isError) {
