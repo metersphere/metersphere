@@ -71,6 +71,7 @@ public class TestPlanReportUtil {
         originProjectEnvMap.entrySet().forEach(e -> {
             if (r.containsKey(e.getKey())) {
                 r.get(e.getKey()).add(e.getValue());
+                r.put(e.getKey(), r.get(e.getKey()).stream().distinct().collect(Collectors.toList()));
             } else {
                 r.put(e.getKey(), new ArrayList<>() {{
                     this.add(e.getValue());
