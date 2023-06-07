@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.UserMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.User">
+<mapper namespace="io.metersphere.system.mapper.OrganizationMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.Organization">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="email" jdbcType="VARCHAR" property="email" />
-    <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="language" jdbcType="VARCHAR" property="language" />
-    <result column="last_organization_id" jdbcType="VARCHAR" property="lastOrganizationId" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="source" jdbcType="VARCHAR" property="source" />
-    <result column="last_project_id" jdbcType="VARCHAR" property="lastProjectId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -75,16 +68,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, email, `password`, `status`, create_time, update_time, `language`, last_organization_id, 
-    phone, `source`, last_project_id, create_user
+    id, `name`, description, create_time, update_time, create_user
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.UserExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.OrganizationExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user
+    from organization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -95,33 +87,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user
+    from organization
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from user
+    delete from organization
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.UserExample">
-    delete from user
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.OrganizationExample">
+    delete from organization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.User">
-    insert into user (id, `name`, email, 
-      `password`, `status`, create_time, 
-      update_time, `language`, last_organization_id, 
-      phone, `source`, last_project_id, 
-      create_user)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastOrganizationId,jdbcType=VARCHAR}, 
-      #{phone,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, #{lastProjectId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="io.metersphere.system.domain.Organization">
+    insert into organization (id, `name`, description, 
+      create_time, update_time, create_user
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.User">
-    insert into user
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.Organization">
+    insert into organization
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -129,35 +117,14 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="email != null">
-        email,
-      </if>
-      <if test="password != null">
-        `password`,
-      </if>
-      <if test="status != null">
-        `status`,
+      <if test="description != null">
+        description,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
-      </if>
-      <if test="language != null">
-        `language`,
-      </if>
-      <if test="lastOrganizationId != null">
-        last_organization_id,
-      </if>
-      <if test="phone != null">
-        phone,
-      </if>
-      <if test="source != null">
-        `source`,
-      </if>
-      <if test="lastProjectId != null">
-        last_project_id,
       </if>
       <if test="createUser != null">
         create_user,
@@ -170,14 +137,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="email != null">
-        #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null">
-        #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -185,34 +146,19 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="language != null">
-        #{language,jdbcType=VARCHAR},
-      </if>
-      <if test="lastOrganizationId != null">
-        #{lastOrganizationId,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="source != null">
-        #{source,jdbcType=VARCHAR},
-      </if>
-      <if test="lastProjectId != null">
-        #{lastProjectId,jdbcType=VARCHAR},
-      </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.UserExample" resultType="java.lang.Long">
-    select count(*) from user
+  <select id="countByExample" parameterType="io.metersphere.system.domain.OrganizationExample" resultType="java.lang.Long">
+    select count(*) from organization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user
+    update organization
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -220,35 +166,14 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.email != null">
-        email = #{record.email,jdbcType=VARCHAR},
-      </if>
-      <if test="record.password != null">
-        `password` = #{record.password,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.language != null">
-        `language` = #{record.language,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastOrganizationId != null">
-        last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.phone != null">
-        phone = #{record.phone,jdbcType=VARCHAR},
-      </if>
-      <if test="record.source != null">
-        `source` = #{record.source,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastProjectId != null">
-        last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -259,38 +184,25 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user
+    update organization
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR},
-      `password` = #{record.password,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      `language` = #{record.language,jdbcType=VARCHAR},
-      last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
-      phone = #{record.phone,jdbcType=VARCHAR},
-      `source` = #{record.source,jdbcType=VARCHAR},
-      last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.User">
-    update user
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.Organization">
+    update organization
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="email != null">
-        email = #{email,jdbcType=VARCHAR},
-      </if>
-      <if test="password != null">
-        `password` = #{password,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -298,40 +210,18 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="language != null">
-        `language` = #{language,jdbcType=VARCHAR},
-      </if>
-      <if test="lastOrganizationId != null">
-        last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        phone = #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="source != null">
-        `source` = #{source,jdbcType=VARCHAR},
-      </if>
-      <if test="lastProjectId != null">
-        last_project_id = #{lastProjectId,jdbcType=VARCHAR},
-      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.User">
-    update user
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.Organization">
+    update organization
     set `name` = #{name,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
-      `password` = #{password,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      `language` = #{language,jdbcType=VARCHAR},
-      last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      `source` = #{source,jdbcType=VARCHAR},
-      last_project_id = #{lastProjectId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

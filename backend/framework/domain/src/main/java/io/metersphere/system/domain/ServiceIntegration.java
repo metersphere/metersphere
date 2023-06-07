@@ -18,8 +18,8 @@ public class ServiceIntegration implements Serializable {
     @Size(min = 1, max = 50, message = "{service_integration.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;
 
-    @Schema(title = "工作空间ID")
-    private String workspaceId;
+    @Schema(title = "组织ID")
+    private String organizationId;
 
     @Schema(title = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{service_integration.configuration.not_blank}", groups = {Created.class})

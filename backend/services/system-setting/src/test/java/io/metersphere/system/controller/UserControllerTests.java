@@ -6,10 +6,7 @@ import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.User;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -31,8 +28,7 @@ public class UserControllerTests {
     private static String sessionId;
     private static String csrfToken;
 
-    @Test
-    @Order(0)
+    @BeforeEach
     public void login() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")

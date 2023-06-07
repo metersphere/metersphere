@@ -90,7 +90,7 @@
         <table tableName="user_role"/>
         <table tableName="user_role_permission"/>
         <table tableName="user_role_relation"/>
-        <table tableName="workspace"/>
+        <table tableName="organization"/>
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
