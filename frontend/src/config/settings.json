@@ -12,5 +12,9 @@
   "globalSettings": false,
   "device": "desktop",
   "tabBar": false,
-  "serverMenu": []
+  "serverMenu": [],
+  "pageSize": 10,
+  "showPageSize": true,
+  "showTotal": true,
+  "showJumper": true
 }

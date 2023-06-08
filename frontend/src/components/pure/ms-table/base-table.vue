@@ -11,23 +11,27 @@
       <template v-for="(item, key, i) in slots" :key="i" #[key]="{ record, rowIndex, column }">
         <slot :name="key" v-bind="{ rowIndex, record, column }"></slot>
       </template>
-      <template v-if="selectCurrent > 0" #footer>
-        <batch-action
-          :select-row-count="selectCurrent"
-          @batch-export="emit('batchExport')"
-          @batch-edit="emit('batchEdit')"
-          @batch-move="emit('batchMove')"
-          @batch-related="emit('batchRelated')"
-          @batch-delete="emit('batchDelete')"
-        />
-      </template>
     </a-table>
+    <div v-if="selectCurrent > 0" class="mt-[21px]">
+      <batch-action
+        :select-row-count="selectCurrent"
+        @batch-export="emit('batchExport')"
+        @batch-edit="emit('batchEdit')"
+        @batch-move="emit('batchMoveTo')"
+        @batch-copy="emit('batchCopyTo')"
+        @batch-related="emit('batchRelated')"
+        @batch-generate="emit('batchGenerate')"
+        @batch-add-public="emit('batchAddPublic')"
+        @batch-delete="emit('batchDelete')"
+        @clear="selectionChange([], true)"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
   // eslint-disable no-console
-  import { useSlots, useAttrs, computed, ref, onMounted, watchEffect } from 'vue';
+  import { useSlots, useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
   import { MsTabelProps, SelectAllEnum, MsPaginationI } from './type';
   import BatchAction from './batchAction.vue';
@@ -43,8 +47,11 @@
     (e: 'selectedChange', value: (string | number)[]): void;
     (e: 'batchExport'): void;
     (e: 'batchEdit'): void;
-    (e: 'batchMove'): void;
+    (e: 'batchMoveTo'): void;
+    (e: 'batchCopyTo'): void;
     (e: 'batchRelated'): void;
+    (e: 'batchGenerate'): void;
+    (e: 'batchAddPublic'): void;
     (e: 'batchDelete'): void;
   }>();
   const isSelectAll = ref(false);
@@ -54,10 +61,11 @@
   const slots = useSlots();
   const attrs = useAttrs();
 
-  const { data, rowKey, pagination }: Partial<MsTabelProps> = attrs;
+  const { rowKey, pagination }: Partial<MsTabelProps> = attrs;
 
   // 全选按钮-总条数
   const selectTotal = computed(() => {
+    const { data }: Partial<MsTabelProps> = attrs;
     if (pagination) {
       const { pageSize } = pagination as MsPaginationI;
       return pageSize;
@@ -74,6 +82,7 @@
 
   // 全选change事件
   const handleChange = (v: string) => {
+    const { data }: Partial<MsTabelProps> = attrs;
     isSelectAll.value = v === SelectAllEnum.ALL;
     if (v === SelectAllEnum.NONE) {
       selectionChange([], true);
@@ -91,7 +100,7 @@
       if (data && data.length > 0) {
         selectionChange(
           data.map((item: any) => item[rowKey || 'id']),
-          false
+          true
         );
         selectCurrent.value = total;
       }

@@ -4,7 +4,6 @@
       <a-space>
         <svg-icon :width="'43px'" :height="'33px'" :name="'logo'" />
         <a-divider direction="vertical" />
-        <ProjcetSelection />
         <icon-menu-fold
           v-if="!topMenu && appStore.device === 'mobile'"
           style="font-size: 22px; cursor: pointer"
@@ -144,7 +143,6 @@
   import useUser from '@/hooks/useUser';
   import Menu from '@/components/pure/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
-  import ProjcetSelection from '@/components/pure/project-selection/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();

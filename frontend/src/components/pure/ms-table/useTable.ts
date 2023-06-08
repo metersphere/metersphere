@@ -7,6 +7,7 @@ import { ApiTestListI } from '@/models/api-test';
 import { TableData } from '@arco-design/web-vue';
 import dayjs from 'dayjs';
 import { QueryParams } from '@/models/common';
+import { useAppStore } from '@/store';
 
 export interface Pagination {
   current: number;
@@ -16,6 +17,7 @@ export interface Pagination {
 }
 
 type GetListFunc = (v: QueryParams) => Promise<ApiTestListI>;
+const appStore = useAppStore();
 export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
   // 行选择
   const rowSelection = {
@@ -34,9 +36,11 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     columns: [] as MsTableColumn,
     pagination: {
       current: 1,
-      pageSize: 20,
+      pageSize: appStore.pageSize,
       total: 0,
-      showPageSize: true,
+      showPageSize: appStore.showPageSize,
+      showTotal: appStore.showTotal,
+      showJumper: appStore.showJumper,
     } as Pagination,
     rowKey: 'id',
     selectedKeys: [],
@@ -48,6 +52,12 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
 
   // 属性组
   const propsRes = ref(defaultProps);
+  const oldPagination = ref<Pagination>({
+    current: 1,
+    pageSize: 20,
+    total: 0,
+    showPageSize: true,
+  });
 
   // 排序
   const sortItem = ref<object>({});
@@ -172,11 +182,11 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     // 选择触发
     selectedChange: (arr: (string | number)[]) => {
       if (arr.length === 0) {
-        propsRes.value.pagination = defaultProps.pagination;
+        propsRes.value.pagination = oldPagination.value;
       } else {
+        oldPagination.value = propsRes.value.pagination as Pagination;
         propsRes.value.pagination = false;
       }
-
       propsRes.value.selectedKeys = arr;
     },
     change: (_data: MsTableData) => {
