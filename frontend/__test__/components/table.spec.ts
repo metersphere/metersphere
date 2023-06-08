@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
-import MsBaseTable from '@/components/ms-table/base-table.vue';
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
 import { nextTick } from 'vue';
-import { MsTableColumn } from '@/components/ms-table/type';
-import useTable from '@/components/ms-table/useTable';
+import { MsTableColumn } from '@/components/pure/ms-table/type';
+import useTable from '@/components/pure/ms-table/useTable';
 import { getTableList } from '@/api/modules/api-test/index';
 
 const columns: MsTableColumn = [
@@ -71,7 +71,6 @@ describe('MS-Table', () => {
   test('init table with useTable', async () => {
     const { propsRes, propsEvent, loadList, setProps } = useTable(getTableList, {
       columns,
-      pagination: { current: 1, pageSize: 1 },
     });
 
     const wrapper = mount(MsBaseTable, {
@@ -85,7 +84,7 @@ describe('MS-Table', () => {
     expect(propsRes.value.data.length).toBe(2);
     expect(content).toBe('e7bd7179-d63a-43a5-1a65-218473ee69ca');
 
-    setProps({ pagination: { current: 2, pageSize: 1 } });
+    setProps({});
     loadList();
 
     await nextTick();

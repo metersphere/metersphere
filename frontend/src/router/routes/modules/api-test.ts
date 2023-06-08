@@ -1,22 +1,22 @@
 import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
 
-const DASHBOARD: AppRouteRecordRaw = {
-  path: '/dashboard',
-  name: 'dashboard',
+const ApiTest: AppRouteRecordRaw = {
+  path: '/api-test',
+  name: 'apiTest',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.dashboard',
+    locale: 'menu.apiTest',
     icon: 'icon-dashboard',
     order: 0,
   },
   children: [
     {
-      path: 'workplace',
-      name: 'Workplace',
+      path: 'list',
+      name: 'apiTest',
       component: () => import('@/views/api-test/index.vue'),
       meta: {
-        locale: 'menu.dashboard.workplace',
+        locale: 'menu.apiTest',
         roles: ['*'],
         icon: 'icon-computer',
       },
@@ -24,4 +24,4 @@ const DASHBOARD: AppRouteRecordRaw = {
   ],
 };
 
-export default DASHBOARD;
+export default ApiTest;

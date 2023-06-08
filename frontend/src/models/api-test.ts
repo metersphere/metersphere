@@ -13,6 +13,12 @@ export interface ListItemI {
   content: string;
 }
 
+export interface SortItem {
+  [key: string]: string;
+}
+export interface FilterItem {
+  [key: string]: any;
+}
 export interface ApiTestListI {
   [x: string]: any;
   pageSize: number;

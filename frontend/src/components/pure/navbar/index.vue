@@ -142,9 +142,9 @@
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
   import useUser from '@/hooks/useUser';
-  import Menu from '@/components/menu/index.vue';
+  import Menu from '@/components/pure/menu/index.vue';
   import MessageBox from '../message-box/index.vue';
-  import ProjcetSelection from '@/components/project-selection/index.vue';
+  import ProjcetSelection from '@/components/pure/project-selection/index.vue';
 
   const appStore = useAppStore();
   const userStore = useUserStore();

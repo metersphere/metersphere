@@ -65,59 +65,20 @@ setupMock({
     Mock.mock(new RegExp('/api/user/menu'), () => {
       const menuList = [
         {
-          path: '/dashboard',
-          name: 'dashboard',
+          path: '/api-test',
+          name: 'apiTest',
           meta: {
-            locale: 'menu.server.dashboard',
-            icon: 'icon-dashboard',
-            order: 1,
-          },
-          children: [
-            {
-              path: 'workplace',
-              name: 'Workplace',
-              meta: {
-                locale: 'menu.server.workplace',
-              },
-            },
-          ],
-        },
-        {
-          path: '/minder',
-          name: 'minder',
-          redirect: '/minder/index',
-          meta: {
-            locale: 'menu.minder',
+            locale: 'menu.apiTest',
             icon: 'icon-dashboard',
             order: 0,
-            hideChildrenInMenu: true,
           },
           children: [
             {
-              path: 'index',
-              name: 'minder',
+              path: 'list',
+              name: 'apiTest',
+              component: () => import('@/views/api-test/index.vue'),
               meta: {
-                locale: 'menu.minder',
-                roles: ['*'],
-              },
-            },
-          ],
-        },
-        {
-          path: '/component',
-          name: 'component',
-          meta: {
-            locale: 'menu.component',
-            roles: ['*'],
-            order: 1,
-            icon: 'icon-common',
-          },
-          children: [
-            {
-              path: 'form-create',
-              name: 'form-create',
-              meta: {
-                locale: 'menu.component.demo',
+                locale: 'menu.apiTest',
                 roles: ['*'],
                 icon: 'icon-computer',
               },
