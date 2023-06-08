@@ -71,9 +71,11 @@ describe('MS-Table', () => {
   test('init table with useTable', async () => {
     const { propsRes, propsEvent, loadList, setProps } = useTable(getTableList, {
       columns,
+      scroll: { y: 750, x: 2000 },
+      selectable: true,
     });
 
-    const wrapper = mount(MsBaseTable, {
+    const wrapper = mount(MsBaseTable as any, {
       vOn: propsEvent,
       vBind: propsRes,
     });
@@ -81,7 +83,7 @@ describe('MS-Table', () => {
 
     await nextTick();
     let content = wrapper.find('.arco-table-td-content').element.innerHTML;
-    expect(propsRes.value.data.length).toBe(2);
+    expect(propsRes.value.data.length).toBe(20);
     expect(content).toBe('e7bd7179-d63a-43a5-1a65-218473ee69ca');
 
     setProps({});
