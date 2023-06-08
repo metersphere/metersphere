@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
-import Footer from '@/components/footer/index.vue';
+import Footer from '@/components/pure/footer/index.vue';
 
 describe('Footer', () => {
   test('renders the correct text', () => {

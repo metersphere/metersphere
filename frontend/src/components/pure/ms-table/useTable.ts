@@ -1,9 +1,12 @@
 // 核心的封装方法，详细参数看文档  https://arco.design/vue/component/table
 // hook/table-props.ts
 
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 import { MsTabelProps, MsTableData, MsTableColumn } from './type';
 import { ApiTestListI } from '@/models/api-test';
+import { TableData } from '@arco-design/web-vue';
+import dayjs from 'dayjs';
+import { QueryParams } from '@/models/common';
 
 export interface Pagination {
   current: number;
@@ -12,47 +15,62 @@ export interface Pagination {
   showPageSize: boolean;
 }
 
-export interface QueryParams {
-  current: number;
-  pageSize: number;
-  [key: string]: any;
-}
-
 type GetListFunc = (v: QueryParams) => Promise<ApiTestListI>;
 export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
   // 行选择
-  const rowSelection = reactive({
+  const rowSelection = {
     type: 'checkbox',
-    showCheckedAll: true,
-    onlyCurrent: false,
-  });
+    showCheckedAll: false,
+  };
 
   const defaultProps: MsTabelProps = {
-    'bordered': true,
-    'size': 'small',
-    'scroll': { y: '550px', x: '1400px' },
-    'checkable': true,
-    'expandable': false,
-    'loading': true,
-    'data': [] as MsTableData,
-    'columns': [] as MsTableColumn,
-    'pagination': {
+    bordered: true,
+    showPagination: true,
+    size: 'small',
+    scroll: { y: '550px', x: '1400px' },
+    checkable: true,
+    loading: true,
+    data: [] as MsTableData,
+    columns: [] as MsTableColumn,
+    pagination: {
       current: 1,
       pageSize: 20,
       total: 0,
       showPageSize: true,
     } as Pagination,
-    'draggable': { type: 'handle' },
-    'row-key': 'id',
+    rowKey: 'id',
+    selectedKeys: [],
+    selectedAll: false,
+    enableDrag: false,
+    showSelectAll: true,
     ...props,
   };
 
   // 属性组
   const propsRes = ref(defaultProps);
 
+  // 排序
+  const sortItem = ref<object>({});
+
+  // 筛选
+  const filterItem = ref<object>({});
+
+  // keyword
+  const keyword = ref('');
+
+  // 是否分页
+  if (!propsRes.value.showPagination) {
+    propsRes.value.pagination = false;
+  }
+
   // 是否可选中
   if (propsRes.value.selectable) {
-    propsRes.value['row-selection'] = rowSelection;
+    propsRes.value.rowSelection = rowSelection;
+  }
+
+  // 是否可拖拽
+  if (propsRes.value.enableDrag) {
+    propsRes.value.draggable = { type: 'handle' };
   }
 
   // 加载效果
@@ -72,9 +90,11 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
   }
 
   const setPagination = ({ current, total }: SetPaginationPrams) => {
-    if (propsRes.value.pagination) {
+    if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
       propsRes.value.pagination.current = current;
-      if (total) propsRes.value.pagination.total = total;
+      if (total) {
+        propsRes.value.pagination.total = total;
+      }
     }
   };
 
@@ -93,6 +113,10 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     loadListParams.value = params || {};
   };
 
+  const setKeyword = (v: string) => {
+    keyword.value = v;
+  };
+
   // 加载分页列表数据
   const loadList = async () => {
     const { current, pageSize } = propsRes.value.pagination as Pagination;
@@ -100,9 +124,20 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     const data = await loadListFunc({
       current,
       pageSize,
-      ...loadListParams.value,
+      sort: sortItem.value,
+      filter: filterItem.value,
+      keyword: keyword.value,
     });
-    propsRes.value.data = data.list as unknown as MsTableData;
+    const tmpArr = data.list as unknown as MsTableData;
+    propsRes.value.data = tmpArr.map((item: TableData) => {
+      if (item.updateTime) {
+        item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+      }
+      if (item.createTime) {
+        item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+      }
+      return item;
+    });
     setPagination({ current: data.current, total: data.total });
     setLoading(false);
     return data;
@@ -113,7 +148,14 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     // 排序触发
     sorterChange: (dataIndex: string, direction: string) => {
       // eslint-disable-next-line no-console
-      console.log(dataIndex, direction);
+      sortItem.value = { [dataIndex]: direction };
+      loadList();
+    },
+
+    // 筛选触发
+    filterChange: (dataIndex: string, filteredValues: string[]) => {
+      filterItem.value = { [dataIndex]: filteredValues };
+      loadList();
     },
     // 分页触发
     pageChange: (current: number) => {
@@ -122,13 +164,23 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     },
     // 修改每页显示条数
     pageSizeChange: (pageSize: number) => {
-      if (propsRes.value.pagination) {
+      if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
         propsRes.value.pagination.pageSize = pageSize;
       }
       loadList();
     },
+    // 选择触发
+    selectedChange: (arr: (string | number)[]) => {
+      if (arr.length === 0) {
+        propsRes.value.pagination = defaultProps.pagination;
+      } else {
+        propsRes.value.pagination = false;
+      }
+
+      propsRes.value.selectedKeys = arr;
+    },
     change: (_data: MsTableData) => {
-      if (propsRes.value.draggable) {
+      if (propsRes.value.draggable && _data instanceof Array) {
         // eslint-disable-next-line vue/require-explicit-emits
         propsRes.value.data = _data;
       }
@@ -143,5 +195,6 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     loadList,
     setPagination,
     setLoadListParams,
+    setKeyword,
   };
 }
