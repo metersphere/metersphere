@@ -34,7 +34,7 @@ public class Schedule implements Serializable {
     @Schema(title = "是否开启")
     private Boolean enable;
 
-    @Schema(title = "")
+    @Schema(title = "资源ID，api_scenario ui_scenario load_test")
     private String resourceId;
 
     @Schema(title = "创建人")

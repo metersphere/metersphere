@@ -21,11 +21,11 @@ public class UserRole implements Serializable {
     @Schema(title = "描述")
     private String description;
 
-    @Schema(title = "是否是系统用户组", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{user_role.system.not_blank}", groups = {Created.class})
-    private Boolean system;
+    @Schema(title = "是否是内置用户组", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user_role.internal.not_blank}", groups = {Created.class})
+    private Boolean internal;
 
-    @Schema(title = "所属类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "所属类型 SYSTEM ORGANIZATION PROJECT", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
     private String type;

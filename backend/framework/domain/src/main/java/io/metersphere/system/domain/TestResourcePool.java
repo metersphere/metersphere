@@ -26,10 +26,9 @@ public class TestResourcePool implements Serializable {
     @Schema(title = "描述")
     private String description;
 
-    @Schema(title = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{test_resource_pool.status.length_range}", groups = {Created.class, Updated.class})
-    private String status;
+    @Schema(title = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_resource_pool.enable.not_blank}", groups = {Created.class})
+    private Boolean enable;
 
     @Schema(title = "创建时间")
     private Long createTime;
@@ -38,22 +37,32 @@ public class TestResourcePool implements Serializable {
     private Long updateTime;
 
     @Schema(title = "性能测试镜像")
-    private String image;
+    private String loadTestImage;
 
     @Schema(title = "性能测试jvm配置")
-    private String heap;
-
-    @Schema(title = "性能测试gc配置")
-    private String gcAlgo;
+    private String loadTestHeap;
 
     @Schema(title = "创建人")
     private String createUser;
 
     @Schema(title = "是否用于接口测试")
-    private Boolean api;
+    private Boolean apiTest;
 
     @Schema(title = "是否用于性能测试")
-    private Boolean performance;
+    private Boolean loadTest;
+
+    @Schema(title = "是否用于ui测试")
+    private Boolean uiTest;
+
+    @Schema(title = "ui测试grid配置")
+    private String grid;
+
+    @Schema(title = "ms部署地址")
+    private String serverUrl;
+
+    @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_resource_pool.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 }

@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.system.mapper.AuthSourceMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.AuthSource">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="enable" jdbcType="BIT" property="enable" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="description" jdbcType="VARCHAR" property="description" />
@@ -72,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `status`, create_time, update_time, description, `name`, `type`
+    id, `enable`, create_time, update_time, description, `name`, `type`
   </sql>
   <sql id="Blob_Column_List">
     configuration
@@ -126,10 +126,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.AuthSource">
-    insert into auth_source (id, `status`, create_time, 
+    insert into auth_source (id, `enable`, create_time, 
       update_time, description, `name`, 
       `type`, configuration)
-    values (#{id,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+    values (#{id,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{type,jdbcType=VARCHAR}, #{configuration,jdbcType=LONGVARBINARY})
   </insert>
@@ -139,8 +139,8 @@
       <if test="id != null">
         id,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="enable != null">
+        `enable`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -165,8 +165,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -200,8 +200,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -229,7 +229,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update auth_source
     set id = #{record.id,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       description = #{record.description,jdbcType=VARCHAR},
@@ -243,7 +243,7 @@
   <update id="updateByExample" parameterType="map">
     update auth_source
     set id = #{record.id,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       description = #{record.description,jdbcType=VARCHAR},
@@ -256,8 +256,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.AuthSource">
     update auth_source
     <set>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -282,7 +282,7 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.AuthSource">
     update auth_source
-    set `status` = #{status,jdbcType=VARCHAR},
+    set `enable` = #{enable,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       description = #{description,jdbcType=VARCHAR},
@@ -293,7 +293,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.AuthSource">
     update auth_source
-    set `status` = #{status,jdbcType=VARCHAR},
+    set `enable` = #{enable,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       description = #{description,jdbcType=VARCHAR},

@@ -3,19 +3,23 @@
 <mapper namespace="io.metersphere.system.mapper.QuotaMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.Quota">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="api" jdbcType="INTEGER" property="api" />
-    <result column="performance" jdbcType="INTEGER" property="performance" />
-    <result column="max_threads" jdbcType="INTEGER" property="maxThreads" />
-    <result column="duration" jdbcType="INTEGER" property="duration" />
-    <result column="resource_pool" jdbcType="VARCHAR" property="resourcePool" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="functional_case" jdbcType="INTEGER" property="functionalCase" />
+    <result column="load_test_vum_total" jdbcType="DECIMAL" property="loadTestVumTotal" />
+    <result column="load_test_vum_used" jdbcType="DECIMAL" property="loadTestVumUsed" />
+    <result column="load_test_max_threads" jdbcType="INTEGER" property="loadTestMaxThreads" />
+    <result column="load_test_duration" jdbcType="INTEGER" property="loadTestDuration" />
+    <result column="resource_pool" jdbcType="VARCHAR" property="resourcePool" />
     <result column="use_default" jdbcType="BIT" property="useDefault" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="member" jdbcType="INTEGER" property="member" />
     <result column="project" jdbcType="INTEGER" property="project" />
-    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="vum_total" jdbcType="DECIMAL" property="vumTotal" />
-    <result column="vum_used" jdbcType="DECIMAL" property="vumUsed" />
+    <result column="api_test_vum_total" jdbcType="DECIMAL" property="apiTestVumTotal" />
+    <result column="api_test_vum_used" jdbcType="DECIMAL" property="apiTestVumUsed" />
+    <result column="ui_test_vum_total" jdbcType="DECIMAL" property="uiTestVumTotal" />
+    <result column="ui_test_vum_used" jdbcType="DECIMAL" property="uiTestVumUsed" />
+    <result column="file_storage" jdbcType="BIGINT" property="fileStorage" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,8 +80,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, api, performance, max_threads, duration, resource_pool, organization_id, use_default, 
-    update_time, `member`, project, project_id, vum_total, vum_used
+    id, organization_id, project_id, functional_case, load_test_vum_total, load_test_vum_used, 
+    load_test_max_threads, load_test_duration, resource_pool, use_default, update_time, 
+    `member`, project, api_test_vum_total, api_test_vum_used, ui_test_vum_total, ui_test_vum_used, 
+    file_storage
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.QuotaExample" resultMap="BaseResultMap">
     select
@@ -110,16 +116,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.Quota">
-    insert into quota (id, api, performance, 
-      max_threads, duration, resource_pool, 
-      organization_id, use_default, update_time, 
-      `member`, project, project_id, 
-      vum_total, vum_used)
-    values (#{id,jdbcType=VARCHAR}, #{api,jdbcType=INTEGER}, #{performance,jdbcType=INTEGER}, 
-      #{maxThreads,jdbcType=INTEGER}, #{duration,jdbcType=INTEGER}, #{resourcePool,jdbcType=VARCHAR}, 
-      #{organizationId,jdbcType=VARCHAR}, #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, 
-      #{member,jdbcType=INTEGER}, #{project,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, 
-      #{vumTotal,jdbcType=DECIMAL}, #{vumUsed,jdbcType=DECIMAL})
+    insert into quota (id, organization_id, project_id, 
+      functional_case, load_test_vum_total, load_test_vum_used, 
+      load_test_max_threads, load_test_duration, resource_pool, 
+      use_default, update_time, `member`, 
+      project, api_test_vum_total, api_test_vum_used, 
+      ui_test_vum_total, ui_test_vum_used, file_storage
+      )
+    values (#{id,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{functionalCase,jdbcType=INTEGER}, #{loadTestVumTotal,jdbcType=DECIMAL}, #{loadTestVumUsed,jdbcType=DECIMAL}, 
+      #{loadTestMaxThreads,jdbcType=INTEGER}, #{loadTestDuration,jdbcType=INTEGER}, #{resourcePool,jdbcType=VARCHAR}, 
+      #{useDefault,jdbcType=BIT}, #{updateTime,jdbcType=BIGINT}, #{member,jdbcType=INTEGER}, 
+      #{project,jdbcType=INTEGER}, #{apiTestVumTotal,jdbcType=DECIMAL}, #{apiTestVumUsed,jdbcType=DECIMAL}, 
+      #{uiTestVumTotal,jdbcType=DECIMAL}, #{uiTestVumUsed,jdbcType=DECIMAL}, #{fileStorage,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Quota">
     insert into quota
@@ -127,23 +137,29 @@
       <if test="id != null">
         id,
       </if>
-      <if test="api != null">
-        api,
+      <if test="organizationId != null">
+        organization_id,
       </if>
-      <if test="performance != null">
-        performance,
+      <if test="projectId != null">
+        project_id,
       </if>
-      <if test="maxThreads != null">
-        max_threads,
+      <if test="functionalCase != null">
+        functional_case,
       </if>
-      <if test="duration != null">
-        duration,
+      <if test="loadTestVumTotal != null">
+        load_test_vum_total,
+      </if>
+      <if test="loadTestVumUsed != null">
+        load_test_vum_used,
+      </if>
+      <if test="loadTestMaxThreads != null">
+        load_test_max_threads,
+      </if>
+      <if test="loadTestDuration != null">
+        load_test_duration,
       </if>
       <if test="resourcePool != null">
         resource_pool,
-      </if>
-      <if test="organizationId != null">
-        organization_id,
       </if>
       <if test="useDefault != null">
         use_default,
@@ -157,37 +173,49 @@
       <if test="project != null">
         project,
       </if>
-      <if test="projectId != null">
-        project_id,
+      <if test="apiTestVumTotal != null">
+        api_test_vum_total,
       </if>
-      <if test="vumTotal != null">
-        vum_total,
+      <if test="apiTestVumUsed != null">
+        api_test_vum_used,
       </if>
-      <if test="vumUsed != null">
-        vum_used,
+      <if test="uiTestVumTotal != null">
+        ui_test_vum_total,
+      </if>
+      <if test="uiTestVumUsed != null">
+        ui_test_vum_used,
+      </if>
+      <if test="fileStorage != null">
+        file_storage,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="api != null">
-        #{api,jdbcType=INTEGER},
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
-      <if test="performance != null">
-        #{performance,jdbcType=INTEGER},
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="maxThreads != null">
-        #{maxThreads,jdbcType=INTEGER},
+      <if test="functionalCase != null">
+        #{functionalCase,jdbcType=INTEGER},
       </if>
-      <if test="duration != null">
-        #{duration,jdbcType=INTEGER},
+      <if test="loadTestVumTotal != null">
+        #{loadTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="loadTestVumUsed != null">
+        #{loadTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="loadTestMaxThreads != null">
+        #{loadTestMaxThreads,jdbcType=INTEGER},
+      </if>
+      <if test="loadTestDuration != null">
+        #{loadTestDuration,jdbcType=INTEGER},
       </if>
       <if test="resourcePool != null">
         #{resourcePool,jdbcType=VARCHAR},
-      </if>
-      <if test="organizationId != null">
-        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="useDefault != null">
         #{useDefault,jdbcType=BIT},
@@ -201,14 +229,20 @@
       <if test="project != null">
         #{project,jdbcType=INTEGER},
       </if>
-      <if test="projectId != null">
-        #{projectId,jdbcType=VARCHAR},
+      <if test="apiTestVumTotal != null">
+        #{apiTestVumTotal,jdbcType=DECIMAL},
       </if>
-      <if test="vumTotal != null">
-        #{vumTotal,jdbcType=DECIMAL},
+      <if test="apiTestVumUsed != null">
+        #{apiTestVumUsed,jdbcType=DECIMAL},
       </if>
-      <if test="vumUsed != null">
-        #{vumUsed,jdbcType=DECIMAL},
+      <if test="uiTestVumTotal != null">
+        #{uiTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="uiTestVumUsed != null">
+        #{uiTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="fileStorage != null">
+        #{fileStorage,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -224,23 +258,29 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.api != null">
-        api = #{record.api,jdbcType=INTEGER},
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
-      <if test="record.performance != null">
-        performance = #{record.performance,jdbcType=INTEGER},
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.maxThreads != null">
-        max_threads = #{record.maxThreads,jdbcType=INTEGER},
+      <if test="record.functionalCase != null">
+        functional_case = #{record.functionalCase,jdbcType=INTEGER},
       </if>
-      <if test="record.duration != null">
-        duration = #{record.duration,jdbcType=INTEGER},
+      <if test="record.loadTestVumTotal != null">
+        load_test_vum_total = #{record.loadTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.loadTestVumUsed != null">
+        load_test_vum_used = #{record.loadTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="record.loadTestMaxThreads != null">
+        load_test_max_threads = #{record.loadTestMaxThreads,jdbcType=INTEGER},
+      </if>
+      <if test="record.loadTestDuration != null">
+        load_test_duration = #{record.loadTestDuration,jdbcType=INTEGER},
       </if>
       <if test="record.resourcePool != null">
         resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
-      </if>
-      <if test="record.organizationId != null">
-        organization_id = #{record.organizationId,jdbcType=VARCHAR},
       </if>
       <if test="record.useDefault != null">
         use_default = #{record.useDefault,jdbcType=BIT},
@@ -254,14 +294,20 @@
       <if test="record.project != null">
         project = #{record.project,jdbcType=INTEGER},
       </if>
-      <if test="record.projectId != null">
-        project_id = #{record.projectId,jdbcType=VARCHAR},
+      <if test="record.apiTestVumTotal != null">
+        api_test_vum_total = #{record.apiTestVumTotal,jdbcType=DECIMAL},
       </if>
-      <if test="record.vumTotal != null">
-        vum_total = #{record.vumTotal,jdbcType=DECIMAL},
+      <if test="record.apiTestVumUsed != null">
+        api_test_vum_used = #{record.apiTestVumUsed,jdbcType=DECIMAL},
       </if>
-      <if test="record.vumUsed != null">
-        vum_used = #{record.vumUsed,jdbcType=DECIMAL},
+      <if test="record.uiTestVumTotal != null">
+        ui_test_vum_total = #{record.uiTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="record.uiTestVumUsed != null">
+        ui_test_vum_used = #{record.uiTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="record.fileStorage != null">
+        file_storage = #{record.fileStorage,jdbcType=BIGINT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -271,19 +317,23 @@
   <update id="updateByExample" parameterType="map">
     update quota
     set id = #{record.id,jdbcType=VARCHAR},
-      api = #{record.api,jdbcType=INTEGER},
-      performance = #{record.performance,jdbcType=INTEGER},
-      max_threads = #{record.maxThreads,jdbcType=INTEGER},
-      duration = #{record.duration,jdbcType=INTEGER},
-      resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      functional_case = #{record.functionalCase,jdbcType=INTEGER},
+      load_test_vum_total = #{record.loadTestVumTotal,jdbcType=DECIMAL},
+      load_test_vum_used = #{record.loadTestVumUsed,jdbcType=DECIMAL},
+      load_test_max_threads = #{record.loadTestMaxThreads,jdbcType=INTEGER},
+      load_test_duration = #{record.loadTestDuration,jdbcType=INTEGER},
+      resource_pool = #{record.resourcePool,jdbcType=VARCHAR},
       use_default = #{record.useDefault,jdbcType=BIT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `member` = #{record.member,jdbcType=INTEGER},
       project = #{record.project,jdbcType=INTEGER},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      vum_total = #{record.vumTotal,jdbcType=DECIMAL},
-      vum_used = #{record.vumUsed,jdbcType=DECIMAL}
+      api_test_vum_total = #{record.apiTestVumTotal,jdbcType=DECIMAL},
+      api_test_vum_used = #{record.apiTestVumUsed,jdbcType=DECIMAL},
+      ui_test_vum_total = #{record.uiTestVumTotal,jdbcType=DECIMAL},
+      ui_test_vum_used = #{record.uiTestVumUsed,jdbcType=DECIMAL},
+      file_storage = #{record.fileStorage,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -291,23 +341,29 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.Quota">
     update quota
     <set>
-      <if test="api != null">
-        api = #{api,jdbcType=INTEGER},
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
-      <if test="performance != null">
-        performance = #{performance,jdbcType=INTEGER},
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="maxThreads != null">
-        max_threads = #{maxThreads,jdbcType=INTEGER},
+      <if test="functionalCase != null">
+        functional_case = #{functionalCase,jdbcType=INTEGER},
       </if>
-      <if test="duration != null">
-        duration = #{duration,jdbcType=INTEGER},
+      <if test="loadTestVumTotal != null">
+        load_test_vum_total = #{loadTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="loadTestVumUsed != null">
+        load_test_vum_used = #{loadTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="loadTestMaxThreads != null">
+        load_test_max_threads = #{loadTestMaxThreads,jdbcType=INTEGER},
+      </if>
+      <if test="loadTestDuration != null">
+        load_test_duration = #{loadTestDuration,jdbcType=INTEGER},
       </if>
       <if test="resourcePool != null">
         resource_pool = #{resourcePool,jdbcType=VARCHAR},
-      </if>
-      <if test="organizationId != null">
-        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="useDefault != null">
         use_default = #{useDefault,jdbcType=BIT},
@@ -321,33 +377,43 @@
       <if test="project != null">
         project = #{project,jdbcType=INTEGER},
       </if>
-      <if test="projectId != null">
-        project_id = #{projectId,jdbcType=VARCHAR},
+      <if test="apiTestVumTotal != null">
+        api_test_vum_total = #{apiTestVumTotal,jdbcType=DECIMAL},
       </if>
-      <if test="vumTotal != null">
-        vum_total = #{vumTotal,jdbcType=DECIMAL},
+      <if test="apiTestVumUsed != null">
+        api_test_vum_used = #{apiTestVumUsed,jdbcType=DECIMAL},
       </if>
-      <if test="vumUsed != null">
-        vum_used = #{vumUsed,jdbcType=DECIMAL},
+      <if test="uiTestVumTotal != null">
+        ui_test_vum_total = #{uiTestVumTotal,jdbcType=DECIMAL},
+      </if>
+      <if test="uiTestVumUsed != null">
+        ui_test_vum_used = #{uiTestVumUsed,jdbcType=DECIMAL},
+      </if>
+      <if test="fileStorage != null">
+        file_storage = #{fileStorage,jdbcType=BIGINT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.Quota">
     update quota
-    set api = #{api,jdbcType=INTEGER},
-      performance = #{performance,jdbcType=INTEGER},
-      max_threads = #{maxThreads,jdbcType=INTEGER},
-      duration = #{duration,jdbcType=INTEGER},
+    set organization_id = #{organizationId,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      functional_case = #{functionalCase,jdbcType=INTEGER},
+      load_test_vum_total = #{loadTestVumTotal,jdbcType=DECIMAL},
+      load_test_vum_used = #{loadTestVumUsed,jdbcType=DECIMAL},
+      load_test_max_threads = #{loadTestMaxThreads,jdbcType=INTEGER},
+      load_test_duration = #{loadTestDuration,jdbcType=INTEGER},
       resource_pool = #{resourcePool,jdbcType=VARCHAR},
-      organization_id = #{organizationId,jdbcType=VARCHAR},
       use_default = #{useDefault,jdbcType=BIT},
       update_time = #{updateTime,jdbcType=BIGINT},
       `member` = #{member,jdbcType=INTEGER},
       project = #{project,jdbcType=INTEGER},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      vum_total = #{vumTotal,jdbcType=DECIMAL},
-      vum_used = #{vumUsed,jdbcType=DECIMAL}
+      api_test_vum_total = #{apiTestVumTotal,jdbcType=DECIMAL},
+      api_test_vum_used = #{apiTestVumUsed,jdbcType=DECIMAL},
+      ui_test_vum_total = #{uiTestVumTotal,jdbcType=DECIMAL},
+      ui_test_vum_used = #{uiTestVumUsed,jdbcType=DECIMAL},
+      file_storage = #{fileStorage,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

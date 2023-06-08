@@ -2,22 +2,22 @@
 SET SESSION innodb_lock_wait_timeout = 7200;
 
 -- 初始化组织
-INSERT INTO organization (id, name, description, create_user, create_time, update_time) VALUES (uuid(), '默认组织', '系统默认创建的组织', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO organization (id, num, name, description, create_user, create_time, update_time) VALUES (uuid(), 1000, '默认组织', '系统默认创建的组织', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 -- 初始化项目
-INSERT INTO project (id, organization_id, name, description, create_user, create_time, update_time) VALUES (uuid(), (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, create_time, update_time) VALUES (uuid(), 10001000, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目', '系统默认创建的项目', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
 -- 初始化用户
-insert into user(id, name, email, password, status, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user)
-VALUES ('admin', 'Administrator', 'admin@metersphere.io', MD5('metersphere'), '1', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin');
+insert into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user, update_user)
+VALUES ('admin', 'Administrator', 'admin@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
 
 -- 初始化用户组
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员(系统)', '默认用户组', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员(系统)', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员(系统)', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('read_only', '只读用户(系统)', '只读用户', 1, 'PROJECT', 1620674220006, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('super', '超级管理员(系统)', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', 1671008474000, 1671008474000, 'admin', 'system');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员(系统)', '组织管理员', 1, 'ORGANIZATION', 1620674220007, 1620674220000, 'admin', 'global');
-INSERT INTO user_role (id, name, description, `system`, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员(系统)', '组织成员', 1, 'ORGANIZATION', 1620674220008, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('admin', '系统管理员(系统)', '默认用户组', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_admin', '项目管理员(系统)', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('project_member', '项目成员(系统)', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('read_only', '只读用户(系统)', '只读用户', 1, 'PROJECT', 1620674220006, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('super', '超级管理员(系统)', '拥有系统全部组织以及项目的操作权限', 1, 'SYSTEM', 1671008474000, 1671008474000, 'admin', 'system');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_admin', '组织管理员(系统)', '组织管理员', 1, 'ORGANIZATION', 1620674220007, 1620674220000, 'admin', 'global');
+INSERT INTO user_role (id, name, description, internal, type, create_time, update_time, create_user, scope_id) VALUES ('org_member', '组织成员(系统)', '组织成员', 1, 'ORGANIZATION', 1620674220008, 1620674220000, 'admin', 'global');
 
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, update_time) VALUES ('c3bb9b4f-46d8-4952-9681-8889974487d1', 'admin', 'super', 'system', 1684747668375, 1684747668375);

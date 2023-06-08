@@ -384,73 +384,63 @@ public class UserExample {
             return (Criteria) this;
         }
 
-        public Criteria andStatusIsNull() {
-            addCriterion("`status` is null");
+        public Criteria andEnableIsNull() {
+            addCriterion("`enable` is null");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIsNotNull() {
-            addCriterion("`status` is not null");
+        public Criteria andEnableIsNotNull() {
+            addCriterion("`enable` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andStatusEqualTo(String value) {
-            addCriterion("`status` =", value, "status");
+        public Criteria andEnableEqualTo(Boolean value) {
+            addCriterion("`enable` =", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotEqualTo(String value) {
-            addCriterion("`status` <>", value, "status");
+        public Criteria andEnableNotEqualTo(Boolean value) {
+            addCriterion("`enable` <>", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThan(String value) {
-            addCriterion("`status` >", value, "status");
+        public Criteria andEnableGreaterThan(Boolean value) {
+            addCriterion("`enable` >", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThanOrEqualTo(String value) {
-            addCriterion("`status` >=", value, "status");
+        public Criteria andEnableGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`enable` >=", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThan(String value) {
-            addCriterion("`status` <", value, "status");
+        public Criteria andEnableLessThan(Boolean value) {
+            addCriterion("`enable` <", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThanOrEqualTo(String value) {
-            addCriterion("`status` <=", value, "status");
+        public Criteria andEnableLessThanOrEqualTo(Boolean value) {
+            addCriterion("`enable` <=", value, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLike(String value) {
-            addCriterion("`status` like", value, "status");
+        public Criteria andEnableIn(List<Boolean> values) {
+            addCriterion("`enable` in", values, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotLike(String value) {
-            addCriterion("`status` not like", value, "status");
+        public Criteria andEnableNotIn(List<Boolean> values) {
+            addCriterion("`enable` not in", values, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIn(List<String> values) {
-            addCriterion("`status` in", values, "status");
+        public Criteria andEnableBetween(Boolean value1, Boolean value2) {
+            addCriterion("`enable` between", value1, value2, "enable");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotIn(List<String> values) {
-            addCriterion("`status` not in", values, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusBetween(String value1, String value2) {
-            addCriterion("`status` between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotBetween(String value1, String value2) {
-            addCriterion("`status` not between", value1, value2, "status");
+        public Criteria andEnableNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`enable` not between", value1, value2, "enable");
             return (Criteria) this;
         }
 
@@ -991,6 +981,76 @@ public class UserExample {
 
         public Criteria andCreateUserNotBetween(String value1, String value2) {
             addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
             return (Criteria) this;
         }
     }

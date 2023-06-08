@@ -14,23 +14,29 @@ public class Quota implements Serializable {
     @Size(min = 1, max = 50, message = "{quota.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "接口数量")
-    private Integer api;
+    @Schema(title = "组织ID")
+    private String organizationId;
 
-    @Schema(title = "性能测试数量")
-    private Integer performance;
+    @Schema(title = "项目类型配额")
+    private String projectId;
+
+    @Schema(title = "功能用例数量")
+    private Integer functionalCase;
+
+    @Schema(title = "总vum数")
+    private BigDecimal loadTestVumTotal;
+
+    @Schema(title = "消耗的vum数")
+    private BigDecimal loadTestVumUsed;
 
     @Schema(title = "最大并发数")
-    private Integer maxThreads;
+    private Integer loadTestMaxThreads;
 
     @Schema(title = "最大执行时长")
-    private Integer duration;
+    private Integer loadTestDuration;
 
     @Schema(title = "资源池列表")
     private String resourcePool;
-
-    @Schema(title = "组织ID")
-    private String organizationId;
 
     @Schema(title = "是否使用默认值")
     private Boolean useDefault;
@@ -44,14 +50,20 @@ public class Quota implements Serializable {
     @Schema(title = "项目数量限制")
     private Integer project;
 
-    @Schema(title = "项目类型配额")
-    private String projectId;
-
     @Schema(title = "总vum数")
-    private BigDecimal vumTotal;
+    private BigDecimal apiTestVumTotal;
 
     @Schema(title = "消耗的vum数")
-    private BigDecimal vumUsed;
+    private BigDecimal apiTestVumUsed;
+
+    @Schema(title = "总vum数")
+    private BigDecimal uiTestVumTotal;
+
+    @Schema(title = "消耗的vum数")
+    private BigDecimal uiTestVumUsed;
+
+    @Schema(title = "文件大小限制")
+    private Long fileStorage;
 
     private static final long serialVersionUID = 1L;
 }

@@ -5,7 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="system" jdbcType="BIT" property="system" />
+    <result column="internal" jdbcType="BIT" property="internal" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -71,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, description, `system`, `type`, create_time, update_time, create_user, 
+    id, `name`, description, internal, `type`, create_time, update_time, create_user, 
     scope_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserRoleExample" resultMap="BaseResultMap">
@@ -106,11 +106,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserRole">
     insert into user_role (id, `name`, description, 
-      `system`, `type`, create_time, 
+      internal, `type`, create_time, 
       update_time, create_user, scope_id
       )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{system,jdbcType=BIT}, #{type,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{internal,jdbcType=BIT}, #{type,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}
       )
   </insert>
@@ -126,8 +126,8 @@
       <if test="description != null">
         description,
       </if>
-      <if test="system != null">
-        `system`,
+      <if test="internal != null">
+        internal,
       </if>
       <if test="type != null">
         `type`,
@@ -155,8 +155,8 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
-      <if test="system != null">
-        #{system,jdbcType=BIT},
+      <if test="internal != null">
+        #{internal,jdbcType=BIT},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
@@ -193,8 +193,8 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.system != null">
-        `system` = #{record.system,jdbcType=BIT},
+      <if test="record.internal != null">
+        internal = #{record.internal,jdbcType=BIT},
       </if>
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
@@ -221,7 +221,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      `system` = #{record.system,jdbcType=BIT},
+      internal = #{record.internal,jdbcType=BIT},
       `type` = #{record.type,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -240,8 +240,8 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="system != null">
-        `system` = #{system,jdbcType=BIT},
+      <if test="internal != null">
+        internal = #{internal,jdbcType=BIT},
       </if>
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
@@ -265,7 +265,7 @@
     update user_role
     set `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      `system` = #{system,jdbcType=BIT},
+      internal = #{internal,jdbcType=BIT},
       `type` = #{type,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},

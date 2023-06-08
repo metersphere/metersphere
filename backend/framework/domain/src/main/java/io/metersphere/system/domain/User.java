@@ -26,10 +26,9 @@ public class User implements Serializable {
     @Schema(title = "用户密码")
     private String password;
 
-    @Schema(title = "用户状态，启用或禁用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{user.status.length_range}", groups = {Created.class, Updated.class})
-    private String status;
+    @Schema(title = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user.enable.not_blank}", groups = {Created.class})
+    private Boolean enable;
 
     @Schema(title = "创建时间")
     private Long createTime;
@@ -46,7 +45,7 @@ public class User implements Serializable {
     @Schema(title = "手机号")
     private String phone;
 
-    @Schema(title = "来源：LOCAL OIDC CAS", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "来源：LOCAL OIDC CAS OAUTH2", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.source.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{user.source.length_range}", groups = {Created.class, Updated.class})
     private String source;
@@ -56,6 +55,9 @@ public class User implements Serializable {
 
     @Schema(title = "创建人")
     private String createUser;
+
+    @Schema(title = "修改人")
+    private String updateUser;
 
     private static final long serialVersionUID = 1L;
 }
