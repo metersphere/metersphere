@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
+  import { onMounted, ref, watchEffect } from 'vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -92,7 +92,11 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, {
+  const queryParmas = ref({
+    name: '',
+  });
+
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getTableList, {
     columns,
     scroll: { y: 750, x: 2000 },
     selectable: true,
@@ -104,5 +108,8 @@
 
   onMounted(() => {
     fetchData();
+  });
+  watchEffect(() => {
+    setLoadListParams(queryParmas.value);
   });
 </script>

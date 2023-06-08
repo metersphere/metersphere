@@ -73,6 +73,11 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     propsRes.value.pagination = false;
   }
 
+  // 是否分页
+  if (!propsRes.value.showPagination) {
+    propsRes.value.pagination = false;
+  }
+
   // 是否可选中
   if (propsRes.value.selectable) {
     propsRes.value.rowSelection = rowSelection;

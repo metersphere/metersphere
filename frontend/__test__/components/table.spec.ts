@@ -71,8 +71,6 @@ describe('MS-Table', () => {
   test('init table with useTable', async () => {
     const { propsRes, propsEvent, loadList, setProps } = useTable(getTableList, {
       columns,
-      scroll: { y: 750, x: 2000 },
-      selectable: true,
     });
 
     const wrapper = mount(MsBaseTable as any, {
