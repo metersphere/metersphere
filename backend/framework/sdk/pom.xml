@@ -43,12 +43,6 @@
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-jmeter-functions</artifactId>
             <version>${metersphere-jmeter-functions.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>rhino-engine</artifactId>
-                    <groupId>org.mozilla</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- 基础包 -->
         <dependency>
@@ -303,9 +297,14 @@
 
         <!-- 执行 js 代码依赖 -->
         <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino-engine</artifactId>
-            <version>${rhino.version}</version>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>${graalvmjs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js-scriptengine</artifactId>
+            <version>${graalvmjs.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
