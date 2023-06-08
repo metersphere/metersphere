@@ -43,7 +43,6 @@
         <swagger-parser.version>2.1.12</swagger-parser.version>
         <swagger.version>2.2.8</swagger.version>
         <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
-        <rhino.version>1.7.14</rhino.version>
         <jsoup.version>1.15.3</jsoup.version>
         <commonmark.version>0.19.0</commonmark.version>
         <commons-compress.version>1.21</commons-compress.version>
