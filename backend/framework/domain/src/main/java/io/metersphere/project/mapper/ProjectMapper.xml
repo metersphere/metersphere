@@ -3,13 +3,17 @@
 <mapper namespace="io.metersphere.project.mapper.ProjectMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.Project">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="system_id" jdbcType="VARCHAR" property="systemId" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
+    <result column="enable" jdbcType="BIT" property="enable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, organization_id, `name`, description, create_time, update_time, create_user, 
-    system_id
+    id, num, organization_id, `name`, description, create_time, update_time, create_user, 
+    delete_time, deleted, delete_user, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -104,18 +108,25 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.Project">
-    insert into project (id, organization_id, `name`, 
-      description, create_time, update_time, 
-      create_user, system_id)
-    values (#{id,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR})
+    insert into project (id, num, organization_id, 
+      `name`, description, create_time, 
+      update_time, create_user, delete_time, 
+      deleted, delete_user, `enable`
+      )
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{organizationId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
+      #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.Project">
     insert into project
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="organizationId != null">
         organization_id,
@@ -135,13 +146,25 @@
       <if test="createUser != null">
         create_user,
       </if>
-      <if test="systemId != null">
-        system_id,
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="deleteUser != null">
+        delete_user,
+      </if>
+      <if test="enable != null">
+        `enable`,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="organizationId != null">
         #{organizationId,jdbcType=VARCHAR},
@@ -161,8 +184,17 @@
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="systemId != null">
-        #{systemId,jdbcType=VARCHAR},
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deleteUser != null">
+        #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -177,6 +209,9 @@
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
       </if>
       <if test="record.organizationId != null">
         organization_id = #{record.organizationId,jdbcType=VARCHAR},
@@ -196,8 +231,17 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.systemId != null">
-        system_id = #{record.systemId,jdbcType=VARCHAR},
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
+      <if test="record.deleteUser != null">
+        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -207,13 +251,17 @@
   <update id="updateByExample" parameterType="map">
     update project
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       organization_id = #{record.organizationId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      system_id = #{record.systemId,jdbcType=VARCHAR}
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      deleted = #{record.deleted,jdbcType=BIT},
+      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -221,6 +269,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.project.domain.Project">
     update project
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="organizationId != null">
         organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
@@ -239,21 +290,34 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="systemId != null">
-        system_id = #{systemId,jdbcType=VARCHAR},
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deleteUser != null">
+        delete_user = #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.Project">
     update project
-    set organization_id = #{organizationId,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      system_id = #{systemId,jdbcType=VARCHAR}
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      deleted = #{deleted,jdbcType=BIT},
+      delete_user = #{deleteUser,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

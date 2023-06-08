@@ -5,7 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="system" jdbcType="BIT" property="system" />
+    <result column="internal" jdbcType="BIT" property="internal" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
@@ -69,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, description, `system`, create_time, create_user, project_id
+    id, `name`, description, internal, create_time, create_user, project_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FunctionalCaseTemplateExample" resultMap="BaseResultMap">
     select
@@ -103,10 +103,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.FunctionalCaseTemplate">
     insert into functional_case_template (id, `name`, description, 
-      `system`, create_time, create_user, 
+      internal, create_time, create_user, 
       project_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{system,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{internal,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FunctionalCaseTemplate">
@@ -121,8 +121,8 @@
       <if test="description != null">
         description,
       </if>
-      <if test="system != null">
-        `system`,
+      <if test="internal != null">
+        internal,
       </if>
       <if test="createTime != null">
         create_time,
@@ -144,8 +144,8 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
-      <if test="system != null">
-        #{system,jdbcType=BIT},
+      <if test="internal != null">
+        #{internal,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -176,8 +176,8 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.system != null">
-        `system` = #{record.system,jdbcType=BIT},
+      <if test="record.internal != null">
+        internal = #{record.internal,jdbcType=BIT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -198,7 +198,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      `system` = #{record.system,jdbcType=BIT},
+      internal = #{record.internal,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR}
@@ -215,8 +215,8 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="system != null">
-        `system` = #{system,jdbcType=BIT},
+      <if test="internal != null">
+        internal = #{internal,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -234,7 +234,7 @@
     update functional_case_template
     set `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      `system` = #{system,jdbcType=BIT},
+      internal = #{internal,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR}

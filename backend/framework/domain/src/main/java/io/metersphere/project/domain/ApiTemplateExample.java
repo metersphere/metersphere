@@ -314,63 +314,63 @@ public class ApiTemplateExample {
             return (Criteria) this;
         }
 
-        public Criteria andSystemIsNull() {
-            addCriterion("`system` is null");
+        public Criteria andInternalIsNull() {
+            addCriterion("internal is null");
             return (Criteria) this;
         }
 
-        public Criteria andSystemIsNotNull() {
-            addCriterion("`system` is not null");
+        public Criteria andInternalIsNotNull() {
+            addCriterion("internal is not null");
             return (Criteria) this;
         }
 
-        public Criteria andSystemEqualTo(Boolean value) {
-            addCriterion("`system` =", value, "system");
+        public Criteria andInternalEqualTo(Boolean value) {
+            addCriterion("internal =", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemNotEqualTo(Boolean value) {
-            addCriterion("`system` <>", value, "system");
+        public Criteria andInternalNotEqualTo(Boolean value) {
+            addCriterion("internal <>", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemGreaterThan(Boolean value) {
-            addCriterion("`system` >", value, "system");
+        public Criteria andInternalGreaterThan(Boolean value) {
+            addCriterion("internal >", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("`system` >=", value, "system");
+        public Criteria andInternalGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("internal >=", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemLessThan(Boolean value) {
-            addCriterion("`system` <", value, "system");
+        public Criteria andInternalLessThan(Boolean value) {
+            addCriterion("internal <", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemLessThanOrEqualTo(Boolean value) {
-            addCriterion("`system` <=", value, "system");
+        public Criteria andInternalLessThanOrEqualTo(Boolean value) {
+            addCriterion("internal <=", value, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemIn(List<Boolean> values) {
-            addCriterion("`system` in", values, "system");
+        public Criteria andInternalIn(List<Boolean> values) {
+            addCriterion("internal in", values, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemNotIn(List<Boolean> values) {
-            addCriterion("`system` not in", values, "system");
+        public Criteria andInternalNotIn(List<Boolean> values) {
+            addCriterion("internal not in", values, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemBetween(Boolean value1, Boolean value2) {
-            addCriterion("`system` between", value1, value2, "system");
+        public Criteria andInternalBetween(Boolean value1, Boolean value2) {
+            addCriterion("internal between", value1, value2, "internal");
             return (Criteria) this;
         }
 
-        public Criteria andSystemNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("`system` not between", value1, value2, "system");
+        public Criteria andInternalNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("internal not between", value1, value2, "internal");
             return (Criteria) this;
         }
 

@@ -13,10 +13,9 @@ public class AuthSource implements Serializable {
     @Size(min = 1, max = 50, message = "{auth_source.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "状态 启用 禁用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{auth_source.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{auth_source.status.length_range}", groups = {Created.class, Updated.class})
-    private String status;
+    @Schema(title = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{auth_source.enable.not_blank}", groups = {Created.class})
+    private Boolean enable;
 
     @Schema(title = "创建时间")
     private Long createTime;

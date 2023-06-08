@@ -6,7 +6,6 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.UserRoleConstants;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.constants.UserSource;
-import io.metersphere.sdk.constants.UserStatus;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
@@ -22,6 +21,7 @@ import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -61,7 +61,7 @@ public class BaseUserService {
         if (userDTO == null) {
             return null;
         }
-        if (StringUtils.equals(userDTO.getStatus(), UserStatus.DISABLED)) {
+        if (BooleanUtils.isFalse(userDTO.getEnable())) {
             throw new DisabledAccountException();
         }
         UserRolePermissionDTO dto = getUserRolePermission(userId);
@@ -313,7 +313,7 @@ public class BaseUserService {
         }
         // 执行变更
         userMapper.updateByPrimaryKeySelective(user);
-        if (StringUtils.equals(user.getStatus(), UserStatus.DISABLED)) {
+        if (BooleanUtils.isFalse(user.getEnable())) {
             SessionUtils.kickOutUser(user.getId());
         }
     }

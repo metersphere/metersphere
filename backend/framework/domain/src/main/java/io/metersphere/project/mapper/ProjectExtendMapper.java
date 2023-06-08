@@ -16,21 +16,15 @@ public interface ProjectExtendMapper {
 
     int insertSelective(ProjectExtend record);
 
-    List<ProjectExtend> selectByExampleWithBLOBs(ProjectExtendExample example);
-
     List<ProjectExtend> selectByExample(ProjectExtendExample example);
 
     ProjectExtend selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ProjectExtend record, @Param("example") ProjectExtendExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ProjectExtend record, @Param("example") ProjectExtendExample example);
-
     int updateByExample(@Param("record") ProjectExtend record, @Param("example") ProjectExtendExample example);
 
     int updateByPrimaryKeySelective(ProjectExtend record);
-
-    int updateByPrimaryKeyWithBLOBs(ProjectExtend record);
 
     int updateByPrimaryKey(ProjectExtend record);
 }

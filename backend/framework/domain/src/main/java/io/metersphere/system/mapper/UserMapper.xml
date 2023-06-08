@@ -6,7 +6,7 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="enable" jdbcType="BIT" property="enable" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="language" jdbcType="VARCHAR" property="language" />
@@ -15,6 +15,7 @@
     <result column="source" jdbcType="VARCHAR" property="source" />
     <result column="last_project_id" jdbcType="VARCHAR" property="lastProjectId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, email, `password`, `status`, create_time, update_time, `language`, last_organization_id, 
-    phone, `source`, last_project_id, create_user
+    id, `name`, email, `password`, `enable`, create_time, update_time, `language`, last_organization_id, 
+    phone, `source`, last_project_id, create_user, update_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -110,15 +111,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.User">
     insert into user (id, `name`, email, 
-      `password`, `status`, create_time, 
+      `password`, `enable`, create_time, 
       update_time, `language`, last_organization_id, 
       phone, `source`, last_project_id, 
-      create_user)
+      create_user, update_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{password,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{password,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastOrganizationId,jdbcType=VARCHAR}, 
       #{phone,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, #{lastProjectId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.User">
     insert into user
@@ -135,8 +136,8 @@
       <if test="password != null">
         `password`,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="enable != null">
+        `enable`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -162,6 +163,9 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -176,8 +180,8 @@
       <if test="password != null">
         #{password,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -203,6 +207,9 @@
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.system.domain.UserExample" resultType="java.lang.Long">
@@ -226,8 +233,8 @@
       <if test="record.password != null">
         `password` = #{record.password,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -253,6 +260,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -264,7 +274,7 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       email = #{record.email,jdbcType=VARCHAR},
       `password` = #{record.password,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `language` = #{record.language,jdbcType=VARCHAR},
@@ -272,7 +282,8 @@
       phone = #{record.phone,jdbcType=VARCHAR},
       `source` = #{record.source,jdbcType=VARCHAR},
       last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -289,8 +300,8 @@
       <if test="password != null">
         `password` = #{password,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -316,6 +327,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -324,7 +338,7 @@
     set `name` = #{name,jdbcType=VARCHAR},
       email = #{email,jdbcType=VARCHAR},
       `password` = #{password,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       `language` = #{language,jdbcType=VARCHAR},
@@ -332,7 +346,8 @@
       phone = #{phone,jdbcType=VARCHAR},
       `source` = #{source,jdbcType=VARCHAR},
       last_project_id = #{lastProjectId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

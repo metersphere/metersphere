@@ -12,10 +12,8 @@
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="third_part_template" jdbcType="BIT" property="thirdPartTemplate" />
     <result column="version_enable" jdbcType="BIT" property="versionEnable" />
+    <result column="issue_config" jdbcType="VARCHAR" property="issueConfig" />
     <result column="api_template_id" jdbcType="VARCHAR" property="apiTemplateId" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.project.domain.ProjectExtend">
-    <result column="issue_config" jdbcType="LONGVARBINARY" property="issueConfig" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,27 +75,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
-    platform, third_part_template, version_enable, api_template_id
+    platform, third_part_template, version_enable, issue_config, api_template_id
   </sql>
-  <sql id="Blob_Column_List">
-    issue_config
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.project.domain.ProjectExtendExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from project_extend
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExtendExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -112,11 +91,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from project_extend
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -134,12 +111,12 @@
     insert into project_extend (id, tapd_id, jira_key, 
       zentao_id, azure_devops_id, case_template_id, 
       azure_filter_id, platform, third_part_template, 
-      version_enable, api_template_id, issue_config
+      version_enable, issue_config, api_template_id
       )
     values (#{id,jdbcType=VARCHAR}, #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, 
       #{zentaoId,jdbcType=VARCHAR}, #{azureDevopsId,jdbcType=VARCHAR}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{azureFilterId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{thirdPartTemplate,jdbcType=BIT}, 
-      #{versionEnable,jdbcType=BIT}, #{apiTemplateId,jdbcType=VARCHAR}, #{issueConfig,jdbcType=LONGVARBINARY}
+      #{versionEnable,jdbcType=BIT}, #{issueConfig,jdbcType=VARCHAR}, #{apiTemplateId,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.ProjectExtend">
@@ -175,11 +152,11 @@
       <if test="versionEnable != null">
         version_enable,
       </if>
-      <if test="apiTemplateId != null">
-        api_template_id,
-      </if>
       <if test="issueConfig != null">
         issue_config,
+      </if>
+      <if test="apiTemplateId != null">
+        api_template_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -213,11 +190,11 @@
       <if test="versionEnable != null">
         #{versionEnable,jdbcType=BIT},
       </if>
+      <if test="issueConfig != null">
+        #{issueConfig,jdbcType=VARCHAR},
+      </if>
       <if test="apiTemplateId != null">
         #{apiTemplateId,jdbcType=VARCHAR},
-      </if>
-      <if test="issueConfig != null">
-        #{issueConfig,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -260,31 +237,13 @@
       <if test="record.versionEnable != null">
         version_enable = #{record.versionEnable,jdbcType=BIT},
       </if>
+      <if test="record.issueConfig != null">
+        issue_config = #{record.issueConfig,jdbcType=VARCHAR},
+      </if>
       <if test="record.apiTemplateId != null">
         api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
       </if>
-      <if test="record.issueConfig != null">
-        issue_config = #{record.issueConfig,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update project_extend
-    set id = #{record.id,jdbcType=VARCHAR},
-      tapd_id = #{record.tapdId,jdbcType=VARCHAR},
-      jira_key = #{record.jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
-      azure_devops_id = #{record.azureDevopsId,jdbcType=VARCHAR},
-      case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
-      azure_filter_id = #{record.azureFilterId,jdbcType=VARCHAR},
-      platform = #{record.platform,jdbcType=VARCHAR},
-      third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
-      version_enable = #{record.versionEnable,jdbcType=BIT},
-      api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR},
-      issue_config = #{record.issueConfig,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -301,6 +260,7 @@
       platform = #{record.platform,jdbcType=VARCHAR},
       third_part_template = #{record.thirdPartTemplate,jdbcType=BIT},
       version_enable = #{record.versionEnable,jdbcType=BIT},
+      issue_config = #{record.issueConfig,jdbcType=VARCHAR},
       api_template_id = #{record.apiTemplateId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -336,28 +296,13 @@
       <if test="versionEnable != null">
         version_enable = #{versionEnable,jdbcType=BIT},
       </if>
+      <if test="issueConfig != null">
+        issue_config = #{issueConfig,jdbcType=VARCHAR},
+      </if>
       <if test="apiTemplateId != null">
         api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
       </if>
-      <if test="issueConfig != null">
-        issue_config = #{issueConfig,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.project.domain.ProjectExtend">
-    update project_extend
-    set tapd_id = #{tapdId,jdbcType=VARCHAR},
-      jira_key = #{jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{zentaoId,jdbcType=VARCHAR},
-      azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
-      case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
-      azure_filter_id = #{azureFilterId,jdbcType=VARCHAR},
-      platform = #{platform,jdbcType=VARCHAR},
-      third_part_template = #{thirdPartTemplate,jdbcType=BIT},
-      version_enable = #{versionEnable,jdbcType=BIT},
-      api_template_id = #{apiTemplateId,jdbcType=VARCHAR},
-      issue_config = #{issueConfig,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.ProjectExtend">
@@ -371,6 +316,7 @@
       platform = #{platform,jdbcType=VARCHAR},
       third_part_template = #{thirdPartTemplate,jdbcType=BIT},
       version_enable = #{versionEnable,jdbcType=BIT},
+      issue_config = #{issueConfig,jdbcType=VARCHAR},
       api_template_id = #{apiTemplateId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

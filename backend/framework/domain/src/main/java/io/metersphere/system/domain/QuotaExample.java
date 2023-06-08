@@ -175,243 +175,443 @@ public class QuotaExample {
             return (Criteria) this;
         }
 
-        public Criteria andApiIsNull() {
-            addCriterion("api is null");
+        public Criteria andOrganizationIdIsNull() {
+            addCriterion("organization_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andApiIsNotNull() {
-            addCriterion("api is not null");
+        public Criteria andOrganizationIdIsNotNull() {
+            addCriterion("organization_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andApiEqualTo(Integer value) {
-            addCriterion("api =", value, "api");
+        public Criteria andOrganizationIdEqualTo(String value) {
+            addCriterion("organization_id =", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiNotEqualTo(Integer value) {
-            addCriterion("api <>", value, "api");
+        public Criteria andOrganizationIdNotEqualTo(String value) {
+            addCriterion("organization_id <>", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiGreaterThan(Integer value) {
-            addCriterion("api >", value, "api");
+        public Criteria andOrganizationIdGreaterThan(String value) {
+            addCriterion("organization_id >", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiGreaterThanOrEqualTo(Integer value) {
-            addCriterion("api >=", value, "api");
+        public Criteria andOrganizationIdGreaterThanOrEqualTo(String value) {
+            addCriterion("organization_id >=", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiLessThan(Integer value) {
-            addCriterion("api <", value, "api");
+        public Criteria andOrganizationIdLessThan(String value) {
+            addCriterion("organization_id <", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiLessThanOrEqualTo(Integer value) {
-            addCriterion("api <=", value, "api");
+        public Criteria andOrganizationIdLessThanOrEqualTo(String value) {
+            addCriterion("organization_id <=", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiIn(List<Integer> values) {
-            addCriterion("api in", values, "api");
+        public Criteria andOrganizationIdLike(String value) {
+            addCriterion("organization_id like", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiNotIn(List<Integer> values) {
-            addCriterion("api not in", values, "api");
+        public Criteria andOrganizationIdNotLike(String value) {
+            addCriterion("organization_id not like", value, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiBetween(Integer value1, Integer value2) {
-            addCriterion("api between", value1, value2, "api");
+        public Criteria andOrganizationIdIn(List<String> values) {
+            addCriterion("organization_id in", values, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andApiNotBetween(Integer value1, Integer value2) {
-            addCriterion("api not between", value1, value2, "api");
+        public Criteria andOrganizationIdNotIn(List<String> values) {
+            addCriterion("organization_id not in", values, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceIsNull() {
-            addCriterion("performance is null");
+        public Criteria andOrganizationIdBetween(String value1, String value2) {
+            addCriterion("organization_id between", value1, value2, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceIsNotNull() {
-            addCriterion("performance is not null");
+        public Criteria andOrganizationIdNotBetween(String value1, String value2) {
+            addCriterion("organization_id not between", value1, value2, "organizationId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceEqualTo(Integer value) {
-            addCriterion("performance =", value, "performance");
+        public Criteria andProjectIdIsNull() {
+            addCriterion("project_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceNotEqualTo(Integer value) {
-            addCriterion("performance <>", value, "performance");
+        public Criteria andProjectIdIsNotNull() {
+            addCriterion("project_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceGreaterThan(Integer value) {
-            addCriterion("performance >", value, "performance");
+        public Criteria andProjectIdEqualTo(String value) {
+            addCriterion("project_id =", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceGreaterThanOrEqualTo(Integer value) {
-            addCriterion("performance >=", value, "performance");
+        public Criteria andProjectIdNotEqualTo(String value) {
+            addCriterion("project_id <>", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceLessThan(Integer value) {
-            addCriterion("performance <", value, "performance");
+        public Criteria andProjectIdGreaterThan(String value) {
+            addCriterion("project_id >", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceLessThanOrEqualTo(Integer value) {
-            addCriterion("performance <=", value, "performance");
+        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_id >=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceIn(List<Integer> values) {
-            addCriterion("performance in", values, "performance");
+        public Criteria andProjectIdLessThan(String value) {
+            addCriterion("project_id <", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceNotIn(List<Integer> values) {
-            addCriterion("performance not in", values, "performance");
+        public Criteria andProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("project_id <=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceBetween(Integer value1, Integer value2) {
-            addCriterion("performance between", value1, value2, "performance");
+        public Criteria andProjectIdLike(String value) {
+            addCriterion("project_id like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andPerformanceNotBetween(Integer value1, Integer value2) {
-            addCriterion("performance not between", value1, value2, "performance");
+        public Criteria andProjectIdNotLike(String value) {
+            addCriterion("project_id not like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsIsNull() {
-            addCriterion("max_threads is null");
+        public Criteria andProjectIdIn(List<String> values) {
+            addCriterion("project_id in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsIsNotNull() {
-            addCriterion("max_threads is not null");
+        public Criteria andProjectIdNotIn(List<String> values) {
+            addCriterion("project_id not in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsEqualTo(Integer value) {
-            addCriterion("max_threads =", value, "maxThreads");
+        public Criteria andProjectIdBetween(String value1, String value2) {
+            addCriterion("project_id between", value1, value2, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsNotEqualTo(Integer value) {
-            addCriterion("max_threads <>", value, "maxThreads");
+        public Criteria andProjectIdNotBetween(String value1, String value2) {
+            addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsGreaterThan(Integer value) {
-            addCriterion("max_threads >", value, "maxThreads");
+        public Criteria andFunctionalCaseIsNull() {
+            addCriterion("functional_case is null");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsGreaterThanOrEqualTo(Integer value) {
-            addCriterion("max_threads >=", value, "maxThreads");
+        public Criteria andFunctionalCaseIsNotNull() {
+            addCriterion("functional_case is not null");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsLessThan(Integer value) {
-            addCriterion("max_threads <", value, "maxThreads");
+        public Criteria andFunctionalCaseEqualTo(Integer value) {
+            addCriterion("functional_case =", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsLessThanOrEqualTo(Integer value) {
-            addCriterion("max_threads <=", value, "maxThreads");
+        public Criteria andFunctionalCaseNotEqualTo(Integer value) {
+            addCriterion("functional_case <>", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsIn(List<Integer> values) {
-            addCriterion("max_threads in", values, "maxThreads");
+        public Criteria andFunctionalCaseGreaterThan(Integer value) {
+            addCriterion("functional_case >", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsNotIn(List<Integer> values) {
-            addCriterion("max_threads not in", values, "maxThreads");
+        public Criteria andFunctionalCaseGreaterThanOrEqualTo(Integer value) {
+            addCriterion("functional_case >=", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsBetween(Integer value1, Integer value2) {
-            addCriterion("max_threads between", value1, value2, "maxThreads");
+        public Criteria andFunctionalCaseLessThan(Integer value) {
+            addCriterion("functional_case <", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andMaxThreadsNotBetween(Integer value1, Integer value2) {
-            addCriterion("max_threads not between", value1, value2, "maxThreads");
+        public Criteria andFunctionalCaseLessThanOrEqualTo(Integer value) {
+            addCriterion("functional_case <=", value, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andDurationIsNull() {
-            addCriterion("duration is null");
+        public Criteria andFunctionalCaseIn(List<Integer> values) {
+            addCriterion("functional_case in", values, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andDurationIsNotNull() {
-            addCriterion("duration is not null");
+        public Criteria andFunctionalCaseNotIn(List<Integer> values) {
+            addCriterion("functional_case not in", values, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andDurationEqualTo(Integer value) {
-            addCriterion("duration =", value, "duration");
+        public Criteria andFunctionalCaseBetween(Integer value1, Integer value2) {
+            addCriterion("functional_case between", value1, value2, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andDurationNotEqualTo(Integer value) {
-            addCriterion("duration <>", value, "duration");
+        public Criteria andFunctionalCaseNotBetween(Integer value1, Integer value2) {
+            addCriterion("functional_case not between", value1, value2, "functionalCase");
             return (Criteria) this;
         }
 
-        public Criteria andDurationGreaterThan(Integer value) {
-            addCriterion("duration >", value, "duration");
+        public Criteria andLoadTestVumTotalIsNull() {
+            addCriterion("load_test_vum_total is null");
             return (Criteria) this;
         }
 
-        public Criteria andDurationGreaterThanOrEqualTo(Integer value) {
-            addCriterion("duration >=", value, "duration");
+        public Criteria andLoadTestVumTotalIsNotNull() {
+            addCriterion("load_test_vum_total is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDurationLessThan(Integer value) {
-            addCriterion("duration <", value, "duration");
+        public Criteria andLoadTestVumTotalEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_total =", value, "loadTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andDurationLessThanOrEqualTo(Integer value) {
-            addCriterion("duration <=", value, "duration");
+        public Criteria andLoadTestVumTotalNotEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_total <>", value, "loadTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andDurationIn(List<Integer> values) {
-            addCriterion("duration in", values, "duration");
+        public Criteria andLoadTestVumTotalGreaterThan(BigDecimal value) {
+            addCriterion("load_test_vum_total >", value, "loadTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andDurationNotIn(List<Integer> values) {
-            addCriterion("duration not in", values, "duration");
+        public Criteria andLoadTestVumTotalGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_total >=", value, "loadTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andDurationBetween(Integer value1, Integer value2) {
-            addCriterion("duration between", value1, value2, "duration");
+        public Criteria andLoadTestVumTotalLessThan(BigDecimal value) {
+            addCriterion("load_test_vum_total <", value, "loadTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andDurationNotBetween(Integer value1, Integer value2) {
-            addCriterion("duration not between", value1, value2, "duration");
+        public Criteria andLoadTestVumTotalLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_total <=", value, "loadTestVumTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumTotalIn(List<BigDecimal> values) {
+            addCriterion("load_test_vum_total in", values, "loadTestVumTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumTotalNotIn(List<BigDecimal> values) {
+            addCriterion("load_test_vum_total not in", values, "loadTestVumTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumTotalBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("load_test_vum_total between", value1, value2, "loadTestVumTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumTotalNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("load_test_vum_total not between", value1, value2, "loadTestVumTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedIsNull() {
+            addCriterion("load_test_vum_used is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedIsNotNull() {
+            addCriterion("load_test_vum_used is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_used =", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedNotEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_used <>", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedGreaterThan(BigDecimal value) {
+            addCriterion("load_test_vum_used >", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_used >=", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedLessThan(BigDecimal value) {
+            addCriterion("load_test_vum_used <", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("load_test_vum_used <=", value, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedIn(List<BigDecimal> values) {
+            addCriterion("load_test_vum_used in", values, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedNotIn(List<BigDecimal> values) {
+            addCriterion("load_test_vum_used not in", values, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("load_test_vum_used between", value1, value2, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestVumUsedNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("load_test_vum_used not between", value1, value2, "loadTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsIsNull() {
+            addCriterion("load_test_max_threads is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsIsNotNull() {
+            addCriterion("load_test_max_threads is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsEqualTo(Integer value) {
+            addCriterion("load_test_max_threads =", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsNotEqualTo(Integer value) {
+            addCriterion("load_test_max_threads <>", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsGreaterThan(Integer value) {
+            addCriterion("load_test_max_threads >", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsGreaterThanOrEqualTo(Integer value) {
+            addCriterion("load_test_max_threads >=", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsLessThan(Integer value) {
+            addCriterion("load_test_max_threads <", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsLessThanOrEqualTo(Integer value) {
+            addCriterion("load_test_max_threads <=", value, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsIn(List<Integer> values) {
+            addCriterion("load_test_max_threads in", values, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsNotIn(List<Integer> values) {
+            addCriterion("load_test_max_threads not in", values, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsBetween(Integer value1, Integer value2) {
+            addCriterion("load_test_max_threads between", value1, value2, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestMaxThreadsNotBetween(Integer value1, Integer value2) {
+            addCriterion("load_test_max_threads not between", value1, value2, "loadTestMaxThreads");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationIsNull() {
+            addCriterion("load_test_duration is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationIsNotNull() {
+            addCriterion("load_test_duration is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationEqualTo(Integer value) {
+            addCriterion("load_test_duration =", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationNotEqualTo(Integer value) {
+            addCriterion("load_test_duration <>", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationGreaterThan(Integer value) {
+            addCriterion("load_test_duration >", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationGreaterThanOrEqualTo(Integer value) {
+            addCriterion("load_test_duration >=", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationLessThan(Integer value) {
+            addCriterion("load_test_duration <", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationLessThanOrEqualTo(Integer value) {
+            addCriterion("load_test_duration <=", value, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationIn(List<Integer> values) {
+            addCriterion("load_test_duration in", values, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationNotIn(List<Integer> values) {
+            addCriterion("load_test_duration not in", values, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationBetween(Integer value1, Integer value2) {
+            addCriterion("load_test_duration between", value1, value2, "loadTestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadTestDurationNotBetween(Integer value1, Integer value2) {
+            addCriterion("load_test_duration not between", value1, value2, "loadTestDuration");
             return (Criteria) this;
         }
 
@@ -482,76 +682,6 @@ public class QuotaExample {
 
         public Criteria andResourcePoolNotBetween(String value1, String value2) {
             addCriterion("resource_pool not between", value1, value2, "resourcePool");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdIsNull() {
-            addCriterion("organization_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdIsNotNull() {
-            addCriterion("organization_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdEqualTo(String value) {
-            addCriterion("organization_id =", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdNotEqualTo(String value) {
-            addCriterion("organization_id <>", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdGreaterThan(String value) {
-            addCriterion("organization_id >", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdGreaterThanOrEqualTo(String value) {
-            addCriterion("organization_id >=", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdLessThan(String value) {
-            addCriterion("organization_id <", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdLessThanOrEqualTo(String value) {
-            addCriterion("organization_id <=", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdLike(String value) {
-            addCriterion("organization_id like", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdNotLike(String value) {
-            addCriterion("organization_id not like", value, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdIn(List<String> values) {
-            addCriterion("organization_id in", values, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdNotIn(List<String> values) {
-            addCriterion("organization_id not in", values, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdBetween(String value1, String value2) {
-            addCriterion("organization_id between", value1, value2, "organizationId");
-            return (Criteria) this;
-        }
-
-        public Criteria andOrganizationIdNotBetween(String value1, String value2) {
-            addCriterion("organization_id not between", value1, value2, "organizationId");
             return (Criteria) this;
         }
 
@@ -795,193 +925,303 @@ public class QuotaExample {
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdIsNull() {
-            addCriterion("project_id is null");
+        public Criteria andApiTestVumTotalIsNull() {
+            addCriterion("api_test_vum_total is null");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdIsNotNull() {
-            addCriterion("project_id is not null");
+        public Criteria andApiTestVumTotalIsNotNull() {
+            addCriterion("api_test_vum_total is not null");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdEqualTo(String value) {
-            addCriterion("project_id =", value, "projectId");
+        public Criteria andApiTestVumTotalEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_total =", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdNotEqualTo(String value) {
-            addCriterion("project_id <>", value, "projectId");
+        public Criteria andApiTestVumTotalNotEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_total <>", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdGreaterThan(String value) {
-            addCriterion("project_id >", value, "projectId");
+        public Criteria andApiTestVumTotalGreaterThan(BigDecimal value) {
+            addCriterion("api_test_vum_total >", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
-            addCriterion("project_id >=", value, "projectId");
+        public Criteria andApiTestVumTotalGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_total >=", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdLessThan(String value) {
-            addCriterion("project_id <", value, "projectId");
+        public Criteria andApiTestVumTotalLessThan(BigDecimal value) {
+            addCriterion("api_test_vum_total <", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdLessThanOrEqualTo(String value) {
-            addCriterion("project_id <=", value, "projectId");
+        public Criteria andApiTestVumTotalLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_total <=", value, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdLike(String value) {
-            addCriterion("project_id like", value, "projectId");
+        public Criteria andApiTestVumTotalIn(List<BigDecimal> values) {
+            addCriterion("api_test_vum_total in", values, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdNotLike(String value) {
-            addCriterion("project_id not like", value, "projectId");
+        public Criteria andApiTestVumTotalNotIn(List<BigDecimal> values) {
+            addCriterion("api_test_vum_total not in", values, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdIn(List<String> values) {
-            addCriterion("project_id in", values, "projectId");
+        public Criteria andApiTestVumTotalBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("api_test_vum_total between", value1, value2, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdNotIn(List<String> values) {
-            addCriterion("project_id not in", values, "projectId");
+        public Criteria andApiTestVumTotalNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("api_test_vum_total not between", value1, value2, "apiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdBetween(String value1, String value2) {
-            addCriterion("project_id between", value1, value2, "projectId");
+        public Criteria andApiTestVumUsedIsNull() {
+            addCriterion("api_test_vum_used is null");
             return (Criteria) this;
         }
 
-        public Criteria andProjectIdNotBetween(String value1, String value2) {
-            addCriterion("project_id not between", value1, value2, "projectId");
+        public Criteria andApiTestVumUsedIsNotNull() {
+            addCriterion("api_test_vum_used is not null");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalIsNull() {
-            addCriterion("vum_total is null");
+        public Criteria andApiTestVumUsedEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_used =", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalIsNotNull() {
-            addCriterion("vum_total is not null");
+        public Criteria andApiTestVumUsedNotEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_used <>", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalEqualTo(BigDecimal value) {
-            addCriterion("vum_total =", value, "vumTotal");
+        public Criteria andApiTestVumUsedGreaterThan(BigDecimal value) {
+            addCriterion("api_test_vum_used >", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalNotEqualTo(BigDecimal value) {
-            addCriterion("vum_total <>", value, "vumTotal");
+        public Criteria andApiTestVumUsedGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_used >=", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalGreaterThan(BigDecimal value) {
-            addCriterion("vum_total >", value, "vumTotal");
+        public Criteria andApiTestVumUsedLessThan(BigDecimal value) {
+            addCriterion("api_test_vum_used <", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("vum_total >=", value, "vumTotal");
+        public Criteria andApiTestVumUsedLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("api_test_vum_used <=", value, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalLessThan(BigDecimal value) {
-            addCriterion("vum_total <", value, "vumTotal");
+        public Criteria andApiTestVumUsedIn(List<BigDecimal> values) {
+            addCriterion("api_test_vum_used in", values, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("vum_total <=", value, "vumTotal");
+        public Criteria andApiTestVumUsedNotIn(List<BigDecimal> values) {
+            addCriterion("api_test_vum_used not in", values, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalIn(List<BigDecimal> values) {
-            addCriterion("vum_total in", values, "vumTotal");
+        public Criteria andApiTestVumUsedBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("api_test_vum_used between", value1, value2, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalNotIn(List<BigDecimal> values) {
-            addCriterion("vum_total not in", values, "vumTotal");
+        public Criteria andApiTestVumUsedNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("api_test_vum_used not between", value1, value2, "apiTestVumUsed");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("vum_total between", value1, value2, "vumTotal");
+        public Criteria andUiTestVumTotalIsNull() {
+            addCriterion("ui_test_vum_total is null");
             return (Criteria) this;
         }
 
-        public Criteria andVumTotalNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("vum_total not between", value1, value2, "vumTotal");
+        public Criteria andUiTestVumTotalIsNotNull() {
+            addCriterion("ui_test_vum_total is not null");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedIsNull() {
-            addCriterion("vum_used is null");
+        public Criteria andUiTestVumTotalEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_total =", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedIsNotNull() {
-            addCriterion("vum_used is not null");
+        public Criteria andUiTestVumTotalNotEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_total <>", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedEqualTo(BigDecimal value) {
-            addCriterion("vum_used =", value, "vumUsed");
+        public Criteria andUiTestVumTotalGreaterThan(BigDecimal value) {
+            addCriterion("ui_test_vum_total >", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedNotEqualTo(BigDecimal value) {
-            addCriterion("vum_used <>", value, "vumUsed");
+        public Criteria andUiTestVumTotalGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_total >=", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedGreaterThan(BigDecimal value) {
-            addCriterion("vum_used >", value, "vumUsed");
+        public Criteria andUiTestVumTotalLessThan(BigDecimal value) {
+            addCriterion("ui_test_vum_total <", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("vum_used >=", value, "vumUsed");
+        public Criteria andUiTestVumTotalLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_total <=", value, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedLessThan(BigDecimal value) {
-            addCriterion("vum_used <", value, "vumUsed");
+        public Criteria andUiTestVumTotalIn(List<BigDecimal> values) {
+            addCriterion("ui_test_vum_total in", values, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("vum_used <=", value, "vumUsed");
+        public Criteria andUiTestVumTotalNotIn(List<BigDecimal> values) {
+            addCriterion("ui_test_vum_total not in", values, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedIn(List<BigDecimal> values) {
-            addCriterion("vum_used in", values, "vumUsed");
+        public Criteria andUiTestVumTotalBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("ui_test_vum_total between", value1, value2, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedNotIn(List<BigDecimal> values) {
-            addCriterion("vum_used not in", values, "vumUsed");
+        public Criteria andUiTestVumTotalNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("ui_test_vum_total not between", value1, value2, "uiTestVumTotal");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("vum_used between", value1, value2, "vumUsed");
+        public Criteria andUiTestVumUsedIsNull() {
+            addCriterion("ui_test_vum_used is null");
             return (Criteria) this;
         }
 
-        public Criteria andVumUsedNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("vum_used not between", value1, value2, "vumUsed");
+        public Criteria andUiTestVumUsedIsNotNull() {
+            addCriterion("ui_test_vum_used is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_used =", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedNotEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_used <>", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedGreaterThan(BigDecimal value) {
+            addCriterion("ui_test_vum_used >", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_used >=", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedLessThan(BigDecimal value) {
+            addCriterion("ui_test_vum_used <", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("ui_test_vum_used <=", value, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedIn(List<BigDecimal> values) {
+            addCriterion("ui_test_vum_used in", values, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedNotIn(List<BigDecimal> values) {
+            addCriterion("ui_test_vum_used not in", values, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("ui_test_vum_used between", value1, value2, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andUiTestVumUsedNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("ui_test_vum_used not between", value1, value2, "uiTestVumUsed");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageIsNull() {
+            addCriterion("file_storage is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageIsNotNull() {
+            addCriterion("file_storage is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageEqualTo(Long value) {
+            addCriterion("file_storage =", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageNotEqualTo(Long value) {
+            addCriterion("file_storage <>", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageGreaterThan(Long value) {
+            addCriterion("file_storage >", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageGreaterThanOrEqualTo(Long value) {
+            addCriterion("file_storage >=", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageLessThan(Long value) {
+            addCriterion("file_storage <", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageLessThanOrEqualTo(Long value) {
+            addCriterion("file_storage <=", value, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageIn(List<Long> values) {
+            addCriterion("file_storage in", values, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageNotIn(List<Long> values) {
+            addCriterion("file_storage not in", values, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageBetween(Long value1, Long value2) {
+            addCriterion("file_storage between", value1, value2, "fileStorage");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileStorageNotBetween(Long value1, Long value2) {
+            addCriterion("file_storage not between", value1, value2, "fileStorage");
             return (Criteria) this;
         }
     }
