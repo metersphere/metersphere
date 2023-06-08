@@ -1,11 +1,10 @@
 import dayjsLocale from 'dayjs/locale/zh-cn';
 import localeSettings from './settings';
 import sys from './sys';
-import localeMessageBox from '@/components/message-box/locale/zh-CN';
-import minder from '@/components/minder-editor/locale/zh-CN';
+import localeMessageBox from '@/components/pure/message-box/locale/zh-CN';
+import minder from '@/components/pure/minder-editor/locale/zh-CN';
 import localeLogin from '@/views/login/locale/zh-CN';
-import localeWorkplace from '@/views/dashboard/workplace/locale/zh-CN';
-import localeThemebox from '@/components/theme-box/locale/zh-CN';
+import localeTable from '@/components/pure/ms-table/locale/zh-CN';
 import localeApiTest from '@/views/api-test/locale/zh-CN';
 
 export default {
@@ -30,9 +29,8 @@ export default {
     ...localeSettings,
     ...localeMessageBox,
     ...localeLogin,
-    ...localeWorkplace,
     ...minder,
-    ...localeThemebox,
+    ...localeTable,
     ...localeApiTest,
   },
   dayjsLocale,

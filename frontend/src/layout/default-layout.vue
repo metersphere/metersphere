@@ -48,10 +48,10 @@
   import { ref, computed, watch, provide, onMounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
   import { useAppStore, useUserStore } from '@/store';
-  import NavBar from '@/components/navbar/index.vue';
-  import Menu from '@/components/menu/index.vue';
-  import Footer from '@/components/footer/index.vue';
-  import TabBar from '@/components/tab-bar/index.vue';
+  import NavBar from '@/components/pure/navbar/index.vue';
+  import Menu from '@/components/pure/menu/index.vue';
+  import Footer from '@/components/pure/footer/index.vue';
+  import TabBar from '@/components/pure/tab-bar/index.vue';
   import usePermission from '@/hooks/usePermission';
   import useResponsive from '@/hooks/useResponsive';
   import PageLayout from './page-layout.vue';

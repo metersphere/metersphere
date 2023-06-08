@@ -1,13 +1,14 @@
-import { TableColumnData, TableData, TableDraggable } from '@arco-design/web-vue';
+import { TableColumnData, TableData, TableDraggable, TableChangeExtra } from '@arco-design/web-vue';
 
 export interface MsPaginationI {
-  pageSize?: number;
-  total?: number;
-  current?: number;
+  current: number;
+  pageSize: number;
+  total: number;
+  showPageSize: boolean;
 }
 
 // 表格属性
-export interface MsTabelProps extends MsPaginationI {
+export interface MsTabelProps {
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: TableColumnData[];
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
@@ -20,6 +21,7 @@ export interface MsTabelProps extends MsPaginationI {
     y?: number | string;
   };
   // 表格是否可拖拽
+  enableDrag?: boolean;
   draggable?: TableDraggable;
   // 表格是否可编辑
   editable?: boolean;
@@ -29,6 +31,8 @@ export interface MsTabelProps extends MsPaginationI {
   sortable?: boolean;
   // 表格是否可选中
   selectable?: boolean;
+  // 展示自定义全选
+  showSelectAll?: boolean;
   // 表格是否可展开
   expandable?: boolean;
   // 表格是否可固定表头
@@ -41,9 +45,28 @@ export interface MsTabelProps extends MsPaginationI {
   loading?: boolean;
   bordered?: boolean;
   // pagination
-  pagination?: MsPaginationI;
+  pagination: MsPaginationI | boolean;
   [key: string]: any;
+}
+
+export interface MsTableSelectAll {
+  value: boolean;
+  total: number;
+  current: number;
+  type: 'all' | 'page';
 }
 
 export type MsTableData = TableData[];
 export type MsTableColumn = TableColumnData[];
+export type MSTableChangeExtra = TableChangeExtra;
+
+// eslint-disable-next-line no-shadow
+export enum SelectAllEnum {
+  ALL = 'all',
+  CURRENT = 'current',
+  NONE = 'none',
+}
+
+export interface SortItem {
+  [key: string]: string;
+}
