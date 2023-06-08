@@ -3,11 +3,16 @@
 <mapper namespace="io.metersphere.system.mapper.OrganizationMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.Organization">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    <result column="enable" jdbcType="BIT" property="enable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, description, create_time, update_time, create_user
+    id, num, `name`, description, create_time, update_time, create_user, deleted, delete_user, 
+    delete_time, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.OrganizationExample" resultMap="BaseResultMap">
     select
@@ -101,18 +107,23 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.Organization">
-    insert into organization (id, `name`, description, 
-      create_time, update_time, create_user
-      )
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
-      )
+    insert into organization (id, num, `name`, 
+      description, create_time, update_time, 
+      create_user, deleted, delete_user, 
+      delete_time, `enable`)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Organization">
     insert into organization
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="name != null">
         `name`,
@@ -129,10 +140,25 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="deleteUser != null">
+        delete_user,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -149,6 +175,18 @@
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deleteUser != null">
+        #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.system.domain.OrganizationExample" resultType="java.lang.Long">
@@ -162,6 +200,9 @@
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -178,6 +219,18 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
+      <if test="record.deleteUser != null">
+        delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -186,11 +239,16 @@
   <update id="updateByExample" parameterType="map">
     update organization
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
+      delete_user = #{record.deleteUser,jdbcType=VARCHAR},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      `enable` = #{record.enable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -198,6 +256,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.Organization">
     update organization
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
@@ -213,16 +274,33 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deleteUser != null">
+        delete_user = #{deleteUser,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.Organization">
     update organization
-    set `name` = #{name,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
+      delete_user = #{deleteUser,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

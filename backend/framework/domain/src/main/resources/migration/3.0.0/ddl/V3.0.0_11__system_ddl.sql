@@ -1,97 +1,88 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
---
--- Table structure for table `auth_source`
---
-
-CREATE TABLE IF NOT EXISTS `auth_source`
+DROP TABLE IF EXISTS auth_source;
+CREATE TABLE auth_source
 (
     `id`            VARCHAR(50) NOT NULL COMMENT '认证源ID',
     `configuration` BLOB        NOT NULL COMMENT '认证源配置',
-    `status`        VARCHAR(64) NOT NULL COMMENT '状态 启用 禁用',
+    `enable`        BIT         NOT NULL DEFAULT 1 COMMENT '是否启用',
     `create_time`   BIGINT      NOT NULL COMMENT '创建时间',
     `update_time`   BIGINT      NOT NULL COMMENT '更新时间',
-    `description`   VARCHAR(500) DEFAULT NULL COMMENT '描述',
-    `name`          VARCHAR(255) DEFAULT NULL COMMENT '名称',
-    `type`          VARCHAR(30)  DEFAULT NULL COMMENT '类型',
-    PRIMARY KEY (`id`),
-    KEY `idx_name` (`name`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`)
+    `description`   VARCHAR(500) COMMENT '描述',
+    `name`          VARCHAR(255) COMMENT '名称',
+    `type`          VARCHAR(30) COMMENT '类型',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='三方认证源';
+  COLLATE = utf8mb4_general_ci COMMENT = '三方认证源';
 
---
--- Table structure for table `user_role`
---
 
-CREATE TABLE IF NOT EXISTS `user_role`
+CREATE INDEX idx_name ON auth_source (`name`);
+CREATE INDEX idx_create_time ON auth_source (`create_time`);
+CREATE INDEX idx_update_time ON auth_source (`update_time`);
+
+DROP TABLE IF EXISTS user_role;
+CREATE TABLE user_role
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '组名称',
-    `description` VARCHAR(500) DEFAULT NULL COMMENT '描述',
-    `system`      BIT(1)       NOT NULL COMMENT '是否是系统用户组',
-    `type`        VARCHAR(20)  NOT NULL COMMENT '所属类型',
+    `description` VARCHAR(500) COMMENT '描述',
+    `internal`    BIT          NOT NULL COMMENT '是否是内置用户组',
+    `type`        VARCHAR(20)  NOT NULL COMMENT '所属类型 SYSTEM ORGANIZATION PROJECT',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人(操作人）',
     `scope_id`    VARCHAR(50)  NOT NULL COMMENT '应用范围',
-    PRIMARY KEY (`id`),
-    KEY `idx_group_name` (`name`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_create_user` (`create_user`),
-    KEY `idx_scope_id` (`scope_id`),
-    KEY `idx_update_time` (`update_time`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户组';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户组';
 
---
--- Table structure for table `license`
---
 
-CREATE TABLE IF NOT EXISTS `license`
+CREATE INDEX idx_group_name ON user_role (`name`);
+CREATE INDEX idx_create_time ON user_role (`create_time`);
+CREATE INDEX idx_create_user ON user_role (`create_user`);
+CREATE INDEX idx_scope_id ON user_role (`scope_id`);
+CREATE INDEX idx_update_time ON user_role (`update_time`);
+
+DROP TABLE IF EXISTS license;
+CREATE TABLE license
 (
     `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
     `create_time`  BIGINT      NOT NULL COMMENT 'Create timestamp',
     `update_time`  BIGINT      NOT NULL COMMENT 'Update timestamp',
     `license_code` LONGTEXT COMMENT 'license_code',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci;
+  COLLATE = utf8mb4_general_ci COMMENT = '';
 
---
--- Table structure for table `message_task`
---
-
-CREATE TABLE IF NOT EXISTS `message_task`
+DROP TABLE IF EXISTS message_task;
+CREATE TABLE message_task
 (
-    `id`          VARCHAR(50)  NOT NULL,
+    `id`          VARCHAR(50)  NOT NULL COMMENT '',
     `type`        VARCHAR(50)  NOT NULL COMMENT '消息类型',
     `event`       VARCHAR(255) NOT NULL COMMENT '通知事件类型',
     `receiver`    VARCHAR(50)  NOT NULL COMMENT '接收人id',
     `task_type`   VARCHAR(64)  NOT NULL COMMENT '任务类型',
-    `webhook`     VARCHAR(255)          DEFAULT NULL COMMENT 'webhook地址',
+    `webhook`     VARCHAR(255) COMMENT 'webhook地址',
     `test_id`     VARCHAR(50)  NOT NULL DEFAULT 'none' COMMENT '具体测试的ID',
-    `create_time` BIGINT       NOT NULL DEFAULT '0' COMMENT '创建时间',
+    `create_time` BIGINT       NOT NULL DEFAULT 0 COMMENT '创建时间',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    PRIMARY KEY (`id`),
-    KEY `idx_project_id` (`project_id`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_receiver` (`receiver`),
-    KEY `idx_test_id` (`test_id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='消息通知任务';
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务';
 
---
--- Table structure for table `notification`
---
 
-CREATE TABLE IF NOT EXISTS `notification`
+CREATE INDEX idx_project_id ON message_task (`project_id`);
+CREATE INDEX idx_create_time ON message_task (`create_time`);
+CREATE INDEX idx_receiver ON message_task (`receiver`);
+CREATE INDEX idx_test_id ON message_task (`test_id`);
+
+DROP TABLE IF EXISTS notification;
+CREATE TABLE notification
 (
     `id`            BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `type`          VARCHAR(30)  NOT NULL COMMENT '通知类型',
@@ -104,194 +95,183 @@ CREATE TABLE IF NOT EXISTS `notification`
     `resource_id`   VARCHAR(50)  NOT NULL COMMENT '资源ID',
     `resource_type` VARCHAR(50)  NOT NULL COMMENT '资源类型',
     `resource_name` VARCHAR(255) NOT NULL COMMENT '资源名称',
-    PRIMARY KEY (`id`),
-    KEY `idx_receiver` (`receiver`),
-    KEY `idx_receiver_type` (`receiver`, `type`),
-    KEY `idx_notification_create_time` (`create_time`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='消息通知';
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知';
 
---
--- Table structure for table `novice_statistics`
---
 
-CREATE TABLE IF NOT EXISTS `novice_statistics`
+CREATE INDEX idx_receiver ON notification (`receiver`);
+CREATE INDEX idx_receiver_type ON notification (`receiver`, `type`);
+CREATE INDEX idx_notification_create_time ON notification (`create_time`);
+
+DROP TABLE IF EXISTS novice_statistics;
+CREATE TABLE novice_statistics
 (
-    `id`          VARCHAR(50) NOT NULL,
-    `user_id`     VARCHAR(50)          DEFAULT NULL COMMENT '用户id',
-    `guide_step`  BIT(1)      NOT NULL DEFAULT b'0' COMMENT '新手引导完成的步骤',
-    `guide_num`   INT         NOT NULL DEFAULT '1' COMMENT '新手引导的次数',
+    `id`          VARCHAR(50) NOT NULL COMMENT '',
+    `user_id`     VARCHAR(50) COMMENT '用户id',
+    `guide_step`  BIT         NOT NULL DEFAULT 0 COMMENT '新手引导完成的步骤',
+    `guide_num`   INT         NOT NULL DEFAULT 1 COMMENT '新手引导的次数',
     `data_option` LONGBLOB COMMENT 'data option (JSON format)',
-    `create_time` BIGINT               DEFAULT NULL,
-    `update_time` BIGINT               DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    `create_time` BIGINT COMMENT '',
+    `update_time` BIGINT COMMENT '',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='新手村';
+  COLLATE = utf8mb4_general_ci COMMENT = '新手村';
 
---
--- Table structure for table `operating_log`
---
-
-CREATE TABLE IF NOT EXISTS `operating_log`
+DROP TABLE IF EXISTS operating_log;
+CREATE TABLE operating_log
 (
     `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
     `project_id`   VARCHAR(50) NOT NULL COMMENT '项目ID',
-    `oper_method`  VARCHAR(500)  DEFAULT NULL COMMENT 'operating method',
-    `create_user`  VARCHAR(100)  DEFAULT NULL COMMENT '创建人',
-    `oper_user`    VARCHAR(50)   DEFAULT NULL COMMENT '操作人',
-    `source_id`    VARCHAR(6000) DEFAULT NULL COMMENT '资源ID',
-    `oper_type`    VARCHAR(100)  DEFAULT NULL COMMENT '操作类型',
-    `oper_module`  VARCHAR(100)  DEFAULT NULL COMMENT '操作模块',
-    `oper_title`   VARCHAR(6000) DEFAULT NULL COMMENT '操作标题',
-    `oper_path`    VARCHAR(500)  DEFAULT NULL COMMENT '操作路径',
+    `oper_method`  VARCHAR(500) COMMENT 'operating method',
+    `create_user`  VARCHAR(100) COMMENT '创建人',
+    `oper_user`    VARCHAR(50) COMMENT '操作人',
+    `source_id`    VARCHAR(6000) COMMENT '资源ID',
+    `oper_type`    VARCHAR(100) COMMENT '操作类型',
+    `oper_module`  VARCHAR(100) COMMENT '操作模块',
+    `oper_title`   VARCHAR(6000) COMMENT '操作标题',
+    `oper_path`    VARCHAR(500) COMMENT '操作路径',
     `oper_content` LONGBLOB COMMENT '操作内容',
     `oper_params`  LONGBLOB COMMENT '操作参数',
     `oper_time`    BIGINT      NOT NULL COMMENT '操作时间',
-    PRIMARY KEY (`id`),
-    KEY `idx_oper_module` (`oper_module`),
-    KEY `idx_oper_project_id` (`project_id`),
-    KEY `idx_oper_time_index` (`oper_time`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='操作日志';
+  COLLATE = utf8mb4_general_ci COMMENT = '操作日志';
 
---
--- Table structure for table `operating_log_resource`
---
 
-CREATE TABLE IF NOT EXISTS `operating_log_resource`
+CREATE INDEX idx_oper_module ON operating_log (`oper_module`);
+CREATE INDEX idx_oper_project_id ON operating_log (`project_id`);
+CREATE INDEX idx_oper_time_index ON operating_log (`oper_time`);
+
+DROP TABLE IF EXISTS operating_log_resource;
+CREATE TABLE operating_log_resource
 (
     `id`               VARCHAR(50) NOT NULL COMMENT 'ID',
     `operating_log_id` VARCHAR(50) NOT NULL COMMENT 'Operating log ID',
     `source_id`        VARCHAR(50) NOT NULL COMMENT 'operating source id',
-    PRIMARY KEY (`id`),
-    KEY `operating_log_id_index` (`operating_log_id`),
-    KEY `source_id_index` (`source_id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='操作日志关系记录';
+  COLLATE = utf8mb4_general_ci COMMENT = '操作日志关系记录';
 
---
--- Table structure for table `plugin`
---
 
-CREATE TABLE IF NOT EXISTS `plugin`
+CREATE INDEX operating_log_id_index ON operating_log_resource (`operating_log_id`);
+CREATE INDEX source_id_index ON operating_log_resource (`source_id`);
+
+DROP TABLE IF EXISTS plugin;
+CREATE TABLE plugin
 (
     `id`           VARCHAR(50)  NOT NULL COMMENT 'ID',
-    `name`         VARCHAR(255) DEFAULT NULL COMMENT 'plugin name',
+    `name`         VARCHAR(255) COMMENT 'plugin name',
     `plugin_id`    VARCHAR(300) NOT NULL COMMENT 'Plugin id',
     `script_id`    VARCHAR(300) NOT NULL COMMENT 'Ui script id',
     `clazz_name`   VARCHAR(500) NOT NULL COMMENT 'Plugin clazzName',
     `jmeter_clazz` VARCHAR(300) NOT NULL COMMENT 'Jmeter base clazzName',
     `source_path`  VARCHAR(300) NOT NULL COMMENT 'Plugin jar path',
     `source_name`  VARCHAR(300) NOT NULL COMMENT 'Plugin jar name',
-    `exec_entry`   VARCHAR(300) DEFAULT NULL COMMENT 'plugin init entry class',
-    `create_time`  BIGINT       DEFAULT NULL,
-    `update_time`  BIGINT       DEFAULT NULL,
-    `create_user`  VARCHAR(50)  DEFAULT NULL,
-    `xpack`        BIT(1)       DEFAULT NULL COMMENT 'Is xpack plugin',
+    `exec_entry`   VARCHAR(300) COMMENT 'plugin init entry class',
+    `create_time`  BIGINT COMMENT '',
+    `update_time`  BIGINT COMMENT '',
+    `create_user`  VARCHAR(50) COMMENT '',
+    `xpack`        BIT COMMENT 'Is xpack plugin',
     `scenario`     VARCHAR(50)  NOT NULL COMMENT 'Plugin usage scenarios',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='插件';
+  COLLATE = utf8mb4_general_ci COMMENT = '插件';
 
---
--- Table structure for table `quota`
---
-
-CREATE TABLE IF NOT EXISTS `quota`
+DROP TABLE IF EXISTS quota;
+CREATE TABLE quota
 (
-    `id`              VARCHAR(50) NOT NULL,
-    `api`             INT            DEFAULT NULL COMMENT '接口数量',
-    `performance`     INT            DEFAULT NULL COMMENT '性能测试数量',
-    `max_threads`     INT            DEFAULT NULL COMMENT '最大并发数',
-    `duration`        INT            DEFAULT NULL COMMENT '最大执行时长',
-    `resource_pool`   VARCHAR(1000)  DEFAULT NULL COMMENT '资源池列表',
-    `organization_id` VARCHAR(50)    DEFAULT NULL COMMENT '组织ID',
-    `use_default`     BIT(1)         DEFAULT NULL COMMENT '是否使用默认值',
-    `update_time`     BIGINT         DEFAULT NULL COMMENT '更新时间',
-    `member`          INT            DEFAULT NULL COMMENT '成员数量限制',
-    `project`         INT            DEFAULT NULL COMMENT '项目数量限制',
-    `project_id`      VARCHAR(50)    DEFAULT NULL COMMENT '项目类型配额',
-    `vum_total`       DECIMAL(10, 2) DEFAULT NULL COMMENT '总vum数',
-    `vum_used`        DECIMAL(10, 2) DEFAULT NULL COMMENT '消耗的vum数',
-    PRIMARY KEY (`id`),
-    KEY `idx_quota_project_id` (`project_id`),
-    KEY `idx_quota_organization_id` (`organization_id`)
+    `id`                    VARCHAR(50) NOT NULL COMMENT '',
+    `organization_id`       VARCHAR(50) COMMENT '组织ID',
+    `project_id`            VARCHAR(50) COMMENT '项目类型配额',
+    `functional_case`       INT COMMENT '功能用例数量',
+    `load_test_vum_total`   DECIMAL(10, 2) COMMENT '总vum数',
+    `load_test_vum_used`    DECIMAL(10, 2) COMMENT '消耗的vum数',
+    `load_test_max_threads` INT COMMENT '最大并发数',
+    `load_test_duration`    INT COMMENT '最大执行时长',
+    `resource_pool`         VARCHAR(1000) COMMENT '资源池列表',
+    `use_default`           BIT COMMENT '是否使用默认值',
+    `update_time`           BIGINT COMMENT '更新时间',
+    `member`                INT COMMENT '成员数量限制',
+    `project`               INT COMMENT '项目数量限制',
+    `api_test_vum_total`    DECIMAL(10, 2) COMMENT '总vum数',
+    `api_test_vum_used`     DECIMAL(10, 2) COMMENT '消耗的vum数',
+    `ui_test_vum_total`     DECIMAL(10, 2) COMMENT '总vum数',
+    `ui_test_vum_used`      DECIMAL(10, 2) COMMENT '消耗的vum数',
+    `file_storage`          BIGINT COMMENT '文件大小限制',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='配额';
+  COLLATE = utf8mb4_general_ci COMMENT = '配额';
 
---
--- Table structure for table `schedule`
---
 
-CREATE TABLE IF NOT EXISTS `schedule`
+CREATE INDEX idx_quota_project_id ON quota (`project_id`);
+CREATE INDEX idx_quota_workspace_id ON quota (`organization_id`);
+
+DROP TABLE IF EXISTS schedule;
+CREATE TABLE schedule
 (
-    `id`          VARCHAR(50)  NOT NULL,
-    `key`         VARCHAR(50)   DEFAULT NULL COMMENT 'qrtz UUID',
+    `id`          VARCHAR(50)  NOT NULL COMMENT '',
+    `key`         VARCHAR(50) COMMENT 'qrtz UUID',
     `type`        VARCHAR(50)  NOT NULL COMMENT '资源类型',
-    `value`       VARCHAR(255) NOT NULL COMMENT 'Schedule value',
+    `value`       VARCHAR(255) NOT NULL COMMENT 'cron 表达式',
     `job`         VARCHAR(64)  NOT NULL COMMENT 'Schedule Job Class Name',
-    `enable`      BIT(1)        DEFAULT NULL COMMENT 'Schedule Eable',
-    `resource_id` VARCHAR(50)   DEFAULT NULL,
+    `enable`      BIT COMMENT '是否开启',
+    `resource_id` VARCHAR(50) COMMENT '资源ID，api_scenario ui_scenario load_test',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
-    `create_time` BIGINT        DEFAULT NULL COMMENT 'Create timestamp',
-    `update_time` BIGINT        DEFAULT NULL COMMENT 'Update timestamp',
-    `project_id`  VARCHAR(50)   DEFAULT NULL COMMENT '项目ID',
-    `name`        VARCHAR(255)  DEFAULT NULL COMMENT '名称',
-    `config`      VARCHAR(1000) DEFAULT NULL COMMENT '配置',
-    PRIMARY KEY (`id`),
-    KEY `idx_resource_id` (`resource_id`),
-    KEY `idx_create_user` (`create_user`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`),
-    KEY `idx_project_id` (`project_id`),
-    KEY `idx_enable` (`enable`),
-    KEY `idx_name` (`name`),
-    KEY `idx_type` (`type`)
+    `create_time` BIGINT       NOT NULL COMMENT '创建时间',
+    `update_time` BIGINT       NOT NULL COMMENT '更新时间',
+    `project_id`  VARCHAR(50) COMMENT '项目ID',
+    `name`        VARCHAR(100) COMMENT '名称',
+    `config`      VARCHAR(1000) COMMENT '配置',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='定时任务';
+  COLLATE = utf8mb4_general_ci COMMENT = '定时任务';
 
---
--- Table structure for table `service_integration`
---
 
-CREATE TABLE IF NOT EXISTS `service_integration`
+CREATE INDEX idx_resource_id ON schedule (`resource_id`);
+CREATE INDEX idx_create_user ON schedule (`create_user`);
+CREATE INDEX idx_create_time ON schedule (`create_time`);
+CREATE INDEX idx_update_time ON schedule (`update_time`);
+CREATE INDEX idx_project_id ON schedule (`project_id`);
+CREATE INDEX idx_enable ON schedule (`enable`);
+CREATE INDEX idx_name ON schedule (`name`);
+CREATE INDEX idx_type ON schedule (`type`);
+
+DROP TABLE IF EXISTS service_integration;
+CREATE TABLE service_integration
 (
-    `id`              VARCHAR(50) NOT NULL,
+    `id`              VARCHAR(50) NOT NULL COMMENT '',
     `platform`        VARCHAR(50) NOT NULL COMMENT '平台',
-    `configuration`   BLOB        NOT NULL,
-    `organization_id` VARCHAR(50) DEFAULT NULL COMMENT '组织ID',
-    PRIMARY KEY (`id`),
-    KEY `idx_organization_id` (`organization_id`)
+    `configuration`   BLOB        NOT NULL COMMENT '',
+    `organization_id` VARCHAR(50) COMMENT '组织ID',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='服务集成';
+  COLLATE = utf8mb4_general_ci COMMENT = '服务集成';
 
---
--- Table structure for table `system_parameter`
---
 
-CREATE TABLE IF NOT EXISTS `system_parameter`
+CREATE INDEX idx_workspace_id ON service_integration (`organization_id`);
+
+DROP TABLE IF EXISTS system_parameter;
+CREATE TABLE system_parameter
 (
     `param_key`   VARCHAR(64)  NOT NULL COMMENT '参数名称',
-    `param_value` VARCHAR(255)          DEFAULT NULL COMMENT '参数值',
+    `param_value` VARCHAR(255) COMMENT '参数值',
     `type`        VARCHAR(100) NOT NULL DEFAULT 'text' COMMENT '类型',
-    PRIMARY KEY (`param_key`)
+    PRIMARY KEY (param_key)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='系统参数';
+  COLLATE = utf8mb4_general_ci COMMENT = '系统参数';
 
---
--- Table structure for table `test_resource`
---
-
-CREATE TABLE IF NOT EXISTS `test_resource`
+DROP TABLE IF EXISTS test_resource;
+CREATE TABLE test_resource
 (
     `id`                    VARCHAR(50) NOT NULL COMMENT '资源节点ID',
     `test_resource_pool_id` VARCHAR(50) NOT NULL COMMENT '资源池ID',
@@ -299,81 +279,83 @@ CREATE TABLE IF NOT EXISTS `test_resource`
     `status`                VARCHAR(20) NOT NULL COMMENT '资源节点状态',
     `create_time`           BIGINT      NOT NULL COMMENT '创建时间',
     `update_time`           BIGINT      NOT NULL COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    KEY `idx_resource_pool_id` (`test_resource_pool_id`),
-    KEY `idx_status` (`status`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='测试资源池节点';
+  COLLATE = utf8mb4_general_ci COMMENT = '测试资源池节点';
 
---
--- Table structure for table `test_resource_pool`
---
 
-CREATE TABLE IF NOT EXISTS `test_resource_pool`
+CREATE INDEX idx_resource_pool_id ON test_resource (`test_resource_pool_id`);
+CREATE INDEX idx_status ON test_resource (`status`);
+CREATE INDEX idx_create_time ON test_resource (`create_time`);
+CREATE INDEX idx_update_time ON test_resource (`update_time`);
+
+DROP TABLE IF EXISTS test_resource_pool;
+CREATE TABLE test_resource_pool
 (
-    `id`          VARCHAR(50)  NOT NULL COMMENT '资源池ID',
-    `name`        VARCHAR(255) NOT NULL COMMENT '名称',
-    `type`        VARCHAR(30)  NOT NULL COMMENT '类型',
-    `description` VARCHAR(500) DEFAULT NULL COMMENT '描述',
-    `status`      VARCHAR(20)  NOT NULL COMMENT '状态',
-    `create_time` BIGINT       NOT NULL COMMENT '创建时间',
-    `update_time` BIGINT       NOT NULL COMMENT '更新时间',
-    `image`       VARCHAR(100) DEFAULT NULL COMMENT '性能测试镜像',
-    `heap`        VARCHAR(200) DEFAULT NULL COMMENT '性能测试jvm配置',
-    `gc_algo`     VARCHAR(200) DEFAULT NULL COMMENT '性能测试gc配置',
-    `create_user` VARCHAR(50)  DEFAULT NULL COMMENT '创建人',
-    `api`         BIT(1)       DEFAULT NULL COMMENT '是否用于接口测试',
-    `performance` BIT(1)       DEFAULT NULL COMMENT '是否用于性能测试',
-    PRIMARY KEY (`id`),
-    KEY `idx_name` (`name`),
-    KEY `idx_type` (`type`),
-    KEY `idx_status` (`status`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`),
-    KEY `idx_create_user` (`create_user`)
+    `id`              VARCHAR(50)  NOT NULL COMMENT '资源池ID',
+    `name`            VARCHAR(255) NOT NULL COMMENT '名称',
+    `type`            VARCHAR(30)  NOT NULL COMMENT '类型',
+    `description`     VARCHAR(500) COMMENT '描述',
+    `enable`          BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
+    `create_time`     BIGINT       NOT NULL COMMENT '创建时间',
+    `update_time`     BIGINT       NOT NULL COMMENT '更新时间',
+    `load_test_image` VARCHAR(100) COMMENT '性能测试镜像',
+    `load_test_heap`  VARCHAR(200) COMMENT '性能测试jvm配置',
+    `create_user`     VARCHAR(50) COMMENT '创建人',
+    `api_test`        BIT COMMENT '是否用于接口测试',
+    `load_test`       BIT COMMENT '是否用于性能测试',
+    `ui_test`         BIT COMMENT '是否用于ui测试',
+    `grid`            VARCHAR(255) COMMENT 'ui测试grid配置',
+    `server_url`      VARCHAR(255) COMMENT 'ms部署地址',
+    `deleted`         BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='测试资源池';
+  COLLATE = utf8mb4_general_ci COMMENT = '测试资源池';
 
---
--- Table structure for table `user`
---
 
-CREATE TABLE IF NOT EXISTS `user`
+CREATE INDEX idx_name ON test_resource_pool (`name`);
+CREATE INDEX idx_type ON test_resource_pool (`type`);
+CREATE INDEX idx_status ON test_resource_pool (`enable`);
+CREATE INDEX idx_create_time ON test_resource_pool (`create_time`);
+CREATE INDEX idx_update_time ON test_resource_pool (`update_time`);
+CREATE INDEX idx_create_user ON test_resource_pool (`create_user`);
+
+DROP TABLE IF EXISTS user;
+CREATE TABLE user
 (
     `id`                   VARCHAR(50)  NOT NULL COMMENT '用户ID',
     `name`                 VARCHAR(255) NOT NULL COMMENT '用户名',
     `email`                VARCHAR(64)  NOT NULL COMMENT '用户邮箱',
-    `password`             VARCHAR(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户密码',
-    `status`               VARCHAR(50)  NOT NULL COMMENT '用户状态，启用或禁用',
+    `password`             VARCHAR(256) COMMENT '用户密码',
+    `enable`               BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
     `create_time`          BIGINT       NOT NULL COMMENT '创建时间',
     `update_time`          BIGINT       NOT NULL COMMENT '更新时间',
-    `language`             VARCHAR(30)                                            DEFAULT NULL COMMENT '语言',
-    `last_organization_id` VARCHAR(50)                                            DEFAULT NULL COMMENT '当前组织ID',
-    `phone`                VARCHAR(50)                                            DEFAULT NULL COMMENT '手机号',
-    `source`               VARCHAR(50)  NOT NULL COMMENT '来源：LOCAL OIDC CAS',
-    `last_project_id`      VARCHAR(50)                                            DEFAULT NULL COMMENT '当前项目ID',
+    `language`             VARCHAR(30) COMMENT '语言',
+    `last_organization_id` VARCHAR(50) COMMENT '当前组织ID',
+    `phone`                VARCHAR(50) COMMENT '手机号',
+    `source`               VARCHAR(50)  NOT NULL COMMENT '来源：LOCAL OIDC CAS OAUTH2',
+    `last_project_id`      VARCHAR(50) COMMENT '当前项目ID',
     `create_user`          VARCHAR(50)  NOT NULL COMMENT '创建人',
-    PRIMARY KEY (`id`),
-    KEY `idx_name` (`name`),
-    KEY `idx_email` (`email`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`),
-    KEY `idx_organization_id` (`last_organization_id`),
-    KEY `idx_project_id` (`last_project_id`),
-    KEY `idx_create_user` (`create_user`)
+    `update_user`          VARCHAR(50)  NOT NULL COMMENT '修改人',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户';
 
---
--- Table structure for table `user_role_relation`
---
 
-CREATE TABLE IF NOT EXISTS `user_role_relation`
+CREATE INDEX idx_name ON user (`name`);
+CREATE UNIQUE INDEX idx_email ON user (`email`);
+CREATE INDEX idx_create_time ON user (`create_time`);
+CREATE INDEX idx_update_time ON user (`update_time`);
+CREATE INDEX idx_organization_id ON user (`last_organization_id`);
+CREATE INDEX idx_project_id ON user (`last_project_id`);
+CREATE INDEX idx_create_user ON user (`update_user`);
+CREATE INDEX idx_update_user ON user (`update_user`);
+
+DROP TABLE IF EXISTS user_role_relation;
+CREATE TABLE user_role_relation
 (
     `id`          VARCHAR(50) NOT NULL COMMENT '用户组关系ID',
     `user_id`     VARCHAR(50) NOT NULL COMMENT '用户ID',
@@ -381,113 +363,111 @@ CREATE TABLE IF NOT EXISTS `user_role_relation`
     `source_id`   VARCHAR(50) NOT NULL COMMENT '组织或项目ID',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    KEY `idx_user_id` (`user_id`),
-    KEY `idx_group_id` (`role_id`),
-    KEY `idx_source_id` (`source_id`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户组关系';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户组关系';
 
---
--- Table structure for table `user_role_permission`
---
 
-CREATE TABLE IF NOT EXISTS `user_role_permission`
+CREATE INDEX idx_user_id ON user_role_relation (`user_id`);
+CREATE INDEX idx_group_id ON user_role_relation (`role_id`);
+CREATE INDEX idx_source_id ON user_role_relation (`source_id`);
+CREATE INDEX idx_create_time ON user_role_relation (`create_time`);
+CREATE INDEX idx_update_time ON user_role_relation (`update_time`);
+
+DROP TABLE IF EXISTS user_role_permission;
+CREATE TABLE user_role_permission
 (
-    `id`            VARCHAR(64)  NOT NULL,
+    `id`            VARCHAR(64)  NOT NULL COMMENT '',
     `role_id`       VARCHAR(64)  NOT NULL COMMENT '用户组ID',
     `permission_id` VARCHAR(128) NOT NULL COMMENT '权限ID',
     `module_id`     VARCHAR(64)  NOT NULL COMMENT '功能菜单',
-    PRIMARY KEY (`id`),
-    KEY `idx_group_id` (`role_id`),
-    KEY `idx_permission_id` (`permission_id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户组权限';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户组权限';
 
---
--- Table structure for table `user_key`
---
 
-CREATE TABLE IF NOT EXISTS `user_key`
+CREATE INDEX idx_group_id ON user_role_permission (`role_id`);
+CREATE INDEX idx_permission_id ON user_role_permission (`permission_id`);
+
+DROP TABLE IF EXISTS user_key;
+CREATE TABLE user_key
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'user_key ID',
     `create_user` VARCHAR(50) NOT NULL COMMENT '用户ID',
     `access_key`  VARCHAR(50) NOT NULL COMMENT 'access_key',
     `secret_key`  VARCHAR(50) NOT NULL COMMENT 'secret key',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
-    `status`      VARCHAR(10) DEFAULT NULL COMMENT '状态',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `idx_ak` (`access_key`),
-    KEY `idx_create_user` (`create_user`)
+    `status`      VARCHAR(10) COMMENT '状态',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户api key';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户api key';
 
---
--- Table structure for table `organization`
---
 
-CREATE TABLE IF NOT EXISTS `organization`
+CREATE UNIQUE INDEX idx_ak ON user_key (`access_key`);
+CREATE INDEX idx_create_user ON user_key (`create_user`);
+
+DROP TABLE IF EXISTS organization;
+CREATE TABLE organization
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组织ID',
-    `name`        VARCHAR(255) NOT NULL COMMENT '组织名称',
-    `description` VARCHAR(500) DEFAULT NULL COMMENT '描述',
+    `num`         BIGINT       NOT NULL COMMENT '组织编号',
+    `name`        VARCHAR(100) NOT NULL COMMENT '组织名称',
+    `description` VARCHAR(500) COMMENT '描述',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
-    PRIMARY KEY (`id`),
-    KEY `idx_name` (`name`),
-    KEY `idx_create_user` (`create_user`),
-    KEY `idx_create_time` (`create_time`),
-    KEY `idx_update_time` (`update_time`)
+    `deleted`     BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
+    `delete_user` VARCHAR(50) COMMENT '删除人',
+    `delete_time` BIGINT COMMENT '删除时间',
+    `enable`      BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='组织';
+  COLLATE = utf8mb4_general_ci COMMENT = '组织';
 
---
--- Table structure for table `user_extend`
---
 
-CREATE TABLE IF NOT EXISTS `user_extend`
+CREATE INDEX idx_name ON organization (`name`);
+CREATE INDEX idx_create_user ON organization (`create_user`);
+CREATE INDEX idx_create_time ON organization (`create_time`);
+CREATE INDEX idx_update_time ON organization (`update_time`);
+CREATE INDEX idx_deleted ON organization (`deleted`);
+CREATE UNIQUE INDEX idx_num ON organization (`num`);
+
+DROP TABLE IF EXISTS user_extend;
+CREATE TABLE user_extend
 (
     `id`              VARCHAR(50) NOT NULL COMMENT '用户ID',
     `platform_info`   BLOB COMMENT '其他平台对接信息',
-    `selenium_server` VARCHAR(255) DEFAULT NULL COMMENT 'UI本地调试地址',
-    PRIMARY KEY (`id`)
+    `selenium_server` VARCHAR(255) COMMENT 'UI本地调试地址',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='用户扩展';
+  COLLATE = utf8mb4_general_ci COMMENT = '用户扩展';
 
---
--- Table structure for table `message_task_blob`
---
-
-CREATE TABLE IF NOT EXISTS `message_task_blob`
+DROP TABLE IF EXISTS message_task_blob;
+CREATE TABLE message_task_blob
 (
-    `id`       VARCHAR(50) NOT NULL,
+    `id`       VARCHAR(50) NOT NULL COMMENT '',
     `template` TEXT COMMENT '消息模版',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='消息通知任务大字段';
+  COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
 
---
--- Table structure for table `plugin_blob`
---
-
-CREATE TABLE IF NOT EXISTS `plugin_blob`
+DROP TABLE IF EXISTS plugin_blob;
+CREATE TABLE plugin_blob
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `form_option` LONGBLOB COMMENT 'plugin form option',
     `form_script` LONGBLOB COMMENT 'plugin form script',
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT ='插件大字段';
+  COLLATE = utf8mb4_general_ci COMMENT = '插件大字段';
+
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -21,9 +21,9 @@ public class ApiTemplate implements Serializable {
     @Schema(title = "描述")
     private String description;
 
-    @Schema(title = "是否是系统模板", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_template.system.not_blank}", groups = {Created.class})
-    private Boolean system;
+    @Schema(title = "是否是内置模板", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_template.internal.not_blank}", groups = {Created.class})
+    private Boolean internal;
 
     @Schema(title = "创建时间")
     private Long createTime;

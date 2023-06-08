@@ -6,15 +6,18 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="enable" jdbcType="BIT" property="enable" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="image" jdbcType="VARCHAR" property="image" />
-    <result column="heap" jdbcType="VARCHAR" property="heap" />
-    <result column="gc_algo" jdbcType="VARCHAR" property="gcAlgo" />
+    <result column="load_test_image" jdbcType="VARCHAR" property="loadTestImage" />
+    <result column="load_test_heap" jdbcType="VARCHAR" property="loadTestHeap" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="api" jdbcType="BIT" property="api" />
-    <result column="performance" jdbcType="BIT" property="performance" />
+    <result column="api_test" jdbcType="BIT" property="apiTest" />
+    <result column="load_test" jdbcType="BIT" property="loadTest" />
+    <result column="ui_test" jdbcType="BIT" property="uiTest" />
+    <result column="grid" jdbcType="VARCHAR" property="grid" />
+    <result column="server_url" jdbcType="VARCHAR" property="serverUrl" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -75,8 +78,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, `status`, create_time, update_time, image, `heap`, 
-    gc_algo, create_user, api, performance
+    id, `name`, `type`, description, `enable`, create_time, update_time, load_test_image, 
+    load_test_heap, create_user, api_test, load_test, ui_test, grid, server_url, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.TestResourcePoolExample" resultMap="BaseResultMap">
     select
@@ -110,15 +113,17 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.TestResourcePool">
     insert into test_resource_pool (id, `name`, `type`, 
-      description, `status`, create_time, 
-      update_time, image, `heap`, 
-      gc_algo, create_user, api, 
-      performance)
+      description, `enable`, create_time, 
+      update_time, load_test_image, load_test_heap, 
+      create_user, api_test, load_test, 
+      ui_test, grid, server_url, 
+      deleted)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR}, #{heap,jdbcType=VARCHAR}, 
-      #{gcAlgo,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{api,jdbcType=BIT}, 
-      #{performance,jdbcType=BIT})
+      #{description,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{loadTestImage,jdbcType=VARCHAR}, #{loadTestHeap,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{apiTest,jdbcType=BIT}, #{loadTest,jdbcType=BIT}, 
+      #{uiTest,jdbcType=BIT}, #{grid,jdbcType=VARCHAR}, #{serverUrl,jdbcType=VARCHAR}, 
+      #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.TestResourcePool">
     insert into test_resource_pool
@@ -135,8 +140,8 @@
       <if test="description != null">
         description,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="enable != null">
+        `enable`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -144,23 +149,32 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="image != null">
-        image,
+      <if test="loadTestImage != null">
+        load_test_image,
       </if>
-      <if test="heap != null">
-        `heap`,
-      </if>
-      <if test="gcAlgo != null">
-        gc_algo,
+      <if test="loadTestHeap != null">
+        load_test_heap,
       </if>
       <if test="createUser != null">
         create_user,
       </if>
-      <if test="api != null">
-        api,
+      <if test="apiTest != null">
+        api_test,
       </if>
-      <if test="performance != null">
-        performance,
+      <if test="loadTest != null">
+        load_test,
+      </if>
+      <if test="uiTest != null">
+        ui_test,
+      </if>
+      <if test="grid != null">
+        grid,
+      </if>
+      <if test="serverUrl != null">
+        server_url,
+      </if>
+      <if test="deleted != null">
+        deleted,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -176,8 +190,8 @@
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -185,23 +199,32 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="image != null">
-        #{image,jdbcType=VARCHAR},
+      <if test="loadTestImage != null">
+        #{loadTestImage,jdbcType=VARCHAR},
       </if>
-      <if test="heap != null">
-        #{heap,jdbcType=VARCHAR},
-      </if>
-      <if test="gcAlgo != null">
-        #{gcAlgo,jdbcType=VARCHAR},
+      <if test="loadTestHeap != null">
+        #{loadTestHeap,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="api != null">
-        #{api,jdbcType=BIT},
+      <if test="apiTest != null">
+        #{apiTest,jdbcType=BIT},
       </if>
-      <if test="performance != null">
-        #{performance,jdbcType=BIT},
+      <if test="loadTest != null">
+        #{loadTest,jdbcType=BIT},
+      </if>
+      <if test="uiTest != null">
+        #{uiTest,jdbcType=BIT},
+      </if>
+      <if test="grid != null">
+        #{grid,jdbcType=VARCHAR},
+      </if>
+      <if test="serverUrl != null">
+        #{serverUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -226,8 +249,8 @@
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -235,23 +258,32 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.image != null">
-        image = #{record.image,jdbcType=VARCHAR},
+      <if test="record.loadTestImage != null">
+        load_test_image = #{record.loadTestImage,jdbcType=VARCHAR},
       </if>
-      <if test="record.heap != null">
-        `heap` = #{record.heap,jdbcType=VARCHAR},
-      </if>
-      <if test="record.gcAlgo != null">
-        gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
+      <if test="record.loadTestHeap != null">
+        load_test_heap = #{record.loadTestHeap,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.api != null">
-        api = #{record.api,jdbcType=BIT},
+      <if test="record.apiTest != null">
+        api_test = #{record.apiTest,jdbcType=BIT},
       </if>
-      <if test="record.performance != null">
-        performance = #{record.performance,jdbcType=BIT},
+      <if test="record.loadTest != null">
+        load_test = #{record.loadTest,jdbcType=BIT},
+      </if>
+      <if test="record.uiTest != null">
+        ui_test = #{record.uiTest,jdbcType=BIT},
+      </if>
+      <if test="record.grid != null">
+        grid = #{record.grid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.serverUrl != null">
+        server_url = #{record.serverUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -264,15 +296,18 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      image = #{record.image,jdbcType=VARCHAR},
-      `heap` = #{record.heap,jdbcType=VARCHAR},
-      gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
+      load_test_image = #{record.loadTestImage,jdbcType=VARCHAR},
+      load_test_heap = #{record.loadTestHeap,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      api = #{record.api,jdbcType=BIT},
-      performance = #{record.performance,jdbcType=BIT}
+      api_test = #{record.apiTest,jdbcType=BIT},
+      load_test = #{record.loadTest,jdbcType=BIT},
+      ui_test = #{record.uiTest,jdbcType=BIT},
+      grid = #{record.grid,jdbcType=VARCHAR},
+      server_url = #{record.serverUrl,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -289,8 +324,8 @@
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -298,23 +333,32 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="image != null">
-        image = #{image,jdbcType=VARCHAR},
+      <if test="loadTestImage != null">
+        load_test_image = #{loadTestImage,jdbcType=VARCHAR},
       </if>
-      <if test="heap != null">
-        `heap` = #{heap,jdbcType=VARCHAR},
-      </if>
-      <if test="gcAlgo != null">
-        gc_algo = #{gcAlgo,jdbcType=VARCHAR},
+      <if test="loadTestHeap != null">
+        load_test_heap = #{loadTestHeap,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="api != null">
-        api = #{api,jdbcType=BIT},
+      <if test="apiTest != null">
+        api_test = #{apiTest,jdbcType=BIT},
       </if>
-      <if test="performance != null">
-        performance = #{performance,jdbcType=BIT},
+      <if test="loadTest != null">
+        load_test = #{loadTest,jdbcType=BIT},
+      </if>
+      <if test="uiTest != null">
+        ui_test = #{uiTest,jdbcType=BIT},
+      </if>
+      <if test="grid != null">
+        grid = #{grid,jdbcType=VARCHAR},
+      </if>
+      <if test="serverUrl != null">
+        server_url = #{serverUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -324,15 +368,18 @@
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      image = #{image,jdbcType=VARCHAR},
-      `heap` = #{heap,jdbcType=VARCHAR},
-      gc_algo = #{gcAlgo,jdbcType=VARCHAR},
+      load_test_image = #{loadTestImage,jdbcType=VARCHAR},
+      load_test_heap = #{loadTestHeap,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      api = #{api,jdbcType=BIT},
-      performance = #{performance,jdbcType=BIT}
+      api_test = #{apiTest,jdbcType=BIT},
+      load_test = #{loadTest,jdbcType=BIT},
+      ui_test = #{uiTest,jdbcType=BIT},
+      grid = #{grid,jdbcType=VARCHAR},
+      server_url = #{serverUrl,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

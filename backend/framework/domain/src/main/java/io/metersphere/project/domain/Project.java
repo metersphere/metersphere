@@ -13,6 +13,10 @@ public class Project implements Serializable {
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(title = "项目编号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{project.num.not_blank}", groups = {Created.class})
+    private Long num;
+
     @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{project.organization_id.length_range}", groups = {Created.class, Updated.class})
@@ -35,8 +39,18 @@ public class Project implements Serializable {
     @Schema(title = "创建人")
     private String createUser;
 
-    @Schema(title = "")
-    private String systemId;
+    @Schema(title = "删除时间")
+    private Long deleteTime;
+
+    @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{project.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
+
+    @Schema(title = "删除人")
+    private String deleteUser;
+
+    @Schema(title = "是否启用")
+    private Boolean enable;
 
     private static final long serialVersionUID = 1L;
 }
