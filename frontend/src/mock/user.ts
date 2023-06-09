@@ -75,10 +75,29 @@ setupMock({
           children: [
             {
               path: 'list',
-              name: 'apiTest',
-              component: () => import('@/views/api-test/index.vue'),
+              name: 'list',
               meta: {
                 locale: 'menu.apiTest',
+                roles: ['*'],
+                icon: 'icon-computer',
+              },
+            },
+          ],
+        },
+        {
+          path: '/system',
+          name: 'system',
+          meta: {
+            locale: 'menu.settings',
+            icon: 'icon-dashboard',
+            order: 0,
+          },
+          children: [
+            {
+              path: 'user',
+              name: 'user',
+              meta: {
+                locale: 'menu.settings.user',
                 roles: ['*'],
                 icon: 'icon-computer',
               },

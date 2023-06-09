@@ -2,21 +2,21 @@ import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
 
 const ApiTest: AppRouteRecordRaw = {
-  path: '/api-test',
-  name: 'apiTest',
+  path: '/system',
+  name: 'system',
   component: DEFAULT_LAYOUT,
   meta: {
-    locale: 'menu.apiTest',
+    locale: 'menu.settings',
     icon: 'icon-dashboard',
     order: 0,
   },
   children: [
     {
-      path: 'list',
-      name: 'list',
-      component: () => import('@/views/api-test/index.vue'),
+      path: 'user',
+      name: 'user',
+      component: () => import('@/views/system/user/index.vue'),
       meta: {
-        locale: 'menu.apiTest',
+        locale: 'menu.settings.user',
         roles: ['*'],
         icon: 'icon-computer',
       },
