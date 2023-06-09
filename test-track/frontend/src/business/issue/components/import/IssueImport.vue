@@ -123,35 +123,43 @@ export default {
         return;
       }
       let uploadFile = this.uploadFiles[0]
-      let suffix = uploadFile.name.substring(uploadFile.name.lastIndexOf('.') + 1);
-      if (suffix !== 'xls' && suffix !== 'xlsx') {
-        this.$warning(this.$t('test_track.case.import.upload_limit_format'));
-        return;
-      }
-      if (uploadFile.size / 1024 / 1024 > 100) {
-        this.$warning(this.$t('test_track.case.import.upload_limit_size'));
-        return;
-      }
-      let param = {
-        workspaceId: getCurrentWorkspaceId(),
-        projectId: getCurrentProjectID(),
-        userId: getCurrentUserId(),
-        importType: this.importType
-      };
-      this.loading = true;
-      this.$fileUpload('/issues/import', uploadFile, param)
-        .then(response => {
-          this.loading = false;
-          let res = response.data;
-          if (res.success) {
-            this.$success(this.$t('test_track.case.import.success'));
-            this.cancel();
-            this.$emit("refresh");
-          } else {
-            this.errList = res.errList;
+
+      this.uploadFiles[0].slice(0, 1).arrayBuffer()
+        .then(() => {
+          let suffix = uploadFile.name.substring(uploadFile.name.lastIndexOf('.') + 1);
+          if (suffix !== 'xls' && suffix !== 'xlsx') {
+            this.$warning(this.$t('test_track.case.import.upload_limit_format'));
+            return;
           }
-        }).catch((err) => {
-          this.loading = false;
+          if (uploadFile.size / 1024 / 1024 > 100) {
+            this.$warning(this.$t('test_track.case.import.upload_limit_size'));
+            return;
+          }
+          let param = {
+            workspaceId: getCurrentWorkspaceId(),
+            projectId: getCurrentProjectID(),
+            userId: getCurrentUserId(),
+            importType: this.importType
+          };
+          this.loading = true;
+          this.$fileUpload('/issues/import', uploadFile, param)
+            .then(response => {
+              this.loading = false;
+              let res = response.data;
+              if (res.success) {
+                this.$success(this.$t('test_track.case.import.success'));
+                this.cancel();
+                this.$emit("refresh");
+              } else {
+                this.errList = res.errList;
+              }
+            }).catch((err) => {
+            this.loading = false;
+          });
+        })
+        .catch((err) => {
+          this.$warning(this.$t('test_track.case.import.upload_refresh_tips'));
+          return;
         });
     }
   }

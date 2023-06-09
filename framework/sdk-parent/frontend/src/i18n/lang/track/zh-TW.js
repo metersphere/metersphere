@@ -174,6 +174,7 @@ export default {
       upload_limit_count: "一次只能上傳一個文件",
       upload_limit_format: "只支持 xls/xlsx格式文件",
       upload_limit_size: "上傳文件大小不能超過 100MB!",
+      upload_refresh_tips: "内容已更新，請重新上傳文件！",
       success: "導入成功！",
       importing: "導入中...",
       excel_title: "錶格文件",

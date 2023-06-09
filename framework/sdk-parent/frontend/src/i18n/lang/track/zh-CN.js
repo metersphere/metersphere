@@ -174,6 +174,7 @@ export default {
       upload_limit_count: "一次只能上传一个文件",
       upload_limit_format: "只支持 xls/xlsx格式文件",
       upload_limit_size: "上传文件大小不能超过 100MB!",
+      upload_refresh_tips: "内容已更新，请重新上传文件！",
       success: "导入成功",
       error: "导入失败",
       importing: "导入中...",
