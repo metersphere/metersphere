@@ -10,6 +10,9 @@ import localeApiTest from '@/views/api-test/locale/en-US';
 export default {
   message: {
     'menu.apiTest': 'Api Test',
+    'menu.settings': 'System Settings',
+    'menu.settings.user': 'User',
+    'menu.settings.organization': 'Organization',
     'navbar.action.locale': 'Switch to English',
     ...sys,
     ...localeSettings,
