@@ -8,6 +8,13 @@
         WHERE user.id = #{id}
     </select>
 
+    <select id="selectByEmail" resultType="io.metersphere.sdk.dto.UserDTO">
+        SELECT *
+        FROM user
+                 LEFT JOIN user_extend ON user.id = user_extend.id
+        WHERE user.email = #{email}
+    </select>
+
     <select id="findAll" resultType="io.metersphere.system.domain.User">
         SELECT *
         FROM user
@@ -30,5 +37,19 @@
         FROM user_role_relation
         WHERE user_id = #{userId}
           AND role_id = 'super'
+    </select>
+    <select id="selectEmailInDB" resultType="java.lang.String">
+        SELECT u.email FROM user u
+        WHERE u.email = #{email}
+        <if test="id != null">
+            AND u.id != #{id}
+        </if>
+    </select>
+    <select id="selectUserIdByEmailList" resultType="io.metersphere.system.domain.User">
+        SELECT u.id,u.email FROM user u
+        WHERE u.email IN
+        <foreach collection="emailList" item="email" open="(" separator="," close=")">
+            #{email}
+        </foreach>
     </select>
 </mapper>

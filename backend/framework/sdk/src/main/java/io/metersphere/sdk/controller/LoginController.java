@@ -48,9 +48,7 @@ public class LoginController {
             }
             return ResultHolder.success(sessionUser);
         }
-        MSException.throwException(rsaKey.getPublicKey());
-        //
-        return null;
+        throw new MSException(rsaKey.getPublicKey());
     }
 
     @PostMapping(value = "/login")
@@ -58,7 +56,7 @@ public class LoginController {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
             if (!StringUtils.equals(sessionUser.getId(), request.getUsername())) {
-                MSException.throwException(Translator.get("please_logout_current_user"));
+                throw new MSException(Translator.get("please_logout_current_user"));
             }
         }
         SecurityUtils.getSubject().getSession().setAttribute("authenticate", UserSource.LOCAL.name());

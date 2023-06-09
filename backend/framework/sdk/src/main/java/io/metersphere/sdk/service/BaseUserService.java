@@ -291,7 +291,7 @@ public class BaseUserService {
             criteria.andEmailEqualTo(user.getEmail());
             criteria.andIdNotEqualTo(user.getId());
             if (userMapper.countByExample(example) > 0) {
-                MSException.throwException(Translator.get("user_email_already_exists"));
+                throw new MSException(Translator.get("user_email_already_exists"));
             }
         }
         user.setPassword(null);
@@ -358,10 +358,10 @@ public class BaseUserService {
 
     public boolean checkUserPassword(String userId, String password) {
         if (StringUtils.isBlank(userId)) {
-            MSException.throwException(Translator.get("user_name_is_null"));
+            throw new MSException(Translator.get("user_name_is_null"));
         }
         if (StringUtils.isBlank(password)) {
-            MSException.throwException(Translator.get("password_is_null"));
+            throw new MSException(Translator.get("password_is_null"));
         }
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(password));

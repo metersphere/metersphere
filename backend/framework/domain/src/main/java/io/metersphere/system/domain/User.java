@@ -1,15 +1,20 @@
 package io.metersphere.system.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
-import java.io.Serializable;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class User implements Serializable {
     @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.id.not_blank}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{user.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
@@ -19,15 +24,16 @@ public class User implements Serializable {
     private String name;
 
     @Schema(title = "用户邮箱", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.email.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{user.email.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 64, message = "{user.email.length_range}", groups = {Created.class, Updated.class})
+    @Email(message = "{user.email.invalid}", groups = {Created.class, Updated.class})
     private String email;
 
     @Schema(title = "用户密码")
     private String password;
 
     @Schema(title = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{user.enable.not_blank}", groups = {Created.class})
+    @NotNull(message = "{user.enable.not_blank}", groups = {Updated.class})
     private Boolean enable;
 
     @Schema(title = "创建时间")
