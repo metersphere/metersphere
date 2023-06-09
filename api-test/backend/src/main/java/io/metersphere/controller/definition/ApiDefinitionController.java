@@ -59,7 +59,7 @@ public class ApiDefinitionController {
     private FunctionRunService functionRunService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         apiDefinitionService.checkFilterHasCoverage(request);
         apiDefinitionService.getApplicationUpdateRule(request);
@@ -68,6 +68,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/list/week/{projectId}/{versionId}/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable String versionId, @PathVariable int goPage, @PathVariable int pageSize) {
         if (StringUtils.equalsIgnoreCase(versionId, "default")) {
             versionId = null;
@@ -94,7 +95,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/list/all")
-    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.list(request);
     }
@@ -136,6 +137,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/del-batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
@@ -171,18 +173,20 @@ public class ApiDefinitionController {
     }
 
     @GetMapping("/get/{id}")
-    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public ApiDefinitionResult getApiDefinitionResult(@PathVariable String id) {
         return apiDefinitionService.getById(id);
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DEBUG)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
     public MsExecResponseDTO runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiDefinitionService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_RUN)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public MsExecResponseDTO run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         request.setReportId(null);

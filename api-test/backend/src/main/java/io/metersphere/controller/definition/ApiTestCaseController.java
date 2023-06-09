@@ -21,11 +21,12 @@ import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
+import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -51,13 +52,13 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/select/by/id")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ , PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
     public List<ApiTestCase> selectByIds(@RequestBody ApiTestCaseRequest request) {
         return apiTestCaseService.selectByIds(request);
     }
 
     @GetMapping("/get-details/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_DEFINITION_READ , PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
     public ApiTestCaseResult single(@PathVariable String id) {
         ApiTestCaseRequest request = new ApiTestCaseRequest();
         request.setId(id);
