@@ -39,7 +39,7 @@ public class BugService {
         example.createCriteria().andProjectIdEqualTo(bug.getProjectId());
         List<Bug> bugs = bugMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(bugs)) {
-            MSException.throwException(BugMgtResultCode.BUG_EXIST_EXCEPTION);
+            throw new MSException(BugMgtResultCode.BUG_EXIST_EXCEPTION);
         }
         bug.setCreateTime(System.currentTimeMillis());
         bug.setUpdateTime(System.currentTimeMillis());

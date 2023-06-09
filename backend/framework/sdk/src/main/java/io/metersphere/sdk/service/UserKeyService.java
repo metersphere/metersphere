@@ -34,14 +34,14 @@ public class UserKeyService {
 
     public UserKey generateUserKey(String userId) {
         if (baseUserService.getUserDTO(userId) == null) {
-            MSException.throwException(Translator.get("user_not_exist") + userId);
+            throw new MSException(Translator.get("user_not_exist") + userId);
         }
         UserKeyExample userKeysExample = new UserKeyExample();
         userKeysExample.createCriteria().andCreateUserEqualTo(userId);
         List<UserKey> userKeysList = userKeyMapper.selectByExample(userKeysExample);
 
         if (!CollectionUtils.isEmpty(userKeysList) && userKeysList.size() >= 5) {
-            MSException.throwException(Translator.get("user_apikey_limit"));
+            throw new MSException(Translator.get("user_apikey_limit"));
         }
 
         UserKey userKeys = new UserKey();

@@ -52,10 +52,10 @@ public class TestPlanService {
     public TestPlanDTO add(@NotNull TestPlanDTO testPlanCreateRequest) {
         User user = SessionUtils.getUser();
         if (user == null) {
-            MSException.throwException("Cannot find user!");
+            throw new MSException("Cannot find user!");
         }
         if (StringUtils.equals(testPlanCreateRequest.getParentId(), testPlanCreateRequest.getId())) {
-            MSException.throwException("The parent test plan cannot be the same as the current test plan!");
+            throw new MSException("The parent test plan cannot be the same as the current test plan!");
         }
 
         if (StringUtils.isBlank(testPlanCreateRequest.getId())) {

@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface BaseUserMapper {
+    UserDTO selectByEmail(String email);
+
     UserDTO selectById(String id);
 
     List<User> findAll();
@@ -14,4 +16,8 @@ public interface BaseUserMapper {
     void batchSave(@Param("users") List<User> users);
 
     boolean isSuperUser(String userId);
+
+    String selectEmailInDB(@Param("email") String email, @Param("id") String id);
+
+    List<User> selectUserIdByEmailList(@Param("emailList") List<String> emailList);
 }

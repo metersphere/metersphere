@@ -26,7 +26,7 @@ public class TestPlanController {
     @PostMapping("/delete/batch")
     public void deleteBatch(@RequestBody List<String> idList) {
         if (CollectionUtils.isEmpty(idList)) {
-            MSException.throwException("The ids cannot be empty!");
+            throw new MSException("The ids cannot be empty!");
         }
         testPlanService.batchDelete(idList);
     }

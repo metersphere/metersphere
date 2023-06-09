@@ -30,9 +30,8 @@ public class PluginManager {
 
     /**
      * 加载对应目录下的 jar 包
-     *
      */
-    public PluginManager loadJar(String pluginId, String jarfileDir,  StorageStrategy storageStrategy) throws IOException {
+    public PluginManager loadJar(String pluginId, String jarfileDir, StorageStrategy storageStrategy) throws IOException {
         PluginClassLoader pluginClassLoader = new PluginClassLoader(storageStrategy);
         classLoaderMap.put(pluginId, pluginClassLoader);
         pluginClassLoader.loadJar(jarfileDir);
@@ -91,12 +90,11 @@ public class PluginManager {
             return clazz.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
             LogUtils.error(e);
-            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
+            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
         } catch (Exception e) {
             LogUtils.error(e);
-            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
+            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
         }
-        return null;
     }
 
     public <T> T getImplInstance(String pluginId, Class<T> superClazz, Object param) {
@@ -105,12 +103,11 @@ public class PluginManager {
             return clazz.getConstructor(param.getClass()).newInstance(param);
         } catch (InvocationTargetException e) {
             LogUtils.error(e.getTargetException());
-            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
+            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getTargetException().getMessage());
         } catch (Exception e) {
             LogUtils.error(e);
-            MSException.throwException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
+            throw new MSException(CommonResultCode.PLUGIN_GET_INSTANCE, e.getMessage());
         }
-        return null;
     }
 
 

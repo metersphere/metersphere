@@ -11,34 +11,24 @@ public class MSException extends RuntimeException {
         super(message);
     }
 
+    public MSException(IResultCode errorCode) {
+        super(StringUtils.EMPTY);
+        this.errorCode = errorCode;
+    }
+
     public MSException(IResultCode errorCode, String message) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public MSException(IResultCode errorCode, Throwable t) {
-        super(t);
-        this.errorCode = errorCode;
-    }
-
-    public static void throwException(String message) {
-        throw new MSException(message);
-    }
-
-    public static void throwException(Throwable t) {
-        throw new MSException(null, t);
-    }
-
-    public static void throwException(IResultCode errorCode) {
-        throw new MSException(errorCode, StringUtils.EMPTY);
-    }
 
     public static void throwException(IResultCode errorCode, String message) {
         throw new MSException(errorCode, message);
     }
 
-    public static void throwException(IResultCode errorCode, Throwable t) {
-        throw new MSException(errorCode, t);
+    public MSException(IResultCode errorCode, Throwable t) {
+        super(t);
+        this.errorCode = errorCode;
     }
 
     public IResultCode getErrorCode() {
