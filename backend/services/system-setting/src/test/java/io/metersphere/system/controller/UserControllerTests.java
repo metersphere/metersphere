@@ -48,7 +48,7 @@ public class UserControllerTests {
         user.setName("user");
         user.setSource("LOCAL");
         user.setEmail("bin@fit2cloud.com");
-
+        user.setEnable(true);
         user.setSeleniumServer("http://localhost:4444");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/user/add")
@@ -129,6 +129,7 @@ public class UserControllerTests {
             user.setName("batch3_" + i);
             user.setSource("LOCAL");
             user.setEmail("bin@fit2cloud.com");
+            user.setEnable(true);
             users.add(user);
         }
 

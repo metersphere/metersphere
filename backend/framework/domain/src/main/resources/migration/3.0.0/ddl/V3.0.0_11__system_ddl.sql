@@ -328,7 +328,7 @@ CREATE TABLE user
     `id`                   VARCHAR(50)  NOT NULL COMMENT '用户ID',
     `name`                 VARCHAR(255) NOT NULL COMMENT '用户名',
     `email`                VARCHAR(64)  NOT NULL COMMENT '用户邮箱',
-    `password`             VARCHAR(256) COMMENT '用户密码',
+    `password`             VARCHAR(256) COLLATE utf8mb4_bin COMMENT '用户密码',
     `enable`               BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
     `create_time`          BIGINT       NOT NULL COMMENT '创建时间',
     `update_time`          BIGINT       NOT NULL COMMENT '更新时间',
@@ -351,7 +351,7 @@ CREATE INDEX idx_create_time ON user (`create_time`);
 CREATE INDEX idx_update_time ON user (`update_time`);
 CREATE INDEX idx_organization_id ON user (`last_organization_id`);
 CREATE INDEX idx_project_id ON user (`last_project_id`);
-CREATE INDEX idx_create_user ON user (`update_user`);
+CREATE INDEX idx_create_user ON user (`create_user`);
 CREATE INDEX idx_update_user ON user (`update_user`);
 
 DROP TABLE IF EXISTS user_role_relation;
@@ -413,7 +413,7 @@ DROP TABLE IF EXISTS organization;
 CREATE TABLE organization
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组织ID',
-    `num`         BIGINT       NOT NULL COMMENT '组织编号',
+    `num`         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '组织编号',
     `name`        VARCHAR(100) NOT NULL COMMENT '组织名称',
     `description` VARCHAR(500) COMMENT '描述',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
@@ -423,7 +423,8 @@ CREATE TABLE organization
     `delete_user` VARCHAR(50) COMMENT '删除人',
     `delete_time` BIGINT COMMENT '删除时间',
     `enable`      BIT          NOT NULL DEFAULT 1 COMMENT '是否启用',
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT idx_num UNIQUE (num)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '组织';
@@ -434,7 +435,6 @@ CREATE INDEX idx_create_user ON organization (`create_user`);
 CREATE INDEX idx_create_time ON organization (`create_time`);
 CREATE INDEX idx_update_time ON organization (`update_time`);
 CREATE INDEX idx_deleted ON organization (`deleted`);
-CREATE UNIQUE INDEX idx_num ON organization (`num`);
 
 DROP TABLE IF EXISTS user_extend;
 CREATE TABLE user_extend

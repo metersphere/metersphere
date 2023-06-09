@@ -3,6 +3,7 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
@@ -29,12 +30,15 @@ public class UserController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public UserDTO addUser(@Validated({Created.class}) @RequestBody UserDTO user) {
+        user.setCreateUser(SessionUtils.getUserId());
+        user.setUpdateUser(SessionUtils.getUserId());
         return userService.add(user);
     }
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     public UserDTO updateUser(@Validated({Updated.class}) @RequestBody UserDTO user) {
+        user.setUpdateUser(SessionUtils.getUserId());
         return userService.update(user);
     }
 
@@ -46,8 +50,12 @@ public class UserController {
 
     @PostMapping("/batch-add3")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
-    public boolean batchSaveUser3(@Validated({Created.class}) @RequestBody List<User> user) {
-        return userService.batchSave3(user);
+    public boolean batchSaveUser3(@Validated({Created.class}) @RequestBody List<User> users) {
+        users.forEach(user -> {
+            user.setCreateUser(SessionUtils.getUserId());
+            user.setUpdateUser(SessionUtils.getUserId());
+        });
+        return userService.batchSave3(users);
     }
 
     @GetMapping("/count")

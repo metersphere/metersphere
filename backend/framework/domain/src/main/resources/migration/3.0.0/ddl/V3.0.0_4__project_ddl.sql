@@ -162,7 +162,7 @@ DROP TABLE IF EXISTS project;
 CREATE TABLE project
 (
     `id`              VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    `num`             BIGINT(255)  NOT NULL COMMENT '项目编号',
+    `num`             BIGINT       NOT NULL AUTO_INCREMENT COMMENT '项目编号',
     `organization_id` VARCHAR(50)  NOT NULL COMMENT '组织ID',
     `name`            VARCHAR(255) NOT NULL COMMENT '项目名称',
     `description`     VARCHAR(500) COMMENT '项目描述',
@@ -173,7 +173,8 @@ CREATE TABLE project
     `deleted`         BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
     `delete_user`     VARCHAR(50) COMMENT '删除人',
     `enable`          BIT COMMENT '是否启用',
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    CONSTRAINT idx_num UNIQUE (num)
 ) COMMENT = '项目';
 
 
@@ -183,7 +184,6 @@ CREATE INDEX idx_create_time ON project (create_time);
 CREATE INDEX idex_update_time ON project (update_time);
 CREATE INDEX idx_name ON project (name);
 CREATE INDEX idx_deleted ON project (deleted);
-CREATE UNIQUE INDEX idx_num ON project (num);
 
 DROP TABLE IF EXISTS project_application;
 CREATE TABLE project_application

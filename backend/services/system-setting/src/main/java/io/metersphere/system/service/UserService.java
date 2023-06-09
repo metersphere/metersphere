@@ -10,7 +10,6 @@ import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
