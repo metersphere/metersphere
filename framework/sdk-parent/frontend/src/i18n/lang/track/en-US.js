@@ -197,6 +197,7 @@ export default {
       upload_limit_count: "Only one file can be uploaded at a time",
       upload_limit_format: "Upload files can only be XLS, XLSX format!",
       upload_limit_size: "Upload file size cannot exceed 100MB!",
+      upload_refresh_tips: "Content has been updated, please upload the file again!",
       upload_limit_other_size: "Upload file size cannot exceed",
       success: "Import success",
       error: "Import error",
