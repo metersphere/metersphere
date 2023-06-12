@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.ApiTemplate;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.ApiTemplateDTO;
@@ -55,13 +56,15 @@ public class ApiTemplateController {
     }
 
     @GetMapping({"/option/{projectId}", "/option"})
-    @RequiresPermissions(value = {"PROJECT_TEMPLATE:READ+API_TEMPLATE", "PROJECT_TEMPLATE:READ"}, logical = Logical.OR)
+    @RequiresPermissions(value = {"PROJECT_TEMPLATE:READ+API_TEMPLATE", "PROJECT_TEMPLATE:READ",
+            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
     public List<ApiTemplate> list(@PathVariable(required = false) String projectId) {
         return apiTemplateService.getOption(projectId);
     }
 
     @GetMapping("/get-template/relate/{projectId}")
-    @RequiresPermissions(value = {"PROJECT_TEMPLATE:READ+API_TEMPLATE", "PROJECT_TEMPLATE:READ"}, logical = Logical.OR)
+    @RequiresPermissions(value = {"PROJECT_TEMPLATE:READ+API_TEMPLATE", "PROJECT_TEMPLATE:READ",
+            PermissionConstants.PROJECT_API_DEFINITION_READ}, logical = Logical.OR)
     public ApiTemplateDTO getTemplate(@PathVariable String projectId) {
         return apiTemplateService.getTemplate(projectId);
     }
