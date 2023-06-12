@@ -58,7 +58,8 @@ public class TestCaseTemplateController {
     }
 
     @GetMapping({"/option/{projectId}", "/option"})
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CASE_TEMPLATE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TEMPLATE_READ_CASE_TEMPLATE,
+            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
     public List<TestCaseTemplate> list(@PathVariable(required = false) String projectId) {
         return testCaseTemplateService.getOption(projectId);
     }

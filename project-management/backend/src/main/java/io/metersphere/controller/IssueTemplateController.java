@@ -60,7 +60,8 @@ public class IssueTemplateController {
     }
 
     @GetMapping({"/option/{projectId}", "/option"})
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_ISSUE_TEMPLATE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TEMPLATE_READ_ISSUE_TEMPLATE,
+            PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ_EDIT}, logical = Logical.OR)
     public List<IssueTemplate> list(@PathVariable(required = false) String projectId) {
         return issueTemplateService.getOption(projectId);
     }
