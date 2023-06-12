@@ -44,7 +44,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/list/all/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceReportService.getReportList(request));
@@ -61,6 +61,7 @@ public class PerformanceReportController {
 
 
     @GetMapping("/test/pro/info/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public ReportDTO getReportTestAndProInfo(@PathVariable String reportId) {
         return performanceReportService.getReportTestAndProInfo(reportId);
     }
@@ -116,6 +117,7 @@ public class PerformanceReportController {
     }
 
     @GetMapping("/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String reportId) {
         return performanceReportService.getLoadTestReport(reportId);
     }
@@ -146,21 +148,25 @@ public class PerformanceReportController {
     }
 
     @GetMapping("/jtl/download/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public void downloadJtlZip(@PathVariable String reportId, HttpServletResponse response) {
         performanceReportService.downloadJtlZip(reportId, response);
     }
 
     @GetMapping("get-jmx-content/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String reportId) {
         return performanceReportService.getJmxContent(reportId);
     }
 
     @GetMapping("/get-load-config/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public String getLoadConfiguration(@PathVariable String reportId) {
         return performanceReportService.getLoadConfiguration(reportId);
     }
 
     @GetMapping("/get-advanced-config/{reportId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public String getAdvancedConfiguration(@PathVariable String reportId) {
         return performanceReportService.getAdvancedConfiguration(reportId);
     }
