@@ -45,7 +45,7 @@ pipeline {
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
                         mvn deploy -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean deploy -Drevision=${REVISION} -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk,backend/services,backend/services/load-test,backend/services/ui-test --settings ./settings.xml
+                        mvn clean deploy -Drevision=${REVISION} --file backend/pom.xml  --settings ./settings.xml
                     '''
                 }
             }
@@ -59,8 +59,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        # mvn clean package -Drevision=${REVISION} -DskipTests --settings ./settings.xml
-                        mvn clean package -Drevision=${REVISION} -DskipTests -DskipAntRunForJenkins --file backend/pom.xml --settings ./settings.xml
+                        mvn clean package -Drevision=${REVISION} -DskipTests --settings ./settings.xml
 
                         LOCAL_REPOSITORY=$(mvn help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
                         # echo $LOCAL_REPOSITORY
@@ -80,19 +79,9 @@ pipeline {
         stage('Docker build & push') {
             when { environment name: 'BUILD_SDK', value: 'false' }
             steps {
-                script {
-                    for (int i=0; i<10; i++) {
-                        try {
-                            sh '''#!/bin/bash -xe
-                            docker --config /home/metersphere/.docker buildx build --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} --platform linux/amd64,linux/arm64 . --push
-                            '''
-                            break
-                        } catch (Exception e) {
-                            sleep 10
-                            continue
-                        }
-                    }
-                }
+                sh '''#!/bin/bash -xe
+                docker --config /home/metersphere/.docker buildx build --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} --platform linux/amd64,linux/arm64 . --push
+                '''
             }
         }
     }

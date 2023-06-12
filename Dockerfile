@@ -10,7 +10,7 @@ COPY ${DEPENDENCY}/META-INF /app/META-INF
 COPY ${DEPENDENCY}/BOOT-INF/classes /app
 
 # 静态文件
-#COPY backend/app/src/main/resources/static /app/static
+COPY backend/app/src/main/resources/static /app/static
 
 
 RUN mv /app/lib/metersphere-jmeter-core-*.jar /app/lib/metersphere-jmeter-core.jar
