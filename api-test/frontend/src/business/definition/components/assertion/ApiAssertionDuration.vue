@@ -59,7 +59,7 @@ export default {
     add() {
       if (this.validate()) {
         this.duration.value = this.value;
-        this.duration.enable = true;
+        this.$set(this.duration, 'enable', true);
         this.callback();
       }
     },
