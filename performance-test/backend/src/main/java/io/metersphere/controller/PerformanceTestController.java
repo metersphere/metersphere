@@ -49,27 +49,27 @@ public class PerformanceTestController {
     private ApiPerformanceService apiPerformanceService;
 
     @PostMapping("recent/{count}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestDTO> recentTestPlans(@PathVariable int count, @RequestBody QueryTestPlanRequest request) {
         PageHelper.startPage(1, count, true);
         return performanceTestService.recentTestPlans(request);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }
 
     @GetMapping("/list/{projectId}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTest> list(@PathVariable String projectId) {
         // checkPermissionService.checkProjectOwner(projectId);
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
     @PostMapping("/list/batch")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public List<LoadTestDTO> listBatch(@RequestBody LoadTestBatchRequest request) {
         return performanceTestService.listBatch(request);
     }
@@ -80,7 +80,6 @@ public class PerformanceTestController {
     }
 
     @GetMapping("/state/get/{testId}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public LoadTest listByTestId(@PathVariable String testId) {
         // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadTestBytestId(testId);
@@ -123,12 +122,14 @@ public class PerformanceTestController {
 
 
     @PostMapping("/edit/order")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)
     @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         performanceTestService.updateOrder(request);
     }
 
     @GetMapping("/get/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public LoadTestDTO get(@PathVariable String testId) {
         // // checkPermissionService.checkPerformanceTestOwner(testId);
         LoadTestDTO loadTestDTO = performanceTestService.get(testId);
@@ -137,24 +138,28 @@ public class PerformanceTestController {
     }
 
     @GetMapping("/get-advanced-config/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getAdvancedConfiguration(@PathVariable String testId) {
         // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getAdvancedConfiguration(testId);
     }
 
     @GetMapping("/get-load-config/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getLoadConfiguration(@PathVariable String testId) {
         // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadConfiguration(testId);
     }
 
     @GetMapping("/get-jmx-content/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String testId) {
         // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getJmxContent(testId);
     }
 
     @PostMapping("/export/jmx")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestExportJmx> exportJmx(@RequestBody List<String> fileIds) {
         return performanceTestService.exportJmx(fileIds);
     }
@@ -182,6 +187,7 @@ public class PerformanceTestController {
     @PostMapping("/delete/batch")
     @CacheNode
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.DELETE, beforeEvent = "#msClass.deleteBatchLog(#request)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
     public void deleteBatch(@RequestBody DeletePerformanceRequest request) {
         performanceTestService.deleteBatch(request);
     }
@@ -194,6 +200,7 @@ public class PerformanceTestController {
     }
 
     @GetMapping("stop/{reportId}/{forceStop}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
     public void stopTest(@PathVariable String reportId, @PathVariable boolean forceStop) {
         performanceTestService.stopTest(reportId, forceStop);
     }
@@ -250,18 +257,20 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/list/schedule/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
     public List<ScheduleDao> listSchedule(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return performanceTestService.listSchedule(request);
     }
 
     @PostMapping("/list/schedule")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return performanceTestService.listSchedule(request);
     }
 
     @GetMapping("test/report-count/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public Long getReportCount(@PathVariable String testId) {
         return performanceTestService.getReportCountByTestId(testId);
     }
@@ -278,11 +287,13 @@ public class PerformanceTestController {
     }
 
     @GetMapping("versions/{loadTestId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestDTO> getLoadTestVersions(@PathVariable String loadTestId) {
         return performanceTestService.getLoadTestVersions(loadTestId);
     }
 
     @GetMapping("get/{version}/{refId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public LoadTestDTO getLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
         return performanceTestService.getLoadTestByVersion(version, refId);
     }
@@ -293,6 +304,7 @@ public class PerformanceTestController {
     }
 
     @GetMapping("delete/{version}/{refId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
     public void deleteLoadTestByVersion(@PathVariable String version, @PathVariable String refId) {
         performanceTestService.deleteLoadTestByVersion(version, refId);
     }
@@ -314,6 +326,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/stop/batch")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
     @MsRequestLog(module = OperLogModule.PERFORMANCE_TEST)
     public void stopBatch(@RequestBody TaskRequestDTO taskRequestDTO) {
         performanceTestService.stopBatch(taskRequestDTO);
@@ -325,17 +338,19 @@ public class PerformanceTestController {
      * 项目报告服务需要统计性能用例
      */
     @PostMapping("/count")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadCaseCountChartResult> countScenarioCaseByRequest(@RequestBody LoadCaseCountRequest request) {
         return performanceTestService.countByRequest(request);
     }
 
     @PostMapping("/getLoadCaseByIds")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTest> getLoadCaseByIds(@RequestBody List<String> ids) {
         return performanceTestService.getLoadCaseByIds(ids);
     }
 
     @GetMapping("/get-base-case/{projectId}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<BaseCase> getBaseCaseByProjectId(@PathVariable String projectId) {
         return performanceTestService.getBaseCaseByProjectId(projectId);
     }
