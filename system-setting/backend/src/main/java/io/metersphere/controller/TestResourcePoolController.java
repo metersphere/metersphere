@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.consul.CacheNode;
@@ -12,6 +13,7 @@ import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.service.TestResourcePoolService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
@@ -28,6 +30,7 @@ public class TestResourcePoolController {
     @PostMapping("/add")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#testResourcePoolDTO.id)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_CREATE)
     public TestResourcePoolDTO addTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         return testResourcePoolService.addTestResourcePool(testResourcePoolDTO);
     }
@@ -35,6 +38,7 @@ public class TestResourcePoolController {
     @GetMapping("/delete/{testResourcePoolId}")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolId)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_DELETE)
     public void deleteTestResourcePool(@PathVariable(value = "testResourcePoolId") String testResourcePoolId) {
         testResourcePoolService.deleteTestResourcePool(testResourcePoolId);
     }
@@ -42,6 +46,7 @@ public class TestResourcePoolController {
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolDTO.id)", content = "#msClass.getLogDetails(#testResourcePoolDTO.id)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_EDIT)
     public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);
     }
@@ -49,6 +54,7 @@ public class TestResourcePoolController {
     @GetMapping("/update/{poolId}/{status}")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#poolId)", content = "#msClass.getLogDetails(#poolId)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_EDIT)
     public void updateTestResourcePoolStatus(@PathVariable String poolId, @PathVariable String status) {
         testResourcePoolService.updateTestResourcePoolStatus(poolId, status);
     }
@@ -59,12 +65,14 @@ public class TestResourcePoolController {
     }
 
     @PostMapping("list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ)
     public Pager<List<TestResourcePoolDTO>> listResourcePools(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
 
     @GetMapping("/list/quota/ws/valid/{workspaceId}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ)
     public List<TestResourcePoolDTO> listWsValidQuotaResourcePools(@PathVariable String workspaceId) {
         return testResourcePoolService.listWsValidQuotaResourcePools(workspaceId);
     }
