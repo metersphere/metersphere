@@ -3,11 +3,14 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.FileAttachmentMetadata;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.attachment.AttachmentDumpRequest;
 import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.service.AttachmentService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +35,14 @@ public class AttachmentController {
 
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/issue/upload", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void uploadIssueAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         attachmentService.uploadAttachment(request, file);
     }
 
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #file.getOriginalFilename(), false)", msClass = AttachmentService.class)
     @PostMapping(value = "/testcase/upload", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void uploadTestCaseAttachment(@RequestPart("request") AttachmentRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         attachmentService.uploadAttachment(request, file);
     }
@@ -58,6 +63,7 @@ public class AttachmentController {
     }
 
     @GetMapping("/download/{id}/{isLocal}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_TRACK_ISSUE_READ}, logical = Logical.OR)
     public ResponseEntity<byte[]> downloadAttachment(@PathVariable("id") String fileId, @PathVariable("isLocal") Boolean isLocal) {
         if (isLocal) {
             return attachmentService.downloadLocalAttachment(fileId);
@@ -69,46 +75,54 @@ public class AttachmentController {
 
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#attachmentId, 'testcase')", msClass = AttachmentService.class)
     @GetMapping("/delete/testcase/{attachmentId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void deleteTestCaseAttachment(@PathVariable String attachmentId) {
         attachmentService.deleteAttachment(attachmentId, "testcase");
     }
 
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#attachmentId, 'issue')", msClass = AttachmentService.class)
     @GetMapping("/delete/issue/{attachmentId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void deleteIssueAttachment(@PathVariable String attachmentId) {
         attachmentService.deleteAttachment(attachmentId, "issue");
     }
 
     @PostMapping("/metadata/list")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_TRACK_ISSUE_READ}, logical = Logical.OR)
     public List<FileAttachmentMetadata> listMetadata(@RequestBody AttachmentRequest request) {
         return attachmentService.listMetadata(request);
     }
 
     @PostMapping("/testcase/metadata/relate")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void caseRelate(@RequestBody AttachmentRequest request) {
         attachmentService.relate(request);
     }
 
     @PostMapping("/issue/metadata/relate")
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void issueRelate(@RequestBody AttachmentRequest request) {
         attachmentService.relate(request);
     }
 
     @PostMapping("/testcase/metadata/unrelated")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void caseUnrelated(@RequestBody AttachmentRequest request) {
         attachmentService.unrelated(request);
     }
 
     @PostMapping("/issue/metadata/unrelated")
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void issueUnrelated(@RequestBody AttachmentRequest request) {
         attachmentService.unrelated(request);
     }
 
     @PostMapping(value = "/metadata/dump")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT}, logical = Logical.OR)
     public void dumpFile(@RequestBody AttachmentDumpRequest request) {
         List<MultipartFile> files = new ArrayList<>();
         MultipartFile file = attachmentService.getAttachmentMultipartFile(request.getAttachmentId());

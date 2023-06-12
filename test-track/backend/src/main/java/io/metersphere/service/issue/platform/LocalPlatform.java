@@ -56,7 +56,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
         issues.setReporter(user.getId());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
-        issues.setPlatform(IssuesManagePlatform.Local.toString());;
+        issues.setPlatform(IssuesManagePlatform.Local.toString());
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issuesMapper.insert(issues);
 
