@@ -187,20 +187,13 @@
         test_case.delete_user_id ,test_case.delete_time,
         project_version.name as versionName,
         project_version.id as versionId,
-        <if test="request.selectFields != null and request.selectFields.size() > 0">
-            <foreach collection="request.selectFields" item="field" separator=",">
-                ${field}
-            </foreach>
-        </if>
-        <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
-            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
-            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.other_test_name, test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,
-            test_case.custom_fields, test_case.ref_id
-        </if>
+        test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+        test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+        test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+        test_case.other_test_name, test_case.review_status, test_case.tags,
+        test_case.demand_id, test_case.demand_name, test_case.`status`,
+        test_case.custom_num, test_case.step_model, test_case.create_user,
+        test_case.custom_fields, test_case.ref_id
         from test_case
         left join project_version on project_version.id = test_case.version_id
         <include refid="queryWhereCondition"/>
@@ -211,21 +204,14 @@
        select
         project_version.name as versionName,
         project_version.id as versionId,
-        <if test="request.selectFields != null and request.selectFields.size() > 0">
-            <foreach collection="request.selectFields" item="field" separator=",">
-                ${field}
-            </foreach>
-        </if>
-        <if test="request.selectFields == null or request.selectFields.size() == 0">
-            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
-            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
-            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
-            test_case.other_test_name, test_case.review_status, test_case.tags,
-            test_case.demand_id, test_case.demand_name, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
-            test_case.custom_fields,test_case.case_public ,
-            project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
-        </if>
+        test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+        test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+        test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+        test_case.other_test_name, test_case.review_status, test_case.tags,
+        test_case.demand_id, test_case.demand_name, test_case.`status`,
+        test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
+        test_case.custom_fields,test_case.case_public ,
+        project.workspace_id , project.name as projectName ,test_case.ref_id ,test_case.`order`
         from test_case left join user u on test_case.create_user=u.id
         left join (select id,workspace_id,NAME from project where workspace_id =#{request.workspaceId})
         project on test_case.project_id = project.id

@@ -68,11 +68,6 @@ public class BaseQueryRequest {
     private Map<String, Object> combine;
 
     /**
-     * 要查询的字段
-     */
-    private List<String> selectFields;
-
-    /**
      * 版本 ID
      */
     private String versionId;
