@@ -120,46 +120,29 @@ CREATE TABLE novice_statistics
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '新手村';
 
-DROP TABLE IF EXISTS operating_log;
-CREATE TABLE operating_log
-(
-    `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
-    `project_id`   VARCHAR(50) NOT NULL COMMENT '项目ID',
-    `oper_method`  VARCHAR(500) COMMENT 'operating method',
-    `create_user`  VARCHAR(100) COMMENT '创建人',
-    `oper_user`    VARCHAR(50) COMMENT '操作人',
-    `source_id`    VARCHAR(6000) COMMENT '资源ID',
-    `oper_type`    VARCHAR(100) COMMENT '操作类型',
-    `oper_module`  VARCHAR(100) COMMENT '操作模块',
-    `oper_title`   VARCHAR(6000) COMMENT '操作标题',
-    `oper_path`    VARCHAR(500) COMMENT '操作路径',
-    `oper_content` LONGBLOB COMMENT '操作内容',
-    `oper_params`  LONGBLOB COMMENT '操作参数',
-    `oper_time`    BIGINT      NOT NULL COMMENT '操作时间',
-    PRIMARY KEY (id)
+DROP TABLE IF EXISTS operation_log;
+CREATE TABLE operation_log(
+                              `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
+                              `project_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '项目id' ,
+                              `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,
+                              `create_user` VARCHAR(50)    COMMENT '操作人' ,
+                              `source_id` VARCHAR(50)    COMMENT '资源id' ,
+                              `method` VARCHAR(255) NOT NULL   COMMENT '操作方法' ,
+                              `type` VARCHAR(20) NOT NULL   COMMENT '操作类型/add/update/delete' ,
+                              `module` VARCHAR(20)    COMMENT '操作模块/api/case/scenario/ui' ,
+                              `details` VARCHAR(1000)    COMMENT '操作详情' ,
+                              `path` VARCHAR(255)    COMMENT '操作路径' ,
+                              PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '操作日志';
 
-
-CREATE INDEX idx_oper_module ON operating_log (`oper_module`);
-CREATE INDEX idx_oper_project_id ON operating_log (`project_id`);
-CREATE INDEX idx_oper_time_index ON operating_log (`oper_time`);
-
-DROP TABLE IF EXISTS operating_log_resource;
-CREATE TABLE operating_log_resource
-(
-    `id`               VARCHAR(50) NOT NULL COMMENT 'ID',
-    `operating_log_id` VARCHAR(50) NOT NULL COMMENT 'Operating log ID',
-    `source_id`        VARCHAR(50) NOT NULL COMMENT 'operating source id',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '操作日志关系记录';
-
-
-CREATE INDEX operating_log_id_index ON operating_log_resource (`operating_log_id`);
-CREATE INDEX source_id_index ON operating_log_resource (`source_id`);
+CREATE INDEX idx_create_time ON operation_log(`create_time`);
+CREATE INDEX idx_create_user ON operation_log(`create_user`);
+CREATE INDEX idx_method ON operation_log(`method`);
+CREATE INDEX idx_module ON operation_log(`module`);
+CREATE INDEX idx_project_id ON operation_log(`project_id`);
+CREATE INDEX idx_type ON operation_log(`type`);
 
 DROP TABLE IF EXISTS plugin;
 CREATE TABLE plugin
