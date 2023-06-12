@@ -20,4 +20,6 @@ public interface BaseUserMapper {
     String selectEmailInDB(@Param("email") String email, @Param("id") String id);
 
     List<User> selectUserIdByEmailList(@Param("emailList") List<String> emailList);
+
+    List<User> selectByKeyword(String keyword);
 }

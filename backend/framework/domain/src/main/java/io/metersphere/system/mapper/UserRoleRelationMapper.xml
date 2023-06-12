@@ -7,7 +7,7 @@
     <result column="role_id" jdbcType="VARCHAR" property="roleId" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, role_id, source_id, create_time, update_time
+    id, user_id, role_id, source_id, create_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserRoleRelationExample" resultMap="BaseResultMap">
     select
@@ -102,10 +102,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserRoleRelation">
     insert into user_role_relation (id, user_id, role_id, 
-      source_id, create_time, update_time
+      source_id, create_time, create_user
       )
     values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, 
-      #{sourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
+      #{sourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserRoleRelation">
@@ -126,8 +126,8 @@
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="updateTime != null">
-        update_time,
+      <if test="createUser != null">
+        create_user,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,8 +146,8 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="updateTime != null">
-        #{updateTime,jdbcType=BIGINT},
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -175,8 +175,8 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=BIGINT},
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -190,7 +190,7 @@
       role_id = #{record.roleId,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -210,8 +210,8 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=BIGINT},
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -222,7 +222,7 @@
       role_id = #{roleId,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

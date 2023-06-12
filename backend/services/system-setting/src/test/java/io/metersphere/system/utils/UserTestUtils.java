@@ -1,7 +1,8 @@
 package io.metersphere.system.utils;
 
+import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.system.domain.User;
-import io.metersphere.system.dto.UserMaintainRequest;
+import io.metersphere.system.dto.UserBatchCreateDTO;
 
 import java.util.ArrayList;
 
@@ -10,12 +11,16 @@ public class UserTestUtils {
     public static final String USER_DEFAULT_NAME = "tianyang.no.1";
     public static final String USER_DEFAULT_EMAIL = "tianyang.no.1@126.com";
     public static final String ORGANIZATION_ID = "ms-organization";
-    public static final String PROJECT_ID = "ms-project";
+    public static final String USER_ROLE_ID = "ms-user-role";
 
-    public static UserMaintainRequest getSimpleUserCreateDTO() {
-        UserMaintainRequest userMaintainRequest = new UserMaintainRequest();
-        userMaintainRequest.setOrganizationId(ORGANIZATION_ID);
-        userMaintainRequest.setProjectId(PROJECT_ID);
+    public static UserBatchCreateDTO getSimpleUserCreateDTO() {
+        UserBatchCreateDTO userMaintainRequest = new UserBatchCreateDTO();
+        userMaintainRequest.setOrganizationIdList(new ArrayList<>() {{
+            add(ORGANIZATION_ID);
+        }});
+        userMaintainRequest.setUserRoleIdList(new ArrayList<>() {{
+            add(USER_ROLE_ID);
+        }});
         userMaintainRequest.setUserInfoList(new ArrayList<>() {{
             add(new User() {{
                 setName(USER_DEFAULT_NAME);
@@ -31,13 +36,17 @@ public class UserTestUtils {
         return userMaintainRequest;
     }
 
-    public static UserMaintainRequest getErrorUserCreateDTO(boolean organizationIsEmpty, boolean projectIsEmpty, boolean userIsEmpty) {
-        UserMaintainRequest userMaintainRequest = new UserMaintainRequest();
+    public static UserBatchCreateDTO getErrorUserCreateDTO(boolean organizationIsEmpty, boolean roleIsEmpty, boolean userIsEmpty) {
+        UserBatchCreateDTO userMaintainRequest = new UserBatchCreateDTO();
         if (!organizationIsEmpty) {
-            userMaintainRequest.setOrganizationId(ORGANIZATION_ID);
+            userMaintainRequest.setOrganizationIdList(new ArrayList<>() {{
+                add(ORGANIZATION_ID);
+            }});
         }
-        if (!projectIsEmpty) {
-            userMaintainRequest.setProjectId(PROJECT_ID);
+        if (!roleIsEmpty) {
+            userMaintainRequest.setUserRoleIdList(new ArrayList<>() {{
+                add(USER_ROLE_ID);
+            }});
         }
         if (!userIsEmpty) {
             userMaintainRequest.setUserInfoList(new ArrayList<>() {{
@@ -54,5 +63,12 @@ public class UserTestUtils {
             }});
         }
         return userMaintainRequest;
+    }
+
+    public static BasePageRequest getDefaultPageRequest() {
+        return new BasePageRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+        }};
     }
 }
