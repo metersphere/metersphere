@@ -52,4 +52,12 @@
             #{email}
         </foreach>
     </select>
+    <select id="selectByKeyword" resultType="io.metersphere.system.domain.User">
+        SELECT *
+        FROM user
+        <if test="keyword != null and keyword != ''">
+            WHERE name LIKE CONCAT('%', #{keyword}, '%')
+            OR email LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+    </select>
 </mapper>

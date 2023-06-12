@@ -338,25 +338,24 @@ CREATE INDEX idx_create_user ON user (`create_user`);
 CREATE INDEX idx_update_user ON user (`update_user`);
 
 DROP TABLE IF EXISTS user_role_relation;
-CREATE TABLE user_role_relation
-(
-    `id`          VARCHAR(50) NOT NULL COMMENT '用户组关系ID',
-    `user_id`     VARCHAR(50) NOT NULL COMMENT '用户ID',
-    `role_id`     VARCHAR(50) NOT NULL COMMENT '组ID',
-    `source_id`   VARCHAR(50) NOT NULL COMMENT '组织或项目ID',
-    `create_time` BIGINT      NOT NULL COMMENT '创建时间',
-    `update_time` BIGINT      NOT NULL COMMENT '更新时间',
-    PRIMARY KEY (id)
+CREATE TABLE user_role_relation(
+`id` VARCHAR(50) NOT NULL   COMMENT '用户组关系ID' ,
+`user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID' ,
+`role_id` VARCHAR(50) NOT NULL   COMMENT '组ID' ,
+`source_id` VARCHAR(50) NOT NULL   COMMENT '组织或项目ID' ,
+`create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+`create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用户组关系';
 
 
-CREATE INDEX idx_user_id ON user_role_relation (`user_id`);
-CREATE INDEX idx_group_id ON user_role_relation (`role_id`);
-CREATE INDEX idx_source_id ON user_role_relation (`source_id`);
-CREATE INDEX idx_create_time ON user_role_relation (`create_time`);
-CREATE INDEX idx_update_time ON user_role_relation (`update_time`);
+
+CREATE INDEX idx_user_id ON user_role_relation(`user_id`);
+CREATE INDEX idx_group_id ON user_role_relation(`role_id`);
+CREATE INDEX idx_source_id ON user_role_relation(`source_id`);
+CREATE INDEX idx_create_time ON user_role_relation(`create_time`);
 
 DROP TABLE IF EXISTS user_role_permission;
 CREATE TABLE user_role_permission
