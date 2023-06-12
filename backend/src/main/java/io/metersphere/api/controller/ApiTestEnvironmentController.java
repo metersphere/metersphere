@@ -19,6 +19,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,7 +67,7 @@ public class ApiTestEnvironmentController {
     }
 
     @PostMapping("/add")
-    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_CREATE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_CREATE, PermissionConstants.PROJECT_ENVIRONMENT_READ_COPY, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_COPY}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
     public String create(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
         checkParams(apiTestEnvironmentWithBLOBs);
@@ -74,7 +75,7 @@ public class ApiTestEnvironmentController {
     }
 
     @PostMapping(value = "/update")
-    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_EDIT, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_EDIT}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = ApiTestEnvironmentService.class)
     public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
         checkParams(apiTestEnvironment);
