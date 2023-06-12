@@ -2,11 +2,13 @@ package io.metersphere.sdk.log.aspect;
 
 import io.metersphere.sdk.log.annotation.RequestLog;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.OperationLog;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -28,6 +30,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,6 +48,8 @@ public class OperationLogAspect {
      */
     private final StandardReflectionParameterNameDiscoverer
             discoverer = new StandardReflectionParameterNameDiscoverer();
+
+    private final String ID = "id";
     @Resource
     private ApplicationContext applicationContext;
 
@@ -106,7 +111,7 @@ public class OperationLogAspect {
                 .anyMatch(input -> input.contains(keyword));
     }
 
-    private void add(OperationLog operationLog, RequestLog msLog, JoinPoint joinPoint) {
+    private void add(OperationLog operationLog, RequestLog msLog, JoinPoint joinPoint, Object result) {
         //从切面织入点处通过反射机制获取织入点处的方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取切入点所在的方法
@@ -170,7 +175,28 @@ public class OperationLogAspect {
         if (StringUtils.isBlank(operationLog.getCreateUser())) {
             operationLog.setCreateUser(localUser.get());
         }
+        if (StringUtils.isEmpty(operationLog.getSourceId()) && !msLog.isBatch()) {
+            operationLog.setSourceId(getId(result));
+        }
         operationLogService.add(operationLog);
+    }
+
+    public String getId(Object result) {
+        try {
+            if (result != null) {
+                String resultStr = JSON.toJSONString(result);
+                Map object = JSON.parseMap(resultStr);
+                if (object != null && object.containsKey(ID)) {
+                    Object nameValue = object.get(ID);
+                    if (ObjectUtils.isNotEmpty(nameValue)) {
+                        return nameValue.toString();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error("未获取到响应Id");
+        }
+        return null;
     }
 
     /**
@@ -199,7 +225,7 @@ public class OperationLogAspect {
             // 获取操作
             RequestLog msLog = method.getAnnotation(RequestLog.class);
             if (msLog != null) {
-                add(operationLog, msLog, joinPoint);
+                add(operationLog, msLog, joinPoint, result);
             }
             // 兼容遗漏注解的内容
             else if (isMatch(method.getName())) {
