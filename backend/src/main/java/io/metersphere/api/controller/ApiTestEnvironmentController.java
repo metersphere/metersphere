@@ -11,6 +11,7 @@ import io.metersphere.api.service.CommandService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.PageUtils;
@@ -18,6 +19,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,6 +66,7 @@ public class ApiTestEnvironmentController {
     }
 
     @PostMapping("/add")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_CREATE)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
     public String create(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
         checkParams(apiTestEnvironmentWithBLOBs);
@@ -71,6 +74,7 @@ public class ApiTestEnvironmentController {
     }
 
     @PostMapping(value = "/update")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EDIT)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = ApiTestEnvironmentService.class)
     public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles) {
         checkParams(apiTestEnvironment);
@@ -105,6 +109,7 @@ public class ApiTestEnvironmentController {
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_DELETE)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestEnvironmentService.class)
     public void delete(@PathVariable String id) {
         apiTestEnvironmentService.delete(id);

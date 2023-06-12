@@ -54,6 +54,7 @@ public class GroupController {
     }
 
     @GetMapping("/get/all")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
     public List<GroupDTO> getAllGroup() {
         return groupService.getAllGroup();
     }
@@ -161,6 +162,7 @@ public class GroupController {
     }
 
     @PostMapping("/edit/member")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.PROJECT_GROUP_READ_EDIT}, logical = Logical.OR)
     public void editGroupUser(@RequestBody EditGroupUserRequest request) {
         groupService.editGroupUser(request);
     }
