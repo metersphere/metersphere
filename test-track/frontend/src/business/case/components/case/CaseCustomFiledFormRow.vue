@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row v-for="i in customFieldRowNums" :key="i">
-      <span class="custom-item" v-for="(item, j) in sortCustomFields" :key="j">
+      <span class="custom-item" v-for="(item, j) in issueTemplate.customFields" :key="j">
         <template v-if="j >= (i - 1) * 3 && j < (i - 1) * 3 + 3">
           <div class="custom-row case-wrap">
             <div class="case-title-wrap">
@@ -52,7 +52,6 @@
 <script>
 import { SYSTEM_FIELD_NAME_MAP } from "metersphere-frontend/src/utils/table-constants";
 import MsCustomFiledComponent from "metersphere-frontend/src/components/new-ui/MsCustomFiledComponent";
-import { sortCustomFields } from "metersphere-frontend/src/utils/custom_field";
 import BaseEditItemComponent from "../BaseEditItemComponent";
 
 export default {
@@ -89,11 +88,6 @@ export default {
     },
     projectId: String
   },
-  data() {
-    return {
-      sortCustomFields: Object
-    }
-  },
   computed: {
     customFieldRowNums() {
       let size = this.issueTemplate.customFields
@@ -104,10 +98,7 @@ export default {
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
-    },
-  },
-  mounted() {
-    this.sortCustomFields = sortCustomFields(this.issueTemplate.customFields);
+    }
   }
 };
 </script>
