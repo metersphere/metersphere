@@ -172,7 +172,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         // authentication schemes，e.g: Bearer
         // authenticationScheme: 'Bearer',
         authenticationScheme: '',
-        baseURL: import.meta.env.VITE_API_BASE_URL as string,
+        baseURL: `${window.location.origin}/${import.meta.env.VITE_API_BASE_URL as string}`,
         timeout: 30 * 1000,
         headers: { 'Content-Type': ContentTypeEnum.JSON, 'X-AUTH-TOKEN': sessionId, 'CSRF-TOKEN': csrfToken },
         // 如果是form-data格式

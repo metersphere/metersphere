@@ -20,6 +20,12 @@ export default function useModal() {
         ...options,
         titleAlign: 'start',
         modalClass: `ms-modal-${options.mode || 'default'} ms-modal-${options.size || 'medium'}`,
+        okButtonProps: {
+          type: options.mode === 'weak' ? 'text' : 'primary',
+        },
+        cancelButtonProps: {
+          type: options.mode === 'weak' ? 'text' : 'secondary',
+        },
       }),
   };
 }
