@@ -1970,7 +1970,7 @@ export default {
           if (res.data) {
             this.projectIds = new Set(res.data.projectIds);
             this.projectIds.add(this.projectId);
-            this.isFullUrl = res.data.fullUrl;
+            this.isFullUrl = res.data.data.fullUrl;
           }
           resolve();
         });
