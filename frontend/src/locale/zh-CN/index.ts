@@ -6,6 +6,7 @@ import minder from '@/components/pure/minder-editor/locale/zh-CN';
 import localeLogin from '@/views/login/locale/zh-CN';
 import localeTable from '@/components/pure/ms-table/locale/zh-CN';
 import localeApiTest from '@/views/api-test/locale/zh-CN';
+import localeUser from '@/views/system/locale/zh-CN';
 
 export default {
   message: {
@@ -22,6 +23,7 @@ export default {
     ...minder,
     ...localeTable,
     ...localeApiTest,
+    ...localeUser,
   },
   dayjsLocale,
   dayjsLocaleName: 'zh-CN',

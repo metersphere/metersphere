@@ -6,6 +6,7 @@ import minder from '@/components/pure/minder-editor/locale/en-US';
 import localeLogin from '@/views/login/locale/en-US';
 import localeTable from '@/components/pure/ms-table/locale/en-US';
 import localeApiTest from '@/views/api-test/locale/en-US';
+import localeUser from '@/views/system/locale/en-US';
 
 export default {
   message: {
@@ -21,6 +22,7 @@ export default {
     ...minder,
     ...localeTable,
     ...localeApiTest,
+    ...localeUser,
   },
   dayjsLocale,
   dayjsLocaleName: 'en-US',
