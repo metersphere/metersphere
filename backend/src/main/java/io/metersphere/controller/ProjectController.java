@@ -135,6 +135,7 @@ public class ProjectController {
     }
 
     @PostMapping("/member/update")
+    @RequiresPermissions("PROJECT_USER:READ+EDIT")
     @MsAuditLog(module = OperLogModule.PROJECT_PROJECT_MEMBER, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = ProjectService.class)
     public void updateMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         projectService.updateMember(memberDTO);
