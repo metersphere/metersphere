@@ -100,21 +100,25 @@ public class IssuesController {
     }
 
     @PostMapping("/user/auth")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_SERVICE_READ)
     public void userAuth(@RequestBody AuthUserIssueRequest authUserIssueRequest) {
         issuesService.userAuth(authUserIssueRequest);
     }
 
     @GetMapping("/close/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void closeLocalIssue(@PathVariable String id) {
         issuesService.closeLocalIssue(id);
     }
 
     @PostMapping("/delete/relate")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public void deleteRelate(@RequestBody IssuesRequest request) {
         issuesService.deleteIssueRelate(request);
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.DEFECT_TASK, target = "#targetClass.get(#id)", targetClass = IssuesService.class, event = NoticeConstants.Event.DELETE, subject = "缺陷通知")
     public void delete(@PathVariable String id) {
@@ -122,66 +126,79 @@ public class IssuesController {
     }
 
     @PostMapping("/tapd/user")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<PlatformUser> getTapdUsers(@RequestBody IssuesRequest request) {
         return issuesService.getTapdProjectUsers(request);
     }
 
     @PostMapping("/zentao/user")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<PlatformUser> getZentaoUsers(@RequestBody IssuesRequest request) {
         return issuesService.getZentaoUsers(request);
     }
 
     @PostMapping("/zentao/builds")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<ZentaoBuild> getZentaoBuilds(@RequestBody IssuesRequest request) {
         return issuesService.getZentaoBuilds(request);
     }
 
     @GetMapping("/sync/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public boolean getPlatformIssue(@PathVariable String projectId) {
         return issuesService.syncThirdPartyIssues(projectId);
     }
 
     @GetMapping("/sync/check/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public boolean checkSync(@PathVariable String projectId) {
         return issuesService.checkSync(projectId);
     }
 
     @PostMapping("/change/status")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void changeStatus(@RequestBody IssuesRequest request) {
         issuesService.changeStatus(request);
     }
 
     @PostMapping("/status/count")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<IssuesStatusCountDao> getCountByStatus(@RequestBody IssuesRequest request) {
         return issuesService.getCountByStatus(request);
     }
 
     @GetMapping("/follow/{issueId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<String> getFollows(@PathVariable String issueId) {
         return issuesService.getFollows(issueId);
     }
 
     @PostMapping("/up/follows/{issueId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public void saveFollows(@PathVariable String issueId, @RequestBody List<String> follows) {
         issuesService.saveFollows(issueId, follows);
     }
 
     @GetMapping("/thirdpart/template/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public IssueTemplateDao getThirdPartTemplate(@PathVariable String projectId) {
         return issuesService.getThirdPartTemplate(projectId);
     }
 
     @PostMapping("/jira/issuetype")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<JiraIssueType> getJiraIssueType(@RequestBody JiraIssueTypeRequest request) {
         return issuesService.getIssueTypes(request);
     }
 
     @GetMapping("/demand/list/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<DemandDTO> getDemandList(@PathVariable String projectId) {
         return issuesService.getDemandList(projectId);
     }
 
     @PostMapping("/platform/transitions")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<PlatformStatusDTO> getPlatformTransitions(@RequestBody PlatformIssueTypeRequest request) {
         return issuesService.getPlatformTransitions(request);
     }

@@ -66,16 +66,19 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/reviewer")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<User> getUserByReviewId(@RequestBody TestCaseReview request) {
         return testCaseReviewService.getUserByReviewId(request);
     }
 
     @PostMapping("/follow")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<User> getFollowByReviewId(@RequestBody TestCaseReview request) {
         return testCaseReviewService.getFollowByReviewId(request);
     }
 
     @GetMapping("/recent/{count}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<TestCaseReviewDTO> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         PageHelper.startPage(1, count, true);
@@ -107,12 +110,14 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/relevance")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = TestCaseReviewService.class)
     public void testReviewRelevance(@RequestBody ReviewRelevanceRequest request) {
         testCaseReviewService.testReviewRelevance(request);
     }
 
     @PostMapping("/projects")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<Project> getProjectByReviewId(@RequestBody TestReviewRelevanceRequest request) {
         List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId();
         request.setProjectIds(projectIds);
@@ -120,6 +125,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/project/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public Pager<List<Project>> getProjectByReviewId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestReviewRelevanceRequest request) {
         List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId();
         request.setProjectIds(projectIds);
@@ -143,6 +149,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/list/all/relate")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<TestReviewDTOWithMetric> listRelateAll(@RequestBody ReviewRelateRequest request) {
         return testCaseReviewService.listRelateAll(request);
     }

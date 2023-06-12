@@ -11,6 +11,7 @@ import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.service.TestCaseCommentService;
 import io.metersphere.track.service.TestCaseService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,8 @@ public class TestCaseCommentController {
     }
 
     @GetMapping("/list/{caseId}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ,
+            PermissionConstants.PROJECT_TRACK_REVIEW_READ,  PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId) {
         return testCaseCommentService.getCaseComments(caseId);
     }

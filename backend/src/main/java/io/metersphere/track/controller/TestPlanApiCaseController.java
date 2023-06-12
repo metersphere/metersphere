@@ -31,37 +31,44 @@ public class TestPlanApiCaseController {
     TestPlanApiCaseService testPlanApiCaseService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public Pager<List<TestPlanApiCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanApiCaseService.list(request));
     }
 
     @GetMapping("/list/failure/{planId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanFailureApiDTO> getFailureList(@PathVariable String planId) {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/list/errorReport/{planId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanFailureApiDTO> getErrorReportList(@PathVariable String planId) {
         return testPlanApiCaseService.getErrorReportCases(planId);
     }
     @GetMapping("/list/unExecute/{planId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanFailureApiDTO> getUnExecuteCases(@PathVariable String planId) {
         return testPlanApiCaseService.getUnExecuteCases(planId);
     }
 
     @GetMapping("/list/all/{planId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
         return testPlanApiCaseService.getAllCases(planId);
     }
 
     @PostMapping("/selectAllTableRows")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public List<TestPlanApiCaseDTO> selectAllTableRows(@RequestBody TestPlanApiCaseBatchRequest request) {
         return testPlanApiCaseService.selectAllTableRows(request);
     }
 
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
     public Pager<List<ApiTestCaseDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         return testPlanApiCaseService.relevanceList(goPage, pageSize, request);
     }
@@ -88,12 +95,14 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping(value = "/run")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planIds)", msClass = TestPlanApiCaseService.class)
     public List<MsExecResponseDTO> run(@RequestBody BatchRunDefinitionRequest request) {
         return testPlanApiCaseService.run(request);
     }
 
     @PostMapping("/edit/order")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testPlanApiCaseService.updateOrder(request);
     }

@@ -76,12 +76,13 @@ public class TestCaseController {
 
 
     @PostMapping("/public/case/node")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseNodeDTO> getPublicCaseNode(@RequestBody QueryTestCaseRequest request) {
         return testCaseService.getPublicCaseNode(request);
     }
 
     @GetMapping("/list/{projectId}")
-    @RequiresPermissions("PROJECT_TRACK_CASE:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> list(@PathVariable String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
@@ -90,19 +91,21 @@ public class TestCaseController {
     }
 
     @PostMapping("/list")
-    @RequiresPermissions("PROJECT_TRACK_CASE:READ")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> list(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCase(request);
     }
 
     @PostMapping("/list/minder")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> listForMinder(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return testCaseService.listTestCaseForMinder(request);
     }
 
     @PostMapping("/list/minder/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -111,6 +114,7 @@ public class TestCaseController {
 
     /*jenkins项目下所有接口和性能测试用例*/
     @GetMapping("/list/method/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
@@ -118,21 +122,25 @@ public class TestCaseController {
     }
 
     @GetMapping("/relationship/case/{id}/{relationshipType}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<RelationshipEdgeDTO> getRelationshipCase(@PathVariable("id") String id, @PathVariable("relationshipType") String relationshipType) {
         return testCaseService.getRelationshipCase(id, relationshipType);
     }
 
     @PostMapping("/relationship/add")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void saveRelationshipBatch(@RequestBody TestCaseRelationshipEdgeRequest request) {
         testCaseService.saveRelationshipBatch(request);
     }
 
     @GetMapping("/relationship/case/count/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public int getRelationshipCase(@PathVariable("id") String id) {
         return testCaseService.getRelationshipCount(id);
     }
 
     @GetMapping("recent/{count}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCase> recentTestPlans(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestCaseRequest request = new QueryTestCaseRequest();
@@ -142,71 +150,84 @@ public class TestCaseController {
     }
 
     @PostMapping("/relate/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         return testCaseService.getTestCaseRelateList(request, goPage, pageSize);
     }
 
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         return testCaseService.getRelationshipRelateList(request, goPage, pageSize);
     }
 
     @PostMapping("/relate/issue/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> getTestCaseIssueRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseIssueRelateList(request));
     }
 
     @PostMapping("/relevance/api/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public Pager<List<ApiTestCaseDTO>> getTestCaseApiCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseApiCaseRelateList(request));
     }
 
     @PostMapping("/relevance/scenario/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public Pager<List<ApiScenarioDTO>> getTestCaseScenarioCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseScenarioCaseRelateList(request));
     }
 
     @PostMapping("/relevance/load/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public Pager<List<LoadTestDTO>> getTestCaseLoadCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseLoadCaseRelateList(request));
     }
 
     @GetMapping("/relate/test/list/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseTestDao> getRelateTest(@PathVariable String caseId) {
         return testCaseService.getRelateTest(caseId);
     }
 
     @PostMapping("/relate/test/{type}/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void relateTest(@PathVariable String type, @PathVariable String caseId, @RequestBody List<String> apiIds) {
         testCaseService.relateTest(type, caseId, apiIds);
     }
 
     @GetMapping("/relate/delete/{caseId}/{testId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void relateDelete(@PathVariable String caseId, @PathVariable String testId) {
         testCaseService.relateDelete(caseId, testId);
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> getReviewCase(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getReviewCase(request));
     }
 
     @GetMapping("/get/{testCaseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
         return testCaseService.getTestCase(testCaseId);
     }
 
     @GetMapping("/get/step/{testCaseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public TestCaseWithBLOBs getTestCaseStep(@PathVariable String testCaseId) {
         return testCaseService.getTestCaseStep(testCaseId);
     }
 
     @GetMapping("/project/{testCaseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.getProjectByTestCaseId(testCaseId);
@@ -228,12 +249,14 @@ public class TestCaseController {
     }
 
     @PostMapping("/edit/order")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         checkPermissionService.checkTestCaseOwner(request.getMoveId());
         testCaseService.updateOrder(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
@@ -242,12 +265,14 @@ public class TestCaseController {
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files, Boolean.TRUE);
     }
 
     @PostMapping("/delete/{testCaseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     public int deleteTestCase(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
@@ -255,6 +280,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/deleteToGc/{testCaseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
             subject = "测试用例通知")
@@ -264,6 +290,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/deletePublic/{versionId}/{refId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_ADD_PUBLIC)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
             subject = "测试用例通知")
@@ -273,6 +300,7 @@ public class TestCaseController {
 
 
     @PostMapping("/import")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_IMPORT)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.IMPORT, project = "#request.projectId")
     public ExcelResponse testCaseImport(@RequestPart("request") TestCaseImportRequest request, @RequestPart("file") MultipartFile file, HttpServletRequest httpRequest) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
@@ -357,6 +385,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/reduction")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void reduction(@RequestBody TestCaseBatchRequest request) {
         testCaseService.reduction(request);
@@ -364,11 +393,13 @@ public class TestCaseController {
 
 
     @GetMapping("/file/metadata/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<FileMetadata> getFileMetadata(@PathVariable String caseId) {
         return fileService.getFileMetadataByCaseId(caseId);
     }
 
     @PostMapping("/file/download")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());
         return ResponseEntity.ok()
@@ -378,6 +409,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/file/preview/{fileId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public ResponseEntity<byte[]> preview(@PathVariable String fileId) {
         byte[] bytes = fileService.loadFileAsBytes(fileId);
         return ResponseEntity.ok()
@@ -387,6 +419,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/save")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.CREATE, title = "#testCaseWithBLOBs.name", content = "#msClass.getLogDetails(#testCaseWithBLOBs.id)", msClass = TestCaseService.class)
     public TestCaseWithBLOBs saveTestCase(@RequestBody EditTestCaseRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -401,6 +434,7 @@ public class TestCaseController {
     }
 
     @GetMapping("/follow/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<String> getFollows(@PathVariable String caseId) {
         return testCaseService.getFollows(caseId);
     }
@@ -412,17 +446,20 @@ public class TestCaseController {
     }
 
     @GetMapping("versions/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List<TestCaseDTO> getTestCaseVersions(@PathVariable String caseId) {
         return testCaseService.getTestCaseVersions(caseId);
     }
 
     @GetMapping("get/{version}/{refId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public TestCaseDTO getTestCase(@PathVariable String version, @PathVariable String refId) {
         return testCaseService.getTestCaseByVersion(refId, version);
     }
 
     @GetMapping("delete/{version}/{refId}")
-    public void deleteApiDefinition(@PathVariable String version, @PathVariable String refId) {
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    public void deleteTestCaseByVersion(@PathVariable String version, @PathVariable String refId) {
         testCaseService.deleteTestCaseByVersion(refId, version);
     }
 
@@ -433,6 +470,7 @@ public class TestCaseController {
      * @return
      */
     @GetMapping("hasOtherInfo/{caseId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Boolean hasOtherInfo(@PathVariable String caseId) {
         return testCaseService.hasOtherInfo(caseId);
     }
