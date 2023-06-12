@@ -32,7 +32,8 @@ public class TestReviewTestCaseController {
     TestReviewTestCaseService testReviewTestCaseService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestReviewCaseDTO>> getTestPlanCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    public Pager<List<TestReviewCaseDTO>> getTestReviewCases(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testReviewTestCaseService.list(request));
     }
@@ -73,11 +74,13 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/list/minder")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<TestReviewCaseDTO> listForMinder(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.listForMinder(request);
     }
 
     @PostMapping("/list/minder/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public Pager<List<TestReviewCaseDTO>> listForMinder(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCaseReviewRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testReviewTestCaseService.listForMinder(request));
@@ -91,16 +94,19 @@ public class TestReviewTestCaseController {
     }
 
     @GetMapping("/get/{reviewId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public TestReviewCaseDTO get(@PathVariable String reviewId) {
         return testReviewTestCaseService.get(reviewId);
     }
 
     @GetMapping("/reviewer/status/{id}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     public List<TestCaseComment> getReviewerStatusComment(@PathVariable String id) {
         return testReviewTestCaseService.getReviewerStatusComment(id);
     }
 
     @PostMapping("/edit/order")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
     @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
     public void orderCase(@RequestBody ResetOrderRequest request) {
         testReviewTestCaseService.updateOrder(request);

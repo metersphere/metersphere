@@ -4,6 +4,7 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.MicroServiceName;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.*;
@@ -16,6 +17,7 @@ import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +36,7 @@ public class TrackController {
     private TestCaseService testCaseService;
 
     @GetMapping("/count/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_HOME)
     public TrackStatisticsDTO getTrackCount(@PathVariable String projectId) {
         TrackStatisticsDTO statistics = new TrackStatisticsDTO();
 
@@ -64,6 +67,7 @@ public class TrackController {
     }
 
     @GetMapping("/failure/case/about/plan/{projectId}/{versionId}/{pageSize}/{goPage}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_HOME)
     public Pager<List<ExecutedCaseInfoDTO>> failureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable String versionId,
                                                                      @PathVariable int pageSize, @PathVariable int goPage) {
         if (StringUtils.equalsIgnoreCase(versionId, "default")) {
@@ -102,6 +106,7 @@ public class TrackController {
 
 
     @GetMapping("/relevance/count/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_HOME)
     public TrackStatisticsDTO getRelevanceCount(@PathVariable String projectId) {
         TrackStatisticsDTO statistics = new TrackStatisticsDTO();
 
@@ -143,11 +148,13 @@ public class TrackController {
     }
 
     @GetMapping("/case/bar/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_HOME)
     public List<ChartsData> getCaseMaintenanceBar(@PathVariable String projectId) {
         return trackService.getCaseMaintenanceBar(projectId);
     }
 
     @GetMapping("/bug/count/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_HOME)
     public BugStatistics getBugStatistics(@PathVariable String projectId) {
         return trackService.getBugStatistics(projectId);
     }

@@ -11,6 +11,7 @@ import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.request.testreview.SaveCommentRequest;
 import io.metersphere.service.TestCaseCommentService;
 import io.metersphere.service.TestCaseService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,16 +35,22 @@ public class TestCaseCommentController {
     }
 
     @GetMapping("/list/{caseId}/{type}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ,
+            PermissionConstants.PROJECT_TRACK_REVIEW_READ,  PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId, @PathVariable String type) {
         return testCaseCommentService.getCaseComments(caseId, type);
     }
 
     @GetMapping("/list/{caseId}/{type}/{belongId}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ,
+            PermissionConstants.PROJECT_TRACK_REVIEW_READ,  PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId, @PathVariable String type, @PathVariable String belongId) {
         return testCaseCommentService.getCaseComments(caseId, type, belongId);
     }
 
     @GetMapping("/list/{caseId}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ,
+            PermissionConstants.PROJECT_TRACK_REVIEW_READ,  PermissionConstants.PROJECT_TRACK_PLAN_READ}, logical = Logical.OR)
     public List<TestCaseCommentDTO> getCaseComments(@PathVariable String caseId) {
         return testCaseCommentService.getCaseComments(caseId, null);
     }
