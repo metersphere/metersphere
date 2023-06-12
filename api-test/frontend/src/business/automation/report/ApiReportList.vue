@@ -375,7 +375,7 @@ export default {
       if (report.reportType.indexOf('SCENARIO') !== -1 || report.reportType === 'API_INTEGRATED') {
         this.currentProjectId = report.projectId;
         this.$router.push({
-          path: 'report/view/' + report.id,
+          path: '/api/automation/report/view/' + report.id,
           query: { list: true },
         });
       } else {
