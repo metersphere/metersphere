@@ -21,6 +21,16 @@ const ApiTest: AppRouteRecordRaw = {
         icon: 'icon-computer',
       },
     },
+    {
+      path: 'usergroup',
+      name: 'usergroup',
+      component: () => import('@/views/system/user/index.vue'),
+      meta: {
+        locale: 'menu.settings.user',
+        roles: ['*'],
+        icon: 'icon-computer',
+      },
+    },
   ],
 };
 

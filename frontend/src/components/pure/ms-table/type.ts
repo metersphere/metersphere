@@ -8,7 +8,7 @@ export interface MsPaginationI {
 }
 
 // 表格属性
-export interface MsTabelProps {
+export interface MsTableProps {
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: TableColumnData[];
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;

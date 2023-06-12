@@ -19,7 +19,7 @@ export interface SortItem {
 export interface FilterItem {
   [key: string]: any;
 }
-export interface ApiTestListI {
+export interface CommonList {
   [x: string]: any;
   pageSize: number;
   total: number;

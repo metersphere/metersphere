@@ -2,8 +2,8 @@
 // hook/table-props.ts
 
 import { ref } from 'vue';
-import { MsTabelProps, MsTableData, MsTableColumn } from './type';
-import { ApiTestListI } from '@/models/api-test';
+import { MsTableProps, MsTableData, MsTableColumn } from './type';
+import { CommonList } from '@/models/api-test';
 import { TableData } from '@arco-design/web-vue';
 import dayjs from 'dayjs';
 import { QueryParams } from '@/models/common';
@@ -16,16 +16,16 @@ export interface Pagination {
   showPageSize: boolean;
 }
 
-type GetListFunc = (v: QueryParams) => Promise<ApiTestListI>;
+type GetListFunc = (v: QueryParams) => Promise<CommonList>;
 const appStore = useAppStore();
-export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<MsTabelProps>) {
+export default function useTableProps(loadListFunc: GetListFunc, props?: Partial<MsTableProps>) {
   // 行选择
   const rowSelection = {
     type: 'checkbox',
     showCheckedAll: false,
   };
 
-  const defaultProps: MsTabelProps = {
+  const defaultProps: MsTableProps = {
     bordered: true,
     showPagination: true,
     size: 'small',
@@ -109,7 +109,7 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
   };
 
   // 单独设置默认属性
-  const setProps = (params: Partial<MsTabelProps>) => {
+  const setProps = (params: Partial<MsTableProps>) => {
     const tmpProps = propsRes.value;
     Object.keys(params).forEach((key) => {
       tmpProps[key] = params[key];
@@ -119,7 +119,7 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
 
   // 设置请求参数，如果出了分页参数还有搜索参数，在模板页面调用此方法，可以加入参数
   const loadListParams = ref<object>({});
-  const setLoadListParams = (params?: object) => {
+  const setLoadPaListrams = (params?: object) => {
     loadListParams.value = params || {};
   };
 
@@ -131,26 +131,31 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
   const loadList = async () => {
     const { current, pageSize } = propsRes.value.pagination as Pagination;
     setLoading(true);
-    const data = await loadListFunc({
-      current,
-      pageSize,
-      sort: sortItem.value,
-      filter: filterItem.value,
-      keyword: keyword.value,
-    });
-    const tmpArr = data.list as unknown as MsTableData;
-    propsRes.value.data = tmpArr.map((item: TableData) => {
-      if (item.updateTime) {
-        item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
-      }
-      if (item.createTime) {
-        item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
-      }
-      return item;
-    });
-    setPagination({ current: data.current, total: data.total });
-    setLoading(false);
-    return data;
+    try {
+      const data = await loadListFunc({
+        current,
+        pageSize,
+        sort: sortItem.value,
+        filter: filterItem.value,
+        keyword: keyword.value,
+      });
+      const tmpArr = data.list as unknown as MsTableData;
+      propsRes.value.data = tmpArr.map((item: TableData) => {
+        if (item.updateTime) {
+          item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');
+        }
+        if (item.createTime) {
+          item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
+        }
+        return item;
+      });
+      setPagination({ current: data.current, total: data.total });
+      return data;
+    } catch (err) {
+      // TODO 表格异常放到solt的empty
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 事件触发组
@@ -204,7 +209,7 @@ export default function useTbleProps(loadListFunc: GetListFunc, props?: Partial<
     setLoading,
     loadList,
     setPagination,
-    setLoadListParams,
+    setLoadPaListrams,
     setKeyword,
   };
 }
