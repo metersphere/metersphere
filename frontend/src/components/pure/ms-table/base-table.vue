@@ -33,7 +33,7 @@
   // eslint-disable no-console
   import { useSlots, useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
-  import { MsTabelProps, SelectAllEnum, MsPaginationI } from './type';
+  import { MsTableProps, SelectAllEnum, MsPaginationI } from './type';
   import BatchAction from './batchAction.vue';
 
   const batchleft = ref('10px');
@@ -61,11 +61,11 @@
   const slots = useSlots();
   const attrs = useAttrs();
 
-  const { rowKey, pagination }: Partial<MsTabelProps> = attrs;
+  const { rowKey, pagination }: Partial<MsTableProps> = attrs;
 
   // 全选按钮-总条数
   const selectTotal = computed(() => {
-    const { data }: Partial<MsTabelProps> = attrs;
+    const { data }: Partial<MsTableProps> = attrs;
     if (pagination) {
       const { pageSize } = pagination as MsPaginationI;
       return pageSize;
@@ -82,7 +82,7 @@
 
   // 全选change事件
   const handleChange = (v: string) => {
-    const { data }: Partial<MsTabelProps> = attrs;
+    const { data }: Partial<MsTableProps> = attrs;
     isSelectAll.value = v === SelectAllEnum.ALL;
     if (v === SelectAllEnum.NONE) {
       selectionChange([], true);

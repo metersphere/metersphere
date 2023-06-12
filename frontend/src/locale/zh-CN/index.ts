@@ -9,6 +9,7 @@ import localeApiTest from '@/views/api-test/locale/zh-CN';
 
 export default {
   message: {
+    'menu.apiTest': '接口测试',
     'menu.settings': '系统设置',
     'menu.settings.user': '用户',
     'menu.settings.organization': '组织',
