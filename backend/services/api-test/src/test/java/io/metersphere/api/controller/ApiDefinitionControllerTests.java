@@ -11,7 +11,6 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
-import org.junit.Before;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,13 +39,8 @@ public class ApiDefinitionControllerTests {
     private static String sessionId;
     private static String csrfToken;
 
-    @Before
-    public void init() {
-        LogUtils.info("init base api test");
-    }
-
     @Test
-    @Order(0)
+    @BeforeEach
     public void login() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
@@ -173,4 +168,19 @@ public class ApiDefinitionControllerTests {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @Order(4)
+    public void testBatchDel() throws Exception {
+        LogUtils.info("delete api test");
+        List<String> tests = new ArrayList<>();
+        tests.add("test-api-id");
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/batch-del")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(JSON.toJSONString(tests))
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk());
+
+    }
 }
