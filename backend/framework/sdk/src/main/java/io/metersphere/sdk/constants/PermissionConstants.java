@@ -27,6 +27,8 @@ public class PermissionConstants {
 
     public static final String SYSTEM_SETTING_READ = "SYSTEM_SETTING:READ";
     public static final String SYSTEM_SETTING_READ_UPDATE = "SYSTEM_SETTING:READ+UPDATE";
+    public static final String SYSTEM_SETTING_READ_CREAT = "SYSTEM_SETTING:READ+CREAT";
+    public static final String SYSTEM_SETTING_READ_DELETE = "SYSTEM_SETTING:READ+DELETE";
     public static final String SYSTEM_SETTING_READ_AUTH_MANAGE = "SYSTEM_SETTING:READ+AUTH_MANAGE";
     public static final String SYSTEM_QUOTA_READ = "SYSTEM_QUOTA:READ";
     public static final String SYSTEM_QUOTA_READ_UPDATE = "SYSTEM_QUOTA:READ+UPDATE";
