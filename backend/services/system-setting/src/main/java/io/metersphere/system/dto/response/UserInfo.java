@@ -6,12 +6,13 @@ import io.metersphere.system.domain.UserRole;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class UserInfo extends User {
     @Schema(title = "用户所属组织")
-    List<Organization> organizationList;
+    List<Organization> organizationList = new ArrayList<>();
     @Schema(title = "用户所属用户组")
-    List<UserRole> userRoleList;
+    List<UserRole> userRoleList = new ArrayList<>();
 }

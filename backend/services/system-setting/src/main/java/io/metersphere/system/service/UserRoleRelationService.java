@@ -1,7 +1,11 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.sdk.constants.UserRoleEnum;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.response.UserInfo;
+import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
+import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -9,6 +13,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -17,16 +22,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class UserRoleRelationService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
     public void batchSave(@Validated({Created.class, Updated.class})
                           @NotEmpty(groups = {Created.class, Updated.class}, message = "{user.organizationId.not_blank}")
@@ -54,18 +65,49 @@ public class UserRoleRelationService {
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         UserRoleRelationMapper batchSaveMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
-        try {
-            int insertIndex = 0;
-            for (UserRoleRelation userRoleRelation : userRoleRelationSaveList) {
-                batchSaveMapper.insert(userRoleRelation);
-                insertIndex++;
-                if (insertIndex % 50 == 0) {
-                    sqlSession.flushStatements();
-                }
+        int insertIndex = 0;
+        for (UserRoleRelation userRoleRelation : userRoleRelationSaveList) {
+            batchSaveMapper.insert(userRoleRelation);
+            insertIndex++;
+            if (insertIndex % 50 == 0) {
+                sqlSession.flushStatements();
             }
-            sqlSession.flushStatements();
-        } finally {
-            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public Map<String, UserInfo> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
+        List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.listByUserIdAndScope(userIdList);
+        List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).collect(Collectors.toList());
+        List<String> sourceIdList = userRoleRelationList.stream().map(UserRoleRelation::getSourceId).collect(Collectors.toList());
+        Map<String, UserRole> userRoleMap = new HashMap<>();
+        Map<String, Organization> organizationMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(userRoleIdList)) {
+            UserRoleExample userRoleExample = new UserRoleExample();
+            userRoleExample.createCriteria().andIdIn(userRoleIdList).andScopeIdEqualTo(UserRoleEnum.GLOBAL.toString());
+            userRoleMap = userRoleMapper.selectByExample(userRoleExample).stream()
+                    .collect(Collectors.toMap(UserRole::getId, item -> item));
+        }
+        if (CollectionUtils.isNotEmpty(sourceIdList)) {
+            OrganizationExample organizationExample = new OrganizationExample();
+            organizationExample.createCriteria().andIdIn(sourceIdList);
+            organizationMap = organizationMapper.selectByExample(organizationExample).stream()
+                    .collect(Collectors.toMap(Organization::getId, item -> item));
+        }
+        Map<String, UserInfo> returnMap = new HashMap<>();
+        for (UserRoleRelation userRoleRelation : userRoleRelationList) {
+            UserInfo userInfo = returnMap.get(userRoleRelation.getUserId());
+            if (userInfo == null) {
+                userInfo = new UserInfo();
+                userInfo.setId(userRoleRelation.getUserId());
+                returnMap.put(userRoleRelation.getUserId(), userInfo);
+            }
+            UserRole userRole = userRoleMap.get(userRoleRelation.getRoleId());
+            Organization organization = organizationMap.get(userRoleRelation.getSourceId());
+            userInfo.getUserRoleList().add(userRole);
+            userInfo.getOrganizationList().add(organization);
+        }
+        return returnMap;
     }
 }

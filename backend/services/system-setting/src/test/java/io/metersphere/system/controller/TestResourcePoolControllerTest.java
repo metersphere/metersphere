@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class TestResourcePoolControllerTest extends BaseTest {
+ class TestResourcePoolControllerTest extends BaseTest {
 
     @Resource
     private MockMvc mockMvc;

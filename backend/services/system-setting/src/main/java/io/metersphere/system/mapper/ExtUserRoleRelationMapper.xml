@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtUserRoleRelationMapper">
+
+    <select id="listByUserIdAndScope" resultType="io.metersphere.system.domain.UserRoleRelation">
+        SELECT * FROM
+        user_role_relation
+        WHERE
+        <foreach collection="userIds" item="userId" open="(" close=")" separator="OR">
+            user_id = #{userId}
+        </foreach>
+    </select>
+</mapper>
