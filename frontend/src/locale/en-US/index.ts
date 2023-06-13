@@ -6,12 +6,13 @@ import minder from '@/components/pure/minder-editor/locale/en-US';
 import localeLogin from '@/views/login/locale/en-US';
 import localeTable from '@/components/pure/ms-table/locale/en-US';
 import localeApiTest from '@/views/api-test/locale/en-US';
-import localeUser from '@/views/system/locale/en-US';
+import localeSystem from '@/views/system/locale/en-US';
 
 export default {
   message: {
     'menu.apiTest': 'Api Test',
     'menu.settings': 'System Settings',
+    'menu.settings.usergroup': 'User Group',
     'menu.settings.user': 'User',
     'menu.settings.organization': 'Organization',
     'navbar.action.locale': 'Switch to English',
@@ -22,7 +23,7 @@ export default {
     ...minder,
     ...localeTable,
     ...localeApiTest,
-    ...localeUser,
+    ...localeSystem,
   },
   dayjsLocale,
   dayjsLocaleName: 'en-US',

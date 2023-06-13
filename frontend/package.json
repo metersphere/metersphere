@@ -58,7 +58,8 @@
     "vue-echarts": "^6.5.5",
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.2.2",
-    "vue3-ace-editor": "^2.2.2"
+    "vue3-ace-editor": "^2.2.2",
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@arco-plugins/vite-vue": "^1.4.5",

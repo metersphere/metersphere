@@ -1,13 +1,18 @@
 <template>
-  <div class="h-[100vh] bg-white px-[20px] py-[16px] pb-0">
-    <div class="left h-[730px] w-[300px]"> </div>
-    <div class="right"></div>
-    <ms-base-table v-bind="propsRes" v-on="propsEvent"> </ms-base-table>
+  <div class="flex h-[100vh] flex-row bg-white px-[20px] py-[16px] pb-0">
+    <div class="h-[730px] w-[300px] p-6">
+      <UserGroupLeft />
+    </div>
+    <div class="grow-1 overflow-scroll">
+      <MsBaseTable v-bind="propsRes" v-on="propsEvent"> </MsBaseTable>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
   import { onMounted } from 'vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import UserGroupLeft from '@/components/bussiness/usergroup/index.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { getTableList } from '@/api/modules/api-test/index';
