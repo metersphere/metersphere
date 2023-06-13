@@ -30,7 +30,7 @@ public class UserKey implements Serializable {
     private Long createTime;
 
     @Schema(title = "状态")
-    private String status;
+    private Boolean enable;
 
     private static final long serialVersionUID = 1L;
 }

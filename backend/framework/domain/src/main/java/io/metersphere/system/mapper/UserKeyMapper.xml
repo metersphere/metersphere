@@ -7,7 +7,7 @@
     <result column="access_key" jdbcType="VARCHAR" property="accessKey" />
     <result column="secret_key" jdbcType="VARCHAR" property="secretKey" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="enable" jdbcType="BIT" property="enable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_user, access_key, secret_key, create_time, `status`
+    id, create_user, access_key, secret_key, create_time, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserKeyExample" resultMap="BaseResultMap">
     select
@@ -102,10 +102,10 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserKey">
     insert into user_key (id, create_user, access_key, 
-      secret_key, create_time, `status`
+      secret_key, create_time, `enable`
       )
     values (#{id,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{accessKey,jdbcType=VARCHAR}, 
-      #{secretKey,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}
+      #{secretKey,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserKey">
@@ -126,8 +126,8 @@
       <if test="createTime != null">
         create_time,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="enable != null">
+        `enable`,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,8 +146,8 @@
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -175,8 +175,8 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -190,7 +190,7 @@
       access_key = #{record.accessKey,jdbcType=VARCHAR},
       secret_key = #{record.secretKey,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      `status` = #{record.status,jdbcType=VARCHAR}
+      `enable` = #{record.enable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -210,8 +210,8 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -222,7 +222,7 @@
       access_key = #{accessKey,jdbcType=VARCHAR},
       secret_key = #{secretKey,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      `status` = #{status,jdbcType=VARCHAR}
+      `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
