@@ -4,9 +4,10 @@
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.TestResource">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.TestResource">
     <result column="configuration" jdbcType="LONGVARBINARY" property="configuration" />
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_resource_pool_id, `status`, create_time, update_time
+    id, test_resource_pool_id, create_time, update_time, `enable`, deleted
   </sql>
   <sql id="Blob_Column_List">
     configuration
@@ -124,12 +125,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.TestResource">
-    insert into test_resource (id, test_resource_pool_id, `status`, 
-      create_time, update_time, configuration
-      )
-    values (#{id,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{configuration,jdbcType=LONGVARBINARY}
-      )
+    insert into test_resource (id, test_resource_pool_id, create_time, 
+      update_time, `enable`, deleted, 
+      configuration)
+    values (#{id,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT}, #{deleted,jdbcType=BIT}, 
+      #{configuration,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.TestResource">
     insert into test_resource
@@ -140,14 +141,17 @@
       <if test="testResourcePoolId != null">
         test_resource_pool_id,
       </if>
-      <if test="status != null">
-        `status`,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
+      <if test="deleted != null">
+        deleted,
       </if>
       <if test="configuration != null">
         configuration,
@@ -160,14 +164,17 @@
       <if test="testResourcePoolId != null">
         #{testResourcePoolId,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
       <if test="configuration != null">
         #{configuration,jdbcType=LONGVARBINARY},
@@ -189,14 +196,17 @@
       <if test="record.testResourcePoolId != null">
         test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
       </if>
       <if test="record.configuration != null">
         configuration = #{record.configuration,jdbcType=LONGVARBINARY},
@@ -210,9 +220,10 @@
     update test_resource
     set id = #{record.id,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      `enable` = #{record.enable,jdbcType=BIT},
+      deleted = #{record.deleted,jdbcType=BIT},
       configuration = #{record.configuration,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -222,9 +233,10 @@
     update test_resource
     set id = #{record.id,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      `enable` = #{record.enable,jdbcType=BIT},
+      deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -235,14 +247,17 @@
       <if test="testResourcePoolId != null">
         test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
       </if>
       <if test="configuration != null">
         configuration = #{configuration,jdbcType=LONGVARBINARY},
@@ -253,18 +268,20 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.TestResource">
     update test_resource
     set test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      `enable` = #{enable,jdbcType=BIT},
+      deleted = #{deleted,jdbcType=BIT},
       configuration = #{configuration,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.TestResource">
     update test_resource
     set test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      `enable` = #{enable,jdbcType=BIT},
+      deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

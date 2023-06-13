@@ -4,6 +4,7 @@ public class OperationLogModule {
     public static final String UNKNOWN_MODULE = "UNKNOWN_MODULE";
     public static final String SYSTEM_PARAMETER_SETTING = "SYSTEM_PARAMETER_SETTING";
     public static final String SYSTEM_TEST_RESOURCE = "SYSTEM_TEST_RESOURCE";
+    public static final String SYSTEM_TEST_RESOURCE_POOL = "SYSTEM_TEST_RESOURCE_POOL";
     public static final String SYSTEM_USER = "SYSTEM_USER";
     public static final String SYSTEM_WORKSPACE = "SYSTEM_WORKSPACE";
     public static final String WORKSPACE_TEMPLATE_SETTINGS = "WORKSPACE_TEMPLATE_SETTINGS";
