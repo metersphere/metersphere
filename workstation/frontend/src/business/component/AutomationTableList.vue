@@ -174,7 +174,7 @@
             <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
               {{ $t('api_test.automation.success') }}
             </el-link>
-            <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail'">
+            <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Error'">
               {{ $t('api_test.automation.fail') }}
             </el-link>
           </template>
@@ -416,7 +416,7 @@ export default {
         }
       } else {
 
-        this.condition.combine = {status: {operator: "in", value: ["Fail"]}}
+        this.condition.combine = {lastResult: {operator: "in", value: ["error"]}}
         if (this.condition.filters) {
           this.condition.filters.principal = [getCurrentUserId()];
         } else {
@@ -492,7 +492,7 @@ export default {
           }
 
         } else {
-          this.condition.combine = {status: {operator: "in", value: ["Fail"]}}
+          this.condition.combine = {lastResult: {operator: "in", value: ["Error"]}}
           if (this.condition.filters) {
             this.condition.filters.principal = [getCurrentUserId()];
           } else {
