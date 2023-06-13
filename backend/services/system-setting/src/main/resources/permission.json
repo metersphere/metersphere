@@ -19,12 +19,56 @@
       "id": "SYSTEM_USER_ROLE:READ+DELETE",
       "name": "permission.system_user_role.delete",
       "resourceId": "SYSTEM_USER_ROLE"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ",
+      "name": "permission.SYSTEM_PROJECT.read",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+ADD",
+      "name": "permission.SYSTEM_PROJECT.add",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+EDIT",
+      "name": "permission.SYSTEM_PROJECT.edit",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+DELETE",
+      "name": "permission.SYSTEM_PROJECT.delete",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+ENVIRONMENT_CONFIG",
+      "name": "permission.SYSTEM_PROJECT.environment_config",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+ADD_USER",
+      "name": "permission.organization_user.add",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+EDIT_USER",
+      "name": "permission.organization_user.edit",
+      "resourceId": "SYSTEM_PROJECT"
+    },
+    {
+      "id": "SYSTEM_PROJECT:READ+DELETE_USER",
+      "name": "permission.organization_user.delete",
+      "resourceId": "SYSTEM_PROJECT"
     }
   ],
   "resource": [
     {
       "id": "SYSTEM_USER_ROLE",
       "name": "permission.system_role.name"
+    },
+    {
+      "id": "SYSTEM_PROJECT",
+      "name": "permission.system_organization.name"
     }
   ]
 }
