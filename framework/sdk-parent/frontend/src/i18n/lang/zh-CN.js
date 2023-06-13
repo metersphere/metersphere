@@ -3090,7 +3090,7 @@ const message = {
     insert_content: "键入内容",
     append_content: "追加输入",
     append_tip:
-      "勾选，在现有内容后面追加输入；<br/>不勾选，清空现有内容后再进行输入",
+      "勾选，在现有内容后面追加输入；不勾选，清空现有内容后再进行输入",
     pls_input: "请输入内容",
     opt_type: "操作方式：",
     yes: "是",

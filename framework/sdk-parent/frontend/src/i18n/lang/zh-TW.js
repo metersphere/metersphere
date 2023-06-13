@@ -3085,7 +3085,7 @@ const message = {
     insert_content: "鍵入內容",
     append_content: "追加輸入",
     append_tip:
-      "勾選，在現有內容後面追加輸入；<br/>不勾選，清空現有內容後再進行輸入",
+      "勾選，在現有內容後面追加輸入；不勾選，清空現有內容後再進行輸入",
     pls_input: "請輸入內容",
     opt_type: "操作方式：",
     yes: "是",
