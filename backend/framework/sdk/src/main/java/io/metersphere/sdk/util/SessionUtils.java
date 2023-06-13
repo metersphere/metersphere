@@ -143,7 +143,7 @@ public class SessionUtils {
 
         long count = user.getUserRoles()
                 .stream()
-                .filter(g -> StringUtils.equals(g.getId(), UserRoleConstants.SUPER_ROLE))
+                .filter(g -> StringUtils.equals(g.getId(), UserRoleConstants.ADMIN))
                 .count();
 
         if (count > 0) {
