@@ -13,8 +13,7 @@ public class Project implements Serializable {
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "项目编号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{project.num.not_blank}", groups = {Created.class})
+    @Schema(title = "项目编号")
     private Long num;
 
     @Schema(title = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -35,6 +34,9 @@ public class Project implements Serializable {
 
     @Schema(title = "更新时间")
     private Long updateTime;
+
+    @Schema(title = "修改人")
+    private String updateUser;
 
     @Schema(title = "创建人")
     private String createUser;

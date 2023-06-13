@@ -168,6 +168,7 @@ CREATE TABLE project
     `description`     VARCHAR(500) COMMENT '项目描述',
     `create_time`     BIGINT       NOT NULL COMMENT '创建时间',
     `update_time`     BIGINT       NOT NULL COMMENT '更新时间',
+    `update_user`     VARCHAR(50)  NOT NULL COMMENT '修改人',
     `create_user`     VARCHAR(50) COMMENT '创建人',
     `delete_time`     BIGINT(255) COMMENT '删除时间',
     `deleted`         BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
@@ -181,9 +182,10 @@ CREATE TABLE project
 CREATE INDEX idx_organization_id ON project (organization_id);
 CREATE INDEX idx_create_user ON project (create_user);
 CREATE INDEX idx_create_time ON project (create_time);
-CREATE INDEX idex_update_time ON project (update_time);
+CREATE INDEX idx_update_time ON project (update_time);
 CREATE INDEX idx_name ON project (name);
 CREATE INDEX idx_deleted ON project (deleted);
+CREATE INDEX idx_update_user ON project(update_user);
 
 DROP TABLE IF EXISTS project_application;
 CREATE TABLE project_application

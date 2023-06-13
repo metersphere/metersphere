@@ -401,6 +401,7 @@ CREATE TABLE organization
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
+    `update_user` VARCHAR(50)  NOT NULL COMMENT '修改人',
     `deleted`     BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
     `delete_user` VARCHAR(50) COMMENT '删除人',
     `delete_time` BIGINT COMMENT '删除时间',
@@ -417,6 +418,7 @@ CREATE INDEX idx_create_user ON organization (`create_user`);
 CREATE INDEX idx_create_time ON organization (`create_time`);
 CREATE INDEX idx_update_time ON organization (`update_time`);
 CREATE INDEX idx_deleted ON organization (`deleted`);
+CREATE INDEX idx_update_user ON organization(`update_user`);
 
 DROP TABLE IF EXISTS user_extend;
 CREATE TABLE user_extend

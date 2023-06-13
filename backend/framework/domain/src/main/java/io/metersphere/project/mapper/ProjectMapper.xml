@@ -9,6 +9,7 @@
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
@@ -74,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, organization_id, `name`, description, create_time, update_time, create_user, 
-    delete_time, deleted, delete_user, `enable`
+    id, num, organization_id, `name`, description, create_time, update_time, update_user, 
+    create_user, delete_time, deleted, delete_user, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -110,14 +111,14 @@
   <insert id="insert" parameterType="io.metersphere.project.domain.Project">
     insert into project (id, num, organization_id, 
       `name`, description, create_time, 
-      update_time, create_user, delete_time, 
-      deleted, delete_user, `enable`
-      )
+      update_time, update_user, create_user, 
+      delete_time, deleted, delete_user, 
+      `enable`)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{organizationId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}
-      )
+      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.Project">
     insert into project
@@ -142,6 +143,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
       <if test="createUser != null">
         create_user,
@@ -180,6 +184,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -228,6 +235,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
@@ -257,6 +267,7 @@
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       deleted = #{record.deleted,jdbcType=BIT},
@@ -287,6 +298,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
@@ -313,6 +327,7 @@
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      update_user = #{updateUser,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       deleted = #{deleted,jdbcType=BIT},
