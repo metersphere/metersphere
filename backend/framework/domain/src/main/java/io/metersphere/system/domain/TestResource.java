@@ -19,9 +19,8 @@ public class TestResource implements Serializable {
     private String testResourcePoolId;
 
     @Schema(title = "资源节点状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource.status.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{test_resource.status.length_range}", groups = {Created.class, Updated.class})
-    private String status;
+    @NotNull(message = "{test_resource.enable.not_blank}", groups = {Created.class})
+    private Boolean enable;
 
     @Schema(title = "创建时间")
     private Long createTime;
@@ -31,6 +30,10 @@ public class TestResource implements Serializable {
 
     @Schema(title = "资源节点配置")
     private byte[] configuration;
+
+    @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_resource_pool.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 }

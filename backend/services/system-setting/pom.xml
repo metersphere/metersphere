@@ -18,7 +18,14 @@
             <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-sdk</artifactId>
+            <version>${revision}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
