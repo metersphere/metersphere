@@ -32,8 +32,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD_API)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.API_DEFINITION,
-            sourceId = "#request.id", projectId = "#request.projectId", details = "#request.name")
+    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.API_DEFINITION, projectId = "#request.projectId", details = "#request.name")
     public ApiDefinitionDTO add(@Validated({Created.class}) @RequestBody ApiDefinitionDTO request,
                                 @RequestParam(value = "files") List<MultipartFile> bodyFiles) {
         return apiDefinitionService.create(request, bodyFiles);
@@ -41,7 +40,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/batch-del")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
-    @RequestLog(isBatch = true, event = "#msClass.getLogs(#ids)", msClass = ApiDefinitionService.class)
+    @RequestLog(isBatch = true, isBefore = true, details = "#msClass.getLogs(#ids)", msClass = ApiDefinitionService.class)
     public void batchDelete(@RequestBody List<String> ids) {
         apiDefinitionService.batchDelete(ids);
     }

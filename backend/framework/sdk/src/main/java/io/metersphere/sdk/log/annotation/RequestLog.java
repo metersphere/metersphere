@@ -21,11 +21,11 @@ public @interface RequestLog {
     String module() default OperationLogModule.UNKNOWN_MODULE;
 
     /**
-     * 项目
+     * 项目，系统模块没有项目id默认系统
      *
      * @return
      */
-    String projectId() default "default";
+    String projectId() default "system";
 
     /**
      * 操作类型
@@ -61,11 +61,11 @@ public @interface RequestLog {
     boolean isBatch() default false;
 
     /**
-     * 操作前触发内容
+     * 是否在业务代码执行前记录内容
      *
      * @return
      */
-    String event() default "";
+    boolean isBefore() default false;
 
     /**
      * 传入执行类

@@ -30,8 +30,8 @@ public class OperationLogService {
             log.setCreateUser("admin");
         }
         // 限制长度
-        if (StringUtils.isNotBlank(log.getDetails()) && log.getDetails().length() > 1000) {
-            log.setDetails(log.getDetails().substring(0, 1000));
+        if (StringUtils.isNotBlank(log.getDetails()) && log.getDetails().length() > 500) {
+            log.setDetails(log.getDetails().substring(0, 499));
         }
         operationLogMapper.insert(log);
     }
@@ -44,6 +44,10 @@ public class OperationLogService {
         OperationLogMapper logMapper = sqlSession.getMapper(OperationLogMapper.class);
         if (CollectionUtils.isNotEmpty(logs)) {
             logs.forEach(item -> {
+                // 限制长度
+                if (StringUtils.isNotBlank(item.getDetails()) && item.getDetails().length() > 500) {
+                    item.setDetails(item.getDetails().substring(0, 499));
+                }
                 logMapper.insert(item);
             });
         }
