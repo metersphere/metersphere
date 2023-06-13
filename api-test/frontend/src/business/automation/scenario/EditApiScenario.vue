@@ -1967,8 +1967,8 @@ export default {
         const encoder = new TextEncoder();
         const bytes = encoder.encode(definition, 'utf-8');
         getApiScenarioEnv(bytes ).then((res) => {
-          if (res.data) {
-            this.projectIds = new Set(res.data.projectIds);
+          if (res.data && res.data.data) {
+            this.projectIds = new Set(res.data.data.projectIds);
             this.projectIds.add(this.projectId);
             this.isFullUrl = res.data.data.fullUrl;
           }
