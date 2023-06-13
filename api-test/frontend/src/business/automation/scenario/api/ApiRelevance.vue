@@ -163,10 +163,10 @@ export default {
             this.$warning(this.$t('automation.case_message'));
             this.buttonIsWorking = false;
           } else {
-            if (apis.length > 500) {
+            if (params.condition.selectAll) {
               operationConfirm(
                 this,
-                this.$t('automation.scenario_step_ref_message', [apis.length]) + '？',
+                this.$t('automation.scenario_step_ref_message') + '？',
                 () => {
                   this.$emit('save', apis, 'API', reference);
                   this.$refs.baseRelevance.close();
@@ -189,10 +189,10 @@ export default {
             this.$warning(this.$t('automation.case_message'));
             this.buttonIsWorking = false;
           } else {
-            if (apiCases.length > 500) {
+            if (this.$refs.apiCaseList.condition.selectAll) {
               operationConfirm(
                 this,
-                this.$t('automation.scenario_step_ref_message', [apiCases.length]) + '？',
+                this.$t('automation.scenario_step_ref_message') + '？',
                 () => {
                   this.$emit('save', apiCases, 'CASE', reference);
                   this.$refs.baseRelevance.close();

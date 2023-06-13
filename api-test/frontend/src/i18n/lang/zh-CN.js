@@ -126,7 +126,7 @@ const message = {
   automation: {
     project_no_permission: '当前操作人无此步骤的操作权限',
     document_validity_msg: '文件已经被修改，请重新上传',
-    scenario_step_ref_message: '当前选择请求数 [{0}] 个可能导致页面加载异常，是否继续',
+    scenario_step_ref_message: '当前操作可能导致页面加载异常，是否继续',
     case_message: '请选择案例',
     scenario_message: '请选择场景',
   },
