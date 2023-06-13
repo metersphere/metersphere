@@ -126,7 +126,7 @@ const message = {
   automation: {
     project_no_permission: '當前人操作無此步驟的操作權限',
     document_validity_msg: '文件已經被修改，請重新上傳',
-    scenario_step_ref_message: '當前選擇請求數 [{0}] 个可能導致頁面加載異常，是否繼續',
+    scenario_step_ref_message: '當前操作可能導致頁面加載異常，是否繼續',
     case_message: '請選擇案例',
     scenario_message: '請選擇場景',
   },

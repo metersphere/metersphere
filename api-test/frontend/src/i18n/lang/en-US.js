@@ -131,7 +131,7 @@ const message = {
     project_no_permission: 'The current person does not have the operation permission for this step',
     document_validity_msg: 'The file has been modified, please re-upload',
     scenario_step_ref_message:
-      'The current number of selection requests [{0}] may cause page loading exceptions, whether to continue?',
+      'The current may cause page loading exceptions, whether to continue?',
     case_message: 'Please select a case',
     scenario_message: 'Please select a scene',
   },
