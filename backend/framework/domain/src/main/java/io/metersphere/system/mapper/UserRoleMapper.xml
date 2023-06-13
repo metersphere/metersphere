@@ -11,6 +11,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,7 +73,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, description, internal, `type`, create_time, update_time, create_user, 
-    scope_id
+    scope_id, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserRoleExample" resultMap="BaseResultMap">
     select
@@ -107,12 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.UserRole">
     insert into user_role (id, `name`, description, 
       internal, `type`, create_time, 
-      update_time, create_user, scope_id
-      )
+      update_time, create_user, scope_id, 
+      pos)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{internal,jdbcType=BIT}, #{type,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}
-      )
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserRole">
     insert into user_role
@@ -144,6 +145,9 @@
       <if test="scopeId != null">
         scope_id,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -172,6 +176,9 @@
       </if>
       <if test="scopeId != null">
         #{scopeId,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -211,6 +218,9 @@
       <if test="record.scopeId != null">
         scope_id = #{record.scopeId,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -226,7 +236,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      scope_id = #{record.scopeId,jdbcType=VARCHAR}
+      scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -258,6 +269,9 @@
       <if test="scopeId != null">
         scope_id = #{scopeId,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -270,7 +284,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      scope_id = #{scopeId,jdbcType=VARCHAR}
+      scope_id = #{scopeId,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

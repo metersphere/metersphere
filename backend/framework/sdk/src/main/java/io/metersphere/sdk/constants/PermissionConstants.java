@@ -1,6 +1,23 @@
 package io.metersphere.sdk.constants;
 
+/**
+ * @author jianxing
+ */
 public class PermissionConstants {
+
+    /*------ start: SYSTEM_USER_ROLE ------*/
+    public static final String SYSTEM_USER_ROLE_READ = "SYSTEM_USER_ROLE:READ";
+    public static final String SYSTEM_USER_ROLE_ADD = "SYSTEM_USER_ROLE:READ+ADD";
+    public static final String SYSTEM_USER_ROLE_UPDATE = "SYSTEM_USER_ROLE:READ+UPDATE";
+    public static final String SYSTEM_USER_ROLE_DELETE = "SYSTEM_USER_ROLE:READ+DELETE";
+    /*------ end: SYSTEM_USER_ROLE ------*/
+
+    /*------ start: SYSTEM_USER_ROLE_RELATION ------*/
+    public static final String SYSTEM_USER_ROLE_RELATION_READ = "SYSTEM_USER_ROLE_RELATION_READ:READ";
+    public static final String SYSTEM_USER_ROLE_RELATION_ADD = "SYSTEM_USER_ROLE_RELATION_READ:READ+ADD";
+    public static final String SYSTEM_USER_ROLE_RELATION_UPDATE = "SYSTEM_USER_ROLE_RELATION_READ:READ+UPDATE";
+    public static final String SYSTEM_USER_ROLE_RELATION_DELETE = "SYSTEM_USER_ROLE_RELATION_READ:READ+DELETE";
+    /*------ end: SYSTEM_USER_ROLE_RELATION ------*/
 
     public static final String SYSTEM_USER_READ = "SYSTEM_USER:READ";
     public static final String SYSTEM_USER_READ_ADD = "SYSTEM_USER:READ+ADD";
@@ -13,7 +30,7 @@ public class PermissionConstants {
     public static final String SYSTEM_ORGANIZATION_READ_ADD = "SYSTEM_ORGANIZATION:READ+ADD";
     public static final String SYSTEM_ORGANIZATION_READ_UPDATE = "SYSTEM_ORGANIZATION:READ+UPDATE";
     public static final String SYSTEM_ORGANIZATION_READ_DELETE = "SYSTEM_ORGANIZATION:READ+DELETE";
-    
+
     public static final String SYSTEM_TEST_POOL_READ = "SYSTEM_TEST_POOL:READ";
     public static final String SYSTEM_TEST_POOL_READ_ADD = "SYSTEM_TEST_POOL:READ+ADD";
     public static final String SYSTEM_TEST_POOL_READ_UPDATE = "SYSTEM_TEST_POOL:READ+UPDATE";
