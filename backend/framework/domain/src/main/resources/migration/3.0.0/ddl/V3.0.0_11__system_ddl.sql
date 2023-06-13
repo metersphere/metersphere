@@ -130,7 +130,7 @@ CREATE TABLE operation_log(
                               `method` VARCHAR(255) NOT NULL   COMMENT '操作方法' ,
                               `type` VARCHAR(20) NOT NULL   COMMENT '操作类型/add/update/delete' ,
                               `module` VARCHAR(20)    COMMENT '操作模块/api/case/scenario/ui' ,
-                              `details` VARCHAR(1000)    COMMENT '操作详情' ,
+                              `details` VARCHAR(500)    COMMENT '操作详情' ,
                               `path` VARCHAR(255)    COMMENT '操作路径' ,
                               PRIMARY KEY (id)
 ) ENGINE = InnoDB

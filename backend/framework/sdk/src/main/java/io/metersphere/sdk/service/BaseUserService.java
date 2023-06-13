@@ -143,7 +143,7 @@ public class BaseUserService {
                 List<String> superRoleIds = user.getUserRoles()
                         .stream()
                         .map(UserRole::getId)
-                        .filter(id -> StringUtils.equals(id, UserRoleConstants.SUPER_ROLE))
+                        .filter(id -> StringUtils.equals(id, UserRoleConstants.ADMIN))
                         .collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(superRoleIds)) {
                     Project p = baseProjectMapper.selectOne();
