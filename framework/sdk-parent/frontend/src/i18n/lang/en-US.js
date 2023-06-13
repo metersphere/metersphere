@@ -3188,7 +3188,7 @@ const message = {
     insert_content: "Type content",
     append_content: "Append input",
     append_tip:
-      "Check, append the input after the existing content;<br/>Uncheck, clear the existing content and then input",
+      "Check, append the input after the existing content;Uncheck, clear the existing content and then input",
     pls_input: "Please input content",
     opt_type: "mode:",
     yes: "Yes",
