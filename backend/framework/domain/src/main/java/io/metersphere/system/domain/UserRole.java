@@ -44,5 +44,9 @@ public class UserRole implements Serializable {
     @Size(min = 1, max = 50, message = "{user_role.scope_id.length_range}", groups = {Created.class, Updated.class})
     private String scopeId;
 
+    @Schema(title = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user_role.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 }
