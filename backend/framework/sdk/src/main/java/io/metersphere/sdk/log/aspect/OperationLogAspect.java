@@ -57,6 +57,11 @@ public class OperationLogAspect {
     private OperationLogService operationLogService;
 
     private ThreadLocal<List<OperationLog>> beforeValue = new ThreadLocal<>();
+
+    private ThreadLocal<String> treadLocalDetails = new ThreadLocal<>();
+
+    private ThreadLocal<String> treadLocalSourceId = new ThreadLocal<>();
+
     private ThreadLocal<String> localUser = new ThreadLocal<>();
 
     private final String[] methodNames = new String[]{"delete", "update", "add"};
@@ -76,13 +81,14 @@ public class OperationLogAspect {
             //获取切入点所在的方法
             Method method = signature.getMethod();
             RequestLog msLog = method.getAnnotation(RequestLog.class);
-            if (msLog != null && StringUtils.isNotEmpty(msLog.event())) {
+            if (msLog != null && msLog.isBefore()) {
                 //获取参数对象数组
                 Object[] args = joinPoint.getArgs();
                 //获取方法参数名
                 String[] params = discoverer.getParameterNames(method);
                 //将参数纳入Spring管理
                 EvaluationContext context = new StandardEvaluationContext();
+
                 for (int len = 0; len < params.length; len++) {
                     context.setVariable(params[len], args[len]);
                 }
@@ -95,11 +101,13 @@ public class OperationLogAspect {
                     context.setVariable("msClass", applicationContext.getBean(clazz));
                     isNext = true;
                 }
-                if (isNext) {
-                    Expression expression = parser.parseExpression(msLog.event());
-                    List<OperationLog> beforeContent = expression.getValue(context, List.class);
-                    beforeValue.set(beforeContent);
+                if (!isNext) {
+                    return;
                 }
+                // 初始化details内容
+                initDetails(msLog, context);
+                // 初始化资源id
+                initResourceId(msLog, context);
             }
         } catch (Exception e) {
             LogUtils.error("操作日志写入异常：" + joinPoint.getSignature());
@@ -109,6 +117,65 @@ public class OperationLogAspect {
     public boolean isMatch(String keyword) {
         return Arrays.stream(methodNames)
                 .anyMatch(input -> input.contains(keyword));
+    }
+
+    private void initDetails(RequestLog msLog, EvaluationContext context) {
+        try {
+            // 批量内容处理
+            if (StringUtils.isNotBlank(msLog.details()) && msLog.details().startsWith("#msClass")) {
+                if (msLog.isBatch()) {
+                    Expression expression = parser.parseExpression(msLog.details());
+                    List<OperationLog> beforeContent = expression.getValue(context, List.class);
+                    beforeValue.set(beforeContent);
+                } else {
+                    Expression detailsEx = parser.parseExpression(msLog.details());
+                    String details = detailsEx.getValue(context, String.class);
+                    this.treadLocalDetails.set(details);
+                }
+            } else if (StringUtils.isNotBlank(msLog.details()) && msLog.details().startsWith("#")) {
+                Expression titleExp = parser.parseExpression(msLog.details());
+                String details = titleExp.getValue(context, String.class);
+                this.treadLocalDetails.set(details);
+            } else {
+                this.treadLocalDetails.set(msLog.details());
+            }
+        } catch (Exception e) {
+            LogUtils.error("未获取到details内容", e);
+            this.treadLocalDetails.set(msLog.details());
+        }
+    }
+
+    private void initResourceId(RequestLog msLog, EvaluationContext context) {
+        try {
+            // 批量内容处理
+            if (StringUtils.isNotBlank(msLog.sourceId()) && msLog.sourceId().startsWith("#msClass")) {
+                Expression detailsEx = parser.parseExpression(msLog.sourceId());
+                String sourceId = detailsEx.getValue(context, String.class);
+                treadLocalSourceId.set(sourceId);
+            } else if (StringUtils.isNotBlank(msLog.sourceId()) && msLog.sourceId().startsWith("#")) {
+                Expression titleExp = parser.parseExpression(msLog.sourceId());
+                String sourceId = titleExp.getValue(context, String.class);
+                treadLocalSourceId.set(sourceId);
+            } else {
+                treadLocalSourceId.set(msLog.sourceId());
+            }
+        } catch (Exception e) {
+            LogUtils.error("未获取到资源id", e);
+            treadLocalSourceId.set(msLog.sourceId());
+        }
+    }
+
+    private String getProjectId(RequestLog msLog, EvaluationContext context) {
+        try {
+            if (StringUtils.isNotBlank(msLog.projectId()) && msLog.projectId().startsWith("#")) {
+                Expression titleExp = parser.parseExpression(msLog.projectId());
+                return titleExp.getValue(context, String.class);
+            } else {
+                return msLog.projectId();
+            }
+        } catch (Exception e) {
+            return msLog.projectId();
+        }
     }
 
     private void add(OperationLog operationLog, RequestLog msLog, JoinPoint joinPoint, Object result) {
@@ -143,38 +210,23 @@ public class OperationLogAspect {
             return;
         }
         // 项目ID表达式
-        try {
-            Expression titleExp = parser.parseExpression(msLog.projectId());
-            String project = titleExp.getValue(context, String.class);
-            operationLog.setProjectId(project);
-        } catch (Exception e) {
-            operationLog.setProjectId(msLog.projectId());
+        operationLog.setProjectId(getProjectId(msLog, context));
+
+        if (!msLog.isBefore()) {
+            // 初始化资源id
+            initResourceId(msLog, context);
+            // 初始化内容详情
+            initDetails(msLog, context);
         }
-        // 标题
-        if (StringUtils.isNotEmpty(msLog.details())) {
-            String details = msLog.details();
-            try {
-                Expression titleExp = parser.parseExpression(details);
-                details = titleExp.getValue(context, String.class);
-                operationLog.setDetails(details);
-            } catch (Exception e) {
-                operationLog.setDetails(details);
-            }
-        }
-        // 资源ID
-        if (StringUtils.isNotEmpty(msLog.sourceId())) {
-            try {
-                String sourceId = msLog.sourceId();
-                Expression titleExp = parser.parseExpression(sourceId);
-                sourceId = titleExp.getValue(context, String.class);
-                operationLog.setSourceId(sourceId);
-            } catch (Exception e) {
-                operationLog.setSourceId(msLog.sourceId());
-            }
-        }
+        // 内容详情
+        operationLog.setDetails(treadLocalDetails.get());
+        // 资源id
+        operationLog.setSourceId(treadLocalSourceId.get());
+
         if (StringUtils.isBlank(operationLog.getCreateUser())) {
             operationLog.setCreateUser(localUser.get());
         }
+        // 从返回内容中获取资源id
         if (StringUtils.isEmpty(operationLog.getSourceId()) && !msLog.isBatch()) {
             operationLog.setSourceId(getId(result));
         }
@@ -217,11 +269,8 @@ public class OperationLogAspect {
             operationLog.setMethod(StringUtils.join(className, ".", method.getName()));
             operationLog.setCreateTime(System.currentTimeMillis());
             operationLog.setCreateUser(SessionUtils.getUserId());
-            HttpServletRequest request = ((ServletRequestAttributes)
-                    RequestContextHolder.getRequestAttributes()).getRequest();
-            String path = request.getServletPath();
-            operationLog.setPath(path);
-
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            operationLog.setPath(request.getServletPath());
             // 获取操作
             RequestLog msLog = method.getAnnotation(RequestLog.class);
             if (msLog != null) {
@@ -236,6 +285,7 @@ public class OperationLogAspect {
         } finally {
             localUser.remove();
             beforeValue.remove();
+            treadLocalDetails.remove();
         }
     }
 
