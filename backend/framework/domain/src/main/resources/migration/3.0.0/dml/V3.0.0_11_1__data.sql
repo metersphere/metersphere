@@ -25,9 +25,9 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, cr
 -- 系统管理员拥有所有的权限，不用初始化
 
 -- 组织管理员权限
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef69c80-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+DELETE_USER', 'ORGANIZATION_PROJECT_MANAGER');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef68cda-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+ADD_USER', 'ORGANIZATION_PROJECT_MANAGER');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef67aba-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+UPDATE_USER', 'ORGANIZATION_PROJECT_MANAGER');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef69c80-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+DELETE_USER', 'SYSTEM_PROJECT');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef68cda-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+ADD_USER', 'SYSTEM_PROJECT');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2ef67aba-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+UPDATE_USER', 'SYSTEM_PROJECT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2eb8cdb1-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_QUOTA:READ+UPDATE', 'ORGANIZATION_QUOTA');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2eb8bc41-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_QUOTA:READ', 'ORGANIZATION_QUOTA');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2dde1a80-3bc6-11ed-9680-0242ac130008', 'org_admin', 'PERSONAL_INFORMATION:READ+UPDATE_PASSWORD', 'PERSONAL_INFORMATION');
@@ -51,10 +51,10 @@ INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES 
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b811ba3-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+ADD', 'ORGANIZATION_PROJECT_ENVIRONMENT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b810b30-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ+COPY', 'ORGANIZATION_PROJECT_ENVIRONMENT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80fb44-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ', 'ORGANIZATION_PROJECT_ENVIRONMENT');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80e844-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+UPDATE', 'ORGANIZATION_PROJECT_MANAGER');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80d69a-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+DELETE', 'ORGANIZATION_PROJECT_MANAGER');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80c5fe-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ+ADD', 'ORGANIZATION_PROJECT_MANAGER');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80b588-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_PROJECT_MANAGER:READ', 'ORGANIZATION_PROJECT_MANAGER');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80e844-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+UPDATE', 'SYSTEM_PROJECT');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80d69a-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+DELETE', 'SYSTEM_PROJECT');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80c5fe-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ+ADD', 'SYSTEM_PROJECT');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80b588-3bc6-11ed-9680-0242ac130008', 'org_admin', 'SYSTEM_PROJECT:READ', 'SYSTEM_PROJECT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b80a580-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_TEMPLATE:READ+CASE_TEMPLATE', 'ORGANIZATION_TEMPLATE');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b8091ab-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_TEMPLATE:READ+ISSUE_TEMPLATE', 'ORGANIZATION_TEMPLATE');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b8081e3-3bc6-11ed-9680-0242ac130008', 'org_admin', 'ORGANIZATION_TEMPLATE:READ', 'ORGANIZATION_TEMPLATE');
@@ -68,7 +68,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES 
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2caf28b0-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_MESSAGE:READ', 'ORGANIZATION_MESSAGE');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2caeef78-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_SERVICE:READ', 'ORGANIZATION_SERVICE');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b81d869-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_OPERATING_LOG:READ', 'ORGANIZATION_OPERATING_LOG');
-INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b81c48b-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_PROJECT_MANAGER:READ', 'ORGANIZATION_PROJECT_MANAGER');
+INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b81c48b-3bc6-11ed-9680-0242ac130008', 'org_member', 'SYSTEM_PROJECT:READ', 'SYSTEM_PROJECT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b81b3ae-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_PROJECT_ENVIRONMENT:READ', 'ORGANIZATION_PROJECT_ENVIRONMENT');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b81a16c-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_TEMPLATE:READ', 'ORGANIZATION_TEMPLATE');
 INSERT INTO user_role_permission (id, role_id, permission_id, module_id) VALUES ('2b818ee7-3bc6-11ed-9680-0242ac130008', 'org_member', 'ORGANIZATION_USER:READ', 'ORGANIZATION_USER');

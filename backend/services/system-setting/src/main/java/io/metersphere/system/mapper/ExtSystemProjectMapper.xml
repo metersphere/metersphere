@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtSystemProjectMapper">
+
+
+    <select id="getProjectMemberList" resultType="io.metersphere.system.domain.User">
+        SELECT DISTINCT *
+        FROM (
+                 SELECT `user`.*
+                 FROM user_role_relation
+                          JOIN `user` ON user_role_relation.user_id = `user`.id
+        <where>
+            <if test="request.projectId != null">
+                user_role_relation.source_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null">
+               and (user.name like CONCAT('%', #{request.keyword},'%')
+                or user.email like CONCAT('%', #{request.keyword},'%')
+                or user.phone like CONCAT('%', #{request.keyword},'%'))
+            </if>
+        </where>
+                 ORDER BY `user`.update_time DESC) temp
+    </select>
+    <select id="getProjectList" resultType="io.metersphere.sdk.dto.ProjectDTO">
+        select p.id,
+               p.num,
+               p.organization_id,
+               p.name,
+               p.description,
+               p.create_time,
+               p.update_time,
+               p.create_user,
+               p.delete_time,
+               p.deleted,
+               p.delete_user,
+               p.enable, count(u.id) as number
+        FROM project p
+        LEFT JOIN user_role_relation u on p.id = u.source_id
+        <where>
+            <if test="request.keyword != null">
+                 (p.name like CONCAT('%', #{request.keyword},'%')
+                or p.num like CONCAT('%', #{request.keyword},'%'))
+            </if>
+        </where>
+            group by p.id
+
+    </select>
+</mapper>
