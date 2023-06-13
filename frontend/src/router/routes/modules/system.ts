@@ -24,9 +24,9 @@ const ApiTest: AppRouteRecordRaw = {
     {
       path: 'usergroup',
       name: 'usergroup',
-      component: () => import('@/views/system/user/index.vue'),
+      component: () => import('@/views/system/usergroup/index.vue'),
       meta: {
-        locale: 'menu.settings.user',
+        locale: 'menu.settings.usergroup',
         roles: ['*'],
         icon: 'icon-computer',
       },

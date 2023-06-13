@@ -102,6 +102,16 @@ setupMock({
                 icon: 'icon-computer',
               },
             },
+            {
+              path: 'usergroup',
+              name: 'usergroup',
+              component: () => import('@/views/system/usergroup/index.vue'),
+              meta: {
+                locale: 'menu.settings.usergroup',
+                roles: ['*'],
+                icon: 'icon-computer',
+              },
+            },
           ],
         },
       ];
