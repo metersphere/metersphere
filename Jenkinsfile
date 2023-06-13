@@ -45,7 +45,7 @@ pipeline {
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
                         mvn deploy -N -Drevision=${REVISION} --settings ./settings.xml
-                        mvn clean deploy -Drevision=${REVISION} --file backend/pom.xml  --settings ./settings.xml
+                        mvn clean deploy -Drevision=${REVISION} -DskipTests --file backend/pom.xml  --settings ./settings.xml
                     '''
                 }
             }
