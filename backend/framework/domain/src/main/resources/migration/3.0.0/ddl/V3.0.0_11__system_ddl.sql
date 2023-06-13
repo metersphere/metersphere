@@ -121,18 +121,19 @@ CREATE TABLE novice_statistics
   COLLATE = utf8mb4_general_ci COMMENT = '新手村';
 
 DROP TABLE IF EXISTS operation_log;
-CREATE TABLE operation_log(
-                              `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
-                              `project_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '项目id' ,
-                              `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,
-                              `create_user` VARCHAR(50)    COMMENT '操作人' ,
-                              `source_id` VARCHAR(50)    COMMENT '资源id' ,
-                              `method` VARCHAR(255) NOT NULL   COMMENT '操作方法' ,
-                              `type` VARCHAR(20) NOT NULL   COMMENT '操作类型/add/update/delete' ,
-                              `module` VARCHAR(20)    COMMENT '操作模块/api/case/scenario/ui' ,
-                              `details` VARCHAR(500)    COMMENT '操作详情' ,
-                              `path` VARCHAR(255)    COMMENT '操作路径' ,
-                              PRIMARY KEY (id)
+CREATE TABLE operation_log
+(
+    `id`          VARCHAR(50)  NOT NULL COMMENT '主键',
+    `project_id`  VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '项目id',
+    `create_time` BIGINT       NOT NULL COMMENT '操作时间',
+    `create_user` VARCHAR(50) COMMENT '操作人',
+    `source_id`   VARCHAR(50) COMMENT '资源id',
+    `method`      VARCHAR(255) NOT NULL COMMENT '操作方法',
+    `type`        VARCHAR(20)  NOT NULL COMMENT '操作类型/add/update/delete',
+    `module`      VARCHAR(50) COMMENT '操作模块/api/case/scenario/ui',
+    `details`     VARCHAR(500) COMMENT '操作详情',
+    `path`        VARCHAR(255) COMMENT '操作路径',
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '操作日志';
@@ -381,7 +382,7 @@ CREATE TABLE user_key
     `access_key`  VARCHAR(50) NOT NULL COMMENT 'access_key',
     `secret_key`  VARCHAR(50) NOT NULL COMMENT 'secret key',
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
-    `status`      VARCHAR(10) COMMENT '状态',
+    `enable`      BIT         COMMENT '状态',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

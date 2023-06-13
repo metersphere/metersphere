@@ -123,7 +123,7 @@ public class BaseUserService {
     private void checkNewOrganizationAndProject(UserDTO user) {
         List<UserRoleRelation> userRoleRelations = user.getUserRoleRelations();
         List<String> projectRoleIds = user.getUserRoles()
-                .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT))
+                .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT.name()))
                 .map(UserRole::getId)
                 .toList();
         List<UserRoleRelation> project = userRoleRelations.stream().filter(ug -> projectRoleIds.contains(ug.getRoleId()))
@@ -131,7 +131,7 @@ public class BaseUserService {
         if (CollectionUtils.isEmpty(project)) {
             List<String> organizationIds = user.getUserRoles()
                     .stream()
-                    .filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.ORGANIZATION))
+                    .filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.ORGANIZATION.name()))
                     .map(UserRole::getId)
                     .toList();
             List<UserRoleRelation> organizations = userRoleRelations.stream().filter(ug -> organizationIds.contains(ug.getRoleId()))
@@ -211,7 +211,7 @@ public class BaseUserService {
 
                 List<UserRoleRelation> roleRelations = user.getUserRoleRelations();
                 List<String> projectRoleIds = user.getUserRoles()
-                        .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT))
+                        .stream().filter(ug -> StringUtils.equals(ug.getType(), UserRoleType.PROJECT.name()))
                         .map(UserRole::getId)
                         .toList();
                 List<String> projectIdsWithPermission = roleRelations.stream().filter(ug -> projectRoleIds.contains(ug.getRoleId()))

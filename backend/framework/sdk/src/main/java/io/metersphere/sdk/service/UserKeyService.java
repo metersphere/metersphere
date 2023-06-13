@@ -1,6 +1,6 @@
 package io.metersphere.sdk.service;
 
-import io.metersphere.sdk.constants.ApiKeyConstants;
+
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserKey;
@@ -47,7 +47,7 @@ public class UserKeyService {
         UserKey userKeys = new UserKey();
         userKeys.setId(UUID.randomUUID().toString());
         userKeys.setCreateUser(userId);
-        userKeys.setStatus(ApiKeyConstants.ACTIVE.name());
+        userKeys.setEnable(true);
         userKeys.setAccessKey(RandomStringUtils.randomAlphanumeric(16));
         userKeys.setSecretKey(RandomStringUtils.randomAlphanumeric(16));
         userKeys.setCreateTime(System.currentTimeMillis());
@@ -62,20 +62,20 @@ public class UserKeyService {
     public void activeUserKey(String id) {
         UserKey userKeys = new UserKey();
         userKeys.setId(id);
-        userKeys.setStatus(ApiKeyConstants.ACTIVE.name());
+        userKeys.setEnable(true);
         userKeyMapper.updateByPrimaryKeySelective(userKeys);
     }
 
     public void disableUserKey(String id) {
         UserKey userKeys = new UserKey();
         userKeys.setId(id);
-        userKeys.setStatus(ApiKeyConstants.DISABLED.name());
+        userKeys.setEnable(false);
         userKeyMapper.updateByPrimaryKeySelective(userKeys);
     }
 
     public UserKey getUserKey(String accessKey) {
         UserKeyExample userKeyExample = new UserKeyExample();
-        userKeyExample.createCriteria().andAccessKeyEqualTo(accessKey).andStatusEqualTo(ApiKeyConstants.ACTIVE.name());
+        userKeyExample.createCriteria().andAccessKeyEqualTo(accessKey).andEnableEqualTo(true);
         List<UserKey> userKeysList = userKeyMapper.selectByExample(userKeyExample);
         if (!CollectionUtils.isEmpty(userKeysList)) {
             return userKeysList.get(0);
