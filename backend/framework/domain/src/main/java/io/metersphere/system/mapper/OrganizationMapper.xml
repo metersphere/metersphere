@@ -9,6 +9,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
@@ -73,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, `name`, description, create_time, update_time, create_user, deleted, delete_user, 
-    delete_time, `enable`
+    id, num, `name`, description, create_time, update_time, create_user, update_user, 
+    deleted, delete_user, delete_time, `enable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.OrganizationExample" resultMap="BaseResultMap">
     select
@@ -109,12 +110,14 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.Organization">
     insert into organization (id, num, `name`, 
       description, create_time, update_time, 
-      create_user, deleted, delete_user, 
-      delete_time, `enable`)
+      create_user, update_user, deleted, 
+      delete_user, delete_time, `enable`
+      )
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{deleteTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT})
+      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
+      #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{enable,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Organization">
     insert into organization
@@ -139,6 +142,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="updateUser != null">
+        update_user,
       </if>
       <if test="deleted != null">
         deleted,
@@ -174,6 +180,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
@@ -219,6 +228,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.updateUser != null">
+        update_user = #{record.updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
@@ -245,6 +257,7 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
@@ -274,6 +287,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
@@ -297,6 +313,7 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},

@@ -13,8 +13,7 @@ public class Organization implements Serializable {
     @Size(min = 1, max = 50, message = "{organization.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(title = "组织编号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{organization.num.not_blank}", groups = {Created.class})
+    @Schema(title = "组织编号")
     private Long num;
 
     @Schema(title = "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -33,6 +32,9 @@ public class Organization implements Serializable {
 
     @Schema(title = "创建人")
     private String createUser;
+
+    @Schema(title = "修改人")
+    private String updateUser;
 
     @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{organization.deleted.not_blank}", groups = {Created.class})

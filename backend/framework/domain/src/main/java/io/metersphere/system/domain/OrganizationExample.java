@@ -564,6 +564,76 @@ public class OrganizationExample {
             return (Criteria) this;
         }
 
+        public Criteria andUpdateUserIsNull() {
+            addCriterion("update_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIsNotNull() {
+            addCriterion("update_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserEqualTo(String value) {
+            addCriterion("update_user =", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotEqualTo(String value) {
+            addCriterion("update_user <>", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThan(String value) {
+            addCriterion("update_user >", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("update_user >=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThan(String value) {
+            addCriterion("update_user <", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLessThanOrEqualTo(String value) {
+            addCriterion("update_user <=", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserLike(String value) {
+            addCriterion("update_user like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotLike(String value) {
+            addCriterion("update_user not like", value, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserIn(List<String> values) {
+            addCriterion("update_user in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotIn(List<String> values) {
+            addCriterion("update_user not in", values, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserBetween(String value1, String value2) {
+            addCriterion("update_user between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andUpdateUserNotBetween(String value1, String value2) {
+            addCriterion("update_user not between", value1, value2, "updateUser");
+            return (Criteria) this;
+        }
+
         public Criteria andDeletedIsNull() {
             addCriterion("deleted is null");
             return (Criteria) this;
