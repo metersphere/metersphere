@@ -754,19 +754,31 @@ public class MockApiUtils {
                         }
                     }
                     // 去除URL中前缀后匹配
-                    return isPathMatchWithoutPrefix(path, url);
+                    if (isPathMatchWithoutPrefix(path, url)) {
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
 
+    /**
+     * 匹配自定义URL是否匹配：截取前面的域名等信息
+     *
+     * @param path https://metersphere.com/abcde/efg
+     * @param url  /abcde/efg(可以匹配到的) /efg(不能匹配到的)
+     * @return
+     */
     public static boolean isPathMatchWithoutPrefix(String path, String url) {
-        String pathNoProtocol = path.replaceAll("http[s]?://", "");
-        int firstIndex = pathNoProtocol.indexOf("/");
-        if (firstIndex > 0) {
-            pathNoProtocol = pathNoProtocol.substring(firstIndex);
+        if (StringUtils.startsWithAny(path, "https://", "http://")) {
+            String pathNoProtocol = path.replaceAll("http[s]?://", "");
+            int firstIndex = pathNoProtocol.indexOf("/");
+            if (firstIndex > 0) {
+                pathNoProtocol = pathNoProtocol.substring(firstIndex);
+            }
+            return StringUtils.equalsAny(pathNoProtocol, url, "/" + url);
         }
-        return StringUtils.equalsAny(pathNoProtocol, url, "/" + url);
+        return false;
     }
 }
