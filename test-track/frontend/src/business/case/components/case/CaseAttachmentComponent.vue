@@ -57,6 +57,7 @@
         </div>
         <!-- 关联文件 -->
         <div class="ref-row opt-row"
+          v-if="hasProjectFilePermission"
           @click="associationFile"
           style="
             display: flex;
@@ -104,7 +105,7 @@
       ></case-attachment-viewer>
     </div>
 
-    <ms-file-metadata-list ref="metadataList" @checkRows="checkRows" />
+    <ms-file-metadata-list v-if="hasProjectFilePermission" ref="metadataList" @checkRows="checkRows" />
     <ms-file-batch-move ref="module" @setModuleId="setModuleId" />
   </div>
 </template>
@@ -115,7 +116,7 @@ import { TokenKey } from "metersphere-frontend/src/utils/constants";
 import {
   byteToSize,
   getCurrentUser,
-  getTypeByFileName,
+  getTypeByFileName, hasPermission,
 } from "@/business/utils/sdk-utils";
 import axios from "axios";
 import { getUUID } from "metersphere-frontend/src/utils";
@@ -172,6 +173,9 @@ export default {
     targetId() {
       return this.belongType === "issue" ? this.issueId : this.caseId;
     },
+    hasProjectFilePermission() {
+      return hasPermission("PROJECT_FILE:READ");
+    }
   },
   watch: {
     caseId() {

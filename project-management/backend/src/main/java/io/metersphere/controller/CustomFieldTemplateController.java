@@ -32,7 +32,6 @@ public class CustomFieldTemplateController {
     }
 
     @GetMapping("/list/{templateId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
     public List<CustomFieldDao> getCustomFieldByTemplateId(@PathVariable String templateId) {
         return customFieldTemplateService.getCustomFieldByTemplateId(templateId);
     }

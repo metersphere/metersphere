@@ -177,7 +177,7 @@
         <issue-comment :issues-id="form.id"
                        @getComments="getComments"
                        ref="issueComment"/>
-        <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
+        <ms-file-metadata-list v-if="hasProjectFilePermission" ref="metadataList" @checkRows="checkRows"/>
         <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
       </el-form>
     </el-scrollbar>
@@ -200,7 +200,7 @@ import {
   getCurrentWorkspaceId,
   getCurrentUserId
 } from "metersphere-frontend/src/utils/token"
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {
   enableThirdPartTemplate,
   getIssuePartTemplateWithProject,
@@ -350,6 +350,9 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
+    hasProjectFilePermission() {
+      return hasPermission("PROJECT_FILE:READ");
+    }
   },
   watch: {
     tabActiveName() {
