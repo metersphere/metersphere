@@ -1,29 +1,32 @@
 <template>
   <span>
-     <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
-                :loading="loading"
-                @click.native="clickPane"
-                :disabled="disabled"
-                :multiple="data.type === 'multipleSelect'"
-                @change="handleChange"
-                @clear="handleClear"
-                clearable
-                filterable
-                v-model="data[prop]"
-                :filter-method="data.inputSearch ? handleSelectInput : null"
-                :remote="data.inputSearch"
-                :placeholder="$t('commons.default')">
+    <el-select
+      v-if="data.type === 'select' || data.type === 'multipleSelect'"
+      :loading="loading"
+      @click.native="clickPane"
+      :disabled="disabled"
+      :multiple="data.type === 'multipleSelect'"
+      @change="handleChange"
+      @clear="handleClear"
+      clearable
+      filterable
+      v-model="data[prop]"
+      :filter-method="data.inputSearch ? handleSelectInput : null"
+      :remote="data.inputSearch"
+      :placeholder="$t('commons.default')"
+    >
       <template v-solt:prefix>
-         <span v-if="data.inputSearch" class="input-search-tip">
-           {{ $t("custom_field.remote_search_tip") }}
-         </span>
+        <span v-if="data.inputSearch" class="input-search-tip">
+          {{ $t("custom_field.remote_search_tip") }}
+        </span>
       </template>
       <el-option
-        v-for="(item) in data.options ? data.options : []"
+        v-for="item in data.options ? data.options : []"
         :key="item.value"
         @change="handleChange"
         :label="getTranslateOption(item)"
-        :value="item.value">
+        :value="item.value"
+      >
       </el-option>
     </el-select>
 
@@ -32,9 +35,10 @@
       @click.native="clickPane"
       expand-trigger="hover"
       @change="handleChange"
-      :props="{label: 'text'}"
+      :props="{ label: 'text' }"
       :options="data.options"
-      v-model="data[prop]">
+      v-model="data[prop]"
+    >
     </el-cascader>
 
     <el-input
@@ -46,18 +50,22 @@
       :disabled="disabled"
       :placeholder="$t('commons.input_content')"
       class="custom-with"
-      v-model="data[prop]">
+      v-model="data[prop]"
+    >
     </el-input>
 
     <el-checkbox-group
       v-else-if="data.type === 'checkbox'"
       @click.native="clickPane"
       :disabled="disabled"
-      v-model="data[prop]">
-      <el-checkbox v-for="(item, index) in data.options ? data.options : []"
-                   :key="index"
-                   @change="handleChange"
-                   :label="item.value">
+      v-model="data[prop]"
+    >
+      <el-checkbox
+        v-for="(item, index) in data.options ? data.options : []"
+        :key="index"
+        @change="handleChange"
+        :label="item.value"
+      >
         {{ getTranslateOption(item) }}
       </el-checkbox>
     </el-checkbox-group>
@@ -67,10 +75,11 @@
       @click.native="clickPane"
       v-model="data[prop]"
       :disabled="disabled"
-      v-for="(item,index) in data.options ? data.options : []"
+      v-for="(item, index) in data.options ? data.options : []"
       :key="index"
       @change="handleChange"
-      :label="item.value">
+      :label="item.value"
+    >
       {{ getTranslateOption(item) }}
     </el-radio>
 
@@ -79,88 +88,107 @@
       @click.native="clickPane"
       v-model="data[prop]"
       :disabled="disabled"
-      @change="handleChange"/>
+      @change="handleChange"
+    />
 
     <el-input-number
       v-else-if="data.type === 'float'"
       @click.native="clickPane"
       :disabled="disabled"
       @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1"/>
+      v-model="data[prop]"
+      :precision="2"
+      :step="0.1"
+    />
 
-     <el-date-picker
-       class="custom-with"
-       @click.native="clickPane"
-       @change="handleChange"
-       v-else-if="data.type === 'date' || data.type === 'datetime'"
-       :value-format="data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'"
-       :disabled="disabled"
-       v-model="data[prop]"
-       :type="data.type === 'date' ? 'date' : 'datetime'"
-       :placeholder="$t('commons.select_date')">
+    <el-date-picker
+      class="custom-with"
+      @click.native="clickPane"
+      @change="handleChange"
+      v-else-if="data.type === 'date' || data.type === 'datetime'"
+      :value-format="
+        data.type === 'date' ? 'yyyy-MM-dd' : 'yyyy-MM-dd HH:mm:ss'
+      "
+      :disabled="disabled"
+      v-model="data[prop]"
+      :type="data.type === 'date' ? 'date' : 'datetime'"
+      :placeholder="$t('commons.select_date')"
+    >
     </el-date-picker>
 
-    <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
-               @click.native="clickPane"
-               :multiple="data.type === 'multipleMember'"
-               @change="handleChange"
-               clearable
-               :disabled="disabled"
-               filterable
-               v-model="data[prop]"
-               :placeholder="$t('commons.default')">
-       <el-option
-         v-for="(item) in memberOptions"
-         :key="item.id"
-         :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
-         :value="item.id">
-       </el-option>
+    <el-select
+      v-else-if="data.type === 'member' || data.type === 'multipleMember'"
+      @click.native="clickPane"
+      :multiple="data.type === 'multipleMember'"
+      @change="handleChange"
+      clearable
+      :disabled="disabled"
+      filterable
+      v-model="data[prop]"
+      :placeholder="$t('commons.default')"
+    >
+      <el-option
+        v-for="item in memberOptions"
+        :key="item.id"
+        :label="item.name + (item.email ? ' (' + item.email + ')' : '')"
+        :value="item.id"
+      >
+      </el-option>
     </el-select>
 
-    <ms-input-tag v-else-if="data.type === 'multipleInput'"
-                  @click.native="clickPane"
-                  @input="handleChange"
-                  :read-only="disabled" :currentScenario="data" :prop="prop"/>
+    <ms-input-tag
+      v-else-if="data.type === 'multipleInput'"
+      @click.native="clickPane"
+      @input="handleChange"
+      :read-only="disabled"
+      :currentScenario="data"
+      :prop="prop"
+    />
 
-    <ms-mark-down-text v-else-if="data.type === 'richText'"
-                       @click.native="clickPane"
-                       :prop="prop"
-                       @change="handleChange"
-                       :default-open="defaultOpen"
-                       :data="data" :disabled="disabled"/>
+    <ms-mark-down-text
+      v-else-if="data.type === 'richText'"
+      @click.native="clickPane"
+      :prop="prop"
+      @change="handleChange"
+      :default-open="defaultOpen"
+      :data="data"
+      :disabled="disabled"
+    />
 
-      <el-input v-else-if="data.type === 'password'"
-                @click.native="clickPane"
-                v-model="data[prop]"
-                class="custom-with"
-                auto-complete="new-password"
-                show-password
-                :disabled="disabled"
-                @input="handleChange"/>
+    <el-input
+      v-else-if="data.type === 'password'"
+      @click.native="clickPane"
+      v-model="data[prop]"
+      class="custom-with"
+      auto-complete="new-password"
+      show-password
+      :disabled="disabled"
+      @input="handleChange"
+    />
 
-    <el-input v-else
-              @click.native="clickPane"
-              v-model="data[prop]"
-              class="custom-with"
-              maxlength="450"
-              show-word-limit
-              :disabled="disabled"
-              @input="handleChange"/>
-
+    <el-input
+      v-else
+      @click.native="clickPane"
+      v-model="data[prop]"
+      class="custom-with"
+      maxlength="450"
+      show-word-limit
+      :disabled="disabled"
+      @input="handleChange"
+    />
   </span>
-
 </template>
 
 <script>
 import MsTableColumn from "../table/MsTableColumn";
 import MsInputTag from "../MsInputTag";
-import {getProjectMemberOption} from "../../api/user";
+import { getProjectMemberOption } from "../../api/user";
 import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
-import {OPTION_LABEL_PREFIX} from "../../utils/tableUtils";
+import { OPTION_LABEL_PREFIX } from "../../utils/tableUtils";
 
 export default {
   name: "CustomFiledComponent",
-  components: {MsMarkDownText, MsInputTag, MsTableColumn},
+  components: { MsMarkDownText, MsInputTag, MsTableColumn },
   props: {
     data: Object,
     prop: String,
@@ -170,23 +198,28 @@ export default {
     isTemplateEdit: Boolean,
     formProp: {
       type: String,
-      default: 'name'
-    }
+      default: "name",
+    },
   },
   data() {
     return {
       memberOptions: [],
       originOptions: null,
-      loading: false
+      loading: false,
     };
   },
   mounted() {
-    if (['select', 'multipleSelect', 'checkbox', 'radio'].indexOf(this.data.type) > -1 && this.data.options) {
+    if (
+      ["select", "multipleSelect", "checkbox", "radio"].indexOf(
+        this.data.type
+      ) > -1 &&
+      this.data.options
+    ) {
       let values = this.data[this.prop];
-      if (['multipleSelect', 'checkbox'].indexOf(this.data.type) > -1) {
+      if (["multipleSelect", "checkbox"].indexOf(this.data.type) > -1) {
         if (values && values instanceof Array) {
           for (let i = values.length - 1; i >= 0; i--) {
-            if (!this.data.options.find(item => item.value === values[i])) {
+            if (!this.data.options.find((item) => item.value === values[i])) {
               // 删除已删除的选项
               values.splice(i, 1);
             }
@@ -196,41 +229,47 @@ export default {
           this.data[this.prop] = [];
         }
       } else {
-        if (!this.data.options.find(item => item.value === values)) {
+        if (!this.data.options.find((item) => item.value === values)) {
           // 没有选项则清空
-          this.data[this.prop] = '';
+          this.data[this.prop] = "";
         }
       }
     }
     this.setFormData();
-    if (['member', 'multipleMember'].indexOf(this.data.type) < 0) {
+    if (["member", "multipleMember"].indexOf(this.data.type) < 0) {
       return;
     }
-    getProjectMemberOption()
-      .then((r) => {
-        this.memberOptions = r.data;
-        if (this.data.name === '责任人' && this.data.system && this.isTemplateEdit) {
-          this.memberOptions.unshift({id: 'CURRENT_USER', name: '创建人', email: ''});
-        }
-      });
+    getProjectMemberOption().then((r) => {
+      this.memberOptions = r.data;
+      if (
+        this.data.name === "责任人" &&
+        this.data.system &&
+        this.isTemplateEdit
+      ) {
+        this.memberOptions.unshift({
+          id: "CURRENT_USER",
+          name: "创建人",
+          email: "",
+        });
+      }
+    });
   },
   watch: {
     form() {
       this.setFormData();
-    }
+    },
   },
   methods: {
-    clickPane(){
+    clickPane() {
       this.$emit("onClick");
     },
     getTranslateOption(item) {
       return item.system ? this.$t(item.text) : item.text;
     },
     handleChange() {
-
       this.setFormData();
 
-      this.$emit('change', this.data[this.formProp]);
+      this.$emit("change", this.data[this.formProp]);
       this.$forceUpdate();
       if (this.data.inputSearch) {
         // 将选项的选项名保存在 optionLabel 中
@@ -239,26 +278,36 @@ export default {
           try {
             let optionLabel = this.data.optionLabel;
             let optionLabelMap;
-            if (optionLabel && this.data.optionLabel.startsWith(OPTION_LABEL_PREFIX)) {
-              optionLabel = this.data.optionLabel.substring(OPTION_LABEL_PREFIX.length);
+            if (
+              optionLabel &&
+              this.data.optionLabel.startsWith(OPTION_LABEL_PREFIX)
+            ) {
+              optionLabel = this.data.optionLabel.substring(
+                OPTION_LABEL_PREFIX.length
+              );
               optionLabelMap = JSON.parse(optionLabel);
             }
             if (!optionLabelMap) {
               optionLabelMap = {};
             }
             this.data[this.prop].forEach((val) => {
-              let selectOption = this.data.options.find(item => item.value === val);
+              let selectOption = this.data.options.find(
+                (item) => item.value === val
+              );
               if (selectOption) {
                 optionLabelMap[val] = selectOption.text;
               }
             });
-            this.data.optionLabel = OPTION_LABEL_PREFIX + JSON.stringify(optionLabelMap);
+            this.data.optionLabel =
+              OPTION_LABEL_PREFIX + JSON.stringify(optionLabelMap);
           } catch (e) {
             console.error("set optionLabel error ", e);
           }
         } else {
           // 单选
-          let selectOption = this.data.options.find(item => item.value === this.data[this.prop]);
+          let selectOption = this.data.options.find(
+            (item) => item.value === this.data[this.prop]
+          );
           if (selectOption) {
             this.data.optionLabel = OPTION_LABEL_PREFIX + selectOption.text;
           }
@@ -271,7 +320,7 @@ export default {
       }
       if (val) {
         this.loading = true;
-        this.$emit('inputSearch', this.data, val);
+        this.$emit("inputSearch", this.data, val);
       } else {
         // 置空搜索时，恢复回原始选项
         this.$forceUpdate();
@@ -291,8 +340,8 @@ export default {
       if (this.form && this.data && this.data[this.prop]) {
         this.$set(this.form, this.data[this.formProp], this.data[this.prop]);
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -305,16 +354,19 @@ export default {
   width: 100%;
 }
 
-.custom-with :deep( .el-input__inner) {
+.custom-with :deep(.el-input__inner) {
   height: 32px;
 }
 
-:deep( .el-input--suffix .el-input__inner) {
+:deep(.el-input--suffix .el-input__inner) {
   height: 32px;
 }
 
 .input-search-tip {
+  position: relative;
+  z-index: 9;
+  background-color: white;
   padding-left: 15px;
-  color: #C0C4CC;
+  color: #c0c4cc;
 }
 </style>
