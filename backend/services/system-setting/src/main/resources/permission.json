@@ -19,12 +19,36 @@
       "id": "SYSTEM_USER_ROLE:READ+DELETE",
       "name": "permission.system_user_role.delete",
       "resourceId": "SYSTEM_USER_ROLE"
+    },
+    {
+      "id": "SYSTEM_TEST_RESOURCE_POOL:READ",
+      "name": "permission.system_test_resource_pool.read",
+      "resourceId": "SYSTEM_USER_ROLE"
+    },
+    {
+      "id": "SYSTEM_TEST_RESOURCE_POOL:READ+ADD",
+      "name": "permission.system_test_resource_pool.add",
+      "resourceId": "SYSTEM_USER_ROLE"
+    },
+    {
+      "id": "SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE",
+      "name": "permission.system_test_resource_pool.update",
+      "resourceId": "SYSTEM_USER_ROLE"
+    },
+    {
+      "id": "SYSTEM_TEST_RESOURCE_POOL:READ+DELETE",
+      "name": "permission.system_test_resource_pool.delete",
+      "resourceId": "SYSTEM_USER_ROLE"
     }
   ],
   "resource": [
     {
       "id": "SYSTEM_USER_ROLE",
       "name": "permission.system_role.name"
+    },
+    {
+      "id": "SYSTEM_TEST_RESOURCE_POOL",
+      "name": "permission.system_test_resource_pool.name"
     }
   ]
 }

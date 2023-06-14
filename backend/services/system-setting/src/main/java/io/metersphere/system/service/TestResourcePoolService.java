@@ -16,6 +16,7 @@ import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.request.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -103,6 +104,9 @@ public class TestResourcePoolService {
         String resourcePoolName = testResourcePoolDTO.getName();
         if (StringUtils.isBlank(resourcePoolName)) {
             throw new MSException(Translator.get("test_resource_pool_name_is_null"));
+        }
+        if (StringUtils.isBlank(testResourcePoolDTO.getType())) {
+            throw new MSException(Translator.get("test_resource_pool_type_is_null"));
         }
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
