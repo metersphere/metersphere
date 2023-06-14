@@ -362,7 +362,7 @@ export default {
   height: 32px;
 }
 
-:deep(.el-tag__close.el-icon-close) {
+:deep(.el-select .el-tag__close.el-icon-close) {
   top: -5px !important;
 }
 
