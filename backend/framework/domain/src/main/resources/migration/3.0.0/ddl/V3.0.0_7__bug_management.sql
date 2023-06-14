@@ -1,7 +1,6 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS bug;
 CREATE TABLE IF NOT EXISTS bug(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `num` INT NOT NULL   COMMENT '业务ID' ,

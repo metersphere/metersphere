@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS custom_field;
-CREATE TABLE custom_field
+CREATE TABLE IF NOT EXISTS custom_field
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '自定义字段ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '自定义字段名称',
@@ -29,8 +28,7 @@ CREATE INDEX idx_update_time ON custom_field (update_time);
 CREATE INDEX idx_create_user ON custom_field (create_user);
 CREATE INDEX idx_project_id ON custom_field (project_id);
 
-DROP TABLE IF EXISTS custom_field_template;
-CREATE TABLE custom_field_template
+CREATE TABLE IF NOT EXISTS custom_field_template
 (
     `id`            VARCHAR(50) NOT NULL COMMENT '自定义模版ID',
     `field_id`      VARCHAR(50) NOT NULL COMMENT '自定义字段ID',
@@ -48,8 +46,7 @@ CREATE TABLE custom_field_template
 CREATE INDEX custom_field_template_field_id_index ON custom_field_template (field_id);
 CREATE INDEX custom_field_template_template_id_index ON custom_field_template (template_id);
 
-DROP TABLE IF EXISTS custom_function;
-CREATE TABLE custom_function
+CREATE TABLE IF NOT EXISTS custom_function
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '',
     `name`        VARCHAR(255) NOT NULL COMMENT '函数名',
@@ -61,8 +58,7 @@ CREATE TABLE custom_function
 
 CREATE INDEX name ON custom_function (name);
 
-DROP TABLE IF EXISTS fake_error;
-CREATE TABLE fake_error
+CREATE TABLE IF NOT EXISTS fake_error
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '误报ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
@@ -84,8 +80,7 @@ CREATE INDEX idx_update_time ON fake_error (update_time);
 CREATE INDEX idx_create_user ON fake_error (create_user);
 CREATE INDEX idx_update_user ON fake_error (update_user);
 
-DROP TABLE IF EXISTS file_association;
-CREATE TABLE file_association
+CREATE TABLE IF NOT EXISTS file_association
 (
     `id`               VARCHAR(50) NOT NULL COMMENT '',
     `type`             VARCHAR(50) NOT NULL COMMENT '模块类型,服务拆分后就是各个服务',
@@ -102,8 +97,7 @@ CREATE INDEX idx_file_metadata_id ON file_association (file_metadata_id);
 CREATE INDEX idx_project_id ON file_association (project_id);
 CREATE INDEX idx_source_id ON file_association (source_id);
 
-DROP TABLE IF EXISTS file_metadata;
-CREATE TABLE file_metadata
+CREATE TABLE IF NOT EXISTS file_metadata
 (
     `id`            VARCHAR(50)  NOT NULL COMMENT '文件ID',
     `name`          VARCHAR(255) NOT NULL COMMENT '文件名',
@@ -134,8 +128,7 @@ CREATE INDEX idx_storage ON file_metadata (storage);
 CREATE INDEX idx_module_id ON file_metadata (module_id);
 CREATE INDEX idx_project_id ON file_metadata (project_id);
 
-DROP TABLE IF EXISTS file_module;
-CREATE TABLE file_module
+CREATE TABLE IF NOT EXISTS file_module
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50) NOT NULL COMMENT '项目ID',
@@ -158,8 +151,7 @@ CREATE INDEX idx_update_timed ON file_module (update_time);
 CREATE INDEX idx_pos ON file_module (pos);
 CREATE INDEX idx_create_user ON file_module (create_user);
 
-DROP TABLE IF EXISTS project;
-CREATE TABLE project
+CREATE TABLE IF NOT EXISTS project
 (
     `id`              VARCHAR(50)  NOT NULL COMMENT '项目ID',
     `num`             BIGINT       NOT NULL AUTO_INCREMENT COMMENT '项目编号',
@@ -169,8 +161,8 @@ CREATE TABLE project
     `create_time`     BIGINT       NOT NULL COMMENT '创建时间',
     `update_time`     BIGINT       NOT NULL COMMENT '更新时间',
     `update_user`     VARCHAR(50)  NOT NULL COMMENT '修改人',
-    `create_user`     VARCHAR(50) COMMENT '创建人',
-    `delete_time`     BIGINT(255) COMMENT '删除时间',
+    `create_user`     VARCHAR(50)  COMMENT '创建人',
+    `delete_time`     BIGINT       COMMENT '删除时间',
     `deleted`         BIT          NOT NULL DEFAULT 0 COMMENT '是否删除',
     `delete_user`     VARCHAR(50) COMMENT '删除人',
     `enable`          BIT COMMENT '是否启用',
@@ -187,8 +179,7 @@ CREATE INDEX idx_name ON project (name);
 CREATE INDEX idx_deleted ON project (deleted);
 CREATE INDEX idx_update_user ON project(update_user);
 
-DROP TABLE IF EXISTS project_application;
-CREATE TABLE project_application
+CREATE TABLE IF NOT EXISTS project_application
 (
     `project_id` VARCHAR(50) NOT NULL COMMENT '项目ID',
     `type`       VARCHAR(50) NOT NULL COMMENT '配置项',
@@ -199,8 +190,7 @@ CREATE TABLE project_application
 
 CREATE INDEX idx_project_application_type ON project_application (type);
 
-DROP TABLE IF EXISTS project_version;
-CREATE TABLE project_version
+CREATE TABLE IF NOT EXISTS project_version
 (
     `id`           VARCHAR(50)  NOT NULL COMMENT '版本ID',
     `project_id`   VARCHAR(50)  NOT NULL COMMENT '项目ID',
@@ -223,8 +213,7 @@ CREATE INDEX idx_create_time ON project_version (create_time);
 CREATE INDEX idx_create_user ON project_version (create_user);
 CREATE INDEX idx_latest ON project_version (latest);
 
-DROP TABLE IF EXISTS file_module_blob;
-CREATE TABLE file_module_blob
+CREATE TABLE IF NOT EXISTS file_module_blob
 (
     `id`                   VARCHAR(50) NOT NULL COMMENT 'ID',
     `repository_desc`      LONGBLOB COMMENT '存储库描述',
@@ -234,8 +223,7 @@ CREATE TABLE file_module_blob
     PRIMARY KEY (id)
 ) COMMENT = '文件管理模块大字段';
 
-DROP TABLE IF EXISTS custom_function_blob;
-CREATE TABLE custom_function_blob
+CREATE TABLE IF NOT EXISTS custom_function_blob
 (
     `id`     VARCHAR(50) NOT NULL COMMENT '',
     `params` LONGBLOB COMMENT '参数列表',
@@ -244,8 +232,7 @@ CREATE TABLE custom_function_blob
     PRIMARY KEY (id)
 ) COMMENT = '自定义函数-代码片段大字段';
 
-DROP TABLE IF EXISTS fake_error_blob;
-CREATE TABLE fake_error_blob
+CREATE TABLE IF NOT EXISTS fake_error_blob
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'Test ID',
     `content`     LONGBLOB COMMENT '内容',
@@ -253,16 +240,14 @@ CREATE TABLE fake_error_blob
     PRIMARY KEY (id)
 ) COMMENT = '误报库大字段';
 
-DROP TABLE IF EXISTS file_metadata_blob;
-CREATE TABLE file_metadata_blob
+CREATE TABLE IF NOT EXISTS file_metadata_blob
 (
     `id`       VARCHAR(50) NOT NULL COMMENT '文件ID',
     `git_info` LONGBLOB COMMENT '储存库',
     PRIMARY KEY (id)
 ) COMMENT = '文件基础信息大字段';
 
-DROP TABLE IF EXISTS project_extend;
-CREATE TABLE project_extend
+CREATE TABLE IF NOT EXISTS project_extend
 (
     `id`                  VARCHAR(50) NOT NULL COMMENT '项目ID',
     `tapd_id`             VARCHAR(50) COMMENT '',
@@ -282,8 +267,7 @@ CREATE TABLE project_extend
 
 CREATE INDEX idx_project_id ON project_extend (id);
 
-DROP TABLE IF EXISTS functional_case_template;
-CREATE TABLE functional_case_template
+CREATE TABLE IF NOT EXISTS functional_case_template
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '名称',
@@ -302,8 +286,7 @@ CREATE INDEX idx_create_time ON functional_case_template (create_time);
 CREATE INDEX idx_create_user ON functional_case_template (create_user);
 CREATE INDEX idx_project_id ON functional_case_template (project_id);
 
-DROP TABLE IF EXISTS functional_case_template_extend;
-CREATE TABLE functional_case_template_extend
+CREATE TABLE IF NOT EXISTS functional_case_template_extend
 (
     `id`               VARCHAR(50) NOT NULL COMMENT '模板ID',
     `case_name`        VARCHAR(255) COMMENT '用例名称模板',
@@ -316,8 +299,7 @@ CREATE TABLE functional_case_template_extend
     PRIMARY KEY (id)
 ) COMMENT = '功能用例模版扩展';
 
-DROP TABLE IF EXISTS bug_template_extend;
-CREATE TABLE bug_template_extend
+CREATE TABLE IF NOT EXISTS bug_template_extend
 (
     `id`      VARCHAR(50) NOT NULL COMMENT '缺陷模板ID',
     `title`   VARCHAR(255) COMMENT '缺陷标题模板',
@@ -325,8 +307,7 @@ CREATE TABLE bug_template_extend
     PRIMARY KEY (id)
 ) COMMENT = '缺陷模板扩展';
 
-DROP TABLE IF EXISTS bug_template;
-CREATE TABLE bug_template
+CREATE TABLE IF NOT EXISTS bug_template
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '名称',
@@ -345,8 +326,7 @@ CREATE INDEX idx_create_time ON bug_template (create_time);
 CREATE INDEX idx_create_user ON bug_template (create_user);
 CREATE INDEX idx_project_id ON bug_template (project_id);
 
-DROP TABLE IF EXISTS api_template;
-CREATE TABLE api_template
+CREATE TABLE IF NOT EXISTS api_template
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '名称',

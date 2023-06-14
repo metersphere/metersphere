@@ -15,8 +15,8 @@
 
     <modules>
         <module>api-test</module>
-        <module>case-management</module>
         <module>bug-management</module>
+        <module>case-management</module>
         <module>load-test</module>
         <module>project-management</module>
         <module>system-setting</module>

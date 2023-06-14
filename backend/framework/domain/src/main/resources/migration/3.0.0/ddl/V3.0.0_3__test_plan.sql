@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS test_plan(
 
 
 CREATE INDEX idx_parent_id ON test_plan(project_id);
-CREATE INDEX idx_project_id ON test_plan(project_id);
 CREATE INDEX idx_create_user ON test_plan(create_user);
 CREATE INDEX idx_status ON test_plan(status);
 
@@ -44,12 +43,11 @@ CREATE TABLE IF NOT EXISTS test_plan_config(
                                  `run_mode_config` TEXT COMMENT '运行模式' ,
                                  `automatic_status_update` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否自定更新功能用例状态' ,
                                  `repeat_case` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否允许重复添加用例' ,
-                                 `pass_threshold` INT(3) NOT NULL  DEFAULT 100 COMMENT '测试计划通过阈值;0-100' ,
+                                 `pass_threshold` INT NOT NULL  DEFAULT 100 COMMENT '测试计划通过阈值;0-100' ,
                                  PRIMARY KEY (test_plan_id)
 )  COMMENT = '测试计划配置';
 
-DROP TABLE IF EXISTS test_plan_api_case;
-CREATE TABLE test_plan_api_case(
+CREATE TABLE IF NOT EXISTS test_plan_api_case(
                                    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                    `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                    `api_case_id` VARCHAR(50) NOT NULL   COMMENT '接口用例ID' ,
@@ -67,8 +65,7 @@ CREATE INDEX idx_api_case_id ON test_plan_api_case(api_case_id);
 CREATE INDEX idx_test_plan_id ON test_plan_api_case(test_plan_id);
 CREATE INDEX idx_create_user ON test_plan_api_case(create_user);
 
-DROP TABLE IF EXISTS test_plan_api_scenario;
-CREATE TABLE test_plan_api_scenario(
+CREATE TABLE IF NOT EXISTS test_plan_api_scenario(
                                        `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                        `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                        `api_scenario_id` VARCHAR(255)    COMMENT '场景ID' ,
@@ -86,8 +83,7 @@ CREATE INDEX idx_api_scenario_id ON test_plan_api_scenario(api_scenario_id);
 CREATE INDEX idx_test_plan_id ON test_plan_api_scenario(test_plan_id);
 CREATE INDEX idx_create_user ON test_plan_api_scenario(create_user);
 
-DROP TABLE IF EXISTS test_plan_load_case;
-CREATE TABLE test_plan_load_case(
+CREATE TABLE IF NOT EXISTS test_plan_load_case(
                                     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                     `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                     `load_case_id` VARCHAR(50) NOT NULL   COMMENT '性能用例ID' ,
@@ -105,8 +101,7 @@ CREATE INDEX idx_load_case_id ON test_plan_load_case(load_case_id);
 CREATE INDEX idx_test_plan_id ON test_plan_load_case(test_plan_id);
 CREATE INDEX idx_create_user ON test_plan_load_case(create_user);
 
-DROP TABLE IF EXISTS test_plan_function_case;
-CREATE TABLE test_plan_function_case(
+CREATE TABLE IF NOT EXISTS test_plan_function_case(
                                         `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                         `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                         `function_case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
@@ -121,8 +116,7 @@ CREATE INDEX idx_function_case_id ON test_plan_function_case(function_case_id);
 CREATE INDEX idx_test_plan_id ON test_plan_function_case(test_plan_id);
 CREATE INDEX idx_create_user ON test_plan_function_case(create_user);
 
-DROP TABLE IF EXISTS test_plan_ui_scenario;
-CREATE TABLE test_plan_ui_scenario(
+CREATE TABLE IF NOT EXISTS test_plan_ui_scenario(
                                       `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                       `test_plan_id` VARCHAR(50) NOT NULL   COMMENT '测试计划ID' ,
                                       `ui_scenario_id` VARCHAR(50) NOT NULL   COMMENT 'UI场景ID' ,

@@ -30,10 +30,9 @@
         <pagehelper.version>5.3.2</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
-        <redisson-starter.version>3.21.3</redisson-starter.version>
+        <redisson-starter.version>3.22.0</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
-        <mybatis-starter.version>3.0.1</mybatis-starter.version>
-        <mybatis-plus-starter.version>3.5.3.1</mybatis-plus-starter.version>
+        <mybatis-starter.version>3.0.2</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <commons-io.version>2.11.0</commons-io.version>

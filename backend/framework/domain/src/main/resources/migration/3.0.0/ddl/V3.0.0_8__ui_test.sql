@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS ui_element;
-CREATE TABLE ui_element(
+CREATE TABLE IF NOT EXISTS ui_element(
                            `id` VARCHAR(50) NOT NULL   COMMENT '元素id' ,
                            `num` INT NOT NULL   COMMENT '元素num' ,
                            `module_id` VARCHAR(50) NOT NULL   COMMENT '元素所属模块id' ,
@@ -34,8 +33,7 @@ CREATE INDEX idx_update_time ON ui_element(update_time);
 CREATE INDEX idx_create_user ON ui_element(create_user);
 CREATE INDEX idx_update_user ON ui_element(update_user);
 
-DROP TABLE IF EXISTS ui_element_module;
-CREATE TABLE ui_element_module(
+CREATE TABLE IF NOT EXISTS ui_element_module(
                                   `id` VARCHAR(50) NOT NULL   COMMENT '模块ID' ,
                                   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
@@ -55,8 +53,7 @@ CREATE INDEX idx_create_time ON ui_element_module(create_time);
 CREATE INDEX idx_update_time ON ui_element_module(update_time);
 CREATE INDEX idx_create_user ON ui_element_module(create_user);
 
-DROP TABLE IF EXISTS ui_element_scenario_reference;
-CREATE TABLE ui_element_scenario_reference(
+CREATE TABLE IF NOT EXISTS ui_element_scenario_reference(
                                               `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                               `element_id` VARCHAR(50) NOT NULL   COMMENT '元素ID' ,
                                               `element_module_id` VARCHAR(50) NOT NULL   COMMENT '元素模块ID' ,
@@ -71,8 +68,7 @@ CREATE INDEX idx_scenario_id ON ui_element_scenario_reference(scenario_id);
 CREATE INDEX idx_project_id ON ui_element_scenario_reference(project_id);
 CREATE INDEX idx_element_module_id ON ui_element_scenario_reference(element_module_id);
 
-DROP TABLE IF EXISTS ui_scenario;
-CREATE TABLE ui_scenario(
+CREATE TABLE IF NOT EXISTS ui_scenario(
                             `id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                             `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                             `tags` VARCHAR(1000)    COMMENT '标签' ,
@@ -114,8 +110,7 @@ CREATE INDEX idx_num ON ui_scenario(num);
 CREATE INDEX idx_deleted ON ui_scenario(deleted);
 CREATE INDEX idx_create_user ON ui_scenario(create_user);
 
-DROP TABLE IF EXISTS ui_scenario_reference;
-CREATE TABLE ui_scenario_reference(
+CREATE TABLE IF NOT EXISTS ui_scenario_reference(
                                       `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                       `ui_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                       `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -130,8 +125,7 @@ CREATE INDEX idx_ui_scenario_id ON ui_scenario_reference(ui_scenario_id);
 CREATE INDEX idx_reference_id ON ui_scenario_reference(reference_id);
 CREATE INDEX idx_data_type ON ui_scenario_reference(data_type);
 
-DROP TABLE IF EXISTS ui_scenario_report;
-CREATE TABLE ui_scenario_report(
+CREATE TABLE IF NOT EXISTS ui_scenario_report(
                                    `id` VARCHAR(50) NOT NULL   COMMENT '报告ID' ,
                                    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                    `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
@@ -162,8 +156,7 @@ CREATE INDEX idx_trigger_mode ON ui_scenario_report(trigger_mode);
 CREATE INDEX idx_status ON ui_scenario_report(status);
 CREATE INDEX idx_create_user ON ui_scenario_report(create_user);
 
-DROP TABLE IF EXISTS ui_scenario_report_detail;
-CREATE TABLE ui_scenario_report_detail(
+CREATE TABLE IF NOT EXISTS ui_scenario_report_detail(
                                           `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                           `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源id（场景，接口）' ,
                                           `report_id` VARCHAR(50) NOT NULL   COMMENT '报告 id' ,
@@ -183,8 +176,7 @@ CREATE INDEX idx_report_id ON ui_scenario_report_detail(report_id);
 CREATE INDEX idx_create_time ON ui_scenario_report_detail(create_time);
 CREATE INDEX idx_status ON ui_scenario_report_detail(status);
 
-DROP TABLE IF EXISTS ui_scenario_report_structure;
-CREATE TABLE ui_scenario_report_structure(
+CREATE TABLE IF NOT EXISTS ui_scenario_report_structure(
                                              `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                              `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
                                              `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -195,8 +187,7 @@ CREATE TABLE ui_scenario_report_structure(
 
 CREATE INDEX idx_report_id ON ui_scenario_report_structure(report_id);
 
-DROP TABLE IF EXISTS ui_custom_command;
-CREATE TABLE ui_custom_command(
+CREATE TABLE IF NOT EXISTS ui_custom_command(
                                   `id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                   `tags` VARCHAR(1000)    COMMENT '标签' ,
@@ -238,8 +229,7 @@ CREATE INDEX idx_num ON ui_custom_command(num);
 CREATE INDEX idx_deleted ON ui_custom_command(deleted);
 CREATE INDEX idx_create_user ON ui_custom_command(create_user);
 
-DROP TABLE IF EXISTS ui_scenario_module;
-CREATE TABLE ui_scenario_module(
+CREATE TABLE IF NOT EXISTS ui_scenario_module(
                                    `id` VARCHAR(50) NOT NULL   COMMENT '模块ID' ,
                                    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                    `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
@@ -259,8 +249,7 @@ CREATE INDEX idx_create_time ON ui_scenario_module(create_time);
 CREATE INDEX idx_update_time ON ui_scenario_module(update_time);
 CREATE INDEX idx_create_user ON ui_scenario_module(create_user);
 
-DROP TABLE IF EXISTS ui_custom_command_module;
-CREATE TABLE ui_custom_command_module(
+CREATE TABLE IF NOT EXISTS ui_custom_command_module(
                                          `id` VARCHAR(50) NOT NULL   COMMENT '模块ID' ,
                                          `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
                                          `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
@@ -280,8 +269,7 @@ CREATE INDEX idx_create_time ON ui_custom_command_module(create_time);
 CREATE INDEX idx_update_time ON ui_custom_command_module(update_time);
 CREATE INDEX idx_create_user ON ui_custom_command_module(create_user);
 
-DROP TABLE IF EXISTS ui_scenario_blob;
-CREATE TABLE ui_scenario_blob(
+CREATE TABLE IF NOT EXISTS ui_scenario_blob(
                                  `id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                  `scenario_definition` LONGBLOB    COMMENT '场景定义' ,
                                  `environment_json` BLOB    COMMENT '环境' ,
@@ -291,8 +279,7 @@ CREATE TABLE ui_scenario_blob(
 
 CREATE INDEX idx_scenario_id ON ui_scenario_blob(id);
 
-DROP TABLE IF EXISTS ui_scenario_report_environment;
-CREATE TABLE ui_scenario_report_environment(
+CREATE TABLE IF NOT EXISTS ui_scenario_report_environment(
                                                `report_id` VARCHAR(50) NOT NULL   COMMENT '报告ID' ,
                                                `project_id` VARCHAR(50)    COMMENT '项目ID' ,
                                                `environment_id` VARCHAR(50)    COMMENT '环境ID' ,
@@ -302,8 +289,7 @@ CREATE TABLE ui_scenario_report_environment(
 
 CREATE INDEX idx_report_id ON ui_scenario_report_environment(report_id);
 
-DROP TABLE IF EXISTS ui_custom_command_blob;
-CREATE TABLE ui_custom_command_blob(
+CREATE TABLE IF NOT EXISTS ui_custom_command_blob(
                                        `id` VARCHAR(50) NOT NULL   COMMENT '指令ID' ,
                                        `scenario_definition` LONGBLOB    COMMENT '场景定义' ,
                                        `command_view_struct` LONGBLOB    COMMENT '自定义结构' ,
@@ -313,8 +299,7 @@ CREATE TABLE ui_custom_command_blob(
 
 CREATE INDEX idx_command_id ON ui_custom_command_blob(id);
 
-DROP TABLE IF EXISTS ui_scenario_report_log;
-CREATE TABLE ui_scenario_report_log(
+CREATE TABLE IF NOT EXISTS ui_scenario_report_log(
                                        `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                        `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
                                        `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
@@ -325,8 +310,7 @@ CREATE TABLE ui_scenario_report_log(
 
 CREATE INDEX idx_report_id ON ui_scenario_report_log(report_id);
 
-DROP TABLE IF EXISTS ui_element_command_reference;
-CREATE TABLE ui_element_command_reference(
+CREATE TABLE IF NOT EXISTS ui_element_command_reference(
                                              `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
                                              `element_id` VARCHAR(50) NOT NULL   COMMENT '元素ID' ,
                                              `element_module_id` VARCHAR(50) NOT NULL   COMMENT '元素模块ID' ,
@@ -341,8 +325,7 @@ CREATE INDEX idx_command_id ON ui_element_command_reference(command_id);
 CREATE INDEX idx_project_id ON ui_element_command_reference(project_id);
 CREATE INDEX idx_element_module_id ON ui_element_command_reference(element_module_id);
 
-DROP TABLE IF EXISTS ui_scenario_follower;
-CREATE TABLE ui_scenario_follower(
+CREATE TABLE IF NOT EXISTS ui_scenario_follower(
                                      `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
                                      `user_id` VARCHAR(50) NOT NULL   COMMENT '关注人ID' ,
                                      PRIMARY KEY (scenario_id,user_id)

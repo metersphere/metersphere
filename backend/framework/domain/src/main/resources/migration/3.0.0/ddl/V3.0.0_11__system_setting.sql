@@ -1,8 +1,7 @@
 -- set innodb lock wait timeout
 SET SESSION innodb_lock_wait_timeout = 7200;
 
-DROP TABLE IF EXISTS auth_source;
-CREATE TABLE auth_source
+CREATE TABLE IF NOT EXISTS auth_source
 (
     `id`            VARCHAR(50) NOT NULL COMMENT '认证源ID',
     `configuration` BLOB        NOT NULL COMMENT '认证源配置',
@@ -22,8 +21,7 @@ CREATE INDEX idx_name ON auth_source (`name`);
 CREATE INDEX idx_create_time ON auth_source (`create_time`);
 CREATE INDEX idx_update_time ON auth_source (`update_time`);
 
-DROP TABLE IF EXISTS user_role;
-CREATE TABLE user_role
+CREATE TABLE IF NOT EXISTS user_role
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组ID',
     `name`        VARCHAR(255) NOT NULL COMMENT '组名称',
@@ -47,8 +45,7 @@ CREATE INDEX idx_create_user ON user_role (`create_user`);
 CREATE INDEX idx_scope_id ON user_role (`scope_id`);
 CREATE INDEX idx_update_time ON user_role (`update_time`);
 
-DROP TABLE IF EXISTS license;
-CREATE TABLE license
+CREATE TABLE IF NOT EXISTS license
 (
     `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
     `create_time`  BIGINT      NOT NULL COMMENT 'Create timestamp',
@@ -59,8 +56,7 @@ CREATE TABLE license
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '';
 
-DROP TABLE IF EXISTS message_task;
-CREATE TABLE message_task
+CREATE TABLE IF NOT EXISTS message_task
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '',
     `type`        VARCHAR(50)  NOT NULL COMMENT '消息类型',
@@ -82,8 +78,7 @@ CREATE INDEX idx_create_time ON message_task (`create_time`);
 CREATE INDEX idx_receiver ON message_task (`receiver`);
 CREATE INDEX idx_test_id ON message_task (`test_id`);
 
-DROP TABLE IF EXISTS notification;
-CREATE TABLE notification
+CREATE TABLE IF NOT EXISTS notification
 (
     `id`            BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `type`          VARCHAR(30)  NOT NULL COMMENT '通知类型',
@@ -106,8 +101,7 @@ CREATE INDEX idx_receiver ON notification (`receiver`);
 CREATE INDEX idx_receiver_type ON notification (`receiver`, `type`);
 CREATE INDEX idx_notification_create_time ON notification (`create_time`);
 
-DROP TABLE IF EXISTS novice_statistics;
-CREATE TABLE novice_statistics
+CREATE TABLE IF NOT EXISTS novice_statistics
 (
     `id`          VARCHAR(50) NOT NULL COMMENT '',
     `user_id`     VARCHAR(50) COMMENT '用户id',
@@ -121,8 +115,7 @@ CREATE TABLE novice_statistics
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '新手村';
 
-DROP TABLE IF EXISTS operation_log;
-CREATE TABLE operation_log
+CREATE TABLE IF NOT EXISTS operation_log
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '主键',
     `project_id`  VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '项目id',
@@ -146,8 +139,7 @@ CREATE INDEX idx_module ON operation_log(`module`);
 CREATE INDEX idx_project_id ON operation_log(`project_id`);
 CREATE INDEX idx_type ON operation_log(`type`);
 
-DROP TABLE IF EXISTS plugin;
-CREATE TABLE plugin
+CREATE TABLE IF NOT EXISTS plugin
 (
     `id`           VARCHAR(50)  NOT NULL COMMENT 'ID',
     `name`         VARCHAR(255) COMMENT 'plugin name',
@@ -168,8 +160,7 @@ CREATE TABLE plugin
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '插件';
 
-DROP TABLE IF EXISTS quota;
-CREATE TABLE quota
+CREATE TABLE IF NOT EXISTS quota
 (
     `id`                    VARCHAR(50) NOT NULL COMMENT '',
     `organization_id`       VARCHAR(50) COMMENT '组织ID',
@@ -198,8 +189,7 @@ CREATE TABLE quota
 CREATE INDEX idx_quota_project_id ON quota (`project_id`);
 CREATE INDEX idx_quota_workspace_id ON quota (`organization_id`);
 
-DROP TABLE IF EXISTS schedule;
-CREATE TABLE schedule
+CREATE TABLE IF NOT EXISTS schedule
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '',
     `key`         VARCHAR(50) COMMENT 'qrtz UUID',
@@ -229,8 +219,7 @@ CREATE INDEX idx_enable ON schedule (`enable`);
 CREATE INDEX idx_name ON schedule (`name`);
 CREATE INDEX idx_type ON schedule (`type`);
 
-DROP TABLE IF EXISTS service_integration;
-CREATE TABLE service_integration
+CREATE TABLE IF NOT EXISTS service_integration
 (
     `id`              VARCHAR(50) NOT NULL COMMENT '',
     `platform`        VARCHAR(50) NOT NULL COMMENT '平台',
@@ -244,8 +233,7 @@ CREATE TABLE service_integration
 
 CREATE INDEX idx_workspace_id ON service_integration (`organization_id`);
 
-DROP TABLE IF EXISTS system_parameter;
-CREATE TABLE system_parameter
+CREATE TABLE IF NOT EXISTS system_parameter
 (
     `param_key`   VARCHAR(64)  NOT NULL COMMENT '参数名称',
     `param_value` VARCHAR(255) COMMENT '参数值',
@@ -255,8 +243,7 @@ CREATE TABLE system_parameter
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '系统参数';
 
-DROP TABLE IF EXISTS test_resource;
-CREATE TABLE test_resource(
+CREATE TABLE IF NOT EXISTS test_resource(
                               `id` VARCHAR(50) NOT NULL   COMMENT '资源节点ID' ,
                               `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
                               `configuration` BLOB    COMMENT '资源节点配置' ,
@@ -276,8 +263,7 @@ CREATE INDEX idx_create_time ON test_resource(`create_time`);
 CREATE INDEX idx_enable ON test_resource(`enable`);
 CREATE INDEX idx_update_time ON test_resource(`update_time`);
 
-DROP TABLE IF EXISTS test_resource_pool;
-CREATE TABLE test_resource_pool(
+CREATE TABLE IF NOT EXISTS test_resource_pool(
                                    `id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
                                    `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
                                    `type` VARCHAR(30) NOT NULL   COMMENT '类型' ,
@@ -308,8 +294,7 @@ CREATE INDEX idx_create_time ON test_resource_pool(`create_time`);
 CREATE INDEX idx_update_time ON test_resource_pool(`update_time`);
 CREATE INDEX idx_create_user ON test_resource_pool(`create_user`);
 
-DROP TABLE IF EXISTS user;
-CREATE TABLE user
+CREATE TABLE IF NOT EXISTS user
 (
     `id`                   VARCHAR(50)  NOT NULL COMMENT '用户ID',
     `name`                 VARCHAR(255) NOT NULL COMMENT '用户名',
@@ -340,8 +325,7 @@ CREATE INDEX idx_project_id ON user (`last_project_id`);
 CREATE INDEX idx_create_user ON user (`create_user`);
 CREATE INDEX idx_update_user ON user (`update_user`);
 
-DROP TABLE IF EXISTS user_role_relation;
-CREATE TABLE user_role_relation(
+CREATE TABLE IF NOT EXISTS user_role_relation(
 `id` VARCHAR(50) NOT NULL   COMMENT '用户组关系ID' ,
 `user_id` VARCHAR(50) NOT NULL   COMMENT '用户ID' ,
 `role_id` VARCHAR(50) NOT NULL   COMMENT '组ID' ,
@@ -360,8 +344,7 @@ CREATE INDEX idx_group_id ON user_role_relation(`role_id`);
 CREATE INDEX idx_source_id ON user_role_relation(`source_id`);
 CREATE INDEX idx_create_time ON user_role_relation(`create_time`);
 
-DROP TABLE IF EXISTS user_role_permission;
-CREATE TABLE user_role_permission
+CREATE TABLE IF NOT EXISTS user_role_permission
 (
     `id`            VARCHAR(64)  NOT NULL COMMENT '',
     `role_id`       VARCHAR(64)  NOT NULL COMMENT '用户组ID',
@@ -376,8 +359,7 @@ CREATE TABLE user_role_permission
 CREATE INDEX idx_group_id ON user_role_permission (`role_id`);
 CREATE INDEX idx_permission_id ON user_role_permission (`permission_id`);
 
-DROP TABLE IF EXISTS user_key;
-CREATE TABLE user_key
+CREATE TABLE IF NOT EXISTS user_key
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'user_key ID',
     `create_user` VARCHAR(50) NOT NULL COMMENT '用户ID',
@@ -394,8 +376,7 @@ CREATE TABLE user_key
 CREATE UNIQUE INDEX idx_ak ON user_key (`access_key`);
 CREATE INDEX idx_create_user ON user_key (`create_user`);
 
-DROP TABLE IF EXISTS organization;
-CREATE TABLE organization
+CREATE TABLE IF NOT EXISTS organization
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '组织ID',
     `num`         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '组织编号',
@@ -423,8 +404,7 @@ CREATE INDEX idx_update_time ON organization (`update_time`);
 CREATE INDEX idx_deleted ON organization (`deleted`);
 CREATE INDEX idx_update_user ON organization(`update_user`);
 
-DROP TABLE IF EXISTS user_extend;
-CREATE TABLE user_extend
+CREATE TABLE IF NOT EXISTS user_extend
 (
     `id`              VARCHAR(50) NOT NULL COMMENT '用户ID',
     `platform_info`   BLOB COMMENT '其他平台对接信息',
@@ -434,8 +414,7 @@ CREATE TABLE user_extend
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用户扩展';
 
-DROP TABLE IF EXISTS message_task_blob;
-CREATE TABLE message_task_blob
+CREATE TABLE IF NOT EXISTS message_task_blob
 (
     `id`       VARCHAR(50) NOT NULL COMMENT '',
     `template` TEXT COMMENT '消息模版',
@@ -444,8 +423,7 @@ CREATE TABLE message_task_blob
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
 
-DROP TABLE IF EXISTS plugin_blob;
-CREATE TABLE plugin_blob
+CREATE TABLE IF NOT EXISTS plugin_blob
 (
     `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
     `form_option` LONGBLOB COMMENT 'plugin form option',
