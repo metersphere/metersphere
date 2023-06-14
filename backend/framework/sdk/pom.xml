@@ -9,7 +9,7 @@
     </parent>
     <artifactId>metersphere-sdk</artifactId>
     <version>${revision}</version>
-    <name>sdk</name>
+    <name>metersphere-sdk</name>
     <description>sdk</description>
     <properties>
     </properties>
@@ -439,14 +439,7 @@
                 <configuration>
                     <verbose>true</verbose>
                     <overwrite>true</overwrite>
-                    <configurationFile>src/main/resources/loadGeneratorConfig.xml</configurationFile>
                     <configurationFile>src/main/resources/sdkGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/projectGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/systemGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/uiGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/bugGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/apiGeneratorConfig.xml</configurationFile>
-                    <configurationFile>src/main/resources/functionalGeneratorConfig.xml</configurationFile>
                 </configuration>
                 <dependencies>
                     <dependency>
