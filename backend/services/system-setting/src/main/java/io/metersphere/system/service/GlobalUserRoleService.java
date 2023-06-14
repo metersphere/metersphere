@@ -1,15 +1,23 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
+import io.metersphere.system.dto.UserRoleOption;
+import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 系统设置的接口增删改查都是针对全局用户组
+ *
  * @author jianxing
  * @date : 2023-6-8
  */
@@ -20,6 +28,8 @@ public class GlobalUserRoleService {
 
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private ExtUserRoleMapper extUserRoleMapper;
 
     public List<UserRole> list() {
         UserRoleExample example = new UserRoleExample();
@@ -48,5 +58,30 @@ public class GlobalUserRoleService {
         // todo 只能删除自定义全局
         userRoleMapper.deleteByPrimaryKey(id);
         return id;
+    }
+
+    public void checkRoleIsGlobalAndHaveMember(@Valid @NotEmpty List<String> roleIdList, boolean isSystem) {
+        List<String> globalRoleList = extUserRoleMapper.selectGlobalRoleList(roleIdList, isSystem);
+        if (globalRoleList.size() != roleIdList.size()) {
+            throw new MSException("role.not.global");
+        }
+        if (!globalRoleList.contains("member")) {
+            throw new MSException("role.not.contains.member");
+        }
+    }
+
+    public List<UserRoleOption> getGlobalSystemRoleList() {
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andScopeIdEqualTo("global").andTypeEqualTo("SYSTEM");
+        List<UserRoleOption> returnList = new ArrayList<>();
+        userRoleMapper.selectByExample(example).forEach(userRole -> {
+            UserRoleOption userRoleOption = new UserRoleOption();
+            userRoleOption.setId(userRole.getId());
+            userRoleOption.setName(userRole.getName());
+            userRoleOption.setSelected(StringUtils.equals(userRole.getId(), "member"));
+            userRoleOption.setCloseable(!StringUtils.equals(userRole.getId(), "member"));
+            returnList.add(userRoleOption);
+        });
+        return returnList;
     }
 }
