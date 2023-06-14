@@ -56,6 +56,14 @@
   margin: 10px 0 5px 0;
 }
 
+.el-message--error {
+  height: auto !important;
+}
+
+.el-message__content {
+  width: 90%;
+}
+
 /* --> */
 
 body {
