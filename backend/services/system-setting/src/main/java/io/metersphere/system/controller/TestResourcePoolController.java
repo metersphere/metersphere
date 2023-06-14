@@ -27,7 +27,7 @@ public class TestResourcePoolController {
     private TestResourcePoolService testResourcePoolService;
 
     @PostMapping("/add")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
     @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL, details = "#poolDTO.name")
     public TestResourcePoolDTO addTestResourcePool(@RequestBody TestResourcePoolDTO poolDTO) {
         return testResourcePoolService.addTestResourcePool(poolDTO);
@@ -35,7 +35,7 @@ public class TestResourcePoolController {
 
     @GetMapping("/delete/{poolId}")
     @CacheNode // 把监控节点缓存起来
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_DELETE)
     @RequestLog(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
             details = "#msClass.getLogDetails(#testResourcePoolId)", msClass = TestResourcePoolService.class)
     public void deleteTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
@@ -44,7 +44,7 @@ public class TestResourcePoolController {
 
     @PostMapping("/update")
     @CacheNode // 把监控节点缓存起来
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
             sourceId = "#testResourcePoolDTO.id", details = "#testResourcePoolDTO.name")
     public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
@@ -52,7 +52,7 @@ public class TestResourcePoolController {
     }
 
     @PostMapping("/page")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
     public Pager<List<TestResourcePoolDTO>> listResourcePools(@RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));

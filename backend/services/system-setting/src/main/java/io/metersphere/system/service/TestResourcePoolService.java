@@ -104,6 +104,9 @@ public class TestResourcePoolService {
         if (StringUtils.isBlank(resourcePoolName)) {
             throw new MSException(Translator.get("test_resource_pool_name_is_null"));
         }
+        if (StringUtils.isBlank(testResourcePoolDTO.getType())) {
+            throw new MSException(Translator.get("test_resource_pool_type_is_null"));
+        }
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andNameEqualTo(resourcePoolName);
