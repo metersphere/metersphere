@@ -37,7 +37,6 @@ public class OperatingLogController {
 
 
     @PostMapping("/get/source/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
     public Pager<List<OperatingLogDTO>> findBySourceId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody OperatingLogRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, operatingLogService.findBySourceId(request));

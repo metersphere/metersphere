@@ -92,7 +92,6 @@ public class FileMetadataController {
     }
 
     @GetMapping(value = "/get/type/all")
-    @RequiresPermissions("PROJECT_FILE:READ")
     public List<String> getTypes() {
         return fileMetadataService.getTypes();
     }

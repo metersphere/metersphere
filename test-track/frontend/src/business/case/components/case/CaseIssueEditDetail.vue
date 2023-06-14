@@ -171,7 +171,6 @@ import MsMarkDownText from "metersphere-frontend/src/components/MsMarkDownText";
 import IssueComment from "@/business/issue/IssueComment";
 import ReviewCommentItem from "@/business/review/commom/ReviewCommentItem";
 import TestCaseAttachment from "@/business/case/components/TestCaseAttachment";
-import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
 
 export default {
@@ -188,7 +187,6 @@ export default {
     IssueComment,
     ReviewCommentItem,
     TestCaseAttachment,
-    MsFileMetadataList,
     MsFileBatchMove,
     CaseAttachmentComponent,
   },

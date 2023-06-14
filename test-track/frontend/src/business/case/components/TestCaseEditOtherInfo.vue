@@ -135,7 +135,7 @@
         </el-col>
       </el-row>
     </el-tab-pane>
-    <ms-file-metadata-list ref="metadataList" @checkRows="checkRows"/>
+    <ms-file-metadata-list v-if="hasProjectFilePermission" ref="metadataList" @checkRows="checkRows"/>
     <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
   </el-tabs>
 </template>
@@ -164,7 +164,7 @@ import {getCurrentProjectID} from "metersphere-frontend/src/utils/token"
 import {issueDemandList} from "@/api/issue";
 import {TokenKey} from "metersphere-frontend/src/utils/constants";
 import DependenciesList from "@/business/common/DependenciesList";
-import {byteToSize, getCurrentUser, getTypeByFileName} from "@/business/utils/sdk-utils";
+import {byteToSize, getCurrentUser, getTypeByFileName, hasPermission} from "@/business/utils/sdk-utils";
 import axios from "axios";
 import MsFileMetadataList from "metersphere-frontend/src/components/environment/commons/variable/QuoteFileList";
 import MsFileBatchMove from "metersphere-frontend/src/components/environment/commons/variable/FileBatchMove";
@@ -213,6 +213,9 @@ export default {
   computed: {
     isTesterPermission() {
       return true;
+    },
+    hasProjectFilePermission() {
+      return hasPermission("PROJECT_FILE:READ");
     }
   },
   watch: {
