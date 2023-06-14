@@ -1,5 +1,6 @@
 const path = require("path");
 const { name } = require("./package");
+const { defineConfig } = require("@vue/cli-service");
 
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -11,7 +12,8 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-module.exports = {
+module.exports = defineConfig({
+  publicPath: "/",
   productionSourceMap: false,
   devServer: {
     port: 4005,
@@ -248,4 +250,4 @@ module.exports = {
       ]);
     }
   },
-};
+});

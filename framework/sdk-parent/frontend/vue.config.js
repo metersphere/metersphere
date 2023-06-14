@@ -1,4 +1,5 @@
 const path = require("path");
+const { defineConfig } = require("@vue/cli-service");
 const BundleAnalyzerPlugin =
   require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
@@ -6,7 +7,8 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
-module.exports = {
+module.exports = defineConfig({
+  publicPath: "/",
   productionSourceMap: false,
   devServer: {
     port: 3000,
@@ -121,4 +123,4 @@ module.exports = {
       ]);
     }
   },
-};
+});
