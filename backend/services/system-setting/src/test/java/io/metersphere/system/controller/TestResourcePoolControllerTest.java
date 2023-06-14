@@ -8,7 +8,10 @@ import io.metersphere.system.dto.ResourcePoolTypeEnum;
 import io.metersphere.system.dto.TestResourcePoolDTO;
 import io.metersphere.system.request.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -17,12 +20,14 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringBootTest
@@ -59,16 +64,16 @@ class TestResourcePoolControllerTest extends BaseTest {
     @Order(2)
     void addUiTestResourcePoolFiled() throws Exception {
         //资源池名称为空
-        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true,false,false,false);
+        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true, false, false, false);
         this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //资源池类型为空
-        testResourcePoolDTO = generatorDto(false,true,false,false);
+        testResourcePoolDTO = generatorDto(false, true, false, false);
         this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //资源池节点集合为空
-        testResourcePoolDTO = generatorDto(false,false,true,false);
+        testResourcePoolDTO = generatorDto(false, false, true, false);
         this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //UI的grid为空
-       testResourcePoolDTO = generatorDto(true,true,true,false);
+        testResourcePoolDTO = generatorDto(true, true, true, false);
         this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
 
     }
@@ -119,16 +124,16 @@ class TestResourcePoolControllerTest extends BaseTest {
     @Test
     @Order(5)
     void updateTestResourcePoolFiled() throws Exception {
-        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true,false,false,false);
+        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true, false, false, false);
         this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //资源池类型为空
-        testResourcePoolDTO = generatorDto(false,true,false,false);
+        testResourcePoolDTO = generatorDto(false, true, false, false);
         this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //资源池节点集合为空
-        testResourcePoolDTO = generatorDto(false,false,true,false);
+        testResourcePoolDTO = generatorDto(false, false, true, false);
         this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
         //UI的grid为空
-        testResourcePoolDTO = generatorDto(true,true,true,false);
+        testResourcePoolDTO = generatorDto(true, true, true, false);
         this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
     }
 
@@ -156,7 +161,7 @@ class TestResourcePoolControllerTest extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private TestResourcePoolDTO generatorDto(boolean noName, boolean noType, boolean noResources, boolean noUiGrid ){
+    private TestResourcePoolDTO generatorDto(boolean noName, boolean noType, boolean noResources, boolean noUiGrid) {
         TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
         //没名字
         if (!noName) {
