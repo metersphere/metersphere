@@ -36,8 +36,7 @@ public class Organization implements Serializable {
     @Schema(title = "修改人")
     private String updateUser;
 
-    @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{organization.deleted.not_blank}", groups = {Created.class})
+    @Schema(title = "是否删除")
     private Boolean deleted;
 
     @Schema(title = "删除人")
@@ -46,8 +45,7 @@ public class Organization implements Serializable {
     @Schema(title = "删除时间")
     private Long deleteTime;
 
-    @Schema(title = "是否启用", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{organization.enable.not_blank}", groups = {Created.class})
+    @Schema(title = "是否启用")
     private Boolean enable;
 
     private static final long serialVersionUID = 1L;
