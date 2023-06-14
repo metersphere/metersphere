@@ -39,7 +39,6 @@ public class TestEnvironmentController {
     private BaseEnvGroupProjectService baseEnvGroupProjectService;
 
     @GetMapping("/list/{projectId}")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
         return baseEnvironmentService.list(projectId);
     }
@@ -53,21 +52,18 @@ public class TestEnvironmentController {
      * @return
      */
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, baseEnvironmentService.listByConditions(environmentRequest));
     }
 
     @GetMapping("/get/{id}")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public ApiTestEnvironmentWithBLOBs get(@PathVariable String id) {
         return baseEnvironmentService.get(id);
     }
 
 
     @PostMapping(value = "/get/entry")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<KeyStoreEntry> getEntry(@RequestPart("request") String password, @RequestPart(value = "file") MultipartFile sslFiles) {
         return commandService.get(password, sslFiles);
     }
@@ -131,13 +127,11 @@ public class TestEnvironmentController {
 
 
     @GetMapping("/group/map/{groupId}")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public Map<String, String> getEnvMap(@PathVariable String groupId) {
         return baseEnvGroupProjectService.getEnvMap(groupId);
     }
 
     @GetMapping("/module/list/{projectId}/{protocol}")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol) {
         return baseEnvironmentService.getNodeTreeByProjectId(projectId, protocol);
     }
@@ -148,7 +142,6 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/database/validate")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ")
     public void validate(@RequestBody DatabaseConfig databaseConfig) {
         try {
             DriverManager.getConnection(databaseConfig.getDbUrl(), databaseConfig.getUsername(), databaseConfig.getPassword());

@@ -1,5 +1,6 @@
 package io.metersphere.plan.service.remote.performance;
 
+import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plan.request.performance.PlanPerformanceExecRequest;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class PerfExecService extends LoadTestService {
         request.setConfig(runModeConfig);
         request.setTriggerMode(triggerMode);
         request.setPerfMap(performanceIdMap);
+        request.getConfig().setMode(RunModeConstants.PARALLEL.toString());
         return this.run(request);
     }
 }

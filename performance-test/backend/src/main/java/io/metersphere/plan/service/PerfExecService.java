@@ -1,18 +1,17 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.request.RunTestPlanRequest;
 import io.metersphere.utils.LoggerUtil;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.util.*;
 
 @Service
@@ -56,10 +55,6 @@ public class PerfExecService {
             responseMap.put(k, reportId);
         });
 
-        //将性能测试加入到队列中
-        if (MapUtils.isNotEmpty(responseMap)) {
-            perfQueueService.add(responseMap, config.getResourcePoolId(), planReportId, config.getReportType(), config.getMode(), config);
-        }
         if (CollectionUtils.isEmpty(requests)) {
             return responseMap;
         }
@@ -68,6 +63,11 @@ public class PerfExecService {
             perfModeExecService.serial(requests.get(0));
         } else {
             perfModeExecService.parallel(requests);
+        }
+
+        //将性能测试加入到队列中
+        if (MapUtils.isNotEmpty(responseMap)) {
+            perfQueueService.add(responseMap, config.getResourcePoolId(), planReportId, config.getReportType(), config.getMode(), config);
         }
         return responseMap;
     }
