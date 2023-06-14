@@ -53,38 +53,36 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 模型对象 -->
-        <javaModelGenerator targetPackage="io.metersphere.ui.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="io.metersphere.bug.domain" targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- XML映射文件 -->
-        <sqlMapGenerator targetPackage="io.metersphere.ui.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="io.metersphere.bug.mapper" targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 接口 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.ui.mapper"
-                             targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.bug.mapper"
+                             targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="ui_element"/>
-        <table tableName="ui_element_module"/>
-        <table tableName="ui_element_scenario_reference"/>
-        <table tableName="ui_scenario"/>
-        <table tableName="ui_scenario_reference"/>
-        <table tableName="ui_scenario_report"/>
-        <table tableName="ui_scenario_report_detail"/>
-        <table tableName="ui_scenario_report_structure"/>
-        <table tableName="ui_custom_command"/>
-        <table tableName="ui_scenario_module"/>
-        <table tableName="ui_custom_command_module"/>
-        <table tableName="ui_scenario_blob"/>
-        <table tableName="ui_scenario_report_environment"/>
-        <table tableName="ui_custom_command_blob"/>
-        <table tableName="ui_scenario_report_log"/>
-        <table tableName="ui_element_command_reference"/>
-        <table tableName="ui_scenario_follower"/>
+        <table tableName="bug" />
+        <table tableName="bug_blob" />
+        <table tableName="bug_functional_case" />
+        <table tableName="bug_attachment" />
+        <table tableName="bug_comment" />
+        <table tableName="bug_follower" />
+        <table tableName="bug_custom_field" />
+
+        <!--        要忽略的字段-->
+        <!-- <table tableName="test_case">
+             <ignoreColumn column="follow_people"/>
+         </table>-->
+
+        <!--        表名和关键字冲突-->
+        <!--                <table tableName="group" delimitIdentifiers="true"></table>-->
 
     </context>
 </generatorConfiguration>

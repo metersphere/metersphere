@@ -53,28 +53,38 @@
             <property name="forceBigDecimals" value="false"/>
         </javaTypeResolver>
         <!-- 模型对象 -->
-        <javaModelGenerator targetPackage="io.metersphere.bug.domain" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="io.metersphere.functional.domain" targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         <!-- XML映射文件 -->
-        <sqlMapGenerator targetPackage="io.metersphere.bug.mapper" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="io.metersphere.functional.mapper" targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         <!-- 接口 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.bug.mapper"
-                             targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="io.metersphere.functional.mapper"
+                             targetProject="../../framework/domain/src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!--要生成的数据库表 -->
-        <table tableName="bug" />
-        <table tableName="bug_blob" />
-        <table tableName="bug_functional_case" />
-        <table tableName="bug_attachment" />
-        <table tableName="bug_comment" />
-        <table tableName="bug_follower" />
-        <table tableName="bug_custom_field" />
+        <table tableName="functional_case" />
+        <table tableName="functional_case_blob" />
+        <table tableName="functional_case_comment" />
+        <table tableName="functional_case_module" />
+        <table tableName="functional_case_attachment" />
+        <table tableName="functional_case_follower" />
+        <table tableName="functional_case_relationship_edge" />
+        <table tableName="functional_case_test" />
+        <table tableName="functional_minder_extra_node" />
+        <table tableName="functional_case_custom_field" />
+
+        <table tableName="case_review" />
+        <table tableName="case_review_user" />
+        <table tableName="case_review_functional_case" />
+        <table tableName="case_review_functional_case_user" />
+        <table tableName="case_review_follower" />
+
 
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">
