@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -70,6 +72,9 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(1)
+    /**
+     * 测试添加项目成功的情况
+     */
     public void testAddProjectSuccess() throws Exception {
         String url = prefix + "/add";
         final Project project = new Project();
@@ -89,6 +94,34 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(2)
+    /**
+     * 测试添加项目500的情况
+     */
+    public void testAddProjectError500() throws Exception {
+        String url = prefix + "/add";
+        final Project project = new Project();
+        project.setId("projectId");
+        project.setOrganizationId("organizationId");
+        project.setName("name");
+        project.setDescription("description");
+        project.setCreateTime(System.currentTimeMillis());
+        project.setUpdateTime(System.currentTimeMillis());
+        project.setCreateUser("admin");
+        project.setUpdateUser("admin");
+        project.setEnable(true);
+        project.setDeleted(false);
+
+        this.requestPost(url, project, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(3)
+    /**
+     * 测试添加项目失败的情况 400
+     */
+    @Sql(scripts = {"/dml/init_project.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddProjectError() throws Exception {
         final Project project = new Project();
         project.setId(null);
@@ -107,7 +140,7 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testGetProject() throws Exception {
         String projectId = "projectId";
         MvcResult mvcResult = this.responseGet(prefix + "/get/" + projectId);
@@ -118,14 +151,11 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(4)
-    @Sql(scripts = {"/sql/init_project.sql"},
-            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Order(5)
     public void testGetProjectList() throws Exception {
         ProjectRequest projectRequest = new ProjectRequest();
         projectRequest.setCurrent(1);
-        projectRequest.setPageSize(5);
+        projectRequest.setPageSize(10);
 
         MvcResult mvcResult = this.responsePost(prefix + "/page", projectRequest);
 
@@ -148,7 +178,7 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testUpdateProject() throws Exception {
         String url = prefix + "/update";
         final Project project = new Project();
@@ -165,24 +195,22 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
-    public void testDeleteProject() throws Exception {
-        Project project = new Project();
-        project.setId("projectId");
-        this.requestPost(prefix + "/delete", project, status().isOk());
-    }
-
-    @Test
     @Order(7)
-    public void revoke() throws Exception {
-        Project project = new Project();
-        project.setId("projectId");
-        this.requestPost(prefix + "/revoke", project, status().isOk());
+    public void testDeleteProject() throws Exception {
+        String id = "projectId";
+        this.responseGet(prefix + "/delete/" + id);
     }
 
     @Test
     @Order(8)
-    @Sql(scripts = {"/sql/init_user_test.sql"},
+    public void revoke() throws Exception {
+        String id = "projectId";
+        this.responseGet(prefix + "/delete/" + id);
+    }
+
+    @Test
+    @Order(9)
+    @Sql(scripts = {"/dml/init_user_test.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testGetMember() throws Exception {
@@ -210,7 +238,7 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void testGetProjectListByOrg() throws Exception{
         String organizationId = "organizationId";
         MvcResult mvcResult = this.responseGet(prefix + "/list/" + organizationId);
@@ -222,7 +250,7 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void testGetProjectListByOrgError() throws Exception{
         String organizationId = "organizationId";
         MvcResult mvcResult = this.responseGet(prefix + "/list/" + organizationId);
@@ -234,7 +262,7 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void testRemoveProjectMember() throws Exception{
         String projectId = "projectId";
         String userId = "admin1";
@@ -244,6 +272,19 @@ public class SystemProjectControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(print());
     }
+
+    @Test
+    @Order(13)
+    public void testAddProjectMember() throws Exception{
+        ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
+        projectMemberRequest.setProjectId("projectId");
+        List<String> userIds = new ArrayList<>();
+        userIds.add("admin1");
+        userIds.add("admin2");
+        projectMemberRequest.setUserIds(userIds);
+        this.requestPost(prefix + "/add-member", projectMemberRequest, status().isOk());
+    }
+
 
 
 }

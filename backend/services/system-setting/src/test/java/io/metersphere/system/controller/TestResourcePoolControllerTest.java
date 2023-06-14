@@ -138,7 +138,7 @@ class TestResourcePoolControllerTest extends BaseTest {
     }
 
     @Test
-    @Sql(scripts = {"/sql/init_test_resource_pool.sql"},
+    @Sql(scripts = {"/dml/init_test_resource_pool.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Order(6)
