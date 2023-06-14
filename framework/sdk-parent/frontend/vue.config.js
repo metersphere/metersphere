@@ -1,5 +1,6 @@
-const path = require('path');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const path = require("path");
+const BundleAnalyzerPlugin =
+  require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -10,117 +11,114 @@ module.exports = {
   devServer: {
     port: 3000,
     client: {
-      webSocketTransport: 'sockjs',
+      webSocketTransport: "sockjs",
     },
-    webSocketServer: 'sockjs',
-    allowedHosts: 'all',
+    webSocketServer: "sockjs",
+    allowedHosts: "all",
     proxy: {
-      ['^((?!/login)(?!/document))']: {
-        target: 'http://localhost:8000',
-        ws: false
+      ["^((?!/login)(?!/document))"]: {
+        target: "http://localhost:8000",
+        ws: false,
       },
-      '/websocket': {
-        target: 'http://localhost:8000',
-        ws: true
+      "/websocket": {
+        target: "http://localhost:8000",
+        ws: true,
       },
     },
   },
   configureWebpack: {
-    devtool: 'cheap-module-source-map',
+    devtool: "cheap-module-source-map",
     resolve: {
       alias: {
-        '@': resolve('src')
-      }
+        "@": resolve("src"),
+      },
     },
     externals: {
-      vue: 'Vue',
-      'vue-router': 'VueRouter',
-      qiankun: 'qiankun',
+      qiankun: "qiankun",
+      vue: "Vue",
+      "vue-router": "VueRouter",
       // 'echarts': 'echarts',
       // 'echarts/core': 'echarts', // TODO:外链使用的话需要改造导入及 vue-echarts 的源码
       // brace: 'brace', // TODO:暂时未发现能外链的方法，本体包未提供cdn 外链形式的包
-      'element-ui': 'ELEMENT',
-      'vue-shepherd': 'VueShepherd',
+      "element-ui": "ELEMENT",
+      "vue-shepherd": "VueShepherd",
     },
     optimization: {
       splitChunks: {
         cacheGroups: {
-          'chunk-vendors': {
+          "chunk-vendors": {
             test: /[\\/]node_modules[\\/]/,
-            name: 'chunk-vendors',
+            name: "chunk-vendors",
             priority: 1,
             minChunks: 3,
-            chunks: 'all',
+            chunks: "all",
           },
-          'chunk-common': {
+          "chunk-common": {
             test: /[\\/]src[\\/]/,
-            name: 'chunk-common',
+            name: "chunk-common",
             priority: 1,
             minChunks: 5,
-            chunks: 'all',
+            chunks: "all",
           },
           html2canvas: {
             test: /[\\/]html2canvas[\\/]/,
-            name: 'html2canvas',
-            priority: 2,
-            chunks: 'all',
+            name: "html2canvas",
+            priority: 3,
+            chunks: "all",
           },
           fortawesome: {
             test: /[\\/]@fortawesome[\\/]/,
-            name: 'fortawesome',
-            priority: 2,
-            chunks: 'all',
-          },
-          pinia: {
-            test: /[\\/]pinia[\\/]/,
-            name: 'pinia',
+            name: "fortawesome",
             priority: 3,
-            chunks: 'all',
+            chunks: "all",
           },
           jspdf: {
             test: /[\\/]jspdf[\\/]/,
-            name: 'jspdf',
-            priority: 2,
-            chunks: 'all',
+            name: "jspdf",
+            priority: 3,
+            chunks: "all",
           },
           jsencrypt: {
             test: /[\\/]jsencrypt[\\/]/,
-            name: 'jsencrypt',
-            priority: 2,
-            chunks: 'all',
+            name: "jsencrypt",
+            priority: 3,
+            chunks: "all",
+          },
+          pinia: {
+            test: /[\\/]pinia[\\/]/,
+            name: "pinia",
+            priority: 3,
+            chunks: "all",
           },
         },
       },
     },
   },
-  chainWebpack: config => {
-    config.devtool('source-map')
-    config.resolve.alias.set('@', resolve('./src'))
-    config.output.library("MsFrontend")
+  chainWebpack: (config) => {
+    config.devtool("source-map");
+    config.resolve.alias.set("@", resolve("./src"));
+    config.output.library("MsFrontend");
 
+    config.module.rule("svg").exclude.add(resolve("src/assets/module")).end();
     config.module
-      .rule('svg')
-      .exclude.add(resolve('src/assets/module'))
-      .end()
-    config.module
-      .rule('icons')
+      .rule("icons")
       .test(/\.svg$/)
-      .include.add(resolve('src/assets/module'))
+      .include.add(resolve("src/assets/module"))
       .end()
-      .use('svg-sprite-loader')
-      .loader('svg-sprite-loader')
+      .use("svg-sprite-loader")
+      .loader("svg-sprite-loader")
       .options({
-        symbolId: 'icon-[name]'
-      })
+        symbolId: "icon-[name]",
+      });
 
-      if (process.env.NODE_ENV === 'analyze') {
-        config.plugin('webpack-report').use(BundleAnalyzerPlugin, [
-          {
-            analyzerMode: 'static',
-            reportFilename: './webpack-report.html',
-            openAnalyzer: false,
-          },
-        ]);
-      }
-  }
+    if (process.env.NODE_ENV === "analyze") {
+      config.plugin("webpack-report").use(BundleAnalyzerPlugin, [
+        {
+          analyzerMode: "static",
+          reportFilename: "./webpack-report.html",
+          openAnalyzer: false,
+        },
+      ]);
+    }
+  },
 };

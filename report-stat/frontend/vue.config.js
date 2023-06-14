@@ -48,8 +48,8 @@ module.exports = {
     resolve: {
       alias: {
         "@": resolve("src"),
-        'vue-i18n': resolve('node_modules/vue-i18n'),
-        'html2canvas': resolve('node_modules/html2canvas'),
+        "vue-i18n": resolve("node_modules/vue-i18n"),
+        html2canvas: resolve("node_modules/html2canvas"),
       },
     },
     output: {
@@ -62,12 +62,13 @@ module.exports = {
       chunkFilename: `js/${name}-[name].[contenthash:8].js`,
     },
     externals: {
+      qiankun: "qiankun",
       vue: "Vue",
+      "element-ui": "ELEMENT",
       "vue-router": "VueRouter",
       // 'echarts': 'echarts',
       // 'echarts/core': 'echarts', // TODO:外链使用的话需要改造导入及 vue-echarts 的源码
       // brace: 'brace', // TODO:暂时未发现能外链的方法，本体包未提供cdn 外链形式的包
-      "element-ui": "ELEMENT",
       "mavon-editor": "MavonEditor",
       "vue-shepherd": "VueShepherd",
     },
@@ -91,19 +92,31 @@ module.exports = {
           html2canvas: {
             test: /[\\/]html2canvas[\\/]/,
             name: "html2canvas",
-            priority: 2,
+            priority: 3,
             chunks: "all",
           },
           fortawesome: {
             test: /[\\/]@fortawesome[\\/]/,
             name: "fortawesome",
-            priority: 2,
+            priority: 3,
             chunks: "all",
           },
           "el-tree-transfer": {
             test: /[\\/]el-tree-transfer[\\/]/,
             name: "el-tree-transfer",
-            priority: 2,
+            priority: 3,
+            chunks: "all",
+          },
+          jspdf: {
+            test: /[\\/]jspdf[\\/]/,
+            name: "jspdf",
+            priority: 3,
+            chunks: "all",
+          },
+          jsencrypt: {
+            test: /[\\/]jsencrypt[\\/]/,
+            name: "jsencrypt",
+            priority: 3,
             chunks: "all",
           },
           pinia: {
@@ -122,18 +135,6 @@ module.exports = {
             test: /[\\/](echarts|zrender)[\\/]/,
             name: "echarts",
             priority: 3,
-            chunks: "all",
-          },
-          jspdf: {
-            test: /[\\/]jspdf[\\/]/,
-            name: "jspdf",
-            priority: 2,
-            chunks: "all",
-          },
-          jsencrypt: {
-            test: /[\\/]jsencrypt[\\/]/,
-            name: "jsencrypt",
-            priority: 2,
             chunks: "all",
           },
         },
