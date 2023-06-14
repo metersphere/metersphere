@@ -265,8 +265,7 @@ public class OperationLogAspect {
             OperationLog operationLog = new OperationLog();
             //保存获取的操作
             operationLog.setId(UUID.randomUUID().toString());
-            String className = joinPoint.getTarget().getClass().getName();
-            operationLog.setMethod(StringUtils.join(className, ".", method.getName()));
+            operationLog.setMethod(method.getName());
             operationLog.setCreateTime(System.currentTimeMillis());
             operationLog.setCreateUser(SessionUtils.getUserId());
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
