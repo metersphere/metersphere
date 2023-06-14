@@ -313,6 +313,10 @@ export default {
   height: 32px;
 }
 
+:deep(.el-tag__close.el-icon-close) {
+  top: -5px !important;
+}
+
 .input-search-tip {
   padding-left: 15px;
   color: #C0C4CC;
