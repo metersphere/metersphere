@@ -128,4 +128,12 @@ public class TestResourcePoolService {
         return resourcePoolService.validate(testResourcePool);
     }
 
+    public String getLogDetails(String id) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
+        if (pool != null) {
+            return pool.getName();
+        }
+        return null;
+    }
+
 }
