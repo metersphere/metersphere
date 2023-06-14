@@ -529,7 +529,7 @@ export default {
     },
     handleRowClick (row, column) {
       // 多选框的列不触发点击行事件
-      if (column.type === 'selection') { 
+      if (column && column.type === 'selection') {
         return;
       }
       this.$emit("handleRowClick", row, column);
