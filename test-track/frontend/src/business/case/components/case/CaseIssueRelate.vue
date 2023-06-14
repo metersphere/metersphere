@@ -3,7 +3,7 @@
     <div class="relate-header">
       <div class="menu-left-row">
         <el-dropdown placement="bottom" :disabled="readOnly">
-          <div style="line-height: 32px; color: #1F2329; cursor: pointer">
+          <div style="line-height: 32px; color: #1f2329; cursor: pointer">
             <i class="el-icon-connection" style="margin-right: 4.3px"></i
             >{{ $t("case.associated_defect") }}
           </div>
@@ -19,10 +19,8 @@
               >
                 {{ $t("case.create_defect") }}
               </div>
-            </el-dropdown-item
-            >
-            <el-dropdown-item
-            >
+            </el-dropdown-item>
+            <el-dropdown-item>
               <div
                 class="add-btn"
                 v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
@@ -89,16 +87,27 @@
             <template v-slot="scope">
               <span v-if="item.id === 'platformStatus'">
                 <span v-if="scope.row.platform === 'Tapd'">
-                  {{ scope.row.platformStatus ? tapdIssueStatusMap[scope.row.platformStatus] : '--' }}
+                  {{
+                    scope.row.platformStatus
+                      ? tapdIssueStatusMap[scope.row.platformStatus]
+                      : "--"
+                  }}
                 </span>
-                <span v-else-if="scope.row.platform ==='Local'">
-                  {{ '--' }}
+                <span v-else-if="scope.row.platform === 'Local'">
+                  {{ "--" }}
                 </span>
-                <span v-else-if="platformStatusMap && platformStatusMap.get(scope.row.platformStatus)">
+                <span
+                  v-else-if="
+                    platformStatusMap &&
+                    platformStatusMap.get(scope.row.platformStatus)
+                  "
+                >
                   {{ platformStatusMap.get(scope.row.platformStatus) }}
                 </span>
                 <span v-else>
-                  {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
+                  {{
+                    scope.row.platformStatus ? scope.row.platformStatus : "--"
+                  }}
                 </span>
               </span>
             </template>
@@ -153,7 +162,7 @@
           >
           </ms-table-column>
 
-          <issue-description-table-item :field="item"/>
+          <issue-description-table-item :field="item" />
         </span>
       </ms-table>
     </div>
@@ -182,7 +191,10 @@ import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import HomePagination from "@/business/home/components/pagination/HomePagination";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableItem";
-import {ISSUE_STATUS_MAP, TAPD_ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
+import {
+  ISSUE_STATUS_MAP,
+  TAPD_ISSUE_STATUS_MAP,
+} from "metersphere-frontend/src/utils/table-constants";
 import IssueRelateList from "./CaseIssueRelateList";
 import {
   buildIssues,
@@ -195,9 +207,15 @@ import {
   like,
   parseFields,
 } from "@/api/issue";
-import {getCustomFieldValue, getTableHeaderWithCustomFields,} from "metersphere-frontend/src/utils/tableUtils";
-import {LOCAL} from "metersphere-frontend/src/utils/constants";
-import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {
+  getCustomFieldValue,
+  getTableHeaderWithCustomFields,
+} from "metersphere-frontend/src/utils/tableUtils";
+import { LOCAL } from "metersphere-frontend/src/utils/constants";
+import {
+  getCurrentProjectID,
+  getCurrentWorkspaceId,
+} from "metersphere-frontend/src/utils/token";
 import MsNewUiSearch from "metersphere-frontend/src/components/new-ui/MsSearch";
 
 export default {
@@ -209,7 +227,7 @@ export default {
     MsTableColumn,
     MsTable,
     TestPlanIssueEdit,
-    MsNewUiSearch
+    MsNewUiSearch,
   },
   data() {
     return {
@@ -296,12 +314,12 @@ export default {
     this.search();
     getPlatformStatus({
       projectId: getCurrentProjectID(),
-      workspaceId: getCurrentWorkspaceId()
+      workspaceId: getCurrentWorkspaceId(),
     }).then((r) => {
       this.platformStatus = r.data;
       this.platformStatusMap = new Map();
       if (this.platformStatus) {
-        this.platformStatus.forEach(item => {
+        this.platformStatus.forEach((item) => {
           this.platformStatusMap.set(item.value, item.label);
         });
       }
@@ -323,23 +341,24 @@ export default {
     getIssues() {
       if (!this.isCopy) {
         this.page.result = true;
-        let result = getIssuesByCaseIdWithSearch(this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL", this.getCaseResourceId())
-                      .then((response) => {
-                        if(this.condition && this.condition.name && response.data){
-                          //过滤
-                          this.page.data = response.data.filter((v) => {
-                            return (
-                              like(condition.name, v.title) ||
-                              like(condition.name, v.num)
-                            );
-                          });
-                        } else {
-                          this.page.data = response.data;
-                        }
-                        this.$emit("setCount", this.page.data.length);
-                        buildIssues(page);
-                        parseFields(page);
-                      });
+        let result = getIssuesByCaseIdWithSearch(
+          this.planId ? "PLAN_FUNCTIONAL" : "FUNCTIONAL",
+          this.getCaseResourceId()
+        ).then((response) => {
+          if (this.condition && this.condition.name && response.data) {
+            //过滤
+            this.page.data = response.data.filter((v) => {
+              return (
+                like(condition.name, v.title) || like(condition.name, v.num)
+              );
+            });
+          } else {
+            this.page.data = response.data;
+          }
+          this.$emit("setCount", this.page.data.length);
+          buildIssues(this.page);
+          parseFields(this.page);
+        });
         if (result) {
           this.page.result = result;
         }
@@ -381,10 +400,13 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.$confirm(this.$t("test_track.issue.delete_warning"), this.$t("case.cancel_relate_case_tips_title"), {
+      this.$confirm(
+        this.$t("test_track.issue.delete_warning"),
+        this.$t("case.cancel_relate_case_tips_title"),
+        {
           cancelButtonText: this.$t("commons.cancel"),
           confirmButtonText: this.$t("commons.confirm"),
-          callback: action => {
+          callback: (action) => {
             if (action === "confirm") {
               this.page.result.loading = true;
               deleteIssueRelate({
@@ -396,10 +418,13 @@ export default {
               }).then(() => {
                 this.page.result.loading = false;
                 this.getIssues();
-                this.$success(this.$t("test_track.cancel_relevance_success"), false);
+                this.$success(
+                  this.$t("test_track.cancel_relevance_success"),
+                  false
+                );
               });
             }
-          }
+          },
         }
       );
     },
@@ -434,7 +459,7 @@ export default {
       left: 112px;
       top: 251px;
       background: #ffffff;
-      border: 1px solid #DCDFE6;
+      border: 1px solid #dcdfe6;
       border-radius: 4px;
       text-align: center;
       color: #783887;
@@ -455,10 +480,10 @@ export default {
 }
 
 .el-dropdown-menu__item {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
-  color: #1F2329 !important;
+  color: #1f2329 !important;
 }
 </style>
