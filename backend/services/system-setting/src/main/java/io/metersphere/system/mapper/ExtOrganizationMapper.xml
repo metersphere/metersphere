@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtOrganizationMapper">
+    <select id="list" resultType="io.metersphere.system.dto.OrganizationDTO">
+        select o.id, o.num, o.name, o.description, o.create_time,
+        o.update_time, o.create_user, o.deleted, o.delete_user, o.delete_time, o.enable,
+        count(distinct ur.user_id) as memberCount, count(p.id) as projectCount
+        from organization o left join user_role_relation ur on ur.source_id = o.id
+        left join project p on p.organization_id = o.id
+        <include refid="queryWhereCondition"/>
+<!--        <if test="request.sort != null">-->
+<!--            <include refid="sort">-->
+<!--                <property name="orderMap" value="request.sort"/>-->
+<!--            </include>-->
+<!--        </if>-->
+        group by o.id
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.keyword != null">
+                and (
+                    o.name like concat('%', #{request.keyword},'%')
+                    or o.id like concat('%', #{request.keyword},'%')
+                )
+            </if>
+<!--            <if test="request.filter != null">-->
+<!--                <include refid="filter">-->
+<!--                    <property name="filterMap" value="request.filter"/>-->
+<!--                </include>-->
+<!--            </if>-->
+        </where>
+    </sql>
+
+<!--    <sql id="filter">-->
+<!--        <if test="filterMap.keySet().size() > 0">-->
+
+<!--        </if>-->
+<!--    </sql>-->
+
+<!--    <sql id="sort">-->
+<!--        <if test="orderMap.keySet().size() > 0">-->
+<!--            order by-->
+<!--            <foreach collection="orderMap.keySet()" separator="," item="orderKey">-->
+<!--                orderKey ${orderMap[orderKey]}-->
+<!--            </foreach>-->
+<!--        </if>-->
+<!--    </sql>-->
+
+    <update id="delete" parameterType="io.metersphere.system.request.OrganizationDeleteRequest">
+        update organization set deleted = true , delete_time = #{request.deleteTime} , delete_user = #{request.deleteUserId} where id = #{request.id}
+    </update>
+
+    <update id="undelete" parameterType="java.lang.String">
+        update organization set deleted = false where id = #{id}
+    </update>
+
+    <update id="updateEnable">
+        update organization set `enable` = #{enable} where id = #{id}
+    </update>
+</mapper>
