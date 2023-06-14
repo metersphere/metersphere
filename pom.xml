@@ -223,6 +223,7 @@
                         <exclude>io/metersphere/**/dto/**</exclude>
                         <exclude>io/metersphere/**/config/**</exclude>
                         <exclude>io/metersphere/**/constants/**</exclude>
+                        <exclude>io/metersphere/sdk/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

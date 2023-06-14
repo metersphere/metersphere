@@ -1,10 +1,12 @@
 package io.metersphere.api;
 
+import io.metersphere.sdk.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
 import org.springframework.boot.autoconfigure.neo4j.Neo4jAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.ComponentScan;
 
@@ -12,6 +14,9 @@ import org.springframework.context.annotation.ComponentScan;
         QuartzAutoConfiguration.class,
         LdapAutoConfiguration.class,
         Neo4jAutoConfiguration.class
+})
+@EnableConfigurationProperties({
+        MinioProperties.class
 })
 @ServletComponentScan
 @ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.api"})
