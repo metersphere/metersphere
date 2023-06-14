@@ -33,12 +33,18 @@
                p.delete_time,
                p.deleted,
                p.delete_user,
-               p.enable, count(u.id) as number
+               p.enable,
+               count(u.id) as number,
+               o.name as organizationName
         FROM project p
         LEFT JOIN user_role_relation u on p.id = u.source_id
+        INNER JOIN organization o on p.organization_id = o.id
         <where>
+            <if test="request.organizationId != null">
+                 p.organizationId = #{request.organizationId}
+            </if>
             <if test="request.keyword != null">
-                 (p.name like CONCAT('%', #{request.keyword},'%')
+               and  (p.name like CONCAT('%', #{request.keyword},'%')
                 or p.num like CONCAT('%', #{request.keyword},'%'))
             </if>
         </where>

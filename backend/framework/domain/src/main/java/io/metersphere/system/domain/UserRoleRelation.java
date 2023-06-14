@@ -5,10 +5,15 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserRoleRelation implements Serializable {
     @Schema(title = "用户组关系ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role_relation.id.not_blank}", groups = {Created.class, Updated.class})
