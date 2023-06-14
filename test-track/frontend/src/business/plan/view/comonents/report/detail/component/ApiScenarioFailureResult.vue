@@ -1,47 +1,55 @@
 <template>
   <el-container class="scenario-info">
-    <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
+    <ms-aside-container
+      width="500px"
+      :default-hidden-bottom-top="200"
+      :enable-auto-height="true"
+    >
       <el-card>
         <el-scrollbar>
-          <ms-table v-loading="loading"
-                    :show-select-all="false"
-                    :screen-height="null"
-                    :enable-selection="false"
-                    :highlight-current-row="true"
-                    @refresh="getScenarioApiCase"
-                    @handleRowClick="rowClick"
-                    :data="scenarioCases">
-
+          <ms-table
+            v-loading="loading"
+            :show-select-all="false"
+            :screen-height="null"
+            :enable-selection="false"
+            :highlight-current-row="true"
+            @refresh="getScenarioApiCase"
+            @handleRowClick="rowClick"
+            :data="scenarioCases"
+          >
             <ms-table-column
               :width="80"
               :label="$t('commons.id')"
-              prop="customNum">
+              prop="customNum"
+            >
             </ms-table-column>
-            <ms-table-column
-              :label="$t('commons.name')"
-              prop="name">
+            <ms-table-column :label="$t('commons.name')" prop="name">
             </ms-table-column>
             <el-table-column
               prop="principalName"
-              :label="$t('test_track.plan.plan_principal')"/>
+              :label="$t('test_track.plan.plan_principal')"
+            />
             <ms-table-column
               :label="$t('test_track.case.priority')"
-              :width="80">
+              :width="80"
+            >
               <template v-slot:default="scope">
-                <priority-table-item :value="scope.row.level" ref="priority"/>
+                <priority-table-item :value="scope.row.level" ref="priority" />
               </template>
             </ms-table-column>
             <ms-table-column
               :width="70"
               :label="$t('api_test.automation.step')"
-              prop="stepTotal">
+              prop="stepTotal"
+            >
             </ms-table-column>
             <ms-table-column
               :width="80"
               :label="$t('test_track.plan_view.execute_result')"
-              prop="lastResult">
-              <template v-slot:default="{row}">
-                <ms-test-plan-api-status :status="row.lastResult"/>
+              prop="lastResult"
+            >
+              <template v-slot:default="{ row }">
+                <ms-test-plan-api-status :status="row.lastResult" />
               </template>
             </ms-table-column>
           </ms-table>
@@ -49,7 +57,6 @@
       </el-card>
     </ms-aside-container>
     <el-main>
-
       <div v-if="showResponse">
         <micro-app
           v-if="!isTemplate"
@@ -61,25 +68,28 @@
             shareId,
             isPlanReport: true,
             isTemplate,
-            response
-          }"/>
-        <ms-api-report v-else
-                       :report-id="reportId"
-                       :is-share="isShare"
-                       :share-id="shareId"
-                       :is-plan="true"
-                       :is-template="isTemplate"
-                       :template-report="response"/>
-
+            response,
+          }"
+        />
+        <ms-api-report
+          v-else
+          :report-id="reportId"
+          :is-share="isShare"
+          :share-id="shareId"
+          :is-plan="true"
+          :is-template="isTemplate"
+          :template-report="response"
+        />
       </div>
 
-      <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
+      <div class="empty" v-else>
+        {{ $t("test_track.plan.load_case.content_empty") }}
+      </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-
 import MsApiReport from "../api/ApiReportDetail";
 
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
@@ -94,7 +104,7 @@ import {
   getPlanScenarioErrorReportCase,
   getSharePlanScenarioErrorReportCase,
   getPlanScenarioUnExecuteCase,
-  getSharePlanScenarioUnExecuteCase
+  getSharePlanScenarioUnExecuteCase,
 } from "@/api/remote/plan/test-plan";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -110,8 +120,13 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
-    MsApiReport
+    MsTableColumn,
+    MsTable,
+    StatusTableItem,
+    MethodTableItem,
+    TypeTableItem,
+    PriorityTableItem,
+    MsApiReport,
   },
   props: {
     planId: String,
@@ -130,8 +145,8 @@ export default {
       loading: false,
       reportId: null,
       response: {},
-      showResponse: false
-    }
+      showResponse: false,
+    };
   },
   mounted() {
     this.getScenarioApiCase();
@@ -139,81 +154,87 @@ export default {
   watch: {
     scenarioCases() {
       if (this.scenarioCases) {
-        this.$emit('setSize', this.scenarioCases.length);
+        this.$emit("setSize", this.scenarioCases.length);
       }
-    }
+    },
   },
   methods: {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isErrorReport) {
-          this.scenarioCases = this.report.errorReportScenarios ? this.report.errorReportScenarios : [];
+          this.scenarioCases = this.report.errorReportScenarios
+            ? this.report.errorReportScenarios
+            : [];
         } else if (this.isUnExecute) {
-          this.scenarioCases = this.report.unExecuteScenarios ? this.report.unExecuteScenarios : [];
+          this.scenarioCases = this.report.unExecuteScenarios
+            ? this.report.unExecuteScenarios
+            : [];
         } else if (this.isAll) {
-          this.scenarioCases = this.report.scenarioAllCases ? this.report.scenarioAllCases : [];
+          this.scenarioCases = this.report.scenarioAllCases
+            ? this.report.scenarioAllCases
+            : [];
         } else {
-          this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
+          this.scenarioCases = this.report.scenarioFailureCases
+            ? this.report.scenarioFailureCases
+            : [];
         }
       } else if (this.isShare) {
         if (this.isErrorReport) {
           this.loading = true;
-          getSharePlanScenarioErrorReportCase(this.shareId, this.planId)
-            .then((r) => {
+          getSharePlanScenarioErrorReportCase(this.shareId, this.planId).then(
+            (r) => {
               this.loading = false;
               this.scenarioCases = r.data;
-            });
+            }
+          );
         } else if (this.isUnExecute) {
           this.loading = true;
-          getSharePlanScenarioUnExecuteCase(this.shareId, this.planId)
-            .then((r) => {
+          getSharePlanScenarioUnExecuteCase(this.shareId, this.planId).then(
+            (r) => {
               this.loading = false;
               this.scenarioCases = r.data;
-            });
+            }
+          );
         } else if (this.isAll) {
           this.loading = true;
-          getSharePlanScenarioAllCase(this.shareId, this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.scenarioCases = r.data;
-            });
+          getSharePlanScenarioAllCase(this.shareId, this.planId).then((r) => {
+            this.loading = false;
+            this.scenarioCases = r.data;
+          });
         } else {
           this.loading = true;
-          getSharePlanScenarioFailureCase(this.shareId, this.planId)
-            .then((r) => {
+          getSharePlanScenarioFailureCase(this.shareId, this.planId).then(
+            (r) => {
               this.loading = false;
               this.scenarioCases = r.data;
-            });
+            }
+          );
         }
       } else {
         if (this.isErrorReport) {
           this.loading = true;
-          getPlanScenarioErrorReportCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.scenarioCases = r.data;
-            });
+          getPlanScenarioErrorReportCase(this.planId).then((r) => {
+            this.loading = false;
+            this.scenarioCases = r.data;
+          });
         } else if (this.isUnExecute) {
           this.loading = true;
-          getPlanScenarioUnExecuteCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.scenarioCases = r.data;
-            });
+          getPlanScenarioUnExecuteCase(this.planId).then((r) => {
+            this.loading = false;
+            this.scenarioCases = r.data;
+          });
         } else if (this.isAll) {
           this.loading = true;
-          getPlanScenarioAllCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.scenarioCases = r.data;
-            });
+          getPlanScenarioAllCase(this.planId).then((r) => {
+            this.loading = false;
+            this.scenarioCases = r.data;
+          });
         } else {
           this.loading = true;
-          getPlanScenarioFailureCase(this.planId)
-            .then((r) => {
-              this.loading = false;
-              this.scenarioCases = r.data;
-            });
+          getPlanScenarioFailureCase(this.planId).then((r) => {
+            this.loading = false;
+            this.scenarioCases = r.data;
+          });
         }
       }
     },
@@ -222,23 +243,26 @@ export default {
       this.$nextTick(() => {
         if (this.isTemplate) {
           if (row.response) {
-            this.showResponse = true;
             this.response = row.response;
+            this.showResponse = true;
           }
         } else {
-          if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
-            this.showResponse = true;
+          if (
+            row.reportId &&
+            row.lastResult !== "Running" &&
+            row.lastResult !== "Waiting"
+          ) {
             this.reportId = row.reportId;
+            this.showResponse = true;
           }
         }
       });
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .padding-col {
   padding-right: 0px;
 }
