@@ -90,7 +90,11 @@
             icon="el-icon-video-play"
             class="ms-btn"
             size="mini"
-            circle />
+            circle
+            v-permission="[
+              'PROJECT_API_SCENARIO:READ+DEBUG',
+              'PROJECT_API_SCENARIO:READ+RUN'
+            ]"/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
@@ -98,7 +102,11 @@
             size="mini"
             style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
             class="stop-btn"
-            circle>
+            circle
+            v-permission="[
+              'PROJECT_API_SCENARIO:READ+DEBUG',
+              'PROJECT_API_SCENARIO:READ+RUN'
+            ]">
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
             </div>

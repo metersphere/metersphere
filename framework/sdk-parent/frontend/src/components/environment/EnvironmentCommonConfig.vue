@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly" label-width="30px">
-      <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables"/>
+      <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables" :is-read-only="isReadOnly"/>
       <el-form-item>
         <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
       </el-form-item>

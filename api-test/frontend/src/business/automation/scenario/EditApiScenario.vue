@@ -568,7 +568,7 @@ import { KeyValue } from '@/business/definition/model/ApiTestModel';
 
 import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { getUUID, objToStrMap, strMapToObj } from 'metersphere-frontend/src/utils';
-import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermissions } from 'metersphere-frontend/src/utils/permission';
 import OutsideClick from './common/outside-click';
 import {
   getReportMessageSocket,
@@ -1723,7 +1723,7 @@ export default {
       });
     },
     runDebug(runScenario) {
-      if (!hasPermission('PROJECT_API_SCENARIO:READ+EDIT')) {
+      if (!hasPermissions('PROJECT_API_SCENARIO:READ+DEBUG','PROJECT_API_SCENARIO:READ+RUN')) {
         return;
       }
       this.mergeScenario(this.scenarioDefinition);

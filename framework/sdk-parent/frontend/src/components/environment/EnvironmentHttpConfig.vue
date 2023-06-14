@@ -49,23 +49,23 @@
         <form-section :title="$t('commons.api')" :init-active=true>
           <p>{{ $t('api_test.request.headers') }}</p>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{
+            <el-link class="ms-el-link" @click="batchAdd" style="color: #783887" :disabled="isReadOnly"> {{
                 $t("commons.batch_add")
               }}
             </el-link>
           </el-row>
-          <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
+          <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions" :is-read-only="isReadOnly"/>
         </form-section>
 
         <div style="margin-top: 20px">
-          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add" :disabled="isReadOnly">
             {{ $t('commons.add') }}
           </el-button>
           <div v-else>
-            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear" :disabled="isReadOnly">
               {{ $t('commons.clear') }}
             </el-button>
-            <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
+            <el-button type="primary" style="float: right" size="mini" @click="update(condition)" :disabled="isReadOnly">{{
                 $t('commons.update')
               }}
             </el-button>
@@ -105,9 +105,9 @@
           <template v-slot:default="{row}">
             <div>
               <ms-table-operator-button :tip="$t('api_test.automation.copy')"
-                                        icon="el-icon-document-copy" @exec="copy(row)"/>
+                                        icon="el-icon-document-copy" @exec="copy(row)" :disabled="isReadOnly"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                        icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+                                        icon="el-icon-delete" @exec="remove(row)" type="danger" :disabled="isReadOnly"/>
             </div>
           </template>
         </el-table-column>

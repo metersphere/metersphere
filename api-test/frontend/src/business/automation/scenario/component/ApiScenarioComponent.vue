@@ -29,7 +29,7 @@
       </span>
       <span v-else>
         <el-tooltip class="ms-num" effect="dark" :content="$t('api_test.automation.scenario.num_none')" placement="top">
-          <i class="el-icon-warning" />
+          <i class="el-icon-warning"/>
         </el-tooltip>
       </span>
       <span v-xpack v-if="scenario.versionEnable">{{ $t('project.version.name') }}: {{ scenario.versionName }}</span>
@@ -39,9 +39,9 @@
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Deleted'" type="danger">
         {{ $t('api_test.automation.reference_deleted') }}
       </el-tag>
-      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Copy'"> {{ $t('commons.copy') }} </el-tag>
+      <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'Copy'"> {{ $t('commons.copy') }}</el-tag>
       <el-tag size="small" class="ms-tag" v-if="scenario.referenced === 'REF'"
-        >{{ $t('api_test.scenario.reference') }}
+      >{{ $t('api_test.scenario.reference') }}
       </el-tag>
       <span class="ms-tag ms-step-name-api">{{ getProjectName(scenario.projectId) }}</span>
       <el-tooltip
@@ -51,12 +51,12 @@
         :content="$t('api_test.scenario.base_scenario_step_is_empty')"
         placement="top"
         style="margin-left: 5px">
-        <i class="el-icon-warning" />
+        <i class="el-icon-warning"/>
       </el-tooltip>
     </template>
     <template v-slot:debugStepCode>
       <span v-if="node.data.testing" class="ms-test-running">
-        <i class="el-icon-loading" style="font-size: 16px" />
+        <i class="el-icon-loading" style="font-size: 16px"/>
         {{ $t('commons.testing') }}
       </span>
       <span
@@ -84,7 +84,11 @@
           style="padding: 5px"
           class="ms-btn"
           size="mini"
-          circle />
+          circle
+          v-permission="[
+              'PROJECT_API_SCENARIO:READ+DEBUG',
+              'PROJECT_API_SCENARIO:READ+RUN'
+            ]"/>
       </el-tooltip>
       <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
         <el-button
@@ -93,7 +97,11 @@
           size="mini"
           style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
           class="stop-btn"
-          circle>
+          circle
+          v-permission="[
+              'PROJECT_API_SCENARIO:READ+DEBUG',
+              'PROJECT_API_SCENARIO:READ+RUN'
+            ]">
           <div style="transform: scale(0.66)">
             <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
           </div>
@@ -109,11 +117,11 @@ import MsTcpBasisParameters from '../../../definition/components/request/tcp/Tcp
 import MsDubboBasisParameters from '../../../definition/components/request/dubbo/BasisParameters';
 import MsApiRequestForm from '../../../definition/components/request/http/ApiHttpRequestForm';
 import ApiBaseComponent from '../common/ApiBaseComponent';
-import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
-import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
-import { STEP } from '@/business/automation/scenario/Setting';
-import { getOwnerProjectIds, getProject } from '@/api/project';
-import { checkScenarioEnv, getScenarioById, setScenarioDomain } from '@/api/scenario';
+import {getCurrentProjectID, getCurrentWorkspaceId} from 'metersphere-frontend/src/utils/token';
+import {getUUID, strMapToObj} from 'metersphere-frontend/src/utils';
+import {STEP} from '@/business/automation/scenario/Setting';
+import {getOwnerProjectIds, getProject} from '@/api/project';
+import {checkScenarioEnv, getScenarioById, setScenarioDomain} from '@/api/scenario';
 
 export default {
   name: 'ApiScenarioComponent',

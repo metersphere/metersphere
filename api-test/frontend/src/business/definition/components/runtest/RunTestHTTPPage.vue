@@ -35,7 +35,7 @@
             @command="handleCommand"
             size="small"
             v-if="!runLoading"
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">
+            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API', 'PROJECT_API_DEFINITION:READ+CREATE_CASE']">
             {{ $t('commons.test') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="load_case"
