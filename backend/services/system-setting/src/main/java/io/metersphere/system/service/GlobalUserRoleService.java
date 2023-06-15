@@ -1,6 +1,7 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.dto.UserRoleOption;
@@ -66,7 +67,7 @@ public class GlobalUserRoleService {
             throw new MSException("role.not.global");
         }
         if (!globalRoleList.contains("member")) {
-            throw new MSException("role.not.contains.member");
+            throw new MSException(Translator.get("role.not.contains.member"));
         }
     }
 

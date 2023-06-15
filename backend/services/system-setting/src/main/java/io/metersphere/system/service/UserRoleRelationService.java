@@ -152,7 +152,7 @@ public class UserRoleRelationService {
         return extUserRoleRelationMapper.selectGlobalRoleByUserId(userId);
     }
 
-    public void updateUserSystemGlobalRole(@Valid User user, @Valid @NotEmpty List<String> roleList) {
+    public void updateUserSystemGlobalRole(@Valid User user, @Valid @NotEmpty String operator, @Valid @NotEmpty List<String> roleList) {
         //更新用户权限
         List<String> deleteRoleList = new ArrayList<>();
         List<UserRoleRelation> saveList = new ArrayList<>();
@@ -173,7 +173,7 @@ public class UserRoleRelationService {
                 userRoleRelation.setRoleId(roleId);
                 userRoleRelation.setSourceId("system");
                 userRoleRelation.setCreateTime(System.currentTimeMillis());
-                userRoleRelation.setCreateUser(user.getCreateUser());
+                userRoleRelation.setCreateUser(operator);
                 saveList.add(userRoleRelation);
             }
         }
@@ -189,14 +189,14 @@ public class UserRoleRelationService {
             deleteExample.createCriteria().andIdIn(deleteIdList);
             userRoleRelationMapper.deleteByExample(deleteExample);
             //记录删除日志
-            operationLogService.batchAdd(this.getBatchLogs(deleteRoleList, user, "updateUser", user.getCreateUser(), OperationLogType.DELETE.name()));
+            operationLogService.batchAdd(this.getBatchLogs(deleteRoleList, user, "updateUser", operator, OperationLogType.DELETE.name()));
         }
         if (CollectionUtils.isNotEmpty(saveList)) {
             //系统级权限不会太多，所以暂时不分批处理
             saveList.forEach(item -> userRoleRelationMapper.insert(item));
             //记录添加日志
             operationLogService.batchAdd(this.getBatchLogs(saveList.stream().map(UserRoleRelation::getRoleId).toList(),
-                    user, "updateUser", user.getCreateUser(), OperationLogType.ADD.name()));
+                    user, "updateUser", operator, OperationLogType.ADD.name()));
         }
     }
 

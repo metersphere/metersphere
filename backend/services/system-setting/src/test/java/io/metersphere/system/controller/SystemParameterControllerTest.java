@@ -85,7 +85,7 @@ public class SystemParameterControllerTest {
 
     @Test
     @Order(3)
-    public void testGetEmailInfo()throws Exception {
+    public void testGetEmailInfo() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/emailInfo")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
@@ -95,7 +95,7 @@ public class SystemParameterControllerTest {
 
     @Test
     @Order(4)
-    public void testEditEmailInfo()throws Exception {
+    public void testEditEmailInfo() throws Exception {
 
         List<SystemParameter> systemParameters = new ArrayList<>();
         SystemParameter systemParameter1 = new SystemParameter();
@@ -121,8 +121,8 @@ public class SystemParameterControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/edit/emailInfo")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                .content(JSON.toJSONString(systemParameters))
-                .contentType(MediaType.APPLICATION_JSON))
+                        .content(JSON.toJSONString(systemParameters))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
@@ -130,16 +130,16 @@ public class SystemParameterControllerTest {
 
     @Test
     @Order(4)
-    public void testEmailConnec()throws Exception {
+    public void testEmailConnect() throws Exception {
         HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("smtp.host","xx");
-        hashMap.put("smtp.port","xx");
-        hashMap.put("smtp.account","xx");
-        hashMap.put("smtp.password","xx");
-        hashMap.put("smtp.from","xx");
-        hashMap.put("smtp.recipient","xx");
-        hashMap.put("smtp.ssl","ture");
-        hashMap.put("smtp.tls","false");
+        hashMap.put("smtp.host", "xx");
+        hashMap.put("smtp.port", "xx");
+        hashMap.put("smtp.account", "xx");
+        hashMap.put("smtp.password", "xx");
+        hashMap.put("smtp.from", "xx");
+        hashMap.put("smtp.recipient", "xx");
+        hashMap.put("smtp.ssl", "ture");
+        hashMap.put("smtp.tls", "false");
         mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/test/email")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

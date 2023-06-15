@@ -48,6 +48,9 @@ public class UserTestUtils {
 
     public static UserEditRequest getUserUpdateDTO(UserInfo user, List<UserRoleOption> userRoleList) {
         UserEditRequest returnDTO = new UserEditRequest();
+        if (user.getPhone() == null) {
+            user.setPhone("");
+        }
         BeanUtils.copyBean(returnDTO, user);
         if (CollectionUtils.isNotEmpty(userRoleList)) {
             returnDTO.setUserRoleIdList(
