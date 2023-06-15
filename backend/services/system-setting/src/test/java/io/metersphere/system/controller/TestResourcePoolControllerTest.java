@@ -3,7 +3,6 @@ package io.metersphere.system.controller;
 import base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.domain.TestResource;
 import io.metersphere.system.dto.ResourcePoolTypeEnum;
 import io.metersphere.system.dto.TestResourcePoolDTO;
 import io.metersphere.system.request.QueryResourcePoolRequest;
@@ -20,10 +19,6 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -43,14 +38,36 @@ class TestResourcePoolControllerTest extends BaseTest {
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
+    private static final String configuration = "{\n" +
+            "  \"loadTestImage\": \"123\",\n" +
+            "  \"loadTestHeap\": \"123\",\n" +
+            "  \"nodesList\":[{\n" +
+            "       \"ip\":\"172.2.130.1\",\n" +
+            "       \"port\": \"3306\",\n" +
+            "       \"monitor\": \"11\",\n" +
+            "       \"concurrentNumber\": 1\n" +
+            "   }],\n" +
+            "\"ip\":\"172.2.130.1\",\n" +
+            "\"token\":\"dsdfssdsvgsd\",\n" +
+            "\"namespaces\":\"测试\",\n" +
+            "\"concurrentNumber\":3,\n" +
+            "\"podThreads\":2,\n" +
+            "\"jobDefinition\":\"jsfsjs\",\n" +
+            "\"apiTestImage\":\"ddgd\",\n" +
+            "\"deployName\":\"hello\",\n" +
+            "\"uiGrid\":\"localhost:4444\"\n" +
+            "}";
+
     @Test
     @Order(1)
     void addTestResourcePool() throws Exception {
         TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
         testResourcePoolDTO.setName("test_pool_1");
         testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
+        testResourcePoolDTO.setApiTest(true);
+        testResourcePoolDTO.setLoadTest(false);
+        testResourcePoolDTO.setUiTest(false);
         setResources(testResourcePoolDTO);
-
         mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -101,6 +118,9 @@ class TestResourcePoolControllerTest extends BaseTest {
         testResourcePoolDTO.setName("test_pool");
         testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
         setResources(testResourcePoolDTO);
+        testResourcePoolDTO.setApiTest(true);
+        testResourcePoolDTO.setLoadTest(false);
+        testResourcePoolDTO.setUiTest(false);
         mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_UPDATE)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -111,14 +131,7 @@ class TestResourcePoolControllerTest extends BaseTest {
     }
 
     private static void setResources(TestResourcePoolDTO testResourcePoolDTO) {
-        TestResource testResource = new TestResource();
-        testResource.setId(UUID.randomUUID().toString());
-        testResource.setTestResourcePoolId(UUID.randomUUID().toString());
-        testResource.setEnable(true);
-        testResource.setDeleted(false);
-        List<TestResource> testResources = new ArrayList<>();
-        testResources.add(testResource);
-        testResourcePoolDTO.setTestResources(testResources);
+        testResourcePoolDTO.setConfiguration(configuration);
     }
 
     @Test
@@ -178,9 +191,9 @@ class TestResourcePoolControllerTest extends BaseTest {
 
         testResourcePoolDTO.setUiTest(true);
         //没UI的grid
-        if (!noUiGrid) {
+        /*if (!noUiGrid) {
             testResourcePoolDTO.setGrid("localhost:4444");
-        }
+        }*/
         return testResourcePoolDTO;
     }
 

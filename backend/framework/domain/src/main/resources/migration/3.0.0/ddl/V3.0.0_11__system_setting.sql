@@ -243,27 +243,15 @@ CREATE TABLE IF NOT EXISTS system_parameter
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '系统参数';
 
-CREATE TABLE IF NOT EXISTS test_resource(
-                              `id` VARCHAR(50) NOT NULL   COMMENT '资源节点ID' ,
-                              `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
-                              `configuration` BLOB    COMMENT '资源节点配置' ,
-                              `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-                              `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-                              `enable` BIT NOT NULL  DEFAULT 1 COMMENT '是否启用' ,
-                              `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
-                              PRIMARY KEY (id)
+CREATE TABLE test_resource_pool_blob(
+                                        `id` VARCHAR(50) NOT NULL   COMMENT 'id' ,
+                                        `configuration` LONGBLOB    COMMENT '资源节点配置' ,
+                                        PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '测试资源池节点';
+  COLLATE = utf8mb4_general_ci COMMENT = '测试资源池大字段';
 
-
-CREATE INDEX idx_resource_pool_id ON test_resource(`test_resource_pool_id`);
-CREATE INDEX idx_deleted ON test_resource(`deleted`);
-CREATE INDEX idx_create_time ON test_resource(`create_time`);
-CREATE INDEX idx_enable ON test_resource(`enable`);
-CREATE INDEX idx_update_time ON test_resource(`update_time`);
-
-CREATE TABLE IF NOT EXISTS test_resource_pool(
+CREATE TABLE test_resource_pool(
                                    `id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
                                    `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
                                    `type` VARCHAR(30) NOT NULL   COMMENT '类型' ,
@@ -271,13 +259,10 @@ CREATE TABLE IF NOT EXISTS test_resource_pool(
                                    `enable` BIT NOT NULL  DEFAULT 1 COMMENT '是否启用' ,
                                    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
                                    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-                                   `load_test_image` VARCHAR(100)    COMMENT '性能测试镜像' ,
-                                   `load_test_heap` VARCHAR(200)    COMMENT '性能测试jvm配置' ,
                                    `create_user` VARCHAR(50)    COMMENT '创建人' ,
                                    `api_test` BIT    COMMENT '是否用于接口测试' ,
                                    `load_test` BIT    COMMENT '是否用于性能测试' ,
                                    `ui_test` BIT    COMMENT '是否用于ui测试' ,
-                                   `grid` VARCHAR(255)    COMMENT 'ui测试grid配置' ,
                                    `server_url` VARCHAR(255)    COMMENT 'ms部署地址' ,
                                    `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
                                    PRIMARY KEY (id)
