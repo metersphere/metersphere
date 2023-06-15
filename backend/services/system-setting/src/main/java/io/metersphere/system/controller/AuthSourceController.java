@@ -32,7 +32,7 @@ public class AuthSourceController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_CREAT)
     @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "#authSource.type")
+            details = "认证设置")
     public void add(@RequestBody AuthSource authSource) {
         authSourceService.addAuthSource(authSource);
     }
@@ -40,7 +40,7 @@ public class AuthSourceController {
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "#authSource.type")
+            details = "认证设置")
     public void update(@RequestBody AuthSource authSource) {
         authSourceService.updateAuthSource(authSource);
     }
@@ -54,7 +54,7 @@ public class AuthSourceController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_DELETE)
     @RequestLog(type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "#authSource.type")
+            details = "认证设置")
     public void delete(@PathVariable(value = "id") String id) {
         authSourceService.deleteAuthSource(id);
     }
