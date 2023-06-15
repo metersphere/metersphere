@@ -37,7 +37,7 @@ public class UserController {
     private GlobalUserRoleService globalUserRoleService;
 
     @GetMapping("/get/{email}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public UserDTO getUser(@PathVariable String email) {
         return userService.getUserDTOByEmail(email);
     }
@@ -58,10 +58,10 @@ public class UserController {
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER,
-            sourceId = "#request.id", projectId = "#request.projectId", details = "#request.name")
-    public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest userEditRequest) {
-        userEditRequest.setUpdateUser(SessionUtils.getSessionId());
-        return userService.updateUser(userEditRequest);
+            sourceId = "#request.id", details = "#request.name")
+    public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
+        request.setUpdateUser(SessionUtils.getSessionId());
+        return userService.updateUser(request);
     }
 
     @PostMapping("/page")

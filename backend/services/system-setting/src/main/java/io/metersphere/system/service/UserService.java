@@ -147,12 +147,13 @@ public class UserService {
     public UserEditRequest updateUser(UserEditRequest userEditRequest) {
         //检查用户组合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userEditRequest.getUserRoleIdList(), true);
-
         User user = new User();
         BeanUtils.copyBean(user, userEditRequest);
         user.setUpdateTime(System.currentTimeMillis());
+        user.setCreateUser(null);
+        user.setCreateTime(null);
         userMapper.updateByPrimaryKeySelective(user);
-        userRoleRelationService.updateUserSystemGlobalRole(user, userEditRequest.getUserRoleIdList());
+        userRoleRelationService.updateUserSystemGlobalRole(user, user.getUpdateUser(), userEditRequest.getUserRoleIdList());
         return userEditRequest;
     }
 }
