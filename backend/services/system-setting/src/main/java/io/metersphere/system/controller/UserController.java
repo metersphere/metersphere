@@ -37,7 +37,7 @@ public class UserController {
     private GlobalUserRoleService globalUserRoleService;
 
     @GetMapping("/get/{email}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public UserDTO getUser(@PathVariable String email) {
         return userService.getUserDTOByEmail(email);
     }

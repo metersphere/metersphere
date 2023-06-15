@@ -7,9 +7,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class UserEditRequest extends UserInfo {
     @Schema(title = "用户组", requiredMode = Schema.RequiredMode.REQUIRED)
