@@ -12,6 +12,8 @@ function resolve(dir) {
   return path.join(__dirname, dir);
 }
 
+const proxyUrl = ' http://localhost:8005'
+
 module.exports = defineConfig({
   publicPath: "/",
   productionSourceMap: false,
@@ -24,11 +26,11 @@ module.exports = defineConfig({
     webSocketServer: "sockjs",
     proxy: {
       ["^((?!/login)(?!/document))"]: {
-        target: "http://localhost:8005",
+        target: proxyUrl,
         ws: false,
       },
       "/websocket": {
-        target: "http://localhost:8005",
+        target: proxyUrl,
         ws: true,
       },
     },
