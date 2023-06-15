@@ -3,15 +3,16 @@ package io.metersphere.system.service;
 import groovy.util.logging.Slf4j;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.TestResource;
-import io.metersphere.system.domain.TestResourceExample;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolBlob;
 import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.dto.ResourcePoolTypeEnum;
+import io.metersphere.system.dto.TestResourceDTO;
 import io.metersphere.system.dto.TestResourcePoolDTO;
-import io.metersphere.system.mapper.TestResourceMapper;
+import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.request.QueryResourcePoolRequest;
 import jakarta.annotation.Resource;
@@ -32,23 +33,78 @@ public class TestResourcePoolService {
 
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-
     @Resource
-    private TestResourceMapper testResourceMapper;
+    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePoolDTO) {
+        String id = UUID.randomUUID().toString();
+
         checkTestResourcePool(testResourcePoolDTO);
-        testResourcePoolDTO.setId(UUID.randomUUID().toString());
+
+        buildTestPoolBaseInfo(testResourcePoolDTO, id);
+
+        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
+        testResourcePoolBlob.setId(id);
+
+        String configuration = testResourcePoolDTO.getConfiguration();
+        TestResourceDTO testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
+
+        checkApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
+        checkLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
+        checkUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
+
+        testResourcePoolBlob.setConfiguration(configuration.getBytes());
+
+        testResourcePoolMapper.insertSelective(testResourcePoolDTO);
+        testResourcePoolBlobMapper.insertSelective(testResourcePoolBlob);
+        return testResourcePoolDTO;
+    }
+
+    private static void buildTestPoolBaseInfo(TestResourcePoolDTO testResourcePoolDTO, String id) {
+        testResourcePoolDTO.setId(id);
         testResourcePoolDTO.setCreateTime(System.currentTimeMillis());
         testResourcePoolDTO.setUpdateTime(System.currentTimeMillis());
         testResourcePoolDTO.setEnable(true);
         testResourcePoolDTO.setDeleted(false);
-        if (testResourcePoolDTO.getUiTest() != null && testResourcePoolDTO.getUiTest() && StringUtils.isBlank(testResourcePoolDTO.getGrid())) {
-            throw new MSException("Please add ui grid");
+    }
+
+    private boolean checkLoadConfig(TestResourceDTO testResourceDTO, Boolean loadTest, String type) {
+        if (!loadTest) {
+            return true;
         }
-        validateTestResourcePool(testResourcePoolDTO);
-        testResourcePoolMapper.insertSelective(testResourcePoolDTO);
-        return testResourcePoolDTO;
+        LoadResourceService resourcePoolService = CommonBeanFactory.getBean(LoadResourceService.class);
+        if (resourcePoolService == null) {
+            return false;
+        }
+        return resourcePoolService.validate(testResourceDTO,type);
+    }
+
+    private boolean checkUiConfig(TestResourceDTO testResourceDTO, Boolean uiTest) {
+        if (!uiTest) {
+            return true;
+        }
+        UiResourceService resourcePoolService = CommonBeanFactory.getBean(UiResourceService.class);
+        if (resourcePoolService == null) {
+            return false;
+        }
+        return resourcePoolService.validate(testResourceDTO);
+    }
+
+    private boolean checkApiConfig(TestResourceDTO testResourceDTO, Boolean apiTest, String type) {
+        if (!apiTest) {
+            return false;
+        }
+
+        if (StringUtils.equalsIgnoreCase(type,ResourcePoolTypeEnum.NODE.name())) {
+            NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
+            return resourcePoolService.validate(testResourceDTO);
+        } else {
+            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
+            if (resourcePoolService == null) {
+                return false;
+            }
+            return resourcePoolService.validate(testResourceDTO);
+        }
     }
 
     public void deleteTestResourcePool(String testResourcePoolId) {
@@ -64,8 +120,13 @@ public class TestResourcePoolService {
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePoolDTO) {
         checkTestResourcePool(testResourcePoolDTO);
+        testResourcePoolDTO.setCreateUser(null);
         testResourcePoolDTO.setUpdateTime(System.currentTimeMillis());
-        validateTestResourcePool(testResourcePoolDTO);
+        String configuration = testResourcePoolDTO.getConfiguration();
+        TestResourceDTO testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
+        checkApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
+        checkLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
+        checkUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePoolDTO);
     }
 
@@ -83,20 +144,17 @@ public class TestResourcePoolService {
         List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
         List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();
         testResourcePools.forEach(pool -> {
-            TestResourceExample resourceExample = new TestResourceExample();
-            resourceExample.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
-            resourceExample.setOrderByClause("create_time");
-            List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(resourceExample);
+            TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(pool.getId());
             TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
             try {
                 BeanUtils.copyProperties(testResourcePoolDTO, pool);
-                testResourcePoolDTO.setTestResources(testResources);
+                testResourcePoolDTO.setConfiguration(new String(testResourcePoolBlob.getConfiguration()));
                 testResourcePoolDTOS.add(testResourcePoolDTO);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LogUtils.error(e.getMessage(), e);
             }
         });
-        return new ArrayList<>();
+        return testResourcePoolDTOS;
     }
 
     public void checkTestResourcePool(TestResourcePoolDTO testResourcePoolDTO) {
@@ -117,18 +175,6 @@ public class TestResourcePoolService {
         if (testResourcePoolMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("test_resource_pool_name_already_exists"));
         }
-    }
-
-    private boolean validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
-        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name())) {
-            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
-            if (resourcePoolService == null) {
-                return false;
-            }
-            return resourcePoolService.validate(testResourcePool);
-        }
-        NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
-        return resourcePoolService.validate(testResourcePool);
     }
 
     public String getLogDetails(String id) {

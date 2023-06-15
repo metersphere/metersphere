@@ -15,7 +15,7 @@ public class SystemInterceptor {
     public List<MybatisInterceptorConfig> systemCompressConfigs() {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
-        configList.add(new MybatisInterceptorConfig(TestResource.class, "configuration", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(TestResourcePoolBlob.class, "configuration", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(AuthSource.class, "configuration", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(NoviceStatistics.class, "dataOption", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(PluginBlob.class, "formOption", CompressUtils.class, "zip", "unzip"));
