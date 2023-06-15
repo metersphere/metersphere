@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="user-group-left">
     <a-input-search
       v-model="searchKey"
       class="w-[252px]"
@@ -7,139 +7,146 @@
       @press-enter="searchData"
     />
     <div class="mt-2 flex flex-col">
-      <div class="second-color">
-        <icon-plus-circle v-if="!systemHidden" @click="handleSystemHidden" />
-        <icon-minus-circle v-if="systemHidden" @click="handleSystemHidden" />
-        <span class="ml-1"> {{ t('system.userGroup.inSystem') }}</span>
+      <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
+        <div class="second-color"> {{ t('system.userGroup.global') }}</div>
+        <div class="primary-color" style="font-size: 20px"><icon-plus-circle-fill /></div>
       </div>
-      <div v-if="systemHidden">
+      <div>
         <div
-          v-for="element in systemList"
+          v-for="element in customList"
           :key="element.id"
           :class="{
             'flex': true,
-            ' h-[38px]': true,
+            'h-[38px]': true,
             'items-center': true,
+            'px-[8px]': true,
             'is-active': element.id === currentId,
-            'px-[4px]': true,
           }"
-          @click="currentId = element.id"
+          @click="handleListItemClick(element)"
         >
-          <div class="draglist-item flex grow flex-row justify-between">
-            <div :class="'ml-[20px]'">{{ element.name }}</div>
-            <div v-if="element.id === currentId">
-              <a-popconfirm position="rb">
-                <template #content>
-                  <a-button type="primary" @click="addUser(element.id)">{{ t('system.userGroup.addUser') }}</a-button>
-                </template>
-                <icon-plus />
-              </a-popconfirm>
-            </div>
-          </div>
-        </div>
-      </div>
-      <a-divider />
-      <div class="second-color flex items-center justify-between px-[4px]">
-        <div>
-          <icon-plus-circle v-if="!customHidden" @click="handleCustomHidden" />
-          <icon-minus-circle v-if="customHidden" @click="handleCustomHidden" />
-          <span class="ml-1"> {{ t('system.userGroup.customUserGroup') }}</span>
-        </div>
-        <div class="flex items-center">
-          <icon-plus-circle class="primary-color text-xl" @click="addSystemUserGroup" />
-        </div>
-      </div>
-      <div class="mt-[16px] px-[4px]">
-        <div v-if="customShowEmpty" class="custom-empty">{{ t('system.userGroup.emptyUserGroup') }}</div>
-        <draggable v-else v-model="customList" class="list-group" item-key="name" handle=".handle">
-          <template #item="{ element }">
-            <div
-              :class="{
-                'flex': true,
-                ' h-[38px]': true,
-                'items-center': true,
-                'is-active': element.id === currentId,
-                'px-[4px]': true,
-              }"
-              @click="currentId = element.id"
-            >
-              <div v-if="element.id === currentId" class="handle"><icon-drag-dot-vertical /></div>
-              <div class="draglist-item flex grow flex-row justify-between">
-                <div :class="element.id === currentId ? 'ml-[8px]' : 'ml-[20px]'">{{ element.name }}</div>
-                <div v-if="element.id === currentId">
-                  <a-popconfirm position="rb">
-                    <template #content>
-                      <a-button type="primary" @click="addUser(element.id)">{{
-                        t('system.userGroup.addUser')
-                      }}</a-button>
-                    </template>
-                    <icon-plus />
-                  </a-popconfirm>
-                </div>
+          <popconfirm
+            :visible="popVisible[element.id]"
+            :type="popType"
+            :default-name="popDefaultName"
+            position="bl"
+            @cancel="() => handlePopConfirmCancel(element.id)"
+          >
+            <div class="draglist-item flex grow flex-row justify-between">
+              <div class="usergroup-title leading-[24px]"> {{ element.name }}</div>
+              <div v-if="element.id === currentId">
+                <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
               </div>
             </div>
-          </template>
-        </draggable>
+          </popconfirm>
+        </div>
       </div>
     </div>
   </div>
+  <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
+  <AddUserGroupModal :visible="addUserGroupVisible" @cancel="addUserGroupVisible = false" />
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, onBeforeMount } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import draggable from 'vuedraggable';
-  import { UserGroupListItem } from './type';
+  import { PopVisibleItem, RenameType, UserGroupListItem } from './type';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import AddUserModal from './addUserModal.vue';
+  import AddUserGroupModal from './addUserGroupModal.vue';
+  import popconfirm from './popconfirm.vue';
+  import useUserGroupStore from '@/store/modules/system/usergroup';
 
   const { t } = useI18n();
 
   const searchKey = ref('');
-  // true 关闭 +; false 打开 -
-  const systemHidden = ref(true);
-  const customHidden = ref(true);
+  const store = useUserGroupStore();
   // 请求loading
-  const loading = ref(false);
   const currentId = ref(0);
-
-  const systemList = ref<UserGroupListItem[]>([
-    { name: '系统管理员1', id: 1 },
-    { name: '系统管理员2', id: 2 },
-    { name: '系统管理员3', id: 3 },
-  ]);
-
+  const addUserVisible = ref(false);
+  const addUserGroupVisible = ref(false);
+  // 修改用户组名字，权限范围
+  const popVisible = ref<PopVisibleItem>({});
+  // 用户组和权限范围的状态
+  const popType = ref<RenameType>('rename');
+  const popDefaultName = ref('');
+  // 用户列表
   const customList = ref<UserGroupListItem[]>([
-    { name: '自定义用户组 1 (系统)', id: 4 },
-    { name: '自定义用户组 2 (系统)', id: 5 },
-    { name: '自定义用户组 3 (系统)', id: 6 },
+    { name: '系统管理员', title: '', id: 1, authScope: 'system' },
+    { name: '系统成员', title: '', id: 2, authScope: 'system' },
+    { name: '组织管理员', title: '', id: 3, authScope: 'system' },
+    { name: '组织成员', title: '', id: 4, authScope: 'system' },
+    { name: '项目管理员', title: '', id: 5, authScope: 'system' },
+    { name: '项目成员', title: '', id: 6, authScope: 'system' },
+    { name: '自定义用户组1', title: '项目', id: 7, authScope: 'project' },
+    { name: '自定义用户组2', title: '组织', id: 8, authScope: 'oraganation' },
   ]);
-  // const customList = ref<UserGroupListItem[]>([]);
+
+  const customAction: ActionsItem[] = [
+    {
+      label: 'system.userGroup.rename',
+      danger: false,
+      eventTag: 'rename',
+    },
+    {
+      label: 'system.userGroup.changeAuthScope',
+      danger: false,
+      eventTag: 'changeAuthScope',
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'system.userGroup.delete',
+      danger: true,
+      eventTag: 'delete',
+    },
+  ];
 
   const currentSystemId = ref(0);
 
-  const handleSystemHidden = () => {
-    systemHidden.value = !systemHidden.value;
-  };
-
-  const handleCustomHidden = () => {
-    customHidden.value = !customHidden.value;
-  };
-
   const addUser = (id: number) => {
     currentSystemId.value = id;
+    addUserVisible.value = true;
   };
 
   const addSystemUserGroup = () => {
     // eslint-disable-next-line no-console
-    console.log('addSystemUserGroup');
+    addUserGroupVisible.value = true;
   };
 
   function searchData(keyword: string) {
     // eslint-disable-next-line no-console
     console.log(keyword);
   }
-  const customShowEmpty = computed(() => {
-    return !loading.value && !customList.value.length;
+
+  const handleMoreAction = (item: ActionsItem, id: number) => {
+    if (item.eventTag !== 'delete') {
+      popType.value = item.eventTag as RenameType;
+      const tmpObj = customList.value.filter((ele) => ele.id === id)[0];
+      popVisible.value = { ...popVisible.value, [id]: true };
+      if (item.eventTag === 'rename') {
+        popDefaultName.value = tmpObj.name;
+      } else {
+        popDefaultName.value = tmpObj.authScope;
+      }
+    }
+  };
+  const handlePopConfirmCancel = (id: number) => {
+    popVisible.value = { ...popVisible.value, [id]: false };
+  };
+  onBeforeMount(() => {
+    const tmpObj: PopVisibleItem = {};
+    customList.value.forEach((element) => {
+      tmpObj[element.id] = false;
+    });
+    popVisible.value = tmpObj;
   });
+  const handleListItemClick = (element: UserGroupListItem) => {
+    const { id, name, title } = element;
+    currentId.value = id;
+    store.setInfo({ currentName: name, currentTitle: title });
+  };
 </script>
 
 <style scoped lang="less">
@@ -167,5 +174,17 @@
     font-style: normal;
     line-height: 20px;
     overflow-wrap: break-word;
+  }
+  .button-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    color: rgb(var(--primary-5));
+    background-color: rgb(var(--primary-9));
+  }
+  .usergroup-title {
+    color: var(--color-text-1);
   }
 </style>
