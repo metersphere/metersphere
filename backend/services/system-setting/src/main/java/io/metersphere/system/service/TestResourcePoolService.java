@@ -49,9 +49,9 @@ public class TestResourcePoolService {
         String configuration = testResourcePoolDTO.getConfiguration();
         TestResourceDTO testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
 
-        CheckApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
-        CheckLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
-        CheckUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
+        checkApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
+        checkLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
+        checkUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
 
         testResourcePoolBlob.setConfiguration(configuration.getBytes());
 
@@ -68,7 +68,7 @@ public class TestResourcePoolService {
         testResourcePoolDTO.setDeleted(false);
     }
 
-    private boolean CheckLoadConfig(TestResourceDTO testResourceDTO, Boolean loadTest, String type) {
+    private boolean checkLoadConfig(TestResourceDTO testResourceDTO, Boolean loadTest, String type) {
         if (!loadTest) {
             return true;
         }
@@ -79,7 +79,7 @@ public class TestResourcePoolService {
         return resourcePoolService.validate(testResourceDTO,type);
     }
 
-    private boolean CheckUiConfig(TestResourceDTO testResourceDTO, Boolean uiTest) {
+    private boolean checkUiConfig(TestResourceDTO testResourceDTO, Boolean uiTest) {
         if (!uiTest) {
             return true;
         }
@@ -90,7 +90,7 @@ public class TestResourcePoolService {
         return resourcePoolService.validate(testResourceDTO);
     }
 
-    private boolean CheckApiConfig(TestResourceDTO testResourceDTO, Boolean apiTest, String type) {
+    private boolean checkApiConfig(TestResourceDTO testResourceDTO, Boolean apiTest, String type) {
         if (!apiTest) {
             return false;
         }
@@ -124,9 +124,9 @@ public class TestResourcePoolService {
         testResourcePoolDTO.setUpdateTime(System.currentTimeMillis());
         String configuration = testResourcePoolDTO.getConfiguration();
         TestResourceDTO testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
-        CheckApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
-        CheckLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
-        CheckUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
+        checkApiConfig(testResourceDTO, testResourcePoolDTO.getApiTest(), testResourcePoolDTO.getType());
+        checkLoadConfig(testResourceDTO, testResourcePoolDTO.getLoadTest(), testResourcePoolDTO.getType());
+        checkUiConfig(testResourceDTO, testResourcePoolDTO.getUiTest());
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePoolDTO);
     }
 
