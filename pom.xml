@@ -26,7 +26,7 @@
         <java-websocket.version>1.5.3</java-websocket.version>
         <easyexcel.version>3.1.1</easyexcel.version>
         <dom4j.version>2.1.3</dom4j.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.1-jre</guava.version>
         <pagehelper.version>5.3.3</pagehelper.version>
         <metersphere-jmeter-functions.version>1.5</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
