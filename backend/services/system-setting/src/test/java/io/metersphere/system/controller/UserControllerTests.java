@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.dto.UserBatchCreateDTO;
@@ -21,6 +22,8 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -59,6 +62,7 @@ public class UserControllerTests extends BaseTest {
     //默认数据
     public static final String USER_DEFAULT_NAME = "tianyang.no.1";
     public static final String USER_DEFAULT_EMAIL = "tianyang.no.1@126.com";
+    public static final String USER_NONE_ROLE_EMAIL = "tianyang.none.role@163.com";
 
     //记录查询到的组织信息
     private void setDefaultUserRoleList(MvcResult mvcResult) throws Exception {
@@ -298,6 +302,9 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(2)
+    @Sql(scripts = {"/dml/init_user_controller_test.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testGetByEmailSuccess() throws Exception {
         this.checkUserList();
         UserDTO userDTO = this.getUserByEmail(USER_DEFAULT_EMAIL);
@@ -305,6 +312,14 @@ public class UserControllerTests extends BaseTest {
         Assertions.assertNotNull(userDTO);
         //返回邮箱等于参数邮箱，且用户名合法
         Assertions.assertEquals(userDTO.getEmail(), USER_DEFAULT_EMAIL);
+        Assertions.assertNotNull(userDTO.getName());
+
+        //查询脏数据：没有关联任何组织的用户，也应该正常查询出来
+        userDTO = this.getUserByEmail(USER_NONE_ROLE_EMAIL);
+        //返回值不为空
+        Assertions.assertNotNull(userDTO);
+        //返回邮箱等于参数邮箱，且用户名合法
+        Assertions.assertEquals(userDTO.getEmail(), USER_NONE_ROLE_EMAIL);
         Assertions.assertNotNull(userDTO.getName());
     }
 
@@ -386,10 +401,11 @@ public class UserControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testUserUpdateSuccess() throws Exception {
         this.checkUserList();
-        UserInfo user = USER_LIST.get(0);
+        UserInfo user = new UserInfo();
+        BeanUtils.copyBean(user, USER_LIST.get(0));
         UserEditRequest userMaintainRequest;
         UserEditRequest response;
         UserDTO checkDTO;
@@ -419,11 +435,57 @@ public class UserControllerTests extends BaseTest {
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改用户组(把上面的情况添加别的权限)
-        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user,
-                defaultUserRoleList
-        );
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
+        //用户信息复原
+        user = new UserInfo();
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkDTO = this.getUserByEmail(user.getEmail());
+        UserTestUtils.compareUserDTO(response, checkDTO);
+    }
+
+    @Test
+    @Order(5)
+    public void testUserUpdateError() throws Exception {
+        // 4xx 验证
+        UserInfo user = new UserInfo();
+        UserEditRequest userMaintainRequest;
+        //更改名字
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        user.setName("");
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        //email为空
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        user.setEmail("");
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        //手机号为空
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        user.setEmail("");
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        //用户组为空
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, new ArrayList<>());
+        userMaintainRequest.setUserRoleList(new ArrayList<>());
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+
+        // 500验证
+        //邮箱重复
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        user.setEmail(USER_LIST.get(USER_LIST.size() - 1).getEmail());
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        //用户组不包含系统成员
+        BeanUtils.copyBean(user, USER_LIST.get(0));
+        userMaintainRequest = UserTestUtils.getUserUpdateDTO(user,
+                defaultUserRoleList.stream().filter(item -> !StringUtils.equals(item.getId(), "member")).toList()
+        );
+        this.requestPost(URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
     }
 }
