@@ -236,7 +236,8 @@
               />
             </el-dialog>
           </el-tab-pane>
-          <el-tab-pane :label="$t('schedule.task_notification')" name="second">
+          <el-tab-pane :label="$t('schedule.task_notification')" name="second"
+                       v-permission="['PROJECT_MESSAGE:READ']">
             <ms-schedule-notification
               :test-id="testId"
               :schedule-receiver-options="scheduleReceiverOptions"
