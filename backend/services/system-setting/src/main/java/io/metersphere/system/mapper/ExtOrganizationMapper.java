@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationDeleteRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import org.apache.ibatis.annotations.Param;
@@ -29,7 +30,7 @@ public interface ExtOrganizationMapper {
      * 恢复组织
      * @param id 组织ID
      */
-    void undelete(String id);
+    void recover(String id);
 
     /**
      * 更新组织启用/禁用状态
@@ -37,4 +38,11 @@ public interface ExtOrganizationMapper {
      * @param enable 是否启用
      */
     void updateEnable(String id, boolean enable);
+
+    /**
+     * 获取组织成员列表(角色)
+     * @param organizationRequest 组织成员列表请求参数
+     * @return 组织成员列表数据
+     */
+    List<UserExtend> listMember(@Param("request") OrganizationRequest organizationRequest);
 }

@@ -48,14 +48,35 @@
 <!--    </sql>-->
 
     <update id="delete" parameterType="io.metersphere.system.request.OrganizationDeleteRequest">
-        update organization set deleted = true , delete_time = #{request.deleteTime} , delete_user = #{request.deleteUserId} where id = #{request.id}
+        update organization set deleted = true , delete_time = #{request.deleteTime} , delete_user = #{request.deleteUserId} where id = #{request.organizationId}
     </update>
 
-    <update id="undelete" parameterType="java.lang.String">
+    <update id="recover" parameterType="java.lang.String">
         update organization set deleted = false where id = #{id}
     </update>
 
     <update id="updateEnable">
         update organization set `enable` = #{enable} where id = #{id}
     </update>
+
+    <select id="listMember" resultType="io.metersphere.system.dto.UserExtend">
+        select temp.*, max(if(temp.role_id = 'org_admin', true, false))
+        from (
+            select u.*, urr.role_id
+            from user_role_relation urr
+            JOIN `user` u ON urr.user_id = u.id
+            <where>
+                <if test="request.organizationId != null">
+                    urr.source_id = #{request.organizationId}
+                </if>
+                <if test="request.keyword != null">
+                    and (u.name like CONCAT('%', #{request.keyword},'%')
+                    or u.email like CONCAT('%', #{request.keyword},'%')
+                    or u.phone like CONCAT('%', #{request.keyword},'%'))
+                </if>
+            </where>
+            order by u.update_time desc
+        ) temp
+        group by temp.id
+    </select>
 </mapper>

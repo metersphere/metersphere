@@ -3,8 +3,9 @@ package io.metersphere.system.controller;
 import base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
+import io.metersphere.system.request.ProjectRequest;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -18,6 +19,8 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+
+import java.util.Arrays;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -33,17 +36,17 @@ public class OrganizationControllerTests extends BaseTest{
 
     @Test
     @Order(0)
-    @Sql(scripts = {"/ddl/init_organization.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    @Sql(scripts = {"/dml/init_organization.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testListOrganization() throws Exception {
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
         organizationRequest.setPageSize(10);
         organizationRequest.setKeyword("default");
         mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/list")
-                .content(JSON.toJSONString(organizationRequest))
-                .contentType(MediaType.APPLICATION_JSON)
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
-                .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(organizationRequest))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -51,89 +54,77 @@ public class OrganizationControllerTests extends BaseTest{
     @Order(1)
     public void testListAllOrganization() throws Exception {
         OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
         mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/list-all")
-                .content(JSON.toJSONString(organizationRequest))
-                .contentType(MediaType.APPLICATION_JSON)
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
-                .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(organizationRequest))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
     @Order(2)
-    public void testAddOrganization() throws Exception {
-        OrganizationDTO organizationDTO = new OrganizationDTO();
-        organizationDTO.setName("default-organization");
-        organizationDTO.setDescription("default-description");
-        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/add")
-                .content(JSON.toJSONString(organizationDTO))
-                .contentType(MediaType.APPLICATION_JSON)
+    public void testGetDefaultOrganization() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/default")
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
+                .andDo(MockMvcResultHandlers.print());
     }
 
     @Test
     @Order(3)
-    public void testUpdateOrganization() throws Exception {
-        OrganizationDTO organizationDTO = new OrganizationDTO();
-        organizationDTO.setId("default-organization-2");
-        organizationDTO.setName("default-X");
-        organizationDTO.setDescription("XXX-X");
-        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/update")
-                .content(JSON.toJSONString(organizationDTO))
-                .contentType(MediaType.APPLICATION_JSON)
+    public void testListOrganizationMember() throws Exception {
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-2");
+        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/list-member")
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(organizationRequest))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @Order(4)
+    public void testAddOrganizationMember() throws Exception {
+        OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
+        organizationMemberRequest.setOrganizationId("default-organization-3");
+        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
+        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/add-member")
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(organizationMemberRequest))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(5)
+    public void testRemoveOrganizationMember() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/remove-member/default-organization-3/admin")
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
                 .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk());
     }
 
     @Test
-    @Order(4)
-    public void testDeleteOrganization() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/delete/default-organization-2")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    @Order(5)
-    public void testUnDeleteOrganization() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/undelete/default-organization-2")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
     @Order(6)
-    public void testEnableOrganization() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/enable/default-organization-2")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    @Order(7)
-    public void testDisableOrganization() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/disable/default-organization-2")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(MockMvcResultHandlers.print());
-    }
-
-    @Test
-    @Order(8)
-    public void testGetDefaultOrganization() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/getDefault")
+    public void testGetOrganizationProject() throws Exception {
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setCurrent(1);
+        projectRequest.setPageSize(10);
+        projectRequest.setOrganizationId("default-organization-2");
+        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/list-project")
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
-                .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .content(JSON.toJSONString(projectRequest))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
                 .andDo(MockMvcResultHandlers.print());
     }
 }

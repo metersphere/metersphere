@@ -41,7 +41,7 @@
         INNER JOIN organization o on p.organization_id = o.id
         <where>
             <if test="request.organizationId != null">
-                 p.organizationId = #{request.organizationId}
+                 p.organization_id = #{request.organizationId}
             </if>
             <if test="request.keyword != null">
                and  (p.name like CONCAT('%', #{request.keyword},'%')
@@ -49,6 +49,5 @@
             </if>
         </where>
             group by p.id
-
     </select>
 </mapper>

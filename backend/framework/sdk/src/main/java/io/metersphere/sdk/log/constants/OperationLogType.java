@@ -13,5 +13,6 @@ public enum OperationLogType {
     IMPORT,
     EXPORT,
     LOGIN,
-    SELECT
+    SELECT,
+    RECOVER
 }
