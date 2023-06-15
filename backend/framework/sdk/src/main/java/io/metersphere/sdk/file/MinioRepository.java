@@ -8,9 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +17,8 @@ public class MinioRepository implements FileRepository {
 
     @Resource
     private MinioClient client;
+    // 缓冲区大小
+    private static final int BUFFER_SIZE = 8192;
 
     private String getPath(FileRequest request) {
         // 文件存储路径
@@ -61,6 +61,12 @@ public class MinioRepository implements FileRepository {
         removeObject(MinioConfig.BUCKET, filePath);
     }
 
+    @Override
+    public void deleteFolder(FileRequest request) throws Exception {
+        String filePath = getPath(request);
+        // 删除文件夹
+        removeObjects(MinioConfig.BUCKET, filePath);
+    }
 
     private boolean removeObject(String bucketName, String objectName) throws Exception {
         client.removeObject(RemoveObjectArgs.builder()
@@ -102,6 +108,24 @@ public class MinioRepository implements FileRepository {
     @Override
     public byte[] getFile(FileRequest request) throws Exception {
         return getFileAsStream(request).readAllBytes();
+    }
+
+    @Override
+    public void downloadFile(FileRequest request, String fullPath) throws Exception {
+        String fileName = getPath(request);
+        // 下载对象到本地文件
+        try (InputStream inputStream = client.getObject(
+                GetObjectArgs.builder()
+                        .bucket(MinioConfig.BUCKET)
+                        .object(fileName)
+                        .build());
+             BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fullPath))) {
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        }
     }
 
     public InputStream getFileAsStream(FileRequest request) throws Exception {
