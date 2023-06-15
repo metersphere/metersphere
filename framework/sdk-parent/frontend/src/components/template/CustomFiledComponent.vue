@@ -7,7 +7,7 @@
       :disabled="disabled"
       :multiple="data.type === 'multipleSelect'"
       @change="handleChange"
-      @clear="handleClear"
+      @blur.native.capture="handleClear"
       clearable
       filterable
       v-model="data[prop]"
