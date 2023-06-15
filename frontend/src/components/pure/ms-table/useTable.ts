@@ -29,7 +29,7 @@ export default function useTableProps(loadListFunc: GetListFunc, props?: Partial
     bordered: true,
     showPagination: true,
     size: 'small',
-    scroll: { y: '550px', x: '1400px' },
+    scroll: { y: '860px', x: '1400px' },
     checkable: true,
     loading: true,
     data: [] as MsTableData,

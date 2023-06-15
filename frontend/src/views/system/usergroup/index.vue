@@ -1,115 +1,56 @@
 <template>
-  <div class="flex h-[100vh] flex-row bg-white px-[20px] py-[16px] pb-0">
-    <div class="h-[730px] w-[300px] p-6">
+  <div class="user-group flex flex-row bg-white">
+    <div class="user-group-left">
       <UserGroupLeft />
     </div>
-    <div class="grow-1 overflow-scroll">
-      <MsBaseTable v-bind="propsRes" v-on="propsEvent"> </MsBaseTable>
+    <div class="grow-1 overflow-x-scroll p-[24px]">
+      <div class="flex flex-row items-center justify-between">
+        <div class="title">{{ store.userGroupInfo.currentName }}</div>
+        <div class="flex items-center">
+          <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlacehoder')">
+            <template #prefix>
+              <icon-search />
+            </template>
+          </a-input>
+          <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
+            <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
+            <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
+          </a-radio-group>
+        </div>
+      </div>
+      <div class="mt-[16px]">
+        <user-table v-if="currentTable === 'user'" />
+        <auth-table v-if="currentTable === 'auth'" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { onMounted } from 'vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import { ref } from 'vue';
+  import { useI18n } from '@/hooks/useI18n';
   import UserGroupLeft from '@/components/bussiness/usergroup/index.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import { getTableList } from '@/api/modules/api-test/index';
+  import useUserGroupStore from '@/store/modules/system/usergroup';
+  import UserTable from '@/components/bussiness/usergroup/userTable.vue';
+  import AuthTable from '@/components/bussiness/usergroup/authTable.vue';
 
-  const columns: MsTableColumn = [
-    {
-      title: 'ID',
-      dataIndex: 'num',
-      filterable: {
-        filters: [
-          {
-            text: '> 20000',
-            value: '20000',
-          },
-          {
-            text: '> 30000',
-            value: '30000',
-          },
-        ],
-        filter: (value, record) => record.salary > value,
-        multiple: true,
-      },
-    },
-    {
-      title: '接口名称',
-      dataIndex: 'name',
-      width: 200,
-    },
-    {
-      title: '请求类型',
-      dataIndex: 'method',
-    },
-    {
-      title: '责任人',
-      dataIndex: 'username',
-    },
-    {
-      title: '路径',
-      dataIndex: 'path',
-    },
-    {
-      title: '标签',
-      dataIndex: 'tags',
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-      },
-    },
-    {
-      title: '用例数',
-      dataIndex: 'caseTotal',
-    },
-    {
-      title: '用例状态',
-      dataIndex: 'caseStatus',
-    },
-    {
-      title: '用例通过率',
-      dataIndex: 'casePassingRate',
-    },
-    {
-      title: '接口状态',
-      dataIndex: 'status',
-    },
-    {
-      title: '创建时间',
-      slotName: 'createTime',
-      width: 200,
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-    },
-    {
-      title: '操作',
-      slotName: 'action',
-      fixed: 'right',
-      width: 200,
-    },
-  ];
+  const currentTable = ref('auth');
 
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, {
-    columns,
-    scroll: { y: 750, x: 2000 },
-    selectable: true,
-  });
+  const { t } = useI18n();
 
-  const fetchData = async () => {
-    await loadList();
-  };
-
-  onMounted(() => {
-    fetchData();
-  });
+  const store = useUserGroupStore();
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+  .title {
+    color: var(--color-text-1);
+  }
+  .user-group {
+    height: calc(100vh - 72px);
+  }
+  .user-group-left {
+    position: relative;
+    padding: 24px;
+    border-right: 1px solid var(--color-border);
+  }
+</style>
