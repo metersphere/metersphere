@@ -31,7 +31,7 @@ public class SystemParameterController {
      */
     @PostMapping("/save/baseInfo")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING)
+    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "基本配置")
     public void saveBaseParameter(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
@@ -57,7 +57,7 @@ public class SystemParameterController {
 
     @PostMapping("/edit/emailInfo")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING)
+    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "邮件配置")
     public void editEMailInfo(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editEMailInfo(systemParameter);
     }
