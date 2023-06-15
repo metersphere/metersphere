@@ -249,4 +249,10 @@
             <url>https://repository.fit2cloud.com/content/repositories/fit2cloud-public</url>
         </repository>
     </distributionManagement>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fit2cloud-public</id>
+            <url>https://repository.fit2cloud.com/repository/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
