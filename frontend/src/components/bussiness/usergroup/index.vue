@@ -9,7 +9,7 @@
     <div class="mt-2 flex flex-col">
       <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
         <div class="second-color"> {{ t('system.userGroup.global') }}</div>
-        <div class="primary-color" style="font-size: 20px"><icon-plus-circle-fill /></div>
+        <div class="primary-color"><icon-plus-circle-fill style="font-size: 20px" @click="addUserGroup" /></div>
       </div>
       <div>
         <div
@@ -32,7 +32,10 @@
             @cancel="() => handlePopConfirmCancel(element.id)"
           >
             <div class="draglist-item flex grow flex-row justify-between">
-              <div class="usergroup-title leading-[24px]"> {{ element.name }}</div>
+              <div class="usergroup-title leading-[24px]">
+                <span class="n1">{{ element.name }}</span>
+                <span v-if="element.title" class="n4">{{ `（${element.title}）` }}</span>
+              </div>
               <div v-if="element.id === currentId">
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
               </div>
@@ -103,14 +106,7 @@
     },
   ];
 
-  const currentSystemId = ref(0);
-
-  const addUser = (id: number) => {
-    currentSystemId.value = id;
-    addUserVisible.value = true;
-  };
-
-  const addSystemUserGroup = () => {
+  const addUserGroup = () => {
     // eslint-disable-next-line no-console
     addUserGroupVisible.value = true;
   };
@@ -152,6 +148,12 @@
 <style scoped lang="less">
   .primary-color {
     color: rgb(var(--primary-5));
+  }
+  .n1 {
+    color: var(--color-text-1);
+  }
+  .n4 {
+    color: var(--color-text-4);
   }
   .second-color {
     color: var(--color-text-input-border);
