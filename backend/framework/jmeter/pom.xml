@@ -95,23 +95,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>${oracle-database.version}</version>
-        </dependency>
-
-        <!-- Zookeeper -->
-        <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
             <version>${dubbo.version}</version>
@@ -119,17 +102,6 @@
                 <exclusion>
                     <artifactId>spring-context</artifactId>
                     <groupId>org.springframework</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>${zookeeper.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>slf4j-log4j12</artifactId>
-                    <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -142,29 +114,6 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>${curator.version}</version>
-        </dependency>
-
-        <!-- nacos -->
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-registry-nacos</artifactId>
-            <version>${dubbo.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>javax.annotation-api</artifactId>
-                    <groupId>javax.annotation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-api</artifactId>
-            <version>${nacos.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-client</artifactId>
-            <version>${nacos.version}</version>
         </dependency>
 
         <dependency>
@@ -309,10 +258,4 @@
             <version>${commons-dbcp2-version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-
-        </plugins>
-    </build>
 </project>
