@@ -14,6 +14,7 @@ import io.metersphere.system.request.QueryResourcePoolRequest;
 import io.metersphere.system.service.TestResourcePoolService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class TestResourcePoolController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
     @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL, details = "#poolDTO.name")
-    public TestResourcePoolDTO addTestResourcePool(@RequestBody TestResourcePoolDTO poolDTO) {
+    public TestResourcePoolDTO addTestResourcePool(@Validated @RequestBody TestResourcePoolDTO poolDTO) {
         return testResourcePoolService.addTestResourcePool(poolDTO);
     }
 
@@ -47,13 +48,13 @@ public class TestResourcePoolController {
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
             sourceId = "#testResourcePoolDTO.id", details = "#testResourcePoolDTO.name")
-    public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
+    public void updateTestResourcePool(@Validated @RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);
     }
 
     @PostMapping("/page")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
-    public Pager<List<TestResourcePoolDTO>> listResourcePools(@RequestBody QueryResourcePoolRequest request) {
+    public Pager<List<TestResourcePoolDTO>> listResourcePools(@Validated @RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
