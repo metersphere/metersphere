@@ -111,4 +111,22 @@ public class AuthSourceControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print());
     }
+
+
+    @Test
+    @Order(6)
+    public void testAddSourceByNullName() throws Exception {
+        AuthSource authSource = new AuthSource();
+        authSource.setId("2b6a83d0-7c66-43ed-a1d9-5132d3167aaf");
+        authSource.setConfiguration("123".getBytes());
+        authSource.setCreateTime(System.currentTimeMillis());
+        authSource.setUpdateTime(System.currentTimeMillis());
+        mockMvc.perform(MockMvcRequestBuilders.post("/system/authsource/add")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(authSource))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andDo(print());
+    }
 }

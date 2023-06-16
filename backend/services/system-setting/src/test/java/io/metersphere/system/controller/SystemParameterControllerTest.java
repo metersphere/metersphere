@@ -60,7 +60,7 @@ public class SystemParameterControllerTest {
         systemParameters.add(systemParameter);
         systemParameters.add(parameter);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/save/baseInfo")
+        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/save/base-info")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(systemParameters))
@@ -75,7 +75,7 @@ public class SystemParameterControllerTest {
     @Test
     @Order(2)
     public void testGetBaseInfo() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/baseInfo")
+        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/base-info")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
@@ -86,7 +86,7 @@ public class SystemParameterControllerTest {
     @Test
     @Order(3)
     public void testGetEmailInfo() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/emailInfo")
+        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/email-info")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk());
@@ -118,7 +118,7 @@ public class SystemParameterControllerTest {
         systemParameters.add(systemParameter2);
         systemParameters.add(systemParameter3);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/edit/emailInfo")
+        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/edit/email-info")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(systemParameters))
@@ -146,5 +146,27 @@ public class SystemParameterControllerTest {
                         .content(JSON.toJSONString(hashMap))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
+    }
+
+
+    @Test
+    @Order(5)
+    public void testSaveBaseInfoNullUrl() throws Exception {
+        List<SystemParameter> systemParameters = new ArrayList<>();
+        SystemParameter parameter = new SystemParameter();
+        parameter.setParamKey("base.prometheus.host");
+        parameter.setParamValue("http://127.0.0.1:1111");
+        parameter.setType("text");
+        systemParameters.add(parameter);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/save/base-info")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(systemParameters))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+
     }
 }

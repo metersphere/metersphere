@@ -12,6 +12,7 @@ import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.service.AuthSourceService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,15 +34,15 @@ public class AuthSourceController {
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_CREAT)
     @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
             details = "认证设置")
-    public void add(@RequestBody AuthSource authSource) {
+    public void add(@Validated @RequestBody AuthSource authSource) {
         authSourceService.addAuthSource(authSource);
     }
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置")
-    public void update(@RequestBody AuthSource authSource) {
+            details = "认证设置", sourceId = "#authSource.id")
+    public void update(@Validated @RequestBody AuthSource authSource) {
         authSourceService.updateAuthSource(authSource);
     }
 
@@ -54,7 +55,7 @@ public class AuthSourceController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_DELETE)
     @RequestLog(type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置")
+            details = "认证设置", sourceId = "#id")
     public void delete(@PathVariable(value = "id") String id) {
         authSourceService.deleteAuthSource(id);
     }
