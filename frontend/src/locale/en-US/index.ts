@@ -7,6 +7,7 @@ import localeLogin from '@/views/login/locale/en-US';
 import localeTable from '@/components/pure/ms-table/locale/en-US';
 import localeApiTest from '@/views/api-test/locale/en-US';
 import localeSystem from '@/views/system/locale/en-US';
+import baseLocale from '@/views/base/locale/en-US';
 
 export default {
   message: {
@@ -24,6 +25,7 @@ export default {
     ...localeTable,
     ...localeApiTest,
     ...localeSystem,
+    ...baseLocale,
   },
   dayjsLocale,
   dayjsLocaleName: 'en-US',

@@ -15,7 +15,7 @@ export const REDIRECT_MAIN: RouteRecordRaw = {
     {
       path: '/redirect/:path',
       name: REDIRECT_ROUTE_NAME,
-      component: () => import('@/views/redirect/index.vue'),
+      component: () => import('@/views/base/redirect/index.vue'),
       meta: {
         hideInMenu: true,
       },
@@ -26,5 +26,14 @@ export const REDIRECT_MAIN: RouteRecordRaw = {
 export const NOT_FOUND_ROUTE: RouteRecordRaw = {
   path: '/:pathMatch(.*)*',
   name: 'notFound',
-  component: () => import('@/views/not-found/index.vue'),
+  component: () => import('@/views/base/not-found/index.vue'),
+};
+
+export const INVITE_ROUTE: RouteRecordRaw = {
+  path: '/invite',
+  name: 'invite',
+  component: () => import('@/views/base/invite/index.vue'),
+  meta: {
+    hideInMenu: true,
+  },
 };

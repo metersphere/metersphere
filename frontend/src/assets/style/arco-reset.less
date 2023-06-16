@@ -34,11 +34,28 @@
 
   padding: 24px;
   .arco-modal-header {
+    @apply h-auto border-b-0 p-0;
+
     margin-bottom: 16px;
+    .arco-modal-title {
+      @apply flex items-center font-semibold;
+
+      font-size: 14px;
+      .arco-modal-title-icon {
+        @apply flex items-center;
+        .arco-icon {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+  .arco-modal-body {
+    color: var(--color-text-2);
   }
   .arco-modal-footer {
+    @apply border-t-0 p-0 text-right;
+
     margin-top: 16px;
-    text-align: right;
   }
 }
 .ms-modal-weak {
@@ -48,9 +65,46 @@
     }
   }
 }
+.ms-modal-warning {
+  .arco-modal-title-icon {
+    .arco-icon {
+      color: rgb(var(--danger-6));
+    }
+  }
+}
+.ms-modal-form {
+  .arco-modal-body {
+    padding: 8px 0;
+  }
+}
+.ms-modal-upload {
+  .arco-modal-body {
+    padding: 2px 0;
+    .arco-upload {
+      @apply w-full;
+    }
+  }
+}
+.ms-modal-medium {
+  .arco-modal {
+    width: 680px;
+  }
+}
+.ms-modal-large {
+  .arco-modal {
+    width: 960px;
+  }
+}
 
 /** 按钮 **/
 .arco-btn-primary {
+  background-color: rgb(var(--primary-5)) !important;
+  &:not(:disabled):hover {
+    background-color: rgb(var(--primary-4)) !important;
+  }
+  &:not(:disabled):active {
+    background-color: rgb(var(--primary-7)) !important;
+  }
   &:disabled {
     background-color: rgb(var(--primary-3)) !important;
   }
@@ -104,12 +158,76 @@
   }
 }
 
-/** 输入框 **/
-.arco-input-wrapper {
+/** 输入框，选择器 **/
+.arco-input-wrapper,
+.arco-input-tag,
+.arco-select {
   border: 1px solid var(--color-text-input-border);
   background-color: var(--color-text-fff) !important;
   &:not(:disabled):hover {
     border-color: rgb(var(--primary-5));
+  }
+  input::placeholder {
+    color: var(--color-text-brand);
+  }
+}
+.arco-select,
+.arco-input-tag {
+  .arco-icon {
+    font-size: 14px;
+    color: var(--color-text-4);
+  }
+}
+.arco-select-view-inner,
+.arco-input-tag-inner {
+  .arco-tag {
+    background-color: var(--color-text-n8) !important;
+  }
+}
+.arco-input-error,
+.arco-input-tag-error {
+  border-color: rgb(var(--danger-6)) !important;
+  background-color: var(--color-bg-2) !important;
+  box-shadow: 0 0 0 0 var(--color-danger-light-2) !important;
+}
+
+/** form-item **/
+.arco-form-item-content-flex {
+  @apply flex-wrap;
+}
+.arco-form-item-message {
+  width: 100%;
+}
+.hidden-item {
+  @apply mb-0 flex-1;
+  .arco-form-item-label-col {
+    @apply !hidden;
+  }
+}
+
+/** 多选框 **/
+.arco-checkbox-checked {
+  .arco-checkbox-icon {
+    @apply !border-none;
+  }
+  .arco-checkbox-icon-check {
+    @apply text-white;
+    .arco-checkbox-icon {
+      background-color: rgb(var(--primary-5));
+    }
+  }
+}
+.arco-checkbox {
+  .arco-checkbox-icon {
+    border: 1px solid var(--color-text-input-border);
+  }
+}
+.arco-checkbox-disabled,
+.arco-checkbox-disabled:hover {
+  .arco-checkbox-icon {
+    @apply bg-white;
+
+    border: 1px solid var(--color-text-input-border);
   }
 }
 
@@ -148,4 +266,12 @@
 /** 全局容器 **/
 .ms-contentiner {
   height: calc(100vh - 84px);
+}
+
+/** 气泡弹窗 **/
+.arco-popover-title {
+  font-size: 14px;
+}
+.arco-popover-content {
+  font-size: 12px;
 }

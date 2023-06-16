@@ -16,16 +16,20 @@ export interface ModalOptions extends ModalConfig {
 export default function useModal() {
   return {
     openModal: (options: ModalOptions) =>
-      Modal[options.type]({
-        ...options,
-        titleAlign: 'start',
-        modalClass: `ms-modal-${options.mode || 'default'} ms-modal-${options.size || 'medium'}`,
+      // error 使用 warning的感叹号图标
+      Modal[options.type === 'error' ? 'warning' : options.type]({
+        // 默认设置按钮属性，也可通过options传入覆盖
         okButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'primary',
         },
         cancelButtonProps: {
           type: options.mode === 'weak' ? 'text' : 'secondary',
         },
+        ...options,
+        titleAlign: 'start',
+        modalClass: `ms-modal-${options.mode || 'default'} ms-modal-${options.size || 'medium'} ms-modal-${
+          options.type
+        }`,
       }),
   };
 }
