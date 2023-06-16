@@ -2,12 +2,12 @@
 // hook/table-props.ts
 
 import { ref } from 'vue';
-import { MsTableProps, MsTableData, MsTableColumn } from './type';
-import { CommonList } from '@/models/api-test';
-import { TableData } from '@arco-design/web-vue';
 import dayjs from 'dayjs';
-import { QueryParams } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import { useAppStore } from '@/store';
+
+import type { TableData } from '@arco-design/web-vue';
+import type { MsTableProps, MsTableData, MsTableColumn } from './type';
 
 export interface Pagination {
   current: number;
@@ -16,9 +16,11 @@ export interface Pagination {
   showPageSize: boolean;
 }
 
-type GetListFunc = (v: QueryParams) => Promise<CommonList>;
 const appStore = useAppStore();
-export default function useTableProps(loadListFunc: GetListFunc, props?: Partial<MsTableProps>) {
+export default function useTableProps(
+  loadListFunc: (v: TableQueryParams) => Promise<any>,
+  props?: Partial<MsTableProps>
+) {
   // 行选择
   const rowSelection = {
     type: 'checkbox',
@@ -152,6 +154,7 @@ export default function useTableProps(loadListFunc: GetListFunc, props?: Partial
       setPagination({ current: data.current, total: data.total });
       return data;
     } catch (err) {
+      console.log(err);
       // TODO 表格异常放到solt的empty
     } finally {
       setLoading(false);
