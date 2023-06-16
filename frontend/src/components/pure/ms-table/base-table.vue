@@ -7,7 +7,12 @@
       :current="selectCurrent"
       @change="handleChange"
     />
-    <a-table v-bind="$attrs" :selected-keys="props.selectedKeys" @selection-change="(e) => selectionChange(e, true)">
+    <a-table
+      v-bind="$attrs"
+      :row-class="getRowClass"
+      :selected-keys="props.selectedKeys"
+      @selection-change="(e) => selectionChange(e, true)"
+    >
       <template v-for="(item, key, i) in slots" :key="i" #[key]="{ record, rowIndex, column }">
         <slot :name="key" v-bind="{ rowIndex, record, column }"></slot>
       </template>
@@ -30,11 +35,12 @@
 </template>
 
 <script lang="ts" setup>
-  // eslint-disable no-console
   import { useSlots, useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
   import { MsTableProps, SelectAllEnum, MsPaginationI } from './type';
   import BatchAction from './batchAction.vue';
+
+  import type { TableData } from '@arco-design/web-vue';
 
   const batchleft = ref('10px');
   const props = defineProps({
@@ -121,6 +127,12 @@
         return '10px';
     }
   };
+
+  function getRowClass(record: TableData) {
+    if (record.disabled) {
+      return 'ms-table-row-disabled';
+    }
+  }
 
   onMounted(() => {
     batchleft.value = getBatchLeft();

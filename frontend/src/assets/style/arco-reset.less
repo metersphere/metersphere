@@ -12,6 +12,16 @@
     }
   }
 }
+.ms-table-row-disabled {
+  td:not(.arco-table-col-fixed-right),
+  &:hover,
+  td:not(.arco-table-col-fixed-right)::before,
+  .arco-checkbox-icon,
+  .arco-tag {
+    color: var(--color-text-4);
+    background-color: var(--color-text-n8) !important;
+  }
+}
 
 /** Tabs 组件样式 **/
 .arco-tabs-nav-add-btn {
@@ -43,6 +53,18 @@
 .arco-btn-primary {
   &:disabled {
     background-color: rgb(var(--primary-3)) !important;
+  }
+}
+.arco-btn-status-danger {
+  background-color: rgb(var(--danger-6)) !important;
+  &:not(:disabled):hover {
+    background-color: rgb(var(--danger-5)) !important;
+  }
+  &:not(:disabled):active {
+    background-color: rgb(var(--danger-7)) !important;
+  }
+  &:disabled {
+    background-color: rgb(var(--danger-2)) !important;
   }
 }
 .arco-btn-secondary {
