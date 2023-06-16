@@ -7,6 +7,7 @@ import localeLogin from '@/views/login/locale/zh-CN';
 import localeTable from '@/components/pure/ms-table/locale/zh-CN';
 import localeApiTest from '@/views/api-test/locale/zh-CN';
 import localeSystem from '@/views/system/locale/zh-CN';
+import baseLocale from '@/views/base/locale/zh-CN';
 
 export default {
   message: {
@@ -25,6 +26,7 @@ export default {
     ...localeTable,
     ...localeApiTest,
     ...localeSystem,
+    ...baseLocale,
   },
   dayjsLocale,
   dayjsLocaleName: 'zh-CN',

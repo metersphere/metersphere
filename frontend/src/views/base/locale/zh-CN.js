@@ -1,0 +1,17 @@
+export default {
+  'invite.title': '加入 MeterSphere',
+  'invite.emailPlaceholder': '请输入邮箱地址',
+  'invite.emailNotNull': '邮箱地址不能为空',
+  'invite.emailErr': '请输入正确的邮箱',
+  'invite.namePlaceholder': '请输入姓名',
+  'invite.nameNotNull': '姓名不能为空',
+  'invite.passwordPlaceholder': '请输入密码',
+  'invite.passwordNotNull': '密码不能为空',
+  'invite.repasswordPlaceholder': '请再次输入密码',
+  'invite.repasswordNotNull': '确认密码不能为空',
+  'invite.repasswordNotSame': '两次输入的密码不一致',
+  'invite.confirm': '确认',
+  'invite.passwordTipTitle': '密码须同时符合，仅支持以下规则',
+  'invite.passwordLengthRule': '长度为8-32位',
+  'invite.passwordWordRule': '必须包含数字和字母，不允许输入中文或空格',
+};
