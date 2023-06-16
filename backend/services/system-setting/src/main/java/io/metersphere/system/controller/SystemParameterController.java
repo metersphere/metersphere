@@ -11,6 +11,7 @@ import io.metersphere.sdk.service.SystemParameterService;
 import io.metersphere.system.domain.SystemParameter;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,14 +30,14 @@ public class SystemParameterController {
      *
      * @param systemParameter
      */
-    @PostMapping("/save/baseInfo")
+    @PostMapping("/save/base-info")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "基本配置")
-    public void saveBaseParameter(@RequestBody List<SystemParameter> systemParameter) {
+    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "基本配置", sourceId = "#systemParameter.get(0).paramKey")
+    public void saveBaseParameter(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
 
-    @GetMapping("/get/baseInfo")
+    @GetMapping("/get/base-info")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
     public BaseSystemConfigDTO getBaseInfo() {
         return systemParameterService.getBaseInfo();
@@ -48,17 +49,17 @@ public class SystemParameterController {
      *
      * @return
      */
-    @GetMapping("/get/emailInfo")
+    @GetMapping("/get/email-info")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
     public EMailInfoDto getEmailInfo() {
         return systemParameterService.getEmailInfo();
     }
 
 
-    @PostMapping("/edit/emailInfo")
+    @PostMapping("/edit/email-info")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "邮件配置")
-    public void editEMailInfo(@RequestBody List<SystemParameter> systemParameter) {
+    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "邮件配置", sourceId = "#systemParameter.get(0).paramKey")
+    public void editEMailInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editEMailInfo(systemParameter);
     }
 
