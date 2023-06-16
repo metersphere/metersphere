@@ -51,7 +51,7 @@ public class UserController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
-        userCreateDTO.setCreateUserToList(SessionUtils.getSessionId());
+        userCreateDTO.setCreateUserToList(SessionUtils.getUserId());
         return userService.addBatch(userCreateDTO);
     }
 
@@ -60,7 +60,7 @@ public class UserController {
     @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER,
             sourceId = "#request.id", details = "#request.name")
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
-        request.setUpdateUser(SessionUtils.getSessionId());
+        request.setUpdateUser(SessionUtils.getUserId());
         return userService.updateUser(request);
     }
 
