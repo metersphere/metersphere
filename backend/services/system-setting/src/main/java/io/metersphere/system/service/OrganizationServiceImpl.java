@@ -48,9 +48,6 @@ public class OrganizationServiceImpl implements OrganizationService{
         OrganizationExample example = new OrganizationExample();
         example.createCriteria().andNumEqualTo(100001L);
         List<Organization> organizations = organizationMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(organizations)) {
-            throw new MSException(Translator.get("organization_default_not_exists"));
-        }
         Organization organization = organizations.get(0);
         BeanUtils.copyBean(organizationDTO, organization);
         return organizationDTO;

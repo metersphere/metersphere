@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -91,7 +92,7 @@ public class OrganizationControllerTests extends BaseTest{
 
     @Test
     @Order(4)
-    public void testAddOrganizationMember() throws Exception {
+    public void testAddOrganizationMemberPass() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
@@ -105,6 +106,20 @@ public class OrganizationControllerTests extends BaseTest{
 
     @Test
     @Order(5)
+    public void testAddOrganizationMemberNotPass() throws Exception {
+        OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
+        organizationMemberRequest.setOrganizationId("default-organization-3");
+        organizationMemberRequest.setMemberIds(Collections.emptyList());
+        mockMvc.perform(MockMvcRequestBuilders.post(REQ_PREFIX + "/add-member")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(organizationMemberRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(6)
     public void testRemoveOrganizationMember() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(REQ_PREFIX + "/remove-member/default-organization-3/admin")
                 .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -113,7 +128,7 @@ public class OrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testGetOrganizationProject() throws Exception {
         ProjectRequest projectRequest = new ProjectRequest();
         projectRequest.setCurrent(1);
