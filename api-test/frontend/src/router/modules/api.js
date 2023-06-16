@@ -22,7 +22,7 @@ export default {
       component: () => import('@/business/automation/report/ApiReportView'),
     },
     {
-      path: 'automation/:versionId?/report/:redirectID?/:dataType?/:dataSelectRange',
+      path: 'automation/report/:versionId?/report/:redirectID?/:dataType?/:dataSelectRange',
       name: 'ApiReportListWithQuery',
       component: () => import('@/business/automation/report/ApiReportList'),
     },
