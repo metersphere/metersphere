@@ -18,36 +18,6 @@ public class TestPlanApiCaseService {
     @Resource
     TestPlanApiCaseMapper testPlanApiCaseMapper;
 
-    public void add(TestPlanApiCaseDTO testPlanApiCaseDTO) {
-        TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
-        BeanUtils.copyBean(testPlanApiCase, testPlanApiCaseDTO);
-        testPlanApiCase.setCreateTime(System.currentTimeMillis());
-        testPlanApiCase.setCreateUser("admin");
-        testPlanApiCaseMapper.insert(testPlanApiCase);
-    }
-
-    public void update(TestPlanApiCaseDTO testPlanApiCaseDTO) {
-        TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
-        BeanUtils.copyBean(testPlanApiCase, testPlanApiCaseDTO);
-        testPlanApiCaseMapper.updateByPrimaryKeySelective(testPlanApiCase);
-    }
-
-    public int delete(String id) {
-        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-        example.createCriteria().andIdEqualTo(id);
-        return testPlanApiCaseMapper.deleteByExample(example);
-    }
-
-    public TestPlanApiCaseDTO get(String id) {
-        TestPlanApiCaseDTO testPlanApiCaseDTO = new TestPlanApiCaseDTO();
-        TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(id);
-        if (testPlanApiCase == null) {
-            return null;
-        }
-        BeanUtils.copyBean(testPlanApiCaseDTO, testPlanApiCase);
-        return testPlanApiCaseDTO;
-    }
-
     public int deleteByTestPlanId(String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andTestPlanIdEqualTo(testPlanId);
