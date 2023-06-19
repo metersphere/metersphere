@@ -13,6 +13,7 @@ import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.service.TestResourcePoolService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +47,7 @@ public class TestResourcePoolController {
     @PostMapping("/update")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolDTO.id)", content = "#msClass.getLogDetails(#testResourcePoolDTO.id)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_EDIT)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_TEST_POOL_READ, PermissionConstants.WORKSPACE_QUOTA_READ_EDIT}, logical = Logical.OR)
     public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);
     }
@@ -54,7 +55,7 @@ public class TestResourcePoolController {
     @GetMapping("/update/{poolId}/{status}")
     @MsAuditLog(module = OperLogModule.SYSTEM_TEST_RESOURCE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#poolId)", content = "#msClass.getLogDetails(#poolId)", msClass = TestResourcePoolService.class)
     @CacheNode // 把监控节点缓存起来
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ_EDIT)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_TEST_POOL_READ, PermissionConstants.WORKSPACE_QUOTA_READ_EDIT}, logical = Logical.OR)
     public void updateTestResourcePoolStatus(@PathVariable String poolId, @PathVariable String status) {
         testResourcePoolService.updateTestResourcePoolStatus(poolId, status);
     }
@@ -65,14 +66,14 @@ public class TestResourcePoolController {
     }
 
     @PostMapping("list/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_TEST_POOL_READ, PermissionConstants.WORKSPACE_QUOTA_READ}, logical = Logical.OR)
     public Pager<List<TestResourcePoolDTO>> listResourcePools(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testResourcePoolService.listResourcePools(request));
     }
 
     @GetMapping("/list/quota/ws/valid/{workspaceId}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_POOL_READ)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_TEST_POOL_READ, PermissionConstants.WORKSPACE_QUOTA_READ}, logical = Logical.OR)
     public List<TestResourcePoolDTO> listWsValidQuotaResourcePools(@PathVariable String workspaceId) {
         return testResourcePoolService.listWsValidQuotaResourcePools(workspaceId);
     }

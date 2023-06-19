@@ -202,7 +202,8 @@ export default {
       selectDataCounts: 0,
       buttons: [
         {
-          name: this.$t('workspace.env_group.batch_add_to_ws'), handleClick: this.batchAddToGroup
+          name: this.$t('workspace.env_group.batch_add_to_ws'), handleClick: this.batchAddToGroup,
+          permissions: ['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT_GROUP'],
         },
       ],
       ifCreate: false, //是否是创建环境
@@ -486,7 +487,7 @@ export default {
         return false;
       }
       let map = new Map();
-      this.selectRow.forEach(row => {
+      this.selectRows.forEach(row => {
         map.set(row.projectId, row.id);
       })
       batchAddEnvGroup({map: strMapToObj(map), groupIds: value}).then(() => {
