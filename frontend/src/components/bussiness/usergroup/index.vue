@@ -49,7 +49,6 @@
   </div>
   <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
   <AddUserGroupModal :visible="addUserGroupVisible" @cancel="addUserGroupVisible = false" />
-  <DeleteUserGroupModal :visible="deleteUserGroupVisible" @cancel="deleteUserGroupVisible = false" />
 </template>
 
 <script lang="ts" setup>
@@ -60,20 +59,21 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';
   import AddUserGroupModal from './addUserGroupModal.vue';
-  import DeleteUserGroupModal from './deleteUserGroupModal.vue';
+  import useModal from '@/hooks/useModal';
+  import { Message } from '@arco-design/web-vue';
   import popconfirm from './popconfirm.vue';
   import useUserGroupStore from '@/store/modules/system/usergroup';
-  import { getUserGroupList, updateOrAddUserGroup } from '@/api/modules/system/usergroup';
+  import { getUserGroupList, updateOrAddUserGroup, deleteUserGroup } from '@/api/modules/system/usergroup';
 
   const { t } = useI18n();
 
   const searchKey = ref('');
   const store = useUserGroupStore();
+  const { openModal } = useModal();
   // 请求loading
   const currentId = ref('');
   const addUserVisible = ref(false);
   const addUserGroupVisible = ref(false);
-  const deleteUserGroupVisible = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
   // 用户组和权限范围的状态
@@ -119,8 +119,28 @@
         popDefaultName.value = tmpObj.scopeId;
       }
     } else {
-      // 删除用户组
-      deleteUserGroupVisible.value = true;
+      openModal({
+        type: 'warning',
+        title: t('system.userGroup.isDeleteUserGroup', { name: store.currentName }),
+        content: t('system.userGroup.beforeDeleteUserGroup'),
+        okText: t('system.userGroup.confirmDelete'),
+        cancelText: t('system.userGroup.cancel'),
+        okButtonProps: {
+          status: 'danger',
+        },
+        onBeforeOk: async () => {
+          try {
+            await deleteUserGroup(id);
+            Message.success(t('system.user.deleteUserSuccess'));
+            return true;
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+            return false;
+          }
+        },
+        hideCancel: false,
+      });
     }
   };
 
