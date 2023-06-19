@@ -93,7 +93,7 @@ public class WorkstationService {
         Map<String, Object> combine = new HashMap<>(2);
         Map<String, String> operatorValue = new HashMap<>(2);
         operatorValue.put("operator", "current user");
-        operatorValue.put("value", "current user");
+        operatorValue.put("value", userId);
         combine.put("creator", operatorValue);
         testPlanRequest.setCombine(combine);
         apiTestCaseRequest.setCombine(combine);
