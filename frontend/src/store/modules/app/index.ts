@@ -33,20 +33,6 @@ const useAppStore = defineStore('app', {
       // @ts-ignore-next-line
       this.$patch(partial);
     },
-
-    /**
-     * 切换暗黑模式
-     * @param dark 是否暗黑模式
-     */
-    toggleTheme(dark: boolean) {
-      if (dark) {
-        this.theme = 'dark';
-        document.body.setAttribute('MS-theme', 'dark');
-      } else {
-        this.theme = 'light';
-        document.body.removeAttribute('MS-theme');
-      }
-    },
     /**
      * 切换显示模式
      * @param device 显示模式：mobile | desktop
