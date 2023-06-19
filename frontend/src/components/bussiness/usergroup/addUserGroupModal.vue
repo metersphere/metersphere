@@ -21,21 +21,10 @@
           :label="t('system.userGroup.authScope')"
           :rules="[{ required: true, message: t('system.userGroup.authScopeIsNotNone') }]"
         >
-          <a-select
-            v-model="form.authScope"
-            :virtual-list-props="{ height: 200 }"
-            :placeholder="t('system.userGroup.pleaseSelectAuthScope')"
-            :options="authOptions"
-            :field-names="fieldNames"
-            @search="handleSearch"
-          >
-            <template #label="{ data }">
-              <span class="option-name"> {{ data.name }} </span>
-            </template>
-            <template #option="{ data }">
-              <span class="option-name"> {{ data.name }} </span>
-              <span class="option-email"> {{ `(${data.email})` }} </span>
-            </template>
+          <a-select v-model="form.authScope" :placeholder="t('system.userGroup.pleaseSelectAuthScope')">
+            <a-option value="SYSTEM">{{ t('system.userGroup.SYSTEM') }}</a-option>
+            <a-option value="ORGANIZATION">{{ t('system.userGroup.ORGANIZATION') }}</a-option>
+            <a-option value="PROJECT">{{ t('system.userGroup.PROJECT') }}</a-option>
           </a-select>
         </a-form-item>
       </a-form>
@@ -46,7 +35,6 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect } from 'vue';
-  import { UserOption } from './type';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -61,36 +49,9 @@
     name: '',
     authScope: '',
   });
-  const allOption: UserOption[] = [
-    { id: 1, name: 'llb', email: 'name@163.com' },
-    {
-      id: 2,
-      name: 'rubyliu',
-      email: 'rubyliu@163.com',
-    },
-    {
-      id: 3,
-      name: 'jack',
-      email: 'jack@163.com',
-    },
-  ];
-  const authOptions = ref<UserOption[]>(allOption);
 
-  const loading = ref(false);
-
-  const fieldNames = { value: 'id', label: 'name' };
   const currentVisible = ref(props.visible);
-  const handleSearch = (value: string) => {
-    if (value) {
-      loading.value = true;
-      window.setTimeout(() => {
-        authOptions.value = authOptions.value.filter((item) => item.name.includes(value));
-        loading.value = false;
-      }, 60);
-    } else {
-      authOptions.value = allOption;
-    }
-  };
+
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
