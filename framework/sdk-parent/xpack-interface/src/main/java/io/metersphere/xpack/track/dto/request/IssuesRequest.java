@@ -58,7 +58,7 @@ public class IssuesRequest extends BaseQueryRequest {
     private List<String> exportIds;
 
     /**
-     * 本周测试计划遗留缺陷
+     * 本周测试计划关联缺陷
      */
     private Boolean thisWeekUnClosedTestPlanIssue = false;
     /**
