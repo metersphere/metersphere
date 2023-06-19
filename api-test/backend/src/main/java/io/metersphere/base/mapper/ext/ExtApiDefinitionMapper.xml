@@ -152,6 +152,7 @@
                 <property name="object" value="${condition}.followPeople"/>
             </include>
             )
+            and api_definition.`status` != 'Trash'
         </if>
         <if test="${condition}.updateTime != null">
             and api_definition.update_time
