@@ -30,7 +30,7 @@ public class EnvironmentGroupController {
     }
 
     @PostMapping("/batch/add")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_CREATE)
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_GROUP_EDIT)
     public void batchAdd(@RequestBody EnvironmentGroupRequest request) {
         environmentGroupService.batchAdd(request);
     }

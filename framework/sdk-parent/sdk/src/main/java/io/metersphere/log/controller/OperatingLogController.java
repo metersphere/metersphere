@@ -31,7 +31,7 @@ public class OperatingLogController {
     }
 
     @GetMapping("/get/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_OPERATING_LOG_READ)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_OPERATING_LOG_READ, PermissionConstants.WORKSPACE_OPERATING_LOG_READ}, logical = Logical.OR)
     public OperatingLogDTO get(@PathVariable String id) {
         return operatingLogService.get(id);
     }
