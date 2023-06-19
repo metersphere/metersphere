@@ -37,20 +37,17 @@ public class ApiScenarioReportController {
     private ShareInfoService shareInfoService;
 
     @GetMapping("/get/{reportId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult get(@PathVariable String reportId) {
         return apiReportService.get(reportId, false);
     }
 
     @GetMapping("/get/{shareId}/{reportId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult get(@PathVariable String shareId, @PathVariable String reportId) {
         shareInfoService.validateExpired(shareId);
         return apiReportService.get(reportId, false);
     }
 
     @GetMapping("/get/detail/{reportId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public ApiScenarioReportResult getAll(@PathVariable String reportId) {
         return apiReportService.get(reportId, true);
     }
