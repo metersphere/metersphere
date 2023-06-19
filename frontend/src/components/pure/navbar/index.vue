@@ -36,18 +36,6 @@
         </a-dropdown>
       </li>
       <li>
-        <a-tooltip
-          :content="theme === 'light' ? $t('settings.navbar.theme.toDark') : $t('settings.navbar.theme.toLight')"
-        >
-          <a-button class="nav-btn" type="outline" :shape="'circle'" @click="handleToggleTheme">
-            <template #icon>
-              <icon-moon-fill v-if="theme === 'dark'" />
-              <icon-sun-fill v-else />
-            </template>
-          </a-button>
-        </a-tooltip>
-      </li>
-      <li>
         <a-tooltip :content="$t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="9" dot>
@@ -157,21 +145,6 @@
     return appStore.theme;
   });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
-  const isDark = useDark({
-    selector: 'body',
-    attribute: 'MS-theme',
-    valueDark: 'dark',
-    valueLight: 'light',
-    storageKey: 'MS-theme',
-    onChanged(dark: boolean) {
-      // overridden default behavior
-      appStore.toggleTheme(dark);
-    },
-  });
-  const toggleTheme = useToggle(isDark);
-  const handleToggleTheme = () => {
-    toggleTheme();
-  };
   // const setVisible = () => {
   //   appStore.updateSettings({ globalSettings: true });
   // };
