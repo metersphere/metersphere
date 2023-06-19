@@ -71,7 +71,7 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/add")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_CREATE, PermissionConstants.PROJECT_ENVIRONMENT_READ_COPY}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_CREATE, PermissionConstants.PROJECT_ENVIRONMENT_READ_COPY, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_CREATE, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_COPY}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.PROJECT_ENVIRONMENT_SETTING, type = OperLogConstants.CREATE, title = "#apiTestEnvironmentWithBLOBs.name", project = "#apiTestEnvironmentWithBLOBs.projectId", msClass = BaseEnvironmentService.class)
     public String create(@RequestPart("request") TestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files", required = false) List<MultipartFile> sslFiles, @RequestPart(value = "variablesFiles", required = false) List<MultipartFile> variableFile) {
         checkParams(apiTestEnvironmentWithBLOBs);
@@ -79,7 +79,7 @@ public class TestEnvironmentController {
     }
 
     @PostMapping("/import")
-    @RequiresPermissions("PROJECT_ENVIRONMENT:READ+IMPORT")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_ENVIRONMENT_READ_IMPORT, PermissionConstants.WORKSPACE_PROJECT_ENVIRONMENT_READ_IMPORT}, logical = Logical.OR)
     public String create(@RequestBody List<TestEnvironmentDTO> environments) {
         environments.forEach(this::checkParams);
         return baseEnvironmentService.importEnvironment(environments);
