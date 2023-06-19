@@ -70,3 +70,14 @@ export enum SelectAllEnum {
 export interface SortItem {
   [key: string]: string;
 }
+
+export interface BatchActionParams {
+  label?: string;
+  eventTag?: string;
+  isDivider?: boolean;
+  danger?: boolean;
+}
+export interface BatchActionConfig {
+  baseAction: BatchActionParams[];
+  moreAction?: BatchActionParams[];
+}

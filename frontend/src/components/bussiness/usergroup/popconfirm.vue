@@ -3,21 +3,23 @@
     :popup-visible="renameVisible"
     :ok-text="t('system.userGroup.confirm')"
     :cancel-text="t('system.userGroup.cancel')"
-    :blur-to-close="false"
-    :click-to-close="false"
-    :click-outside-to-close="false"
-    @ok="handleSubmit('rename')"
-    @cancel="handleRenameCancel"
+    @ok="handleSubmit"
+    @cancel="handleCancel"
     @popup-visible-change="() => (form.name = '')"
   >
     <template #icon>{{ null }}</template>
     <template #content>
-      <a-form :model="form" :label-col-props="{ span: 0 }" :wrapper-col-props="{ span: 24 }">
+      <a-form ref="formRef" :model="form" :label-col-props="{ span: 0 }" :wrapper-col-props="{ span: 24 }">
         <a-form-item>
           <div class="title">{{ message.title }}</div>
         </a-form-item>
-        <a-form-item field="name" :rules="[{ required: true, message: message.rule }]">
-          <a-input v-model="form.name" />
+        <a-form-item field="name" :rules="[{ validator: validateName }]">
+          <a-input v-if="props.type === 'rename'" v-model="form.name" />
+          <a-select v-else v-model="form.name" class="w-[176px]">
+            <a-option value="SYSTEM">{{ t('system.userGroup.SYSTEM') }}</a-option>
+            <a-option value="ORGANIZATION">{{ t('system.userGroup.ORGANIZATION') }}</a-option>
+            <a-option value="PROJECT">{{ t('system.userGroup.PROJECT') }}</a-option>
+          </a-select>
         </a-form-item>
       </a-form>
     </template>
@@ -27,19 +29,47 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { watchEffect, reactive, ref, computed } from 'vue';
-  import { CustomMoreActionItem, RenameType } from './type';
+  import { watchEffect, reactive, ref, computed, onUnmounted } from 'vue';
+  import { CustomMoreActionItem, RenameType, UserGroupItem } from './type';
+  import { ValidatedError } from '@arco-design/web-vue';
+  import useUserGroupStore from '@/store/modules/system/usergroup';
 
   const { t } = useI18n();
+  const formRef = ref();
   const form = reactive({
     name: '',
   });
+
+  const store = useUserGroupStore();
 
   const props = defineProps<{
     visible: boolean;
     defaultName: string;
     type: RenameType;
+    list: UserGroupItem[];
   }>();
+
+  const validateName = (value: string, callback: (error?: string) => void) => {
+    if (props.type === 'rename') {
+      if (value === '') {
+        callback(t('system.userGroup.userGroupNameIsNotNone'));
+      } else {
+        if (value === props.defaultName) {
+          callback();
+        } else {
+          const isExist = props.list.some((item) => item.name === value);
+          if (isExist) {
+            callback(t('system.userGroup.userGroupNameIsExist', { name: value }));
+          }
+        }
+        callback();
+      }
+    } else if (value === '') {
+      callback(t('system.userGroup.userGroupAuthScopeIsNotNone'));
+    } else {
+      callback();
+    }
+  };
 
   const message = computed(() => {
     if (props.type === 'rename') {
@@ -55,21 +85,30 @@
   });
 
   const emit = defineEmits<{
-    (e: 'submit', value: CustomMoreActionItem): void;
+    (e: 'submit', value: CustomMoreActionItem): Promise<void>;
+    (e: 'cancel'): void;
   }>();
 
   const renameVisible = ref(props.visible);
 
-  const handleSubmit = (type: string) => {
-    // eslint-disable-next-line no-console
-    emit('submit', { eventKey: type, name: form.name });
+  const handleSubmit = () => {
+    formRef.value.validate((errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        emit('submit', { eventKey: props.type, name: form.name });
+      }
+    });
   };
-  const handleRenameCancel = () => {
+  const handleCancel = () => {
     form.name = '';
+    emit('cancel');
   };
   watchEffect(() => {
     renameVisible.value = props.visible;
     form.name = props.defaultName;
+  });
+
+  onUnmounted(() => {
+    handleCancel();
   });
 </script>
 
