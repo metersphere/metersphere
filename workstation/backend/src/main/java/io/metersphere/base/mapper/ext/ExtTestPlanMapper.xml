@@ -219,6 +219,7 @@
         select COUNT(DISTINCT(test_plan.id)) from test_plan
         left join test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
         left join test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+        left join test_case on test_case.id = test_plan_test_case.case_id
         where
         test_plan.project_id in
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
@@ -233,6 +234,7 @@
         and
         test_plan_test_case.status in ('Prepare','Underway')
         ))
-        and (test_plan.status is null or test_plan.status != 'Trash');
+        and (test_plan.status is null or test_plan.status != 'Trash')
+        and (test_case.status is null or test_case.status != 'Trash');
     </select>
 </mapper>
