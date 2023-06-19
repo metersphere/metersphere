@@ -138,10 +138,6 @@ export default {
           value: 'projectId',
         },
         {
-          label: this.$t('commons.execution_times'),
-          value: 'executionTimes',
-        },
-        {
           label: this.$t('test_track.automatic_status_update'),
           value: 'automaticStatusUpdate',
         },
