@@ -5,6 +5,7 @@ const useUserGroupStore = defineStore('userGroup', {
   state: (): UserGroupState => ({
     currentName: '',
     currentTitle: '',
+    currentId: '',
   }),
   getters: {
     userGroupInfo(state: UserGroupState): UserGroupState {

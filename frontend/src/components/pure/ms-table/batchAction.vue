@@ -1,19 +1,29 @@
 <template>
-  <div class="ms-table__patch-action">
+  <div v-if="props.actionConfig" class="ms-table__patch-action">
     <span class="title">{{ t('msTable.batch.selected', { count: props.selectRowCount }) }}</span>
-    <a-button class="ml-4" type="outline" @click="emit('batchExport')">{{ t('msTable.batch.export') }}</a-button>
-    <a-button class="ml-3" type="outline" @click="emit('batchEdit')">{{ t('msTable.batch.edit') }}</a-button>
-    <a-button class="ml-3" type="outline" @click="emit('batchMoveTo')">{{ t('msTable.batch.moveTo') }}</a-button>
-    <a-button class="ml-3" type="outline" @click="emit('batchCopyTo')">{{ t('msTable.batch.copyTo') }}</a-button>
-    <div class="relative top-[2px] ml-3 inline-block">
+    <template v-for="element in props.actionConfig.baseAction" :key="element.label">
+      <a-divider v-if="element.isDivider" class="mx-0 my-[6px]" />
+      <a-button
+        v-else
+        :class="{
+          'delete': element.danger,
+          'ml-4': true,
+        }"
+        type="outline"
+        @click="emit('batchAction', element)"
+        >{{ t(element.label as string) }}</a-button
+      >
+    </template>
+    <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-3 inline-block">
       <a-dropdown position="tr">
         <a-button type="outline"><a-icon-more /></a-button>
         <template #content>
-          <a-doption @click="emit('batchRelated')">{{ t('msTable.batch.related') }}</a-doption>
-          <a-doption @click="emit('batchGenerate')">{{ t('msTable.batch.generateDep') }}</a-doption>
-          <a-doption @click="emit('batchAddTo')">{{ t('msTable.batch.addPublic') }}</a-doption>
-          <a-divider margin="0" />
-          <a-doption class="delete" @click="emit('batchExport')">{{ t('msTable.batch.delete') }}</a-doption>
+          <template v-for="element in props.actionConfig.moreAction" :key="element.label">
+            <a-divider v-if="element.isDivider" margin="0" />
+            <a-doption v-else :value="element" :class="{ delete: element.danger }">{{
+              t(element.label as string)
+            }}</a-doption>
+          </template>
         </template>
       </a-dropdown>
     </div>
@@ -23,22 +33,15 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
+  import { BatchActionConfig, BatchActionParams } from './type';
 
   const { t } = useI18n();
-  const props = defineProps({
-    selectRowCount: {
-      type: Number,
-    },
-  });
+  const props = defineProps<{
+    selectRowCount?: number;
+    actionConfig?: BatchActionConfig;
+  }>();
   const emit = defineEmits<{
-    (e: 'batchExport'): void;
-    (e: 'batchEdit'): void;
-    (e: 'batchMoveTo'): void;
-    (e: 'batchCopyTo'): void;
-    (e: 'batchRelated'): void;
-    (e: 'batchGenerate'): void;
-    (e: 'batchAddTo'): void;
-    (e: 'batchDelete'): void;
+    (e: 'batchAction', value: BatchActionParams): void;
     (e: 'clear'): void;
   }>();
 </script>

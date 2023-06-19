@@ -17,17 +17,11 @@
         <slot :name="key" v-bind="{ rowIndex, record, column }"></slot>
       </template>
     </a-table>
-    <div v-if="selectCurrent > 0" class="mt-[21px]">
+    <div v-if="selectCurrent > 0 && attrs.showSelectAll" class="mt-[21px]">
       <batch-action
         :select-row-count="selectCurrent"
-        @batch-export="emit('batchExport')"
-        @batch-edit="emit('batchEdit')"
-        @batch-move="emit('batchMoveTo')"
-        @batch-copy="emit('batchCopyTo')"
-        @batch-related="emit('batchRelated')"
-        @batch-generate="emit('batchGenerate')"
-        @batch-add-public="emit('batchAddPublic')"
-        @batch-delete="emit('batchDelete')"
+        :action-config="props.actionConfig"
+        @batch-action="(item: BatchActionParams) => emit('batchAction', item)"
         @clear="selectionChange([], true)"
       />
     </div>
@@ -37,28 +31,19 @@
 <script lang="ts" setup>
   import { useSlots, useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
-  import { MsTableProps, SelectAllEnum, MsPaginationI } from './type';
+  import { MsTableProps, SelectAllEnum, MsPaginationI, BatchActionParams, BatchActionConfig } from './type';
   import BatchAction from './batchAction.vue';
 
   import type { TableData } from '@arco-design/web-vue';
 
   const batchleft = ref('10px');
-  const props = defineProps({
-    selectedKeys: {
-      type: Array as unknown as () => (string | number)[],
-      default: () => [],
-    },
-  });
+  const props = defineProps<{
+    selectedKeys?: (string | number)[];
+    actionConfig?: BatchActionConfig;
+  }>();
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
-    (e: 'batchExport'): void;
-    (e: 'batchEdit'): void;
-    (e: 'batchMoveTo'): void;
-    (e: 'batchCopyTo'): void;
-    (e: 'batchRelated'): void;
-    (e: 'batchGenerate'): void;
-    (e: 'batchAddPublic'): void;
-    (e: 'batchDelete'): void;
+    (e: 'batchAction', value: BatchActionParams): void;
   }>();
   const isSelectAll = ref(false);
   // 全选按钮-当前的条数

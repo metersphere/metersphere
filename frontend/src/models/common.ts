@@ -22,8 +22,7 @@ export interface TableQueryParams {
   keyword?: string;
   [key: string]: any;
 }
-
-export interface TableResult<T> {
+export interface CommonList<T> {
   [x: string]: any;
   pageSize: number;
   total: number;

@@ -13,7 +13,7 @@
       </div>
       <div>
         <div
-          v-for="element in customList"
+          v-for="element in userGroupList"
           :key="element.id"
           :class="{
             'flex': true,
@@ -28,13 +28,15 @@
             :visible="popVisible[element.id]"
             :type="popType"
             :default-name="popDefaultName"
+            :list="userGroupList"
             position="bl"
             @cancel="() => handlePopConfirmCancel(element.id)"
+            @submit="(value: CustomMoreActionItem) => handlePopConfirmSubmit(value,element.id)"
           >
             <div class="draglist-item flex grow flex-row justify-between">
               <div class="usergroup-title leading-[24px]">
                 <span class="n1">{{ element.name }}</span>
-                <span v-if="element.title" class="n4">{{ `（${element.title}）` }}</span>
+                <span v-if="element.type" class="n4">（{{ t(`system.userGroup.${element.type}`) }}）</span>
               </div>
               <div v-if="element.id === currentId">
                 <MsTableMoreAction :list="customAction" @select="(value) => handleMoreAction(value, element.id)" />
@@ -47,43 +49,38 @@
   </div>
   <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
   <AddUserGroupModal :visible="addUserGroupVisible" @cancel="addUserGroupVisible = false" />
+  <DeleteUserGroupModal :visible="deleteUserGroupVisible" @cancel="deleteUserGroupVisible = false" />
 </template>
 
 <script lang="ts" setup>
-  import { ref, onBeforeMount } from 'vue';
+  import { ref, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { PopVisibleItem, RenameType, UserGroupListItem } from './type';
+  import { CustomMoreActionItem, PopVisibleItem, RenameType, UserGroupItem } from './type';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';
   import AddUserGroupModal from './addUserGroupModal.vue';
+  import DeleteUserGroupModal from './deleteUserGroupModal.vue';
   import popconfirm from './popconfirm.vue';
   import useUserGroupStore from '@/store/modules/system/usergroup';
+  import { getUserGroupList, updateOrAddUserGroup } from '@/api/modules/system/usergroup';
 
   const { t } = useI18n();
 
   const searchKey = ref('');
   const store = useUserGroupStore();
   // 请求loading
-  const currentId = ref(0);
+  const currentId = ref('');
   const addUserVisible = ref(false);
   const addUserGroupVisible = ref(false);
+  const deleteUserGroupVisible = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
   // 用户组和权限范围的状态
   const popType = ref<RenameType>('rename');
   const popDefaultName = ref('');
   // 用户列表
-  const customList = ref<UserGroupListItem[]>([
-    { name: '系统管理员', title: '', id: 1, authScope: 'system' },
-    { name: '系统成员', title: '', id: 2, authScope: 'system' },
-    { name: '组织管理员', title: '', id: 3, authScope: 'system' },
-    { name: '组织成员', title: '', id: 4, authScope: 'system' },
-    { name: '项目管理员', title: '', id: 5, authScope: 'system' },
-    { name: '项目成员', title: '', id: 6, authScope: 'system' },
-    { name: '自定义用户组1', title: '项目', id: 7, authScope: 'project' },
-    { name: '自定义用户组2', title: '组织', id: 8, authScope: 'oraganation' },
-  ]);
+  const userGroupList = ref<UserGroupItem[]>([]);
 
   const customAction: ActionsItem[] = [
     {
@@ -105,44 +102,99 @@
       eventTag: 'delete',
     },
   ];
-
+  // 新增用户组
   const addUserGroup = () => {
     // eslint-disable-next-line no-console
     addUserGroupVisible.value = true;
   };
-
-  function searchData(keyword: string) {
-    // eslint-disable-next-line no-console
-    console.log(keyword);
-  }
-
-  const handleMoreAction = (item: ActionsItem, id: number) => {
+  // 点击更多操作
+  const handleMoreAction = (item: ActionsItem, id: string) => {
     if (item.eventTag !== 'delete') {
       popType.value = item.eventTag as RenameType;
-      const tmpObj = customList.value.filter((ele) => ele.id === id)[0];
+      const tmpObj = userGroupList.value.filter((ele) => ele.id === id)[0];
       popVisible.value = { ...popVisible.value, [id]: true };
       if (item.eventTag === 'rename') {
         popDefaultName.value = tmpObj.name;
       } else {
-        popDefaultName.value = tmpObj.authScope;
+        popDefaultName.value = tmpObj.scopeId;
       }
+    } else {
+      // 删除用户组
+      deleteUserGroupVisible.value = true;
     }
   };
-  const handlePopConfirmCancel = (id: number) => {
+
+  // 点击用户组列表
+  const handleListItemClick = (element: UserGroupItem) => {
+    const { id, name, type } = element;
+    currentId.value = id;
+    store.setInfo({ currentName: name, currentTitle: type });
+  };
+
+  // 用户组数据初始化
+  const initData = async () => {
+    try {
+      const res = await getUserGroupList();
+      if (res.length > 0) {
+        userGroupList.value = res;
+        handleListItemClick(res[0]);
+        // 弹窗赋值
+        const tmpObj: PopVisibleItem = {};
+        res.forEach((element) => {
+          tmpObj[element.id] = false;
+        });
+        popVisible.value = tmpObj;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
+  // 关闭confirm 弹窗
+  const handlePopConfirmCancel = (id: string) => {
     popVisible.value = { ...popVisible.value, [id]: false };
   };
-  onBeforeMount(() => {
-    const tmpObj: PopVisibleItem = {};
-    customList.value.forEach((element) => {
-      tmpObj[element.id] = false;
-    });
-    popVisible.value = tmpObj;
-  });
-  const handleListItemClick = (element: UserGroupListItem) => {
-    const { id, name, title } = element;
-    currentId.value = id;
-    store.setInfo({ currentName: name, currentTitle: title });
+  // 修改用户组名字，权限范围
+  const handlePopConfirmSubmit = async (item: CustomMoreActionItem, id: string) => {
+    popVisible.value = { ...popVisible.value, [id]: false };
+    if (item.eventKey === 'rename') {
+      // 修改用户组名字
+      try {
+        const res = await updateOrAddUserGroup({ id, name: item.name });
+        if (res) {
+          initData();
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    } else {
+      // 修改权限范围
+      try {
+        const res = await updateOrAddUserGroup({ id, scopeId: item.name });
+        if (res) {
+          initData();
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    }
+    initData();
   };
+
+  function searchData(eve: Event) {
+    if (!(eve.target as HTMLInputElement).value) {
+      initData();
+      return;
+    }
+    const keyword = (eve.target as HTMLInputElement).value;
+    const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
+    userGroupList.value = tmpArr;
+  }
+  onMounted(() => {
+    initData();
+  });
 </script>
 
 <style scoped lang="less">

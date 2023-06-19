@@ -1,4 +1,4 @@
-export interface ListItemI {
+export interface APIListItemI {
   id: number;
   type: string;
   receiver: string;
@@ -18,11 +18,4 @@ export interface SortItem {
 }
 export interface FilterItem {
   [key: string]: any;
-}
-export interface CommonList {
-  [x: string]: any;
-  pageSize: number;
-  total: number;
-  current: number;
-  list: ListItemI;
 }

@@ -3,8 +3,8 @@
     <div class="user-group-left">
       <UserGroupLeft />
     </div>
-    <div class="grow-1 overflow-x-scroll p-[24px]">
-      <div class="flex flex-row items-center justify-between">
+    <div class="grow-1 w-[100%] overflow-x-scroll p-[24px]">
+      <div class="grow-1 flex flex-row items-center justify-between">
         <div class="title">{{ store.userGroupInfo.currentName }}</div>
         <div class="flex items-center">
           <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlacehoder')">
@@ -18,7 +18,7 @@
           </a-radio-group>
         </div>
       </div>
-      <div class="mt-[16px]">
+      <div class="grow-1 mt-[16px]">
         <user-table v-if="currentTable === 'user'" />
         <auth-table v-if="currentTable === 'auth'" />
       </div>

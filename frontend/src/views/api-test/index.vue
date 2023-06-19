@@ -1,6 +1,6 @@
 <template>
   <div class="h-[100vh] bg-white px-[20px] py-[16px] pb-0">
-    <ms-base-table v-bind="propsRes" v-on="propsEvent"> </ms-base-table>
+    <ms-base-table v-bind="propsRes" :action-config="actionConfig" v-on="propsEvent"> </ms-base-table>
   </div>
   <a-divider />
 </template>
@@ -8,7 +8,7 @@
 <script lang="ts" setup>
   import { onMounted } from 'vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { BatchActionConfig, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { getTableList } from '@/api/modules/api-test/index';
 
@@ -91,6 +91,64 @@
       width: 200,
     },
   ];
+
+  const actionConfig: BatchActionConfig = {
+    baseAction: [
+      {
+        label: 'msTable.batch.export',
+        eventTag: 'batchExport',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        label: 'msTable.batch.edit',
+        eventTag: 'batchEdit',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        label: 'msTable.batch.moveTo',
+        eventTag: 'batchMoveTo',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        label: 'msTable.batch.copyTo',
+        eventTag: 'batchCopyTo',
+        isDivider: false,
+        danger: false,
+      },
+    ],
+    moreAction: [
+      {
+        label: 'msTable.batch.related',
+        eventTag: 'batchRelated',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        label: 'msTable.batch.generateDep',
+        eventTag: 'batchGenerate',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        label: 'msTable.batch.addPublic',
+        eventTag: 'batchAddTo',
+        isDivider: false,
+        danger: false,
+      },
+      {
+        isDivider: true,
+      },
+      {
+        label: 'msTable.batch.delete',
+        eventTag: 'batchDelete',
+        isDivider: false,
+        danger: true,
+      },
+    ],
+  };
 
   const { propsRes, propsEvent, loadList } = useTable(getTableList, {
     columns,
