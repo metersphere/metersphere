@@ -1,9 +1,9 @@
 import MSR from '@/api/http/index';
 import { GetApiTestList, GetApiTestListUrl } from '@/api/requrls/api-test';
-import { QueryParams } from '@/models/common';
+import { TableQueryParams } from '@/models/common';
 import { CommonList } from '@/models/api-test';
 
-export function getTableList(params: QueryParams) {
+export function getTableList(params: TableQueryParams) {
   const { current, pageSize, sort, filter, keyword } = params;
   return MSR.post<CommonList>({
     url: GetApiTestList,

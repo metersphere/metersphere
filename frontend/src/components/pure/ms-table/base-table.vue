@@ -129,7 +129,7 @@
   };
 
   function getRowClass(record: TableData) {
-    if (record.disabled) {
+    if (!record.raw.enable) {
       return 'ms-table-row-disabled';
     }
   }
