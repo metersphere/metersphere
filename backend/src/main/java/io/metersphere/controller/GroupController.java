@@ -157,6 +157,7 @@ public class GroupController {
     }
 
     @PostMapping("/add/member")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_GROUP_READ_CREATE, PermissionConstants.PROJECT_GROUP_READ_CREATE}, logical = Logical.OR)
     public void addGroupUser(@RequestBody EditGroupUserRequest request) {
         groupService.addGroupUser(request);
     }
