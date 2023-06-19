@@ -413,11 +413,42 @@
         (select name from user where user.id = test_plan.creator) as userName
         from test_plan
         JOIN project on project.id = test_plan.project_id
+        <if test="request.executorOrPrincipal != null">
+            LEFT JOIN test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
+            LEFT JOIN test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+        </if>
         <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and test_plan.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.workspaceId != null">
+                AND test_plan.workspace_id = #{request.workspaceId}
+            </if>
             <if test="request.projectId != null">
                 AND test_plan.project_id = #{request.projectId}
             </if>
+            <if test="request.id != null">
+                AND test_plan.id = #{request.id}
+            </if>
+            <include refid="filter"/>
+            <if test="(request.filters == null or request.filters.size() == 0) and request.byFilter != true ">
+                and test_plan.status != 'Archived'
+            </if>
         </where>
+
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_plan.${order.name} ${order.type}
+            </foreach>
+        </if>
     </select>
     <update id="updateStatusAndActStartTimeAndSetActEndTimeNullById">
         update test_plan
