@@ -13,10 +13,9 @@
   }
 }
 .ms-table-row-disabled {
-  td:not(.arco-table-col-fixed-right),
+  td:not(.arco-table-col-fixed-right, .arco-table-checkbox),
   &:hover,
-  td:not(.arco-table-col-fixed-right)::before,
-  .arco-checkbox-icon,
+  td:not(.arco-table-col-fixed-right, .arco-table-checkbox)::before,
   .arco-tag {
     color: var(--color-text-4);
     background-color: var(--color-text-n8) !important;
@@ -121,7 +120,7 @@
     background-color: rgb(var(--danger-2)) !important;
   }
 }
-.arco-btn-secondary {
+.arco-btn-secondary:not(.arco-btn-disabled) {
   color: var(--clolor-text-1) !important;
   background-color: var(--color-text-n8) !important;
   &:not(:disabled):hover {
@@ -274,4 +273,65 @@
 }
 .arco-popover-content {
   font-size: 12px;
+}
+
+/** 链接 **/
+.arco-link-status-normal {
+  color: rgb(var(--primary-5)) !important;
+  &:not(:disabled):hover {
+    color: rgb(var(--primary-4)) !important;
+    background-color: rgb(var(--color-text-n9));
+  }
+  &:not(:disabled):active {
+    color: rgb(var(--primary-7)) !important;
+  }
+  &:disabled {
+    color: rgb(var(--primary-3)) !important;
+  }
+}
+
+/** 穿梭框 **/
+.arco-transfer {
+  @apply grid;
+
+  grid-template-columns: 4fr 1fr 4fr;
+  .arco-transfer-view {
+    @apply w-auto;
+
+    height: 370px;
+    .arco-transfer-view-header {
+      @apply bg-white;
+    }
+  }
+  .arco-transfer-operations {
+    .arco-btn-secondary {
+      border-color: rgb(var(--primary-5));
+      border-radius: var(--border-radius-small);
+      background-color: rgb(var(--primary-1)) !important;
+      .arco-btn-icon {
+        color: rgb(var(--primary-5));
+      }
+      &:disabled {
+        border-color: var(--color-text-input-border) !important;
+        background-color: var(--color-text-n8) !important;
+        .arco-btn-icon {
+          color: var(--color-text-4);
+        }
+      }
+      &:not(:disabled):hover {
+        border-color: rgb(var(--primary-4)) !important;
+        background-color: rgb(var(--primary-1)) !important;
+        .arco-btn-icon {
+          color: rgb(var(--primary-7));
+        }
+      }
+      &:not(:disabled):active {
+        border-color: rgb(var(--primary-7)) !important;
+        background-color: rgb(var(--primary-9)) !important;
+        .arco-btn-icon {
+          color: rgb(var(--primary-7));
+        }
+      }
+    }
+  }
 }

@@ -2,7 +2,7 @@
   <div class="p-6">
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="showUserModal('batch')">{{
+        <a-button class="mr-3" type="primary" @click="showUserModal('create')">{{
           t('system.user.createUser')
         }}</a-button>
         <a-button class="mr-3" type="outline" @click="showEmailInviteModal">{{
@@ -10,18 +10,68 @@
         }}</a-button>
         <a-button class="mr-3" type="outline" @click="showImportModal">{{ t('system.user.importUser') }}</a-button>
       </div>
-      <div>
-        <a-input-search
-          :placeholder="t('system.user.searchUser')"
-          class="w-[230px]"
-          @search="searchUser"
-        ></a-input-search>
-      </div>
+      <a-input-search
+        :placeholder="t('system.user.searchUser')"
+        class="w-[230px]"
+        @search="searchUser"
+      ></a-input-search>
     </div>
-    <ms-base-table v-bind="propsRes" v-on="propsEvent">
+    <ms-base-table
+      v-bind="propsRes"
+      :action-config="tableBatchActions"
+      v-on="propsEvent"
+      @selected-change="handleTableSelect"
+      @batch-action="handelTableBatch"
+    >
+      <template #organization="{ record }">
+        <a-tag
+          v-for="org of record.organizationList.slice(0, 2)"
+          :key="org.id"
+          class="mr-[4px] bg-transparent"
+          bordered
+        >
+          {{ org.name }}
+        </a-tag>
+        <a-tag v-show="record.organizationList.length > 2" class="mr-[4px] bg-transparent" bordered>
+          +{{ record.organizationList.length - 2 }}
+        </a-tag>
+      </template>
+      <template #userRole="{ record }">
+        <a-tag
+          v-for="org of record.userRoleList.slice(0, 2)"
+          :key="org.id"
+          class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+          bordered
+        >
+          {{ org.name }}
+        </a-tag>
+        <a-tag
+          v-show="record.organizationList.length > 2"
+          class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+          bordered
+        >
+          +{{ record.organizationList.length - 2 }}
+        </a-tag>
+      </template>
+      <template #enable="{ record }">
+        <div v-if="record.enable" class="flex items-center">
+          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+          {{ t('system.user.tableEnable') }}
+        </div>
+        <div v-else class="flex items-center text-[var(--color-text-4)]">
+          <icon-stop class="mr-[2px]" />
+          {{ t('system.user.tableDisable') }}
+        </div>
+      </template>
       <template #action="{ record }">
-        <MsButton @click="showUserModal('edit')">{{ t('system.user.editUser') }}</MsButton>
-        <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+        <template v-if="!record.enable">
+          <MsButton @click="enableUser(record)">{{ t('system.user.enable') }}</MsButton>
+          <MsButton @click="deleteUser(record)">{{ t('system.user.delete') }}</MsButton>
+        </template>
+        <template v-else>
+          <MsButton @click="showUserModal('edit', record)">{{ t('system.user.editUser') }}</MsButton>
+          <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+        </template>
       </template>
     </ms-base-table>
     <a-modal
@@ -102,7 +152,7 @@
               </template>
             </div>
           </a-scrollbar>
-          <div class="w-full">
+          <div v-if="userFormMode === 'create'" class="w-full">
             <a-button class="px-0" type="text" @click="addUserField">
               <template #icon>
                 <icon-plus class="text-[14px]" />
@@ -124,7 +174,7 @@
       </a-form>
       <template #footer>
         <a-button type="secondary" @click="cancelCreate">{{ t('system.user.editUserModalCancelCreate') }}</a-button>
-        <a-button v-if="userFormMode === 'batch'" type="secondary" @click="saveAndContinue">{{
+        <a-button v-if="userFormMode === 'create'" type="secondary" @click="saveAndContinue">{{
           t('system.user.editUserModalSaveAndContinue')
         }}</a-button>
         <a-button type="primary" @click="beforeCreateUser">{{
@@ -187,26 +237,90 @@
           </div>
         </template>
       </a-upload>
+      <template #footer>
+        <a-button type="secondary" @click="cancelImport">{{ t('system.user.importModalCancel') }}</a-button>
+        <a-button type="primary" @click="importUser">
+          {{ t('system.user.importModalConfirm') }}
+        </a-button>
+      </template>
     </a-modal>
+    <a-modal v-model:visible="importResultVisible" title-align="start" class="ms-modal-upload">
+      <template #title>
+        <icon-exclamation-circle-fill
+          v-if="importResult === 'fail'"
+          class="mr-[8px] text-[20px] text-[rgb(var(--warning-6))]"
+        />
+        <icon-close-circle-fill
+          v-if="importResult === 'allFail'"
+          class="mr-[8px] text-[20px] text-[rgb(var(--danger-6))]"
+        />
+        {{ importResultTitle }}
+      </template>
+      <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
+        <icon-check-circle-fill class="text-[32px] text-[rgb(var(--success-6))]" />
+        <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">{{
+          t('system.user.importSuccess')
+        }}</div>
+        <div class="sub-text">{{
+          `${t('system.user.importResultContentStart')} ${importSuccessCount} ${t(
+            'system.user.importResultContentEnd'
+          )}`
+        }}</div>
+      </div>
+      <template v-else>
+        <div>{{
+          `${t('system.user.importResultContentStart')} ${importSuccessCount} ${t(
+            'system.user.importResultContentCenter'
+          )} ${importFailCount} ${t('system.user.importResultContentEnd')};`
+        }}</div>
+        <div
+          >{{ t('system.user.importResultContentSubStart')
+          }}<a-link
+            class="text-[rgb(var(--primary-5))]"
+            :href="importErrorFileUrl"
+            :download="`${t('system.user.importErrorFile')}.pdf`"
+            >{{ t('system.user.importResultContentDownload') }}</a-link
+          >{{ t('system.user.importResultContentSubEnd') }}</div
+        >
+      </template>
+      <template #footer>
+        <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">{{
+          t('system.user.importResultReturn')
+        }}</a-button>
+        <a-button type="text" @click="continueImport">
+          {{ t('system.user.importResultContinue') }}
+        </a-button>
+      </template>
+    </a-modal>
+    <batchModal
+      v-model:visible="showBatchModal"
+      :table-selected="tableSelected"
+      :action="batchAction"
+      :tree-data="treeData"
+    ></batchModal>
   </div>
 </template>
 
 <script setup lang="ts">
   import { onMounted, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
   import useModal from '@/hooks/useModal';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { getTableList } from '@/api/modules/api-test/index';
+  import { getUserList, batchCreateUser, updateUserInfo } from '@/api/modules/system/user';
   import { validateEmail, validatePhone } from '@/utils/validate';
-  import { cloneDeep } from 'lodash-es';
+  import batchModal from './components/batchModal.vue';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import type { UserListItem } from '@/models/system/user';
+
+  const { t } = useI18n();
 
   const columns: MsTableColumn = [
     {
@@ -224,25 +338,45 @@
     },
     {
       title: '组织',
-      dataIndex: 'organization',
+      slotName: 'organization',
+      dataIndex: 'organizationList',
     },
     {
       title: '用户组',
-      dataIndex: 'userGroup',
+      slotName: 'userRole',
+      dataIndex: 'userRoleList',
     },
     {
       title: '状态',
-      dataIndex: 'status',
+      slotName: 'enable',
+      dataIndex: 'enable',
     },
     {
       title: '操作',
       slotName: 'action',
       fixed: 'right',
-      width: 80,
+      width: 90,
     },
   ];
 
-  const { t } = useI18n();
+  const { propsRes, propsEvent, loadList, setKeyword } = useTable(getUserList, {
+    columns,
+    scroll: { y: 'auto' },
+    selectable: true,
+  });
+
+  const keyword = ref('');
+
+  onMounted(async () => {
+    setKeyword(keyword.value);
+    await loadList();
+  });
+
+  async function searchUser() {
+    setKeyword(keyword.value);
+    await loadList();
+  }
+
   const tableActions: ActionsItem[] = [
     {
       label: 'system.user.resetPassword',
@@ -262,8 +396,96 @@
     },
   ];
 
+  const tableBatchActions = {
+    baseAction: [
+      {
+        label: 'system.user.batchActionAddProject',
+        eventTag: 'batchAddProject',
+      },
+      {
+        label: 'system.user.batchActionAddUsergroup',
+        eventTag: 'batchAddUsergroup',
+      },
+      {
+        label: 'system.user.batchActionAddOrgnization',
+        eventTag: 'batchAddOrgnization',
+      },
+    ],
+    moreAction: [
+      {
+        label: 'system.user.disable',
+        eventTag: 'disabled',
+      },
+      {
+        label: 'system.user.enable',
+        eventTag: 'enable',
+      },
+      {
+        isDivider: true,
+      },
+      {
+        label: 'system.user.delete',
+        eventTag: 'delete',
+        danger: true,
+      },
+    ],
+  };
+
+  const showBatchModal = ref(false);
+  const batchAction = ref('');
+  const treeData = ref([
+    {
+      title: 'Trunk 0-3',
+      key: '0-3',
+    },
+    {
+      title: 'Trunk 0-0',
+      key: '0-0',
+      children: [
+        {
+          title: 'Leaf 0-0-1',
+          key: '0-0-1',
+        },
+        {
+          title: 'Branch 0-0-2',
+          key: '0-0-2',
+        },
+      ],
+    },
+    {
+      title: 'Trunk 0-1',
+      key: '0-1',
+      children: [
+        {
+          title: 'Branch 0-1-1',
+          key: '0-1-1',
+        },
+        {
+          title: 'Leaf 0-1-2',
+          key: '0-1-2',
+        },
+      ],
+    },
+  ]);
+
+  function handelTableBatch() {
+    batchAction.value = 'batchAddProject';
+    showBatchModal.value = true;
+  }
+
+  const tableSelected = ref<(string | number)[]>([]);
+
+  /**
+   * 处理表格选中
+   */
+  function handleTableSelect(arr: (string | number)[]) {
+    tableSelected.value = arr;
+  }
   const { openModal } = useModal();
 
+  /**
+   * 重置密码
+   */
   function resetPassword(record: any) {
     openModal({
       type: 'warning',
@@ -284,6 +506,9 @@
     });
   }
 
+  /**
+   * 禁用用户
+   */
   function disabledUser(record: any) {
     openModal({
       type: 'warning',
@@ -291,6 +516,9 @@
       content: t('system.user.disableUserContent'),
       okText: t('system.user.disableUserConfirm'),
       cancelText: t('system.user.disableUserCancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
       onBeforeOk: async () => {
         try {
           Message.success(t('system.user.disableUserSuccess'));
@@ -304,6 +532,32 @@
     });
   }
 
+  /**
+   * 启用用户
+   */
+  function enableUser(record: any) {
+    openModal({
+      type: 'info',
+      title: `${t('system.user.enableUserStart')} '${record.name}' ${t('system.user.enableUserEnd')}`,
+      content: t('system.user.enableUserContent'),
+      okText: t('system.user.enableUserConfirm'),
+      cancelText: t('system.user.enableUserCancel'),
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('system.user.enableUserSuccess'));
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 删除用户
+   */
   function deleteUser(record: any) {
     openModal({
       type: 'warning',
@@ -327,6 +581,10 @@
     });
   }
 
+  /**
+   * 处理表格更多按钮事件
+   * @param item
+   */
   function handleSelect(item: ActionsItem, record: any) {
     switch (item.eventTag) {
       case 'resetPassword':
@@ -343,16 +601,7 @@
     }
   }
 
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, {
-    columns,
-    selectable: true,
-  });
-
-  onMounted(async () => {
-    await loadList();
-  });
-
-  type UserModalMode = 'create' | 'edit' | 'batch';
+  type UserModalMode = 'create' | 'edit';
   const visible = ref(false);
   const loading = ref(false);
   const userFormMode = ref<UserModalMode>('create');
@@ -387,6 +636,10 @@
     },
   ]);
 
+  /**
+   * 触发创建用户表单校验
+   * @param cb 校验通过后执行回调
+   */
   function userFormValidate(cb: () => Promise<any>) {
     userFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
@@ -403,17 +656,25 @@
     });
   }
 
+  /**
+   * 添加用户表单项
+   */
   function addUserField() {
     userFormValidate(async () => {
       const lastIndex = userForm.value.list.length - 1;
       const lastOrder = userForm.value.list[lastIndex] + 1;
-      userForm.value.list.push(lastOrder); // 序号自增
+      userForm.value.list.push(lastOrder); // 序号自增，不会因为删除而重复
       userForm.value[`username${lastOrder}`] = '';
       userForm.value[`email${lastOrder}`] = '';
       userForm.value[`phone${lastOrder}`] = '';
     });
   }
 
+  /**
+   * 移除用户表单项
+   * @param index 表单项的序号
+   * @param i 表单项对应 list 的下标
+   */
   function removeUserField(index: number, i: number) {
     delete userForm.value[`username${index}`];
     delete userForm.value[`email${index}`];
@@ -421,6 +682,11 @@
     userForm.value.list.splice(i, 1);
   }
 
+  /**
+   * 校验用户姓名
+   * @param value 输入的值
+   * @param callback 失败回调，入参是提示信息
+   */
   function checkUerName(value: string | undefined, callback: (error?: string) => void) {
     if (value === '' || value === undefined) {
       callback(t('system.user.createUserNameNotNull'));
@@ -429,6 +695,12 @@
     }
   }
 
+  /**
+   * 校验用户邮箱
+   * @param value 输入的值
+   * @param callback 失败回调，入参是提示信息
+   * @param index 当前输入的表单项对应 list 的下标，用于校验重复输入的时候排除自身
+   */
   function checkUerEmail(value: string | undefined, callback: (error?: string) => void, index: number) {
     if (value === '' || value === undefined) {
       callback(t('system.user.createUserEmailNotNull'));
@@ -447,12 +719,20 @@
     }
   }
 
+  /**
+   * 校验用户手机号
+   * @param value 输入的值
+   * @param callback 失败回调，入参是提示信息
+   */
   function checkUerPhone(value: string | undefined, callback: (error?: string) => void) {
     if (value !== '' && value !== undefined && !validatePhone(value)) {
       callback(t('system.user.createUserPhoneErr'));
     }
   }
 
+  /**
+   * 取消创建，重置用户表单
+   */
   function cancelCreate() {
     visible.value = false;
     userFormRef.value?.resetFields();
@@ -460,13 +740,36 @@
   }
 
   async function updateUser() {
-    console.log('updateUser');
+    const params = {
+      userInfoList: [
+        {
+          name: userForm.value.username0,
+          email: userForm.value.email0,
+          phone: userForm.value.phone0,
+        },
+      ],
+      userRoleIdList: userForm.value.userGroup,
+    };
+    await updateUserInfo(params);
   }
 
   async function createUser() {
-    console.log('createUser');
+    const params = {
+      userInfoList: userForm.value.list.map((item: number) => {
+        return {
+          name: userForm.value[`username${item}`],
+          email: userForm.value[`email${item}`],
+          phone: userForm.value[`phone${item}`],
+        };
+      }),
+      userRoleIdList: [],
+    };
+    await batchCreateUser(params);
   }
 
+  /**
+   * 创建前的校验
+   */
   function beforeCreateUser() {
     if (userFormMode.value === 'create') {
       userFormValidate(createUser);
@@ -475,6 +778,9 @@
     }
   }
 
+  /**
+   * 保存并继续创建，重置用户表单
+   */
   function saveAndContinue() {
     userFormValidate(async () => {
       await createUser();
@@ -483,9 +789,15 @@
     });
   }
 
-  function showUserModal(mode: UserModalMode) {
+  function showUserModal(mode: UserModalMode, record?: UserListItem) {
     visible.value = true;
     userFormMode.value = mode;
+    if (mode === 'edit' && record) {
+      userForm.value.username0 = record.name;
+      userForm.value.email0 = record.email;
+      userForm.value.phone0 = record.phone;
+      userForm.value.userGroup = record.userRoleList.map((e) => e.name);
+    }
   }
 
   const inviteVisible = ref(false);
@@ -513,14 +825,55 @@
 
   const importVisible = ref(false);
   const importLoading = ref(false);
+  const importResultVisible = ref(false);
+  const importSuccessCount = ref(0);
+  const importFailCount = ref(0);
+  const importErrorFileUrl = ref('');
+  const importResult = ref<'success' | 'allFail' | 'fail'>('success');
+  const importResultTitle = ref(t('system.user.importSuccessTitle'));
 
   function showImportModal() {
     importVisible.value = true;
   }
 
-  function importUser() {}
+  function cancelImport() {
+    importVisible.value = false;
+    importResultVisible.value = false;
+  }
 
-  async function searchUser() {}
+  /**
+   * 根据导入结果展示结果弹窗
+   */
+  function showImportResult() {
+    importLoading.value = false;
+    importVisible.value = false;
+    switch (importResult.value) {
+      case 'success':
+        importResultTitle.value = t('system.user.importSuccessTitle');
+        break;
+      case 'allFail':
+        importResultTitle.value = t('system.user.importAllfailTitle');
+        break;
+      case 'fail':
+        importResultTitle.value = t('system.user.importFailTitle');
+        break;
+      default:
+        break;
+    }
+    importResultVisible.value = true;
+  }
+
+  function continueImport() {
+    importResultVisible.value = false;
+    importVisible.value = true;
+  }
+
+  function importUser() {
+    importResult.value = 'fail';
+    importSuccessCount.value = 100;
+    importFailCount.value = 20;
+    showImportResult();
+  }
 </script>
 
 <style lang="less" scoped>
