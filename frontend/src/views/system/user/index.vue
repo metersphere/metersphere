@@ -740,17 +740,17 @@
   }
 
   async function updateUser() {
-    const params = {
-      userInfoList: [
-        {
-          name: userForm.value.username0,
-          email: userForm.value.email0,
-          phone: userForm.value.phone0,
-        },
-      ],
-      userRoleIdList: userForm.value.userGroup,
-    };
-    await updateUserInfo(params);
+    // const params = {
+    //   userInfoList: [
+    //     {
+    //       name: userForm.value.username0,
+    //       email: userForm.value.email0,
+    //       phone: userForm.value.phone0,
+    //     },
+    //   ],
+    //   userRoleIdList: userForm.value.userGroup,
+    // };
+    // await updateUserInfo(params);
   }
 
   async function createUser() {
