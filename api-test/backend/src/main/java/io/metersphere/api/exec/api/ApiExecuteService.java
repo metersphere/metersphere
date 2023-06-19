@@ -27,6 +27,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.MsHashTreeService;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
@@ -138,9 +139,6 @@ public class ApiExecuteService {
                     // 调用执行方法
                     runRequest.setHashTree(jmeterHashTree);
                 }
-                if (MapUtils.isNotEmpty(extendedParameters)) {
-                    runRequest.setExtendedParameters(extendedParameters);
-                }
                 if (StringUtils.isNotBlank(runModeConfigDTO.getResourcePoolId())) {
                     runRequest.setPoolId(runModeConfigDTO.getResourcePoolId());
                     BooleanPool pool = GenerateHashTreeUtil.isResourcePool(runModeConfigDTO.getResourcePoolId());
@@ -149,6 +147,14 @@ public class ApiExecuteService {
                     runRequest.setPlatformUrl(GenerateHashTreeUtil.getPlatformUrl(baseInfo, runRequest, null));
                 }
                 String projectId = testCase.getProjectId();
+                if (MapUtils.isNotEmpty(extendedParameters)) {
+                    extendedParameters.put(MsHashTreeService.PROJECT_ID, projectId);
+                    runRequest.setExtendedParameters(extendedParameters);
+                } else {
+                    runRequest.setExtendedParameters(new HashMap<>() {{
+                        this.put(MsHashTreeService.PROJECT_ID, projectId);
+                    }});
+                }
                 runRequest.setFakeErrorMap(ApiFakeErrorUtil.get(new ArrayList<>() {{
                     this.add(projectId);
                 }}));
@@ -251,6 +257,7 @@ public class ApiExecuteService {
             this.put(ExtendedParameter.SYNC_STATUS, request.isSyncResult());
             this.put(CommonConstants.USER_ID, SessionUtils.getUser().getId());
             this.put("userName", SessionUtils.getUser().getName());
+            this.put(MsHashTreeService.PROJECT_ID, request.getProjectId());
         }});
         // 开始执行
         if (StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {

@@ -20,6 +20,7 @@ import io.metersphere.dto.RequestResult;
 import io.metersphere.dto.ResultDTO;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.MsHashTreeService;
 import io.metersphere.service.RedisTemplateService;
 import io.metersphere.service.ServiceUtils;
 import io.metersphere.utils.LoggerUtil;
@@ -138,6 +139,9 @@ public class ApiDefinitionExecResultService {
                     if (!StringUtils.startsWithAny(item.getName(), "PRE_PROCESSOR_ENV_", "POST_PROCESSOR_ENV_")) {
                         ApiDefinitionExecResult result = this.editResult(item, dto.getReportId(), dto.getConsole(), dto.getRunMode(), dto.getTestId(), definitionExecResultMapper);
                         if (result != null) {
+                            if (StringUtils.isBlank(result.getProjectId()) && dto.getExtendedParameters().containsKey(MsHashTreeService.PROJECT_ID)) {
+                                result.setProjectId(this.getProjectIdByResultDTO(dto.getExtendedParameters().get(MsHashTreeService.PROJECT_ID).toString()));
+                            }
                             result.setResourceId(dto.getTestId());
                             apiExecutionInfoService.insertExecutionInfo(result);
                             // 批量更新关联关系状态
@@ -162,6 +166,18 @@ public class ApiDefinitionExecResultService {
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    private String getProjectIdByResultDTO(String projectIdFromResultDTO) {
+        String returnStr = projectIdFromResultDTO;
+        if (StringUtils.startsWith(projectIdFromResultDTO, "[") && StringUtils.endsWith(projectIdFromResultDTO, "]")) {
+            try {
+                List<String> projectIdList = JSON.parseArray(projectIdFromResultDTO, String.class);
+                returnStr = projectIdList.get(0);
+            } catch (Exception ignore) {
+            }
+        }
+        return returnStr;
     }
 
     private User getUser(ResultDTO dto, ApiDefinitionExecResult result) {

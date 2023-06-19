@@ -31,6 +31,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
@@ -99,9 +100,13 @@ public class ApiCaseSerialService {
     protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
         ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
         if (execResult != null) {
-            runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-                this.put(CommonConstants.USER_ID, execResult.getUserId());
-            }});
+            if (MapUtils.isNotEmpty(runRequest.getExtendedParameters())) {
+                runRequest.getExtendedParameters().put(CommonConstants.USER_ID, execResult.getUserId());
+            } else {
+                runRequest.setExtendedParameters(new HashMap<String, Object>() {{
+                    this.put(CommonConstants.USER_ID, execResult.getUserId());
+                }});
+            }
             execResult.setStartTime(System.currentTimeMillis());
             execResult.setStatus(ApiReportStatus.RUNNING.name());
             apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
