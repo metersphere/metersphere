@@ -89,6 +89,9 @@
             <when test='${object}.operator == "le"'>
                 &lt;= #{${object}.value}
             </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
             <otherwise>
                 = #{${object}.value}
             </otherwise>
