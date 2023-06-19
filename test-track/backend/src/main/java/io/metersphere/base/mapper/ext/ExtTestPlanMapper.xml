@@ -159,6 +159,7 @@
         <if test="request.executorOrPrincipal != null">
             LEFT JOIN test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
             LEFT JOIN test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+            LEFT JOIN test_case on test_case.id = test_plan_test_case.case_id
         </if>
         <where>
             <if test="request.combine != null">
@@ -202,7 +203,7 @@
                         <when test="key=='status'">
                             <choose>
                                 <when test="request.executorOrPrincipal != null">
-                                    AND (( test_plan_principal.principal_id =
+                                    and (( test_plan_principal.principal_id =
                                     '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
                                     test_plan.status in
                                     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
@@ -214,6 +215,7 @@
                                     <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
                                     ))
                                     and (test_plan.status is null or test_plan.status != 'Trash')
+                                    and (test_case.status is null or test_case.status != 'Trash')
                                 </when>
                                 <otherwise>
                                     and test_plan.status in
@@ -416,6 +418,7 @@
         <if test="request.executorOrPrincipal != null">
             LEFT JOIN test_plan_principal ON test_plan_principal.test_plan_id = test_plan.id
             LEFT JOIN test_plan_test_case on test_plan_test_case.plan_id = test_plan.id
+            LEFT JOIN test_case on test_case.id = test_plan_test_case.case_id
         </if>
         <where>
             <if test="request.combine != null">
