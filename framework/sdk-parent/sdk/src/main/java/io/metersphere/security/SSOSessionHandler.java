@@ -7,6 +7,8 @@ import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Arrays;
 import java.util.UUID;
 
 public class SSOSessionHandler {
@@ -30,6 +32,7 @@ public class SSOSessionHandler {
         csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
         if (signatureArray.length != 4) {
+            LogUtil.error("invalid token: {}", signatureArray);
             throw new RuntimeException("invalid token");
         }
         return signatureArray[0];
