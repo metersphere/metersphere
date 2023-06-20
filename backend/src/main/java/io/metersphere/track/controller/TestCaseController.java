@@ -34,6 +34,7 @@ import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -334,7 +335,8 @@ public class TestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_EDIT,
+            PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_ADD_PUBLIC}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
@@ -350,7 +352,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/batch/copy/public")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_COPY, PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
@@ -385,7 +387,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/reduction")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_RECOVER, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_REDUCTION}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void reduction(@RequestBody TestCaseBatchRequest request) {
         testCaseService.reduction(request);

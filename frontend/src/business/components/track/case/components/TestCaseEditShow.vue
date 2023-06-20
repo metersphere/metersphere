@@ -27,6 +27,7 @@
                               :is-read="true"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
           <ms-table-button v-if="this.path!=='/test/case/add'"
+                           v-permission="['PROJECT_TRACK_CASE:READ+COPY']"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.copy')"
