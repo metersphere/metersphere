@@ -262,16 +262,12 @@
           t('system.user.importSuccess')
         }}</div>
         <div class="sub-text">{{
-          `${t('system.user.importResultContentStart')} ${importSuccessCount} ${t(
-            'system.user.importResultContentEnd'
-          )}`
+          t('system.user.importResultSuccessContent', { successNum: importSuccessCount })
         }}</div>
       </div>
       <template v-else>
         <div>{{
-          `${t('system.user.importResultContentStart')} ${importSuccessCount} ${t(
-            'system.user.importResultContentCenter'
-          )} ${importFailCount} ${t('system.user.importResultContentEnd')};`
+          t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount })
         }}</div>
         <div
           >{{ t('system.user.importResultContentSubStart')
@@ -489,7 +485,7 @@
   function resetPassword(record: any) {
     openModal({
       type: 'warning',
-      title: `${t('system.user.resetPswStart')} '${record.name}' ${t('system.user.resetPswEnd')}`,
+      title: t('system.user.resetPswTip', { name: record.name }),
       content: t('system.user.resetPswContent'),
       okText: t('system.user.resetPswConfirm'),
       cancelText: t('system.user.resetPswCancel'),
@@ -512,7 +508,7 @@
   function disabledUser(record: any) {
     openModal({
       type: 'warning',
-      title: `${t('system.user.disableUserStart')} '${record.name}' ${t('system.user.disableUserEnd')}`,
+      title: t('system.user.disableUserTip', { name: record.name }),
       content: t('system.user.disableUserContent'),
       okText: t('system.user.disableUserConfirm'),
       cancelText: t('system.user.disableUserCancel'),
@@ -538,7 +534,7 @@
   function enableUser(record: any) {
     openModal({
       type: 'info',
-      title: `${t('system.user.enableUserStart')} '${record.name}' ${t('system.user.enableUserEnd')}`,
+      title: t('system.user.enableUserTip', { name: record.name }),
       content: t('system.user.enableUserContent'),
       okText: t('system.user.enableUserConfirm'),
       cancelText: t('system.user.enableUserCancel'),
@@ -561,7 +557,7 @@
   function deleteUser(record: any) {
     openModal({
       type: 'warning',
-      title: `${t('system.user.deleteUserStart')} '${record.name}' ${t('system.user.deleteUserEnd')}`,
+      title: t('system.user.deleteUserTip', { name: record.name }),
       content: t('system.user.deleteUserContent'),
       okText: t('system.user.deleteUserConfirm'),
       cancelText: t('system.user.deleteUserCancel'),
