@@ -528,12 +528,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                         Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(t -> t.getName() + t.getModulePath()))), ArrayList::new)
         );
 
-        if (!fullCoverage) {
-            //不覆盖, 系统场景存在则不导入
-            Map<String, ApiScenarioWithBLOBs> systemScenarios = repeatAllScenarioWithBLOBs.stream().collect(Collectors.toMap(ApiScenario::getName, scenario -> scenario));
-            optionData.removeIf(handleData -> systemScenarios.containsKey(handleData.getName()));
-        }
-
         Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
         Map<String, ApiScenarioWithBLOBs> repeatDataMap = null;
         if (chooseModule != null) {
