@@ -5,10 +5,10 @@
         {{ assertion.desc }}
       </div>
       <div class="assertion-item btn">
-        <el-button :disabled="isReadOnly" type="success" size="mini" @click="detail">
+        <el-button :disabled="isReadOnly && !assertion.label" type="success" size="mini" @click="detail">
           {{ $t('commons.edit') }}
         </el-button>
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
+        <el-button :disabled="isReadOnly && !assertion.label" type="primary" size="mini" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </div>
@@ -19,16 +19,16 @@
       </div>
       <div class="assertion-item btn circle">
         <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle @click="showPage" />
-        <el-button :disabled="isReadOnly" type="success" size="mini" icon="el-icon-edit" circle @click="detail" />
+        <el-button :disabled="isReadOnly && !assertion.label" type="success" size="mini" icon="el-icon-edit" circle @click="detail" />
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
           <el-switch
             v-model="assertion.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly"
+            :disabled="isReadOnly && !assertion.label"
             style="width: 30px; margin: 0px 10px 0px 10px" />
         </el-tooltip>
-        <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" />
+        <el-button :disabled="isReadOnly && !assertion.label" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" />
       </div>
     </el-row>
 
@@ -167,6 +167,11 @@ export default {
     };
   },
 
+  created() {
+    if (this.assertion.valid === undefined && this.isReadOnly) {
+      this.assertion.label = "SCENARIO-REF-STEP";
+    }
+  },
   methods: {
     add() {
       this.list.push(new AssertionJSR223(this.assertion));

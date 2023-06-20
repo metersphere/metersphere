@@ -114,7 +114,7 @@
             :request="request"
             :apiId="apiId"
             :draggable="true"
-            :is-read-only="data.disabled"
+            :is-read-only="request.disabled"
             :assertions="data" />
         </div>
       </span>

@@ -3,7 +3,7 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col class="assertion-select">
         <el-select
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !regex.label"
           class="assertion-item"
           v-model="regex.subject"
           size="small"
@@ -16,7 +16,7 @@
       <el-col>
         <el-tooltip :disabled="showTip" placement="top" :content="regex.expression">
           <el-input
-            :disabled="isReadOnly"
+            :disabled="isReadOnly && !regex.label"
             v-model="regex.expression"
             size="small"
             show-word-limit
@@ -24,7 +24,7 @@
         </el-tooltip>
       </el-col>
       <el-col class="assertion-checkbox">
-        <el-checkbox v-model="regex.assumeSuccess" :disabled="isReadOnly">
+        <el-checkbox v-model="regex.assumeSuccess" :disabled="isReadOnly && !regex.label">
           {{ $t('api_test.request.assertions.ignore_status') }}
         </el-checkbox>
       </el-col>
@@ -34,26 +34,26 @@
             v-model="regex.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly"
+            :disabled="isReadOnly && !regex.label"
             style="width: 30px; margin-right: 10px" />
         </el-tooltip>
 
         <el-button
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !regex.label"
           size="mini"
           icon="el-icon-copy-document"
           circle
           @click="copyRow"
           v-if="edit" />
         <el-button
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !regex.label"
           type="danger"
           size="mini"
           icon="el-icon-delete"
           circle
           @click="remove"
           v-if="edit" />
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="isReadOnly && !regex.label" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -102,6 +102,9 @@ export default {
     },
   },
   created() {
+    if (!this.regex.description && this.isReadOnly) {
+      this.regex.label = "SCENARIO-REF-STEP";
+    }
     this.showTip = !this.regex || !this.regex.description || this.regex.description.length < 80;
   },
   methods: {

@@ -3,7 +3,7 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
         <el-input
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !duration.label"
           :value="value"
           v-bind="$attrs"
           step="100"
@@ -21,18 +21,18 @@
             v-model="duration.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly"
+            :disabled="isReadOnly && !duration.label"
             style="width: 30px; margin-right: 10px" />
         </el-tooltip>
         <el-button
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !duration.label"
           type="danger"
           size="mini"
           icon="el-icon-delete"
           circle
           @click="remove"
           v-if="edit" />
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="isReadOnly && !duration.label" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -55,6 +55,11 @@ export default {
     },
   },
 
+  created() {
+    if (this.duration && !this.duration.valid && this.duration.value === 0 && this.isReadOnly) {
+      this.duration.label = "SCENARIO-REF-STEP";
+    }
+  },
   methods: {
     add() {
       if (this.validate()) {

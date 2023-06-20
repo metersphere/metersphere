@@ -6,7 +6,6 @@
         <api-json-path-suggest-button
           :open-tip="$t('api_test.request.assertions.json_path_suggest')"
           :clear-tip="$t('api_test.request.assertions.json_path_clear')"
-          :isReadOnly="isReadOnly"
           @open="suggestJsonOpen"
           @clear="clearJson" />
       </span>
@@ -15,7 +14,6 @@
       <el-row :gutter="10">
         <el-col :span="4">
           <el-select
-            :disabled="isReadOnly"
             class="assertion-item"
             v-model="type"
             :placeholder="$t('api_test.request.assertions.select_type')"

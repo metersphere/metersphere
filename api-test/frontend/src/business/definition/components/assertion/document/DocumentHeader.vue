@@ -8,7 +8,7 @@
         </el-select>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
+        <el-button :disabled="isReadOnly && !document.label" type="primary" size="mini" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -31,6 +31,11 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  created() {
+    if (this.document && !this.document.originalData && !this.document.rootData && this.isReadOnly) {
+      this.document.label = "SCENARIO-REF-STEP";
+    }
   },
 
   methods: {
