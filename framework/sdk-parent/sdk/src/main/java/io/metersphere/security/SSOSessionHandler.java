@@ -21,8 +21,7 @@ public class SSOSessionHandler {
             if (StringUtils.isNotBlank(v)) {
                 return validate(v);
             }
-        } catch (Exception e) {
-            LogUtil.error("failed to validate", e);
+        } catch (Exception ignore) {
         }
 
         return null;
@@ -32,7 +31,7 @@ public class SSOSessionHandler {
         csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
         if (signatureArray.length != 4) {
-            LogUtil.error("invalid token: {}", signatureArray);
+            LogUtil.error("invalid token: {}, csrfToken: {}", signatureArray, csrfToken);
             throw new RuntimeException("invalid token");
         }
         return signatureArray[0];
