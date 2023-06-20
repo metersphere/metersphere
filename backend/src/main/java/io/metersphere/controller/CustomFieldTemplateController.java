@@ -25,7 +25,6 @@ public class CustomFieldTemplateController {
     }
 
     @PostMapping("/update")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
     public void update(@RequestBody CustomFieldTemplate request) {
         customFieldTemplateService.update(request);
     }

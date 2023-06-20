@@ -15,6 +15,7 @@ import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -132,14 +133,14 @@ public class TestPlanTestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN, PermissionConstants.PROJECT_TRACK_PLAN_READ_CASE_BATCH_EDIT}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
     public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_RELEVANCE_OR_CANCEL, PermissionConstants.PROJECT_TRACK_PLAN_READ_CASE_BATCH_DELETE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanTestCaseService.class)
     public void deleteTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {
         testPlanTestCaseService.deleteTestCaseBath(request);

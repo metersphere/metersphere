@@ -22,7 +22,7 @@
       </el-button>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
+      <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
         {{ $t('commons.export')}}
       </el-button>
     </el-row>

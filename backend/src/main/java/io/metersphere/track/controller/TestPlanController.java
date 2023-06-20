@@ -21,6 +21,7 @@ import io.metersphere.track.request.testplan.TestPlanRunRequest;
 import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -193,7 +194,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/copy/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_CREATE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_CREATE, PermissionConstants.PROJECT_TRACK_PLAN_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, subject = "测试计划通知")
     public TestPlan copy(@PathVariable String id) {
         return testPlanService.copy(id);
