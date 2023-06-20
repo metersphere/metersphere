@@ -98,6 +98,15 @@ public class MsHashTreeService {
     private static final String RESULT_VARIABLE = "resultVariable";
     private static final String ENV_Id = "environmentId";
 
+    private final static String JSON_PATH="jsonPath";
+    private final static String JSR223="jsr223";
+    private final static String XPATH="xpath2";
+    private final static String REGEX="regex";
+    private final static String DURATION="duration";
+    private final static String DOCUMENT="document";
+    private final static String LABEL="label";
+    private final static String SCENARIO_REF="SCENARIO-REF-STEP";
+
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
         if (hashTree == null) {
@@ -191,7 +200,7 @@ public class MsHashTreeService {
 
                         List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get(PRE), targetGroupMap.get(PRE));
                         List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get(POST), targetGroupMap.get(POST));
-                        List<JSONObject> rules = ElementUtil.mergeHashTree(groupMap.get(ASSERTIONS), targetGroupMap.get(ASSERTIONS));
+                        List<JSONObject> rules = mergeAssertions(groupMap.get(ASSERTIONS), targetGroupMap.get(ASSERTIONS));
                         List<JSONObject> step = new LinkedList<>();
                         if (CollectionUtils.isNotEmpty(pre)) {
                             step.addAll(pre);
@@ -232,6 +241,68 @@ public class MsHashTreeService {
         return element;
     }
 
+    public List<JSONObject> mergeAssertions(List<JSONObject> sourceHashTree, List<JSONObject> targetHashTree) {
+        try {
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                JSONObject target = targetHashTree.get(0);
+
+                if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                    JSONObject source = sourceHashTree.get(0);
+                    //jsonPath
+                    JSONArray jsonPathTar = target.optJSONArray(JSON_PATH);
+                    JSONArray jsonPathSource = source.optJSONArray(JSON_PATH);
+                    mergeArray(target, jsonPathTar, jsonPathSource, JSON_PATH);
+                    //jsr223
+                    JSONArray jsr223Tar = target.optJSONArray(JSR223);
+                    JSONArray jsr223Source = source.optJSONArray(JSR223);
+                    mergeArray(target, jsr223Tar, jsr223Source, JSR223);
+                    //xpath
+                    JSONArray xpathTar = target.optJSONArray(XPATH);
+                    JSONArray xpathSource = source.optJSONArray(XPATH);
+                    mergeArray(target, xpathTar, xpathSource, XPATH);
+                    //regex
+                    JSONArray regexTar = target.optJSONArray(REGEX);
+                    JSONArray regexSource = source.optJSONArray(REGEX);
+                    mergeArray(target, regexTar, regexSource, REGEX);
+                    //duration
+                    JSONObject durationTar = target.optJSONObject(DURATION);
+                    JSONObject durationSource = source.optJSONObject(DURATION);
+                    mergeObject(target, durationTar, durationSource, DURATION);
+                    //document
+                    JSONObject documentTar = target.optJSONObject(DOCUMENT);
+                    JSONObject documentSource = source.optJSONObject(DOCUMENT);
+                    mergeObject(target, documentTar, documentSource, DOCUMENT);
+                    sourceHashTree.remove(0);
+                    sourceHashTree.add(target);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("mergeAssertions error", e);
+        }
+        return sourceHashTree;
+    }
+
+    private static void mergeObject(JSONObject target, JSONObject durationTar, JSONObject durationSource, String type) {
+        if (durationSource != null && durationSource.has(LABEL) &&
+                StringUtils.equals(durationSource.optString(LABEL), SCENARIO_REF)) {
+            durationTar = durationSource;
+        }
+        target.remove(type);
+        target.put(type, durationTar);
+    }
+
+    private static void mergeArray(JSONObject target, JSONArray jsonArray, JSONArray source, String type) {
+        if (!source.isEmpty()) {
+            source.forEach(obj -> {
+                JSONObject jsonObject = (JSONObject) obj;
+                if (StringUtils.equals(jsonObject.optString(LABEL), SCENARIO_REF)) {
+                    jsonArray.put(jsonObject);
+                }
+            });
+        }
+        target.remove(type);
+        target.put(type, jsonArray);
+    }
 
     private void getCaseIds(JSONObject element, List<String> caseIds) {
         if (StringUtils.equalsIgnoreCase(element.optString(REF_TYPE), CASE) && element.has(ID)) {

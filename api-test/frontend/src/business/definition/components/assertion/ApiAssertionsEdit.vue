@@ -68,7 +68,7 @@
                 v-model="assertions.document.enable"
                 class="enable-switch"
                 size="mini"
-                :disabled="assertions.disabled"
+                :disabled="isReadOnly && !assertions.document.label"
                 style="width: 30px; margin-right: 10px" />
             </el-tooltip>
             <el-tooltip effect="dark" :content="$t('commons.remove')" placement="top-start">
@@ -78,12 +78,12 @@
                 size="mini"
                 circle
                 @click="remove()"
-                :disabled="assertions.disabled && !assertions.root" />
+                :disabled="isReadOnly && !assertions.document.label && !assertions.root" />
             </el-tooltip>
           </el-col>
         </el-row>
       </div>
-      <ms-document-body :document="assertions.document" :apiId="apiId" :isReadOnly="isReadOnly" @remove="remove" />
+      <ms-document-body :document="assertions.document" :apiId="apiId" :isReadOnly="isReadOnly && !assertions.document.label" @remove="remove" />
     </div>
   </div>
 </template>

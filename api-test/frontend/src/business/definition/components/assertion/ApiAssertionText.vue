@@ -3,7 +3,7 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col class="assertion-select">
         <el-select
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !label"
           class="assertion-item"
           v-model="subject"
           size="small"
@@ -15,7 +15,7 @@
       </el-col>
       <el-col class="assertion-select">
         <el-select
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !label"
           class="assertion-item"
           v-model="condition"
           size="small"
@@ -29,7 +29,7 @@
       </el-col>
       <el-col>
         <el-input
-          :disabled="isReadOnly"
+          :disabled="isReadOnly && !label"
           v-model="value"
           maxlength="500"
           size="small"
@@ -37,12 +37,12 @@
           :placeholder="$t('api_test.request.assertions.value')" />
       </el-col>
       <el-col class="assertion-checkbox">
-        <el-checkbox v-model="assumeSuccess" :disabled="isReadOnly">
+        <el-checkbox v-model="assumeSuccess" :disabled="isReadOnly && !label">
           {{ $t('api_test.request.assertions.ignore_status') }}
         </el-checkbox>
       </el-col>
       <el-col class="assertion-btn">
-        <el-button :disabled="isReadOnly" type="primary" size="mini" @click="add">
+        <el-button :disabled="isReadOnly && !label" type="primary" size="mini" @click="add">
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -72,7 +72,13 @@ export default {
       condition: '',
       assumeSuccess: false,
       value: '',
+      label: '',
     };
+  },
+  created() {
+    if (this.isReadOnly) {
+      this.label = 'SCENARIO-REF-STEP';
+    }
   },
 
   methods: {
@@ -110,6 +116,7 @@ export default {
         expression: expression,
         description: description,
         assumeSuccess: this.assumeSuccess,
+        label: this.label,
       });
     },
   },

@@ -11,6 +11,7 @@ public class MsAssertionType {
     public final static String TEXT = "Text";
     public final static String XPATH2 = "XPath2";
     private boolean enable = true;
+    public String label;
 
     private String type;
 }
