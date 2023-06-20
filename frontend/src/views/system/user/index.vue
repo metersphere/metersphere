@@ -320,35 +320,35 @@
 
   const columns: MsTableColumn = [
     {
-      title: '邮箱',
+      title: 'system.user.tableColunmEmail',
       dataIndex: 'email',
       width: 200,
     },
     {
-      title: '姓名',
+      title: 'system.user.tableColunmName',
       dataIndex: 'name',
     },
     {
-      title: '手机',
+      title: 'system.user.tableColunmPhone',
       dataIndex: 'phone',
     },
     {
-      title: '组织',
+      title: 'system.user.tableColunmOrg',
       slotName: 'organization',
       dataIndex: 'organizationList',
     },
     {
-      title: '用户组',
+      title: 'system.user.tableColunmUsergroup',
       slotName: 'userRole',
       dataIndex: 'userRoleList',
     },
     {
-      title: '状态',
+      title: 'system.user.tableColunmStatus',
       slotName: 'enable',
       dataIndex: 'enable',
     },
     {
-      title: '操作',
+      title: 'system.user.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
       width: 90,

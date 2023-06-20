@@ -133,4 +133,11 @@ export default {
   'system.user.batchAddOrgnization': '批量添加至组织',
   'system.user.batchOptional': '可选',
   'system.user.batchChosen': '已选',
+  'system.user.tableColunmEmail': '邮箱',
+  'system.user.tableColunmName': '姓名',
+  'system.user.tableColunmPhone': '手机',
+  'system.user.tableColunmOrg': '组织',
+  'system.user.tableColunmUsergroup': '用户组',
+  'system.user.tableColunmStatus': '状态',
+  'system.user.tableColunmActions': '操作',
 };

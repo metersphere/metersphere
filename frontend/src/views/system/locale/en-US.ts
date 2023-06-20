@@ -135,4 +135,11 @@ export default {
   'system.user.batchAddOrgnization': 'Batch add to organization',
   'system.user.batchOptional': 'Optional',
   'system.user.batchChosen': 'Chosen',
+  'system.user.tableColunmEmail': 'Email',
+  'system.user.tableColunmName': 'Name',
+  'system.user.tableColunmPhone': 'Phone',
+  'system.user.tableColunmOrg': 'Orgnization',
+  'system.user.tableColunmUsergroup': 'UserGroup',
+  'system.user.tableColunmStatus': 'Status',
+  'system.user.tableColunmActions': 'Actions',
 };
