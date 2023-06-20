@@ -183,39 +183,6 @@
       </template>
     </a-modal>
     <a-modal
-      v-model:visible="inviteVisible"
-      :title="t('system.user.invite')"
-      title-align="start"
-      class="ms-modal-form ms-modal-medium"
-      :loading="inviteLoading"
-    >
-      <a-form ref="inviteFormRef" class="rounded-[4px]" :model="emailForm" layout="vertical">
-        <a-form-item
-          field="emails"
-          :label="t('system.user.inviteEmail')"
-          :rules="[{ required: true, message: t('system.user.createUserEmailNotNull') }]"
-        >
-          <a-input-tag v-model="emailForm.emails" :placeholder="t('system.user.inviteEmailPlaceholder')" allow-clear />
-        </a-form-item>
-        <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
-          <a-select
-            v-model="emailForm.userGroup"
-            multiple
-            :placeholder="t('system.user.createUserUserGroupPlaceholder')"
-            allow-clear
-          >
-            <a-option v-for="item of userGroupOptions" :key="item.value">{{ item.label }}</a-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button type="secondary" @click="cancelInvite">{{ t('system.user.inviteCancel') }}</a-button>
-        <a-button type="primary" @click="emailInvite">
-          {{ t('system.user.inviteSendEmail') }}
-        </a-button>
-      </template>
-    </a-modal>
-    <a-modal
       v-model:visible="importVisible"
       :title="t('system.user.importModalTitle')"
       title-align="start"
@@ -226,17 +193,13 @@
         {{ t('system.user.importModalTip') }}
         <a-button type="text" size="small">{{ t('system.user.importDownload') }} </a-button>
       </a-alert>
-      <a-upload action="/" accept=".xls,.xlsx" :show-file-list="false">
-        <template #upload-button>
-          <div class="ms-upload-area">
-            <div class="ms-upload-icon-box">
-              <div class="ms-upload-icon ms-upload-icon--excel"></div>
-            </div>
-            <div class="ms-upload-main-text">{{ t('system.user.importModalDragtext') }}</div>
-            <div class="ms-upload-sub-text">{{ t('system.user.importModalFileTip') }}</div>
-          </div>
-        </template>
-      </a-upload>
+      <MsUpload
+        action="/"
+        accept="excel"
+        main-text="system.user.importModalDragtext"
+        sub-text="system.user.importModalFileTip"
+        :show-file-list="false"
+      ></MsUpload>
       <template #footer>
         <a-button type="secondary" @click="cancelImport">{{ t('system.user.importModalCancel') }}</a-button>
         <a-button type="primary" @click="importUser">
@@ -288,6 +251,7 @@
         </a-button>
       </template>
     </a-modal>
+    <inviteModal v-model:visible="inviteVisible"></inviteModal>
     <batchModal
       v-model:visible="showBatchModal"
       :table-selected="tableSelected"
@@ -310,6 +274,8 @@
   import { getUserList, batchCreateUser } from '@/api/modules/system/user';
   import { validateEmail, validatePhone } from '@/utils/validate';
   import batchModal from './components/batchModal.vue';
+  import inviteModal from './components/inviteModal.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -609,14 +575,6 @@
     list: [0],
     userGroup: [],
   };
-
-  interface UserForm {
-    list: number[];
-    userGroup: string[];
-    [key: string]: any;
-  }
-
-  const userForm = ref<UserForm>(cloneDeep(defaulUserForm));
   const userGroupOptions = ref([
     {
       label: 'Beijing',
@@ -631,6 +589,14 @@
       value: 'Guangzhou',
     },
   ]);
+
+  interface UserForm {
+    list: number[];
+    userGroup: string[];
+    [key: string]: any;
+  }
+
+  const userForm = ref<UserForm>(cloneDeep(defaulUserForm));
 
   /**
    * 触发创建用户表单校验
@@ -785,6 +751,11 @@
     });
   }
 
+  /**
+   * 显示用户表单弹窗
+   * @param mode 模式，编辑或创建
+   * @param record 编辑时传入的用户信息
+   */
   function showUserModal(mode: UserModalMode, record?: UserListItem) {
     visible.value = true;
     userFormMode.value = mode;
@@ -797,26 +768,8 @@
   }
 
   const inviteVisible = ref(false);
-  const inviteLoading = ref(false);
-  const inviteFormRef = ref<FormInstance | null>(null);
-  const defaulInviteForm = {
-    emails: [],
-    userGroup: [],
-  };
-  const emailForm = ref(cloneDeep(defaulInviteForm));
-
   function showEmailInviteModal() {
     inviteVisible.value = true;
-  }
-
-  function emailInvite() {
-    inviteFormRef.value?.validate();
-  }
-
-  function cancelInvite() {
-    inviteVisible.value = false;
-    inviteFormRef.value?.resetFields();
-    emailForm.value = cloneDeep(defaulInviteForm);
   }
 
   const importVisible = ref(false);
@@ -872,37 +825,4 @@
   }
 </script>
 
-<style lang="less" scoped>
-  .ms-upload-area {
-    @apply flex w-full flex-col items-center justify-center;
-
-    height: 154px;
-    border: 1px dashed var(--color-text-input-border);
-    border-radius: var(--border-radius-small);
-    background-color: var(--color-text-n9);
-    .ms-upload-icon-box {
-      @apply rounded-full bg-white;
-
-      margin-bottom: 16px;
-      padding: 8px;
-      width: 48px;
-      height: 48px;
-      .ms-upload-icon {
-        @apply h-full w-full bg-cover bg-no-repeat;
-
-        background-image: url('@/assets/svg/icons/uploadfile.svg');
-        &--excel {
-          background-image: url('@/assets/svg/icons/excel.svg');
-        }
-      }
-    }
-    .ms-upload-main-text {
-      color: var(--color-text-1);
-    }
-    .ms-upload-sub-text {
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: var(--color-text-4);
-    }
-  }
-</style>
+<style lang="less" scoped></style>
