@@ -33,7 +33,7 @@ module.exports = {
     'font-family-no-missing-generic-family-keyword': null,
     'selector-type-no-unknown': null,
     'block-opening-brace-space-before': 'always',
-    'at-rule-no-unknown': null,
+    'at-rule-no-unknown': [true, { ignoreAtRules: ['apply', 'tailwind', 'variants', 'responsive', 'screen'] }],
     'no-duplicate-selectors': null,
     'property-no-unknown': null,
     'no-empty-source': null,

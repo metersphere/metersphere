@@ -13,8 +13,13 @@
       :selected-keys="props.selectedKeys"
       @selection-change="(e) => selectionChange(e, true)"
     >
-      <template v-for="(item, key, i) in slots" :key="i" #[key]="{ record, rowIndex, column }">
-        <slot :name="key" v-bind="{ rowIndex, record, column }"></slot>
+      <template #columns>
+        <a-table-column v-for="(item, key) in props.columns" :key="key" v-bind="item" :title="t(item.title as string)">
+          <template #cell="{ column, record, rowIndex }">
+            <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
+            <template v-else>{{ record[item.dataIndex as string] }}</template>
+          </template>
+        </a-table-column>
       </template>
     </a-table>
     <div v-if="selectCurrent > 0 && attrs.showSelectAll" class="mt-[21px]">
@@ -29,17 +34,20 @@
 </template>
 
 <script lang="ts" setup>
-  import { useSlots, useAttrs, computed, ref, onMounted } from 'vue';
+  import { useI18n } from '@/hooks/useI18n';
+  import { useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
   import { MsTableProps, SelectAllEnum, MsPaginationI, BatchActionParams, BatchActionConfig } from './type';
   import BatchAction from './batchAction.vue';
 
-  import type { TableData } from '@arco-design/web-vue';
+  import type { TableColumnData, TableData } from '@arco-design/web-vue';
 
   const batchleft = ref('10px');
+  const { t } = useI18n();
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
+    columns?: TableColumnData[];
   }>();
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
@@ -49,7 +57,6 @@
   // 全选按钮-当前的条数
   const selectCurrent = ref(0);
 
-  const slots = useSlots();
   const attrs = useAttrs();
 
   const { rowKey, pagination }: Partial<MsTableProps> = attrs;

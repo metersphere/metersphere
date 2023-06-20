@@ -32,15 +32,12 @@
   import { watchEffect, reactive, ref, computed, onUnmounted } from 'vue';
   import { CustomMoreActionItem, RenameType, UserGroupItem } from './type';
   import { ValidatedError } from '@arco-design/web-vue';
-  import useUserGroupStore from '@/store/modules/system/usergroup';
 
   const { t } = useI18n();
   const formRef = ref();
   const form = reactive({
     name: '',
   });
-
-  const store = useUserGroupStore();
 
   const props = defineProps<{
     visible: boolean;
