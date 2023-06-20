@@ -10,6 +10,7 @@
       </el-select>
       <el-button
         size="mini"
+        :disabled="request.caseEnable"
         @click="add"
         type="primary"
         v-if="tabType !== 'assertionsRule'"

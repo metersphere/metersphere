@@ -81,7 +81,7 @@
             v-model="data.enable"
             class="enable-switch"
             size="mini"
-            :disabled="data.refEnable || !showVersion || isDeleted" />
+            :disabled="data.refEnable || !showVersion || isDeleted || isEnabled()" />
         </el-tooltip>
 
         <el-button
@@ -302,6 +302,9 @@ export default {
     },
   },
   methods: {
+    isEnabled() {
+      return this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1 && this.data.caseEnable;
+    },
     active() {
       this.$emit('active');
     },

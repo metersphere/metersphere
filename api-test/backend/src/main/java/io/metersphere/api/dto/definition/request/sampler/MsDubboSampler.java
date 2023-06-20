@@ -71,6 +71,9 @@ public class MsDubboSampler extends MsTestElement {
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }
+        if (!ElementUtil.isEnable(this, config)) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
