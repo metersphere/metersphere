@@ -20,12 +20,9 @@ public class ApiKeyFilter extends AnonymousFilter {
         // 不是apikey的通过
         if (!ApiKeyHandler.isApiKeyCall(httpRequest) && !SecurityUtils.getSubject().isAuthenticated()) {
             // sso 带了token的
-            String token = httpRequest.getHeader(SessionConstants.SSO_TOKEN);
-            if (StringUtils.isNotBlank(token)) {
-                String userId = SSOSessionHandler.validate(httpRequest);
-                if (StringUtils.isNotBlank(userId)) {
-                    SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, SSOSessionHandler.random));
-                }
+            String userId = SSOSessionHandler.validate(httpRequest);
+            if (StringUtils.isNotBlank(userId)) {
+                SecurityUtils.getSubject().login(new UsernamePasswordToken(userId, SSOSessionHandler.random));
             }
             return true;
         }
