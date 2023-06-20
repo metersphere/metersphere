@@ -47,7 +47,6 @@ public class ProjectController {
     }
 
     @GetMapping("/listAll/{workspaceId}")
-    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
     public List<ProjectDTO> listAll(@PathVariable String workspaceId) {
         ProjectRequest request = new ProjectRequest();
         request.setWorkspaceId(workspaceId);
