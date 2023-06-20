@@ -3663,4 +3663,7 @@ export default {
   automation: {
     document_validity_msg: '文件已經被修改，請重新上傳',
   },
+  performance: {
+    edit_performance_test_tips: '沒有編輯性能測試的權限，請勾選後再操作',
+  }
 };
