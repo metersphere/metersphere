@@ -22,4 +22,6 @@ public interface BaseUserMapper {
     List<User> selectUserIdByEmailList(@Param("emailList") List<String> emailList);
 
     List<User> selectByKeyword(String keyword);
+
+    List<String> selectUserIdByIdList(@Param("idList") List<String> userIdList);
 }

@@ -60,4 +60,10 @@
             OR email LIKE CONCAT('%', #{keyword}, '%')
         </if>
     </select>
+    <select id="selectUserIdByIdList" resultType="java.lang.String">
+        SELECT * from `user` WHERE id IN
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
