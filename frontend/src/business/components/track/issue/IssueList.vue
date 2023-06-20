@@ -220,7 +220,8 @@ export default {
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
-          isDisable: this.btnDisable
+          isDisable: this.btnDisable,
+          permissions: ['PROJECT_TRACK_ISSUE:READ+CREATE']
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,

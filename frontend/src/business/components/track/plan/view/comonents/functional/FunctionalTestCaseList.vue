@@ -493,7 +493,7 @@ export default {
     this.$emit('setCondition', this.condition);
     this.$EventBus.$on("openFailureTestCase", this.handleOpenFailureTestCase);
     this.refreshTableAndPlan();
-    this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
+    this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+RUN');
     this.getMaintainerOptions();
     this.getTemplateField();
     this.getVersionOptions();

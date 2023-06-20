@@ -1,7 +1,11 @@
 <template>
   <div>
-    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" :disabled="readOnly" type="primary" size="mini" @click="addIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
-    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  :disabled="readOnly" type="primary" size="mini" @click="relateIssue">{{ $t('test_track.case.relate_issue') }}</el-button>
+    <el-button class="add-btn" v-if="hasAddIssuePermission" :disabled="readOnly" type="primary" size="mini" @click="addIssue">
+      {{ $t('test_track.issue.add_issue') }}
+    </el-button>
+    <el-button class="add-btn" v-if="hasRelateIssuePermission"  :disabled="readOnly" type="primary" size="mini" @click="relateIssue">
+      {{ $t('test_track.case.relate_issue') }}
+    </el-button>
     <el-tooltip class="item" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
                 placement="right">
@@ -111,7 +115,7 @@ import IssueRelateList from "@/business/components/track/case/components/IssueRe
 import {deleteIssueRelate, getIssuePartTemplateWithProject, getIssuesByCaseId} from "@/network/Issue";
 import {getCustomFieldValue, getTableHeaderWithCustomFields} from "@/common/js/tableUtils";
 import {LOCAL} from "@/common/js/constants";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
@@ -152,6 +156,18 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    hasAddIssuePermission() {
+      if (this.planId) {
+        return hasPermission("PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL") && hasPermission("PROJECT_TRACK_ISSUE:READ+CREATE");
+      }
+      return hasPermission("PROJECT_TRACK_CASE:READ+EDIT") && hasPermission("PROJECT_TRACK_ISSUE:READ+CREATE");
+    },
+    hasRelateIssuePermission() {
+      if (this.planId) {
+        return hasPermission("PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL") && hasPermission("PROJECT_TRACK_ISSUE:READ");
+      }
+      return hasPermission("PROJECT_TRACK_CASE:READ+EDIT") && hasPermission("PROJECT_TRACK_ISSUE:READ");
     }
   },
   created() {
