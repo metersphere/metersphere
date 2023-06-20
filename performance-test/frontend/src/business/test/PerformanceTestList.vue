@@ -142,6 +142,7 @@ import {
 } from "@/api/performance";
 
 import {getProjectVersions, isProjectVersionEnable} from "metersphere-frontend/src/api/version";
+import {hasPermission} from "metersphere-frontend/src/utils/permission"
 
 export default {
   components: {
@@ -373,6 +374,10 @@ export default {
     create() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT')) {
+        this.$warning(this.$t('performance_test.edit_performance_test_tips'));
         return;
       }
       this.$router.push('/performance/test/create');
