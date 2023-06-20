@@ -1,32 +1,74 @@
 <template>
   <span class="adv-search-bar">
-    <el-button size="mini" @click="open" ref="filter-btn" :class="conditionNum === 0 ? '' : 'btn-active'">
-      <svg-icon :icon-class="conditionNum === 0 ? 'icon-filter' : 'icon-filter-active'"/>
-      <span class="condition-num">{{conditionNum === 0 ? "" : "(" +  conditionNum  + ")" }}</span>
+    <el-button
+      size="mini"
+      @click="open"
+      ref="filter-btn"
+      :class="conditionNum === 0 ? '' : 'btn-active'"
+    >
+      <svg-icon
+        :icon-class="conditionNum === 0 ? 'icon-filter' : 'icon-filter-active'"
+      />
+      <span class="condition-num">{{
+        conditionNum === 0 ? "" : "(" + conditionNum + ")"
+      }}</span>
     </el-button>
-    <el-dialog :title="$t('commons.adv_search.new_title')" :visible.sync="visible"
-               custom-class="adv-dialog" :append-to-body="true" width="60%">
-      <div class="search-items"  style="height: 275px">
+    <el-dialog
+      :title="$t('commons.adv_search.new_title')"
+      :visible.sync="visible"
+      custom-class="adv-dialog"
+      :append-to-body="true"
+      width="60%"
+    >
+      <div class="search-items" style="height: 275px">
         <el-scrollbar style="height: 100%" ref="scrollbar">
-            <div class="search-item" v-for="(component) in optional.components" :key="component.key">
-              <el-row>
-                <el-col :span="23">
-                  <component :is="component.name" :component="component" :components.sync="config.components"
-                             @updateKey="changeSearchItemKey" :custom="condition.custom"/>
-                </el-col>
-                <el-col :span="1">
-                  <i class="el-icon-delete delete-icon" @click="remove(component)" v-if="optional.components.length !==1"></i>
-                </el-col>
-              </el-row>
-            </div>
+          <div
+            class="search-item"
+            v-for="component in optional.components"
+            :key="component.key"
+          >
+            <el-row>
+              <el-col :span="23">
+                <component
+                  :is="component.name"
+                  :component="component"
+                  :components.sync="config.components"
+                  @updateKey="changeSearchItemKey"
+                  :custom="condition.custom"
+                />
+              </el-col>
+              <el-col :span="1">
+                <i
+                  class="el-icon-delete delete-icon"
+                  @click="remove(component)"
+                  v-if="optional.components.length !== 1"
+                ></i>
+              </el-col>
+            </el-row>
+          </div>
         </el-scrollbar>
-        <el-link type="primary" icon="el-icon-plus" v-if="showAddFilterLink" :underline="false"
-                 class="add-filter-link" @click="addFilter">{{ $t('commons.adv_search.add_filter_link') }}</el-link>
+        <el-link
+          type="primary"
+          icon="el-icon-plus"
+          v-if="showAddFilterLink"
+          :underline="false"
+          class="add-filter-link"
+          @click="addFilter"
+          >{{ $t("commons.adv_search.add_filter_link") }}</el-link
+        >
       </div>
       <template v-slot:footer>
         <div class="dialog-footer" style="margin-top: 30px">
-          <el-button size="small" @click="reset">{{ $t('commons.adv_search.reset') }}</el-button>
-          <el-button size="small" type="primary" @click="search" class="custom-btn">{{ $t('commons.adv_search.search') }}</el-button>
+          <el-button size="small" @click="reset">{{
+            $t("commons.adv_search.reset")
+          }}</el-button>
+          <el-button
+            size="small"
+            type="primary"
+            @click="search"
+            class="custom-btn"
+            >{{ $t("commons.adv_search.search") }}</el-button
+          >
         </div>
       </template>
     </el-dialog>
@@ -35,11 +77,11 @@
 
 <script>
 import components from "../search/search-components";
-import {cloneDeep, concat, slice} from "lodash-es";
-import {_findByKey, _findIndexByKey} from "../search/custom-component";
+import { cloneDeep, concat, slice } from "lodash-es";
+import { _findByKey, _findIndexByKey } from "../search/custom-component";
 
 export default {
-  components: {...components},
+  components: { ...components },
   name: "MsNewUiTableAdvSearch",
   props: {
     condition: Object,
@@ -51,23 +93,23 @@ export default {
       type: Number,
       default() {
         return 6; // 默认展示的搜索条件数量
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       visible: false,
       config: {
-        components: []
+        components: [],
       },
       optional: {
-        components: []
+        components: [],
       },
       showAddFilterLink: true,
-      nullFilterKey: '',
+      nullFilterKey: "",
       isInit: false,
       conditionNum: 0,
-    }
+    };
   },
   updated() {
     this.setScrollToBottom();
@@ -75,28 +117,39 @@ export default {
   methods: {
     doInit(handleCustom) {
       let config = cloneDeep(this.condition);
-      config.components.forEach(component => {
+      config.components.forEach((component) => {
         let operator = component.operator.value;
-        component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
-      })
+        component.operator.value =
+          operator === undefined
+            ? component.operator.options[0].value
+            : operator;
+      });
       if (!handleCustom) {
         return config;
       }
       if (this.condition.custom) {
         let components = [];
-        this.systemFiled = config.components.filter(co => co.custom === undefined || co.custom === false);
-        this.customFiled = config.components.filter(co => co.custom === true);
+        this.systemFiled = config.components.filter(
+          (co) => co.custom === undefined || co.custom === false
+        );
+        this.customFiled = config.components.filter((co) => co.custom === true);
         // 选项分组
-        this.$set(components, 0, {label: this.$t('custom_field.system_field'), child: this.systemFiled});
-        this.$set(components, 1, {label: this.$t('custom_field.name'), child: this.customFiled});
+        components.push({
+          label: this.$t("custom_field.system_field"),
+          child: this.systemFiled,
+        });
+        components.push({
+          label: this.$t("custom_field.name"),
+          child: this.customFiled,
+        });
         this.$set(config, "components", components);
       }
       return config;
     },
     search() {
-      this.conditionNum = 0
-      let condition = {}
-      this.optional.components.forEach(component => {
+      this.conditionNum = 0;
+      let condition = {};
+      this.optional.components.forEach((component) => {
         let value = component.value;
         if (Array.isArray(value)) {
           if (value.length > 0) {
@@ -113,10 +166,10 @@ export default {
 
       if (this.conditionNum > 0) {
         this.$refs["filter-btn"].$el.focus();
-        this.$refs["filter-btn"].$el.style.width = 'auto';
+        this.$refs["filter-btn"].$el.style.width = "auto";
       } else {
         this.$refs["filter-btn"].$el.blur();
-        this.$refs["filter-btn"].$el.style.width = '32px';
+        this.$refs["filter-btn"].$el.style.width = "32px";
       }
 
       // 清除name
@@ -125,53 +178,74 @@ export default {
       }
       // 添加组合条件
       this.condition.combine = condition;
-      this.$emit('update:condition', this.condition);
-      this.$emit('search', condition);
+      this.$emit("update:condition", this.condition);
+      this.$emit("search", condition);
       this.visible = false;
     },
     setCondition(condition, component) {
       // 某些字段储存在自定义表但是其 custom 的值是 false
       // 因为需求要把这些字段在有选项分类时归为 系统字段 ？
-      if (component.custom || ['严重程度', '处理人', '状态', '用例状态', '责任人', '用例等级'].indexOf(component.label) > -1) {
+      if (
+        component.custom ||
+        [
+          "严重程度",
+          "处理人",
+          "状态",
+          "用例状态",
+          "责任人",
+          "用例等级",
+        ].indexOf(component.label) > -1
+      ) {
         this.handleCustomField(condition, component);
         return;
       }
       condition[component.key] = {
         operator: component.operator.value,
-        value: component.value
+        value: component.value,
       };
     },
     handleCustomField(condition, component) {
       if (!condition.customs) {
-        condition['customs'] = [];
+        condition["customs"] = [];
       }
       let value = component.value;
-      if (component.label === '用例状态' && value.length === 1 && value.indexOf('Trash') > -1) {
+      if (
+        component.label === "用例状态" &&
+        value.length === 1 &&
+        value.indexOf("Trash") > -1
+      ) {
         return;
       }
-      if (component.type === "multipleMember" || component.type === "checkbox" || component.type === "multipleSelect") {
+      if (
+        component.type === "multipleMember" ||
+        component.type === "checkbox" ||
+        component.type === "multipleSelect"
+      ) {
         try {
           value = JSON.stringify(component.value);
         } catch (e) {
           // nothing
         }
       }
-      condition['customs'].push({
+      condition["customs"].push({
         id: component.key,
         operator: component.operator.value,
         value: value,
-        type: component.type
+        type: component.type,
       });
     },
     reset() {
       this.conditionNum = 0;
       this.$refs["filter-btn"].$el.blur();
-      this.$refs["filter-btn"].$el.style.width = '32px';
+      this.$refs["filter-btn"].$el.style.width = "32px";
       let source = this.condition.components;
       this.optional.components.forEach((component, index) => {
         if (component.operator.value !== undefined) {
           let operator = _findByKey(source, component.key).operator.value;
-          component.operator.value = operator === undefined ? component.operator.options[0].value : operator;
+          component.operator.value =
+            operator === undefined
+              ? component.operator.options[0].value
+              : operator;
         }
         if (component.value !== undefined) {
           component.value = source[index].value;
@@ -179,24 +253,37 @@ export default {
         if (component.reset && component.reset instanceof Function) {
           component.reset();
         }
-      })
+      });
       this.condition.combine = undefined;
-      this.$emit('update:condition', this.condition);
-      this.$emit('search');
+      this.$emit("update:condition", this.condition);
+      this.$emit("search");
     },
     init() {
       this.config = this.doInit(true);
       this.optional = this.doInit();
-      if (this.optional.components.length && this.optional.components.length <= this.showItemSize) {
+      if (
+        this.optional.components.length &&
+        this.optional.components.length <= this.showItemSize
+      ) {
         this.showAddFilterLink = false;
       }
       // 默认显示几个搜索条件
-      this.optional.components = slice(this.optional.components, 0, this.showItemSize);
-      let allComponent = this.condition.custom ?
-        concat(this.config.components[0].child, this.config.components[1].child) : this.config.components;
+      this.optional.components = slice(
+        this.optional.components,
+        0,
+        this.showItemSize
+      );
+      let allComponent = this.condition.custom
+        ? concat(
+            this.config.components[0].child,
+            this.config.components[1].child
+          )
+        : this.config.components;
       for (let component of allComponent) {
         let co = _findByKey(this.optional.components, component.key);
-        co ? this.$set(co, 'disable', true) : this.$set(component, 'disable', false);
+        co
+          ? this.$set(co, "disable", true)
+          : this.$set(component, "disable", false);
       }
     },
     open() {
@@ -211,27 +298,37 @@ export default {
     },
     refreshComponentOption() {
       // 当前已存在的搜索子组件中是否有需要进行刷新数据选项的
-      let comps = this.optional.components.filter(cp => cp.init && cp.init instanceof Function);
-      comps.forEach(comp => comp.init());
+      let comps = this.optional.components.filter(
+        (cp) => cp.init && cp.init instanceof Function
+      );
+      comps.forEach((comp) => comp.init());
     },
     setModulesParam() {
-      let comps = this.optional.components.filter(c => c.key === 'moduleIds' && c.options.type === 'POST');
-      comps.forEach(comp => comp.options.params = {"projectId": this.condition.projectId});
+      let comps = this.optional.components.filter(
+        (c) => c.key === "moduleIds" && c.options.type === "POST"
+      );
+      comps.forEach(
+        (comp) =>
+          (comp.options.params = { projectId: this.condition.projectId })
+      );
     },
     addFilter() {
-      const index = _findIndexByKey(this.optional.components, this.nullFilterKey);
+      const index = _findIndexByKey(
+        this.optional.components,
+        this.nullFilterKey
+      );
       if (index > -1) {
-        this.$warning(this.$t('commons.adv_search.add_filter_link_tip'), false);
+        this.$warning(this.$t("commons.adv_search.add_filter_link_tip"), false);
         return;
       }
       let data = {
         key: this.nullFilterKey,
-        name: 'MsTableSearchInput',
-        label: '',
+        name: "MsTableSearchInput",
+        label: "",
         operator: {
-          options: []
+          options: [],
         },
-        disable: false
+        disable: false,
       };
       this.optional.components.push(data);
     },
@@ -241,7 +338,10 @@ export default {
         this.enableOptional(component, this.config.components);
       } else {
         // 系统字段和自定义字段选项合并
-        const components = concat(this.config.components[0].child, this.config.components[1].child);
+        const components = concat(
+          this.config.components[0].child,
+          this.config.components[1].child
+        );
         this.enableOptional(component, components);
       }
       let index = _findIndexByKey(this.optional.components, component.key);
@@ -252,7 +352,7 @@ export default {
     enableOptional(component, components) {
       let data = _findByKey(components, component.key);
       if (data) {
-        this.$set(data, 'disable', false);
+        this.$set(data, "disable", false);
       }
     },
     // 搜索组件的字段变换时触发
@@ -265,7 +365,10 @@ export default {
       if (!this.condition.custom) {
         components = this.config.components;
       } else {
-        components = concat(this.config.components[0].child, this.config.components[1].child);
+        components = concat(
+          this.config.components[0].child,
+          this.config.components[1].child
+        );
       }
       for (let op of components) {
         if (op.disable !== undefined && op.disable === false) {
@@ -275,18 +378,18 @@ export default {
       }
     },
     setScrollToBottom() {
-      if (this.$refs['scrollbar']) {
-        this.$refs['scrollbar'].wrap.scrollTop = this.$refs['scrollbar'].wrap.scrollHeight;
+      if (this.$refs["scrollbar"]) {
+        this.$refs["scrollbar"].wrap.scrollTop =
+          this.$refs["scrollbar"].wrap.scrollHeight;
       }
-    }
-  }
-  ,
+    },
+  },
   computed: {
     isAuto() {
-      return this.conditionNum > 0
-    }
-  }
-}
+      return this.conditionNum > 0;
+    },
+  },
+};
 </script>
 
 <style>
@@ -318,19 +421,18 @@ export default {
 
 <style lang="scss">
 .adv-dialog {
-  .el-dialog__header{
-    text-align: left!important;
+  .el-dialog__header {
+    text-align: left !important;
   }
   .el-dialog__body {
-    text-align: left!important;
+    text-align: left !important;
   }
   button.el-button.custom-btn.el-button--primary.el-button--small {
-    color: #FFFFFF!important;
+    color: #ffffff !important;
   }
 }
 </style>
 <style scoped>
-
 .dialog-footer {
   text-align: right;
 }
@@ -391,7 +493,7 @@ export default {
 }
 
 :deep(.el-row) {
-  margin: 0px 0px 12px 0px!important;
+  margin: 0px 0px 12px 0px !important;
 }
 
 :deep(.search-label) {
@@ -410,7 +512,7 @@ export default {
 span.condition-num {
   width: 18px;
   height: 10px;
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -420,7 +522,7 @@ span.condition-num {
   flex: none;
   order: 1;
   flex-grow: 0;
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   line-height: 22px;
   display: flex;
@@ -456,12 +558,12 @@ span.condition-num {
   flex: none;
   flex-grow: 0;
 
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
 :deep(i.el-tag__close.el-icon-close) {
@@ -471,25 +573,25 @@ span.condition-num {
 }
 
 .adv-search-bar {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
 :deep(input.el-input__inner) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #1F2329;
+  color: #1f2329;
 }
 
 :deep (.el-button--mini, .el-button--small) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -498,7 +600,7 @@ span.condition-num {
 }
 
 :deep(.el-button--small span) {
-  font-family: 'PingFang SC';
+  font-family: "PingFang SC";
   font-style: normal;
   font-weight: 400;
   font-size: 14px;
@@ -514,6 +616,6 @@ span.condition-num {
 }
 
 .btn-active {
-  border: 1px solid #783887!important;
+  border: 1px solid #783887 !important;
 }
 </style>
