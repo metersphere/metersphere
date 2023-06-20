@@ -133,7 +133,7 @@
             min-width="120px"
             :label="$t('test_track.plan_view.execute_result')">
              <template v-slot:default="scope">
-              <el-link @click="getExecResult(scope.row)" :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
+              <el-link :disabled="!scope.row.execResult || scope.row.execResult==='PENDING'">
                 <ms-api-report-status :status="scope.row.execResult"/>
               </el-link>
             </template>
@@ -291,7 +291,6 @@ import {
   editApiCaseByParam,
   editApiTestCaseOrder,
   getApiCaseById,
-  getApiReportDetail,
   getCaseById,
   testCaseBatchRun
 } from "@/api/api";
@@ -630,17 +629,6 @@ export default {
     }
   },
   methods: {
-    getExecResult(apiCase) {
-      if (apiCase.lastResultId) {
-        getApiReportDetail(apiCase.lastResultId).then(response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.response = data;
-            this.resVisible = true;
-          }
-        });
-      }
-    },
     getStatusClass(status) {
       switch (status) {
         case "success":
