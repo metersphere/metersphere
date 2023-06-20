@@ -224,7 +224,6 @@ public class IssuesController {
     }
 
     @GetMapping("/demand/list/{projectId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public List getDemandList(@PathVariable String projectId) {
         return issuesService.getDemandList(projectId);
     }
