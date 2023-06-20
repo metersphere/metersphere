@@ -25,6 +25,7 @@
                     size="small"
                     :placeholder="$t('case.please_enter_the_case_name')"
                     v-model="form.name"
+                    :disabled="readOnly"
                     @blur="textBlur(val, 'nameRef')"
                     :maxlength="255"
                     show-word-limit
