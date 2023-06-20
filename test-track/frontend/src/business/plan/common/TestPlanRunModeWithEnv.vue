@@ -7,7 +7,7 @@
     @close="close"
     :visible.sync="runModeVisible"
   >
-    <div class="env-container" style="max-height: 400px; overflow-y: scroll;">
+    <div class="env-container">
       <div>
         <div>{{ $t("commons.environment") }}：</div>
         <env-select-popover
@@ -459,6 +459,11 @@ export default {
 </script>
 
 <style scoped>
+.env-container{
+  max-height: 400px;
+  overflow-y: scroll;
+  padding-bottom: 1px;
+}
 .env-container .title {
   width: 100px;
   min-width: 100px;
