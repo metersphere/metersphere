@@ -39,6 +39,7 @@ public class ProjectController {
     private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @GetMapping("/listAll")
+    @RequiresPermissions(value = {PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
     public List<ProjectDTO> listAll() {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ProjectRequest request = new ProjectRequest();
@@ -83,6 +84,7 @@ public class ProjectController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.WORKSPACE_PROJECT_MANAGER_READ)
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
