@@ -338,7 +338,7 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-      if (!hasPermission('PROJECT_PERFORMANCE_TEST:EDIT')) {
+      if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT')) {
         this.$warning(this.$t('performance.edit_performance_test_tips'));
         return;
       }
