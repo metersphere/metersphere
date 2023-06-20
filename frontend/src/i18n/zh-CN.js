@@ -3667,4 +3667,7 @@ export default {
   automation: {
     document_validity_msg: '文件已经被修改，请重新上传',
   },
+  performance: {
+    edit_performance_test_tips: '没有编辑性能测试的权限，请勾选后再操作',
+  }
 };

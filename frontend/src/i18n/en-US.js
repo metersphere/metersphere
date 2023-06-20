@@ -3659,4 +3659,7 @@ export default {
   automation: {
     document_validity_msg: 'The file has been modified, please re-upload',
   },
+  performance: {
+    edit_performance_test_tips: 'Do not have permission to edit performance test, please check it before operation',
+  }
 };

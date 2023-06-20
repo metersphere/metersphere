@@ -117,7 +117,7 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasLicense, hasPermission} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {buildBatchParam, getLastTableSortField} from "@/common/js/tableUtils";
@@ -336,6 +336,10 @@ export default {
     create() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      if (!hasPermission('PROJECT_PERFORMANCE_TEST:EDIT')) {
+        this.$warning(this.$t('performance.edit_performance_test_tips'));
         return;
       }
       this.$router.push('/performance/test/create');
