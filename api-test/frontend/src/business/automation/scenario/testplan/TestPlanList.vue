@@ -61,6 +61,14 @@
                   :command="{ id: scope.row.id, status: 'Completed' }">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
+                 <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                                   :command="{id: scope.row.id, status: 'Finished'}">
+                    {{ $t('test_track.plan.plan_status_finished') }}
+                  </el-dropdown-item>
+                   <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                                     :command="{id: scope.row.id, status: 'Archived'}">
+                    {{ $t('test_track.plan.plan_status_archived') }}
+                  </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </span>
@@ -184,6 +192,14 @@ export default {
           text: this.$t('test_track.plan.plan_status_completed'),
           value: 'Completed',
         },
+        {
+          text: this.$t('test_track.plan.plan_status_finished'),
+          value: 'Finished'
+        },
+        {
+          text: this.$t('test_track.plan.plan_status_archived'),
+          value: 'Archived'
+        }
       ],
       stageFilters: [
         { text: this.$t('test_track.plan.smoke_test'), value: 'smoke' },
