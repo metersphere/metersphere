@@ -3643,6 +3643,9 @@ export default {
     use_origin_env_run: "Use original scene environment to execute",
     open_new: "Open new page",
     open_new_tip: "open in new page",
+    no_scenario_edit_permission: "The current user does not have permission to modify",
+    no_scenario_create_permission: "The current user does not have permission to create",
+    no_scenario_copy_permission: "The current user has no copy permission",
   },
   system: {
     test_resource_pool: {
