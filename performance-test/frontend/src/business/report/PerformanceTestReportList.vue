@@ -496,9 +496,6 @@ export default {
       }
     },
     openReNameDialog($event) {
-      if (!hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE')) {
-        return false;
-      }
       this.$refs.renameDialog.open($event);
     },
     rename(data) {
