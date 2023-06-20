@@ -88,7 +88,10 @@
         select count(1) as `count`, if(i.platform = 'Local', cfi.value, i.platform_status) as statusValue, i.platform
         from issues i
                  inner join project p
-                            on i.project_id = p.id and p.workspace_id = #{request.workspaceId}
+                            on i.project_id = p.id and p.workspace_id = #{request.workspaceId} and
+                               p.id IN (SELECT source_id
+                                        FROM user_group
+                                        WHERE user_id = #{request.creator})
                  left join custom_field_issues cfi
                            on i.id = cfi.resource_id and field_id in (select cf.id
                                                                       from custom_field cf

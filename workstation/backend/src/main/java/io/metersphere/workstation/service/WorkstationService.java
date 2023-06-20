@@ -12,25 +12,21 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.request.ApiSyncCaseRequest;
 import io.metersphere.request.ProjectRequest;
 import io.metersphere.request.api.ApiScenarioRequest;
+import io.metersphere.request.api.ApiTestCaseRequest;
 import io.metersphere.request.track.QueryTestCaseRequest;
 import io.metersphere.request.track.QueryTestPlanRequest;
-import io.metersphere.request.api.ApiTestCaseRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.metersphere.workstation.util.ShareUtil.getTimeMills;
 
@@ -77,7 +73,7 @@ public class WorkstationService {
             createTime = startDayOfWeek.getTime();
         }
         String userId = SessionUtils.getUserId();
-        //build query condition object
+
         QueryTestPlanRequest testPlanRequest = new QueryTestPlanRequest();
         testPlanRequest.setUserId(userId);
         testPlanRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -89,7 +85,7 @@ public class WorkstationService {
         if (isWeek) {
             apiTestCaseRequest.setCreateTime(createTime);
         }
-        //@see io/metersphere/base/mapper/ext/ExtApiTestCaseMapper.xml:103
+
         Map<String, Object> combine = new HashMap<>(2);
         Map<String, String> operatorValue = new HashMap<>(2);
         operatorValue.put("operator", "current user");
@@ -109,6 +105,19 @@ public class WorkstationService {
         if (isWeek) {
             testCaseRequest.setCreateTime(createTime);
         }
+
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        projectRequest.setUserId(userId);
+        List<Project> projects = baseProjectMapper.getUserProject(projectRequest);
+        if (CollectionUtils.isNotEmpty(projects)) {
+            List<String> projectIds = projects.stream().map(Project::getId).toList();
+            apiScenarioRequest.setProjectIdList(projectIds);
+            apiTestCaseRequest.setProjectIdList(projectIds);
+            testCaseRequest.setProjectIdList(projectIds);
+            testPlanRequest.setProjectIdList(projectIds);
+        }
+
         //query db
         int apiScenarioCaseCount = extApiScenarioMapper.listModule(apiScenarioRequest);
         int apiTestCaseCount = extApiTestCaseMapper.moduleCount(apiTestCaseRequest);
@@ -124,12 +133,17 @@ public class WorkstationService {
 
     }
 
-    public Map<String, Integer> getFollowTotalCount(String workstationId){
+    public Map<String, Integer> getFollowTotalCount(String workstationId) {
         String userId = SessionUtils.getUserId();
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(workstationId);
-        if (CollectionUtils.isEmpty(projectIds)) {
+
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setWorkspaceId(workstationId);
+        projectRequest.setUserId(userId);
+        List<Project> projects = baseProjectMapper.getUserProject(projectRequest);
+        if (CollectionUtils.isEmpty(projects)) {
             return null;
         }
+        List<String> projectIds = projects.stream().map(Project::getId).toList();
         int caseFollowCount = extTestCaseMapper.getCountFollow(projectIds, userId);
         int planFollowCount = extTestPlanMapper.getCountFollow(projectIds, userId);
         int reviewFollowCount = extTestCaseReviewMapper.getCountFollow(projectIds, userId);
@@ -246,10 +260,14 @@ public class WorkstationService {
 
     public Integer getIssueWeekCount(String workstationId) {
         String userId = SessionUtils.getUserId();
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(workstationId);
-        if (CollectionUtils.isEmpty(projectIds)) {
+        ProjectRequest projectRequest = new ProjectRequest();
+        projectRequest.setWorkspaceId(workstationId);
+        projectRequest.setUserId(userId);
+        List<Project> projects = baseProjectMapper.getUserProject(projectRequest);
+        if (CollectionUtils.isEmpty(projects)) {
             return null;
         }
+        List<String> projectIds = projects.stream().map(Project::getId).toList();
         Date startDayOfWeek = getStartDayOfWeek();
         Long createTime = startDayOfWeek.getTime();
         return extIssuesMapper.getCountCreat(projectIds, userId, createTime);

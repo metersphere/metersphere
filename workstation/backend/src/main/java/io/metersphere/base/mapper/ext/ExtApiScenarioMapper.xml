@@ -243,6 +243,12 @@
                 AND create_time >= #{request.scheduleCreateTime}
                 )
             </if>
+            <if test="request.projectIdList != null and request.projectIdList.size() > 0">
+                AND project.id in
+                <foreach collection="request.projectIdList" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
             <if test="request.ids != null and request.ids.size() > 0">
                 AND api_scenario.id in
                 <foreach collection="request.ids" item="itemId" separator="," open="(" close=")">

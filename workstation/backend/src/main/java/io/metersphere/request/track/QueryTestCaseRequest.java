@@ -4,6 +4,7 @@ import io.metersphere.request.BaseQueryRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -63,4 +64,6 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private Boolean toBeUpdated;
     private String apiCoverage;
     private String scenarioCoverage;
+
+    private List<String> projectIdList = new ArrayList<>();
 }

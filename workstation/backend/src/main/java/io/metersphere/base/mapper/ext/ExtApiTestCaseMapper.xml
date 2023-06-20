@@ -277,7 +277,6 @@
         inner join project on api_test_case.project_id = project.id
         inner JOIN api_definition a ON api_test_case.api_definition_id = a.id
         <include refid="criCondition"/>
-        and a.latest = 1
     </select>
     <select id="getCountFollow" resultType="java.lang.Integer">
         select count(*) from api_test_case ac where
@@ -403,6 +402,12 @@
             </if>
             <if test="request.createTime >0 ">
                 AND api_test_case.create_time >= #{request.createTime}
+            </if>
+            <if test="request.projectIdList != null and request.projectIdList.size() > 0">
+                AND project.id in
+                <foreach collection="request.projectIdList" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
             </if>
         </where>
     </sql>

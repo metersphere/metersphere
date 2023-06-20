@@ -5,6 +5,7 @@ import io.metersphere.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,4 +74,6 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
 
     //全选
     private boolean selectAll;
+
+    private List<String> projectIdList = new ArrayList<>();
 }
