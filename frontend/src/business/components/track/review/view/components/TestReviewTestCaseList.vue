@@ -270,7 +270,7 @@ export default {
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_REVIEW:READ+REVIEW']
         },
         {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock", type: "danger",
