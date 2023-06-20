@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.plugin.core.MsParameter;
@@ -35,6 +36,9 @@ public class MsDebugSampler extends MsTestElement {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
+        if (!ElementUtil.isEnable(this, config)) {
             return;
         }
         final HashTree groupTree = tree.add(debugSampler());

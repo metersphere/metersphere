@@ -91,7 +91,6 @@ public class ElementUtil {
     public static final String CLAZZ = "clazzName";
 
 
-
     public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
         BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(environmentId);
@@ -1170,4 +1169,15 @@ public class ElementUtil {
         return false;
     }
 
+    public static boolean isEnable(MsTestElement element, ParameterConfig config) {
+        String path = ElementUtil.getFullIndexPath(element, "");
+        if (StringUtils.isNotBlank(path) && path.endsWith("_")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        String key = StringUtils.join(element.getId(), "_", path);
+        if (config.getKeyMap().containsKey(key)) {
+            return config.getKeyMap().get(key);
+        }
+        return true;
+    }
 }

@@ -66,6 +66,9 @@ public class MsJDBCSampler extends MsTestElement {
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
+        if (!ElementUtil.isEnable(this, config)) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
