@@ -168,7 +168,9 @@ public class ApiScenarioReportStructureService {
             MsHashTreeService hashTreeService = CommonBeanFactory.getBean(MsHashTreeService.class);
             assert hashTreeService != null;
             List<String> caseIds = new ArrayList<>();
-            hashTreeService.dataFormatting(element, caseIds);
+            Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(element,element.optString(ElementConstants.INDEX));
+
+            hashTreeService.dataFormatting(element, caseIds, keyMap);
             // 处理用例
             hashTreeService.caseFormatting(element, caseIds, null);
 

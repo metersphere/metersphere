@@ -20,6 +20,7 @@ import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.plugin.core.MsTestElement;
+import io.metersphere.service.MsHashTreeService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.vo.BooleanPool;
 import org.apache.commons.collections.MapUtils;
@@ -159,6 +160,9 @@ public class GenerateHashTreeUtil {
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                 config.setRetryNum(runRequest.getRetryNum());
             }
+
+            Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(element, "");
+            config.setKeyMap(keyMap);
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
 
             LoggerUtil.info("场景资源：" + item.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());

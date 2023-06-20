@@ -28,6 +28,7 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.commons.constants.ElementConstants;
+import io.metersphere.commons.constants.MsHashTreeConstants;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.StorageConstants;
 import io.metersphere.commons.exception.MSException;
@@ -68,7 +69,6 @@ import org.apache.jorphan.collections.HashTree;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -82,6 +82,8 @@ public class ElementUtil {
     private static final String ASSERTIONS = ElementConstants.ASSERTIONS;
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
     private static final String TEST_BEAN_GUI = "TestBeanGUI";
+    private final static String SCENARIO_REF = "SCENARIO-REF-STEP";
+
     public final static List<String> scriptList = new ArrayList<String>() {{
         this.add(ElementConstants.JSR223);
         this.add(ElementConstants.JSR223_PRE);
@@ -89,7 +91,6 @@ public class ElementUtil {
     }};
     public static final String JSR = "jsr223";
     public static final String CLAZZ = "clazzName";
-
 
 
     public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId) {
@@ -463,73 +464,74 @@ public class ElementUtil {
         }
     }
 
-    public static List<JSONObject> mergeHashTree(List<JSONObject> sourceHashTree, List<JSONObject> targetHashTree) {
+    public static List<JSONObject> mergeHashTree(List<JSONObject> sources, List<JSONObject> targets) {
         try {
             List<String> sourceIds = new ArrayList<>();
             List<String> delIds = new ArrayList<>();
             Map<String, JSONObject> updateMap = new HashMap<>();
-
-            if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = targetHashTree.get(i);
-                    item.put("disabled", true);
-                    if (StringUtils.isNotEmpty(item.optString("id"))) {
-                        updateMap.put(item.optString("id"), item);
+            if (CollectionUtils.isNotEmpty(targets)) {
+                for (int i = 0; i < targets.size(); i++) {
+                    JSONObject item = targets.get(i);
+                    item.put(MsHashTreeConstants.DISABLED, true);
+                    item.put(ElementConstants.REF_ENABLE, true);
+                    if (StringUtils.isNotEmpty(item.optString(ElementConstants.ID))) {
+                        updateMap.put(item.optString(ElementConstants.ID), item);
                     }
                 }
             }
             // 找出待更新内容和源已经被删除的内容
-            if (CollectionUtils.isNotEmpty(sourceHashTree)) {
-                for (int i = 0; i < sourceHashTree.size(); i++) {
-                    JSONObject source = sourceHashTree.get(i);
-                    if (source != null) {
-                        sourceIds.add(source.optString("id"));
-                        if (!StringUtils.equals(source.optString("label"), "SCENARIO-REF-STEP") && StringUtils.isNotEmpty(source.optString("id"))) {
-                            if (updateMap.containsKey(source.optString("id"))) {
-                                sourceHashTree.set(i, updateMap.get(source.optString("id")));
-                            } else {
-                                delIds.add(source.optString("id"));
-                            }
-                        }
-                        // 历史数据兼容
-                        if (!source.has("id") && !StringUtils.equals(source.optString("label"), "SCENARIO-REF-STEP") && i < targetHashTree.size()) {
-                            sourceHashTree.set(i, targetHashTree.get(i));
+            if (CollectionUtils.isNotEmpty(sources)) {
+                for (int i = 0; i < sources.size(); i++) {
+                    JSONObject object = sources.get(i);
+                    if (object == null) {
+                        continue;
+                    }
+                    sourceIds.add(object.optString(ElementConstants.ID));
+                    if (!StringUtils.equals(object.optString("label"), SCENARIO_REF)
+                            && StringUtils.isNotEmpty(object.optString(ElementConstants.ID))) {
+                        if (updateMap.containsKey(object.optString(ElementConstants.ID))) {
+                            sources.set(i, updateMap.get(object.optString(ElementConstants.ID)));
+                            updateMap.remove(object.optString(ElementConstants.ID));
+                        } else {
+                            delIds.add(object.optString(ElementConstants.ID));
                         }
                     }
+                    // 历史数据兼容
+                    if (!object.has(ElementConstants.ID)
+                            && !StringUtils.equals(object.optString("label"), SCENARIO_REF)
+                            && i < targets.size()) {
+                        sources.set(i, targets.get(i));
+                    }
                 }
+            }
+
+            // 添加少的步骤
+            if (MapUtils.isNotEmpty(updateMap)) {
+                updateMap.forEach((k, v) -> {
+                    sources.add(v);
+                });
             }
 
             // 删除多余的步骤
-            for (int i = 0; i < sourceHashTree.size(); i++) {
-                JSONObject source = sourceHashTree.get(i);
-                if (delIds.contains(source.optString("id"))) {
-                    sourceHashTree.remove(i);
+            for (int i = 0; i < sources.size(); i++) {
+                JSONObject source = sources.get(i);
+                if (delIds.contains(source.optString(ElementConstants.ID))) {
+                    sources.remove(i);
                 }
             }
             // 补充新增的源引用步骤
-            if (CollectionUtils.isNotEmpty(targetHashTree)) {
-                for (int i = 0; i < targetHashTree.size(); i++) {
-                    JSONObject item = sourceHashTree.get(i);
-                    if (!sourceIds.contains(item.optString("id"))) {
-                        sourceHashTree.add(item);
+            if (CollectionUtils.isNotEmpty(targets)) {
+                for (int i = 0; i < targets.size(); i++) {
+                    JSONObject item = sources.get(i);
+                    if (!sourceIds.contains(item.optString(ElementConstants.ID))) {
+                        sources.add(item);
                     }
                 }
             }
         } catch (Exception e) {
-            return targetHashTree;
+            return targets;
         }
-        return sourceHashTree;
-    }
-
-    public static String hashTreeToString(HashTree hashTree) {
-        try (ByteArrayOutputStream bas = new ByteArrayOutputStream()) {
-            SaveService.saveTree(hashTree, bas);
-            return bas.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            io.metersphere.plugin.core.utils.LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
-        }
-        return null;
+        return sources;
     }
 
     public static String getResourceId(String resourceId, ParameterConfig config, MsTestElement parent, String indexPath) {
@@ -1170,4 +1172,15 @@ public class ElementUtil {
         return false;
     }
 
+    public static boolean isEnable(MsTestElement element, ParameterConfig config) {
+        String path = ElementUtil.getFullIndexPath(element, "");
+        if (StringUtils.isNotBlank(path) && path.endsWith("_")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        String key = StringUtils.join(element.getId(), "_", path);
+        if (config.getKeyMap().containsKey(key)) {
+            return config.getKeyMap().get(key);
+        }
+        return true;
+    }
 }

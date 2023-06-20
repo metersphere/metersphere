@@ -31,6 +31,10 @@ public class ElementConstants {
     public static final String ASSERTIONS = "Assertions";
     public static final String EXTRACT = "Extract";
     public static final String STEP_CREATED = "Created";
+    public static final String INDEX = "index";
+    public static final String ID = "id";
+    public static final String REF_ENABLE = "refEnable";
+
     public final static List<String> REQUESTS = new ArrayList<String>() {{
         this.add(ElementConstants.HTTP_SAMPLER);
         this.add(ElementConstants.DUBBO_SAMPLER);

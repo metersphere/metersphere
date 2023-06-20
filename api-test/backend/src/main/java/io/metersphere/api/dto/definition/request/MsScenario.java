@@ -20,6 +20,7 @@ import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.MsHashTreeService;
+import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -27,7 +28,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jorphan.collections.HashTree;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class MsScenario extends MsTestElement {
         if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
             return;
         } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())
-                && !this.setRefScenario(hashTree)) {
+                && !this.setRefScenario(hashTree, config)) {
             return;
         }
         // 设置共享cookie
@@ -137,6 +137,7 @@ public class MsScenario extends MsTestElement {
         }
         if ((this.variableEnable == null && this.mixEnable == null)
                 || BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
+            newConfig.setKeyMap(config.getKeyMap());
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
             ElementUtil.addCounter(scenarioTree, variables);
             ElementUtil.addRandom(scenarioTree, variables);
@@ -205,13 +206,21 @@ public class MsScenario extends MsTestElement {
         }
     }
 
-    private boolean setRefScenario(List<MsTestElement> hashTree) {
+    private boolean setRefScenario(List<MsTestElement> hashTree, ParameterConfig config) {
         try {
             ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
-                JSONObject elementOrg = JSONUtil.parseObject(scenario.getScenarioDefinition());
-                JSONObject element = setRefEnable(this, elementOrg);
+                JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
+                String path = ElementUtil.getFullIndexPath(this, "");
+                if (path.endsWith("_")) {
+                    path = path.substring(0, path.length() - 1);
+                }
+                element.put(MsHashTreeService.INDEX, path);
+                boolean enable = config.getKeyMap().get(this.getId() + "_" + path);
+                if (!enable) {
+                    return false;
+                }
                 // 历史数据处理
                 ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
                 this.setName(scenario.getName());
@@ -231,41 +240,9 @@ public class MsScenario extends MsTestElement {
                 return true;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LoggerUtil.error(ex);
         }
         return false;
-    }
-
-    public static JSONObject setRefEnable(MsTestElement targetElement, JSONObject orgElement) {
-        if (JSONObject.NULL.equals(orgElement) || targetElement == null) {
-            return orgElement;
-        }
-        if (!orgElement.optBoolean(MsHashTreeService.ENABLE)) {
-            orgElement.put(MsHashTreeService.ENABLE, false);
-        } else {
-            orgElement.put(MsHashTreeService.ENABLE, targetElement.isEnable());
-        }
-        try {
-            if (orgElement.has(MsHashTreeService.HASH_TREE)) {
-                JSONArray orgJSONArray = orgElement.optJSONArray(MsHashTreeService.HASH_TREE);
-                LinkedList<MsTestElement> hashTree = targetElement.getHashTree();
-                if (orgJSONArray != null && CollectionUtils.isNotEmpty(hashTree)) {
-                    orgJSONArray.forEach(obj -> {
-                        JSONObject orgJsonObject = (JSONObject) obj;
-                        hashTree.forEach(targetObj -> {
-                            if (StringUtils.equals(orgJsonObject.optString(MsHashTreeService.ID), targetObj.getId())
-                                    && StringUtils.equals(orgJsonObject.optString(MsHashTreeService.INDEX), targetObj.getIndex())) {
-                                setRefEnable(targetObj, orgJsonObject);
-                            }
-                        });
-                    });
-                }
-            }
-        } catch (Exception ex) {
-            LogUtil.error(ex, ex.getMessage());
-            return orgElement;
-        }
-        return orgElement;
     }
 
     private void setNewConfig(Map<String, EnvironmentConfig> envConfig, ParameterConfig newConfig) {

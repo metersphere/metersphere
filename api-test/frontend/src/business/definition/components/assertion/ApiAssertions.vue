@@ -6,6 +6,7 @@
         <api-json-path-suggest-button
           :open-tip="$t('api_test.request.assertions.json_path_suggest')"
           :clear-tip="$t('api_test.request.assertions.json_path_clear')"
+          :is-read-only="request.caseEnable"
           @open="suggestJsonOpen"
           @clear="clearJson" />
       </span>
@@ -16,6 +17,7 @@
           <el-select
             class="assertion-item"
             v-model="type"
+            :disabled="request.caseEnable"
             :placeholder="$t('api_test.request.assertions.select_type')"
             size="small">
             <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT" />

@@ -757,7 +757,8 @@ public class ApiScenarioService {
         if (StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             List<String> caseIds = new ArrayList<>();
-            hashTreeService.dataFormatting(element, caseIds);
+            Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(element, element.optString(ElementConstants.INDEX));
+            hashTreeService.dataFormatting(element, caseIds, keyMap);
             // 处理用例
             hashTreeService.caseFormatting(element, caseIds, getConfig(scenarioWithBLOBs));
             ElementUtil.dataFormatting(element);
@@ -885,7 +886,8 @@ public class ApiScenarioService {
                     JSONObject element = JSONUtil.parseObject(dto.getScenarioDefinition());
                     // 获取所有case
                     List<String> caseIds = new ArrayList<>();
-                    hashTreeService.dataFormatting(element, caseIds);
+                    Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(element, element.optString(ElementConstants.INDEX));
+                    hashTreeService.dataFormatting(element, caseIds, keyMap);
                     // 处理用例
                     hashTreeService.caseFormatting(element, caseIds, null);
 
