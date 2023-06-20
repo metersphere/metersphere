@@ -89,7 +89,7 @@ import {getSystemMailServerInfo, modifySystemMailServerInfo, testMailServerConne
 export default {
   name: "EmailSetting",
   data() {
-    const validatorPortNum = (value, callback) => {
+    const validatorPortNum = (rule, value, callback) => {
       const numExp = /^[0-9]*$/
       if (!numExp.test(value)) {
         callback(new Error("Port" + this.$t("commons.type_of_num")))
