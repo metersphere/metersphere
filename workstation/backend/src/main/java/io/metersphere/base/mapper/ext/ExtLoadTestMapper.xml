@@ -151,6 +151,12 @@
                     <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
+            <if test="request.projectIdList != null and request.projectIdList.size() > 0">
+                AND project.id in
+                <foreach collection="request.projectIdList" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>

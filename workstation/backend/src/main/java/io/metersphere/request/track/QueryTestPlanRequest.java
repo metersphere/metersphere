@@ -4,6 +4,7 @@ import io.metersphere.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -15,4 +16,5 @@ public class QueryTestPlanRequest extends TestPlanRequest {
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;
+    private List<String> projectIdList = new ArrayList<>();
 }

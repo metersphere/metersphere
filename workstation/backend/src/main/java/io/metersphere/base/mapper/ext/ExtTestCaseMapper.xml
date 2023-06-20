@@ -467,6 +467,12 @@
             <if test="request.projectId != null">
                 and test_case.project_id = #{request.projectId}
             </if>
+            <if test="request.projectIdList != null and request.projectIdList.size() > 0">
+                AND project.id in
+                <foreach collection="request.projectIdList" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)

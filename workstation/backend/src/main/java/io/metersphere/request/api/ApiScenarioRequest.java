@@ -4,6 +4,9 @@ import io.metersphere.request.BaseQueryRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 public class ApiScenarioRequest extends BaseQueryRequest {
@@ -35,4 +38,5 @@ public class ApiScenarioRequest extends BaseQueryRequest {
 
     //测试计划关联场景过滤掉步骤为0的场景
     private String stepTotal;
+    private List<String> projectIdList = new ArrayList<>();
 }
