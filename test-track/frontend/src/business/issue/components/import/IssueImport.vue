@@ -179,7 +179,7 @@ export default {
 .download-template {
   margin-left: 220px;
   top: -15px;
-  font-size: 5px;
+  font-size: 12px;
   font-weight: 600;
 }
 
