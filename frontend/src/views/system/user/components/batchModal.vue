@@ -8,11 +8,7 @@
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
-        {{
-          `${t('system.user.batchModalSubTitleStart')} ${props.tableSelected.length} ${t(
-            'system.user.batchModalSubTitleEnd'
-          )}`
-        }}
+        {{ t('system.user.batchModalSubTitle', { count: props.tableSelected.length }) }}
       </div>
     </template>
     <a-alert v-if="batchModalMode === 'project'" class="mb-[16px]">
