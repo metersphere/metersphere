@@ -12,12 +12,16 @@ import io.metersphere.sdk.util.CodingUtil;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.OperationLog;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.UserEditEnableRequest;
 import io.metersphere.system.dto.UserEditRequest;
-import io.metersphere.system.dto.UserInfo;
+import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,14 +67,14 @@ public class UserService {
         return logs;
     }
 
-    private void validateUserInfo(List<UserInfo> userList) {
+    private void validateUserInfo(List<UserCreateInfo> userList) {
         //判断参数内是否含有重复邮箱
         List<String> emailList = new ArrayList<>();
         List<String> repeatEmailList = new ArrayList<>();
         var userInDbMap = baseUserMapper.selectUserIdByEmailList(
-                        userList.stream().map(UserInfo::getEmail).collect(Collectors.toList()))
+                        userList.stream().map(UserCreateInfo::getEmail).collect(Collectors.toList()))
                 .stream().collect(Collectors.toMap(User::getEmail, User::getId));
-        for (UserInfo user : userList) {
+        for (UserCreateInfo user : userList) {
             if (emailList.contains(user.getEmail())) {
                 repeatEmailList.add(user.getEmail());
             } else {
@@ -87,20 +91,22 @@ public class UserService {
         }
     }
 
-    public UserBatchCreateDTO addBatch(UserBatchCreateDTO userCreateDTO) {
+    public UserBatchCreateDTO addBatch(UserBatchCreateDTO userCreateDTO, String source, String operator) {
         this.validateUserInfo(userCreateDTO.getUserInfoList());
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userCreateDTO.getUserRoleIdList(), true);
         long createTime = System.currentTimeMillis();
         List<User> saveUserList = new ArrayList<>();
         //添加用户
-        for (UserInfo userInfo : userCreateDTO.getUserInfoList()) {
+        for (UserCreateInfo userInfo : userCreateDTO.getUserInfoList()) {
             userInfo.setId(UUID.randomUUID().toString());
-            userInfo.setCreateTime(createTime);
-            userInfo.setUpdateTime(createTime);
-
             User user = new User();
             BeanUtils.copyBean(user, userInfo);
+            user.setCreateUser(operator);
+            user.setCreateTime(createTime);
+            user.setUpdateUser(operator);
+            user.setUpdateTime(createTime);
             user.setPassword(CodingUtil.md5(user.getEmail()));
+            user.setSource(source);
             userMapper.insertSelective(user);
             saveUserList.add(user);
         }
@@ -126,15 +132,15 @@ public class UserService {
         return userDTO;
     }
 
-    public List<UserInfo> list(BasePageRequest request) {
-        List<UserInfo> returnList = new ArrayList<>();
+    public List<UserTableResponse> list(BasePageRequest request) {
+        List<UserTableResponse> returnList = new ArrayList<>();
         List<User> userList = baseUserMapper.selectByKeyword(request.getKeyword());
         List<String> userIdList = userList.stream().map(User::getId).collect(Collectors.toList());
-        Map<String, UserInfo> roleAndOrganizationMap = userRoleRelationService.selectGlobalUserRoleAndOrganization(userIdList);
+        Map<String, UserTableResponse> roleAndOrganizationMap = userRoleRelationService.selectGlobalUserRoleAndOrganization(userIdList);
         for (User user : userList) {
-            UserInfo userInfo = new UserInfo();
+            UserTableResponse userInfo = new UserTableResponse();
             BeanUtils.copyBean(userInfo, user);
-            UserInfo roleOrgModel = roleAndOrganizationMap.get(user.getId());
+            UserTableResponse roleOrgModel = roleAndOrganizationMap.get(user.getId());
             if (roleOrgModel != null) {
                 userInfo.setUserRoleList(roleOrgModel.getUserRoleList());
                 userInfo.setOrganizationList(roleOrgModel.getOrganizationList());
@@ -144,16 +150,38 @@ public class UserService {
         return returnList;
     }
 
-    public UserEditRequest updateUser(UserEditRequest userEditRequest) {
+    public UserEditRequest updateUser(UserEditRequest userEditRequest, String operator) {
         //检查用户组合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userEditRequest.getUserRoleIdList(), true);
         User user = new User();
         BeanUtils.copyBean(user, userEditRequest);
+        user.setUpdateUser(operator);
         user.setUpdateTime(System.currentTimeMillis());
         user.setCreateUser(null);
         user.setCreateTime(null);
         userMapper.updateByPrimaryKeySelective(user);
         userRoleRelationService.updateUserSystemGlobalRole(user, user.getUpdateUser(), userEditRequest.getUserRoleIdList());
         return userEditRequest;
+    }
+
+    public UserEditEnableRequest updateUserEnable(UserEditEnableRequest request, String operator) {
+        this.checkUserInDb(request.getUserIdList());
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(
+                request.getUserIdList()
+        );
+        User updateUser = new User();
+        updateUser.setEnable(request.isEnable());
+        updateUser.setUpdateUser(operator);
+        updateUser.setUpdateTime(System.currentTimeMillis());
+        userMapper.updateByExampleSelective(updateUser, userExample);
+        return request;
+    }
+
+    private void checkUserInDb(@Valid @NotEmpty List<String> userIdList) {
+        List<String> userInDb = baseUserMapper.selectUserIdByIdList(userIdList);
+        if (userIdList.size() != userInDb.size()) {
+            throw new MSException(Translator.get("user.not.exist"));
+        }
     }
 }

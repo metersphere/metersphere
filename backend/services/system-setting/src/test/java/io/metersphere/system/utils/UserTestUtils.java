@@ -7,8 +7,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserEditRequest;
-import io.metersphere.system.dto.UserInfo;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.utils.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -36,7 +36,7 @@ public class UserTestUtils {
 
     public static UserBatchCreateDTO getUserCreateDTO(
             List<UserRoleOption> userRoleList,
-            List<UserInfo> userInfoList) {
+            List<UserCreateInfo> userInfoList) {
         UserBatchCreateDTO userMaintainRequest = new UserBatchCreateDTO();
         if (CollectionUtils.isNotEmpty(userRoleList)) {
             userMaintainRequest.setUserRoleIdList(
@@ -46,7 +46,7 @@ public class UserTestUtils {
         return userMaintainRequest;
     }
 
-    public static UserEditRequest getUserUpdateDTO(UserInfo user, List<UserRoleOption> userRoleList) {
+    public static UserEditRequest getUserUpdateDTO(UserCreateInfo user, List<UserRoleOption> userRoleList) {
         UserEditRequest returnDTO = new UserEditRequest();
         if (user.getPhone() == null) {
             user.setPhone("");

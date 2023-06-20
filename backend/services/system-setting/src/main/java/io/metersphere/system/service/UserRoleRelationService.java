@@ -5,7 +5,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.UserInfo;
+import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -114,7 +114,7 @@ public class UserRoleRelationService {
 
     }
 
-    public Map<String, UserInfo> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
+    public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {
         List<UserRoleRelation> userRoleRelationList = extUserRoleRelationMapper.listByUserIdAndScope(userIdList);
         List<String> userRoleIdList = userRoleRelationList.stream().map(UserRoleRelation::getRoleId).collect(Collectors.toList());
         List<String> sourceIdList = userRoleRelationList.stream().map(UserRoleRelation::getSourceId).collect(Collectors.toList());
@@ -132,11 +132,11 @@ public class UserRoleRelationService {
             organizationMap = organizationMapper.selectByExample(organizationExample).stream()
                     .collect(Collectors.toMap(Organization::getId, item -> item));
         }
-        Map<String, UserInfo> returnMap = new HashMap<>();
+        Map<String, UserTableResponse> returnMap = new HashMap<>();
         for (UserRoleRelation userRoleRelation : userRoleRelationList) {
-            UserInfo userInfo = returnMap.get(userRoleRelation.getUserId());
+            UserTableResponse userInfo = returnMap.get(userRoleRelation.getUserId());
             if (userInfo == null) {
-                userInfo = new UserInfo();
+                userInfo = new UserTableResponse();
                 userInfo.setId(userRoleRelation.getUserId());
                 returnMap.put(userRoleRelation.getUserId(), userInfo);
             }

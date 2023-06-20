@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.dto.UserInfo;
+import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.utils.UserTestUtils;
 import jakarta.annotation.Resource;
@@ -58,11 +58,10 @@ public class UserControllerNonePermissionTests {
     @Test
     @Order(0)
     public void testGetGlobalSystemUserRoleSuccess() throws Exception {
-        UserInfo paramUserInfo = new UserInfo() {{
+        UserCreateInfo paramUserInfo = new UserCreateInfo() {{
             setId("testId");
             setName("tianyang.no.permission.email");
             setEmail("tianyang.no.permission.email@126.com");
-            setSource("LOCAL");
         }};
         List<UserRoleOption> paramRoleList = new ArrayList<>() {{
             this.add(
