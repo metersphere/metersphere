@@ -3647,6 +3647,9 @@ export default {
     use_origin_env_run: "使用原場景環境執行",
     open_new: "追加頁面",
     open_new_tip: "追加頁面，在新的頁面打開url，不勾選覆蓋當前url",
+    no_scenario_edit_permission: "當前用戶無修改權限",
+    no_scenario_create_permission: "當前用戶無創建權限",
+    no_scenario_copy_permission: "當前用戶無復制權限",
   },
   system: {
     test_resource_pool: {

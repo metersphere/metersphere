@@ -3652,6 +3652,9 @@ export default {
     pls_select_env: "请为当前场景选择一个运行环境！",
     open_new: "追加页面",
     open_new_tip: "追加页面，在新的页面打开url，不勾选覆盖当前url",
+    no_scenario_edit_permission: "当前用户无修改权限",
+    no_scenario_create_permission: "当前用户无创建权限",
+    no_scenario_copy_permission: "当前用户无复制权限",
   },
   system: {
     test_resource_pool: {
