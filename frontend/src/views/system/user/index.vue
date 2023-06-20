@@ -307,7 +307,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { getUserList, batchCreateUser, updateUserInfo } from '@/api/modules/system/user';
+  import { getUserList, batchCreateUser } from '@/api/modules/system/user';
   import { validateEmail, validatePhone } from '@/utils/validate';
   import batchModal from './components/batchModal.vue';
 

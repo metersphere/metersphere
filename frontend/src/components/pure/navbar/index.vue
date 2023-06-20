@@ -124,7 +124,7 @@
 <script lang="ts" setup>
   import { computed, ref, inject } from 'vue';
   import { Message } from '@arco-design/web-vue';
-  import { useDark, useToggle, useFullscreen } from '@vueuse/core';
+  import { useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
@@ -140,9 +140,6 @@
   const locales = [...LOCALE_OPTIONS];
   const avatar = computed(() => {
     return userStore.avatar;
-  });
-  const theme = computed(() => {
-    return appStore.theme;
   });
   const topMenu = computed(() => appStore.topMenu && appStore.menu);
   // const setVisible = () => {

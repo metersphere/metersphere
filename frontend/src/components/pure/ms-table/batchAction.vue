@@ -10,12 +10,12 @@
           'ml-4': true,
         }"
         type="outline"
-        @click="emit('batchAction', element)"
+        @click="handleSelect(element)"
         >{{ t(element.label as string) }}</a-button
       >
     </template>
     <div v-if="props.actionConfig.moreAction" class="relative top-[2px] ml-3 inline-block">
-      <a-dropdown position="tr">
+      <a-dropdown position="tr" @select="handleSelect">
         <a-button type="outline"><a-icon-more /></a-button>
         <template #content>
           <template v-for="element in props.actionConfig.moreAction" :key="element.label">
@@ -44,6 +44,9 @@
     (e: 'batchAction', value: BatchActionParams): void;
     (e: 'clear'): void;
   }>();
+  const handleSelect = (item: string | number | Record<string, any> | undefined | BatchActionParams) => {
+    emit('batchAction', item as BatchActionParams);
+  };
 </script>
 
 <style lang="less" scoped>
