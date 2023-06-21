@@ -94,7 +94,16 @@ export async function unmount(props) {
 }
 
 /**
- * 可选生命周期钩子，仅使用 loadMicroApp 方式加载微应用时生效
+ * 更新钩子，目前只有routeParams更新，后续有其他属性更新再添加
  */
-export async function update(props) {
+export async function update (props) {
+  const { defaultPath, routeParams, routeName } = props;
+  // 微服务过来的路由
+  if (defaultPath || routeName) {
+    microRouter.push({
+      path: defaultPath,
+      params: routeParams,
+      name: routeName,
+    });
+  }
 }

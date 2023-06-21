@@ -21,7 +21,18 @@ export default {
       microApp: null,
     }
   },
-
+  watch: {
+    routeParams: {
+      handler() {
+        this.microApp.update({
+          defaultPath: this.to,
+          routeParams: this.routeParams,
+          routeName: this.routeName,
+        });
+      },
+      deep: true,
+    }
+  },
   mounted() {
     this.microAppInit()
     this.messageInit()
