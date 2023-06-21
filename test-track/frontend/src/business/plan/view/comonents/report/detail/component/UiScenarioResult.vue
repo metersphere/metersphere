@@ -1,47 +1,51 @@
 <template>
   <el-container class="scenario-info">
-    <ms-aside-container width="500px" :default-hidden-bottom-top="200" :enable-auto-height="true">
+    <ms-aside-container
+      width="500px"
+      :default-hidden-bottom-top="200"
+      :enable-auto-height="true"
+    >
       <el-card>
         <el-scrollbar>
-          <ms-table v-loading="loading"
-                    :show-select-all="false"
-                    :screen-height="null"
-                    :enable-selection="false"
-                    :highlight-current-row="true"
-                    @refresh="getScenarioApiCase"
-                    @handleRowClick="rowClick"
-                    :data="scenarioCases">
-
-            <ms-table-column
-                :width="80"
-                :label="$t('commons.id')"
-                prop="num">
+          <ms-table
+            v-loading="loading"
+            :show-select-all="false"
+            :screen-height="null"
+            :enable-selection="false"
+            :highlight-current-row="true"
+            @refresh="getScenarioApiCase"
+            @handleRowClick="rowClick"
+            :data="scenarioCases"
+          >
+            <ms-table-column :width="80" :label="$t('commons.id')" prop="num">
             </ms-table-column>
-            <ms-table-column
-                :label="$t('commons.name')"
-                prop="name">
+            <ms-table-column :label="$t('commons.name')" prop="name">
             </ms-table-column>
             <el-table-column
               prop="principalName"
-              :label="$t('test_track.plan.plan_principal')"/>
+              :label="$t('test_track.plan.plan_principal')"
+            />
             <ms-table-column
-                :label="$t('test_track.case.priority')"
-                :width="80">
+              :label="$t('test_track.case.priority')"
+              :width="80"
+            >
               <template v-slot:default="scope">
-                <priority-table-item :value="scope.row.level" ref="priority"/>
+                <priority-table-item :value="scope.row.level" ref="priority" />
               </template>
             </ms-table-column>
             <ms-table-column
-                :width="70"
-                :label="$t('api_test.automation.step')"
-                prop="stepTotal">
+              :width="70"
+              :label="$t('api_test.automation.step')"
+              prop="stepTotal"
+            >
             </ms-table-column>
             <ms-table-column
-                :width="80"
-                :label="$t('test_track.plan_view.execute_result')"
-                prop="lastResult">
-              <template v-slot:default="{row}">
-                <ms-test-plan-api-status :status="row.lastResult"/>
+              :width="80"
+              :label="$t('test_track.plan_view.execute_result')"
+              prop="lastResult"
+            >
+              <template v-slot:default="{ row }">
+                <ms-test-plan-api-status :status="row.lastResult" />
               </template>
             </ms-table-column>
           </ms-table>
@@ -50,36 +54,32 @@
     </ms-aside-container>
     <el-main>
       <div v-if="showResponse">
-        <micro-app v-if="!isTemplate"
-                   service="ui"
-                   route-name="ApiReportView"
-                   :route-params="{
-                    reportId,
-                    isShare,
-                    shareId,
-                    isPlanReport: true,
-                    isTemplate,
-                    response,
-                    showCancelButton: false,
-                    showReportNameButton: false
-                 }"/>
+        <micro-app
+          v-show="!isTemplate"
+          service="ui"
+          route-name="ApiReportView"
+          :route-params="routeParams"
+        />
         <UiShareReportDetail
-          v-else
+          v-show="isTemplate"
           :report-id="reportId"
           :share-id="shareId"
           :is-share="isShare"
           :template-report="response"
           :is-template="true"
           :is-plan="true"
-          :show-cancel-button="false"/>
+          :show-cancel-button="false"
+        />
       </div>
-      <div class="empty" v-else>{{ $t('test_track.plan.load_case.content_empty') }}</div>
+      <div class="empty" v-else>
+        {{ $t("test_track.plan.load_case.content_empty") }}
+      </div>
     </el-main>
   </el-container>
 </template>
 
 <script>
-import UiShareReportDetail from "../ui/UiShareReportDetail"
+import UiShareReportDetail from "../ui/UiShareReportDetail";
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
@@ -98,8 +98,13 @@ export default {
     MsMainContainer,
     MsAsideContainer,
     MicroApp,
-    MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem,
-    UiShareReportDetail
+    MsTableColumn,
+    MsTable,
+    StatusTableItem,
+    MethodTableItem,
+    TypeTableItem,
+    PriorityTableItem,
+    UiShareReportDetail,
   },
   props: {
     planId: String,
@@ -122,13 +127,23 @@ export default {
       response: {},
       showResponse: false,
       resultMap: {
-        'Success' : 'Pass',
-        'Error' : 'Failure',
-        'STOP' : 'STOP',
-        'Running' : 'Running',
-        'UnExecute' : 'Prepare',
-      }
-    }
+        Success: "Pass",
+        Error: "Failure",
+        STOP: "STOP",
+        Running: "Running",
+        UnExecute: "Prepare",
+      },
+      routeParams: {
+        reportId: this.reportId,
+        isShare: this.isShare,
+        shareId: this.shareId,
+        isPlanReport: true,
+        isTemplate: this.isTemplate,
+        response: this.response,
+        showCancelButton: false,
+        showReportNameButton: false,
+      },
+    };
   },
   mounted() {
     this.getScenarioApiCase();
@@ -136,18 +151,18 @@ export default {
   watch: {
     scenarioCases() {
       if (this.scenarioCases) {
-        this.$emit('setSize', this.scenarioCases.length);
+        this.$emit("setSize", this.scenarioCases.length);
       }
     },
     uiAllCases() {
       this.getScenarioApiCase();
-    }
+    },
   },
   methods: {
     getScenarioApiCase() {
       this.scenarioCases = [];
       if (this.filterStatus && this.filterStatus.length > 0) {
-        this.uiAllCases.forEach(item => {
+        this.uiAllCases.forEach((item) => {
           if (this.filterStatus.indexOf(item.lastResult) > -1) {
             this.scenarioCases.push(item);
           }
@@ -157,32 +172,29 @@ export default {
       }
     },
     rowClick(row) {
-      if (!this.isTemplate) {
-        if (this.reportId === row.reportId) {
-          return;
-        }
-      }
-      this.showResponse = false;
       this.$nextTick(() => {
         if (this.isTemplate) {
           if (row.response) {
-            this.showResponse = true;
             this.response = row.response;
+            this.showResponse = true;
           }
         } else {
-          if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
-            this.showResponse = true;
+          if (
+            row.reportId &&
+            row.lastResult !== "Running" &&
+            row.lastResult !== "Waiting"
+          ) {
             this.reportId = row.reportId;
+            this.showResponse = true;
           }
-       }
-      })
-    }
-  }
-}
+        }
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .padding-col {
   padding-right: 0px;
 }
