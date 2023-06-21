@@ -223,7 +223,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/run/debug")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG, PermissionConstants.PROJECT_API_SCENARIO_READ_RUN}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         try {
@@ -283,7 +283,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/batch/copy")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_BATCH_COPY}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchCopy(request);
@@ -386,7 +386,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping(value = "/export/jmx")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO, PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE , PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE_BATCH}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ScenarioToPerformanceInfoDTO exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
