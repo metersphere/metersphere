@@ -42,7 +42,6 @@ public class ServiceIntegrationController {
     }
 
     @GetMapping("/all")
-    @RequiresPermissions(PermissionConstants.WORKSPACE_SERVICE_READ)
     public List<ServiceIntegration> getAll() {
         return integrationService.getAll(SessionUtils.getCurrentWorkspaceId());
     }
