@@ -52,7 +52,11 @@
             @click="saveApi"
             v-prevent-re-click
             title="ctrl + s"
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+            v-permission="[
+                       'PROJECT_API_DEFINITION:READ+EDIT_API',
+                       'PROJECT_API_DEFINITION:READ+CREATE_API',
+                       'PROJECT_API_DEFINITION:READ+COPY_API'
+                     ]"
             >{{ $t('commons.save') }}
           </el-button>
           <el-dropdown

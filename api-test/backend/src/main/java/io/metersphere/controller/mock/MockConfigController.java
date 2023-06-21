@@ -12,11 +12,13 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.MockExpectConfig;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.mock.MockApiUtils;
 import io.metersphere.commons.utils.mock.MockTestDataUtil;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.service.MockConfigService;
 import io.metersphere.service.definition.ApiDefinitionService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,12 +41,14 @@ public class MockConfigController {
     private ApiDefinitionService apiDefinitionService;
 
     @PostMapping("/gen")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_MOCK)
     public MockConfigResponse genMockConfig(@RequestBody MockConfigRequest request) {
         return mockConfigService.genMockConfig(request);
     }
 
     @PostMapping(value = "/update/form", consumes = {"multipart/form-data"})
     @MsRequestLog(module = OperLogModule.API_DEFINITION)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_MOCK)
     public MockExpectConfig updateMockExpectConfig(@RequestPart("request") MockExpectConfigRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return mockConfigService.updateMockExpectConfig(request, bodyFiles);
     }
