@@ -383,7 +383,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/export/jmx")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO, PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE , PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE_PERFORMANCE_BATCH}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public List<ApiScenarioExportJmxDTO> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
