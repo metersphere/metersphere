@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RedisTemplateService {
     private static final String PRX = "TEST_PLAN_";
-    public static final long TIME_OUT = 60;
+    public static final long TIME_OUT = 480;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
