@@ -58,27 +58,20 @@
     </ms-aside-container>
     <el-main>
       <div v-if="showResponse">
-        <micro-app
-          v-if="!isTemplate"
-          route-name="ApiScenarioReportView"
-          service="api"
-          :route-params="{
-            reportId,
-            isShare,
-            shareId,
-            isPlanReport: true,
-            isTemplate,
-            response,
-          }"
-        />
         <ms-api-report
-          v-else
+          v-show="isTemplate"
           :report-id="reportId"
           :is-share="isShare"
           :share-id="shareId"
           :is-plan="true"
           :is-template="isTemplate"
           :template-report="response"
+        />
+        <micro-app
+          v-show="!isTemplate"
+          route-name="ApiScenarioReportView"
+          service="api"
+          :route-params="routeParams"
         />
       </div>
 
@@ -90,6 +83,7 @@
 </template>
 
 <script>
+import { debounce } from "lodash-es";
 import MsApiReport from "../api/ApiReportDetail";
 
 import PriorityTableItem from "../../../../../../common/tableItems/planview/PriorityTableItem";
@@ -146,6 +140,14 @@ export default {
       reportId: null,
       response: {},
       showResponse: false,
+      routeParams: {
+        reportId: this.reportId,
+        isShare: this.isShare,
+        shareId: this.shareId,
+        isPlanReport: true,
+        isTemplate: this.isTemplate,
+      },
+      debouncedRenderReport: debounce(this.renderReport, 300), // 300ms防抖
     };
   },
   mounted() {
@@ -239,24 +241,24 @@ export default {
       }
     },
     rowClick(row) {
-      this.showResponse = false;
-      this.$nextTick(() => {
-        if (this.isTemplate) {
-          if (row.response) {
-            this.response = row.response;
-            this.showResponse = true;
-          }
-        } else {
-          if (
-            row.reportId &&
-            row.lastResult !== "Running" &&
-            row.lastResult !== "Waiting"
-          ) {
-            this.reportId = row.reportId;
-            this.showResponse = true;
-          }
+      this.debouncedRenderReport(row);
+    },
+    renderReport(row) {
+      if (this.isTemplate) {
+        if (row.response) {
+          this.response = row.response;
+          this.showResponse = true;
         }
-      });
+      } else {
+        if (
+          row.reportId &&
+          row.lastResult !== "Running" &&
+          row.lastResult !== "Waiting"
+        ) {
+          this.routeParams.reportId = row.reportId;
+          this.showResponse = true;
+        }
+      }
     },
   },
 };

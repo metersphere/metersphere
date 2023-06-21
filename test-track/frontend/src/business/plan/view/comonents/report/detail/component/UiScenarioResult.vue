@@ -50,21 +50,9 @@
     </ms-aside-container>
     <el-main>
       <div v-if="showResponse">
-        <micro-app v-if="!isTemplate"
-                   service="ui"
-                   route-name="ApiReportView"
-                   :route-params="{
-                    reportId,
-                    isShare,
-                    shareId,
-                    isPlanReport: true,
-                    isTemplate,
-                    response,
-                    showCancelButton: false,
-                    showReportNameButton: false
-                 }"/>
+        <micro-app v-show="!isTemplate" service="ui" route-name="ApiReportView" :route-params="routeParams"/>
         <UiShareReportDetail
-          v-else
+          v-show="isTemplate"
           :report-id="reportId"
           :share-id="shareId"
           :is-share="isShare"
@@ -127,7 +115,17 @@ export default {
         'STOP' : 'STOP',
         'Running' : 'Running',
         'UnExecute' : 'Prepare',
-      }
+      },
+      routeParams: {
+        reportId: this.reportId,
+        isShare: this.isShare,
+        shareId: this.shareId,
+        isPlanReport: true,
+        isTemplate: this.isTemplate,
+        response: this.response,
+        showCancelButton: false,
+        showReportNameButton: false
+      },
     }
   },
   mounted() {
@@ -157,17 +155,16 @@ export default {
       }
     },
     rowClick(row) {
-      this.showResponse = false;
       this.$nextTick(()=>{
         if (this.isTemplate) {
           if (row.response) {
-            this.showResponse = true;
             this.response = row.response;
+            this.showResponse = true;
           }
         } else {
           if (row.reportId && row.lastResult !== "Running" && row.lastResult !== "Waiting") {
-            this.showResponse = true;
             this.reportId = row.reportId;
+            this.showResponse = true;
           }
        }
       })
