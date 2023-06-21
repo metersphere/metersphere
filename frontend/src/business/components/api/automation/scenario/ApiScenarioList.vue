@@ -318,7 +318,7 @@ import {
   getCurrentUserId,
   getUUID,
   hasLicense,
-  hasPermission,
+  hasPermissions,
   objToStrMap,
   strMapToObj
 } from "@/common/js/utils";
@@ -553,7 +553,7 @@ export default {
           handleClick: this.batchCreatePerformance,
           permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH'],
           isDisable() {
-            return !hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')
+            return !hasPermissions(['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH','PROJECT_PERFORMANCE_TEST:READ+CREATE'] )
           }
         },
       ],
