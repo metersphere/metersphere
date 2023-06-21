@@ -44,18 +44,18 @@
 
         <p>{{ $t('api_test.request.headers') }}</p>
         <el-row>
-          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}</el-link>
+          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887" :disabled="isReadOnly"> {{ $t("commons.batch_add") }}</el-link>
         </el-row>
-        <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
+        <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions" :disabled="isReadOnly"/>
         <div style="margin-top: 20px">
-          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add">
+          <el-button v-if="!condition.id" type="primary" style="float: right" size="mini" @click="add" :disabled="isReadOnly">
             {{ $t('commons.add') }}
           </el-button>
           <div v-else>
-            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+            <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear" :disabled="isReadOnly">
               {{ $t('commons.clear') }}
             </el-button>
-            <el-button type="primary" style="float: right" size="mini" @click="update(condition)">{{
+            <el-button type="primary" style="float: right" size="mini" @click="update(condition)" :disabled="isReadOnly">{{
                 $t('commons.update')
               }}
             </el-button>

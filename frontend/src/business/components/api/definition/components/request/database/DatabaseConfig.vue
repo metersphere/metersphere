@@ -1,7 +1,7 @@
 <template>
   <div>
     <ms-database-from :config="currentConfig" :callback="saveConfig" ref="databaseFrom" :is-read-only="isReadOnly"/>
-    <ms-database-config-list @rowSelect="rowSelect" v-if="configs.length > 0" :table-data="configs"/>
+    <ms-database-config-list @rowSelect="rowSelect" v-if="configs.length > 0" :table-data="configs" :is-read-only="isReadOnly"/>
   </div>
 </template>
 
