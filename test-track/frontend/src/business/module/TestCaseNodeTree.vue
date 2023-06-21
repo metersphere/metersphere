@@ -124,6 +124,11 @@ export default {
     'condition.filterText'() {
       this.filter();
     },
+    caseCondition() {
+      this.$nextTick(() => {
+        this.list();
+      });
+    }
   },
   mounted() {
     let store = useStore();

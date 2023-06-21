@@ -795,7 +795,6 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
-      this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
       if (this.selectDataRange && this.selectDataRange.indexOf("single") > -1) {
         this.condition.ids = [this.selectDataRange.substring(7)];
       }
@@ -813,7 +812,7 @@ export default {
           this.condition.caseCoverage = 'coverage';
           break;
         case 'notReviewed':
-          this.condition.filters.review_status = ['Prepare', 'Underway'];
+          this.condition.filters.review_status = ['Prepare', 'Underway', 'Again'];
           break
         case 'reviewed':
           this.condition.filters.review_status = ['UnPass', 'Pass'];

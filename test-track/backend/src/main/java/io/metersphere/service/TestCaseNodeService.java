@@ -13,10 +13,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.JSON;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.NodeNumDTO;
 import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.dto.TestPlanCaseDTO;
@@ -219,6 +216,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId, QueryTestCaseRequest request) {
+        this.setRequestWeekParam(request);
         // 判断当前项目下是否有默认模块，没有添加默认模块
         this.getDefaultNode(projectId);
         request.setProjectId(projectId);
@@ -235,6 +233,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
 
     public Map<String, Integer> getNodeCountMapByProjectId(String projectId, QueryTestCaseRequest request) {
+        this.setRequestWeekParam(request);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
@@ -706,5 +705,25 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
         List<Map<String, Object>> moduleCountList = extTestCaseMapper.moduleExtraNodeCount(nodeIds);
         return this.parseModuleCountList(moduleCountList);
+    }
+
+    /**
+     * 设置请求参数中本周区间参数
+     * @param request 页面请求参数
+     * @return
+     */
+    private void setRequestWeekParam(QueryTestCaseRequest request) {
+        Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+        Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+        if (request.isSelectThisWeedData()) {
+            if (weekFirstTime != null) {
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
+        if (request.isSelectThisWeedRelevanceData()) {
+            if (weekFirstTime != null) {
+                request.setRelevanceCreateTime(weekFirstTime.getTime());
+            }
+        }
     }
 }
