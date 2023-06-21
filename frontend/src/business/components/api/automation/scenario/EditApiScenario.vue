@@ -112,8 +112,9 @@
             <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
               <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini"
                            @command="handleCommand"
-                           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY',
-                           'PROJECT_API_SCENARIO:READ+RUN', 'PROJECT_API_SCENARIO:READ+DEBUG']">
+                           v-permission="[
+                            'PROJECT_API_SCENARIO:READ+RUN',
+                            'PROJECT_API_SCENARIO:READ+DEBUG']">
                 {{ $t('api_test.request.debug') }}
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
@@ -1458,7 +1459,7 @@ export default {
       })
     },
     runDebug(runScenario) {
-      if (!hasPermission('PROJECT_API_SCENARIO:READ+EDIT')) {
+      if (!hasPermissions('PROJECT_API_SCENARIO:READ+DEBUG','PROJECT_API_SCENARIO:READ+RUN')) {
         return;
       }
       this.mergeScenario(this.scenarioDefinition);

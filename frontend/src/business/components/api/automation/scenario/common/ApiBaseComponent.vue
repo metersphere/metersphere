@@ -32,8 +32,7 @@
         </slot>
       </span>
 
-      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop
-           v-permission="['PROJECT_API_SCENARIO:READ+EDIT', 'PROJECT_API_SCENARIO:READ+CREATE', 'PROJECT_API_SCENARIO:READ+COPY']">
+      <div v-if="!ifFromVariableAdvance" class="header-right" @click.stop>
         <slot name="message" v-show="!isMax"></slot>
         <slot name="debugStepCode"></slot>
 
@@ -46,10 +45,20 @@
 
         <el-button v-if="showVersion && showCopy" size="mini" icon="el-icon-copy-document" circle @click="copyRow"
                    style="padding: 5px"
+                   v-permission="[
+                    'PROJECT_API_SCENARIO:READ+EDIT',
+                    'PROJECT_API_SCENARIO:READ+CREATE',
+                    'PROJECT_API_SCENARIO:READ+COPY',
+                    ]"
                    :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted"/>
 
         <el-button v-show="isSingleButton" size="mini" icon="el-icon-delete" type="danger" style="padding: 5px" circle
                    @click="remove"
+                   v-permission="[
+                    'PROJECT_API_SCENARIO:READ+EDIT',
+                    'PROJECT_API_SCENARIO:READ+CREATE',
+                    'PROJECT_API_SCENARIO:READ+COPY',
+                    ]"
                    :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted"/>
 
         <step-extend-btns style="display: contents"
@@ -62,6 +71,11 @@
                           @copy="copyRow"
                           @remove="remove"
                           @openScenario="openScenario"
+                          v-permission="[
+                          'PROJECT_API_SCENARIO:READ+EDIT',
+                          'PROJECT_API_SCENARIO:READ+CREATE',
+                          'PROJECT_API_SCENARIO:READ+COPY',
+                          ]"
                           v-show="isMoreButton"/>
       </div>
 

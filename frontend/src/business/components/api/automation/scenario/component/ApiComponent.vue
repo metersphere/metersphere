@@ -60,11 +60,19 @@
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
         <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle
+                     v-permission="[
+                      'PROJECT_API_SCENARIO:READ+DEBUG',
+                      'PROJECT_API_SCENARIO:READ+RUN'
+                    ]"/>
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;"
-                     class="stop-btn" circle>
+                     class="stop-btn" circle
+                     v-permission="[
+                      'PROJECT_API_SCENARIO:READ+DEBUG',
+                      'PROJECT_API_SCENARIO:READ+RUN'
+                    ]">
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
             </div>
