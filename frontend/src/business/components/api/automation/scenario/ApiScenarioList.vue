@@ -318,7 +318,7 @@ import {
   getCurrentUserId,
   getUUID,
   hasLicense,
-  hasPermissions,
+  hasPermission,
   objToStrMap,
   strMapToObj
 } from "@/common/js/utils";
@@ -1321,6 +1321,10 @@ export default {
       this.$emit('selection', selection);
     },
     batchCreatePerformance() {
+      if (!hasPermission('PROJECT_PERFORMANCE_TEST:READ+CREATE')) {
+        this.$warning(this.$t('api_test.create_performance_test_tips'));
+        return;
+      }
       this.$alert(this.$t('api_test.definition.request.batch_to_performance_confirm') + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
