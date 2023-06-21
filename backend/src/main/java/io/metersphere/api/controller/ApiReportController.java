@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/report")
-public class APIReportController {
+public class ApiReportController {
 
     @Resource
     private APIReportService apiReportService;
@@ -53,7 +53,6 @@ public class APIReportController {
     }
 
     @GetMapping("/get/{reportId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
     public APIReportResult get(@PathVariable String reportId) {
         return apiReportService.get(reportId);
     }
