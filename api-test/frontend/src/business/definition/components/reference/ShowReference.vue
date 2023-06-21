@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="50%">
+  <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="880px">
     <el-tabs tab-position="top" style="width: 100%" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane
         :label="$t('api_test.home_page.api_details_card.title')+$t('api_test.home_page.test_scene_details_card.title')"
@@ -141,7 +141,7 @@
           :enable-selection="false"
           @refresh="search"
           :condition="condition">
-          <ms-table-column prop="name" :label="$t('test_track.home.test_plan_name')" width="200" sortable>
+          <ms-table-column prop="name" :label="$t('test_track.home.test_plan_name')" width="300" sortable>
             <template v-slot:default="{ row }">
               <el-link @click="openTestPlan(row)" style="cursor: pointer">{{ row.name }} </el-link>
             </template>
@@ -149,7 +149,7 @@
           <ms-table-column
             prop="workspaceName"
             :label="$t('group.belong_workspace')"
-            width="200"
+            width="300"
             column-key="workspaceId">
           </ms-table-column>
           <ms-table-column
@@ -157,7 +157,7 @@
             :label="$t('group.belong_project')"
             :filters="projectPlanFilters"
             column-key="projectId"
-            width="200">
+            width="280">
           </ms-table-column>
         </ms-table>
       </el-tab-pane>
