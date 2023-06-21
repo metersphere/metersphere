@@ -247,7 +247,12 @@ export default {
       this.assertions.jsonPath.push(jsonItem);
     },
     clearJson() {
-      this.assertions.jsonPath = [];
+      if (this.assertions.jsonPath) {
+        const tmpArr = this.assertions.jsonPath.filter((item) =>
+          !item.label
+        );
+        this.assertions.jsonPath = tmpArr;
+      }
     },
   },
 };
