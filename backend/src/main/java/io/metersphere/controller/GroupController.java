@@ -147,6 +147,7 @@ public class GroupController {
     }
 
     @GetMapping("/rm/{userId}/{groupId}")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_GROUP_READ_DELETE, PermissionConstants.SYSTEM_GROUP_READ_DELETE}, logical = Logical.OR)
     public void removeGroupMember(@PathVariable String userId, @PathVariable String groupId) {
         groupService.removeGroupMember(userId, groupId);
     }
