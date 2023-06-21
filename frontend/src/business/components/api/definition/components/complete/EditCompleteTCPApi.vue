@@ -24,7 +24,12 @@
                               :version-data="versionData"
                               :current-id="basisData.id"
                               @compare="compare" @checkout="checkout" @create="create" @del="del"/>
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s"
+                     v-permission="[
+                       'PROJECT_API_DEFINITION:READ+EDIT_API',
+                       'PROJECT_API_DEFINITION:READ+CREATE_API',
+                       'PROJECT_API_DEFINITION:READ+COPY_API'
+                     ]">{{ $t('commons.save') }}</el-button>
         </div>
       </el-col>
     </el-row>
