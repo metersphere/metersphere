@@ -550,6 +550,7 @@ export default {
   },
   destroyed() {
     this.$EventBus.$off('projectChange', this.handleProjectChange);
+    this.$route.params ['reportId'] = null;
   },
   watch: {
     '$route'(to) {

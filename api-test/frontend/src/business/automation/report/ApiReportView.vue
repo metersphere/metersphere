@@ -43,6 +43,9 @@ export default {
       }
     },
   },
+  destroyed() {
+    this.$route.params ['reportId'] = null;
+  },
 };
 </script>
 

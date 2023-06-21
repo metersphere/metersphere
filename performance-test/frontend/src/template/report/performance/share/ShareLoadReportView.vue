@@ -23,6 +23,9 @@ export default {
       return this.getRouteParam('isPlanReport');
     },
   },
+  destroyed() {
+    this.$route.params ['reportId'] = null;
+  },
   methods: {
     getRouteParam(name) {
       if (this.$route) {
