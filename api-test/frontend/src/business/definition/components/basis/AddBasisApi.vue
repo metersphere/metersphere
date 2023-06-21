@@ -68,6 +68,7 @@
         @cancel="httpVisible = false"
         :isShow="true"
         title="编辑详情"
+        v-loading="loading"
         @saveAsEdit="saveApi(true)"
         @confirm="saveApi">
       </ms-dialog-footer>
@@ -142,6 +143,7 @@ export default {
       },
       value: REQ_METHOD[0].id,
       options: REQ_METHOD,
+      loading: false,
     };
   },
   computed: {
@@ -168,6 +170,7 @@ export default {
     saveApi(saveAs) {
       this.$refs['httpForm'].validate((valid) => {
         if (valid) {
+          this.loading = true;
           let bodyFiles = [];
           this.setParameter();
           this.httpForm.status = 'Underway';
@@ -176,12 +179,13 @@ export default {
             this.httpForm.request.clazzName = TYPE_TO_C.get(this.httpForm.request.type);
             this.compatibleHistory(this.httpForm.request.hashTree);
           }
-          this.result = createDefinition(null, bodyFiles, this.httpForm).then(() => {
+          this.result = createDefinition(null, bodyFiles, this.httpForm).then((res) => {
             this.httpVisible = false;
             if (saveAs) {
-              this.httpForm.request = JSON.stringify(this.httpForm.request);
-              this.$emit('saveAsEdit', this.httpForm);
+              this.loading = false;
+              this.$emit('saveAsEdit', res.data.data);
             } else {
+              this.loading = false;
               this.$emit('refresh');
             }
           });
