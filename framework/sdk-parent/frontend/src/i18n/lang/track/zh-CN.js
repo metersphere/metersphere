@@ -141,7 +141,7 @@ export default {
     batch_link_demand_btn: "关联需求",
     public_warning: "未开启公共用例库配置",
     generate_dependencies: "生成依赖关系",
-    generate_dependencies_warning: "为了更好的体验，建议勾选一百条以下的数据",
+    generate_dependencies_warning: "为了更好的体验，建议勾选五百条以下的数据",
     batch_unlink: "批量取消关联",
     unlink: "取消关联",
     project_name: "所属项目",
