@@ -244,7 +244,9 @@ export default {
         if (this.isTemplate) {
           if (row.response) {
             this.response = row.response;
-            this.showResponse = true;
+            setTimeout(() => {
+              this.showResponse = true;
+            }, 0);
           }
         } else {
           if (
@@ -253,7 +255,9 @@ export default {
             row.lastResult !== "Waiting"
           ) {
             this.reportId = row.reportId;
-            this.showResponse = true;
+            setTimeout(() => {
+              this.showResponse = true;
+            }, 0);
           }
         }
       });
