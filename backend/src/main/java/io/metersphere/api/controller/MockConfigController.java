@@ -15,6 +15,8 @@ import io.metersphere.api.service.MockConfigService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.MockExpectConfig;
 import io.metersphere.base.domain.MockExpectConfigWithBLOBs;
+import io.metersphere.commons.constants.PermissionConstants;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,11 +44,13 @@ public class MockConfigController {
     }
 
     @PostMapping(value ="/updateMockExpectConfig", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_MOCK)
     public MockExpectConfig updateMockExpectConfig(@RequestPart("request")MockExpectConfigRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return mockConfigService.updateMockExpectConfig(request,bodyFiles);
     }
 
     @PostMapping(value ="/updateMockExpectConfigStatus")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_MOCK)
     public MockExpectConfig updateMockExpectConfig(@RequestBody MockExpectConfigRequest request) {
         return mockConfigService.updateMockExpectConfigStatus(request);
     }

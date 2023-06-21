@@ -111,7 +111,7 @@
               </el-link>
             </el-col>
             <el-col :span="4">
-              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
+              <el-link @click="mockSetting" type="primary" v-permission="['PROJECT_API_DEFINITION:READ+MOCK']">Mock设置</el-link>
             </el-col>
           </el-row>
 
