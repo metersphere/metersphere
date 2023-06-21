@@ -202,7 +202,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run/debug")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_DEBUG, PermissionConstants.PROJECT_API_SCENARIO_READ_RUN}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DEBUG, title = "#request.scenarioName", sourceId = "#request.scenarioId", project = "#request.projectId")
     public String runDebug(@RequestPart("request") RunDefinitionRequest request,
                            @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
