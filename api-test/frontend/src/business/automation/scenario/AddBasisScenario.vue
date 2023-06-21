@@ -75,6 +75,7 @@
       <ms-dialog-footer
         @cancel="visible = false"
         :isShow="true"
+        v-loading="loading"
         :title="$t('commons.edit_info')"
         @saveAsEdit="saveScenario(true)"
         @confirm="saveScenario">
@@ -135,6 +136,7 @@ export default {
           },
         ],
       },
+      loading: false,
     };
   },
   computed: {
@@ -150,16 +152,19 @@ export default {
     saveScenario(saveAs) {
       this.$refs['scenarioForm'].validate((valid) => {
         if (valid) {
+          this.loading = true;
           let path = '/api/automation/create';
           this.setParameter();
           this.scenarioForm.status = 'Underway';
           this.scenarioForm.level = 'P0';
           if (saveAs) {
+            this.loading = false;
             this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
             this.$emit('saveAsEdit', this.scenarioForm);
             this.visible = false;
           } else {
             saveScenario(path, this.scenarioForm, [], this, (response) => {
+              this.loading = false;
               this.$success(this.$t('commons.save_success'));
               this.visible = false;
               this.$emit('refresh');
