@@ -2157,7 +2157,7 @@ export default {
       batch_add_public: '批量添加到公共用例庫',
       public_warning: '未開啟公共庫用例配置',
       generate_dependencies: '生成依賴關系',
-      generate_dependencies_warning: '為了更好的體驗，建議勾選一百條以下的數據',
+      generate_dependencies_warning: '為了更好的體驗，建議勾選五百條以下的數據',
       batch_unlink: '批量取消關聯',
       unlink: '取消關聯',
       project_name: '所屬項目',

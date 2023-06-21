@@ -2158,7 +2158,7 @@ export default {
       batch_add_public: 'Batch add public',
       public_warning: 'The public library configuration is not enabled',
       generate_dependencies: 'Generate dependencies',
-      generate_dependencies_warning: 'For a better experience, it is recommended to check the data below 100',
+      generate_dependencies_warning: 'For a better experience, it is recommended to check the data below 500',
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
       unlink: 'Unlink',
