@@ -98,12 +98,12 @@ import MethodTableItem from "../../../../../../common/tableItems/planview/Method
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
 import {
   getPlanScenarioAllCase,
-  getPlanScenarioFailureCase,
-  getSharePlanScenarioAllCase,
-  getSharePlanScenarioFailureCase,
   getPlanScenarioErrorReportCase,
-  getSharePlanScenarioErrorReportCase,
+  getPlanScenarioFailureCase,
   getPlanScenarioUnExecuteCase,
+  getSharePlanScenarioAllCase,
+  getSharePlanScenarioErrorReportCase,
+  getSharePlanScenarioFailureCase,
   getSharePlanScenarioUnExecuteCase,
 } from "@/api/remote/plan/test-plan";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -239,6 +239,13 @@ export default {
       }
     },
     rowClick(row) {
+
+      if (!this.isTemplate) {
+        if (this.reportId === row.reportId) {
+          return;
+        }
+      }
+
       this.showResponse = false;
       this.$nextTick(() => {
         if (this.isTemplate) {

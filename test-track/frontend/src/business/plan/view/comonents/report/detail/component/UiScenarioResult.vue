@@ -157,8 +157,13 @@ export default {
       }
     },
     rowClick(row) {
+      if (!this.isTemplate) {
+        if (this.reportId === row.reportId) {
+          return;
+        }
+      }
       this.showResponse = false;
-      this.$nextTick(()=>{
+      this.$nextTick(() => {
         if (this.isTemplate) {
           if (row.response) {
             this.showResponse = true;
