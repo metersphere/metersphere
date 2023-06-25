@@ -72,7 +72,6 @@ public class CustomFieldController {
     }
 
     @PostMapping("/default")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
     public List<CustomField> getDefaultList(@RequestBody QueryCustomFieldRequest request) {
         return customFieldService.getDefaultField(request);
     }
