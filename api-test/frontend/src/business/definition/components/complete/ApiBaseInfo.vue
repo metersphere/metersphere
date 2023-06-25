@@ -218,7 +218,7 @@ export default {
     customFieldForm: {
       handler(v, v1) {
         if (v && v1 && store.apiMap && this.basicForm.id) {
-          this.apiMapStatus();
+          this.customApiMapStatus();
         }
       },
       deep: true,
@@ -230,6 +230,15 @@ export default {
       if (this.basicForm.id) {
         store.apiMap.set(this.basicForm.id, store.apiStatus);
       }
+    },
+    customApiMapStatus() {
+      if(store.saveMap.get(this.basicForm.id)){
+        store.saveMap.set(this.basicForm.id, false);
+        store.apiStatus.set('customFormChange',false );
+      } else {
+        store.apiStatus.set('customFormChange',true );
+      }
+
     },
     setModule(id, data) {
       this.basicForm.moduleId = id;
