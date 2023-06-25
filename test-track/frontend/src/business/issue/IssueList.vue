@@ -524,7 +524,11 @@ export default {
       this.$refs.issueEdit.open(copyData, 'copy');
     },
     handleDelete(data) {
-      this.$alert(this.$t('test_track.issue.delete_tip') + ' ' + data.title + " ？", '', {
+      let tip = this.$t('test_track.issue.delete_tip') + ' ' + data.title + " ？";
+      if (this.isThirdPart) {
+        tip = this.$t('test_track.issue.delete_third_part_tip') + ", " + tip;
+      }
+      this.$alert(tip, '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
@@ -540,7 +544,11 @@ export default {
       })
     },
     handleBatchDelete() {
-      this.$alert(this.$t('test_track.issue.batch_delete_tip') + " ？", '', {
+      let tip = this.$t('test_track.issue.batch_delete_tip') + " ？";
+      if (this.isThirdPart) {
+        tip = this.$t('test_track.issue.delete_third_part_tip') + ", " + tip;
+      }
+      this.$alert(tip, '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {

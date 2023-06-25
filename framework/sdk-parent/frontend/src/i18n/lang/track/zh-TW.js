@@ -549,6 +549,7 @@ export default {
     import_bugs: "導入缺陷",
     export_bugs: "導出缺陷",
     save_before_open_comment: "請先保存缺陷再添加評論",
+    delete_third_part_tip: "該操作將同步刪除第三方平台缺陷",
     delete_tip: "確認刪除缺陷：",
     batch_delete_tip: "確認批量刪除缺陷",
     check_id_exist: "檢查",

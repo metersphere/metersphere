@@ -582,6 +582,7 @@ export default {
     import_bugs: "Import Issue",
     export_bugs: "Export Issue",
     save_before_open_comment: "Please save issue before comment",
+    delete_third_part_tip: "This operation will delete third-party platform defects synchronously",
     delete_tip: "Confirm Delete Issue：",
     batch_delete_tip: "Confirm Batch Delete Issue",
     check_id_exist: "Check",
