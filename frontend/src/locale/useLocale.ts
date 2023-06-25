@@ -1,5 +1,6 @@
 import { unref, ref } from 'vue';
 import dayjs from 'dayjs';
+import { Message } from '@arco-design/web-vue';
 import { i18n } from '@/locale';
 import { setHtmlPageLang, loadLocalePool } from '@/locale/helper';
 
@@ -33,6 +34,7 @@ function setI18nLanguage(locale: LocaleType) {
 async function changeLocale(locale: LocaleType) {
   const globalI18n = i18n.global;
   const currentLocale = unref(globalI18n.locale);
+  Message.loading(currentLocale === 'zh-CN' ? '语言切换中...' : 'Language switching...');
   if (currentLocale === locale) {
     return locale;
   }

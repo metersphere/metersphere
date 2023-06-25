@@ -41,11 +41,6 @@
     if (key === 'colorWeak') {
       document.body.style.filter = value ? 'invert(80%)' : 'none';
     }
-    if (key === 'topMenu') {
-      appStore.updateSettings({
-        menuCollapse: false,
-      });
-    }
     appStore.updateSettings({ [key]: value });
   };
 </script>

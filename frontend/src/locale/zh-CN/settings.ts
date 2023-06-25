@@ -10,7 +10,6 @@ export default {
   'settings.navbar.screen.toExit': '点击退出全屏模式',
   'settings.navbar.alerts': '消息通知',
   'settings.menu': '菜单栏',
-  'settings.topMenu': '顶部菜单栏',
   'settings.tabBar': '多页签',
   'settings.footer': '底部',
   'settings.otherSettings': '其他设置',

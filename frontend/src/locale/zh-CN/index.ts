@@ -13,9 +13,11 @@ export default {
   message: {
     'menu.apiTest': '接口测试',
     'menu.settings': '系统设置',
+    'menu.settings.system': '系统',
+    'menu.settings.organization': '组织',
     'menu.settings.user': '用户',
     'menu.settings.usergroup': '用户组',
-    'menu.settings.organization': '组织',
+    'menu.settings.organizationAndProject': '组织与项目',
     'menu.user': '个人中心',
     'navbar.action.locale': '切换为中文',
     ...sys,
