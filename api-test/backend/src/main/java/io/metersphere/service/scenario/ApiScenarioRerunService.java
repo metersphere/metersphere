@@ -176,6 +176,8 @@ public class ApiScenarioRerunService {
                 LoggerUtil.info("开始清理重跑前结果数据【" + reportId + "】");
                 extApiScenarioReportResultMapper.deleteHisReportResult(ids, reportId);
 
+                // 清理历史日志
+                apiScenarioReportStructureService.update(reportId, "", false);
                 // 存储重跑结构
                 List<ApiScenarioWithBLOBs> scenarioWithBLOBs = apiScenarioExecuteService.get(request);
                 // 重跑的报告结果
