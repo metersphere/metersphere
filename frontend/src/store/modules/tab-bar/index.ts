@@ -17,7 +17,7 @@ const formatTag = (route: RouteLocationNormalized): TabProps => {
 
 const BAN_LIST = [REDIRECT_ROUTE_NAME];
 
-const useAppStore = defineStore('tabBar', {
+const useTabBarStore = defineStore('tabBar', {
   state: (): TabBarState => ({
     cacheTabList: new Set([DEFAULT_ROUTE_NAME]),
     tabList: [DEFAULT_ROUTE],
@@ -92,4 +92,4 @@ const useAppStore = defineStore('tabBar', {
   },
 });
 
-export default useAppStore;
+export default useTabBarStore;

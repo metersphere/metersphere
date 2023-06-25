@@ -15,6 +15,8 @@ export interface AppState {
   device: string;
   tabBar: boolean;
   serverMenu: RouteRecordNormalized[];
+  loading: boolean;
+  loadingTip: string;
   [key: string]: unknown;
 }
 

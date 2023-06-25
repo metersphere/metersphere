@@ -2,10 +2,11 @@ import { defineStore } from 'pinia';
 import { login as userLogin, logout as userLogout, getUserInfo } from '@/api/modules/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
+import useAppStore from '../app';
+import { useI18n } from '@/hooks/useI18n';
 
 import type { LoginData } from '@/models/user';
-import { UserState } from './types';
-import useAppStore from '../app';
+import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {
   state: (): UserState => ({
@@ -74,10 +75,14 @@ const useUserStore = defineStore('user', {
       clearToken();
       removeRouteListener();
       appStore.clearServerMenu();
+      appStore.hideLoading();
     },
     // 登出
     async logout() {
       try {
+        const { t } = useI18n();
+        const appStore = useAppStore();
+        appStore.showLoading(t('message.logouting'));
         await userLogout();
       } finally {
         this.logoutCallBack();
