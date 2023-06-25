@@ -20,6 +20,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -100,7 +101,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_CASE)
+    @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_CASE, PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_CASE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, subject = "接口用例通知")
     public ApiTestCase create(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
