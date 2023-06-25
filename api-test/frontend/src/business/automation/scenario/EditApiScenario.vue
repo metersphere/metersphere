@@ -128,7 +128,6 @@
 
             <el-col :span="13">
               <env-popover
-                :disabled="scenarioDefinition.length < 1"
                 :env-map="projectEnvMap"
                 :project-ids="projectIds"
                 :result="envResult"
@@ -151,6 +150,7 @@
                   @click="runDebug"
                   class="ms-message-right"
                   size="mini"
+                  :disabled="scenarioDefinition.length < 1"
                   @command="handleCommand"
                   v-permission="[
                     'PROJECT_API_SCENARIO:READ+DEBUG',
@@ -1114,15 +1114,14 @@ export default {
       }
     },
     evaluationParent(node, status) {
-      if (!node.data.code) {
-        node.data.code = 'SUCCESS';
+      if(node.data.code === "ERROR") {
+        return;
       }
-      if (node.data.code ==='SUCCESS' && status && status === 'SUCCESS') {
-        node.data.code = 'SUCCESS';
+      if (node.data.code === 'FAKE_ERROR') {
+        return;
       }
-      if ((node.data.code ==='SUCCESS' ||
-        node.data.code === 'FAKE_ERROR') &&
-        status && status === 'FAKE_ERROR') {
+      node.data.code = status ? 'SUCCESS' : 'ERROR';
+      if (status === 'FAKE_ERROR') {
         node.data.code = 'FAKE_ERROR';
       }
       if (status && status === 'ERROR') {
@@ -1139,6 +1138,7 @@ export default {
         let id = item.data.id || item.data.resourceId;
         if (id + '_' + item.data.parentIndex === resourceId) {
           item.data.testing = false;
+          item.data.code = status ? "SUCCESS" : "ERROR";
           this.evaluationParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {

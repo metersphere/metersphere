@@ -377,7 +377,7 @@ public class MsHashTreeService {
         Map<String, Boolean> indexKeyMap = new HashMap<>();
         StringBuilder builder = new StringBuilder(parentIndex);
         if (element.has(ENABLE) && element.has(ID) && element.has(INDEX)) {
-            builder.append("_").append(element.getString(INDEX));
+            builder.append("_").append(element.optString(INDEX));
             String key = StringUtils.join(element.optString(ID), builder.toString());
             indexKeyMap.put(key, element.optBoolean(ENABLE));
         }
@@ -435,7 +435,8 @@ public class MsHashTreeService {
     }
 
     private void setCaseEnable(JSONObject element, Map<String, Boolean> keyMap, String parentIndex) {
-        if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))) {
+        if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))
+                && StringUtils.equals(element.optString(REFERENCED),REF)) {
             element.put(ENABLE, false);
             element.put(REF_ENABLE, true);
         } else {
