@@ -4,6 +4,7 @@
              :width="width"
              :visible="visible"
              destroy-on-close
+             :fullscreen="fullScreen"
              :append-to-body="appendToBody"
              @close="handleClose">
 
@@ -64,6 +65,10 @@ export default {
       type: Boolean,
       default: false
     },
+    fullScreen: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     handleConfirm() {

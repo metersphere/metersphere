@@ -1,6 +1,7 @@
 <template>
   <ms-drawer-component
     :enableSelect="false"
+    size="90%"
     :title="$t('test_track.issue.create_issue')"
     @confirm="confirm"
     @saveAndReset="saveAndReset"
