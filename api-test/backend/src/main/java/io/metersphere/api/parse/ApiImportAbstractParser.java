@@ -128,6 +128,8 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
             apiDefinition.setUserId(SessionUtils.getUserId());
             apiDefinition.setCreateUser(SessionUtils.getUserId());
         }
+        // set default remark of import api to empty string rather then null
+        apiDefinition.setRemark(StringUtils.EMPTY);
         return apiDefinition;
     }
 

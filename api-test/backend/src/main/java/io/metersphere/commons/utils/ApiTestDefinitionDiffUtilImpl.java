@@ -17,6 +17,7 @@ import io.metersphere.log.vo.api.DefinitionReference;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -222,7 +223,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(headerNew, headerOld)) {
                 String patch = jsonDiff.diff(headerOld, headerNew);
                 String diffPatch = jsonDiff.apply(headerNew, patch);
-                if (StringUtils.isNotBlank(diffPatch)) {
+                if (StringUtils.isNotBlank(diffPatch) && !isDiffPatchRootEmpty(diffPatch)) {
                     diffMap.put("header", diffPatch);
                 }
             }
@@ -234,7 +235,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(statusCodeNew, statusCodeOld)) {
                 String patch = jsonDiff.diff(statusCodeOld, statusCodeNew);
                 String diff = jsonDiff.apply(statusCodeNew, patch);
-                if (StringUtils.isNotBlank(diff)) {
+                if (StringUtils.isNotBlank(diff) && !isDiffPatchRootEmpty(diff)) {
                     diffMap.put(STATUS_CODE, diff);
                 }
             }
@@ -246,7 +247,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(bodyStrNew, bodyStrOld)) {
                 String patch = jsonDiff.diff(bodyStrOld, bodyStrNew);
                 String diff = jsonDiff.apply(bodyStrNew, patch);
-                if (StringUtils.isNotBlank(diff)) {
+                if (StringUtils.isNotBlank(diff) && !isDiffPatchRootEmpty(diff) && !isBodyDiffPatchEmpty(diff)) {
                     diffMap.put(BODY, diff);
                 }
             }
@@ -266,7 +267,7 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
             if (!StringUtils.equals(bodyFormNew, bodyFormOld)) {
                 String patch = jsonDiff.diff(bodyFormOld, bodyFormNew);
                 String diff = jsonDiff.apply(bodyFormNew, patch);
-                if (StringUtils.isNotBlank(diff)) {
+                if (StringUtils.isNotBlank(diff) && !isDiffPatchRootEmpty(diff)) {
                     diffMap.put(BODY_FORM, diff);
                 }
             }
@@ -413,5 +414,51 @@ public class ApiTestDefinitionDiffUtilImpl implements ApiDefinitionDiffUtil {
                 diffMap.put("attachment", diffPatch);
             }
         }
+    }
+
+    /**
+     * is diff-patch root element empty
+     * @param diffPatch json-string
+     * @return true: empty, false: not empty
+     */
+    private static boolean isDiffPatchRootEmpty(String diffPatch) {
+        JSONObject jsonObject = JSONUtil.parseObject(diffPatch);
+        if (jsonObject.isEmpty()) {
+            return true;
+        }
+        if (!jsonObject.has("root")) {
+            return false;
+        }
+        Object root = jsonObject.get("root");
+        if (root == null) {
+            return true;
+        }
+        if (root instanceof String) {
+            return StringUtils.isEmpty((String) root);
+        }
+        if (root instanceof List) {
+            return CollectionUtils.isEmpty((List) root);
+        }
+        if (root instanceof Map) {
+            return ((Map) root).isEmpty();
+        }
+        if (root instanceof JSONArray) {
+            return ((JSONArray) root).isEmpty();
+        }
+        return false;
+    }
+
+    /**
+     * is body's diff-patch empty
+     * @param bodyDiff body's diff-patch
+     * @return true: empty, false: not empty
+     */
+    private static boolean isBodyDiffPatchEmpty(String bodyDiff) {
+        JSONObject jsonObject = JSONUtil.parseObject(bodyDiff);
+        if (jsonObject.isEmpty()) {
+            return true;
+        }
+        return !jsonObject.has("form") && !jsonObject.has("jsonSchema") && !jsonObject.has("++jsonSchema")
+                && !jsonObject.has("raw_1") && !jsonObject.has("raw_2");
     }
 }

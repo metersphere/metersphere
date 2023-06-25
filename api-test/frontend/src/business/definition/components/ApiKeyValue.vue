@@ -288,9 +288,6 @@ export default {
           this.items.splice(i, 1);
         }
       }
-      if (this.items.length === 0 || this.items[this.items.length - 1].name) {
-        this.items.push(new KeyValue({ enable: true, name: '', value: '' }));
-      }
     }
   },
 };
