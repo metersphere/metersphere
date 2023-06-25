@@ -69,16 +69,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js</artifactId>
-            <version>${graalvmjs.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.js</groupId>
-            <artifactId>js-scriptengine</artifactId>
-            <version>${graalvmjs.version}</version>
-        </dependency>
+
     </dependencies>
 
     <build>
