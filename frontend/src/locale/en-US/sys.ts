@@ -2,6 +2,9 @@ export default {
   // 消息提醒相关
   'message.errorTip': 'Error Tip',
   'message.logoutSuccess': 'Logout success',
+  'message.menuLoading': 'Loading the menu...',
+  'message.menuLoadSuccess': 'Menu loaded successfully',
+  'message.menuLoadError': 'Menu load failed',
   // API相关
   'api.apiTimeoutMessage': 'The interface request timed out, please refresh the page and try again!',
   'api.apiRequestFailed': 'The interface request failed, please try again later!',

@@ -13,6 +13,7 @@
           :collapsed="collapsed"
           :collapsible="true"
           :width="menuWidth"
+          :collapsed-width="collapsedWidth"
           :style="{ paddingTop: navbar ? navbarHeight : '' }"
           :hide-trigger="true"
           @collapse="setCollapsed"
@@ -33,11 +34,13 @@
           <Menu />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
-          <TabBar v-if="appStore.tabBar" />
-          <a-layout-content>
-            <PageLayout />
-          </a-layout-content>
-          <Footer v-if="footer" />
+          <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
+            <TabBar v-if="appStore.tabBar" />
+            <a-layout-content>
+              <PageLayout />
+            </a-layout-content>
+            <Footer v-if="footer" />
+          </a-spin>
         </a-layout>
       </a-layout>
     </a-layout>
@@ -68,8 +71,9 @@
   const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
   const hideMenu = computed(() => appStore.hideMenu);
   const footer = computed(() => appStore.footer);
+  const collapsedWidth = 86;
   const menuWidth = computed(() => {
-    return appStore.menuCollapse ? 48 : appStore.menuWidth;
+    return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
   const collapsed = computed(() => {
     return appStore.menuCollapse;
@@ -159,7 +163,7 @@
     background-color: var(--color-bg-3);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
-      padding: 16px 16px 0;
+      padding: 16px 16px 16px 0;
     }
   }
 </style>
