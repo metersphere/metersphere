@@ -89,16 +89,18 @@ const useAppStore = defineStore('app', {
     /**
      * 显示全局 loading
      */
-    showLoading(tip = '加载中...') {
+    showLoading(tip = '') {
+      const { t } = useI18n();
       this.loading = true;
-      this.loadingTip = tip;
+      this.loadingTip = tip || t('message.loadingDefaultTip');
     },
     /**
      * 隐藏全局 loading
      */
     hideLoading() {
+      const { t } = useI18n();
       this.loading = false;
-      this.loadingTip = '加载中...';
+      this.loadingTip = t('message.loadingDefaultTip');
     },
   },
 });
