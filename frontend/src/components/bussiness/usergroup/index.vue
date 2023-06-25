@@ -48,7 +48,13 @@
     </div>
   </div>
   <AddUserModal :visible="addUserVisible" @cancel="addUserVisible = false" />
-  <AddUserGroupModal :visible="addUserGroupVisible" @cancel="addUserGroupVisible = false" />
+  <AddUserGroupModal
+    :list="userGroupList"
+    :visible="addUserGroupVisible"
+    :loading="addUserGrouploading"
+    @cancel="addUserGroupVisible = false"
+    @submit="handleAddUserGroup"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -74,6 +80,7 @@
   const currentId = ref('');
   const addUserVisible = ref(false);
   const addUserGroupVisible = ref(false);
+  const addUserGrouploading = ref(false);
   // 修改用户组名字，权限范围
   const popVisible = ref<PopVisibleItem>({});
   // 用户组和权限范围的状态
@@ -212,6 +219,23 @@
     const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
     userGroupList.value = tmpArr;
   }
+  // 新增用户组
+  const handleAddUserGroup = async (value: Partial<UserGroupItem>) => {
+    try {
+      addUserGrouploading.value = true;
+      const res = await updateOrAddUserGroup(value);
+      if (res) {
+        Message.success(t('system.userGroup.addUserGroupSuccess'));
+        initData();
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    } finally {
+      addUserGrouploading.value = false;
+    }
+  };
+
   onMounted(() => {
     initData();
   });
