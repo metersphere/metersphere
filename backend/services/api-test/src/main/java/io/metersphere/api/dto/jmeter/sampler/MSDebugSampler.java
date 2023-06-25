@@ -22,23 +22,6 @@ public class MSDebugSampler extends TestElementDTO {
     private boolean displayJMeterVariables = true;
     private boolean displaySystemProperties = false;
 
-    @Override
-    public void toHashTree(HashTree tree, List<TestElementDTO> hashTree, BaseConfigDTO configDTO) {
-        BaseConfigDTO config = (BaseConfigDTO) configDTO;
-        // 非导出操作，且不是启用状态则跳过执行
-        if (!this.isEnable()) {
-            return;
-        }
-        final HashTree groupTree = tree.add(debugSampler());
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
-                // 给所有孩子加一个父亲标志
-                el.setParent(this);
-                el.toHashTree(groupTree, el.getHashTree(), config);
-            });
-        }
-    }
-
 
     private DebugSampler debugSampler() {
         DebugSampler debugSampler = new DebugSampler();
