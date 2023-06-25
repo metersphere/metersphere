@@ -375,10 +375,6 @@ export default {
       });
       this.responseCount = 0;
       this.count = 0;
-      store.apiStatus.set('fromChange', false);
-      store.apiStatus.set('requestChange', false);
-      store.apiStatus.set('responseChange', false);
-      store.apiMap.set(this.currentApi.id, store.apiStatus);
     },
     handleSave() {
       if (this.$refs.httpApi) {
