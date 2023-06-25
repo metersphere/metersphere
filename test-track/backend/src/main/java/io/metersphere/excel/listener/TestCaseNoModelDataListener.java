@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldResourceDTO;
+import io.metersphere.dto.TestCaseNodeDTO;
 import io.metersphere.excel.annotation.NotRequired;
 import io.metersphere.excel.constants.TestCaseImportFiled;
 import io.metersphere.excel.domain.ExcelErrData;
@@ -25,6 +26,7 @@ import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.exception.CustomFieldValidateException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.request.testcase.TestCaseImportRequest;
+import io.metersphere.service.TestCaseNodeService;
 import io.metersphere.service.TestCaseService;
 import io.metersphere.validate.AbstractCustomFieldValidator;
 import io.metersphere.validate.CustomFieldValidatorFactory;
@@ -61,6 +63,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     protected static final int BATCH_COUNT = 5000;
 
     private TestCaseService testCaseService;
+
+    private TestCaseNodeService testCaseNodeService;
 
     protected List<TestCaseExcelData> updateList = new ArrayList<>();  //存储待更新用例的集合
 
@@ -104,6 +108,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
 
     private Map<String, List<CustomFieldResourceDTO>> testCaseCustomFieldMap = new HashMap<>();
+    private Map<String, String> pathMap = new HashMap<>();
+    private List<TestCaseNodeDTO> nodeTrees;
 
     public boolean isUpdated() {
         return isUpdated;
@@ -113,6 +119,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         this.mergeInfoSet = mergeInfoSet;
         this.excelDataClass = c;
         this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
+        this.testCaseNodeService = CommonBeanFactory.getBean(TestCaseNodeService.class);
         customIds = new HashSet<>();
 
         this.request = request;
@@ -123,6 +130,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         if (CollectionUtils.isNotEmpty(customFields)) {
             customFieldsMap = customFields.stream().collect(Collectors.toMap(CustomFieldDao::getName, i -> i));
         }
+
+        nodeTrees = testCaseNodeService.getNodeTreeByProjectId(request.getProjectId());
     }
 
     @Override
@@ -303,6 +312,10 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             testCase.setProjectId(request.getProjectId());
             String steps = getSteps(data);
             testCase.setSteps(steps);
+
+            //  校验模块是否存在，没有存在则新建一个模块
+            testCaseNodeService.createNodeByNodePath(testCase.getNodePath(), request.getProjectId(), nodeTrees, pathMap);
+            testCase.setNodeId(pathMap.get(testCase.getNodePath()));
 
             boolean dbExist = testCaseService.exist(testCase);
             boolean excelExist = false;
@@ -535,7 +548,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
-            testCaseService.saveImportData(result, request, testCaseCustomFieldMap);
+            testCaseService.saveImportData(result, request, testCaseCustomFieldMap, pathMap);
             this.names = result.stream().map(TestCase::getName).collect(Collectors.toList());
             this.ids = result.stream().map(TestCase::getId).collect(Collectors.toList());
             this.isUpdated = true;

@@ -1256,8 +1256,15 @@ public class TestCaseService {
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
                                Map<String, List<CustomFieldResourceDTO>> testCaseCustomFieldMap) {
+        saveImportData( testCases, request, testCaseCustomFieldMap, null);
+    }
+
+    public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
+                               Map<String, List<CustomFieldResourceDTO>> testCaseCustomFieldMap, Map<String, String> nodePathMap) {
         String projectId = request.getProjectId();
-        Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
+        if (nodePathMap == null) {
+            nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
+        }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = baseProjectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);

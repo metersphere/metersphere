@@ -274,7 +274,6 @@ public class NodeTreeService<T extends TreeNodeDTO> {
                 createNodeByPathIterator(pathIterator, path + "/" + child.getName(),
                         child, pathMap, projectId, level + 1);
             }
-            ;
         }
 
         //若子节点中不包含该目标节点，则在该节点下创建
