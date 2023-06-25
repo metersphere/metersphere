@@ -44,6 +44,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.quota.service.BaseQuotaService;
+import io.metersphere.request.OrderRequest;
 import io.metersphere.request.RelationshipEdgeRequest;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.request.SyncApiDefinitionRequest;
@@ -296,8 +297,17 @@ public class ApiDefinitionService {
             return new ArrayList<>(0);
         } else {
             ApiDefinitionRequest request = new ApiDefinitionRequest();
+            request.setOrders(
+                    new ArrayList<>() {{
+                        add(new OrderRequest() {{
+                                this.setName("update_time");
+                                this.setType("desc");
+                            }}
+                        );
+                    }}
+            );
             request.setProjectId(projectId);
-            request = this.initRequest(request, true, true);
+            request = this.initRequest(request, false, true);
             request.setNotEqStatus(ApiTestDataStatus.TRASH.getValue());
             if (StringUtils.isNotBlank(versionId)) {
                 request.setVersionId(versionId);
