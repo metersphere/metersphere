@@ -270,9 +270,7 @@ export function buildCustomFields(data, param, template) {
       if (["richText", "textarea"].indexOf(item.type) > -1) {
         customField["textValue"] = item.defaultValue;
       } else {
-        customField["value"] = item.defaultValue
-          ? JSON.stringify(item.defaultValue)
-          : "";
+        customField["value"] = JSON.stringify(item.defaultValue);
         // 处理 jira 的 sprint 字段
         if (item.optionLabel) {
           customField["textValue"] = item.optionLabel;
@@ -285,8 +283,7 @@ export function buildCustomFields(data, param, template) {
       }
       let fieldValue =
         item.defaultValue instanceof Array && item.type !== "multipleInput"
-          ? JSON.stringify(item.defaultValue)
-          : item.defaultValue || "";
+          ? JSON.stringify(item.defaultValue) : item.defaultValue;
       let requestField = {
         id: item.id,
         name: item.name,
