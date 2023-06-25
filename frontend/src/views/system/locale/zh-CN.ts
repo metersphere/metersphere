@@ -100,6 +100,7 @@ export default {
   'system.user.inviteCancel': '取消',
   'system.user.inviteEmailPlaceholder': '可输入多个邮箱地址，空格或回车分隔',
   'system.user.inviteSendEmail': '发送邮件',
+  'system.user.inviteSuccess': '邀请成功',
   'system.user.importModalTitle': '导入用户',
   'system.user.importModalTip': '用户组仅支持添加系统存在的用户组',
   'system.user.importDownload': '下载模板',
