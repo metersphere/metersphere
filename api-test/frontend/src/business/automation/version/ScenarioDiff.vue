@@ -410,7 +410,7 @@ import ScenarioChildDiff from '../version/ScenarioChildDiff';
 import { objToStrMap } from 'metersphere-frontend/src/utils';
 import { getScenarioWithBLOBsById } from '@/api/scenario';
 import {useApiStore} from '@/store';
-import {STEP} from "@/business/automation/scenario/Setting";
+import {STEP, ELEMENT_TYPE} from "@/business/automation/scenario/Setting";
 
 const store = useApiStore();
 const { diff } = require('./v_node_diff');
