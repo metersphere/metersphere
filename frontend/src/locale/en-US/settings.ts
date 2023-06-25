@@ -10,7 +10,6 @@ export default {
   'settings.navbar.screen.toExit': 'Click to exit the full screen mode',
   'settings.navbar.alerts': 'alerts',
   'settings.menu': 'Menu',
-  'settings.topMenu': 'Top Menu',
   'settings.tabBar': 'Tab Bar',
   'settings.footer': 'Footer',
   'settings.otherSettings': 'Other Settings',

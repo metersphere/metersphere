@@ -1,9 +1,9 @@
 import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
 
-const ApiTest: AppRouteRecordRaw = {
-  path: '/system',
-  name: 'system',
+const System: AppRouteRecordRaw = {
+  path: '/setting',
+  name: 'setting',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.settings',
@@ -12,24 +12,39 @@ const ApiTest: AppRouteRecordRaw = {
   },
   children: [
     {
-      path: 'user',
-      name: 'user',
-      component: () => import('@/views/system/user/index.vue'),
+      path: 'system',
+      name: 'settingSystem',
+      redirect: '/setting/system/user',
+      component: null,
       meta: {
-        locale: 'menu.settings.user',
+        locale: 'menu.settings.system',
         roles: ['*'],
+        hideChildrenInMenu: true,
       },
-    },
-    {
-      path: 'usergroup',
-      name: 'usergroup',
-      component: () => import('@/views/system/usergroup/index.vue'),
-      meta: {
-        locale: 'menu.settings.usergroup',
-        roles: ['*'],
-      },
+      children: [
+        {
+          path: 'user',
+          name: 'settingSystemUser',
+          component: () => import('@/views/system/user/index.vue'),
+          meta: {
+            locale: 'menu.settings.user',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+        {
+          path: 'usergroup',
+          name: 'settingSystemUsergroup',
+          component: () => import('@/views/system/usergroup/index.vue'),
+          meta: {
+            locale: 'menu.settings.usergroup',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+      ],
     },
   ],
 };
 
-export default ApiTest;
+export default System;

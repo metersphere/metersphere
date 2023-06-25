@@ -45,11 +45,6 @@
       key: 'menu',
       defaultVal: appStore.menu,
     },
-    {
-      name: 'settings.topMenu',
-      key: 'topMenu',
-      defaultVal: appStore.topMenu,
-    },
     { name: 'settings.footer', key: 'footer', defaultVal: appStore.footer },
     { name: 'settings.tabBar', key: 'tabBar', defaultVal: appStore.tabBar },
     {

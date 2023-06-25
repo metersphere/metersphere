@@ -31,7 +31,6 @@
         },
       });
 
-      const topMenu = computed(() => appStore.topMenu);
       const openKeys = ref<string[]>([]);
       const selectedKey = ref<string[]>([]);
 
@@ -67,10 +66,13 @@
         const result: string[] = [];
         let isFind = false;
         const backtrack = (item: RouteRecordRaw | null, keys: string[]) => {
-          if (item?.name === target) {
-            isFind = true;
+          if (target.includes(item?.name as string)) {
             result.push(...keys);
-            return;
+            if (result.length >= 2) {
+              // 由于目前存在三级子路由，所以至少会匹配到三层才算结束
+              isFind = true;
+              return;
+            }
           }
           if (item?.children?.length) {
             item.children.forEach((el) => {
@@ -139,7 +141,7 @@
             unmount-on-close={false}
             popup-offset={4}
             position="right"
-            class="arco-trigger-menu absolute"
+            class={['arco-trigger-menu absolute', personalMenusVisble.value ? 'block' : 'hidden']}
             v-slots={{
               content: () => (
                 <div class="arco-trigger-menu-inner">
@@ -173,9 +175,12 @@
               ),
             }}
           >
-            <a-menu-item key="personalInfo">
-              <a-icon type="user" />
-              {userStore.name}
+            <a-menu-item class="flex items-center justify-between" key="personalInfo">
+              <div class="hover:!bg-transparent">
+                <icon-face-smile-fill />
+                {userStore.name}
+              </div>
+              <icon-caret-down class="!m-0" />
             </a-menu-item>
           </a-trigger>
         );
@@ -213,7 +218,7 @@
 
       return () => (
         <a-menu
-          mode={topMenu.value ? 'horizontal' : 'vertical'}
+          mode={'vertical'}
           v-model:collapsed={collapsed.value}
           v-model:open-keys={openKeys.value}
           show-collapse-button={appStore.device !== 'mobile'}
@@ -311,9 +316,10 @@
       &:not(.arco-menu-inline-header) {
         background-color: rgb(var(--primary-9)) !important;
       }
-      .arco-menu-icon {
-        .arco-icon {
-          color: rgb(var(--primary-5)) !important;
+      .arco-icon {
+        color: rgb(var(--primary-5)) !important;
+        &:hover {
+          background-color: var(--color-bg-6) !important;
         }
       }
       .arco-menu-title {

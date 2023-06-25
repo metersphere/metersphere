@@ -6,7 +6,7 @@
       </a-space>
     </div>
     <div class="center-side">
-      <Menu v-if="topMenu"></Menu>
+      <TopMenu />
     </div>
     <ul class="right-side">
       <li>
@@ -119,14 +119,13 @@
   import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { useFullscreen } from '@vueuse/core';
-  import { useAppStore, useUserStore } from '@/store';
+  import { useUserStore } from '@/store';
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
   import useUser from '@/hooks/useUser';
-  import Menu from '@/components/pure/menu/index.vue';
+  import TopMenu from '@/components/pure/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
 
-  const appStore = useAppStore();
   const userStore = useUserStore();
   const { logout } = useUser();
   const { changeLocale, currentLocale } = useLocale();
@@ -135,7 +134,6 @@
   const avatar = computed(() => {
     return userStore.avatar;
   });
-  const topMenu = computed(() => appStore.topMenu && appStore.menu);
   // const setVisible = () => {
   //   appStore.updateSettings({ globalSettings: true });
   // };
@@ -176,6 +174,7 @@
     @apply flex items-center;
 
     padding-left: 24px;
+    width: 185px;
   }
   .center-side {
     @apply flex-1;

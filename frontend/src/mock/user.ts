@@ -1,7 +1,7 @@
 import Mock from 'mockjs';
 import setupMock, { successResponseWrap, failResponseWrap } from '@/utils/setup-mock';
 
-import { GetMenuListUrl, LogoutUrl, GetUserInfoUrl } from '@/api/requrls/user';
+import { GetMenuListUrl, LogoutUrl, GetUserInfoUrl, LoginUrl } from '@/api/requrls/user';
 import { isLogin } from '@/utils/auth';
 
 setupMock({
@@ -33,6 +33,11 @@ setupMock({
     });
 
     // 登出
+    Mock.mock(new RegExp(LoginUrl), () => {
+      return successResponseWrap({});
+    });
+
+    // 登出
     Mock.mock(new RegExp(LogoutUrl), () => {
       return successResponseWrap(null);
     });
@@ -61,8 +66,8 @@ setupMock({
           ],
         },
         {
-          path: '/system',
-          name: 'system',
+          path: '/setting',
+          name: 'setting',
           meta: {
             locale: 'menu.settings',
             icon: 'icon-dashboard',
@@ -70,23 +75,34 @@ setupMock({
           },
           children: [
             {
-              path: 'user',
-              name: 'user',
+              path: 'system',
+              name: 'settingSystem',
+              redirect: '/setting/system/user',
               meta: {
-                locale: 'menu.settings.user',
+                locale: 'menu.settings.system',
                 roles: ['*'],
-                icon: 'icon-computer',
+                hideChildrenInMenu: true,
               },
-            },
-            {
-              path: 'usergroup',
-              name: 'usergroup',
-              component: () => import('@/views/system/usergroup/index.vue'),
-              meta: {
-                locale: 'menu.settings.usergroup',
-                roles: ['*'],
-                icon: 'icon-computer',
-              },
+              children: [
+                {
+                  path: 'user',
+                  name: 'settingSystemUser',
+                  meta: {
+                    locale: 'menu.settings.user',
+                    roles: ['*'],
+                    isTopMenu: true,
+                  },
+                },
+                {
+                  path: 'usergroup',
+                  name: 'settingSystemUsergroup',
+                  meta: {
+                    locale: 'menu.settings.usergroup',
+                    roles: ['*'],
+                    isTopMenu: true,
+                  },
+                },
+              ],
             },
           ],
         },

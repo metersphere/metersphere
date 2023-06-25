@@ -13,9 +13,11 @@ export default {
   message: {
     'menu.apiTest': 'Api Test',
     'menu.settings': 'System Settings',
+    'menu.settings.system': 'System',
+    'menu.settings.organization': 'Organization',
     'menu.settings.usergroup': 'User Group',
     'menu.settings.user': 'User',
-    'menu.settings.organization': 'Organization',
+    'menu.settings.organizationAndProject': 'Org & Project',
     'navbar.action.locale': 'Switch to English',
     ...sys,
     ...localeSettings,

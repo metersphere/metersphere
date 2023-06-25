@@ -4,7 +4,7 @@ export const WHITE_LIST = [
   { name: 'invite', children: [] },
 ];
 
-export const BOTTOM_MENU_LIST = ['system'];
+export const BOTTOM_MENU_LIST = ['setting'];
 
 export const NOT_FOUND = {
   name: 'notFound',
