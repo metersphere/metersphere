@@ -4,7 +4,7 @@
       title
     }}</span>
 
-    <div style="top: 20px; right: 50px; position: absolute" v-if="enableFullScreen">
+    <div class="full-ico" v-if="enableFullScreen">
       <el-tooltip
         effect="dark"
         :content="$t('commons.full_screen_editing')"
@@ -110,5 +110,12 @@ export default {
 .alt-ico {
   font-size: 13px;
   color: #8c939d;
+}
+
+.full-ico {
+  top: 20px;
+  right: 50px;
+  position: absolute;
+  cursor: pointer;
 }
 </style>
