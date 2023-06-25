@@ -3,7 +3,7 @@
     <MsButton><icon-more /></MsButton>
     <template #content>
       <template v-for="item of props.list">
-        <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" class="mx-0 my-[6px]" />
+        <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" class="ms-dropdown-divider" />
         <a-doption v-else :key="item.label" :class="item.danger ? 'error-6' : ''">{{ t(item.label || '') }}</a-doption>
       </template>
     </template>

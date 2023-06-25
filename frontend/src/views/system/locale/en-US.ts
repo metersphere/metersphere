@@ -102,6 +102,7 @@ export default {
   'system.user.inviteCancel': 'Cancel',
   'system.user.inviteEmailPlaceholder': 'Enter multiple email addresses, separated by spaces or carriage returns',
   'system.user.inviteSendEmail': 'SendEmail',
+  'system.user.inviteSuccess': 'Invitation successful',
   'system.user.importModalTitle': 'Import user',
   'system.user.importDownload': 'Download the template',
   'system.user.importModalTip': 'User groups only support adding user groups that exist in the system',
