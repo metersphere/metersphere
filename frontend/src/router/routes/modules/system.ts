@@ -18,7 +18,6 @@ const ApiTest: AppRouteRecordRaw = {
       meta: {
         locale: 'menu.settings.user',
         roles: ['*'],
-        icon: 'icon-computer',
       },
     },
     {
@@ -28,7 +27,6 @@ const ApiTest: AppRouteRecordRaw = {
       meta: {
         locale: 'menu.settings.usergroup',
         roles: ['*'],
-        icon: 'icon-computer',
       },
     },
   ],

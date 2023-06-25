@@ -243,21 +243,38 @@
 }
 
 /** 下拉菜单 **/
-.arco-dropdown {
+.arco-dropdown,
+.arco-trigger-menu {
   border: 0.5px solid var(--color-text-n8);
   box-shadow: 0 3px 14px 2px rgb(0 0 0 / 5%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 5px 5px -3px rgb(0 0 0 / 10%);
-  .arco-dropdown-list {
+  .arco-dropdown-list,
+  .arco-trigger-menu-inner {
     @apply relative flex w-full flex-col overflow-hidden;
-    .arco-dropdown-option {
-      @apply w-auto;
+    .arco-dropdown-option,
+    .arco-trigger-menu-item {
+      @apply flex w-auto items-center;
 
       margin: 0 6px;
       padding: 3px 8px;
+      height: 30px;
       border-radius: var(--border-radius-small);
       line-height: normal;
       &:hover {
         background-color: rgb(var(--primary-1));
       }
+    }
+    .ms-dropdown-divider {
+      margin: 6px 0;
+    }
+    .arco-trigger-menu-item {
+      width: 108px;
+      .arco-icon {
+        margin-right: 8px;
+      }
+    }
+    .arco-trigger-menu-selected {
+      color: rgb(var(--primary-7));
+      background-color: rgb(var(--primary-1));
     }
   }
 }

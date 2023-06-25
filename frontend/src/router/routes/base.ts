@@ -37,3 +37,18 @@ export const INVITE_ROUTE: RouteRecordRaw = {
     hideInMenu: true,
   },
 };
+
+export const PERSONAL_ROUTE: RouteRecordRaw = {
+  path: '/personal',
+  name: 'personal',
+  component: DEFAULT_LAYOUT,
+  meta: {},
+  children: [
+    {
+      path: '/personal/info',
+      name: 'personalInfo',
+      component: () => import('@/views/base/personal/index.vue'),
+      meta: {},
+    },
+  ],
+};

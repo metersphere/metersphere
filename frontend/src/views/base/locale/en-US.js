@@ -14,4 +14,7 @@ export default {
   'invite.passwordTipTitle': 'The passwords must match both, only the following rules are supported',
   'invite.passwordLengthRule': 'The length is 8-32 digits',
   'invite.passwordWordRule': 'Must contain numbers and letters, Chinese or spaces are not allowed',
+  'personal.info': 'Personal Info',
+  'personal.switchOrg': 'Switch Org',
+  'personal.exit': 'Log out',
 };

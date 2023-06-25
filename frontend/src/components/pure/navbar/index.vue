@@ -2,13 +2,7 @@
   <div class="navbar">
     <div class="left-side">
       <a-space>
-        <svg-icon :width="'43px'" :height="'33px'" :name="'logo'" />
-        <a-divider direction="vertical" />
-        <icon-menu-fold
-          v-if="!topMenu && appStore.device === 'mobile'"
-          style="font-size: 22px; cursor: pointer"
-          @click="toggleDrawerMenu"
-        />
+        <svg-icon width="145px" height="32px" name="MS-full-logo" />
       </a-space>
     </div>
     <div class="center-side">
@@ -122,7 +116,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, inject } from 'vue';
+  import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { useFullscreen } from '@vueuse/core';
   import { useAppStore, useUserStore } from '@/store';
@@ -170,7 +164,6 @@
     const res = await userStore.switchRoles();
     Message.success(res as string);
   };
-  const toggleDrawerMenu = inject('toggleDrawerMenu') as () => void;
 </script>
 
 <style scoped lang="less">
@@ -182,7 +175,7 @@
   .left-side {
     @apply flex items-center;
 
-    padding-left: 20px;
+    padding-left: 24px;
   }
   .center-side {
     @apply flex-1;
