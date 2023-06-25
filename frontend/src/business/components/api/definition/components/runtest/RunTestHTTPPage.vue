@@ -37,13 +37,14 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
               </el-dropdown-item>
-              <el-dropdown-item command="save_as_case">{{ $t('api_test.definition.request.save_as_case') }}
+              <el-dropdown-item command="save_as_case"
+                                v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">{{ $t('api_test.definition.request.save_as_case') }}
               </el-dropdown-item>
-              <el-dropdown-item command="update_api">{{
+              <el-dropdown-item command="update_api" v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']">{{
                   $t('api_test.definition.request.update_api')
                 }}
               </el-dropdown-item>
-              <el-dropdown-item command="save_as_api">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
+              <el-dropdown-item command="save_as_api" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']">{{ $t('api_test.definition.request.save_as') }}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 
