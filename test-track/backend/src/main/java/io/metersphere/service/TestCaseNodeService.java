@@ -438,6 +438,35 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     }
 
+    public void createNodeByNodePath(String nodePath, String projectId, List<TestCaseNodeDTO> nodeTrees, Map<String, String> pathMap) {
+        if (nodePath == null) {
+            throw new ExcelException(Translator.get("test_case_module_not_null"));
+        }
+        List<String> nodeNameList = new ArrayList<>(Arrays.asList(nodePath.split("/")));
+        Iterator<String> itemIterator = nodeNameList.iterator();
+        Boolean hasNode = false;
+        String rootNodeName;
+
+        if (nodeNameList.size() <= 1) {
+            throw new ExcelException(Translator.get("test_case_create_module_fail") + ":" + nodePath);
+        } else {
+            itemIterator.next();
+            itemIterator.remove();
+            rootNodeName = itemIterator.next().trim();
+            //原来没有，新建的树nodeTrees也不包含
+            for (TestCaseNodeDTO nodeTree : nodeTrees) {
+                if (StringUtils.equals(rootNodeName, nodeTree.getName())) {
+                    hasNode = true;
+                    createNodeByPathIterator(itemIterator, "/" + rootNodeName, nodeTree,
+                            pathMap, projectId, 2);
+                }
+            }
+        }
+        if (!hasNode) {
+            createNodeByPath(itemIterator, rootNodeName, null, projectId, 1, StringUtils.EMPTY, pathMap);
+        }
+    }
+
     @Override
     public String insertNode(String nodeName, String pId, String projectId, Integer level, String path) {
         TestCaseNode testCaseNode = new TestCaseNode();
