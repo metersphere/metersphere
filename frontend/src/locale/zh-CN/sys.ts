@@ -2,6 +2,9 @@ export default {
   // 消息提醒相关
   'message.errorTip': '错误提示',
   'message.logoutSuccess': '登出成功',
+  'message.menuLoading': '菜单加载中...',
+  'message.menuLoadSuccess': '菜单加载成功',
+  'message.menuLoadError': '菜单加载失败',
   // API相关
   'api.apiTimeoutMessage': '接口请求超时,请刷新页面重试!',
   'api.apiRequestFailed': '请求出错，请稍候重试',

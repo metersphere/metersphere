@@ -74,10 +74,13 @@ const useUserStore = defineStore('user', {
       clearToken();
       removeRouteListener();
       appStore.clearServerMenu();
+      appStore.hideLoading();
     },
     // 登出
     async logout() {
       try {
+        const appStore = useAppStore();
+        appStore.showLoading('正在退出登录...');
         await userLogout();
       } finally {
         this.logoutCallBack();
