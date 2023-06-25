@@ -1,7 +1,9 @@
 export default {
   // 消息提醒相关
   'message.errorTip': 'Error Tip',
+  'message.logouting': 'Logging out...',
   'message.logoutSuccess': 'Logout success',
+  'message.loadingDefaultTip': 'Loading...',
   'message.menuLoading': 'Loading the menu...',
   'message.menuLoadSuccess': 'Menu loaded successfully',
   'message.menuLoadError': 'Menu load failed',
