@@ -126,6 +126,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     public boolean isUseRegex() {
         return getPropertyAsBoolean(ISREGEX, true);
     }
+    private static final String KEY_PRE = "[]";
 
     private void doAssert(String jsonString) {
         Object value = JsonPath.read(jsonString, getJsonPath());
@@ -235,6 +236,9 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     private boolean isEquals(Object subj) {
         String str = DocumentUtils.objectToString(subj, decimalFormatter);
+        if (StringUtils.equals(str,KEY_PRE)) {
+            return false;
+        }
         if (isUseRegex()) {
             if (USE_JAVA_REGEX) {
                 return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();

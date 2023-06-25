@@ -77,7 +77,7 @@ CREATE TABLE `issue_comment`
     `status`      varchar(80) DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
+  DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_execution_queue`
 (

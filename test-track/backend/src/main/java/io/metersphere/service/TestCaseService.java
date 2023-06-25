@@ -3148,12 +3148,25 @@ public class TestCaseService {
                 mapper.insert(testCase);
 
                 dealWithCopyOtherInfo(testCase, oldTestCaseId);
+                copyCustomFields(oldTestCaseId, id);
                 if (i % 50 == 0)
                     sqlSession.flushStatements();
             }
             sqlSession.flushStatements();
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        }
+    }
+
+    private void copyCustomFields(String oldTestCaseId, String id) {
+        CustomFieldTestCaseExample example = new CustomFieldTestCaseExample();
+        example.createCriteria().andResourceIdEqualTo(oldTestCaseId);
+        List<CustomFieldTestCase> customFieldTestCases = customFieldTestCaseMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(customFieldTestCases)) {
+            customFieldTestCases.forEach(customFieldTestCase -> {
+                customFieldTestCase.setResourceId(id);
+                customFieldTestCaseMapper.insertSelective(customFieldTestCase);
+            });
         }
     }
 

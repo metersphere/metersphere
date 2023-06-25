@@ -33,3 +33,8 @@ export function getCurrentProject(callback) {
 export function getProjectApplication(projectId){
   return get('/project_application/get/config/' + projectId + '/OPEN_UPDATE_RULE')
 }
+
+export function getProjectConfig(projectId) {
+  let url = '/project_application/get/config/' + projectId;
+  return get(url);
+}

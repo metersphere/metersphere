@@ -795,7 +795,6 @@ export default {
       this.condition.selectThisWeedData = false;
       this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
-      this.condition.filters.reviewStatus = ["Prepare", "Pass", "UnPass"];
       if (this.selectDataRange && this.selectDataRange.indexOf("single") > -1) {
         this.condition.ids = [this.selectDataRange.substring(7)];
       }
@@ -813,7 +812,7 @@ export default {
           this.condition.caseCoverage = 'coverage';
           break;
         case 'notReviewed':
-          this.condition.filters.review_status = ['Prepare', 'Underway'];
+          this.condition.filters.review_status = ['Prepare', 'Underway', 'Again'];
           break
         case 'reviewed':
           this.condition.filters.review_status = ['UnPass', 'Pass'];
@@ -985,7 +984,7 @@ export default {
       );
     },
     generateGraph() {
-      if (getSelectDataCounts(this.condition, this.total, this.$refs.table.selectRows) > 100) {
+      if (getSelectDataCounts(this.condition, this.$refs.table.selectDataCounts, this.$refs.table.selectRows) > 500) {
         this.$warning(this.$t('test_track.case.generate_dependencies_warning'));
         return;
       }

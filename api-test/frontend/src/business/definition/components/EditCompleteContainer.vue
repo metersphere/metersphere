@@ -30,6 +30,7 @@
           :class="{ active: showMock }"
           @click="changeTab('mock')"
           size="small"
+          v-permission="['PROJECT_API_DEFINITION:READ+MOCK']"
           v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
           MOCK
         </el-button>

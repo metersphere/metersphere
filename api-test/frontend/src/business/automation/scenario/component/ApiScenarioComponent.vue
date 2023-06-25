@@ -308,6 +308,7 @@ export default {
         arr[i].disabled = disabled;
         arr[i].isCopy = false;
         arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
+        arr[i].caseEnable = disabled;
         // 处理子请求环境
         let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
         if (typeArray.indexOf(arr[i].type) !== -1) {

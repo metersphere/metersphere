@@ -93,6 +93,7 @@ export default {
   },
   methods: {
     getReport(row) {
+
       if (this.isTemplate) {
         if (row.response) {
           this.showResponse = true;
@@ -124,6 +125,11 @@ export default {
     },
     openReport(exist, loadReportId) {
       if (exist) {
+
+        if (this.reportId === loadReportId) {
+          return;
+        }
+
         this.reportId = loadReportId;
         this.showResponse = true;
         this.reportShow = false;

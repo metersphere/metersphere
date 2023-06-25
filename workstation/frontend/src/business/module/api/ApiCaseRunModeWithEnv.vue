@@ -41,9 +41,7 @@
             </el-radio-group>
           </div>
           <div style="padding-top: 10px">
-            <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
-              {{ $t('run_mode.run_with_resource_pool') }}
-            </el-checkbox>
+            <span style="padding-right: 10px;">{{ $t('run_mode.run_with_resource_pool') }}</span>
             <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
               <el-option
                 v-for="item in resourcePools"
@@ -84,9 +82,10 @@ import EnvPopover from "@/business/module/environment/EnvPopover";
 import {strMapToObj} from "metersphere-frontend/src/utils";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import {parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
-import {getOwnerProjects} from "@/api/project";
+import { getOwnerProjects, getProjectConfig} from "@/api/project";
 import {getTestResourcePools} from "@/api/test-resource-pool";
 import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 
 export default {
   name: "MsApiCaseRunModeWithEnv",
@@ -100,7 +99,7 @@ export default {
         mode: "serial",
         reportType: "iddReport",
         onSampleError: false,
-        runWithinResourcePool: false,
+        runWithinResourcePool: true,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",
@@ -117,11 +116,20 @@ export default {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
+      this.getDefaultResourcePool();
+    },
+    getDefaultResourcePool() {
+      getProjectConfig(getCurrentProjectID())
+        .then((res) => {
+          if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
+            this.runConfig.resourcePoolId = res.data.resourcePoolId;
+          }
+        });
     },
     changeMode() {
       this.runConfig.onSampleError = false;
-      this.runConfig.runWithinResourcePool = false;
-      this.runConfig.resourcePoolId = null;
+      this.runConfig.runWithinResourcePool = true;
+      // this.runConfig.resourcePoolId = null;
       this.runConfig.reportName = "";
     },
     close() {
@@ -130,7 +138,7 @@ export default {
         reportType: "iddReport",
         onSampleError: false,
         reportName: "",
-        runWithinResourcePool: false,
+        runWithinResourcePool: true,
         resourcePoolId: null,
         envMap: new Map(),
         environmentGroupId: "",

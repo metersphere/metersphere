@@ -34,10 +34,7 @@ import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.ApiExecutionQueueService;
-import io.metersphere.service.RedisTemplateService;
-import io.metersphere.service.ServiceUtils;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.*;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
@@ -451,6 +448,9 @@ public class ApiScenarioExecuteService {
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         this.testElement(request);
+        Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(request.getTestElement(), "");
+        config.setKeyMap(keyMap);
+
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(request.getId(), request.getId(), runMode, hashTree);

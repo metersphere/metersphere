@@ -49,19 +49,20 @@ import {
   delModule,
   dragModule,
   editModule,
-  getApiModuleByTrash,
   getApiModules,
   getUserDefaultApiType,
-  posModule, postApiModuleByTrash, postApiModules,
+  posModule,
+  postApiModuleByTrash,
+  postApiModules,
 } from '@/api/definition-module';
 import MsAddBasisApi from '../basis/AddBasisApi';
 import SelectMenu from '@/business/commons/SelectMenu';
-import { OPTIONS } from '../../model/JsonData';
+import {OPTIONS} from '../../model/JsonData';
 import ApiImport from '../import/ApiImport';
 import MsNodeTree from '@/business/commons/NodeTree';
 import ApiModuleHeader from './ApiModuleHeader';
-import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {buildTree} from 'metersphere-frontend/src/model/NodeTree';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 
 export default {
   name: 'MsApiModule',
@@ -213,6 +214,13 @@ export default {
         if (item) {
           let type = item.taskGroup.toString();
           if (type === 'SWAGGER_IMPORT') {
+            isRedirectPage = true;
+          }
+        }
+        if (!isRedirectPage) {
+          //跳转来源不是swagger时，判断是否是首页统计跳转的。
+          if ((this.$route.params.dataType === 'api' || this.$route.params.dataType === 'apiTestCase')
+            && this.$route.params.dataSelectRange !== '') {
             isRedirectPage = true;
           }
         }
