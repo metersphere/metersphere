@@ -274,7 +274,7 @@
         <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit"
                                   @exec="handleEdit(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                   :disabled="scope.row.status === 'Archived'"
-                                  style="margin-right: 10px"/>
+        />
       </template>
       <template v-slot:opt-behind="scope">
         <el-tooltip :content="$t('commons.follow')" placement="bottom" effect="dark" v-if="!scope.row.showFollow">
@@ -849,6 +849,10 @@ export default {
 }
 
 .scenario-ext-btn {
+  margin-left: 10px;
+}
+
+.table-card >>> .operator-btn-group {
   margin-left: 10px;
 }
 </style>
