@@ -330,7 +330,6 @@
           @exec="handleEdit(scope.row)"
           v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
           :disabled="scope.row.status === 'Archived'"
-          style="margin-right: 10px"
         />
       </template>
       <template v-slot:opt-behind="scope">
@@ -1220,6 +1219,10 @@ export default {
 }
 
 .scenario-ext-btn {
+  margin-left: 10px;
+}
+
+.table-card :deep(.operator-btn-group ) {
   margin-left: 10px;
 }
 </style>
