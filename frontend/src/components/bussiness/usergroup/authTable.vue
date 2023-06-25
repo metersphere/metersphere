@@ -3,14 +3,13 @@
     :scroll="{ y: '860px', x: '1440px' }"
     :columns="columns"
     :data="data"
-    :span-method="dataSpanMethod"
     :bordered="{ wrapper: true, cell: true }"
     size="small"
   />
 </template>
 
 <script setup lang="ts">
-  import { TableData, TableColumnData } from '@arco-design/web-vue';
+  import { TableData } from '@arco-design/web-vue';
   import { RenderFunction, VNodeChild } from 'vue';
 
   export declare type OperationName = 'selection-checkbox' | 'selection-radio' | 'expand' | 'drag-handle';
@@ -79,20 +78,4 @@
       email: 'william.smith@example.com',
     },
   ];
-  const dataSpanMethod = ({
-    record,
-    column,
-  }: {
-    record: TableData;
-    column: TableColumnData | TableOperationColumn;
-    rowIndex: number;
-    columnIndex: number;
-  }): { rowspan?: number; colspan?: number } | void => {
-    if (record.name === 'Alisa Ross' && column.dataIndex === 'salary') {
-      return {
-        rowspan: 2,
-      };
-    }
-    return {};
-  };
 </script>
