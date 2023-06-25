@@ -1730,6 +1730,8 @@ public class ApiScenarioService {
                 if (!haveEnv) {
                     builder.append(apiScenarioWithBLOBs.getName()).append("; ");
                 }
+            } catch (RuntimeException e) {
+                MSException.throwException(Translator.get("scenario_warning"));
             } catch (Exception e) {
                 MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
             }
