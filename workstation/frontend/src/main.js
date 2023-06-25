@@ -54,6 +54,13 @@ function render(props = {}) {
     pinia,
     render: h => h(App),
   }).$mount(container ? container.querySelector('#app') : '#app');
+
+  // 解决qiankun下，vue-devtools不显示的问题
+  if (process.env.NODE_ENV === 'development') {
+    const instanceDiv = document.createElement('div')
+    instanceDiv.__vue__ = instance
+    document.body.appendChild(instanceDiv)
+  }
 }
 
 // 独立运行时
