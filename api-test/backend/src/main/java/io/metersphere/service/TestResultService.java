@@ -184,7 +184,7 @@ public class TestResultService {
         }
 
         // 发送通知
-        if (scenario != null && report != null) {
+        if (scenario != null && report != null && !StringUtils.equals(report.getExecuteType(), "Debug")) {
             apiScenarioReportService.sendNotice(scenario, report);
         }
         return report;
