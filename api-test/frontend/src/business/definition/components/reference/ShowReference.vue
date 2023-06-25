@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="880px">
+  <el-dialog :visible.sync="isVisible" class="advanced-item-value" width="922px">
     <el-tabs tab-position="top" style="width: 100%" v-model="activeName" @tab-click="handleClick">
       <el-tab-pane
         :label="$t('api_test.home_page.api_details_card.title')+$t('api_test.home_page.test_scene_details_card.title')"
@@ -484,5 +484,8 @@ export default {
 
 :deep(.el-dialog__body) {
   padding: 0 20px 30px 20px;
+}
+:deep(.el-tabs__nav-wrap) {
+  width: 100% !important;
 }
 </style>

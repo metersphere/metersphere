@@ -1107,7 +1107,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ms-api-div {
   overflow-y: hidden;
   height: calc(100vh - 100px);
