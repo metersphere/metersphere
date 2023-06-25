@@ -46,13 +46,11 @@
           </div>
         </el-col>
         <el-col :span="12">
-          <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
+          <el-checkbox v-model="cookieShare" @change="setCookieShare">{{ $t('api_test.scenario.share_cookie') }}</el-checkbox>
           <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">
             {{ $t('commons.failure_continues') }}
           </el-checkbox>
           <env-popover
-            :disabled="scenarioDefinition.length < 1"
-            :isReadOnly="scenarioDefinition.length < 1"
             :env-map="projectEnvMap"
             :project-ids="projectIds"
             @setProjectEnvMap="setProjectEnvMap"
@@ -72,6 +70,7 @@
             @click="debugScenario"
             style="margin: 0px 10px 0px"
             size="mini"
+            :disabled="scenarioDefinition.length < 1"
             @command="handleCommand"
             v-show="!debugLoading">
             {{ $t('api_test.request.debug') }}
@@ -800,6 +799,9 @@ export default {
       });
     },
     debugScenario() {
+      if(this.scenarioDefinition.length < 1){
+        return;
+      }
       this.debugLoading = true;
       this.$emit('runDebug');
     },
@@ -1493,4 +1495,5 @@ export default {
   white-space: nowrap;
   width: 120px;
 }
+
 </style>
