@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span class="operator-btn-group">
     <ms-table-operator-button v-for="(btn, index) in buttons" :key="index"
                               v-permission="btn.permissions"
                               :disabled="isDisable(btn)"
