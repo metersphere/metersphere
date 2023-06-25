@@ -534,7 +534,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             if (!CollectionUtils.isEmpty(repeatApiScenarioWithBLOBs)) {
                 String chooseModuleParentId = getChooseModuleParentId(chooseModule);
                 String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + chooseModulePath, scenario -> scenario));
+                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() +t.getModulePath() + chooseModulePath, scenario -> scenario));
                 repeatDataMap = repeatApiScenarioWithBLOBs.stream().filter(t -> t.getApiScenarioModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
             }
         } else {
