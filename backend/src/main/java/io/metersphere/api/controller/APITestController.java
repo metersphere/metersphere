@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
@@ -22,6 +23,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -398,6 +400,7 @@ public class APITestController {
     }
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_PERFORMANCE)
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) throws Exception {
         return apiTestService.getJmxInfoDTO(runRequest, bodyFiles);
     }

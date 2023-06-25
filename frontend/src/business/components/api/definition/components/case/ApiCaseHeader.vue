@@ -26,7 +26,7 @@
           <!-- 保存操作 -->
           <el-button type="primary" size="small" @click="saveTestCase()"
                      v-prevent-re-click
-                     v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
+                     v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE']">
             {{ saveButtonText }}
           </el-button>
         </el-col>
