@@ -5,13 +5,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.ScheduleDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -268,9 +266,8 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public String run(@RequestBody TestPlanRunRequest testplanRunRequest) {
-        if (baseUserService.getUserDTO(testplanRunRequest.getUserId()) == null) {
-            MSException.throwException(Translator.get("user_not_exist"));
-        }
+        //检查用户是否存在
+        baseUserService.checkUserAndProject(testplanRunRequest.getUserId(), testplanRunRequest.getProjectId());
         return testPlanService.runPlan(testplanRunRequest);
     }
 
@@ -278,6 +275,8 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsRequestLog(module = OperLogModule.TRACK_TEST_PLAN)
     public String runAndSave(@RequestBody TestPlanRunRequest testplanRunRequest) {
+        //检查用户是否存在
+        baseUserService.checkUserAndProject(testplanRunRequest.getUserId(), testplanRunRequest.getProjectId());
         testPlanService.updateRunModeConfig(testplanRunRequest);
         return testPlanService.runPlan(testplanRunRequest);
     }

@@ -789,4 +789,16 @@ public class BaseUserService {
         List<User> users = userMapper.selectByExample(new UserExample());
         return users.stream().map(User::getId).collect(Collectors.toList());
     }
+
+    public void checkUserAndProject(String userId, String projectId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            MSException.throwException(Translator.get("user_not_exist") + userId);
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(projectId);
+        if (userGroupMapper.countByExample(userGroupExample) == 0) {
+            MSException.throwException(Translator.get("user_not_exists") + userId);
+        }
+    }
 }
