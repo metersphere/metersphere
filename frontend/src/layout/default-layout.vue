@@ -68,7 +68,7 @@
   useResponsive(true);
   const navbarHeight = `56px`;
   const navbar = computed(() => appStore.navbar);
-  const renderMenu = computed(() => appStore.menu && !appStore.topMenu);
+  const renderMenu = computed(() => appStore.menu);
   const hideMenu = computed(() => appStore.hideMenu);
   const footer = computed(() => appStore.footer);
   const collapsedWidth = 86;
@@ -157,9 +157,9 @@
     }
   }
   .layout-content {
-    @apply overflow-y-hidden;
+    @apply box-content overflow-y-hidden;
 
-    min-height: 100vh;
+    height: calc(100vh - 56px);
     background-color: var(--color-bg-3);
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {

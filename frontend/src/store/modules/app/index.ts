@@ -6,10 +6,10 @@ import { useI18n } from '@/hooks/useI18n';
 
 import type { AppState } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
-import type { RouteRecordNormalized } from 'vue-router';
+import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings, loading: false, loadingTip: '' }),
+  state: (): AppState => ({ ...defaultSettings, loading: false, loadingTip: '', topMenus: [] as RouteRecordRaw[] }),
 
   getters: {
     appCurrentSetting(state: AppState): AppState {
@@ -26,6 +26,9 @@ const useAppStore = defineStore('app', {
     },
     getLoadingStatus(state: AppState): boolean {
       return state.loading;
+    },
+    getTopMenus(state: AppState): RouteRecordRaw[] {
+      return state.topMenus;
     },
   },
 
@@ -101,6 +104,12 @@ const useAppStore = defineStore('app', {
       const { t } = useI18n();
       this.loading = false;
       this.loadingTip = t('message.loadingDefaultTip');
+    },
+    /**
+     * 设置顶部菜单组
+     */
+    setTopMenus(menus: RouteRecordRaw[] | undefined) {
+      this.topMenus = menus ? [...menus] : [];
     },
   },
 });
