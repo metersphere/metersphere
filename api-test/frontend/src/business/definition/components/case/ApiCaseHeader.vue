@@ -44,7 +44,10 @@
           <el-dropdown
             v-else
             style="margin-left: -15px"
-            v-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+            v-permission="[
+              'PROJECT_API_DEFINITION:READ+EDIT_CASE',
+              'PROJECT_API_DEFINITION:READ+CREATE_CASE',
+              'PROJECT_API_DEFINITION:READ+COPY_CASE']"
             split-button
             type="primary"
             size="small"
