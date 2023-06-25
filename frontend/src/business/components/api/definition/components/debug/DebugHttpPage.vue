@@ -23,7 +23,7 @@
                          @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="save_as">{{
+                <el-dropdown-item command="save_as" v-permission="['PROJECT_API_DEFINITION:READ+CREATE_CASE']">{{
                     $t('api_test.definition.request.save_as_case')
                   }}
                 </el-dropdown-item>

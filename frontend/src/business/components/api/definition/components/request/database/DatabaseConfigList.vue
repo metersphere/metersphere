@@ -17,9 +17,9 @@
         <template v-slot:default="scope">
           <div>
             <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy" type="success"
-                                      @exec="handleCopy(scope.$index, scope.row)"/>
+                                      @exec="handleCopy(scope.$index, scope.row)" :disabled="isReadOnly"/>
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
-                                      @exec="handleDelete(scope.$index)"/>
+                                      @exec="handleDelete(scope.$index)" :disabled="isReadOnly"/>
           </div>
         </template>
       </el-table-column>

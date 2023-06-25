@@ -14,7 +14,7 @@
               <slot name="other"></slot>
             </div>
             <div class="ms_btn">
-              <el-button type="primary" @click="confirm" @keydown.enter.native.prevent>
+              <el-button type="primary" @click="confirm" @keydown.enter.native.prevent :disabled="isReadOnly">
                 {{ $t('commons.confirm') }}
               </el-button>
             </div>
