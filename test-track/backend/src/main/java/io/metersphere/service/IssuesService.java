@@ -1290,6 +1290,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> relateList(IssuesRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrderByField(request.getOrders(), "create_time"));
         List<IssuesDao> issues = extIssuesMapper.getIssues(request);
         Map<String, User> userMap = getUserMap(issues);
         issues.forEach(issue -> {

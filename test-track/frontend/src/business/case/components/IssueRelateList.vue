@@ -26,12 +26,14 @@
       </ms-table-column>
       <ms-table-column
         :label="$t('test_track.issue.id')"
+        sortable
         prop="num">
       </ms-table-column>
 
       <ms-table-column
         :label="$t('test_track.issue.title')"
         prop="title"
+        sortable
         min-width="200px">
       </ms-table-column>
 
