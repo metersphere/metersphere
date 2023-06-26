@@ -130,6 +130,7 @@ export default {
     },
 
     open() {
+      this.getWorkSpaceList();
       this.workspaceId = getCurrentWorkspaceId();
       this.getProject();
       this.selectCounts = null;
