@@ -394,7 +394,7 @@ import {
   handleCtrlREvent,
   handleCtrlSEvent,
   hasLicense,
-  hasPermission,
+  hasPermissions,
   objToStrMap,
   strMapToObj
 } from "@/common/js/utils";
