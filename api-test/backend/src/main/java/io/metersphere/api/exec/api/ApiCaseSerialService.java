@@ -10,17 +10,13 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.jmeter.utils.ApiFakeErrorUtil;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.plan.TestPlanApiCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.PropertyConstant;
-import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.constants.RunModeConstants;
@@ -31,13 +27,11 @@ import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.RemakeReportService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.json.JSONObject;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -49,8 +43,6 @@ public class ApiCaseSerialService {
     public static final String NAME = "name";
     @Resource
     private JMeterService jMeterService;
-    @Resource
-    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -91,27 +83,9 @@ public class ApiCaseSerialService {
         // 判断触发资源对象是用例
         if (!GenerateHashTreeUtil.isSetReport(executionQueue.getReportType())
                 || StringUtils.equalsIgnoreCase(executionQueue.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            updateDefinitionExecResultToRunning(queue, runRequest);
+            remakeReportService.updateApiReport(queue, runRequest);
         }
         jMeterService.run(runRequest);
-    }
-
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    protected void updateDefinitionExecResultToRunning(ApiExecutionQueueDetail queue, JmeterRunRequestDTO runRequest) {
-        ApiDefinitionExecResultWithBLOBs execResult = apiDefinitionExecResultMapper.selectByPrimaryKey(queue.getReportId());
-        if (execResult != null) {
-            if (MapUtils.isNotEmpty(runRequest.getExtendedParameters())) {
-                runRequest.getExtendedParameters().put(CommonConstants.USER_ID, execResult.getUserId());
-            } else {
-                runRequest.setExtendedParameters(new HashMap<String, Object>() {{
-                    this.put(CommonConstants.USER_ID, execResult.getUserId());
-                }});
-            }
-            execResult.setStartTime(System.currentTimeMillis());
-            execResult.setStatus(ApiReportStatus.RUNNING.name());
-            apiDefinitionExecResultMapper.updateByPrimaryKeySelective(execResult);
-            LoggerUtil.info("进入串行模式，准备执行资源：[" + execResult.getName() + " ]", execResult.getId());
-        }
     }
 
     private void initEnv(HashTree hashTree) {
