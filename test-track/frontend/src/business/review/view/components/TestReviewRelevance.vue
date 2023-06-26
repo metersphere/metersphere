@@ -73,7 +73,8 @@
               <el-table-column
                 prop="name"
                 :label="$t('test_track.case.name')"
-                style="width: 100%">
+                min-width="120"
+                show-overflow-tooltip>
                 <template v-slot:default="scope">
                   {{ scope.row.name }}
                 </template>
