@@ -12,6 +12,7 @@ import io.metersphere.plan.request.api.ApiScenarioRequest;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -195,7 +196,15 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         if (CollectionUtils.isEmpty(scenarioCases)) {
             return null;
         }
-        return microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanScenarioDTO.class);
+        //分批处理参数时为了不影响初始参数，这里使用新的对象进行处理
+        List<TestPlanScenarioDTO> paramList = new ArrayList<>(scenarioCases);
+        List<TestPlanScenarioDTO> returnList = new ArrayList<>();
+        while (CollectionUtils.isNotEmpty(paramList)) {
+            List<TestPlanScenarioDTO> requestList = BatchProcessingUtil.subList(paramList, 5);
+            returnList.addAll(microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanScenarioDTO.class));
+            paramList.removeAll(requestList);
+        }
+        return returnList;
     }
 
     public Object relevanceList(ApiScenarioRequest request, int pageNum, int pageSize) {
