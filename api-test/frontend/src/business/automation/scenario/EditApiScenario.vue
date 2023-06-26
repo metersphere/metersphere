@@ -1171,7 +1171,8 @@ export default {
     },
     margeTransaction(item, console, arr) {
       arr.forEach((sub) => {
-        if (item.data && item.data.id + '_' + item.data.parentIndex === sub.resourceId) {
+        if (item.data && item.data.id + '_' + item.data.parentIndex === sub.resourceId
+          && item.data.requestResult.length === 0) {
           sub.responseResult.console = console;
           item.data.requestResult.push(sub);
           // 更新父节点状态
@@ -1179,7 +1180,7 @@ export default {
           item.data.testing = false;
           item.data.debug = true;
         }
-        if (sub.subRequestResults && sub.subRequestResults.length > 0) {
+        if (sub.method === 'Request' && sub.subRequestResults && sub.subRequestResults.length > 0) {
           this.margeTransaction(item, console, sub.subRequestResults);
         }
       });

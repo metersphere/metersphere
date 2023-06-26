@@ -348,7 +348,7 @@ export default {
         this.report = response.data || {};
         if (response.data) {
           if (response.data.status === 'RUNNING') {
-            setTimeout(this.getReport, 2000);
+            setTimeout(this.getReport, 5000);
           } else {
             this.content = JSON.parse(response.data.content);
             if (!this.content) {
