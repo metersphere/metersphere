@@ -84,8 +84,8 @@
       <el-card>
         <!-- header 调试部分 -->
         <div class="ms-debug-div" @click="showAll" ref="debugHeader">
-          <el-row style="margin: 5px">
-            <el-col :span="1" class="ms-col-one ms-font" v-show="scenarioDefinition.length > 1">
+          <div class="debug-header" style="margin: 5px">
+            <div class="ms-col-one mt-2" v-show="scenarioDefinition.length > 1">
               <el-tooltip
                 :content="$t('test_track.case.batch_operate')"
                 placement="top"
@@ -105,28 +105,27 @@
                   v-prevent-re-click
                   @click="cancelBatchProcessing" />
               </el-tooltip>
-            </el-col>
-            <el-col :span="2" class="ms-col-one ms-font">
-              {{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}
-            </el-col>
-            <el-col :span="2" class="ms-col-one ms-font">
-              <el-link class="head" @click="showScenarioParameters"
-                >{{ $t('api_test.automation.scenario_total') }}
-              </el-link>
-              ：{{ getVariableSize() }}
-            </el-col>
-            <el-col :span="2" class="ms-col-one ms-font">
-              <el-checkbox v-model="enableCookieShare">
-                <span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span>
-              </el-checkbox>
-            </el-col>
-            <el-col :span="3" class="ms-col-one ms-font">
-              <el-checkbox v-model="onSampleError">
-                <span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span>
-              </el-checkbox>
-            </el-col>
-
-            <el-col :span="13">
+            </div>
+            <div class="ms-col-one mt-2">
+              <div class="ml-10">{{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}</div>
+              <div class="ml-10">
+                <el-link class="head" @click="showScenarioParameters"
+                  >{{ $t('api_test.automation.scenario_total') }}
+                </el-link>
+                ：{{ getVariableSize() }}
+              </div>
+              <div class="ml-10">
+                <el-checkbox v-model="enableCookieShare">
+                  <span style="font-size: 13px">{{ $t('api_test.scenario.share_cookie') }}</span>
+                </el-checkbox>
+              </div>
+              <div class="ml-10">
+                <el-checkbox v-model="onSampleError">
+                  <span style="font-size: 13px">{{ $t('commons.failure_continues') }}</span>
+                </el-checkbox>
+              </div>
+            </div>
+            <div class="ms-col-one">
               <env-popover
                 :env-map="projectEnvMap"
                 :project-ids="projectIds"
@@ -142,8 +141,10 @@
                 @saveRefresh="setDomain"
                 :has-option-group="true"
                 ref="envPopover"
-                class="ms-message-right" />
-              <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
+                class="ml-10"
+              />
+
+              <el-tooltip class="mt-2 ml-10" v-if="!debugLoading" content="Ctrl + R" placement="top">
                 <el-dropdown
                   split-button
                   type="primary"
@@ -152,20 +153,20 @@
                   size="mini"
                   :disabled="scenarioDefinition.length < 1"
                   @command="handleCommand"
-                  v-permission="[
-                    'PROJECT_API_SCENARIO:READ+DEBUG',
-                    'PROJECT_API_SCENARIO:READ+RUN'
-                  ]">
+                  v-permission="['PROJECT_API_SCENARIO:READ+DEBUG', 'PROJECT_API_SCENARIO:READ+RUN']">
                   {{ $t('api_test.request.debug') }}
                   <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-tooltip>
-              <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+              <el-button class="mt-2" size="mini" type="primary" v-else @click="stop">{{
+                $t('report.stop_btn')
+              }}</el-button>
 
               <el-button
                 id="inputDelay"
+                class="ml-10"
                 type="primary"
                 size="mini"
                 v-prevent-re-click
@@ -201,7 +202,6 @@
                     margin-right: 5px;
                     cursor: pointer;
                     position: relative;
-                    top: 3px;
                   "
                   @click="saveFollow" />
               </el-tooltip>
@@ -226,26 +226,30 @@
                 >{{ $t('operating_log.change_history') }}
               </el-link>
               <!--  版本历史 -->
-              <mx-version-history
-                v-xpack
-                ref="versionHistory"
-                :version-data="versionData"
-                :current-id="currentScenario.id"
-                :has-latest="hasLatest"
-                @setLatest="setLatest"
-                @compare="compare"
-                @checkout="checkout"
-                @create="create"
-                @del="del" />
-            </el-col>
+              <div class="history">
+                <mx-version-history
+                  v-xpack
+                  ref="versionHistory"
+                  :version-data="versionData"
+                  :current-id="currentScenario.id"
+                  :has-latest="hasLatest"
+                  @setLatest="setLatest"
+                  @compare="compare"
+                  @checkout="checkout"
+                  @create="create"
+                  @del="del" />
+              </div>
+            </div>
+          </div>
+          <div class="ms-full-screen">
             <el-tooltip
               effect="dark"
               :content="$t('commons.full_screen_editing')"
               placement="top-start"
-              style="margin-top: 6px">
+              class="ms-full-screen">
               <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen" />
             </el-tooltip>
-          </el-row>
+          </div>
         </div>
 
         <div class="card-content">
@@ -1114,7 +1118,7 @@ export default {
       }
     },
     evaluationParent(node, status) {
-      if(node.data.code === "ERROR") {
+      if (node.data.code === 'ERROR') {
         return;
       }
       if (node.data.code === 'FAKE_ERROR') {
@@ -1138,7 +1142,7 @@ export default {
         let id = item.data.id || item.data.resourceId;
         if (id + '_' + item.data.parentIndex === resourceId) {
           item.data.testing = false;
-          item.data.code = status ? "SUCCESS" : "ERROR";
+          item.data.code = status ? 'SUCCESS' : 'ERROR';
           this.evaluationParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
@@ -1721,7 +1725,7 @@ export default {
       });
     },
     runDebug(runScenario) {
-      if (!hasPermissions('PROJECT_API_SCENARIO:READ+DEBUG','PROJECT_API_SCENARIO:READ+RUN')) {
+      if (!hasPermissions('PROJECT_API_SCENARIO:READ+DEBUG', 'PROJECT_API_SCENARIO:READ+RUN')) {
         return;
       }
       this.mergeScenario(this.scenarioDefinition);
@@ -1803,7 +1807,7 @@ export default {
         } else {
           this.debugLoading = false;
           let hasRequest = runScenario && runScenario.hasRequest;
-          if (hasRequest  && runScenario.hashTree) {
+          if (hasRequest && runScenario.hashTree) {
             runScenario.hashTree[0].requestResult = [];
             runScenario.hashTree[0].testing = false;
           }
@@ -1964,7 +1968,7 @@ export default {
       return new Promise((resolve) => {
         const encoder = new TextEncoder();
         const bytes = encoder.encode(definition, 'utf-8');
-        getApiScenarioEnv(bytes ).then((res) => {
+        getApiScenarioEnv(bytes).then((res) => {
           if (res.data && res.data.data) {
             this.projectIds = new Set(res.data.data.projectIds);
             this.projectIds.add(this.projectId);
@@ -2195,7 +2199,7 @@ export default {
       this.message = 'stop';
       this.debugData = {};
       let hasRequest = this.runScenario && this.runScenario.hasRequest;
-      if (hasRequest  && this.runScenario.hashTree) {
+      if (hasRequest && this.runScenario.hashTree) {
         this.runScenario.hashTree[0].requestResult = [];
         this.runScenario.hashTree[0].testing = false;
       }
@@ -2624,7 +2628,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .card-content {
   height: calc(100vh - 170px);
   overflow-y: auto;
@@ -2635,19 +2639,34 @@ export default {
 }
 
 .ms-debug-div {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
   border: 1px #dcdfe6 solid;
   border-radius: 4px;
   margin-right: 0px;
-}
 
-.ms-font {
-  color: #303133;
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
-  font-size: 13px;
-}
-
-.ms-col-one {
-  margin-top: 5px;
+  .debug-header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-between;
+    .ms-col-one {
+      display: flex;
+      align-items: center;
+      color: #303133;
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif;
+      font-size: 13px;
+      .history {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+  .ms-full-screen {
+    margin-top: 0px;
+  }
 }
 
 #fab {
@@ -2759,11 +2778,15 @@ export default {
   height: 20px;
   float: right;
 }
-
-.ms-message-right {
-  margin-right: 10px;
+.ml-10 {
+  margin-left: 10px;
 }
-
+.ml-5 {
+  margin-left: 5px;
+}
+.mt-2 {
+  margin-top: 2px;
+}
 .custom-node_e {
   color: #7c3985;
   font-size: 20px;

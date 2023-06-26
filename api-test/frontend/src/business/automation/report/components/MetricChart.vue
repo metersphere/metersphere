@@ -401,8 +401,6 @@ export default {
 }
 
 .metric-icon-box {
-  text-align: left;
-  height: 20px;
   margin: 0 10px;
 }
 

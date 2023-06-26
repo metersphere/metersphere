@@ -1457,6 +1457,7 @@ export default {
   height: 36px;
   background-color: #fff;
   font-size: 12px;
+  padding-left: 5px;
 }
 
 .ms-div {
