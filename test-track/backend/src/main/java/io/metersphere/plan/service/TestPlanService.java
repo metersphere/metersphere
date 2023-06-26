@@ -803,6 +803,7 @@ public class TestPlanService {
     }
 
     public List<TestPlanDTO> planListAll(QueryTestPlanRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         if (StringUtils.isNotBlank(request.getProjectId())) {
             request.setProjectId(request.getProjectId());
         }
