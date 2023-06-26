@@ -4,6 +4,9 @@ import io.metersphere.base.domain.FileAttachmentMetadata;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.constants.AttachmentType;
+import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.request.attachment.AttachmentDumpRequest;
@@ -97,6 +100,9 @@ public class AttachmentController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void caseRelate(@RequestBody AttachmentRequest request) {
+        if (!AttachmentType.TEST_CASE.type().equals(request.getBelongType())) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         attachmentService.relate(request);
     }
 
@@ -104,6 +110,9 @@ public class AttachmentController {
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds, true)", msClass = AttachmentService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void issueRelate(@RequestBody AttachmentRequest request) {
+        if (!AttachmentType.ISSUE.type().equals(request.getBelongType())) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         attachmentService.relate(request);
     }
 
@@ -111,6 +120,9 @@ public class AttachmentController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     public void caseUnrelated(@RequestBody AttachmentRequest request) {
+        if (!AttachmentType.TEST_CASE.type().equals(request.getBelongType())) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         attachmentService.unrelated(request);
     }
 
@@ -118,6 +130,9 @@ public class AttachmentController {
     @MsAuditLog(module = OperLogModule.TRACK_BUG, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.belongId, #request.belongType, #request.metadataRefIds)", msClass = AttachmentService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ_EDIT)
     public void issueUnrelated(@RequestBody AttachmentRequest request) {
+        if (!AttachmentType.ISSUE.type().equals(request.getBelongType())) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         attachmentService.unrelated(request);
     }
 
