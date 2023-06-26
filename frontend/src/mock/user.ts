@@ -7,7 +7,7 @@ import { isLogin } from '@/utils/auth';
 setupMock({
   setup() {
     // 用户信息
-    Mock.mock(new RegExp(GetUserInfoUrl.toString()), () => {
+    Mock.mock(new RegExp(`${GetUserInfoUrl}`), () => {
       if (isLogin()) {
         const role = window.localStorage.getItem('userRole') || 'admin';
         return successResponseWrap({
@@ -33,17 +33,17 @@ setupMock({
     });
 
     // 登出
-    Mock.mock(new RegExp(LoginUrl.toString()), () => {
+    Mock.mock(new RegExp(`${LoginUrl}`), () => {
       return successResponseWrap({});
     });
 
     // 登出
-    Mock.mock(new RegExp(LogoutUrl.toString()), () => {
+    Mock.mock(new RegExp(`${LogoutUrl}`), () => {
       return successResponseWrap(null);
     });
 
     // 用户的服务端菜单
-    Mock.mock(new RegExp(GetMenuListUrl.toString()), () => {
+    Mock.mock(new RegExp(`${GetMenuListUrl}`), () => {
       const menuList = [
         {
           path: '/api-test',
