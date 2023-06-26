@@ -1138,11 +1138,6 @@ export default {
         scenarioIds: this.$refs.scenarioTable.selectIds,
       };
 
-      // todo 选取全部数据
-      if (this.condition.selectAll) {
-        this.$warning(this.$t('api_test.scenario.warning_context'));
-      }
-
       this.planVisible = false;
 
       obj.mapping = strMapToObj(params[2]);
