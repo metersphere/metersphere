@@ -1,5 +1,5 @@
 import Mock from 'mockjs';
-import setupMock, { successResponseWrap, failResponseWrap } from '@/utils/setup-mock';
+import setupMock, { successResponseWrap, failResponseWrap, makeMockUrl } from '@/utils/setup-mock';
 
 import { GetMenuListUrl, LogoutUrl, GetUserInfoUrl, LoginUrl } from '@/api/requrls/user';
 import { isLogin } from '@/utils/auth';
@@ -7,7 +7,7 @@ import { isLogin } from '@/utils/auth';
 setupMock({
   setup() {
     // 用户信息
-    Mock.mock(new RegExp(`${GetUserInfoUrl}`), () => {
+    Mock.mock(makeMockUrl(GetUserInfoUrl), () => {
       if (isLogin()) {
         const role = window.localStorage.getItem('userRole') || 'admin';
         return successResponseWrap({
@@ -33,17 +33,17 @@ setupMock({
     });
 
     // 登出
-    Mock.mock(new RegExp(`${LoginUrl}`), () => {
+    Mock.mock(makeMockUrl(LoginUrl), () => {
       return successResponseWrap({});
     });
 
     // 登出
-    Mock.mock(new RegExp(`${LogoutUrl}`), () => {
+    Mock.mock(makeMockUrl(LogoutUrl), () => {
       return successResponseWrap(null);
     });
 
     // 用户的服务端菜单
-    Mock.mock(new RegExp(`${GetMenuListUrl}`), () => {
+    Mock.mock(makeMockUrl(GetMenuListUrl), () => {
       const menuList = [
         {
           path: '/api-test',
