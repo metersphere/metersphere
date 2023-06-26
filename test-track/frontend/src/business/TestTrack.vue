@@ -333,7 +333,7 @@ i.el-tag__close.el-icon-close {
 
 
 /**
- * 统一测试跟踪MsInputTag样式, 交互改造后去掉
+ * 统一测试跟踪MsInputTag及多选下拉选择的样式, 交互改造后去掉
  */
 span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light {
   flex-direction: row;
@@ -368,6 +368,12 @@ span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light span{
   font-size: 24px;
   position: relative;
   top: -3px;
+}
+
+.el-select__tags .el-tag .el-tag__close.el-icon-close::before {
+  font-size: 24px;
+  position: relative;
+  top: 9px;
 }
 </style>
 
