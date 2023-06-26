@@ -75,6 +75,9 @@ export default {
         }
       });
       this.rules = getPlatformFormRules(this.config);
+      for (const key in this.rules) {
+        this.rules[key].required = false;
+      }
     },
     validate() {
       return new Promise((resolve, reject) => {
