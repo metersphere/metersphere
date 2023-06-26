@@ -44,7 +44,7 @@
           :read-only="true"
           :data.sync="responseResult.console"
           v-if="activeName === 'console'"
-          height="calc(100vh - 300px)"
+          height="420px"
         />
       </el-tab-pane>
 
@@ -129,7 +129,7 @@
 import MsAssertionResults from "../ui/AssertionResults";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsDropdown from "metersphere-frontend/src/components/MsDropdown";
-import { BODY_FORMAT } from "metersphere-frontend/src/model/ApiTestModel";
+import {BODY_FORMAT} from "metersphere-frontend/src/model/ApiTestModel";
 import MsSqlResultTable from "./SqlResultTable";
 
 export default {
