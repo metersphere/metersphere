@@ -15,6 +15,7 @@ import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.utils.TestPlanReportUtil;
 import io.metersphere.plan.utils.TestPlanStatusCalculator;
+import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -138,7 +139,14 @@ public class PlanTestPlanLoadCaseService extends LoadTestService {
         if (CollectionUtils.isEmpty(loadCases)) {
             return null;
         }
-        List<TestPlanLoadCaseDTO> returnList = microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class);
+        //分批处理参数时为了不影响初始参数，这里使用新的对象进行处理
+        List<TestPlanLoadCaseDTO> paramList = new ArrayList<>(loadCases);
+        List<TestPlanLoadCaseDTO> returnList = new ArrayList<>();
+        while (CollectionUtils.isNotEmpty(paramList)) {
+            List<TestPlanLoadCaseDTO> requestList = BatchProcessingUtil.subList(paramList, 5);
+            returnList.addAll(microService.postForDataArray(serviceName, BASE_UEL + "/build/response", loadCases, TestPlanLoadCaseDTO.class));
+            paramList.removeAll(requestList);
+        }
         return returnList;
     }
 

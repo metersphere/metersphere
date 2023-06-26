@@ -95,4 +95,15 @@ public class BatchProcessingUtil {
         }
         return returnList;
     }
+
+    public static <T> List<T> subList(List<T> paramList, int size) {
+        if (CollectionUtils.isNotEmpty(paramList)) {
+            if (paramList.size() > size) {
+                return paramList.subList(0, size);
+            } else {
+                return paramList;
+            }
+        }
+        return new ArrayList<>();
+    }
 }
