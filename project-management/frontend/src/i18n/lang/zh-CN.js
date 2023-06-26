@@ -31,6 +31,7 @@ const message = {
     timing_clean_ui_report: "定时清理UI测试报告",
   },
   custom_template: {
+    no_edit_permission: "您没有配置用例/缺陷/接口模板相关的权限，请联系管理员",
     api_template: "接口模版",
     base_fields: "基础字段",
     template_name: "模版名称",
