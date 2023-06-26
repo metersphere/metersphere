@@ -106,27 +106,30 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
 
             MsScenario scenario = new MsScenario();
             scenario.setReferenced("IMPORT");
-
-            TestPlan plan = (TestPlan) testPlan.getArray()[0];
-            if (plan.getArguments() != null) {
-                List<ScenarioVariable> variables = new LinkedList<>();
-                plan.getArguments().forEach(item -> {
-                    ScenarioVariable scenarioVariable = new ScenarioVariable();
-                    scenarioVariable.setId(UUID.randomUUID().toString());
-                    scenarioVariable.setName(item.getName());
-                    if (ObjectUtils.isNotEmpty(item.getObjectValue())) {
-                        Argument arg = (Argument) item.getObjectValue();
-                        scenarioVariable.setValue(arg.getValue());
-                    }
-                    scenarioVariable.setType(VariableTypeConstants.CONSTANT.name());
-                    variables.add(scenarioVariable);
-                });
-                scenario.setVariables(variables);
+            if (testPlan.getArray()[0] instanceof TestPlan) {
+                TestPlan plan = (TestPlan) testPlan.getArray()[0];
+                if (plan.getArguments() != null) {
+                    List<ScenarioVariable> variables = new LinkedList<>();
+                    plan.getArguments().forEach(item -> {
+                        ScenarioVariable scenarioVariable = new ScenarioVariable();
+                        scenarioVariable.setId(UUID.randomUUID().toString());
+                        scenarioVariable.setName(item.getName());
+                        if (ObjectUtils.isNotEmpty(item.getObjectValue())) {
+                            Argument arg = (Argument) item.getObjectValue();
+                            scenarioVariable.setValue(arg.getValue());
+                        }
+                        scenarioVariable.setType(VariableTypeConstants.CONSTANT.name());
+                        variables.add(scenarioVariable);
+                    });
+                    scenario.setVariables(variables);
+                }
+                if (CollectionUtils.isEmpty(scenario.getHashTree())) {
+                    scenario.setHashTree(new LinkedList<>());
+                }
+                formatHashTree(testPlan.getTree(plan), scenario);
+            } else {
+                formatHashTree(testPlan, scenario);
             }
-            if (CollectionUtils.isEmpty(scenario.getHashTree())) {
-                scenario.setHashTree(new LinkedList<>());
-            }
-            formatHashTree(testPlan.getTree(plan), scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(parseObj(scenario, request));
