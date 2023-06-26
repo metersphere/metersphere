@@ -87,6 +87,8 @@ public class AttachmentService {
             if (testCase == null) {
                 MSException.throwException(Translator.get("test_case_attachment_upload_not_found") + request.getBelongId());
             }
+        } else {
+            MSException.throwException(Translator.get("invalid_parameter"));
         }
 
         // 上传MS平台
@@ -451,6 +453,9 @@ public class AttachmentService {
     }
 
     public FileAttachmentMetadata saveAttachment(MultipartFile file, String attachmentType, String belongId) {
+        if (attachmentType.contains("/") || belongId.contains("/")) {
+            MSException.throwException(Translator.get("invalid_parameter"));
+        }
         String uploadPath = FileUtils.ATTACHMENT_DIR + "/" + attachmentType + "/" + belongId;
         FileUtils.uploadFile(file, uploadPath);
         final FileAttachmentMetadata fileAttachmentMetadata = new FileAttachmentMetadata();
