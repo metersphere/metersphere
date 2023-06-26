@@ -35,11 +35,12 @@
             <slot></slot>
 
             <el-form-item :label="$t('table.selected_fields')" class="filed-list" :label-width="labelWidth">
-              <el-button type="primary" @click="relateField">{{ $t('custom_field.add_field') }}</el-button>
-              <el-button plain type="primary" @click="addField">{{
+              <el-button :disabled="!hasPermissions" type="primary" @click="relateField">{{ $t('custom_field.add_field') }}</el-button>
+              <el-button :disabled="!hasPermissions" plain type="primary" @click="addField">{{
                   $t('custom_field.custom_field_setting')
                 }}
               </el-button>
+              <span v-if="!hasPermissions" style="font-size: 12px; color: red; margin-left: 10px">{{$t("custom_field.no_custom_fields_permission")}}</span>
             </el-form-item>
 
             <el-form-item :label-width="labelWidth">
@@ -82,6 +83,7 @@ import CustomFieldRelateList from "@/business/components/project/template/Custom
 import {getCurrentProjectID} from "@/common/js/utils";
 import CustomFieldEdit from "@/business/components/project/template/CustomFieldEdit";
 import {generateTableHeaderKey, getCustomFieldsKeys} from "@/common/js/tableUtils";
+import {hasPermissions} from "@/common/js/utils";
 
 export default {
   name: "FieldTemplateEdit",
@@ -121,6 +123,9 @@ export default {
   computed: {
     isSystem() {
       return this.form.system;
+    },
+    hasPermissions() {
+      return hasPermissions('PROJECT_TEMPLATE:READ+CUSTOM');
     }
   },
   methods: {

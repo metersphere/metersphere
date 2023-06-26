@@ -561,6 +561,7 @@ export default {
     field_text: '选项内容',
     field_value: '选项ID',
     add_field: '添加字段',
+    no_custom_fields_permission: '（缺少自定义字段权限,请联系管理员进行配置!）',
     api_field_name: 'API字段名',
     template_setting: '模板设置',
     custom_field_setting: '设置自定义字段',
