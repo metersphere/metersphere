@@ -68,4 +68,9 @@ public class TestCaseTemplateController {
     public TestCaseTemplateDao getTemplate(@PathVariable String projectId) {
         return testCaseTemplateService.getTemplate(projectId);
     }
+
+    @GetMapping("/get/relate/simple/{projectId}")
+    public TestCaseTemplateDao getTemplateForList(@PathVariable String projectId) {
+        return testCaseTemplateService.getTemplateForList(projectId);
+    }
 }

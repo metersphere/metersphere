@@ -108,7 +108,7 @@ public class TestPlanTestCaseService {
         ServiceUtils.buildCombineTagsToSupportMultiple(request);
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         Map<String, List<CustomFieldDao>> fieldMap =
-                customFieldTestCaseService.getMapByResourceIds(list.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList()));
+                customFieldTestCaseService.getMapByResourceIdsForList(list.stream().map(TestPlanCaseDTO::getCaseId).collect(Collectors.toList()));
         list.forEach(i -> i.setFields(fieldMap.get(i.getCaseId())));
         if (CollectionUtils.isNotEmpty(list)) {
             // 设置版本信息

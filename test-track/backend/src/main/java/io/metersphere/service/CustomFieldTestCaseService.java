@@ -38,8 +38,8 @@ public class CustomFieldTestCaseService extends CustomFieldResourceService {
         super.deleteByResourceIds(TABLE_NAME, resourceIds);
     }
 
-    public Map<String, List<CustomFieldDao>> getMapByResourceIds(List<String> resourceIds) {
-        return super.getMapByResourceIds(TABLE_NAME, resourceIds);
+    public Map<String, List<CustomFieldDao>> getMapByResourceIdsForList(List<String> resourceIds) {
+        return super.getMapByResourceIdsForList(TABLE_NAME, resourceIds);
     }
 
     public List<CustomFieldResourceDTO> getByResourceId(String resourceId) {

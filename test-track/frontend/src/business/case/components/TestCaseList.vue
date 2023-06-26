@@ -284,7 +284,7 @@ import PlanStatusTableItem from "@/business/common/tableItems/plan/PlanStatusTab
 import {getCurrentProjectID, getCurrentWorkspaceId, setCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {parseTag} from "metersphere-frontend/src/utils"
 import {hasLicense} from "metersphere-frontend/src/utils/permission"
-import {getTestTemplate} from "@/api/custom-field-template";
+import {getTestTemplateForList} from "@/api/custom-field-template";
 import {getProjectMember, getProjectMemberUserFilter} from "@/api/user";
 import MsTable from "metersphere-frontend/src/components/new-ui/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
@@ -637,7 +637,7 @@ export default {
             this.memberMap.set(item.id, item.name);
           });
         });
-      let p2 = getTestTemplate();
+      let p2 = getTestTemplateForList();
       Promise.all([p1, p2]).then((data) => {
         this.loading = false;
         let template = data[1];

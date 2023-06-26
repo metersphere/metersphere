@@ -311,12 +311,11 @@ import {
   initCondition,
   getCustomFieldFilter,
   parseCustomFilesForList,
-  getCustomFieldValue as _getCustomFieldValue,
 } from "metersphere-frontend/src/utils/tableUtils";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import {getProjectMember} from "@/api/user";
-import {getTestTemplate} from "@/api/custom-field-template";
+import {getTestTemplateForList} from "@/api/custom-field-template";
 import {
   editTestPlanTestCaseOrder,
   testPlanAutoCheck,
@@ -581,7 +580,7 @@ export default {
         .then((response) => {
           this.members = response.data;
         });
-      let p2 = getTestTemplate();
+      let p2 = getTestTemplateForList();
       Promise.all([p1, p2]).then((data) => {
         let template = data[1];
         this.testCaseTemplate = template;
