@@ -247,7 +247,7 @@
                     :value="getCustomFieldValue(scope.row, field)" :priority-options="priorityOptions"/>
               </span>
             <span v-else-if="field.name === '用例状态'">
-                {{ getCustomFieldValue(scope.row, field, scope.row.status) }}
+                {{ getCustomFieldValue(scope.row, field, scope.row.caseStatus) }}
             </span>
             <span v-else>
                 {{ getCustomFieldValue(scope.row, field) }}
@@ -329,7 +329,7 @@ import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/Tes
 import {
   getProjectMemberOption,
   getProjectVersions,
-  getAdvSearchCustomField, parseTag
+  getAdvSearchCustomField, parseTag, getCustomFieldValueForTrack
 } from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
@@ -615,7 +615,7 @@ export default {
       return getCustomFieldFilter(field, this.userFilters);
     },
     getCustomFieldValue(row, field, defaultVal = '') {
-      let value = _getCustomFieldValue(row, field, this.members);
+      let value = getCustomFieldValueForTrack(row, field, this.members, 'caseStatus');
       if (field.name === '用例等级') {
         return row.priority;
       } else if (field.name === '责任人') {

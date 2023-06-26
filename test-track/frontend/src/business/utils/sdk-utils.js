@@ -28,20 +28,20 @@ import {
 } from "metersphere-frontend/src/utils/tableUtils";
 import i18n from "@/i18n";
 
-export function getCustomFieldValueForTrack(row, field, members) {
+export function getCustomFieldValueForTrack(row, field, members, statusProp = 'status') {
   if (field.name === '用例状态' && field.system) {
-    return parseStatus(row, field.options);
+    return parseStatus(row, field.options, statusProp);
   }
   return getCustomFieldValue(row, field, members);
 }
 
-function parseStatus(row, options) {
+function parseStatus(row, options, prop = 'status') {
   if (options) {
     for (let option of options) {
-      if (option.value === row.status) {
+      if (option.value === row[prop]) {
         return option.system ? i18n.t(option.text) : option.text;
       }
     }
   }
-  return row.status;
+  return row[prop];
 }
