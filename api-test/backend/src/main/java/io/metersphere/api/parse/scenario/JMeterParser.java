@@ -641,6 +641,19 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     assertionRegex.setDescription(assertion.getName());
                     assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
                     assertionRegex.setExpression(item.getStringValue());
+                    if (assertion.isNotType()) {
+                        assertionRegex.setExpression("(?s)^((?!" + item.getStringValue() + ").)*$");
+                        assertionRegex.setDescription(" not contains: " + item.getStringValue());
+                    }
+                    if (assertion.isEqualsType()) {
+                        assertionRegex.setExpression("^" + item.getStringValue() + "$");
+                        assertionRegex.setDescription(" equals: " + item.getStringValue());
+                    }
+                    if (assertion.isContainsType()) {
+                        assertionRegex.setExpression(".*" + item.getStringValue() + ".*");
+                        assertionRegex.setDescription(" contains: " + item.getStringValue());
+                    }
+
                     if (assertion.isTestFieldResponseData()) {
                         assertionRegex.setSubject("Response Data");
                     }
