@@ -409,7 +409,7 @@ export default {
     getTapdCurrentOwner() {
       getTapdCurrentOwner(this.form.id).then(res => {
         if (res && res.data && res.data[0]) {
-          this.form.tapdUsers = res.data[0].split(';');
+          this.form.tapdUsers = res.data[0].split(';').filter(i => i);
         }
       })
     },
