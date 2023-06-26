@@ -257,8 +257,7 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-            const tmpStr = trimAll(this.body.raw)
-            const tmpObj = jsonParse(tmpStr)
+            const tmpObj = jsonParse(this.body.raw)
             this.body.jsonSchema = MsConvert.format(tmpObj);
           } catch (e) {
             this.body.format = 'JSON';

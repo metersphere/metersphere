@@ -14,6 +14,9 @@ export const jsonParse = (jsonStr) => {
       return parseBoolean();
     } else if (char === 'n') {
       return parseNull();
+    } else if (char === ' ' || char === '\n') {
+      index++;
+      return parseValue();
     } else {
       return parseNumber();
     }
@@ -27,6 +30,9 @@ export const jsonParse = (jsonStr) => {
       let value = parseValue();
       obj[key] = value;
       if (jsonStr[index] === ',') {
+        index++;
+      }
+      while (jsonStr[index] === ' ' || jsonStr[index] === '\n') {
         index++;
       }
     }
@@ -47,6 +53,9 @@ export const jsonParse = (jsonStr) => {
   }
   function parseString() {
     let str = '';
+    while(jsonStr[index] === ' ' || jsonStr[index] === '\n'){
+      index++;
+    }
     index++;
     while (jsonStr[index] !== '"') {
       str += jsonStr[index];
