@@ -442,11 +442,12 @@ export default {
           this.apiCaseList[0].execResult = status;
           this.apiCaseList[0].responseData = data;
           this.apiCaseList[0].passRate = passRate;
+          this.apiCaseList[0].reportId = data.threadName;
           this.$refs.apiCaseItem.runLoading = false;
           if (this.$refs.apiCaseItem && this.$refs.apiCaseItem[0]) {
             this.$refs.apiCaseItem[0].reload();
           }
-          store.currentApiCase = { refresh: true, id: data.id, status: status, passRate: passRate };
+          store.currentApiCase = { refresh: true, id: data.id, status: status, passRate: passRate, reportId: data.threadName };
         });
       }
     },
