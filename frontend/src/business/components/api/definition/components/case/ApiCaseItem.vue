@@ -7,7 +7,7 @@
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
-                      :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
+                      :readonly="!hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE')"
                       :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
@@ -182,7 +182,7 @@
 </template>
 
 <script>
-import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {_getBodyUploadFiles, getCurrentProjectID, getCurrentUser, getUUID, hasPermissions} from "@/common/js/utils";
 import {API_METHOD_COLOUR, API_STATUS, PRIORITY} from "../../model/JsonData";
 import MsTag from "../../../../common/components/MsTag";
 import MsTipButton from "../../../../common/components/MsTipButton";
@@ -317,7 +317,7 @@ export default {
         this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
       }
     }
-    this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
+    this.readonly = !hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE');
     if (this.apiCase && this.apiCase.id) {
       this.showFollow = false;
       this.$get('/api/testcase/follow/' + this.apiCase.id, response => {
@@ -406,7 +406,7 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    hasPermission,
+    hasPermissions,
     openHis(row) {
       this.$refs.changeHistory.open(row.id, ["接口定义用例", "接口定義用例", "Api definition case", "API_DEFINITION_CASE"]);
     },
