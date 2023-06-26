@@ -39,15 +39,7 @@
           prop="title">
         </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.issue.platform_status')"
-        :field="item"
-        v-if="isThirdPart"
-        prop="platformStatus">
-        <template v-slot="scope">
-          {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
-        </template>
-      </ms-table-column>
+        <issue-platform-status-column  v-if="isThirdPart && item.id === 'platformStatus'" ref="issuePlatformStatus"/>
 
       <ms-table-column
         v-else
@@ -125,10 +117,13 @@ import {getCustomFieldValue, getTableHeaderWithCustomFields} from "metersphere-f
 import {LOCAL} from "metersphere-frontend/src/utils/constants";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {operationConfirm} from "@/business/utils/sdk-utils";
+import IssuePlatformStatusColumn from "@/business/issue/IssuePlatformStatusColumn.vue";
 
 export default {
   name: "TestCaseIssueRelate",
-  components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
+  components: {
+    IssuePlatformStatusColumn,
+    IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
   data() {
     return {
       page: {
@@ -166,6 +161,17 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+  },
+  watch: {
+    isThirdPart() {
+      if (this.isThirdPart) {
+        this.$nextTick(() => {
+          if (this.$refs.issuePlatformStatus && this.$refs.issuePlatformStatus.length > 0) {
+            this.$refs.issuePlatformStatus[0].getPlatformStatus();
+          }
+        });
+      }
     }
   },
   created() {

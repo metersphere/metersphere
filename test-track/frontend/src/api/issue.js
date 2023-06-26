@@ -217,9 +217,9 @@ export function getIssueThirdPartTemplate() {
 }
 
 export function isThirdPartEnable(callback) {
-  getCurrentProject().then((project) => {
+  getCurrentProject().then((r) => {
     if (callback)
-      callback(project.platform !== LOCAL);
+      callback(r.data.platform !== LOCAL);
   });
 }
 

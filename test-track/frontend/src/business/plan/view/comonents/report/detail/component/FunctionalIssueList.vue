@@ -20,16 +20,12 @@
         prop="title">
       </ms-table-column>
 
-      <ms-table-column
-        :label="$t('test_track.issue.platform_status')"
+      <issue-platform-status-column
         v-if="isThirdPart"
         :filters="statusFilters"
         :filter-method="filterStatus"
-        prop="platformStatus">
-        <template v-slot="scope">
-          {{ scope.row.platformStatus ? scope.row.platformStatus : '--' }}
-        </template>
-      </ms-table-column>
+        ref="issuePlatformStatus"/>
+
 
       <ms-table-column
         v-else
@@ -64,10 +60,11 @@ import IssueDescriptionTableItem from "@/business/issue/IssueDescriptionTableIte
 import {ISSUE_PLATFORM_OPTION, ISSUE_STATUS_MAP} from "metersphere-frontend/src/utils/table-constants";
 import {getIssuesByPlanId, getShareIssuesByPlanId} from "@/api/issue";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
+import IssuePlatformStatusColumn from "@/business/issue/IssuePlatformStatusColumn.vue";
 
 export default {
   name: "FunctionalIssueList",
-  components: {MsCreateTimeColumn, IssueDescriptionTableItem, MsTableColumn, MsTable},
+  components: {IssuePlatformStatusColumn, MsCreateTimeColumn, IssueDescriptionTableItem, MsTableColumn, MsTable},
   data() {
     return {
       data: [],
