@@ -124,17 +124,20 @@ export default {
     'condition.filterText'() {
       this.filter();
     },
-    caseCondition() {
-      this.$nextTick(() => {
-        this.list();
-      });
+    caseCondition: {
+      handler() {
+        this.$nextTick(() => {
+          this.list();
+        });
+      },
+      deep: true,
+      immediate: true
     }
   },
   mounted() {
     let store = useStore();
     store.testCaseSelectNode = {};
     store.testCaseSelectNodeIds = [];
-    this.list();
   },
   computed: {
     projectId() {
