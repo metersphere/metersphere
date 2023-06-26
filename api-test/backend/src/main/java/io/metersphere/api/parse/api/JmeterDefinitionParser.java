@@ -462,6 +462,18 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
                 assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
+            if (assertion.isNotType()) {
+                assertionRegex.setExpression("(?s)^((?!" + assertionRegex.getExpression() + ").)*$");
+                assertionRegex.setDescription(" not contains: " + assertionRegex.getDescription());
+            }
+            if (assertion.isEqualsType()) {
+                assertionRegex.setExpression("^" + assertionRegex.getExpression() + "$");
+                assertionRegex.setDescription(" equals: " + assertionRegex.getExpression());
+            }
+            if (assertion.isContainsType()) {
+                assertionRegex.setExpression(".*" + assertionRegex.getExpression() + ".*");
+                assertionRegex.setDescription(" contains: " + assertionRegex.getExpression());
+            }
             if (assertion.isTestFieldResponseData()) {
                 assertionRegex.setSubject("Response Data");
             }

@@ -17,7 +17,7 @@
                   :key="index"
                   class="ms-api-header-select"
                   style="width: 180px"
-                  :readonly="!hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
+                  :readonly="!hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE')"
                   :placeholder="$t('commons.input_name')"
                   ref="nameEdit" />
                 <span v-else>
@@ -267,7 +267,7 @@ import { createDefinition } from '@/api/definition';
 import { relationGet, updateRuleRelation } from '@/api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
-import { hasLicense, hasPermission } from 'metersphere-frontend/src/utils/permission';
+import { hasLicense, hasPermissions } from 'metersphere-frontend/src/utils/permission';
 import { _getBodyUploadFiles, mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { API_METHOD_COLOUR, API_STATUS, PRIORITY } from '../../model/JsonData';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
@@ -406,7 +406,7 @@ export default {
         this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
       }
     }
-    this.readonly = !hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE');
+    this.readonly = !hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE');
     if (this.apiCase && this.apiCase.id) {
       this.showFollow = false;
       getApiCaseFollow(this.apiCase.id).then((response) => {
@@ -532,7 +532,7 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    hasPermission,
+    hasPermissions,
     openHis(row) {
       this.$refs.changeHistory.open(row.id, [
         '接口定义用例',
