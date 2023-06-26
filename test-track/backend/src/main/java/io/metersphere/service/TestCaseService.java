@@ -1118,6 +1118,10 @@ public class TestCaseService {
             request.setUseCustomId(useCunstomId);
             XmindCaseParser xmindParser = new XmindCaseParser(request);
             errList = xmindParser.parse(multipartFile);
+            List<TestCaseWithBLOBs> testCase = xmindParser.getTestCase();
+            testCase.forEach(testCaseWithBLOBs -> {
+                testCaseWithBLOBs.setSteps(testCaseWithBLOBs.getSteps().replace("&amp;","&"));
+            });
             if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
                     && CollectionUtils.isEmpty(xmindParser.getTestCase())
                     && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
@@ -1136,9 +1140,9 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
-                        this.saveImportData(xmindParser.getTestCase(), request, null);
-                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
-                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
+                        this.saveImportData(testCase, request, null);
+                        names = testCase.stream().map(TestCase::getName).collect(Collectors.toList());
+                        ids = testCase.stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
@@ -1154,8 +1158,8 @@ public class TestCaseService {
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         continueCaseList.removeAll(xmindParser.getUpdateTestCase());
                         this.updateImportData(xmindParser.getUpdateTestCase(), request, null);
-                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
-                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
+                        names = testCase.stream().map(TestCase::getName).collect(Collectors.toList());
+                        ids = testCase.stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     List<String> nodePathList = xmindParser.getValidatedNodePath();
                     if (CollectionUtils.isNotEmpty(nodePathList)) {
