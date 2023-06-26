@@ -270,8 +270,8 @@ export default {
         this.variables = this.allData.slice(0, this.pageSize);
         this.variables.forEach((item) => {
           item.showMore = false;
+          delete item.hashTree;
         });
-        return;
       }
       let start = (this.currentPage - 1) * this.pageSize;
       let end = this.currentPage * this.pageSize;

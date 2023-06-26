@@ -191,6 +191,7 @@ export default {
       this.$refs.environmentItems.itemSelected(this.environments.length - 1, newEnvironment);
     },
     environmentSelected(environment) {
+      this.$refs.environmentEdit.clearValidate();
       this.getEnvironment(environment);
     },
     getEnvironments() {
