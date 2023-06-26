@@ -236,7 +236,7 @@
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="getCustomFieldFilter(field)"
                          :field="item"
-                         column-key="priority"
+                         :column-key="field.columnKey ? field.columnKey : generateColumnKey(field)"
                          :fields-width="fieldsWidth"
                          :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="120"
@@ -328,7 +328,7 @@ import TestPlanCaseIssueItem from "@/business/plan/view/comonents/functional/Tes
 import {
   getProjectMemberOption,
   getProjectVersions,
-  getAdvSearchCustomField, parseTag, getCustomFieldValueForTrack
+  getAdvSearchCustomField, parseTag, getCustomFieldValueForTrack, generateColumnKey
 } from "@/business/utils/sdk-utils";
 import {
   testPlanTestCaseBatchDelete,
@@ -548,6 +548,7 @@ export default {
     this.$EventBus.$off("openFailureTestCase", this.handleOpenFailureTestCase);
   },
   methods: {
+    generateColumnKey,
     loadIssue(row) {
       if (row.issuesSize && !row.hasLoadIssue) {
         getOriginIssuesByCaseId('PLAN_FUNCTIONAL', row.id)

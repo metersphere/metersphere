@@ -279,6 +279,22 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key.startsWith('custom_single')">
+                            and test_case.id in (
+                            select resource_id from custom_field_test_case where concat('custom_single-',field_id) = #{key}
+                            and trim(both '"' from value) in
+                            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and test_case.id in (
+                            select resource_id from custom_field_test_case where concat('custom_multiple-',field_id) = #{key}
+                            and
+                            <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                JSON_CONTAINS(value, #{value})
+                            </foreach>
+                            )
+                        </when>
                         <otherwise>
                             and test_plan_test_case.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
