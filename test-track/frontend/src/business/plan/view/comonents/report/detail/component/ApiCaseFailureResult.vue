@@ -57,7 +57,7 @@
     <ms-main-container v-loading="responseLoading">
       <div v-if="showResponse">
         <el-card v-if="!isTemplate">
-          <ms-request-result-tail :response="response" ref="showRspResult" />
+          <ms-request-result-tail :response="response" :is-test-plan="true" ref="showRspResult"/>
         </el-card>
         <el-card v-else>
           <ms-request-result-tail
@@ -96,11 +96,8 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
-import { getShareApiReport, getShareApiReportByReportId } from "@/api/share";
-import {
-  apiDefinitionReportGet,
-  apiDefinitionReportGetDb,
-} from "@/api/remote/api/api-definition";
+import {getShareApiReport, getShareApiReportByReportId} from "@/api/share";
+import {apiDefinitionReportGet, apiDefinitionReportGetDb,} from "@/api/remote/api/api-definition";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 
 export default {
