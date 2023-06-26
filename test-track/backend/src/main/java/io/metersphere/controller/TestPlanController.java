@@ -285,6 +285,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanIds)", msClass = TestPlanService.class)
     public void runBatch(@RequestBody TestPlanRunRequest request) {
+        baseUserService.checkUserAndProject(request.getUserId(), request.getProjectId());
         request.setTriggerMode(TriggerMode.BATCH.name());
         testPlanService.runBatch(request);
     }
