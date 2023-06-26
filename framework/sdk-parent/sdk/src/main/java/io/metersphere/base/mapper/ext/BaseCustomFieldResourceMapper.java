@@ -19,6 +19,8 @@ public interface BaseCustomFieldResourceMapper {
 
     List<CustomFieldResourceDTO> getByResourceIds(@Param("tableName")  String tableName, @Param("resourceIds") List<String> resourceIds);
 
+    List<CustomFieldResourceDTO> getByResourceIdsForList(@Param("tableName")  String tableName, @Param("resourceIds") List<String> resourceIds);
+
     long countFieldResource(@Param("tableName") String tableName, @Param("resourceId") String resourceId, @Param("fieldId") String field_id);
 
     int batchUpdateByResourceIds(@Param("tableName") String tableName, @Param("resourceIds") List<String> resourceIds, @Param("record") CustomFieldResourceDTO customField);

@@ -829,7 +829,7 @@ public class TestCaseService {
             return;
         }
         Map<String, List<CustomFieldDao>> fieldMap =
-                customFieldTestCaseService.getMapByResourceIds(data.stream().map(TestCaseDTO::getId).collect(Collectors.toList()));
+                customFieldTestCaseService.getMapByResourceIdsForList(data.stream().map(TestCaseDTO::getId).collect(Collectors.toList()));
         data.forEach(i -> i.setFields(fieldMap.get(i.getId())));
     }
 

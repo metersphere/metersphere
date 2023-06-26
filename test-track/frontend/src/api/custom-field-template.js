@@ -27,6 +27,10 @@ export function getTestTemplate(projectId) {
   return getTemplate('field/template/case/get/relate/', projectId);
 }
 
+export function getTestTemplateForList(projectId) {
+  return getTemplate('field/template/case/get/relate/simple/', projectId);
+}
+
 export function updateCustomFieldTemplate(request) {
   return post('/custom/field/template/update', request);
 }

@@ -3,6 +3,7 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseTemplateMapper;
+import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -249,6 +250,14 @@ public class TestCaseTemplateService extends TemplateBaseService {
         List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
         caseTemplateDao.setCustomFields(result);
         return caseTemplateDao;
+    }
+
+    public TestCaseTemplateDao getTemplateForList(String projectId) {
+        TestCaseTemplateDao template = getTemplate(projectId);
+        // 列表展示过滤掉文本框和富文本框等大字段，否则加载效率低
+        template.getCustomFields().stream().filter(field ->
+                !StringUtils.equalsAnyIgnoreCase(field.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue()));
+        return template;
     }
 
     public String getLogDetails(String id) {

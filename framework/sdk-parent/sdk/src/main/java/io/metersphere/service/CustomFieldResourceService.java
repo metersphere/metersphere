@@ -9,6 +9,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.jetbrains.annotations.NotNull;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,11 +115,31 @@ public class CustomFieldResourceService {
         return baseCustomFieldResourceMapper.getByResourceIds(tableName, resourceIds);
     }
 
+    protected List<CustomFieldResourceDTO>  getByResourceIdsForList(String tableName, List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return new ArrayList<>();
+        }
+        return baseCustomFieldResourceMapper.getByResourceIdsForList(tableName, resourceIds);
+    }
+
     protected Map<String, List<CustomFieldDao>> getMapByResourceIds(String tableName, List<String> resourceIds) {
         if (CollectionUtils.isEmpty(resourceIds)) {
             return new HashMap<>();
         }
         List<CustomFieldResourceDTO> CustomFieldResourceDTOs = getByResourceIds(tableName, resourceIds);
+        return getFieldMap(CustomFieldResourceDTOs);
+    }
+
+    protected Map<String, List<CustomFieldDao>> getMapByResourceIdsForList(String tableName, List<String> resourceIds) {
+        if (CollectionUtils.isEmpty(resourceIds)) {
+            return new HashMap<>();
+        }
+        List<CustomFieldResourceDTO> CustomFieldResourceDTOs = getByResourceIdsForList(tableName, resourceIds);
+        return getFieldMap(CustomFieldResourceDTOs);
+    }
+
+    @NotNull
+    private static Map<String, List<CustomFieldDao>> getFieldMap(List<CustomFieldResourceDTO> CustomFieldResourceDTOs) {
         Map<String, List<CustomFieldDao>> fieldMap = new HashMap<>();
         CustomFieldResourceDTOs.forEach(i -> {
             List<CustomFieldDao> fields = fieldMap.get(i.getResourceId());
