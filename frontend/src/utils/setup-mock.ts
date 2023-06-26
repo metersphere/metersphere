@@ -47,3 +47,13 @@ export const failResponseWrap = (data: unknown, message: string, code = 50000) =
     code,
   };
 };
+
+/**
+ *  拼接 mock 匹配的 url
+ * @param url 不含前缀的接口地址
+ * @returns 拼接后的完整 url
+ */
+export const makeMockUrl = (url: string) => {
+  const mockOrigin = window.location.origin;
+  return `${mockOrigin}/front${url}`;
+};
