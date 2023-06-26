@@ -193,7 +193,6 @@ public class IssuesController {
     }
 
     @PostMapping("/status/count")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_ISSUE_READ)
     public List<IssuesStatusCountDao> getCountByStatus(@RequestBody IssuesCountRequest request) {
         return issuesService.getCountByStatus(request);
     }
