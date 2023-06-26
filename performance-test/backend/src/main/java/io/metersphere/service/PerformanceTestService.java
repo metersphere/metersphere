@@ -357,6 +357,8 @@ public class PerformanceTestService {
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
     public String run(RunTestPlanRequest request) {
+        //检查性能测试文件
+        this.checkLoadTestJmxFile(request.getId());
         LogUtil.info("性能测试run测试");
         final LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
         if (request.getUserId() != null) {
@@ -378,6 +380,26 @@ public class PerformanceTestService {
         LogUtil.info("Load test started " + loadTest.getName());
 
         return startEngine(loadTest, request);
+    }
+
+    private void checkLoadTestJmxFile(String id) {
+        LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
+        loadTestFileExample.createCriteria().andTestIdEqualTo(id);
+        List<LoadTestFile> loadTestFileList = loadTestFileMapper.selectByExample(loadTestFileExample);
+        List<String> fileIdList = loadTestFileList.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
+        List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(fileIdList);
+        boolean hasJmx = false;
+        for (FileInfoDTO fileInfoDTO : fileInfoDTOList) {
+            if (StringUtils.equalsIgnoreCase(fileInfoDTO.getType(), "jmx")) {
+                hasJmx = true;
+                if (!JmxParseUtil.isJmxFile(fileInfoDTO.getFileByte())) {
+                    MSException.throwException(Translator.get("load_test_file_is_not_jmx"));
+                }
+            }
+        }
+        if (!hasJmx) {
+            MSException.throwException(Translator.get("load_test_file_not_have_jmx"));
+        }
     }
 
     private void checkKafka() {

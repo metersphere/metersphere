@@ -104,7 +104,6 @@ public class FileManagerService {
                     list.addAll(FileCenter.getRepository(requestByStorageEntry.getKey()).getFileBatch(requestByStorageEntry.getValue()));
                 } catch (Exception e) {
                     LogUtil.error("下载文件失败!", e);
-                    return list;
                 }
             }
         }

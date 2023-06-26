@@ -18,6 +18,22 @@ import java.util.List;
 
 //Jmx解析工具类
 public class JmxParseUtil {
+
+    public static boolean isJmxFile(byte[] jmxFileByte) {
+        try {
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            XMLUtils.setExpandEntityReferencesFalse(documentBuilderFactory);
+            DocumentBuilder builder = documentBuilderFactory.newDocumentBuilder();
+            final Document document = builder.parse(new InputSource(new ByteArrayInputStream(jmxFileByte)));
+            final Element jmxDoc = document.getDocumentElement();
+            if (StringUtils.equals(jmxDoc.getNodeName(), "jmeterTestPlan")) {
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
     public static boolean isJmxHasScriptByFiles(List<MultipartFile> files) {
         if (CollectionUtils.isNotEmpty(files)) {
             for (MultipartFile file : files) {
