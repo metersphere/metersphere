@@ -5,13 +5,11 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import '@vue/runtime-core'
 
-export {}
+export {};
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    AFomrItem: typeof import('@arco-design/web-vue')['FomrItem']
-    ASelectOption: typeof import('@arco-design/web-vue')['SelectOption']
-    RouterLink: typeof import('vue-router')['RouterLink']
-    RouterView: typeof import('vue-router')['RouterView']
+    RouterLink: typeof import('vue-router')['RouterLink'];
+    RouterView: typeof import('vue-router')['RouterView'];
   }
 }
