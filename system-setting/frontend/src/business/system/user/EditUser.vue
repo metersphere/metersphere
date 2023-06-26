@@ -48,7 +48,7 @@
                           :prop="'groups.' + index + '.ids'"
                           :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"
             >
-              <el-select filterable v-model="group.ids" :placeholder="$t('workspace.select')" multiple
+              <el-select filterable v-model="group.ids" :placeholder="$t('system_user.search_get_more_tip')" multiple
                          :filter-method="(value) => filterWorkspaceOption(value, group)"
                          @visible-change="(value) => resetWorkspaceOption(value, group)"
                          class="edit-user-select" @change="updateWorkSpace(group.index,group.type)">
@@ -57,9 +57,6 @@
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
-                  <div style="text-align: center; color: #8a8b8d;" v-if="group.showSearchGetMore">
-                    {{ $t('system_user.search_get_more_tip') }}
-                  </div>
                 </el-option>
               </el-select>
             </el-form-item>
@@ -69,7 +66,7 @@
                           :prop="'groups.' + index + '.ids'"
                           :rules="{required: true, message: $t('user.select_project'), trigger: 'change'}"
             >
-              <el-select filterable v-model="group.ids" :placeholder="$t('user.select_project')" multiple
+              <el-select filterable v-model="group.ids" :placeholder="$t('system_user.search_get_more_tip')" multiple
                          :filter-method="(value) => filterProjectOption(value, group)"
                          @visible-change="(value) => resetProjectOption(value, group)"
                          class="edit-user-select" @change="setWorkSpaceIds(group.ids,group.projects)">
@@ -78,9 +75,6 @@
                     :key="item.id"
                     :label="item.name"
                     :value="item.id">
-                  <div style="text-align: center; color: #8a8b8d;" v-if="group.showSearchGetMore">
-                    {{ $t('system_user.search_get_more_tip') }}
-                  </div>
                 </el-option>
               </el-select>
             </el-form-item>
