@@ -64,12 +64,12 @@
       <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip />
       <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
         <template v-slot:default="{ row }">
-          <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'SUCCESS'">
+          <el-tag type="success" size="mini" v-if="row.lastResult === 'SUCCESS'">
             {{ $t('api_test.automation.success') }}
-          </el-link>
-          <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'ERROR'">
+          </el-tag>
+          <el-tag type="danger" size="mini" v-if="row.lastResult === 'ERROR'">
             {{ $t('api_test.automation.fail') }}
-          </el-link>
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')" show-overflow-tooltip />
