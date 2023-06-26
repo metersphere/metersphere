@@ -559,6 +559,7 @@ export default {
     field_text: 'Field Text',
     field_value: 'Field ID',
     add_field: 'Add Field',
+    no_custom_fields_permission: '(Missing custom field permissions, Please contact the administrator for configuration!)',
     api_field_name: 'API Field Name',
     template_setting: 'Template Setting',
     custom_field_setting: 'Custom Field Setting',
