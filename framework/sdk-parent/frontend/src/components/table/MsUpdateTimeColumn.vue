@@ -2,7 +2,7 @@
   <ms-table-column :field="field"
                    :fields-width="fieldsWidth"
                    prop="updateTime"
-                   min-width="140px"
+                   min-width="160px"
                    sortable
                    :label="$t('api_test.mock.table.update_time')">
     <template v-slot:default="scope">

@@ -2,7 +2,7 @@
   <ms-table-column :field="field"
                    :fields-width="fieldsWidth"
                    prop="createTime"
-                   min-width="140px"
+                   min-width="160px"
                    :sortable="sortable"
                    :label="$t('commons.create_time')">
     <template v-slot:default="scope">

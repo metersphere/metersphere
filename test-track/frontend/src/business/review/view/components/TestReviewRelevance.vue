@@ -59,6 +59,7 @@
               <el-table-column
                 v-if="!customNum"
                 prop="num"
+                min-width="120"
                 sortable
                 :label="$t('commons.id')">
               </el-table-column>
@@ -66,6 +67,7 @@
               <el-table-column
                 v-if="customNum"
                 prop="customNum"
+                min-width="120"
                 sortable
                 :label="$t('commons.id')">
               </el-table-column>
@@ -97,6 +99,7 @@
                 :filters="priorityFilters"
                 column-key="priority"
                 :label="$t('test_track.case.priority')"
+                min-width="120"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
                   <priority-table-item :value="scope.row.priority" :priority-options="priorityFilters"/>
@@ -107,6 +110,7 @@
                 :filters="statusFilters"
                 column-key="reviewStatus"
                 :label="$t('test_track.case.status')"
+                min-width="120"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
                   <review-status :value="scope.row.reviewStatus"/>
