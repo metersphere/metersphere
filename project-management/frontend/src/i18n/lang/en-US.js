@@ -33,6 +33,7 @@ const message = {
     timing_clean_ui_report: "Regularly clean up report",
   },
   custom_template: {
+    no_edit_permission: "no permissions to edit case/issue/api template, please contact the administrator",
     api_template: "Api Template",
     base_fields: "Base fields",
     template_name: "Template name",

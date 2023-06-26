@@ -42,26 +42,35 @@ export default {
   methods: {
     hasPermissions,
     changeTab() {
+      let editPermission = false;
       if (hasPermissions('PROJECT_TEMPLATE:READ+API_TEMPLATE')) {
         this.activeName = 'apiTemplate';
         this.apiTemplateEnable = true;
+        editPermission= true;
       }
       // 1
       if (hasPermissions('PROJECT_TEMPLATE:READ+ISSUE_TEMPLATE')) {
         this.activeName = 'issueTemplate';
         this.issueTemplateEnable = true;
+        editPermission= true;
       }
 
       // 2
       if (hasPermissions('PROJECT_TEMPLATE:READ+CASE_TEMPLATE')) {
         this.activeName = 'caseTemplate';
         this.caseTemplateEnable = true;
+        editPermission= true;
       }
 
       // 3
       if (hasPermissions('PROJECT_TEMPLATE:READ+CUSTOM')) {
         this.activeName = 'field';
         this.fieldEnable = true;
+        editPermission= true;
+      }
+
+      if (!editPermission) {
+        this.$error(this.$t('custom_template.no_edit_permission'));
       }
     }
   }
