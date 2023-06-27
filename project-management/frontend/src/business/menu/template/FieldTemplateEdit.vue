@@ -208,6 +208,10 @@ export default {
             } else if (item.type === 'checkbox') {
               item.defaultValue = [];
             }
+            if (item.type === 'int' && item.defaultValue === null) {
+              // el-input-number 需要设置成 undefined，默认值才能设置为空
+              item.defaultValue = undefined;
+            }
             this.templateContainIds.add(item.fieldId);
           });
           this.$refs.customFieldFormList.refreshTable();
