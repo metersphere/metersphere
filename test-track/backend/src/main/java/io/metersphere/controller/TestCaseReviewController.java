@@ -20,6 +20,7 @@ import io.metersphere.service.*;
 import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewDTOWithMetric;
 import io.metersphere.service.wapper.CheckPermissionService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -146,7 +147,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/list/all/relate/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ)
+    @RequiresPermissions(value= {PermissionConstants.PROJECT_TRACK_REVIEW_READ, PermissionConstants.PROJECT_TRACK_HOME}, logical = Logical.OR)
     public Pager<List<TestReviewDTOWithMetric>> listRelateAll(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReviewRelateRequest request) {
         testCaseReviewService.setReviewIds(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

@@ -69,7 +69,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/list/week/{projectId}/{versionId}/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value= {PermissionConstants.PROJECT_API_DEFINITION_READ, PermissionConstants.PROJECT_API_HOME}, logical = Logical.OR)
     public Pager<List<ApiDefinitionResult>> weekList(@PathVariable String projectId, @PathVariable String versionId, @PathVariable int goPage, @PathVariable int pageSize) {
         if (StringUtils.equalsIgnoreCase(versionId, "default")) {
             versionId = null;

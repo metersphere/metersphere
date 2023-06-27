@@ -23,6 +23,7 @@ import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.PerformanceTestService;
 import io.metersphere.task.dto.TaskRequestDTO;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -49,7 +50,7 @@ public class PerformanceTestController {
     private ApiPerformanceService apiPerformanceService;
 
     @PostMapping("recent/{count}")
-    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_PERFORMANCE_TEST_READ, PermissionConstants.PROJECT_PERFORMANCE_HOME}, logical = Logical.OR)
     public List<LoadTestDTO> recentTestPlans(@PathVariable int count, @RequestBody QueryTestPlanRequest request) {
         PageHelper.startPage(1, count, true);
         return performanceTestService.recentTestPlans(request);
@@ -264,7 +265,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/list/schedule")
-    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE, PermissionConstants.PROJECT_PERFORMANCE_HOME}, logical = Logical.OR)
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return performanceTestService.listSchedule(request);
     }

@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.CustomFieldTemplateDao;
 import io.metersphere.service.CustomFieldTemplateService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,8 @@ public class CustomFieldTemplateController {
     CustomFieldTemplateService customFieldTemplateService;
 
     @PostMapping("/list")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM, PermissionConstants.PROJECT_TEMPLATE_READ_CASE_TEMPLATE,
+            PermissionConstants.PROJECT_TEMPLATE_READ_ISSUE_TEMPLATE, PermissionConstants.PROJECT_TEMPLATE_READ_API_TEMPLATE}, logical = Logical.OR)
     public List<CustomFieldTemplateDao> list(@RequestBody CustomFieldTemplate request) {
         return customFieldTemplateService.list(request);
     }
