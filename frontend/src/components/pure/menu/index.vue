@@ -245,8 +245,79 @@
 </script>
 
 <style lang="less">
-  .menu-wrapper {
-    background-color: var(--color-bg-3);
+  .arco-menu-vertical {
+    .menu-wrapper {
+      background-color: var(--color-bg-3);
+    }
+    .arco-menu-inner {
+      @apply flex flex-col;
+
+      padding: 16px 32px 16px 16px !important;
+      .arco-menu-inline {
+        &--bottom {
+          @apply mt-auto;
+        }
+      }
+      .arco-menu-pop-header {
+        @apply leading-none;
+
+        padding: 11px;
+      }
+      .arco-menu-inline-header {
+        @apply flex items-center;
+      }
+      .arco-menu-inline-header,
+      .arco-menu-item {
+        @apply mb-0 !bg-transparent;
+
+        color: var(--color-text-1) !important;
+        &:hover,
+        .arco-menu-indent-list:hover,
+        .arco-icon:hover {
+          background-color: rgb(var(--primary-1)) !important;
+        }
+        .arco-menu-item-inner,
+        .arco-menu-item-inner:hover {
+          @apply !bg-transparent;
+        }
+        .arco-menu-icon {
+          .arco-icon {
+            &:not(.arco-icon-down) {
+              font-size: 18px;
+            }
+
+            color: var(--color-text-4);
+          }
+        }
+        .arco-menu-title {
+          color: var(--color-text-1);
+        }
+      }
+      .arco-menu-selected {
+        color: rgb(var(--primary-5)) !important;
+        &:not(.arco-menu-inline-header) {
+          background-color: rgb(var(--primary-9)) !important;
+        }
+        .arco-icon {
+          color: rgb(var(--primary-5)) !important;
+          &:hover {
+            background-color: var(--color-bg-6) !important;
+          }
+        }
+        .arco-menu-title {
+          color: rgb(var(--primary-5)) !important;
+        }
+      }
+      .arco-menu-pop {
+        @apply bg-transparent;
+      }
+    }
+  }
+  .arco-menu-overflow-sub-menu {
+    min-width: 60px;
+  }
+  .arco-menu-collapsed {
+    width: 86px;
   }
   .arco-menu {
     &:hover {
@@ -266,71 +337,5 @@
         color: rgb(var(--primary-5));
       }
     }
-  }
-  .arco-menu-inner {
-    @apply flex flex-col;
-
-    padding: 16px 32px 16px 16px !important;
-    .arco-menu-inline {
-      &--bottom {
-        @apply mt-auto;
-      }
-    }
-    .arco-menu-pop-header {
-      @apply leading-none;
-
-      padding: 11px;
-    }
-    .arco-menu-inline-header {
-      @apply flex items-center;
-    }
-    .arco-menu-inline-header,
-    .arco-menu-item {
-      @apply mb-0 !bg-transparent;
-
-      color: var(--color-text-1) !important;
-      &:hover,
-      .arco-menu-indent-list:hover,
-      .arco-icon:hover {
-        background-color: rgb(var(--primary-1)) !important;
-      }
-      .arco-menu-item-inner,
-      .arco-menu-item-inner:hover {
-        @apply !bg-transparent;
-      }
-      .arco-menu-icon {
-        .arco-icon {
-          &:not(.arco-icon-down) {
-            font-size: 18px;
-          }
-
-          color: var(--color-text-4);
-        }
-      }
-      .arco-menu-title {
-        color: var(--color-text-1);
-      }
-    }
-    .arco-menu-selected {
-      color: rgb(var(--primary-5)) !important;
-      &:not(.arco-menu-inline-header) {
-        background-color: rgb(var(--primary-9)) !important;
-      }
-      .arco-icon {
-        color: rgb(var(--primary-5)) !important;
-        &:hover {
-          background-color: var(--color-bg-6) !important;
-        }
-      }
-      .arco-menu-title {
-        color: rgb(var(--primary-5)) !important;
-      }
-    }
-    .arco-menu-pop {
-      @apply bg-transparent;
-    }
-  }
-  .arco-menu-collapsed {
-    width: 86px;
   }
 </style>

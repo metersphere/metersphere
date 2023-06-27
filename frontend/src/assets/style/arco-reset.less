@@ -242,15 +242,18 @@
   font-size: 16px;
 }
 
-/** 下拉菜单 **/
+/** 下拉菜单,trigger触发器,select选择器 **/
 .arco-dropdown,
-.arco-trigger-menu {
+.arco-trigger-menu,
+.arco-select-dropdown {
   border: 0.5px solid var(--color-text-n8);
   box-shadow: 0 3px 14px 2px rgb(0 0 0 / 5%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 5px 5px -3px rgb(0 0 0 / 10%);
   .arco-dropdown-list,
+  .arco-select-dropdown-list,
   .arco-trigger-menu-inner {
     @apply relative flex w-full flex-col overflow-hidden;
     .arco-dropdown-option,
+    .arco-select-option,
     .arco-trigger-menu-item {
       @apply flex w-auto items-center;
 
@@ -277,6 +280,26 @@
       background-color: rgb(var(--primary-1));
     }
   }
+}
+.arco-dropdown-option-content {
+  @apply flex items-center;
+
+  gap: 8px;
+}
+.arco-select-option:not(:disabled) {
+  &:hover {
+    background-color: rgb(var(--primary-1)) !important;
+  }
+}
+.arco-select-option-selected {
+  color: rgb(var(--primary-7)) !important;
+  background-color: rgb(var(--primary-1)) !important;
+}
+.arco-select-view-value {
+  @apply !block;
+}
+.arco-select-view-suffix {
+  @apply !pl-0;
 }
 
 /** 全局容器 **/
@@ -350,5 +373,25 @@
         }
       }
     }
+  }
+}
+
+/** 滚动条 **/
+.arco-scrollbar-track-direction-horizontal {
+  height: 8px;
+  .arco-scrollbar-thumb-bar {
+    @apply m-0;
+
+    height: 8px;
+    background-color: var(--color-text-input-border);
+  }
+}
+.arco-scrollbar-track-direction-vertical {
+  width: 8px;
+  .arco-scrollbar-thumb-bar {
+    @apply m-0;
+
+    width: 8px;
+    background-color: var(--color-text-input-border);
   }
 }
