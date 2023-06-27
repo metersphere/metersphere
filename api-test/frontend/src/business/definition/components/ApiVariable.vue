@@ -11,7 +11,7 @@
           :prop="item.prop"
           :label="item.label"
           :min-width="getTableMinWidth(item.prop)"
-          show-overflow-tooltip>
+          :show-overflow-tooltip="item.prop !== 'value'">
           <template v-slot:default="scope">
             <div v-show="!scope.row.isEdit">
               <div v-if="item.prop === 'required' || item.prop === 'urlEncode'">
@@ -20,6 +20,9 @@
               </div>
               <div v-else-if="item.prop === 'value' && isActive && scope.row.type === 'file'">
                 <ms-api-body-file-upload :parameter="scope.row" :id="id" :is-read-only="true" :disabled="true" />
+              </div>
+              <div v-else-if="item.prop === 'value' && isActive && scope.row.type !== 'file'">
+                <overflow-tooltip :content="scope.row.value" :autoEnterable="true" popperClass="ms-table-tooltip" />
               </div>
               <span v-else>
                 {{ scope.row[item.prop] }}
@@ -191,6 +194,7 @@ import MsApiBodyFileUpload from './body/ApiBodyFileUpload';
 import Vue from 'vue';
 import ApiVariableSetting from '@/business/definition/components/ApiVariableSetting';
 import { getShowFields } from 'metersphere-frontend/src/utils/custom_field';
+import OverflowTooltip from '@/business/definition/components/overflow-tooltip/index.vue';
 
 export default {
   name: 'MsApiVariable',
@@ -199,6 +203,7 @@ export default {
     MsApiBodyFileUpload,
     MsApiVariableAdvance,
     MsApiVariableJson,
+    OverflowTooltip,
   },
   props: {
     id: String,
