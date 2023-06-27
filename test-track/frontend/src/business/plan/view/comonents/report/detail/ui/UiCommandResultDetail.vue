@@ -4,8 +4,8 @@
       <el-row type="flex" justify="end" class="info">
         <el-col :span="24">
           <div class="time">
-            {{ $t('api_report.start_time') }}：{{ result.startTime | timestampFormatDate(true) }}
-            {{ $t('report.test_end_time') }}：{{ result.endTime | timestampFormatDate(true) }}
+            {{ $t('api_report.start_time') }}：{{ startTime }}
+            {{ $t('report.test_end_time') }}：{{ endTime }}
           </div>
         </el-col>
       </el-row>
@@ -36,10 +36,11 @@
 </template>
 
 <script>
+import MsAssertionResults from "@/business/plan/view/comonents/report/detail/ui/AssertionResults.vue";
+
 export default {
   name: "UiCommandResultDetail",
-  components: {
-  },
+  components: {MsAssertionResults},
   props: {
     request: Object,
     scenarioName: String,
@@ -64,6 +65,46 @@ export default {
   },
 
   methods: {
+    formatDate(time, cFormat) {
+      if (arguments.length === 0) {
+        return null;
+      }
+      const format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}:{t}';
+      let date;
+      if (typeof time === 'object') {
+        date = time;
+      } else {
+        if (typeof time === 'string' && /^[0-9]+$/.test(time)) {
+          time = parseInt(time);
+        }
+        if (typeof time === 'number' && time.toString().length === 10) {
+          time = time * 1000;
+        }
+        date = new Date(time);
+      }
+      const formatObj = {
+        y: date.getFullYear(),
+        m: date.getMonth() + 1,
+        d: date.getDate(),
+        h: date.getHours(),
+        i: date.getMinutes(),
+        s: date.getSeconds(),
+        a: date.getDay(),
+        t: date.getMilliseconds()
+      };
+      const timeStr = format.replace(/{(y|m|d|h|i|s|a|t)+}/g, (result, key) => {
+        let value = formatObj[key];
+        // Note: getDay() returns 0 on Sunday
+        if (key === 'a') {
+          return ['日', '一', '二', '三', '四', '五', '六'][value];
+        }
+        if (result.length > 0 && value < 10) {
+          value = '0' + value;
+        }
+        return value || 0;
+      });
+      return timeStr;
+    },
     active() {
       this.isActive = !this.isActive;
     },
@@ -99,7 +140,19 @@ export default {
     hasSub() {
       return this.request.subRequestResults.length > 0;
     },
-  }
+    startTime() {
+      if (this.result.startTime) {
+        return this.formatDate(this.result.startTime);
+      }
+      return "--";
+    },
+    endTime() {
+      if (this.result.endTime) {
+        return this.formatDate(this.result.endTime);
+      }
+      return "--";
+    }
+  },
 }
 </script>
 
