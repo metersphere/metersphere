@@ -85,7 +85,8 @@
         <!-- header 调试部分 -->
         <div class="ms-debug-div" @click="showAll" ref="debugHeader">
           <div class="debug-header">
-            <div class="ms-col-one mt-2" v-show="scenarioDefinition.length > 1">
+            <div class="ms-col-one mt-2">
+              <div class="mt-2" v-show="scenarioDefinition.length > 1">
               <el-tooltip
                 :content="$t('test_track.case.batch_operate')"
                 placement="top"
@@ -106,7 +107,6 @@
                   @click="cancelBatchProcessing" />
               </el-tooltip>
             </div>
-            <div class="ms-col-one mt-2">
               <div class="ml-10">{{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}</div>
               <div class="ml-10">
                 <el-link class="head" @click="showScenarioParameters"
