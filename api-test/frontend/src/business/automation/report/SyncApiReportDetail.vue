@@ -348,7 +348,7 @@ export default {
         this.report = response.data || {};
         if (response.data) {
           if (response.data.status === 'RUNNING') {
-            setTimeout(this.getReport, 5000);
+            setTimeout(this.getReport, 2000);
           } else {
             this.content = JSON.parse(response.data.content);
             if (!this.content) {
@@ -512,7 +512,7 @@ export default {
       }
 
       if (e.data && e.data.indexOf('MS_TEST_END') !== -1) {
-        this.getReport();
+        setTimeout(this.getReport, 3000);
         this.messageWebSocket.close();
         this.cleanHeartBeat();
         this.$EventBus.$emit('hide', this.scenarioId);
