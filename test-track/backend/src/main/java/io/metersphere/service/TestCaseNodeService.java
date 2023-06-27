@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
+import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -28,6 +29,7 @@ import io.metersphere.plan.service.TestPlanProjectService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.request.testcase.*;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.utils.DiscoveryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -233,6 +235,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
 
     public Map<String, Integer> getNodeCountMapByProjectId(String projectId, QueryTestCaseRequest request) {
+        boolean queryUi = DiscoveryUtil.hasService(MicroServiceName.UI_TEST);
+        request.setQueryUi(queryUi);
         this.setRequestWeekParam(request);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
