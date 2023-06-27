@@ -109,7 +109,6 @@ export const MOCKJS_FUNC = [
   {name: '@datetime', des: i18n.t('api_test.request.datetime'), ex: "1975-10-12 02:32:04"},
   {name: '@now', des: i18n.t('api_test.request.now'), ex: (new Date()).toLocaleTimeString().toLocaleString()},
   {name: '@img', des: i18n.t('api_test.request.img'), ex: "http://dummyimage.com/120x60"},
-  {name: '@dataImage', des: i18n.t('api_test.request.dataImage'), ex: "data:image/png;base64,iVBORw0KG=="},
   {name: '@color', des: i18n.t('api_test.request.color'), ex: "#b479f2"},
   {name: '@hex', des: i18n.t('api_test.request.hex'), ex: "#f27984"},
   {name: '@rgb', des: i18n.t('api_test.request.rgb'), ex: "rgb(203, 242, 121)"},

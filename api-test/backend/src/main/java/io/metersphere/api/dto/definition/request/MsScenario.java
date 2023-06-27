@@ -75,6 +75,9 @@ public class MsScenario extends MsTestElement {
                 && !this.setRefScenario(hashTree, config)) {
             return;
         }
+        if (!ElementUtil.isEnable(this, config)) {
+            return;
+        }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);

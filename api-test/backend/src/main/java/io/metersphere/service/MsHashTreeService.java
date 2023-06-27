@@ -103,14 +103,14 @@ public class MsHashTreeService {
     private static final String PARENT_INDEX = "parentIndex";
 
 
-    private final static String JSON_PATH="jsonPath";
-    private final static String JSR223="jsr223";
-    private final static String XPATH="xpath2";
-    private final static String REGEX="regex";
-    private final static String DURATION="duration";
-    private final static String DOCUMENT="document";
-    private final static String LABEL="label";
-    private final static String SCENARIO_REF="SCENARIO-REF-STEP";
+    private final static String JSON_PATH = "jsonPath";
+    private final static String JSR223 = "jsr223";
+    private final static String XPATH = "xpath2";
+    private final static String REGEX = "regex";
+    private final static String DURATION = "duration";
+    private final static String DOCUMENT = "document";
+    private final static String LABEL = "label";
+    private final static String SCENARIO_REF = "SCENARIO-REF-STEP";
 
     public void setHashTree(JSONArray hashTree) {
         // 将引用转成复制
@@ -368,6 +368,16 @@ public class MsHashTreeService {
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 element.put(ENABLE, false);
             }
+            if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))) {
+                element.put(REF_ENABLE, true);
+            } else {
+                String indexStr = element.has(PARENT_INDEX) && StringUtils.isNotBlank(element.optString(PARENT_INDEX)) ?
+                        StringUtils.join(element.optString(PARENT_INDEX), "_", element.optString(INDEX)) : element.optString(INDEX);
+                if (keyMap.containsKey(element.optString(ID) + indexStr)) {
+                    enable = keyMap.get(element.optString(ID) + indexStr);
+                    element.put(ENABLE, enable);
+                }
+            }
             element.put(NUM, StringUtils.EMPTY);
         }
         return element;
@@ -435,10 +445,8 @@ public class MsHashTreeService {
     }
 
     private void setCaseEnable(JSONObject element, Map<String, Boolean> keyMap, String parentIndex) {
-        if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))
-                && StringUtils.equals(element.optString(REFERENCED),REF)) {
+        if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))) {
             element.put(ENABLE, false);
-            element.put(REF_ENABLE, true);
         } else {
             String indexStr = StringUtils.join(element.optString(ID), parentIndex, "_", element.optString(INDEX));
             if (keyMap.containsKey(indexStr)) {
