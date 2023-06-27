@@ -476,7 +476,13 @@ export default {
       this.$emit('selection', selection);
     },
     handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRow);
+      let selectRowMap = new Map();
+      for (let selectRow of this.selectRows) {
+        selectRowMap.set(selectRow.id, selectRow);
+      }
+      _handleSelect(this, selection, row, selectRowMap);
+      let selectRow = Array.from(selectRowMap.values());
+      this.selectRow = new Set(selectRow);
       setUnSelectIds(this.environments, this.condition, this.selectRow);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRow);
       this.$emit('selection', selection);
