@@ -195,7 +195,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
         List<Boolean> result = new ArrayList<>();
         for (Object subj : value.toArray()) {
-            if (!StringUtils.equals(getOption(), "NOT_CONTAINS")) {
+            if (!StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS","EQUALS")) {
                 if (subj == null && this.isExpectNull() || isEquals(subj)) {
                     return true;
                 }
@@ -203,7 +203,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                 result.add(isEquals(subj));
             }
         }
-        if (CollectionUtils.isNotEmpty(result) && StringUtils.equals(getOption(), "NOT_CONTAINS")) {
+        if (CollectionUtils.isNotEmpty(result) && StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS", "EQUALS")) {
             if (result.stream().filter(item -> item == true).collect(Collectors.toList()).size() == result.size()) {
                 return true;
             } else {
@@ -281,8 +281,8 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     private static boolean valueEquals(String v1, String v2) {
         try {
-            Number number1 = NumberUtils.createNumber(v1);
-            Number number2 = NumberUtils.createNumber(v2);
+            Number number1 = NumberUtils.createBigDecimal(v1);
+            Number number2 = NumberUtils.createBigDecimal(v2);
             return number1.equals(number2);
         } catch (Exception e) {
             return StringUtils.equals(v1, v2);
