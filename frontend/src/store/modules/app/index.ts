@@ -3,8 +3,9 @@ import { Notification } from '@arco-design/web-vue';
 import defaultSettings from '@/config/settings.json';
 import { getMenuList } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
+import { cloneDeep } from 'lodash-es';
 
-import type { AppState } from './types';
+import type { AppState, BreadcrumbItem } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 
@@ -14,6 +15,8 @@ const useAppStore = defineStore('app', {
     loading: false,
     loadingTip: '',
     topMenus: [] as RouteRecordRaw[],
+    currentTopMenu: {} as RouteRecordRaw,
+    breadcrumbList: [] as BreadcrumbItem[],
     currentOrgId: '',
     currentProjectId: '',
   }),
@@ -36,6 +39,12 @@ const useAppStore = defineStore('app', {
     },
     getTopMenus(state: AppState): RouteRecordRaw[] {
       return state.topMenus;
+    },
+    getCurrentTopMenu(state: AppState): RouteRecordRaw {
+      return state.currentTopMenu;
+    },
+    getBreadcrumbList(state: AppState): BreadcrumbItem[] {
+      return cloneDeep(state.breadcrumbList);
     },
     getCurrentOrgId(state: AppState): string {
       return state.currentOrgId;
@@ -123,6 +132,18 @@ const useAppStore = defineStore('app', {
      */
     setTopMenus(menus: RouteRecordRaw[] | undefined) {
       this.topMenus = menus ? [...menus] : [];
+    },
+    /**
+     * 设置顶部菜单组
+     */
+    setCurrentTopMenu(menu: RouteRecordRaw) {
+      this.currentTopMenu = cloneDeep(menu);
+    },
+    /**
+     * 设置面包屑
+     */
+    setBreadcrumbList(breadcrumbs: BreadcrumbItem[] | undefined) {
+      this.breadcrumbList = breadcrumbs ? cloneDeep(breadcrumbs) : [];
     },
     /**
      * 设置当前组织 ID

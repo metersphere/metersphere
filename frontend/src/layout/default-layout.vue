@@ -34,6 +34,7 @@
           <Menu />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
+          <MsBreadCrumb />
           <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
             <a-scrollbar
               :style="{
@@ -64,6 +65,7 @@
   import TabBar from '@/components/pure/tab-bar/index.vue';
   import usePermission from '@/hooks/usePermission';
   import PageLayout from './page-layout.vue';
+  import MsBreadCrumb from '@/components/bussiness/ms-breadcrumb/index.vue';
 
   const isInit = ref(false);
   const appStore = useAppStore();

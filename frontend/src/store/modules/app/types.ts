@@ -1,4 +1,9 @@
-import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import type { RouteRecordNormalized, RouteRecordRaw, RouteRecordName } from 'vue-router';
+
+export interface BreadcrumbItem {
+  name: RouteRecordName;
+  locale: string;
+}
 
 export interface AppState {
   theme: string;
@@ -17,6 +22,8 @@ export interface AppState {
   loading: boolean;
   loadingTip: string;
   topMenus: RouteRecordRaw[];
+  currentTopMenu: RouteRecordRaw;
+  breadcrumbList: BreadcrumbItem[];
   currentOrgId: string;
   currentProjectId: string;
   [key: string]: unknown;
