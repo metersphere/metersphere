@@ -783,6 +783,7 @@ export default {
       } else {
         if (id) {
           store.apiMap.delete(id);
+          store.saveMap.delete(id);
         }
         this.handleTabRemove(targetName);
       }
@@ -1053,6 +1054,7 @@ export default {
       store.apiStatus.set('fromChange', false);
       store.apiStatus.set('requestChange', false);
       store.apiStatus.set('responseChange', false);
+      store.apiStatus.set('customFormChange', false);
       store.apiMap.set(data.id, store.apiStatus);
       // 保存后将保存状态置为true
       store.saveMap.set(data.id, true);
