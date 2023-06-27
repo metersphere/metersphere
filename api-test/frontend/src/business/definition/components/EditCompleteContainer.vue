@@ -259,6 +259,7 @@ export default {
           if (stepArray[i] && stepArray[i].authManager && !stepArray[i].authManager.clazzName) {
             stepArray[i].authManager.clazzName = TYPE_TO_C.get(stepArray[i].authManager.type);
           }
+          stepArray[i].projectId = this.currentApi.projectId;
           if (stepArray[i].type === 'Assertions' && !stepArray[i].document) {
             stepArray[i].document = {
               type: 'JSON',

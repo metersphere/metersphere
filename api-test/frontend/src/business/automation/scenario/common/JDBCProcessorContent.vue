@@ -231,6 +231,8 @@ export default {
         });
         if (environmentId) {
           this.request.environmentId = environmentId;
+        } else {
+          this.request.environmentId = null;
         }
         this.initDataSource(undefined, undefined, targetDataSourceName);
       });
