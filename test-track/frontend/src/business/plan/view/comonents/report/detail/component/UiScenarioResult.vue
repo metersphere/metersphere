@@ -56,9 +56,10 @@
       <div v-if="showResponse">
         <micro-app
           v-show="!isTemplate"
+          v-if="reportId!==null"
           service="ui"
           route-name="ApiReportView"
-          :route-params="routeParams"
+          :route-params="getRouteParams()"
         />
         <UiShareReportDetail
           v-show="isTemplate"
@@ -133,16 +134,7 @@ export default {
         Running: "Running",
         UnExecute: "Prepare",
       },
-      routeParams: {
-        reportId: this.reportId,
-        isShare: this.isShare,
-        shareId: this.shareId,
-        isPlanReport: true,
-        isTemplate: this.isTemplate,
-        response: this.response,
-        showCancelButton: false,
-        showReportNameButton: false,
-      },
+
     };
   },
   mounted() {
@@ -159,6 +151,18 @@ export default {
     },
   },
   methods: {
+    getRouteParams() {
+      return {
+        reportId: this.reportId,
+        isShare: this.isShare,
+        shareId: this.shareId,
+        isPlanReport: true,
+        isTemplate: this.isTemplate,
+        response: this.response,
+        showCancelButton: false,
+        showReportNameButton: false,
+      };
+    },
     getScenarioApiCase() {
       this.scenarioCases = [];
       if (this.filterStatus && this.filterStatus.length > 0) {

@@ -111,12 +111,13 @@
 <script>
 import MsDrawer from "../MsDrawer";
 import {getCurrentProjectID, getCurrentUser} from "../../utils/token";
-import {hasPermissions, hasLicense} from "../../utils/permission";
+import {hasLicense, hasPermissions} from "../../utils/permission";
 import {getProjectUsers} from "../../api/user";
 import {getCaseData, getScenarioData, getTaskList, getTaskSocket, stopBatchTask, stopTask} from "../../api/task";
 import MicroApp from "../../components/MicroApp";
 import {prefetchApps} from "qiankun";
 import TaskCenterItem from "./TaskCenterItem";
+import {getUUID} from "../../utils";
 
 export default {
   name: "MsTaskCenter",
@@ -353,9 +354,13 @@ export default {
           this.executionModule = null;
           this.$nextTick(() => {
             this.size = window.innerWidth;
-            this.reportId = row.id;
             this.executionModule = row.executionModule;
             this.reportType = row.reportType;
+            if (row.executionModule === 'SCENARIO' || row.reportType === 'API_INTEGRATED') {
+              this.reportId = getUUID() + "[TEST-PLAN-REDIRECT]" + row.id;
+            } else {
+              this.reportId = row.id;
+            }
           })
         } else {
           this.$warning(this.$t('commons.run_warning'))
