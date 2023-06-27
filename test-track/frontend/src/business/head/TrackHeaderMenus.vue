@@ -6,28 +6,8 @@
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active="pathName">
-          <el-menu-item :index="'/track/home'" v-permission="['PROJECT_TRACK_HOME:READ']">
-            {{ $t("i18n.home") }}
-          </el-menu-item>
-          <el-menu-item :index="caseListPath" v-permission="['PROJECT_TRACK_CASE:READ']">
-            {{ $t("test_track.case.test_case") }}
-          </el-menu-item>
-
-          <el-menu-item :index="'/track/review/all'" v-permission="['PROJECT_TRACK_REVIEW:READ']"
-                        popper-class="submenu">
-            {{ $t('test_track.review.test_review') }}
-          </el-menu-item>
-          <el-menu-item :index="'/track/plan/all'" v-permission="['PROJECT_TRACK_PLAN:READ']"
-                        popper-class="submenu">
-            {{ $t('test_track.plan.test_plan') }}
-          </el-menu-item>
-
-          <el-menu-item :index="'/track/issue'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
-            {{ $t('test_track.issue.issue_management') }}
-          </el-menu-item>
-
-          <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu" v-permission="['PROJECT_TRACK_REPORT:READ']">
-            {{ $t("commons.report") }}
+          <el-menu-item v-for="(menu) in menus" :key="menu.path" :index="menu.path" v-permission="[menu.permission]">
+            {{ menu.name }}
           </el-menu-item>
         </el-menu>
       </el-col>
@@ -44,6 +24,7 @@ import ProjectSwitch from "metersphere-frontend/src/components/head/ProjectSwitc
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import MsHeaderRightMenus from "metersphere-frontend/src/components/layout/HeaderRightMenus";
 import {PROJECT_NAME} from "metersphere-frontend/src/utils/constants";
+import {hasPermission} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TrackHeaderMenus",
@@ -58,6 +39,38 @@ export default {
       isProjectActivation: true,
       currentProject: sessionStorage.getItem(PROJECT_NAME),
       pathName: '',
+      menus: [
+        {
+          path: '/track/home',
+          name: this.$t('i18n.home'),
+          permission: 'PROJECT_TRACK_HOME:READ'
+        },
+        {
+          path: '/track/case/all?projectId=' + this.getProjectId(),
+          name: this.$t('test_track.case.test_case'),
+          permission: 'PROJECT_TRACK_CASE:READ'
+        },
+        {
+          path: '/track/review/all',
+          name: this.$t('test_track.review.test_review'),
+          permission: 'PROJECT_TRACK_REVIEW:READ'
+        },
+        {
+          path: '/track/plan/all',
+          name: this.$t('test_track.plan.test_plan'),
+          permission: 'PROJECT_TRACK_PLAN:READ'
+        },
+        {
+          path: '/track/issue',
+          name: this.$t('test_track.issue.issue_management'),
+          permission: 'PROJECT_TRACK_ISSUE:READ'
+        },
+        {
+          path: '/track/testPlan/reportList',
+          name: this.$t('commons.report'),
+          permission: 'PROJECT_TRACK_REPORT:READ'
+        }
+      ]
     };
   },
   watch: {
@@ -69,7 +82,22 @@ export default {
         } else if (to.path.indexOf("/track/plan") >= 0) {
           this.pathName = '/track/plan/all';
         } else if (to.path.indexOf("/track/case") >= 0) {
-          this.pathName = this.caseListPath;
+          this.pathName = '/track/case/all?projectId=' + this.getProjectId();
+        } else if(to.path.indexOf("/track/home") >= 0) {
+          // 默认跳转到首页
+          for (let menu of this.menus) {
+            if (hasPermission(menu.permission)) {
+              // 如果有首页的权限则不处理
+              if(menu.path.indexOf("/track/home") >= 0) {
+                break;
+              } else {
+                // 否则跳转到第一个有权限的页面
+                this.pathName = menu.path;
+                this.$router.push(this.pathName);
+                break;
+              }
+            }
+          }
         } else {
           this.pathName = to.path;
         }
@@ -79,11 +107,6 @@ export default {
   },
   mounted() {
     this.init();
-  },
-  computed: {
-    caseListPath() {
-      return '/track/case/all?projectId=' + this.getProjectId();
-    }
   },
   methods: {
     reload() {
