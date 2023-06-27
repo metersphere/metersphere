@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +33,8 @@ public class JsonUtils {
         // 设置JSON处理字符长度限制
         objectMapper.getFactory()
                 .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(DEFAULT_MAX_STRING_LEN).build());
+        // 处理时间格式
+        objectMapper.registerModule(new JavaTimeModule());
 
     }
 

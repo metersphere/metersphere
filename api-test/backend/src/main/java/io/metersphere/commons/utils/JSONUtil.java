@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
@@ -52,6 +53,8 @@ public class JSONUtil {
         // 设置JSON处理字符长度限制
         objectMapper.getFactory()
                 .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(JSON.DEFAULT_MAX_STRING_LEN).build());
+        // 处理时间格式
+        objectMapper.registerModule(new JavaTimeModule());
 
     }
 
