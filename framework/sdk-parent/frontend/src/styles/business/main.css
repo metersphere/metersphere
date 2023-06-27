@@ -335,7 +335,7 @@ textarea {
 
 
 .el-message.is-closable .el-message__content {
-  max-width: 800px;
+  max-width: 90%;
   word-wrap: break-word;
 }
 
