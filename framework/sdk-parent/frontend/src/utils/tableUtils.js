@@ -3,7 +3,7 @@ import {CUSTOM_TABLE_HEADER} from "./default-table-header";
 import {updateCustomFieldTemplate} from "../api/custom-field-template";
 import i18n from "../i18n";
 import Sortable from 'sortablejs'
-import {datetimeFormat} from "fit2cloud-ui/src/filters/time";
+import {dateFormat, datetimeFormat} from "fit2cloud-ui/src/filters/time";
 import {hasLicense} from "../utils/permission";
 import {getUUID, humpToLine} from "./index";
 import {CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_MAP} from "./table-constants";
@@ -648,8 +648,10 @@ export function getCustomFieldValue(row, field, members) {
             val += i + ' ';
           });
           return val;
-        } else if (field.type === 'datetime' || field.type === 'date') {
+        } else if (field.type === 'datetime') {
           return datetimeFormat(item.value);
+        } else if (field.type === 'date') {
+          return  dateFormat(item.value);
         } else if (['richText', 'textarea'].indexOf(field.type) > -1) {
           return item.textValue;
         }
