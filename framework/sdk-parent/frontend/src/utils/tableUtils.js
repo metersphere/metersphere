@@ -535,7 +535,12 @@ export function getCustomFieldValue(row, field, members) {
     for (let i = 0; i < row.fields.length; i++) {
       let item = row.fields[i];
       if (item.id === field.id) {
-        if (!item.value) return '';
+        if (item.value === 0) {
+          return '0';
+        }
+        if (!item.value) {
+          return '';
+        }
 
         if (item.textValue && item.textValue.startsWith(OPTION_LABEL_PREFIX) && field.options)  {
           // 处理 jira 远程搜索字段

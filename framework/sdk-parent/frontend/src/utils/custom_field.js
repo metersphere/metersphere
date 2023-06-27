@@ -105,6 +105,10 @@ export function parseCustomField(data, template, rules, oldFields) {
       }
     }
 
+    if (item.type === 'int' && item.defaultValue === null) {
+      // el-input-number 需要设置成 undefined，默认值才能设置为空
+      item.defaultValue = undefined;
+    }
     customFieldForm[item.name] = item.defaultValue;
   });
 
@@ -210,6 +214,10 @@ export function parseCustomFieldForId(data, template, rules, oldFields) {
       }
     }
 
+    if (item.type === 'int' && item.defaultValue === null) {
+      // el-input-number 需要设置成 undefined，默认值才能设置为空
+      item.defaultValue = undefined;
+    }
     customFieldForm[item.id] = item.defaultValue;
   });
 
