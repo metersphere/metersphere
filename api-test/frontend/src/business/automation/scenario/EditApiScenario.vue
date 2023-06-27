@@ -84,7 +84,7 @@
       <el-card>
         <!-- header 调试部分 -->
         <div class="ms-debug-div" @click="showAll" ref="debugHeader">
-          <div class="debug-header" style="margin: 5px">
+          <div class="debug-header">
             <div class="ms-col-one mt-2" v-show="scenarioDefinition.length > 1">
               <el-tooltip
                 :content="$t('test_track.case.batch_operate')"
@@ -160,7 +160,7 @@
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-tooltip>
-              <el-button class="mt-2" size="mini" type="primary" v-else @click="stop">{{
+              <el-button class="mt-2 ml-10" size="mini" type="primary" v-else @click="stop">{{
                 $t('report.stop_btn')
               }}</el-button>
 
@@ -2639,19 +2639,20 @@ export default {
 }
 
 .ms-debug-div {
+  padding: 5px;
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
   align-items: center;
   border: 1px #dcdfe6 solid;
   border-radius: 4px;
-  margin-right: 0px;
 
   .debug-header {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     justify-content: space-between;
+    flex: 1;
     .ms-col-one {
       display: flex;
       align-items: center;
