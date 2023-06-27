@@ -48,6 +48,7 @@ public class JSONUtil {
         objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         // 使用BigDecimal来序列化
         objectMapper.configure(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS, true);
+        objectMapper.configure(com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
         // 设置JSON处理字符长度限制
         objectMapper.getFactory()
                 .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(JSON.DEFAULT_MAX_STRING_LEN).build());

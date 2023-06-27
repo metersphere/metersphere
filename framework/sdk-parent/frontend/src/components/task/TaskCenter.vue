@@ -268,9 +268,6 @@ export default {
     onMessage(e) {
       this.loading = false;
       this.runningData = JSON.parse(e.data);
-      if (this.runningData && this.runningData.total > 0) {
-        this.setActiveName();
-      }
       this.runningTotal = this.runningData.total;
       this.init(false);
 
