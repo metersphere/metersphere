@@ -26,6 +26,7 @@ import io.metersphere.service.TestCaseService;
 import io.metersphere.service.wapper.CheckPermissionService;
 import io.metersphere.xpack.track.dto.EditTestCaseRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -245,7 +246,7 @@ public class TestCaseController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE}, logical = Logical.OR)
     public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request) {
         return testCaseService.edit(request);
     }
