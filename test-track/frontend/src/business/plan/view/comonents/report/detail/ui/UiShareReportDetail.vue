@@ -130,19 +130,10 @@ import MsScenarioResults from "./ScenarioResults";
 import MsContainer from "metersphere-frontend/src/components/MsContainer";
 import MsMainContainer from "metersphere-frontend/src/components/MsMainContainer";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
-import { STEP } from "./Setting";
+import {STEP} from "./Setting";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
-import {
-  getCurrentProjectID,
-  getUUID,
-  hasLicense,
-  windowPrint,
-} from "@/business/utils/sdk-utils";
-import {
-  getScenarioReport,
-  getScenarioReportAll,
-  getShareScenarioReport,
-} from "@/api/ui-report";
+import {getCurrentProjectID, getUUID, hasLicense, windowPrint,} from "@/business/utils/sdk-utils";
+import {getScenarioReport, getScenarioReportAll, getShareScenarioReport,} from "@/api/ui-report";
 
 export default {
   name: "UiShareReportDetail",
@@ -623,10 +614,10 @@ export default {
     },
     buildReport() {
       if (this.report) {
-        if (this.isNotRunning) {
+        if (this.isNotRunning && this.report.content) {
           this.content = JSON.parse(this.report.content);
           if (!this.content) {
-            this.content = { scenarios: [] };
+            this.content = {scenarios: []};
           }
           this.formatResult(this.content);
           this.getFails();

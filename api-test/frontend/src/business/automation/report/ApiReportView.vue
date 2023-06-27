@@ -37,7 +37,17 @@ export default {
   methods: {
     getRouteParam(name) {
       if (this.$route) {
-        return this.$route.params[name];
+        if (name === 'reportId') {
+          // 测试计划模块使用qiankun加载该页面时，会在reportId前面加上UUID和'[TEST-PLAN-REDIRECT]'分隔符
+          let reportId = this.$route.params[name];
+          if (reportId && reportId.indexOf('[TEST-PLAN-REDIRECT]') > -1) {
+            return reportId.split('[TEST-PLAN-REDIRECT]')[1];
+          } else {
+            return reportId;
+          }
+        } else {
+          return this.$route.params[name];
+        }
       } else {
         return null;
       }

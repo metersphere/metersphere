@@ -275,12 +275,9 @@
 import MsTableHeader from "metersphere-frontend/src/components/MsTableHeader";
 import MsTablePagination from "metersphere-frontend/src/components/pagination/TablePagination";
 import MsTag from "metersphere-frontend/src/components/MsTag";
-import {
-  getCurrentProjectID,
-  getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
-import { hasLicense } from "metersphere-frontend/src/utils/permission";
-import { getUUID, strMapToObj } from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {getUUID, strMapToObj} from "metersphere-frontend/src/utils";
 import TestPlanScenarioListHeader from "../ui/TestPlanUiScenarioListHeader";
 import MsPlanRunMode from "@/business/plan/common/PlanRunModeWithEnv";
 import {
@@ -289,7 +286,7 @@ import {
   getCustomTableWidth,
   initCondition,
 } from "metersphere-frontend/src/utils/tableUtils";
-import { TEST_PLAN_UI_SCENARIO_CASE } from "metersphere-frontend/src/utils/constants";
+import {TEST_PLAN_UI_SCENARIO_CASE} from "metersphere-frontend/src/utils/constants";
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
 import BatchEdit from "@/business/case/components/BatchEdit";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
@@ -298,7 +295,7 @@ import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "metersphere-frontend/src/components/table/MsCreateTimeColumn";
-import { editTestPlanUiScenarioCaseOrder } from "@/api/remote/plan/test-plan";
+import {editTestPlanUiScenarioCaseOrder} from "@/api/remote/plan/test-plan";
 import {
   testPlanUiScenarioCaseBatchDelete,
   testPlanUiScenarioCaseBatchUpdateEnv,
@@ -307,16 +304,13 @@ import {
   testPlanUiScenarioCaseSelectAllTableRows,
   testPlanUiScenarioList,
 } from "@/api/remote/ui/test-plan-ui-scenario-case";
-import { getVersionFilters } from "@/business/utils/sdk-utils";
-import {
-  uiAutomationReduction,
-  uiAutomationVerifySeleniumServer,
-} from "@/api/remote/ui/api-scenario";
+import {getVersionFilters} from "@/business/utils/sdk-utils";
+import {uiAutomationReduction, uiAutomationVerifySeleniumServer,} from "@/api/remote/ui/api-scenario";
 import i18n from "@/i18n";
 import MicroApp from "metersphere-frontend/src/components/MicroApp";
 import MsTestPlanApiStatus from "@/business/plan/view/comonents/api/TestPlanApiStatus";
 import UiRunMode from "@/business/plan/view/comonents/ui/UiRunMode";
-import { baseSocket } from "@/api/base-network";
+import {baseSocket} from "@/api/base-network";
 
 export default {
   name: "MsTestPlanUiScenarioList",
@@ -722,7 +716,7 @@ export default {
     showReport(row) {
       this.runVisible = true;
       this.infoDb = true;
-      this.reportId = row.reportId;
+      this.reportId = getUUID() + "[TEST-PLAN-REDIRECT]" + row.reportId;
     },
     remove(row) {
       if (this.planId) {
