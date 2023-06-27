@@ -29,8 +29,8 @@
                 v-show="versionEnable"
                 ref="versionHistory"
                 :current-id="currentTestCaseInfo.id"
-                :is-read="readOnly"
-                :is-public-show="isPublicShow || hasReadonlyPermission"
+                :is-read="versionReadOnly"
+                :is-public-show="isPublicShow"
                 :current-version-id="form.versionId"
                 @confirmOtherInfo="confirmOtherInfo"
                 :current-project-id="projectId"
@@ -631,6 +631,16 @@ export default {
         !hasPermission("PROJECT_TRACK_CASE:READ+CREATE") &&
         !hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
       );
+    },
+    versionReadOnly() {
+      if (this.isPublicShow || this.hasReadonlyPermission) {
+        return true;
+      }
+      const { rowClickHasPermission } = this.currentTestCaseInfo;
+      if (rowClickHasPermission !== undefined) {
+        return !rowClickHasPermission;
+      }
+      return true;
     },
     caseId() {
       return !this.isPublicShow ? this.$route.params.caseId : this.publicCaseId;

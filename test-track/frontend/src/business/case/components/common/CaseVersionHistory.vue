@@ -54,7 +54,7 @@
               <div
                 class="create opt-row"
                 v-if="!caseVersionMap.has(item.id)
-                  && !isRead"
+                  && hasCreatePermission"
                 @click.stop="create(item)"
               >
                 {{ $t("commons.create") }}
@@ -64,7 +64,7 @@
                 @click.stop="del(item)"
                 v-if="caseVersionMap.has(item.id)
                   && !(item.id === currentVersionId)
-                  && !isRead"
+                  && hasDeletePermission"
               >
                 {{ $t("commons.delete") }}
               </div>
@@ -157,7 +157,7 @@
 
 <script>
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
-import {hasLicense} from "metersphere-frontend/src/utils/permission";
+import {hasLicense, hasPermission} from "metersphere-frontend/src/utils/permission";
 import {
   getProjectMembers,
   getProjectVersions,
@@ -218,6 +218,15 @@ export default {
     },
     compareDisable() {
       return !this.versionCompareOptions || this.versionCompareOptions.length < 2;
+    },
+    hasCreatePermission() {
+      return hasPermission("PROJECT_TRACK_CASE:READ+CREATE")
+    },
+    hasEditPermission() {
+      return hasPermission("PROJECT_TRACK_CASE:READ+EDIT")
+    },
+    hasDeletePermission() {
+      return hasPermission("PROJECT_TRACK_CASE:READ+DELETE");
     }
   },
   beforeDestroy() {
@@ -320,6 +329,7 @@ export default {
       return hasVersionCase // 有当前版本的用例
           && latestVersionCondition  // 有最新版本的用例，则非最新版本的其他版本不显示置新
           && !this.isRead // 不是只读
+          && this.hasEditPermission
           && !isNotDataLatestVersionCase // 已经是最新版本，不显示置新
     },
     handleVersionOptions() {
