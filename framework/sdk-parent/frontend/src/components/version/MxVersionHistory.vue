@@ -51,6 +51,11 @@
             {{ $t('commons.create') }}&nbsp;
           </el-link>
 
+          <el-link @click="del(scope.row)" v-if="scope.row.isCheckout" :disabled="scope.row.isCurrent || isRead"
+                   v-permission="['PROJECT_VERSION:READ+DELETE']">
+            {{ $t('commons.delete') }}&nbsp;
+          </el-link>
+
           <el-popover
             placement="bottom"
             width="100"
@@ -62,11 +67,7 @@
                        :disabled="isRead || scope.row.id === dataLatestId">
                 {{ $t('project.version.set_new') }}&nbsp;
               </el-link>
-              <br/>
-              <el-link @click="del(scope.row)" v-if="scope.row.isCheckout" :disabled="scope.row.isCurrent || isRead"
-                       v-permission="['PROJECT_VERSION:READ+DELETE']">
-                {{ $t('commons.delete') }}&nbsp;
-              </el-link>
+
             </div>
             <span slot="reference">...</span>
           </el-popover>
