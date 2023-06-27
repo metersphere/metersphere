@@ -405,6 +405,9 @@ export default {
         this.apiCase.request.hashTree[index].document.nodeType = 'Case';
         this.apiCase.request.hashTree[index].document.apiDefinitionId = this.apiCase.apiDefinitionId;
       }
+      this.apiCase.request.hashTree.forEach(item =>{
+        item.projectId = this.apiCase.projectId;
+      })
     }
     this.readonly = !hasPermissions('PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION:READ+CREATE_CASE', 'PROJECT_API_DEFINITION:READ+COPY_CASE');
     if (this.apiCase && this.apiCase.id) {
