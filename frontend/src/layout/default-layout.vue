@@ -35,11 +35,18 @@
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
           <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-            <TabBar v-if="appStore.tabBar" />
-            <a-layout-content>
-              <PageLayout />
-            </a-layout-content>
-            <Footer v-if="footer" />
+            <a-scrollbar
+              :style="{
+                overflow: 'auto',
+                width: `calc(100vw - ${menuWidth}px)`,
+              }"
+            >
+              <TabBar v-if="appStore.tabBar" />
+              <a-layout-content>
+                <PageLayout />
+              </a-layout-content>
+              <Footer v-if="footer" />
+            </a-scrollbar>
           </a-spin>
         </a-layout>
       </a-layout>
@@ -56,7 +63,6 @@
   import Footer from '@/components/pure/footer/index.vue';
   import TabBar from '@/components/pure/tab-bar/index.vue';
   import usePermission from '@/hooks/usePermission';
-  import useResponsive from '@/hooks/useResponsive';
   import PageLayout from './page-layout.vue';
 
   const isInit = ref(false);
@@ -65,7 +71,6 @@
   const router = useRouter();
   const route = useRoute();
   const permission = usePermission();
-  useResponsive(true);
   const navbarHeight = `56px`;
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu);
@@ -164,6 +169,7 @@
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
       padding: 16px 16px 16px 0;
+      min-width: 1000px;
     }
   }
 </style>
