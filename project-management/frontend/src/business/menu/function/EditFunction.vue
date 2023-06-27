@@ -96,6 +96,7 @@ import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsDropdown from "metersphere-frontend/src/components/MsDropdown";
 import {FUNC_TEMPLATE} from "metersphere-frontend/src/components/environment/snippet/custom-function";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
+import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getUUID} from "metersphere-frontend/src/utils";
 import {JSR223Processor} from "metersphere-frontend/src/model/ApiTestModel";
 import CustomFunctionRelate from "metersphere-frontend/src/components/environment/snippet/CustomFunctionRelate";
@@ -263,13 +264,19 @@ export default {
       });
     },
     update(obj) {
-      if (!obj.projectId) {
-        obj.projectId = getCurrentProjectID();
+      let hasEditPermission = hasPermission('PROJECT_CUSTOM_CODE:READ+EDIT');
+      if (!hasEditPermission) {
+        this.$warning(this.$t('commons.no_permission'));
+        return;
+      } else {
+        if (!obj.projectId) {
+          obj.projectId = getCurrentProjectID();
+        }
+        this.loading = modifyCodeSnippet(obj).then(() => {
+          this.$emit("refresh");
+          this.$success(this.$t('commons.modify_success'));
+        });
       }
-      this.loading = modifyCodeSnippet(obj).then(() => {
-        this.$emit("refresh");
-        this.$success(this.$t('commons.modify_success'));
-      });
     },
     handleTest() {
       if (this.apiReviewTestScript) {
