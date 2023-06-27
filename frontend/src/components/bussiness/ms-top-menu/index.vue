@@ -1,9 +1,10 @@
 <template>
   <a-menu
-    v-if="appStore.topMenus.length > 0"
+    v-show="appStore.topMenus.length > 0"
+    v-model:selected-keys="activeMenus"
     class="bg-transparent"
     mode="horizontal"
-    :default-selected-keys="[defaultActiveMenu]"
+    @menu-item-click="setCurrentTopMenu"
   >
     <a-menu-item v-for="menu of appStore.topMenus" :key="(menu.name as string)" @click="jumpPath(menu.name)">
       {{ t(menu.meta?.locale || '') }}
@@ -12,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { Ref, ref, watch } from 'vue';
   import { useRouter, RouteRecordRaw, RouteRecordNormalized, RouteRecordName } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
   import { useAppStore } from '@/store';
@@ -26,11 +27,24 @@
   const appStore = useAppStore();
   const router = useRouter();
   const { t } = useI18n();
+  const activeMenus: Ref<RouteRecordName[]> = ref([]);
 
-  const defaultActiveMenu = computed(() => {
-    const { name } = router.currentRoute.value;
-    return name;
-  });
+  watch(
+    () => appStore.getCurrentTopMenu?.name,
+    (val) => {
+      activeMenus.value = [val || ''];
+    }
+  );
+
+  function setCurrentTopMenu(key: string) {
+    const secParent = appStore.topMenus.find((el: RouteRecordRaw) => {
+      return (el?.name as string).includes(key);
+    });
+
+    if (secParent) {
+      appStore.setCurrentTopMenu(secParent);
+    }
+  }
 
   /**
    * 监听路由变化，存储打开的三级子路由
@@ -45,6 +59,7 @@
             (item) => name && (name as string).includes((item?.name as string) || '')
           );
           appStore.setTopMenus(currentParent?.children?.filter((item) => item.meta?.isTopMenu));
+          setCurrentTopMenu(name as string);
         }
       }
     });

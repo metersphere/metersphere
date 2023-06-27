@@ -12,5 +12,7 @@ declare module 'vue-router' {
     order?: number; // 排序权重
     noAffix?: boolean; // tab展示设置，设置为true则不在tab列表展示激活页面的tab
     ignoreCache?: boolean; // 缓存设置，true则不缓存
+    isTopMenu?: boolean; // 是否为顶部菜单
+    breadcrumbs?: BreadcrumbItem[]; // 面包屑
   }
 }
