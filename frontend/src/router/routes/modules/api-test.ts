@@ -9,11 +9,12 @@ const ApiTest: AppRouteRecordRaw = {
     locale: 'menu.apiTest',
     icon: 'icon-dashboard',
     order: 0,
+    hideChildrenInMenu: true,
   },
   children: [
     {
       path: 'list',
-      name: 'apiTest',
+      name: 'apiTestList',
       component: () => import('@/views/api-test/index.vue'),
       meta: {
         locale: 'menu.apiTest',

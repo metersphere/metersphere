@@ -1,5 +1,5 @@
 import MSR from '@/api/http/index';
-import { updateUserGroupU, getUserGroupU, addUserGroupU, deleteUserGroupU } from '@/api/requrls/usergroup';
+import { updateUserGroupU, getUserGroupU, addUserGroupU, deleteUserGroupU } from '@/api/requrls/system/usergroup';
 // import { QueryParams, CommonList } from '@/models/common';
 import { UserGroupItem } from '@/components/bussiness/usergroup/type';
 

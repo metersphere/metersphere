@@ -9,7 +9,14 @@ import type { NotificationReturn } from '@arco-design/web-vue/es/notification/in
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 
 const useAppStore = defineStore('app', {
-  state: (): AppState => ({ ...defaultSettings, loading: false, loadingTip: '', topMenus: [] as RouteRecordRaw[] }),
+  state: (): AppState => ({
+    ...defaultSettings,
+    loading: false,
+    loadingTip: '',
+    topMenus: [] as RouteRecordRaw[],
+    currentOrgId: '',
+    currentProjectId: '',
+  }),
 
   getters: {
     appCurrentSetting(state: AppState): AppState {
@@ -29,6 +36,12 @@ const useAppStore = defineStore('app', {
     },
     getTopMenus(state: AppState): RouteRecordRaw[] {
       return state.topMenus;
+    },
+    getCurrentOrgId(state: AppState): string {
+      return state.currentOrgId;
+    },
+    getCurrentProjectId(state: AppState): string {
+      return state.currentProjectId;
     },
   },
 
@@ -111,6 +124,21 @@ const useAppStore = defineStore('app', {
     setTopMenus(menus: RouteRecordRaw[] | undefined) {
       this.topMenus = menus ? [...menus] : [];
     },
+    /**
+     * 设置当前组织 ID
+     */
+    setCurrentOrgId(id: string) {
+      this.currentOrgId = id;
+    },
+    /**
+     * 设置当前项目 ID
+     */
+    setCurrentProjectId(id: string) {
+      this.currentProjectId = id;
+    },
+  },
+  persist: {
+    paths: ['currentOrgId', 'currentProjectId'],
   },
 });
 

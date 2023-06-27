@@ -17,6 +17,8 @@ export interface AppState {
   loading: boolean;
   loadingTip: string;
   topMenus: RouteRecordRaw[];
+  currentOrgId: string;
+  currentProjectId: string;
   [key: string]: unknown;
 }
 
