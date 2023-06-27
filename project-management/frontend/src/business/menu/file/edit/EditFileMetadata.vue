@@ -509,6 +509,8 @@ export default {
       this.isFirst = index <= 0;
       if (!this.isFirst) {
         this.data = this.results[index - 1];
+        this.fileBase64Str = '';
+        this.isImage(this.data);
       } else {
         if (this.currentPage === 1) {
           this.$warning(this.$t("project.file_first"));
@@ -516,6 +518,8 @@ export default {
           // 向上翻页
           this.currentPage--;
           this.getProjectFiles(true);
+          this.fileBase64Str = '';
+          this.isImage(this.data);
         }
       }
     },
@@ -541,6 +545,8 @@ export default {
       this.isLast = this.results.length - 1 === index;
       if (!this.isLast) {
         this.data = this.results[index + 1];
+        this.fileBase64Str = '';
+        this.isImage(this.data);
       } else {
         let totalPages = Math.ceil(this.total / this.pageSize);
         if (totalPages === this.currentPage) {
@@ -549,6 +555,8 @@ export default {
           // 向后翻页
           this.currentPage++;
           this.getProjectFiles(false);
+          this.fileBase64Str = '';
+          this.isImage(this.data);
         }
       }
     },

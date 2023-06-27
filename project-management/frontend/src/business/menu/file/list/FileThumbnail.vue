@@ -4,8 +4,10 @@
       <el-row :gutter="20">
         <el-col :span="4" v-for="item in data" :key="item.id">
           <el-card :body-style="{ padding: '0px' }" class="ms-card-item" @click.native="handleView(item)">
-            <div v-loading="fileBase64Str==='' || fileBase64Str === 'loading'" v-if="isImage(item)">
-              <img :src="fileBase64Str" class="ms-edit-image"/>
+            <div v-loading="imageContents[item.id]==='' || imageContents[item.id] === 'loading'" class="ms-image"
+                 v-if="isImage(item)">
+              <img style="height: 100%;width: 100%;object-fit:cover;background-color: #FFFFFF"
+                   :src="imageContents[item.id]"/>
             </div>
             <div class="ms-image" v-else>
               <div class="ms-file">
@@ -47,7 +49,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      fileBase64Str: '',
+      imageContents: {},
       images: ["bmp", "jpg", "png", "tif", "gif", "pcx", "tga", "exif", "fpx", "svg", "psd", "cdr", "pcd", "dxf", "ufo", "eps", "ai", "raw", "WMF", "webp", "avif", "apng", "jpeg"]
     };
   },
@@ -60,7 +62,7 @@ export default {
     nodeTree: []
   },
   created() {
-    this.fileBase64Str = '';
+    this.imageContents = {};
     this.currentPage = this.page;
     this.pageSize = this.size;
     this.total = this.pageTotal;
@@ -91,18 +93,17 @@ export default {
       return type || "";
     },
     change() {
-      this.fileBase64Str = '';
       this.$emit("change", this.pageSize, this.currentPage);
     },
     isImage(item) {
       let type = item.type;
       let isImage = (type && this.images.indexOf(type.toLowerCase()) !== -1);
       if (isImage) {
-        if (isImage && this.fileBase64Str === '') {
-          this.fileBase64Str = 'loading';
+        if (isImage && (!this.imageContents[item.id] || this.imageContents[item.id] === '')) {
+          this.$set(this.imageContents, item.id, "loading");
           getFileBytes(item.id).then(res => {
             let fileRsp = res.data;
-            this.fileBase64Str = "data:image/png;base64," + fileRsp.bytes;
+            this.$set(this.imageContents, item.id, "data:image/png;base64," + fileRsp.bytes);
           })
         }
       }
