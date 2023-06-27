@@ -54,7 +54,11 @@ const useUserStore = defineStore('user', {
     // 获取用户信息
     async info() {
       const res = await getUserInfo();
-
+      const appStore = useAppStore();
+      if (appStore.currentOrgId === '') {
+        // 第一次进系统才设置组织 ID，后续已经持久化存储了
+        appStore.setCurrentOrgId(res.organization || '');
+      }
       this.setInfo(res);
     },
 

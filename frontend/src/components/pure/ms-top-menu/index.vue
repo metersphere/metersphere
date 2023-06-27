@@ -3,7 +3,7 @@
     v-if="appStore.topMenus.length > 0"
     class="bg-transparent"
     mode="horizontal"
-    :default-selected-keys="[appStore.topMenus[0].name]"
+    :default-selected-keys="[defaultActiveMenu]"
   >
     <a-menu-item v-for="menu of appStore.topMenus" :key="(menu.name as string)" @click="jumpPath(menu.name)">
       {{ t(menu.meta?.locale || '') }}
@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useRouter, RouteRecordRaw, RouteRecordNormalized, RouteRecordName } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
   import { useAppStore } from '@/store';
@@ -25,6 +26,11 @@
   const appStore = useAppStore();
   const router = useRouter();
   const { t } = useI18n();
+
+  const defaultActiveMenu = computed(() => {
+    const { name } = router.currentRoute.value;
+    return name;
+  });
 
   /**
    * 监听路由变化，存储打开的三级子路由

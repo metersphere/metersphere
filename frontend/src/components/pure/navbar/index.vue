@@ -6,35 +6,47 @@
       </a-space>
     </div>
     <div class="center-side">
+      <template v-if="showProjectSelect">
+        <a-divider direction="vertical" class="ml-0" />
+        <a-select
+          class="w-auto max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+          :default-value="appStore.getCurrentProjectId"
+          :bordered="false"
+          @change="selectProject"
+        >
+          <template #arrow-icon>
+            <icon-caret-down />
+          </template>
+          <a-tooltip v-for="project of projectList" :key="project.id" :mouse-enter-delay="500" :content="project.name">
+            <a-option
+              :value="project.id"
+              :class="project.id === appStore.getCurrentProjectId ? 'arco-select-option-selected' : ''"
+              >{{ project.name }}</a-option
+            >
+          </a-tooltip>
+        </a-select>
+        <a-divider direction="vertical" class="mr-0" />
+      </template>
       <TopMenu />
     </div>
     <ul class="right-side">
       <li>
-        <a-tooltip :content="$t('settings.language')">
-          <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setDropDownVisible">
+        <a-tooltip :content="t('settings.navbar.search')">
+          <a-button type="secondary">
             <template #icon>
-              <icon-language />
+              <icon-search />
             </template>
           </a-button>
         </a-tooltip>
-        <a-dropdown trigger="click" @select="changeLocale as any">
-          <div ref="triggerBtn" class="trigger-btn"></div>
-          <template #content>
-            <a-doption v-for="item in locales" :key="item.value" :value="item.value">
-              <template #icon>
-                <icon-check v-show="item.value === currentLocale" />
-              </template>
-              {{ item.label }}
-            </a-doption>
-          </template>
-        </a-dropdown>
       </li>
       <li>
-        <a-tooltip :content="$t('settings.navbar.alerts')">
+        <a-tooltip :content="t('settings.navbar.alerts')">
           <div class="message-box-trigger">
             <a-badge :count="9" dot>
-              <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setPopoverVisible">
-                <icon-notification />
+              <a-button type="secondary" @click="setPopoverVisible">
+                <template #icon>
+                  <icon-notification />
+                </template>
               </a-button>
             </a-badge>
           </div>
@@ -52,7 +64,52 @@
         </a-popover>
       </li>
       <li>
-        <a-tooltip :content="isFullscreen ? $t('settings.navbar.screen.toExit') : $t('settings.navbar.screen.toFull')">
+        <a-tooltip :content="t('settings.navbar.task')">
+          <a-button type="secondary">
+            <template #icon>
+              <icon-calendar-clock />
+            </template>
+          </a-button>
+        </a-tooltip>
+      </li>
+      <li>
+        <a-dropdown trigger="click" position="br">
+          <a-tooltip :content="t('settings.navbar.help')">
+            <a-button type="secondary">
+              <template #icon>
+                <icon-question-circle />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <template #content>
+            <a-doption v-for="item in helpCenterList" :key="item.name" :value="item.name">
+              <component :is="item.icon"></component>
+              {{ t(item.name) }}
+            </a-doption>
+          </template>
+        </a-dropdown>
+      </li>
+      <li>
+        <a-dropdown trigger="click" position="br" @select="changeLocale as any">
+          <a-tooltip :content="t('settings.language')">
+            <a-button type="secondary">
+              <template #icon>
+                <icon-translate />
+              </template>
+            </a-button>
+          </a-tooltip>
+          <template #content>
+            <a-doption v-for="item in locales" :key="item.value" :value="item.value">
+              <template #icon>
+                <icon-check v-show="item.value === currentLocale" />
+              </template>
+              {{ item.label }}
+            </a-doption>
+          </template>
+        </a-dropdown>
+      </li>
+      <!-- <li>
+        <a-tooltip :content="isFullscreen ? t('settings.navbar.screen.toExit') : t('settings.navbar.screen.toFull')">
           <a-button class="nav-btn" type="outline" :shape="'circle'" @click="toggleFullScreen">
             <template #icon>
               <icon-fullscreen-exit v-if="isFullscreen" />
@@ -60,9 +117,9 @@
             </template>
           </a-button>
         </a-tooltip>
-      </li>
+      </li> -->
       <!-- <li>
-        <a-tooltip :content="$t('settings.title')">
+        <a-tooltip :content="t('settings.title')">
           <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setVisible">
             <template #icon>
               <icon-settings />
@@ -70,7 +127,7 @@
           </a-button>
         </a-tooltip>
       </li> -->
-      <li>
+      <!-- <li>
         <a-dropdown trigger="click">
           <a-avatar :size="32" :style="{ marginRight: '8px', cursor: 'pointer' }">
             <img alt="avatar" :src="avatar" />
@@ -80,7 +137,7 @@
               <a-space @click="switchRoles">
                 <icon-tag />
                 <span>
-                  {{ $t('messageBox.switchRoles') }}
+                  {{ t('messageBox.switchRoles') }}
                 </span>
               </a-space>
             </a-doption>
@@ -88,7 +145,7 @@
               <a-space @click="$router.push({ name: 'Info' })">
                 <icon-user />
                 <span>
-                  {{ $t('messageBox.userCenter') }}
+                  {{ t('messageBox.userCenter') }}
                 </span>
               </a-space>
             </a-doption>
@@ -96,7 +153,7 @@
               <a-space @click="$router.push({ name: 'Setting' })">
                 <icon-settings />
                 <span>
-                  {{ $t('messageBox.userSettings') }}
+                  {{ t('messageBox.userSettings') }}
                 </span>
               </a-space>
             </a-doption>
@@ -104,41 +161,89 @@
               <a-space @click="handleLogout">
                 <icon-export />
                 <span>
-                  {{ $t('messageBox.logout') }}
+                  {{ t('messageBox.logout') }}
                 </span>
               </a-space>
             </a-doption>
           </template>
         </a-dropdown>
-      </li>
+      </li> -->
     </ul>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
-  import { Message } from '@arco-design/web-vue';
-  import { useFullscreen } from '@vueuse/core';
-  import { useUserStore } from '@/store';
+  import { ref, computed, Ref, onBeforeMount } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { IconCompass, IconQuestionCircle, IconFile, IconInfoCircle } from '@arco-design/web-vue/es/icon';
+  // import { Message } from '@arco-design/web-vue';
+  // import { useFullscreen } from '@vueuse/core';
+  import { useAppStore } from '@/store';
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
-  import useUser from '@/hooks/useUser';
+  // import useUser from '@/hooks/useUser';
   import TopMenu from '@/components/pure/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+  import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
+  import { getProjectList } from '@/api/modules/system/project';
+  import { useI18n } from '@/hooks/useI18n';
 
-  const userStore = useUserStore();
-  const { logout } = useUser();
-  const { changeLocale, currentLocale } = useLocale();
-  const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
-  const locales = [...LOCALE_OPTIONS];
-  const avatar = computed(() => {
-    return userStore.avatar;
+  import type { ProjectListItem } from '@/models/system/project';
+
+  const appStore = useAppStore();
+  // const { logout } = useUser();
+  const route = useRoute();
+  const { t } = useI18n();
+
+  const projectList: Ref<ProjectListItem[]> = ref([]);
+
+  onBeforeMount(async () => {
+    const res = await getProjectList(appStore.getCurrentOrgId);
+    projectList.value = res;
   });
+
+  const showProjectSelect = computed(() => {
+    // 匹配一级路由是否存在于不需要显示项目选择的路由中
+    return !NOT_SHOW_PROJECT_SELECT_MODULE.includes(route.fullPath.split('/')[1]);
+  });
+
+  function selectProject(value: string | number | Record<string, any> | undefined) {
+    appStore.setCurrentProjectId(value as string);
+  }
+
+  const helpCenterList = [
+    {
+      name: 'settings.help.guide',
+      icon: IconCompass,
+      route: '/help-center/guide',
+    },
+    {
+      name: 'settings.help.doc',
+      icon: IconQuestionCircle,
+      route: '/help-center/guide',
+    },
+    {
+      name: 'settings.help.APIDoc',
+      icon: IconFile,
+      route: '/help-center/guide',
+    },
+    {
+      name: 'settings.help.version',
+      icon: IconInfoCircle,
+      route: '/help-center/guide',
+    },
+  ];
+
+  const { changeLocale, currentLocale } = useLocale();
+  // const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
+  const locales = [...LOCALE_OPTIONS];
+  // const avatar = computed(() => {
+  //   return userStore.avatar;
+  // });
   // const setVisible = () => {
   //   appStore.updateSettings({ globalSettings: true });
   // };
   const refBtn = ref();
-  const triggerBtn = ref();
   const setPopoverVisible = () => {
     const event = new MouseEvent('click', {
       view: window,
@@ -147,21 +252,13 @@
     });
     refBtn.value.dispatchEvent(event);
   };
-  const handleLogout = () => {
-    logout();
-  };
-  const setDropDownVisible = () => {
-    const event = new MouseEvent('click', {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    triggerBtn.value.dispatchEvent(event);
-  };
-  const switchRoles = async () => {
-    const res = await userStore.switchRoles();
-    Message.success(res as string);
-  };
+  // const handleLogout = () => {
+  //   logout();
+  // };
+  // const switchRoles = async () => {
+  //   const res = await userStore.switchRoles();
+  //   Message.success(res as string);
+  // };
 </script>
 
 <style scoped lang="less">
@@ -177,7 +274,7 @@
     width: 185px;
   }
   .center-side {
-    @apply flex-1;
+    @apply flex flex-1 items-center;
   }
   .right-side {
     @apply flex list-none;
@@ -189,7 +286,16 @@
     li {
       @apply flex items-center;
 
-      padding: 0 10px;
+      padding-left: 10px;
+      .arco-btn-secondary {
+        @apply !bg-transparent;
+
+        color: var(--color-text-4) !important;
+        &:hover,
+        &:focus-visible {
+          color: var(--color-text-1) !important;
+        }
+      }
     }
     a {
       @apply no-underline;
@@ -217,6 +323,31 @@
   .message-popover {
     .arco-popover-content {
       @apply mt-0;
+    }
+  }
+  .arco-menu-horizontal {
+    .arco-menu-inner {
+      .arco-menu-item,
+      .arco-menu-overflow-sub-menu {
+        @apply !bg-transparent;
+      }
+      .arco-menu-selected {
+        @apply !font-normal;
+
+        color: rgb(var(--primary-5)) !important;
+        .arco-menu-selected-label {
+          bottom: -11px;
+          background-color: rgb(var(--primary-5)) !important;
+        }
+      }
+    }
+  }
+  .arco-trigger-menu-vertical {
+    max-height: 500px;
+    .arco-trigger-menu-selected {
+      @apply !font-normal;
+
+      color: rgb(var(--primary-5)) !important;
     }
   }
 </style>
