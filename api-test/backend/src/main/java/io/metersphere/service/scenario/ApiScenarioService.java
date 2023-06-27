@@ -1721,7 +1721,7 @@ public class ApiScenarioService {
         return ApiFileUtil.listBytesToZip(files);
     }
 
-    private void checkExportEnv(List<ApiScenarioWithBLOBs> scenarios) {
+    private void checkExportEnv(List<? extends ApiScenarioWithBLOBs> scenarios) {
         StringBuilder builder = new StringBuilder();
         for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : scenarios) {
             try {
@@ -1966,9 +1966,10 @@ public class ApiScenarioService {
 
         List<String> ids = request.getIds();
         List<ApiScenarioDTO> apiScenarioList = extApiScenarioMapper.selectIds(ids);
+        //检查运行环境
+        checkExportEnv(apiScenarioList);
         if (CollectionUtils.isEmpty(apiScenarioList)) {
             returnDTO.setScenarioJmxList(new ArrayList<>());
-            return returnDTO;
         } else {
             Map<String, List<String>> projectEnvironments = apiScenarioEnvService.selectApiScenarioEnv(apiScenarioList);
             apiScenarioList.forEach(item -> {
@@ -1986,8 +1987,8 @@ public class ApiScenarioService {
                 returnDTO.setProjectEnvMap(projectEnvironments);
             }
             returnDTO.setJmxInfoDTOList(jmxInfoList);
-            return returnDTO;
         }
+        return returnDTO;
     }
 
     public void batchCopy(ApiScenarioBatchRequest request) {
