@@ -362,10 +362,6 @@ export default {
   height: 32px;
 }
 
-:deep(.el-select .el-tag__close.el-icon-close) {
-  top: -5px !important;
-}
-
 .input-search-tip {
   position: relative;
   z-index: 9;
