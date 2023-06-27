@@ -359,6 +359,9 @@ export default {
         }
         this.sort(data.request.hashTree);
       }
+      if (data.response) {
+        this.parseResponseStructureDefaultKeyValue(data.response);
+      }
       updateDefinition(this.reqUrl, null, bodyFiles, data).then((response) => {
         this.$success(this.$t('commons.save_success'));
         this.reqUrl = '/api/definition/update';
@@ -375,6 +378,26 @@ export default {
       });
       this.responseCount = 0;
       this.count = 0;
+    },
+    parseResponseStructureDefaultKeyValue(response) {
+      if (response.headers && response.headers.length === 1) {
+        let kv = response.headers[0];
+        if (!kv.name || !kv.value) {
+          response.headers = [];
+        }
+        if ((kv.name == null || kv.name === '') && (kv.value  == null || kv.value === '')) {
+          response.headers = [];
+        }
+      }
+      if (response.statusCode && response.statusCode.length === 1) {
+        let kv = response.statusCode[0];
+        if (!kv.name || !kv.value) {
+          response.statusCode = [];
+        }
+        if ((kv.name == null || kv.name === '') && (kv.value  == null || kv.value === '')) {
+          response.statusCode = [];
+        }
+      }
     },
     handleSave() {
       if (this.$refs.httpApi) {
