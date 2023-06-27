@@ -302,8 +302,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.15.0</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
