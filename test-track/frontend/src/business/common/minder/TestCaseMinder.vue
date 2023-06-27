@@ -493,6 +493,9 @@ export default {
       if (module.level > 8) {
         this.throwError(this.$t('commons.module_deep_limit'));
       }
+      if (module.name.trim().length > 100) {
+        this.throwError( this.$t('test_track.module.name') + this.$t('test_track.length_less_than') + 100);
+      }
       this.saveModules.push(module);
     },
     buildExtraNode(data, parent, root) {
@@ -655,6 +658,10 @@ export default {
           testCase.isEdit = false; // 新增
           testCase.id = getUUID();
           data.newId = testCase.id;
+        }
+
+        if (testCase.name.length > 255) {
+          this.throwError( this.$t('api_test.home_page.failed_case_list.table_coloum.case_name') + this.$t('test_track.length_less_than') + 255);
         }
         this.saveCases.push(testCase);
       }
