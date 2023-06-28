@@ -526,14 +526,18 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             Schema items = ((ArraySchema) schema).getItems();
             item.setType(PropertyConstant.ARRAY);
             JsonSchemaItem arrayItem = parseSchema(items, refSet);
-            Map<String, String> mock = new LinkedHashMap<>();
+            Map<String, Object> mock = new LinkedHashMap<>();
             if (arrayItem != null && MapUtils.isNotEmpty(arrayItem.getProperties())) {
                 arrayItem.getProperties().forEach((k, v) -> {
                     mock.put(k, StringUtils.isBlank(v.getMock().get(PropertyConstant.MOCK).toString()) ? v.getType() :
                             v.getMock().get(PropertyConstant.MOCK).toString());
                 });
             }
-            item.getMock().put(PropertyConstant.MOCK, JSONUtil.toJSONString(mock));
+            if (item.getMock() != null) {
+                item.getMock().put(PropertyConstant.MOCK, JSONUtil.toJSONString(mock));
+            } else {
+                item.setMock(mock);
+            }
             if (arrayItem != null) {
                 item.getItems().add(arrayItem);
             }
@@ -908,8 +912,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     public Object getJsonSchemaValue(JSONObject item) {
         JSONObject mock = item.optJSONObject(PropertyConstant.MOCK);
         if (mock != null) {
-            Object value = mock.get(PropertyConstant.MOCK);
-            return value;
+            if (StringUtils.isNotBlank(mock.optString("mock"))) {
+                Object value = mock.get(PropertyConstant.MOCK);
+                return value;
+            }
         }
         return null;
     }
@@ -1046,7 +1052,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             String value = obj.optString("value");
             if (StringUtils.isBlank(value)) {
                 JSONObject mock = obj.optJSONObject(PropertyConstant.MOCK);
-                if (mock != null) {
+                if (mock != null && StringUtils.isNotBlank(mock.optString("mock"))) {
                     Object mockValue = mock.get(PropertyConstant.MOCK);
                     property.put("example", mockValue);
                 } else {
