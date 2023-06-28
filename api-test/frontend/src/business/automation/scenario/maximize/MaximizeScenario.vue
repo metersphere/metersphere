@@ -200,7 +200,7 @@
         </div>
       </ms-aside-container>
 
-      <ms-main-container v-loading="loading">
+      <ms-main-container class="card-content" v-loading="loading">
         <div v-if="!loading">
           <!-- 第一层当前节点内容-->
           <ms-component-config
@@ -1325,6 +1325,10 @@ export default {
 </script>
 
 <style scoped>
+.card-content {
+  height: calc(100vh - 37px);
+  overflow-y: auto;
+}
 .ms-col-one {
   margin-top: 10px;
 }
