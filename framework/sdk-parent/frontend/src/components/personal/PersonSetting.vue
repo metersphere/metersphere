@@ -23,9 +23,9 @@
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <div>
-              <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
+              <ms-table-operator-button v-permission="['PERSONAL_INFORMATION:READ+EDIT']" :tip="$t('member.edit_information')" icon="el-icon-edit"
                                         type="primary" @exec="edit(scope.row)"/>
-              <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser"
+              <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser && hasPermission('PERSONAL_INFORMATION:READ+EDIT_PASSWORD')"
                                         type="success" @exec="editPassword(scope.row)"/>
             </div>
           </template>
@@ -52,16 +52,17 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
-
-      <div v-for="config in platformAccountConfigs" :key="config.key">
-        <platform-account-config
-          :config="config"
-          :account-config="currentPlatformInfo"
-          v-if="showPlatformConfig(config.key)"
-        />
+      <div v-permission="['PERSONAL_INFORMATION:READ+THIRD_ACCOUNT']">
+        <div v-for="config in platformAccountConfigs" :key="config.key">
+          <platform-account-config
+            :config="config"
+            :account-config="currentPlatformInfo"
+            v-if="showPlatformConfig(config.key)"
+          />
+        </div>
+        <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
+        <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
       </div>
-      <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
-      <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -108,6 +109,7 @@ import {handleAuth as _handleAuth, updateInfo, updatePassword} from "../../api/u
 import {getPlatformAccountInfo} from "../../api/platform-plugin";
 import {ISSUE_PLATFORM_OPTION} from "../../utils/table-constants";
 import PlatformAccountConfig from "./PlatformAccountConfig";
+import { hasPermission } from '../../utils/permission';
 
 const userStore = useUserStore();
 
@@ -205,6 +207,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     currentUser: () => {
       return getCurrentUser();
     },
