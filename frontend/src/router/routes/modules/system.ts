@@ -27,7 +27,7 @@ const System: AppRouteRecordRaw = {
           name: 'settingSystemUser',
           component: () => import('@/views/system/user/index.vue'),
           meta: {
-            locale: 'menu.settings.user',
+            locale: 'menu.settings.system.user',
             roles: ['*'],
             isTopMenu: true,
           },
@@ -37,9 +37,44 @@ const System: AppRouteRecordRaw = {
           name: 'settingSystemUsergroup',
           component: () => import('@/views/system/usergroup/index.vue'),
           meta: {
-            locale: 'menu.settings.usergroup',
+            locale: 'menu.settings.system.usergroup',
             roles: ['*'],
             isTopMenu: true,
+          },
+        },
+        {
+          path: 'resourcePool',
+          name: 'settingSystemResourcePool',
+          component: () => import('@/views/system/resourcePool/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.resourcePool',
+            roles: ['*'],
+            isTopMenu: true,
+            breadcrumbs: [
+              {
+                name: 'settingSystemResourcePool',
+                locale: 'menu.settings.system.resourcePool',
+              },
+            ],
+          },
+        },
+        {
+          path: 'resourcePoolDetail',
+          name: 'settingSystemResourcePoolDetail',
+          component: () => import('@/views/system/resourcePool/detail.vue'),
+          meta: {
+            locale: 'menu.settings.system.resourcePoolDetail',
+            roles: ['*'],
+            breadcrumbs: [
+              {
+                name: 'settingSystemResourcePool',
+                locale: 'menu.settings.system.resourcePool',
+              },
+              {
+                name: 'settingSystemResourcePoolDetail',
+                locale: 'menu.settings.system.resourcePoolDetail',
+              },
+            ],
           },
         },
       ],

@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button class="mr-3" type="primary" @click="showUserModal('create')">{{

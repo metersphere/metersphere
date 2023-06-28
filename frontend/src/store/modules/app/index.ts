@@ -5,9 +5,10 @@ import { getMenuList } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
 import { cloneDeep } from 'lodash-es';
 
-import type { AppState, BreadcrumbItem } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import type { AppState } from './types';
+import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
 
 const useAppStore = defineStore('app', {
   state: (): AppState => ({
@@ -134,7 +135,7 @@ const useAppStore = defineStore('app', {
       this.topMenus = menus ? [...menus] : [];
     },
     /**
-     * 设置顶部菜单组
+     * 设置激活的顶部菜单
      */
     setCurrentTopMenu(menu: RouteRecordRaw) {
       this.currentTopMenu = cloneDeep(menu);

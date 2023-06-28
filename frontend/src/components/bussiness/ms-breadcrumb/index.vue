@@ -26,8 +26,14 @@
    */
   listenerRouteChange((newRoute) => {
     const { name } = newRoute;
+
+    // 顶部菜单层级会全等
     if (name === appStore.currentTopMenu.name) {
       appStore.setBreadcrumbList(appStore.currentTopMenu?.meta?.breadcrumbs);
+    } else if ((name as string).includes(appStore.currentTopMenu.name as string)) {
+      // 顶部菜单内下钻的父子路由命名是包含关系，子路由会携带完整的父路由名称
+      const currentRoute = router.currentRoute.value.matched[1].children.find((e) => e.name === name);
+      appStore.setBreadcrumbList(currentRoute?.meta?.breadcrumbs);
     } else {
       appStore.setBreadcrumbList([]);
     }
@@ -51,7 +57,7 @@
       color: var(--color-text-brand);
     }
     &:last-child {
-      @apply cursor-auto;
+      @apply cursor-auto font-normal;
 
       color: var(--color-text-2);
     }

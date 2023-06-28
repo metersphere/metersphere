@@ -2,7 +2,6 @@ import { createApp } from 'vue';
 import FormCreate from '@form-create/arco-design';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import SvgIcon from '@/components/pure/svg-icon/index.vue';
-import Breadcrumb from '@/components/pure/breadcrumb/index.vue';
 import router from './router';
 import store from './store';
 import { setupI18n } from './locale';
@@ -25,7 +24,6 @@ async function bootstrap() {
 
   app.use(ArcoVueIcon);
   app.component('SvgIcon', SvgIcon);
-  app.component('Breadcrumb', Breadcrumb);
 
   app.use(router);
   app.use(directive);

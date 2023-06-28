@@ -1,9 +1,5 @@
-import type { RouteRecordNormalized, RouteRecordRaw, RouteRecordName } from 'vue-router';
-
-export interface BreadcrumbItem {
-  name: RouteRecordName;
-  locale: string;
-}
+import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
+import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
 
 export interface AppState {
   theme: string;
