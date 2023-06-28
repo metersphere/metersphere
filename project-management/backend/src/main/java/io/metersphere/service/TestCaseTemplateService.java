@@ -255,8 +255,11 @@ public class TestCaseTemplateService extends TemplateBaseService {
     public TestCaseTemplateDao getTemplateForList(String projectId) {
         TestCaseTemplateDao template = getTemplate(projectId);
         // 列表展示过滤掉文本框和富文本框等大字段，否则加载效率低
-        template.getCustomFields().stream().filter(field ->
-                !StringUtils.equalsAnyIgnoreCase(field.getType(), CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue()));
+        List<CustomFieldDao> fields = template.getCustomFields().stream()
+                .filter(field -> !StringUtils.equalsAnyIgnoreCase(field.getType(),
+                        CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue()))
+                .toList();
+        template.setCustomFields(fields);
         return template;
     }
 
