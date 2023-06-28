@@ -152,6 +152,8 @@ const message = {
     back_tips: "你填写的信息未保存, 确定退出吗?",
     dependency_remove_confirm: "确定解除依赖吗?",
     minder_paste_tip: "粘贴的节点中有未加载用例的模块，目前不支持复制未加载的用例！",
+    minder_move_confirm_tip: "当前存在字段排序，无法设置用例顺序，请切换至用例列表，取消字段排序!",
+    minder_module_move_confirm_tip: "模块不支持设置顺序!",
     public: {
       remove: '是否移除用例',
       batch_remove_confirm: "确定移除{0}项用例?",

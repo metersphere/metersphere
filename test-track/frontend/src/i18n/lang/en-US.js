@@ -152,6 +152,8 @@ const message = {
     back_tips: "TestCase is not saved, Are you sure to quit?",
     dependency_remove_confirm: "Is dependency release confirmed?",
     minder_paste_tip: "The pasted node has modules with unloaded use cases, copying unloaded use cases is not currently supported!",
+    minder_move_confirm_tip: "There is currently field sorting, and the use case order cannot be set. Please switch to the use case list and cancel the field sorting!",
+    minder_module_move_confirm_tip: "Module does not support setting order!",
     public: {
       remove: 'Whether to remove the use case ',
       batch_remove_confirm: "Confirm remove {0} item use case?",
