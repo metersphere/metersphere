@@ -48,6 +48,7 @@
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
     columns?: TableColumnData[];
+    noDisable?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
@@ -121,7 +122,7 @@
   };
 
   function getRowClass(record: TableData) {
-    if (!record.raw.enable) {
+    if (!record.raw.enable && !props.noDisable) {
       return 'ms-table-row-disabled';
     }
   }

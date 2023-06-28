@@ -27,7 +27,6 @@ export default {
     'menu.settings.system.resourcePool': '资源池',
     'menu.settings.system.resourcePoolDetail': '添加资源池',
     'menu.settings.system.resourcePoolEdit': '编辑资源池',
-    'menu.user': '个人中心',
     'navbar.action.locale': '切换为中文',
     ...sys,
     ...localeSettings,

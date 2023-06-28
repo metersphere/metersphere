@@ -11,7 +11,7 @@ export interface UserRoleListItem {
   pos: number;
 }
 
-export interface OrganizationList {
+export interface OrganizationListItem {
   id: string;
   num: number;
   name: string;
@@ -41,7 +41,7 @@ export interface UserListItem {
   lastProjectId: string;
   createUser: string;
   updateUser: string;
-  organizationList: OrganizationList[];
+  organizationList: OrganizationListItem[];
   userRoleList: UserRoleListItem[];
 }
 

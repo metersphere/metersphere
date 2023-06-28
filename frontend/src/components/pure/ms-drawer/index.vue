@@ -1,0 +1,75 @@
+<template>
+  <a-drawer v-model:visible="visible" :width="props.width" :footer="props.footer" @ok="handleOk" @cancel="handleCancel">
+    <template #title>
+      <slot name="title">
+        <div class="flex w-full justify-between">
+          {{ props.title }}
+          <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">{{ props.titleTag }}</a-tag>
+          <slot name="tbutton"></slot>
+        </div>
+      </slot>
+    </template>
+    <slot>
+      <MsDescription :descriptions="props.descriptions"></MsDescription>
+    </slot>
+  </a-drawer>
+</template>
+
+<script setup lang="ts">
+  import { ref, watch } from 'vue';
+  import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
+
+  interface DrawerProps {
+    visible: boolean;
+    title: string | undefined;
+    titleTag?: string;
+    titleTagColor?: string;
+    descriptions: Description[];
+    footer?: boolean;
+    [key: string]: any;
+  }
+
+  const props = withDefaults(defineProps<DrawerProps>(), {
+    footer: true,
+  });
+  const emit = defineEmits(['update:visible']);
+
+  const visible = ref(props.visible);
+
+  watch(
+    () => props.visible,
+    (val) => {
+      visible.value = val;
+    }
+  );
+
+  const handleOk = () => {
+    visible.value = false;
+  };
+  const handleCancel = () => {
+    visible.value = false;
+    emit('update:visible', false);
+  };
+</script>
+
+<style lang="less">
+  .arco-drawer {
+    @apply bg-white;
+    .arco-drawer-header {
+      height: 56px;
+      border-bottom: 1px solid var(--color-text-n8);
+      .arco-drawer-title {
+        @apply w-full;
+      }
+      .arco-drawer-close-btn {
+        margin-left: 16px;
+        color: var(--color-text-2);
+      }
+    }
+    .arco-drawer-footer {
+      @apply text-left;
+
+      border-bottom: 1px solid var(--color-text-n8);
+    }
+  }
+</style>
