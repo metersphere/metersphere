@@ -17,7 +17,7 @@
       :distinct-tags="tags"
       :module-disable="false"
       :show-module-tag="true"
-      :move-enable="moveEnable"
+      :move-confirm="moveConfirm"
       :tag-edit-check="tagEditCheck()"
       :priority-disable-check="priorityDisableCheck()"
       :disabled="disabled"
@@ -290,6 +290,22 @@ export default {
         result: this.result,
         isDisable: false
       }
+    },
+    moveConfirm() {
+      let selectNodes = minder.getSelectedNodes();
+      for (let node of selectNodes) {
+        // 模块暂不支持调整顺序
+        if (isModuleNode(node)) {
+          this.$warning(this.$t('case.minder_module_move_confirm_tip'));
+          return false;
+        }
+        // 列表排序后用例不能排序
+        if (!this.moveEnable && isCaseNodeData(node.data)) {
+          this.$warning(this.$t('case.minder_move_confirm_tip'));
+          return false;
+        }
+      }
+      return true;
     },
     handleDeleteConfirm() {
       let selectNodes = minder.getSelectedNodes();

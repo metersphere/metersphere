@@ -10,6 +10,7 @@
         :tags="tags"
         :height="height"
         :move-enable="moveEnable"
+        :move-confirm="moveConfirm"
         :tag-edit-check="tagEditCheck"
         :priority-disable-check="priorityDisableCheck"
         :distinct-tags="distinctTags"
@@ -96,6 +97,10 @@ export default {
       type: Function
     },
     delConfirm: {
+      type: Function,
+      default: null
+    },
+    moveConfirm: {
       type: Function,
       default: null
     }
