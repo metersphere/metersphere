@@ -230,7 +230,7 @@ export default {
           ":\n" +
           this.response.headers +
           "\n" +
-          "Cookie :\n" +
+          "Cookie:\n" +
           this.response.cookies +
           "\n" +
           "Body:" +

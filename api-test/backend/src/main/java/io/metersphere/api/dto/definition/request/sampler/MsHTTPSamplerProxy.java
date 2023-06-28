@@ -34,6 +34,7 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -98,7 +99,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 非导出操作，且不是启用状态则跳过执行Ms
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
             return;
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());

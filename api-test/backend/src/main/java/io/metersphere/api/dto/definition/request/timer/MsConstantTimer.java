@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.timer;
 
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.plugin.core.MsParameter;
@@ -7,6 +8,7 @@ import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.timers.ConstantTimer;
@@ -26,7 +28,10 @@ public class MsConstantTimer extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+            return;
+        }
+        if (!ElementUtil.isEnable(this, config)) {
             return;
         }
         final HashTree groupTree = tree.add(constantTimer());

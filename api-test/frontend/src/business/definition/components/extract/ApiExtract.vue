@@ -20,7 +20,7 @@
             :open-tip="$t('api_test.request.extract.json_path_suggest')"
             :clear-tip="$t('api_test.request.extract.json_path_clear')"
             @open="suggestJsonOpen"
-            @clear="clearJson" />
+            @clear="clearJson" :is-read-only="isReadOnly"/>
         </span>
       </el-row>
       <div class="extract-add">

@@ -757,8 +757,7 @@ public class ApiScenarioService {
         if (StringUtils.isNotEmpty(scenarioWithBLOBs.getScenarioDefinition())) {
             JSONObject element = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
             List<String> caseIds = new ArrayList<>();
-            Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(element, element.optString(ElementConstants.INDEX));
-            hashTreeService.dataFormatting(element, caseIds, keyMap);
+            hashTreeService.dataFormatting(element, caseIds, null);
             // 处理用例
             hashTreeService.caseFormatting(element, caseIds, getConfig(scenarioWithBLOBs));
             ElementUtil.dataFormatting(element);

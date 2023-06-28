@@ -27,6 +27,7 @@ import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
@@ -61,7 +62,7 @@ public class MsJDBCSampler extends MsTestElement {
         // 清理掉历史遗留数据
         this.dataSource = null;
         // 非导出操作，且不是启用状态则跳过执行
-        if (config != null && !config.isOperating() && !this.isEnable()) {
+        if (config != null && !config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
             return;
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());

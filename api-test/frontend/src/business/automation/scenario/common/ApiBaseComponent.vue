@@ -81,7 +81,7 @@
             v-model="data.enable"
             class="enable-switch"
             size="mini"
-            :disabled="data.refEnable || !showVersion || isDeleted || isEnabled()" />
+            :disabled="!showVersion || isDeleted || isEnabled()" />
         </el-tooltip>
 
         <el-button

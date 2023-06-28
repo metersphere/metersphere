@@ -13,8 +13,7 @@
         :disabled="request.caseEnable"
         @click="add"
         type="primary"
-        v-if="tabType !== 'assertionsRule'"
-        style="background-color: var(--primary_color); border-color: var(--primary_color)">
+        v-if="tabType !== 'assertionsRule'">
         {{ $t('api_test.request.assertions.add') }}
       </el-button>
     </p>
