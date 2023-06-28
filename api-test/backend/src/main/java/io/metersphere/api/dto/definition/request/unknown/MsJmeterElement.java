@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.unknown;
 
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.commons.constants.ElementConstants;
@@ -12,6 +13,7 @@ import io.metersphere.request.BodyFile;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.save.SaveService;
@@ -42,7 +44,10 @@ public class MsJmeterElement extends MsTestElement {
         try {
             ParameterConfig config = (ParameterConfig) msParameter;
             // 非导出操作，且不是启用状态则跳过执行
-            if (!config.isOperating() && !this.isEnable()) {
+            if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+                return;
+            }
+            if (!ElementUtil.isEnable(this, config)) {
                 return;
             }
             InputStream inputSource = getStrToStream(jmeterElement);

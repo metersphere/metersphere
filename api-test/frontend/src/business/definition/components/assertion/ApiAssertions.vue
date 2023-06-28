@@ -72,8 +72,7 @@
             v-if="!type"
             :disabled="true"
             type="primary"
-            size="mini"
-            style="background-color: var(--primary_color); border-color: var(--primary_color)">
+            size="mini">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
         </el-col>

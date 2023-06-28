@@ -29,6 +29,7 @@ import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -85,7 +86,7 @@ public class MsTCPSampler extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
             return;
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());

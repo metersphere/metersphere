@@ -260,7 +260,7 @@ export default {
           ':\n' +
           this.response.headers +
           '\n' +
-          'Cookie :' +
+          'Cookie:' +
           this.response.cookies +
           '\n' +
           'Body:' +

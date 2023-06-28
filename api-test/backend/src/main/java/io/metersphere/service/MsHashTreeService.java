@@ -24,6 +24,7 @@ import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -341,7 +342,7 @@ public class MsHashTreeService {
                 } else {
                     String indexStr = object.has(PARENT_INDEX) && StringUtils.isNotBlank(object.optString(PARENT_INDEX)) ?
                             StringUtils.join(object.optString(PARENT_INDEX), "_", object.optString(INDEX)) : object.optString(INDEX);
-                    if (keyMap.containsKey(element.optString(ID) + indexStr)) {
+                    if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(element.optString(ID) + indexStr)) {
                         enable = keyMap.get(element.optString(ID) + indexStr);
                         object.put(ENABLE, enable);
                     }
@@ -373,7 +374,7 @@ public class MsHashTreeService {
             } else {
                 String indexStr = element.has(PARENT_INDEX) && StringUtils.isNotBlank(element.optString(PARENT_INDEX)) ?
                         StringUtils.join(element.optString(PARENT_INDEX), "_", element.optString(INDEX)) : element.optString(INDEX);
-                if (keyMap.containsKey(element.optString(ID) + indexStr)) {
+                if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(element.optString(ID) + indexStr)) {
                     enable = keyMap.get(element.optString(ID) + indexStr);
                     element.put(ENABLE, enable);
                 }
@@ -413,6 +414,8 @@ public class MsHashTreeService {
                 setCaseEnable(element, keyMap, parentIndex);
                 this.getCaseIds(element, caseIds);
                 hashTree.put(i, element);
+            } else {
+                setCaseEnable(element, keyMap, parentIndex);
             }
             if (element.has(HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
@@ -437,6 +440,8 @@ public class MsHashTreeService {
         } else if (ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
             setCaseEnable(element, keyMap, parentIndex);
             this.getCaseIds(element, caseIds);
+        } else {
+            setCaseEnable(element, keyMap, parentIndex);
         }
         if (element.has(HASH_TREE)) {
             JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
@@ -445,13 +450,9 @@ public class MsHashTreeService {
     }
 
     private void setCaseEnable(JSONObject element, Map<String, Boolean> keyMap, String parentIndex) {
-        if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))) {
-            element.put(ENABLE, false);
-        } else {
-            String indexStr = StringUtils.join(element.optString(ID), parentIndex, "_", element.optString(INDEX));
-            if (keyMap.containsKey(indexStr)) {
-                element.put(ENABLE, keyMap.get(indexStr));
-            }
+        String indexStr = StringUtils.join(element.optString(ID), parentIndex, "_", element.optString(INDEX));
+        if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(indexStr)) {
+            element.put(ENABLE, keyMap.get(indexStr));
         }
     }
 

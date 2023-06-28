@@ -24,6 +24,7 @@ import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -66,7 +67,7 @@ public class MsScenario extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable()) {
+        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
             return;
         }
         if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
@@ -215,14 +216,16 @@ public class MsScenario extends MsTestElement {
             ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                 JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
-                String path = ElementUtil.getFullIndexPath(this, "");
-                if (path.endsWith("_")) {
-                    path = path.substring(0, path.length() - 1);
-                }
-                element.put(MsHashTreeService.INDEX, path);
-                boolean enable = config.getKeyMap().get(this.getId() + "_" + path);
-                if (!enable) {
-                    return false;
+                if (MapUtils.isNotEmpty(config.getKeyMap())) {
+                    String path = ElementUtil.getFullIndexPath(this, "");
+                    if (path.endsWith("_")) {
+                        path = path.substring(0, path.length() - 1);
+                    }
+                    element.put(MsHashTreeService.INDEX, path);
+                    boolean enable = config.getKeyMap().get(this.getId() + "_" + path);
+                    if (!enable) {
+                        return false;
+                    }
                 }
                 // 历史数据处理
                 ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
