@@ -266,10 +266,15 @@ export default {
         }
       } else {
         if (this.body.jsonSchema) {
-          MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
-            this.$set(this.body, 'raw', result);
-            this.reloadCodeEdit();
-          });
+            MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
+              if (result === 'Error') {
+                this.body.format = 'JSON-SCHEMA';
+                this.$message.error(this.$t('api_definition.body.json_format_error_tips'));
+              } else {
+                this.$set(this.body, 'raw', result);
+                this.reloadCodeEdit();
+              }
+            })
         }
       }
     },

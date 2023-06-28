@@ -293,6 +293,7 @@ import { useApiStore } from '@/store';
 import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
 import { createMockConfig, getMockApiParams, mockExpectConfig } from '@/api/api-mock';
 import MockEditDrawer from '@/business/definition/components/mock/MockEditDrawer';
+import {getUserDefaultApiType} from "metersphere-frontend/src/api/environment";
 
 const store = useApiStore();
 export default {
@@ -506,6 +507,9 @@ export default {
         this.activeDom = 'middle';
       }
     }
+    getUserDefaultApiType().then(response => {
+      this.currentProtocol = response.data;
+    })
     this.getEnv();
   },
   mounted() {
