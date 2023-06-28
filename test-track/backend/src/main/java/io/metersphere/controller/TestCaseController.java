@@ -253,7 +253,7 @@ public class TestCaseController {
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN}, logical = Logical.OR)
     public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files);
     }
@@ -326,7 +326,8 @@ public class TestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_EDIT)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_EDIT,
+            PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_ADD_PUBLIC, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_MOVE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.UPDATE, subject = "测试用例通知")
@@ -343,13 +344,14 @@ public class TestCaseController {
 
     @PostMapping("/batch/copy")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_COPY)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_COPY, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_COPY}, logical = Logical.OR)
     public void copyTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.copyTestCaseBath(request);
     }
 
     @PostMapping("/batch/copy/public")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_COPY)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_COPY,
+            PermissionConstants.PROJECT_TRACK_CASE_READ_COPY, PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.CREATE, subject = "测试用例通知")
@@ -359,14 +361,14 @@ public class TestCaseController {
 
 
     @PostMapping("/batch/delete")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_DELETE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_DELETE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
     }
 
     @PostMapping("/batch/deleteToGc")
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_DELETE}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.findByBatchRequest(#request)", targetClass = TestCaseService.class,
             event = NoticeConstants.Event.DELETE, subject = "测试用例通知")
@@ -385,7 +387,7 @@ public class TestCaseController {
 
     @PostMapping("/reduction")
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
-    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_CASE_READ_RECOVER, PermissionConstants.PROJECT_TRACK_CASE_READ_BATCH_REDUCTION}, logical = Logical.OR)
     public void reduction(@RequestBody TestCaseBatchRequest request) {
         testCaseService.reduction(request);
     }

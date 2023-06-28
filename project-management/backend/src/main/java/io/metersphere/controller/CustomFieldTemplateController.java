@@ -28,7 +28,8 @@ public class CustomFieldTemplateController {
     }
 
     @GetMapping("/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM,
+            PermissionConstants.PROJECT_TRACK_ISSUE_READ, PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_API_DEFINITION_READ}, logical = Logical.OR)
     public CustomField get(@PathVariable String id) {
         return customFieldTemplateService.getCustomField(id);
     }

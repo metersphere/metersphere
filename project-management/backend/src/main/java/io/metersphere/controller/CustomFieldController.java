@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.QueryCustomFieldRequest;
 import io.metersphere.service.CustomFieldService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,7 +54,8 @@ public class CustomFieldController {
     }
 
     @GetMapping("/get/{id}")
-    @RequiresPermissions(PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TEMPLATE_READ_CUSTOM,
+            PermissionConstants.PROJECT_TRACK_ISSUE_READ, PermissionConstants.PROJECT_TRACK_CASE_READ, PermissionConstants.PROJECT_API_DEFINITION_READ}, logical = Logical.OR)
     public CustomField get(@PathVariable(value = "id") String id) {
         return customFieldService.get(id);
     }
