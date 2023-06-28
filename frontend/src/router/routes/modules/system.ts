@@ -73,6 +73,8 @@ const System: AppRouteRecordRaw = {
               {
                 name: 'settingSystemResourcePoolDetail',
                 locale: 'menu.settings.system.resourcePoolDetail',
+                editTag: 'id',
+                editLocale: 'menu.settings.system.resourcePoolEdit',
               },
             ],
           },
