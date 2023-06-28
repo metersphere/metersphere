@@ -472,7 +472,7 @@ import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
 import MsDeleteConfirm from "metersphere-frontend/src/components/MsDeleteConfirm";
-import { TEST_PLAN_CONFIGS } from "metersphere-frontend/src/components/search/search-components";
+import {TEST_PLAN_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import {
   _filter,
   _sort,
@@ -486,16 +486,9 @@ import HeaderCustom from "metersphere-frontend/src/components/head/HeaderCustom"
 import HeaderLabelOperate from "metersphere-frontend/src/components/head/HeaderLabelOperate";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/plan/components/ScheduleMaintain";
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentUserId,
-} from "metersphere-frontend/src/utils/token";
-import {
-  hasLicense,
-  hasPermission,
-} from "metersphere-frontend/src/utils/permission";
-import { operationConfirm } from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId,} from "metersphere-frontend/src/utils/token";
+import {hasLicense, hasPermission,} from "metersphere-frontend/src/utils/permission";
+import {operationConfirm} from "metersphere-frontend/src/utils";
 import MsTestPlanRunModeWithEnv from "@/business/plan/common/TestPlanRunModeWithEnv";
 import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {
@@ -520,7 +513,7 @@ import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColu
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
 import MsTestPlanScheduleBatchSwitch from "@/business/plan/components/ScheduleBatchSwitch";
 import MsTagsColumn from "metersphere-frontend/src/components/table/MsTagsColumn";
-import { getProjectMemberUserFilter } from "@/api/user";
+import {getProjectMemberUserFilter} from "@/api/user";
 import TestPlanReportReview from "@/business/report/components/TestPlanReportReview";
 
 export default {
@@ -1139,6 +1132,8 @@ export default {
           this.cardLoading = false;
           this.initTableData();
           this.$success(this.$t("commons.run_success"));
+        }).catch(() => {
+          this.cardLoading = false;
         });
       } else if (config.executionWay === "save") {
         param.executionWay = "SAVE";
@@ -1147,6 +1142,8 @@ export default {
           this.cardLoading = false;
           this.initTableData();
           this.$success(this.$t("commons.save_success"));
+        }).catch(() => {
+          this.cardLoading = false;
         });
       } else {
         param.executionWay = "RUN";
@@ -1155,6 +1152,8 @@ export default {
         testPlanRun(param).then(() => {
           this.cardLoading = false;
           this.$success(this.$t("commons.run_success"));
+        }).catch(() => {
+          this.cardLoading = false;
         });
       }
     },

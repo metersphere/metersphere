@@ -56,4 +56,5 @@ public interface ExtTestPlanMapper {
 
     void updateStatusAndActStartTimeAndSetActEndTimeNullById(@Param("testPlanId") String testPlanId, @Param("actStartTime") long actStartTime, @Param("status") String status);
 
+    long countExecutingReportCount(String testPlanId);
 }

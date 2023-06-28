@@ -571,6 +571,10 @@ public class TestPlanService {
     }
 
     public void checkTestPlanStatus(String testPlanId) { //  检查执行结果，自动更新计划状态
+        //如果目前存在执行中的报告，那么不更新计划状态
+        if (extTestPlanMapper.countExecutingReportCount(testPlanId) > 0) {
+            return;
+        }
         List<String> statusList = extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanId);
 
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
