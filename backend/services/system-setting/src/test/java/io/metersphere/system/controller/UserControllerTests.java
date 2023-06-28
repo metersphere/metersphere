@@ -44,13 +44,6 @@ public class UserControllerTests extends BaseTest {
     @Resource
     private MockMvc mockMvc;
 
-    //涉及到的url
-    private static final String URL_USER_CREATE = "/system/user/add";
-    private static final String URL_USER_UPDATE = "/system/user/update";
-    private static final String URL_USER_GET = "/system/user/get/%s";
-    private static final String URL_USER_PAGE = "/system/user/page";
-    private static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
-    private static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
     //失败请求返回编码
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -122,7 +115,7 @@ public class UserControllerTests extends BaseTest {
     @Test
     @Order(0)
     public void testGetGlobalSystemUserRoleSuccess() throws Exception {
-        MvcResult mvcResult = this.responseGet(URL_GET_GLOBAL_SYSTEM);
+        MvcResult mvcResult = this.responseGet(UserTestUtils.URL_GET_GLOBAL_SYSTEM);
         this.setDefaultUserRoleList(mvcResult);
     }
 
@@ -146,7 +139,7 @@ public class UserControllerTests extends BaseTest {
                     }});
                 }}
         );
-        MvcResult mvcResult = this.responsePost(URL_USER_CREATE, userMaintainRequest);
+        MvcResult mvcResult = this.responsePost(UserTestUtils.URL_USER_CREATE, userMaintainRequest);
         this.addUser2List(mvcResult);
 
         //含有重复的用户名称
@@ -164,7 +157,7 @@ public class UserControllerTests extends BaseTest {
                     }});
                 }}
         );
-        mvcResult = this.responsePost(URL_USER_CREATE, userMaintainRequest);
+        mvcResult = this.responsePost(UserTestUtils.URL_USER_CREATE, userMaintainRequest);
         this.addUser2List(mvcResult);
     }
 
@@ -192,25 +185,25 @@ public class UserControllerTests extends BaseTest {
          */
         //所有参数都为空
         userMaintainRequest = UserTestUtils.getUserCreateDTO(null, null);
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //用户组ID为空
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 null,
                 errorUserList);
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //没有用户
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
 
                 defaultUserRoleList,
                 null);
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //含有不存在的用户组
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
                 errorUserList);
         userMaintainRequest.getUserRoleIdList().add(null);
         userMaintainRequest.getUserRoleIdList().add("");
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //含有用户名称为空的数据
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
@@ -219,7 +212,7 @@ public class UserControllerTests extends BaseTest {
         userMaintainRequest.getUserInfoList().add(new UserCreateInfo() {{
             setEmail("tianyang.name.empty@126.com");
         }});
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //含有用户邮箱为空的数据
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
@@ -228,7 +221,7 @@ public class UserControllerTests extends BaseTest {
         userMaintainRequest.getUserInfoList().add(new UserCreateInfo() {{
             setName("tianyang.email.empty");
         }});
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //用户邮箱不符合标准
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
@@ -238,7 +231,7 @@ public class UserControllerTests extends BaseTest {
             setName("用户邮箱放飞自我");
             setEmail("用户邮箱放飞自我");
         }});
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         /*
          * 校验业务判断出错的反例 （500 error)
          * 需要保证数据库有正常数据
@@ -248,7 +241,7 @@ public class UserControllerTests extends BaseTest {
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList.stream().filter(item -> !StringUtils.equals(item.getId(), "member")).toList(),
                 errorUserList);
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
         //含有重复的用户邮箱
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
@@ -259,7 +252,7 @@ public class UserControllerTests extends BaseTest {
             setName("tianyang.no.error4");
             setEmail(firstUserEmail);
         }});
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
         //测试请求参数中含有数据库中已存在的邮箱情况
         userMaintainRequest = UserTestUtils.getUserCreateDTO(
                 defaultUserRoleList,
@@ -273,7 +266,7 @@ public class UserControllerTests extends BaseTest {
                     }});
                 }}
         );
-        this.requestPost(URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -300,7 +293,7 @@ public class UserControllerTests extends BaseTest {
     }
 
     private UserDTO getUserByEmail(String email) throws Exception {
-        String url = String.format(URL_USER_GET, email);
+        String url = String.format(UserTestUtils.URL_USER_GET, email);
         return UserTestUtils.parseObjectFromMvcResult(this.responseGet(url), UserDTO.class);
     }
 
@@ -309,7 +302,7 @@ public class UserControllerTests extends BaseTest {
     public void testGetByEmailError() throws Exception {
         //测试使用任意参数，不能获取到任何用户信息
         this.checkUserList();
-        String url = URL_USER_GET + UUID.randomUUID();
+        String url = UserTestUtils.URL_USER_GET + UUID.randomUUID();
         MvcResult mvcResult = this.responseGet(url);
 
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -325,7 +318,7 @@ public class UserControllerTests extends BaseTest {
     public void testPageSuccess() throws Exception {
         this.checkUserList();
         BasePageRequest basePageRequest = UserTestUtils.getDefaultPageRequest();
-        MvcResult mvcResult = this.responsePost(URL_USER_PAGE, basePageRequest);
+        MvcResult mvcResult = this.responsePost(UserTestUtils.URL_USER_PAGE, basePageRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
         //返回请求正常
@@ -343,7 +336,7 @@ public class UserControllerTests extends BaseTest {
         basePageRequest.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
-        mvcResult = this.responsePost(URL_USER_PAGE, basePageRequest);
+        mvcResult = this.responsePost(UserTestUtils.URL_USER_PAGE, basePageRequest);
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
         returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -361,11 +354,11 @@ public class UserControllerTests extends BaseTest {
         //当前页码不大于0
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setPageSize(5);
-        this.requestPost(URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
         //当前页数不大于5
         basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
-        this.requestPost(URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
         //排序字段不合法
         basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
@@ -373,7 +366,7 @@ public class UserControllerTests extends BaseTest {
         basePageRequest.setSort(new HashMap<>() {{
             put("SELECT * FROM user", "asc");
         }});
-        this.requestPost(URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
     }
 
     @Test
@@ -388,38 +381,38 @@ public class UserControllerTests extends BaseTest {
         //更改名字
         user.setName("TEST-UPDATE");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改邮箱
         user.setEmail("songtianyang-test-email@12138.com");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改手机号
         user.setPhone("18511112222");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改用户组(这里只改成用户成员权限)
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user,
                 defaultUserRoleList.stream().filter(item -> StringUtils.equals(item.getId(), "member")).toList()
         );
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改用户组(把上面的情况添加别的权限)
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //用户信息复原
         user = new UserCreateInfo();
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
     }
@@ -434,22 +427,22 @@ public class UserControllerTests extends BaseTest {
         BeanUtils.copyBean(user, USER_LIST.get(0));
         user.setName("");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //email为空
         BeanUtils.copyBean(user, USER_LIST.get(0));
         user.setEmail("");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //手机号为空
         BeanUtils.copyBean(user, USER_LIST.get(0));
         user.setEmail("");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
         //用户组为空
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, new ArrayList<>());
         userMaintainRequest.setUserRoleIdList(new ArrayList<>());
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
 
         // 500验证
         //邮箱重复
@@ -457,13 +450,13 @@ public class UserControllerTests extends BaseTest {
         BeanUtils.copyBean(user, USER_LIST.get(0));
         user.setEmail(USER_LIST.get(USER_LIST.size() - 1).getEmail());
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
         //用户组不包含系统成员
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user,
                 defaultUserRoleList.stream().filter(item -> !StringUtils.equals(item.getId(), "member")).toList()
         );
-        this.requestPost(URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -477,7 +470,7 @@ public class UserControllerTests extends BaseTest {
             this.add(userInfo.getId());
         }});
         userChangeEnableRequest.setEnable(false);
-        this.requestPost(URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
+        this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
         UserDTO userDTO = this.getUserByEmail(userInfo.getEmail());
         Assertions.assertEquals(userDTO.getEnable(), userChangeEnableRequest.isEnable());
     }
@@ -489,11 +482,11 @@ public class UserControllerTests extends BaseTest {
         //用户不存在
         UserEditEnableRequest userChangeEnableRequest = new UserEditEnableRequest();
         userChangeEnableRequest.setEnable(false);
-        this.requestPost(URL_USER_UPDATE_ENABLE, userChangeEnableRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, BAD_REQUEST_MATCHER);
         //含有非法用户
         userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
             this.add("BCDEDIT");
         }});
-        this.requestPost(URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
     }
 }

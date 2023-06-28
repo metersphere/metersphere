@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.UserEditEnableRequest;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.utils.UserTestUtils;
 import jakarta.annotation.Resource;
@@ -36,14 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerNonePermissionTests {
     @Resource
     private MockMvc mockMvc;
-
-    //涉及到的url
-    private static final String URL_USER_CREATE = "/system/user/add";
-    private static final String URL_USER_UPDATE = "/system/user/update";
-    private static final String URL_USER_GET = "/system/user/get/%s";
-    private static final String URL_USER_PAGE = "/system/user/page";
-    private static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
-
     protected static String sessionId;
     protected static String csrfToken;
     private static final String NONE_ROLE_USERNAME = "tianyang.member@163.com";
@@ -70,11 +63,11 @@ public class UserControllerNonePermissionTests {
                         this.setName("member");
                     }});
         }};
-        this.requestGet(String.format(URL_USER_GET, NONE_ROLE_USERNAME), CHECK_RESULT_MATHER);
+        this.requestGet(String.format(UserTestUtils.URL_USER_GET, NONE_ROLE_USERNAME), CHECK_RESULT_MATHER);
         //校验权限：系统全局用户组获取
-        this.requestGet(URL_GET_GLOBAL_SYSTEM, CHECK_RESULT_MATHER);
+        this.requestGet(UserTestUtils.URL_GET_GLOBAL_SYSTEM, CHECK_RESULT_MATHER);
         //校验权限：用户创建
-        this.requestPost(URL_USER_CREATE,
+        this.requestPost(UserTestUtils.URL_USER_CREATE,
                 UserTestUtils.getUserCreateDTO(
                         paramRoleList,
                         new ArrayList<>() {{
@@ -83,10 +76,18 @@ public class UserControllerNonePermissionTests {
                 ),
                 CHECK_RESULT_MATHER);
         //校验权限：分页查询用户列表
-        this.requestPost(URL_USER_PAGE, UserTestUtils.getDefaultPageRequest(), CHECK_RESULT_MATHER);
+        this.requestPost(UserTestUtils.URL_USER_PAGE, UserTestUtils.getDefaultPageRequest(), CHECK_RESULT_MATHER);
         //校验权限：修改用户
-        this.requestPost(URL_USER_UPDATE,
+        this.requestPost(UserTestUtils.URL_USER_UPDATE,
                 UserTestUtils.getUserUpdateDTO(paramUserInfo, paramRoleList), CHECK_RESULT_MATHER);
+        //校验权限：启用/禁用用户
+        UserEditEnableRequest userChangeEnableRequest = new UserEditEnableRequest();
+        userChangeEnableRequest.setEnable(false);
+        userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
+            this.add("testId");
+        }});
+        this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, CHECK_RESULT_MATHER);
+
     }
 
     @BeforeEach
