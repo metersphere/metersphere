@@ -466,4 +466,10 @@
         FROM test_plan
         WHERE id = #{0}
     </select>
+    <select id="countExecutingReportCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM test_plan_report
+        WHERE test_plan_id = #{0}
+          AND status = 'RUNNING'
+    </select>
 </mapper>

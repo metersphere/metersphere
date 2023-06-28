@@ -798,7 +798,12 @@ public class BaseUserService {
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(projectId);
         if (userGroupMapper.countByExample(userGroupExample) == 0) {
-            MSException.throwException(Translator.get("user_not_exists") + userId);
+            //检查是否是超级管理员
+            userGroupExample.clear();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdEqualTo(UserGroupConstants.SUPER_GROUP);
+            if (userGroupMapper.countByExample(userGroupExample) == 0) {
+                MSException.throwException(Translator.get("user_not_exists") + userId);
+            }
         }
     }
 }
