@@ -78,7 +78,6 @@
         <table tableName="operating_log_resource"/>
         <table tableName="plugin"/>
         <table tableName="plugin_blob"/>
-        <table tableName="quota"/>
         <table tableName="schedule"/>
         <table tableName="service_integration"/>
         <table tableName="system_parameter"/>
