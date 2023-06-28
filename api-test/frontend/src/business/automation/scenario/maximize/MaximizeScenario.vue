@@ -116,7 +116,9 @@
             @node-drag-end="allowDrag"
             @node-click="nodeClick"
             class="ms-max-tree"
-            ref="maxStepTree">
+            ref="maxStepTree"
+            v-custom-click-outside="outsideClick"
+          >
             <el-row
               class="custom-tree-node"
               :gutter="18"
