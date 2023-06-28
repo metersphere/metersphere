@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="accountConfig" ref="form" label-width="100px" size="small" :rules="rules">
+  <el-form :model="accountConfig" ref="form" label-width="120px" size="small" :rules="rules">
     <el-form-item :label="config.i18n ? $t(config.label) : config.label">
       <ms-instructions-icon size="10" :content="config.i18n ? $t(config.instructionsInfo) : config.instructionsInfo"/>
     </el-form-item>
