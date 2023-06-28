@@ -5,6 +5,7 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.util.DateUtils;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.exception.MSException;
@@ -340,25 +341,33 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
                             }
-                            customFieldItemDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
-                            customFieldResourceDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
+                            String parseStr = parseOptionText(customFieldDao.getOptions(), v.toString());
+                            customFieldItemDTO.setValue(parseStr);
+                            customFieldResourceDTO.setValue(parseStr);
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.SELECT.getValue(),
                                 CustomFieldType.RADIO.getValue())) {
-                            customFieldItemDTO.setValue(parseOptionText(customFieldDao.getOptions(), v.toString()));
-                            customFieldResourceDTO.setValue("\"" + parseOptionText(customFieldDao.getOptions(), v.toString()) + "\"");
+                            String parseStr = parseOptionText(customFieldDao.getOptions(), v.toString());
+                            customFieldItemDTO.setValue(parseStr);
+                            customFieldResourceDTO.setValue("\"" + parseStr + "\"");
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_INPUT.getValue())) {
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
                             }
                             customFieldItemDTO.setValue(v);
                             customFieldResourceDTO.setValue(v.toString());
-                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_MEMBER.getValue(),
-                                CustomFieldType.CASCADING_SELECT.getValue())) {
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.MULTIPLE_MEMBER.getValue())) {
                             if (!v.toString().contains("[")) {
                                 v = List.of("\"" + v + "\"");
                             }
                             customFieldItemDTO.setValue(v.toString());
                             customFieldResourceDTO.setValue(v.toString());
+                        } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.CASCADING_SELECT.getValue())) {
+                            if (!v.toString().contains("[")) {
+                                v = List.of("\"" + v + "\"");
+                            }
+                            String parseStr = parseCascadingOptionText(customFieldDao.getOptions(), v.toString());
+                            customFieldItemDTO.setValue(parseStr);
+                            customFieldResourceDTO.setValue(parseStr);
                         } else if (StringUtils.equalsAnyIgnoreCase(type, CustomFieldType.DATE.getValue())) {
                             Date vdate = DateUtils.parseDate(v.toString(), "yyyy/MM/dd");
                             v = DateUtils.format(vdate, "yyyy-MM-dd");
@@ -475,6 +484,41 @@ public class IssueExcelListener extends AnalysisEventListener<Map<Integer, Strin
                 }
             }
             return tarVal.substring(0, tarVal.length() - 1);
+        }
+    }
+
+    public String parseCascadingOptionText(String cascadingOption, String tarVal) {
+        List<String> values = new ArrayList<>();
+        if (StringUtils.isEmpty(cascadingOption)) {
+            return StringUtils.EMPTY;
+        }
+        JSONArray options = JSONArray.parseArray(cascadingOption);
+        JSONArray talVals = JSONArray.parseArray(tarVal);
+        if (options.size() == 0 || talVals.size() == 0) {
+            return StringUtils.EMPTY;
+        }
+        for (int i = 0; i < talVals.size(); i++) {
+            String val = talVals.get(i).toString();
+            JSONObject jsonOption = this.findJsonOption(options, val);
+            if (jsonOption == null) {
+                return StringUtils.EMPTY;
+            } else {
+                values.add("\"" + jsonOption.get("value").toString() + "\"");
+                options = jsonOption.getJSONArray("children");
+            }
+        }
+        return values.toString();
+    }
+
+    private JSONObject findJsonOption(JSONArray options, String tarVal) {
+        if (options.size() == 0) {
+            return null;
+        }
+        List<JSONObject> jsonObjects = options.stream().map(option -> (JSONObject) option).filter(option -> StringUtils.equals(tarVal, option.get("text").toString())).toList();
+        if (jsonObjects.size() == 0) {
+            return null;
+        } else {
+            return jsonObjects.get(0);
         }
     }
 }

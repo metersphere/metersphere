@@ -823,6 +823,9 @@ public class IssuesService {
                                 && !StringUtils.equalsAnyIgnoreCase(customField.getName(), SystemCustomField.ISSUE_STATUS)) {
                             fieldDao.setValue(parseOptionValue(customField.getOptions(), fieldDao.getValue()));
                         }
+                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.CASCADING_SELECT.getValue())) {
+                            fieldDao.setValue(parseCascadingOptionValue(customField.getOptions(), fieldDao.getValue()));
+                        }
                     }
                 }
             }
@@ -1934,6 +1937,41 @@ public class IssuesService {
             }
         }
         return tarVal;
+    }
+
+    public String parseCascadingOptionValue(String cascadingOption, String tarVal) {
+        List<String> values = new ArrayList<>();
+        if (StringUtils.isEmpty(cascadingOption)) {
+            return StringUtils.EMPTY;
+        }
+        JSONArray options = JSONArray.parseArray(cascadingOption);
+        JSONArray talVals = JSONArray.parseArray(tarVal);
+        if (options.size() == 0 || talVals.size() == 0) {
+            return StringUtils.EMPTY;
+        }
+        for (int i = 0; i < talVals.size(); i++) {
+            String val = talVals.get(i).toString();
+            JSONObject jsonOption = this.findJsonOption(options, val);
+            if (jsonOption == null) {
+                return StringUtils.EMPTY;
+            } else {
+                values.add("\"" + jsonOption.get("text").toString() + "\"");
+                options = jsonOption.getJSONArray("children");
+            }
+        }
+        return values.toString();
+    }
+
+    private JSONObject findJsonOption(JSONArray options, String tarVal) {
+        if (options.size() == 0) {
+            return null;
+        }
+        List<JSONObject> jsonObjects = options.stream().map(option -> (JSONObject) option).filter(option -> StringUtils.equals(tarVal, option.get("value").toString())).toList();
+        if (jsonObjects.size() == 0) {
+            return null;
+        } else {
+            return jsonObjects.get(0);
+        }
     }
 
     public Issues checkIssueExist(Integer num, String projectId) {

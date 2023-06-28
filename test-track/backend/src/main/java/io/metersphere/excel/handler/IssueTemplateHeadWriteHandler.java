@@ -118,8 +118,8 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
                     Translator.get("options").concat(memberMap.keySet().toString()));
         }
         if (StringUtils.equalsAnyIgnoreCase(field.getType(), CustomFieldType.CASCADING_SELECT.getValue())) {
-            commentText = Translator.get("multiple_input_import_cell_format_comment").concat(", " +
-                    Translator.get("options_tips").concat(JSON.toJSONString(getCascadSelect(field.getOptions()))));
+            commentText = Translator.get("cascading_select_import_cell_format_comment").concat(", " +
+                    Translator.get("options_key_tips").concat(JSON.toJSONString(getCascadSelect(field.getOptions()))));
         }
         return field.getRequired() ? Translator.get("required").concat("; " + commentText) : commentText;
     }
