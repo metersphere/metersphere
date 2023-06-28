@@ -1037,7 +1037,7 @@ export class ExtractCommon extends ExtractType {
     this.value = ''; // ${variable}
     this.expression = undefined;
     this.description = undefined;
-    this.multipleMatching = undefined;
+    this.multipleMatching = false;
     this.set(options);
   }
 

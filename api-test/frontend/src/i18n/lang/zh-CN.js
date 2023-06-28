@@ -21,6 +21,7 @@ const message = {
     copy_data_from_other_version_tips: '名称相同的用例和Mock期望会进行强制覆盖!',
     body: {
       json_format_error: 'JSON格式错误',
+      json_format_error_tips: 'JSON-SCHEMA数据和类型不符合，请检查',
     },
     case_name: '用例名称',
     case_no_permission: '无编辑用例的权限',

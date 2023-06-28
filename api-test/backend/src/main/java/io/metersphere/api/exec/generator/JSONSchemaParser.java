@@ -263,7 +263,7 @@ public class JSONSchemaParser {
                 return JSONUtil.parserObject(value);
             }
         } catch (Exception ex) {
-            return jsonSchema;
+            return "Error";
         }
     }
 

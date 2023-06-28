@@ -23,6 +23,7 @@ const message = {
       'Use cases with the same name and mock expectations will be forcibly overwritten!',
     body: {
       json_format_error: 'JSON format error',
+      json_format_error_tips: 'JSON-SCHEMA data does not match the type, please check',
     },
     case_name: 'Case name',
     case_no_permission: 'No permission to edit case',

@@ -81,8 +81,13 @@ export default {
       } else {
         if (this.item.jsonSchema) {
           MsConvert.schemaToJsonStr(this.item.jsonSchema, (result) => {
-            this.$set(this.item, 'value', result);
-            this.$emit('callback', result);
+            if (result === 'Error') {
+              this.body.format = 'JSON-SCHEMA';
+              this.$message.error(this.$t('api_definition.body.json_format_error_tips'));
+            } else {
+              this.$set(this.item, 'value', result);
+              this.$emit('callback', result);
+            }
           });
         }
       }
