@@ -22,6 +22,15 @@ import java.util.stream.Collectors;
 
 public class UserTestUtils {
 
+    //用户管理URL
+    public static final String URL_USER_CREATE = "/system/user/add";
+    public static final String URL_USER_UPDATE = "/system/user/update";
+    public static final String URL_USER_GET = "/system/user/get/%s";
+    public static final String URL_USER_PAGE = "/system/user/page";
+    public static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
+    public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
+
+
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
             String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
