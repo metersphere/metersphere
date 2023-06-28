@@ -37,12 +37,20 @@
   );
 
   function setCurrentTopMenu(key: string) {
-    const secParent = appStore.topMenus.find((el: RouteRecordRaw) => {
-      return (el?.name as string).includes(key);
+    // 先判断全等，避免同级路由出现命名包含情况
+    const secParentFullSame = appStore.topMenus.find((el: RouteRecordRaw) => {
+      return key === el?.name;
     });
 
-    if (secParent) {
-      appStore.setCurrentTopMenu(secParent);
+    // 非全等的情况下，一定是父子路由包含关系
+    const secParentLike = appStore.topMenus.find((el: RouteRecordRaw) => {
+      return key.includes(el?.name as string);
+    });
+
+    if (secParentFullSame) {
+      appStore.setCurrentTopMenu(secParentFullSame);
+    } else if (secParentLike) {
+      appStore.setCurrentTopMenu(secParentLike);
     }
   }
 

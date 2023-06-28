@@ -23,9 +23,10 @@
 
 <style lang="less" scoped>
   .page-content {
-    overflow: hidden;
-    border-radius: 12px;
-    background: #ffffff;
+    @apply overflow-hidden bg-white;
+
+    padding: 24px;
+    border-radius: var(--border-radius-large);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
   }
 </style>

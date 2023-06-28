@@ -88,7 +88,7 @@ setupMock({
                   path: 'user',
                   name: 'settingSystemUser',
                   meta: {
-                    locale: 'menu.settings.user',
+                    locale: 'menu.settings.system.user',
                     roles: ['*'],
                     isTopMenu: true,
                   },
@@ -97,9 +97,26 @@ setupMock({
                   path: 'usergroup',
                   name: 'settingSystemUsergroup',
                   meta: {
-                    locale: 'menu.settings.usergroup',
+                    locale: 'menu.settings.system.usergroup',
                     roles: ['*'],
                     isTopMenu: true,
+                  },
+                },
+                {
+                  path: 'resourcePool',
+                  name: 'settingSystemResourcePool',
+                  meta: {
+                    locale: 'menu.settings.system.resourcePool',
+                    roles: ['*'],
+                    isTopMenu: true,
+                  },
+                },
+                {
+                  path: 'resourcePoolDetail',
+                  name: 'settingSystemResourcePoolDetail',
+                  meta: {
+                    locale: 'menu.settings.system.resourcePoolDetail',
+                    roles: ['*'],
                   },
                 },
               ],
