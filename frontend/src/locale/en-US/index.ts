@@ -25,6 +25,8 @@ export default {
     'menu.settings.system.user': 'User',
     'menu.settings.system.organizationAndProject': 'Org & Project',
     'menu.settings.system.resourcePool': 'Resource Pool',
+    'menu.settings.system.resourcePoolDetail': 'Add resource pool',
+    'menu.settings.system.resourcePoolEdit': 'Edit resource pool',
     'navbar.action.locale': 'Switch to English',
     ...sys,
     ...localeSettings,

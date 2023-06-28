@@ -172,6 +172,7 @@
     .arco-layout-content {
       padding: 16px 16px 16px 0;
       min-width: 1000px;
+      height: calc(100vh - 72px);
     }
   }
 </style>
