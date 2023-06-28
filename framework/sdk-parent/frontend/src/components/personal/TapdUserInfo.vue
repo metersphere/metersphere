@@ -1,5 +1,5 @@
 <template>
-  <el-form label-position="right" label-width="115px" size="small">
+  <el-form label-position="right" label-width="120px" size="small">
     <el-form-item :label="'Tapd '+ $t('commons.nick_name')">
       <ms-instructions-icon size="10" effect="light">
         <template>

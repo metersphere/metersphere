@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
+    <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
              ref="updateUserForm">
       <el-form-item label="ID" prop="id">
         <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
