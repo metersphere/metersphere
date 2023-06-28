@@ -283,8 +283,6 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         try {
             Number number1 = NumberUtils.createBigDecimal(v1);
             Number number2 = NumberUtils.createBigDecimal(v2);
-            log.info("number1:    " + number1 + " number2:    " + number2);
-            log.info("number1.equals(number2):    " + number1.equals(number2));
             return number1.equals(number2);
         } catch (Exception e) {
             return StringUtils.equals(v1, v2);

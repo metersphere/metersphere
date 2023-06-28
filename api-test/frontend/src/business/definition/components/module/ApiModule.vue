@@ -78,7 +78,7 @@ export default {
       result: false,
       refreshDataOver: true,
       condition: {
-        protocol: OPTIONS[0].value,
+        protocol: '',
         filterText: '',
         trashEnable: false,
       },
@@ -245,9 +245,11 @@ export default {
           this.setData(response);
         });
       } else {
-        this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
-          this.setData(response);
-        });
+        if (this.condition.protocol) {
+          this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
+            this.setData(response);
+          });
+        }
       }
     },
     setNohupData(response, selectNodeId) {

@@ -375,7 +375,7 @@ export default {
       selectDataRange: 'all',
       showCasePage: true,
       apiDefaultTab: 'default',
-      currentProtocol: 'HTTP',
+      currentProtocol: '',
       currentModule: null,
       selectNodeIds: [],
       currentApi: {},
@@ -481,6 +481,11 @@ export default {
       this.isAsideHidden = this.apiDefaultTab === 'default' || this.apiDefaultTab === 'trash';
     },
   },
+  beforeCreate() {
+    getUserDefaultApiType().then(response => {
+      this.currentProtocol = response.data;
+    })
+  },
   created() {
     let routeParamObj = this.$route.params;
     if (routeParamObj) {
@@ -507,9 +512,6 @@ export default {
         this.activeDom = 'middle';
       }
     }
-    getUserDefaultApiType().then(response => {
-      this.currentProtocol = response.data;
-    })
     this.getEnv();
   },
   mounted() {

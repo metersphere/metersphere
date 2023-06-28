@@ -867,7 +867,7 @@ export default {
     },
     refreshTable() {
       this.initTableCondition();
-      if (this.condition.projectId) {
+      if (this.condition.projectId && this.condition.protocol) {
         this.result = getDefinitionPage(this.currentPage, this.pageSize, this.condition).then((response) => {
           getProtocolFilter(this.condition.protocol);
           this.total = response.data.itemCount;
@@ -881,7 +881,7 @@ export default {
     },
     initTable(currentProtocol) {
       this.initTableCondition(currentProtocol);
-      if (this.condition.projectId) {
+      if (this.condition.projectId && this.condition.protocol) {
         this.result = getDefinitionPage(this.currentPage, this.pageSize, this.condition).then((response) => {
           getProtocolFilter(this.condition.protocol);
           this.total = response.data.itemCount;

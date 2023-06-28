@@ -738,7 +738,7 @@ public class ElementUtil {
             variables.stream()
                     .filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                             arguments.addArgument(keyValue.getName(),
-                                    keyValue.getValue(), "="));
+                                    keyValue.getValue().replaceAll("[\r\n]",""), "="));
             List<ScenarioVariable> variableList = variables.stream()
                     .filter(ScenarioVariable::isListValid).collect(Collectors.toList());
             variableList.forEach(item -> {
@@ -761,7 +761,7 @@ public class ElementUtil {
                     arguments.addArgument(keyValue.getName(),
                             keyValue.getValue() != null && keyValue.getValue().startsWith("@")
                                     ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())
-                                    : keyValue.getValue(), "="));
+                                    : keyValue.getValue().replaceAll("[\r\n]",""), "="));
             // List类型的变量
             List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
                     .filter(ScenarioVariable::isListValid)
