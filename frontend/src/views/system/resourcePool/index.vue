@@ -40,6 +40,7 @@
     :title-tag-color="activePool?.enable ? 'green' : 'gray'"
     :descriptions="activePoolDesc"
     :footer="false"
+    :mask="false"
   >
     <template #tbutton>
       <a-button type="outline" size="mini" @click="editPool(activePool)">
