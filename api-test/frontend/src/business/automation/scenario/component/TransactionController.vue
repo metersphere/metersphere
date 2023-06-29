@@ -40,15 +40,16 @@
         size="mini"
         v-model="controller.name"
         style="width: 20%"
+        :disabled="controller.caseEnable"
         :placeholder="$t('api_test.automation.transaction_controller')" />
       <el-checkbox
         v-model="controller.generateParentSample"
         @change="changeGenerateParantSample"
-        :disabled="controller.disabled"
+        :disabled="controller.caseEnable"
         class="ms-btn">
         Generate Parent Sample
       </el-checkbox>
-      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.disabled">
+      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers" :disabled="controller.caseEnable">
         Include Timers
       </el-checkbox>
     </template>

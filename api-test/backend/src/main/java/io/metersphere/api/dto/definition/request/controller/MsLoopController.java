@@ -47,12 +47,10 @@ public class MsLoopController extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+        if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        if (!ElementUtil.isEnable(this, config)) {
-            return;
-        }
+        
         final HashTree groupTree = controller(tree);
         // 自身场景
         if (CollectionUtils.isNotEmpty(config.getVariables())) {

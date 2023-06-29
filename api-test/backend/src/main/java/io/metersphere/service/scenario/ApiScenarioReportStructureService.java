@@ -82,7 +82,7 @@ public class ApiScenarioReportStructureService {
     public void save(List<ApiScenarioWithBLOBs> apiScenarios, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
         for (ApiScenarioWithBLOBs bos : apiScenarios) {
-            StepTreeDTO dto = dataFormatting(bos, reportType, false);
+            StepTreeDTO dto = dataFormatting(bos, reportType);
             dtoList.add(dto);
         }
         this.save(reportId, dtoList);
@@ -91,22 +91,15 @@ public class ApiScenarioReportStructureService {
     public List<StepTreeDTO> get(List<ApiScenarioWithBLOBs> apiScenarios, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
         for (ApiScenarioWithBLOBs bos : apiScenarios) {
-            StepTreeDTO dto = dataFormatting(bos, reportType, false);
+            StepTreeDTO dto = dataFormatting(bos, reportType);
             dtoList.add(dto);
         }
         return dtoList;
     }
 
-    public void save(ApiScenarioWithBLOBs apiScenario, String reportId, String reportType, boolean isDebug) {
-        List<StepTreeDTO> dtoList = new LinkedList<>();
-        StepTreeDTO dto = dataFormatting(apiScenario, reportType, isDebug);
-        dtoList.add(dto);
-        this.save(reportId, dtoList);
-    }
-
     public void save(ApiScenarioWithBLOBs apiScenario, String reportId, String reportType) {
         List<StepTreeDTO> dtoList = new LinkedList<>();
-        StepTreeDTO dto = dataFormatting(apiScenario, reportType, false);
+        StepTreeDTO dto = dataFormatting(apiScenario, reportType);
         dtoList.add(dto);
         this.save(reportId, dtoList);
     }
@@ -149,12 +142,12 @@ public class ApiScenarioReportStructureService {
         }
     }
 
-    public static StepTreeDTO dataFormatting(ApiScenarioWithBLOBs apiScenario, String reportType, boolean isDebug) {
-        return dataFormatting(apiScenario.getId(), apiScenario.getName(), apiScenario.getScenarioDefinition(), reportType, isDebug);
+    public static StepTreeDTO dataFormatting(ApiScenarioWithBLOBs apiScenario, String reportType) {
+        return dataFormatting(apiScenario.getId(), apiScenario.getName(), apiScenario.getScenarioDefinition(), reportType);
     }
 
-    public static StepTreeDTO dataFormatting(UiScenarioWithBLOBs uiScenario, String reportType, boolean isDebug) {
-        return dataFormatting(null, uiScenario.getName(), uiScenario.getScenarioDefinition(), reportType, isDebug);
+    public static StepTreeDTO dataFormatting(UiScenarioWithBLOBs uiScenario, String reportType) {
+        return dataFormatting(null, uiScenario.getName(), uiScenario.getScenarioDefinition(), reportType);
     }
 
     private static String combinationResourceId(JSONObject element, String reportType, String id) {
@@ -170,18 +163,14 @@ public class ApiScenarioReportStructureService {
         return resourceId;
     }
 
-    public static StepTreeDTO dataFormatting(String id, String name, String scenarioDefinition, String reportType, boolean isDebug) {
+    public static StepTreeDTO dataFormatting(String id, String name, String scenarioDefinition, String reportType) {
         JSONObject element = JSONUtil.parseObject(scenarioDefinition);
         if (element != null && element.getBoolean(ENABLE)) {
             //保证场景的步骤是最新的（比如场景中包含引用场景）
             MsHashTreeService hashTreeService = CommonBeanFactory.getBean(MsHashTreeService.class);
             assert hashTreeService != null;
             List<String> caseIds = new ArrayList<>();
-            Map<String, Boolean> keyMap = new HashMap<>();
-            if (isDebug) {
-                keyMap = MsHashTreeService.getIndexKeyMap(element, element.optString(ElementConstants.INDEX));
-            }
-            hashTreeService.dataFormatting(element, caseIds, keyMap);
+            hashTreeService.dataFormatting(element, caseIds);
             // 处理用例
             hashTreeService.caseFormatting(element, caseIds, null);
 

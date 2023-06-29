@@ -567,6 +567,7 @@ export default {
       let index = 1;
       for (let i in this.request.hashTree) {
         let step = this.request.hashTree[i];
+        step.caseEnable = step.disabled;
         if (
           this.tabType === 'pre' &&
           (step.type === 'JSR223PreProcessor' || step.type === 'JDBCPreProcessor' || step.type === 'ConstantTimer')

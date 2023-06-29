@@ -428,7 +428,7 @@ public class ApiScenarioExecuteService {
                 report.setVersionId(scenario.getVersionId());
                 String scenarioDefinition = JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0));
                 scenario.setScenarioDefinition(scenarioDefinition);
-                apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig().getReportType(), true);
+                apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig().getReportType());
             } else {
                 if (request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())) {
                     ApiScenarioWithBLOBs apiScenario = new ApiScenarioWithBLOBs();
@@ -437,7 +437,7 @@ public class ApiScenarioExecuteService {
                     if (testElement != null) {
                         apiScenario.setName(testElement.getName());
                         apiScenario.setScenarioDefinition(JSON.toJSONString(testElement));
-                        apiScenarioReportStructureService.save(apiScenario, report.getId(), request.getConfig().getReportType(), true);
+                        apiScenarioReportStructureService.save(apiScenario, report.getId(), request.getConfig().getReportType());
                     }
                 }
             }
@@ -448,8 +448,6 @@ public class ApiScenarioExecuteService {
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
         this.testElement(request);
-        Map<String, Boolean> keyMap = MsHashTreeService.getIndexKeyMap(request.getTestElement(), "");
-        config.setKeyMap(keyMap);
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = StringUtils.isEmpty(request.getRunMode()) ? ApiRunMode.SCENARIO.name() : request.getRunMode();

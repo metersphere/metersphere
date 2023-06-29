@@ -62,14 +62,12 @@ public class MsJDBCSampler extends MsTestElement {
         // 清理掉历史遗留数据
         this.dataSource = null;
         // 非导出操作，且不是启用状态则跳过执行
-        if (config != null && !config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+        if (config != null && !config.isOperating() && !this.isEnable()) {
             return;
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
-        if (!ElementUtil.isEnable(this, config)) {
-            return;
-        }
+        
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {

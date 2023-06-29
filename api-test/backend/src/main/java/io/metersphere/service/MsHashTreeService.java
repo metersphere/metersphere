@@ -19,19 +19,16 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.ProjectConfig;
-import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +98,6 @@ public class MsHashTreeService {
     private static final String DATASOURCEID = "dataSourceId";
     private static final String RESULT_VARIABLE = "resultVariable";
     private static final String ENV_Id = "environmentId";
-    private static final String PARENT_INDEX = "parentIndex";
 
 
     private final static String JSON_PATH = "jsonPath";
@@ -316,7 +312,7 @@ public class MsHashTreeService {
         }
     }
 
-    private JSONObject setRefScenario(JSONObject element, Map<String, Boolean> keyMap) {
+    private JSONObject setRefScenario(JSONObject element) {
         boolean enable = element.has(ENABLE) ? element.optBoolean(ENABLE) : true;
         if (!element.has(MIX_ENABLE)) {
             element.put(MIX_ENABLE, false);
@@ -334,19 +330,7 @@ public class MsHashTreeService {
             }
             if (StringUtils.equalsIgnoreCase(element.optString(REFERENCED), REF)) {
                 JSONObject object = JSONUtil.parseObject(scenarioWithBLOBs.getScenarioDefinition());
-                object.put(PARENT_INDEX, element.optString(PARENT_INDEX));
                 object.put(INDEX, element.optString(INDEX));
-                if (object.has(ENABLE) && BooleanUtils.isFalse(object.optBoolean(ENABLE))) {
-                    enable = false;
-                    object.put(REF_ENABLE, true);
-                } else {
-                    String indexStr = object.has(PARENT_INDEX) && StringUtils.isNotBlank(object.optString(PARENT_INDEX)) ?
-                            StringUtils.join(object.optString(PARENT_INDEX), "_", object.optString(INDEX)) : object.optString(INDEX);
-                    if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(element.optString(ID) + indexStr)) {
-                        enable = keyMap.get(element.optString(ID) + indexStr);
-                        object.put(ENABLE, enable);
-                    }
-                }
                 element = object;
                 element.put(REFERENCED, REF);
                 element.put(NAME, scenarioWithBLOBs.getName());
@@ -371,88 +355,41 @@ public class MsHashTreeService {
             }
             if (element.has(ENABLE) && BooleanUtils.isFalse(element.optBoolean(ENABLE))) {
                 element.put(REF_ENABLE, true);
-            } else {
-                String indexStr = element.has(PARENT_INDEX) && StringUtils.isNotBlank(element.optString(PARENT_INDEX)) ?
-                        StringUtils.join(element.optString(PARENT_INDEX), "_", element.optString(INDEX)) : element.optString(INDEX);
-                if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(element.optString(ID) + indexStr)) {
-                    enable = keyMap.get(element.optString(ID) + indexStr);
-                    element.put(ENABLE, enable);
-                }
             }
             element.put(NUM, StringUtils.EMPTY);
         }
         return element;
     }
 
-    public static Map<String, Boolean> getIndexKeyMap(JSONObject element, String parentIndex) {
-        Map<String, Boolean> indexKeyMap = new HashMap<>();
-        StringBuilder builder = new StringBuilder(parentIndex);
-        if (element.has(ENABLE) && element.has(ID) && element.has(INDEX)) {
-            builder.append("_").append(element.optString(INDEX));
-            String key = StringUtils.join(element.optString(ID), builder.toString());
-            indexKeyMap.put(key, element.optBoolean(ENABLE));
-        }
-        if (element.has(HASH_TREE)) {
-            element.getJSONArray(HASH_TREE).forEach(item -> {
-                JSONObject obj = (JSONObject) item;
-                indexKeyMap.putAll(getIndexKeyMap(obj, builder.toString()));
-            });
-        }
-        return indexKeyMap;
-    }
-
-    public void dataFormatting(JSONArray hashTree, List<String> caseIds, Map<String, Boolean> keyMap, String parentIndex) {
+    public void dataFormatting(JSONArray hashTree, List<String> caseIds) {
         for (int i = 0; i < hashTree.length(); i++) {
             JSONObject element = hashTree.optJSONObject(i);
-            // 设置父级索引
-            element.put(PARENT_INDEX, parentIndex);
-
             if (element != null && StringUtils.equalsIgnoreCase(element.optString(TYPE), SCENARIO)) {
-                element = this.setRefScenario(element, keyMap);
+                element = this.setRefScenario(element);
                 hashTree.put(i, element);
             } else if (element != null && ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
-                setCaseEnable(element, keyMap, parentIndex);
                 this.getCaseIds(element, caseIds);
                 hashTree.put(i, element);
-            } else {
-                setCaseEnable(element, keyMap, parentIndex);
             }
             if (element.has(HASH_TREE)) {
                 JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-                String indexStr = StringUtils.join(parentIndex, "_", element.optString(INDEX));
-                dataFormatting(elementJSONArray, caseIds, keyMap, indexStr);
+                dataFormatting(elementJSONArray, caseIds);
             }
         }
     }
 
-    public void dataFormatting(JSONObject element, List<String> caseIds, Map<String, Boolean> keyMap) {
+    public void dataFormatting(JSONObject element, List<String> caseIds) {
         if (element == null) {
             return;
         }
-        // 设置父级索引
-        String parentIndex = element.has(PARENT_INDEX) ?
-                StringUtils.join(element.optString(PARENT_INDEX), "_", element.optString(INDEX))
-                : element.optString(INDEX);
-
-        element.put(PARENT_INDEX, parentIndex);
         if (StringUtils.equalsIgnoreCase(element.optString(TYPE), SCENARIO)) {
-            element = this.setRefScenario(element, keyMap);
+            element = this.setRefScenario(element);
         } else if (ElementConstants.REQUESTS.contains(element.optString(TYPE))) {
-            setCaseEnable(element, keyMap, parentIndex);
             this.getCaseIds(element, caseIds);
-        } else {
-            setCaseEnable(element, keyMap, parentIndex);
         }
         if (element.has(HASH_TREE)) {
             JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
-            dataFormatting(elementJSONArray, caseIds, keyMap, parentIndex);
-        }
-    }
-
-    private void setCaseEnable(JSONObject element, Map<String, Boolean> keyMap, String parentIndex) {
-        String indexStr = StringUtils.join(element.optString(ID), parentIndex, "_", element.optString(INDEX));
-        if (MapUtils.isNotEmpty(keyMap) && keyMap.containsKey(indexStr)) {
-            element.put(ENABLE, keyMap.get(indexStr));
+            dataFormatting(elementJSONArray, caseIds);
         }
     }
 
@@ -481,21 +418,5 @@ public class MsHashTreeService {
             JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
             caseFormatting(elementJSONArray, caseMap, msParameter);
         }
-    }
-
-    public static Map<String, Boolean> getIndexKeyMap(MsTestElement element, String parentIndex) {
-        Map<String, Boolean> indexKeyMap = new HashMap<>();
-        StringBuilder builder = new StringBuilder(parentIndex);
-        if (StringUtils.isNotBlank(element.getId()) && StringUtils.isNotBlank(element.getIndex())) {
-            builder.append("_").append(element.getIndex());
-            String key = StringUtils.join(element.getId(), builder.toString());
-            indexKeyMap.put(key, element.isEnable());
-        }
-        if (CollectionUtils.isNotEmpty(element.getHashTree())) {
-            element.getHashTree().forEach(item -> {
-                indexKeyMap.putAll(getIndexKeyMap(item, builder.toString()));
-            });
-        }
-        return indexKeyMap;
     }
 }

@@ -1756,6 +1756,11 @@ export default {
       if (this.pluginDelStep) {
         this.debugLoading = false;
         this.$error('场景包含插件步骤，对应场景已经删除不能调试！');
+
+        this.clearResult(this.scenarioDefinition);
+        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+        runScenario.run = false;
+        this.message = "STOP";
         return;
       }
       let hasRequest = runScenario && runScenario.hasRequest;

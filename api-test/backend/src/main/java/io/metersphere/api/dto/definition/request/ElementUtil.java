@@ -1171,19 +1171,4 @@ public class ElementUtil {
         }
         return false;
     }
-
-    public static boolean isEnable(MsTestElement element, ParameterConfig config) {
-        if (MapUtils.isEmpty(config.getKeyMap())) {
-            return true;
-        }
-        String path = ElementUtil.getFullIndexPath(element, "");
-        if (StringUtils.isNotBlank(path) && path.endsWith("_")) {
-            path = path.substring(0, path.length() - 1);
-        }
-        String key = StringUtils.join(element.getId(), "_", path);
-        if (config.getKeyMap().containsKey(key)) {
-            return config.getKeyMap().get(key);
-        }
-        return true;
-    }
 }

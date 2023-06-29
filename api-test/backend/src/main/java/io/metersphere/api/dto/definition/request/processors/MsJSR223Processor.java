@@ -12,7 +12,6 @@ import io.metersphere.utils.JMeterVars;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;
@@ -41,11 +40,9 @@ public class MsJSR223Processor extends MsTestElement {
                 return;
             }
         }
-        if (!ElementUtil.isEnable(this, config)) {
-            return;
-        }
+        
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+        if (!config.isOperating() && !this.isEnable()) {
             return;
         }
         this.setEnvironmentId(ElementUtil.getScriptEnv(this.getEnvironmentId(), config, this.getProjectId()));
