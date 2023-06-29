@@ -80,6 +80,9 @@ public class StatusReference {
         statusMap.put("TRACK_TEST_CASE_TASK", "测试跟踪用例任务");
         statusMap.put("TRACK_HOME_TASK", "测试跟踪主页任务");
         statusMap.put("TRACK_REPORT_TASK", "测试跟踪报告任务");
+        statusMap.put("Failure", "失败");
+        statusMap.put("Blocking", "阻塞");
+        statusMap.put("Skip", "跳过");
 
     }
 }
