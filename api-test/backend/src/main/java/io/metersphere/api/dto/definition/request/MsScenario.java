@@ -19,12 +19,10 @@ import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.environment.service.BaseEnvironmentService;
 import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.MsHashTreeService;
 import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -67,18 +65,16 @@ public class MsScenario extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+        if (!config.isOperating() && !this.isEnable()) {
             return;
         }
         if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
             return;
         } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())
-                && !this.setRefScenario(hashTree, config)) {
+                && !this.setRefScenario(hashTree)) {
             return;
         }
-        if (!ElementUtil.isEnable(this, config)) {
-            return;
-        }
+        
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
@@ -141,7 +137,6 @@ public class MsScenario extends MsTestElement {
         }
         if ((this.variableEnable == null && this.mixEnable == null)
                 || BooleanUtils.isTrue(this.variableEnable) || BooleanUtils.isTrue(this.mixEnable)) {
-            newConfig.setKeyMap(config.getKeyMap());
             ElementUtil.addCsvDataSet(scenarioTree, variables, this.isEnvironmentEnable() ? newConfig : config, "shareMode.group");
             ElementUtil.addCounter(scenarioTree, variables);
             ElementUtil.addRandom(scenarioTree, variables);
@@ -210,23 +205,12 @@ public class MsScenario extends MsTestElement {
         }
     }
 
-    private boolean setRefScenario(List<MsTestElement> hashTree, ParameterConfig config) {
+    private boolean setRefScenario(List<MsTestElement> hashTree) {
         try {
             ApiScenarioMapper apiAutomationService = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             ApiScenarioWithBLOBs scenario = apiAutomationService.selectByPrimaryKey(this.getId());
             if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                 JSONObject element = JSONUtil.parseObject(scenario.getScenarioDefinition());
-                if (MapUtils.isNotEmpty(config.getKeyMap())) {
-                    String path = ElementUtil.getFullIndexPath(this, "");
-                    if (path.endsWith("_")) {
-                        path = path.substring(0, path.length() - 1);
-                    }
-                    element.put(MsHashTreeService.INDEX, path);
-                    boolean enable = config.getKeyMap().get(this.getId() + "_" + path);
-                    if (!enable) {
-                        return false;
-                    }
-                }
                 // 历史数据处理
                 ElementUtil.dataFormatting(element.optJSONArray(ElementConstants.HASH_TREE));
                 this.setName(scenario.getName());

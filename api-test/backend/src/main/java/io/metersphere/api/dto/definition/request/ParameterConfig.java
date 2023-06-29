@@ -102,11 +102,6 @@ public class ParameterConfig extends MsParameter {
     private List<String> excludeScenarioIds = new ArrayList<>();
 
     private List<String> csvFilePaths = new ArrayList<>();
-    /**
-     * 启用或禁用记录
-     */
-    private Map<String, Boolean> keyMap = new HashMap<>();
-
 
     public boolean isEffective(String projectId) {
         if (this.config != null && this.config.get(projectId) != null) {

@@ -17,12 +17,14 @@
         draggable
         size="mini"
         v-model="controller.variable"
+        :disabled="controller.caseEnable"
         style="width: 12%"
         :placeholder="$t('api_test.request.condition_variable')" />
 
       <el-select
         v-model="controller.operator"
         :placeholder="$t('commons.please_select')"
+        :disabled="controller.caseEnable"
         size="mini"
         @change="change"
         class="ms-select">
@@ -34,6 +36,7 @@
         size="mini"
         v-model="controller.value"
         :placeholder="$t('api_test.value')"
+        :disabled="controller.caseEnable"
         v-if="!hasEmptyOperator"
         class="ms-btn" />
 
@@ -42,6 +45,7 @@
         size="mini"
         v-model="controller.remark"
         :placeholder="$t('commons.remark')"
+        :disabled="controller.caseEnable"
         v-if="!hasEmptyOperator && !isMax"
         class="ms-btn" />
     </template>

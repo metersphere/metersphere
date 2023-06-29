@@ -34,12 +34,10 @@ public class MsTransactionController extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
-        if (!config.isOperating() && !this.isEnable() && MapUtils.isEmpty(config.getKeyMap())) {
+        if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        if (!ElementUtil.isEnable(this, config)) {
-            return;
-        }
+        
         TransactionController transactionController = transactionController();
         final HashTree groupTree = tree.add(transactionController);
         if (CollectionUtils.isNotEmpty(hashTree)) {
