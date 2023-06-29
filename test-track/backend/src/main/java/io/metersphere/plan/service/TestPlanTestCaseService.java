@@ -18,6 +18,7 @@ import io.metersphere.dto.*;
 import io.metersphere.excel.constants.TestPlanTestCaseStatus;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
 import io.metersphere.plan.request.function.*;
@@ -481,7 +482,17 @@ public class TestPlanTestCaseService {
         if (planTestCaseWithBLOBs != null) {
             TestCase testCase = testCaseMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getCaseId());
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getPlanId());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testCase.getProjectId(), testCase.getName(), planTestCaseWithBLOBs.getCreateUser(), new LinkedList<>());
+            List<DetailColumn> columns = new LinkedList<>();
+            DetailColumn executeStatusColumn = new DetailColumn("状态", "lastExecuteResult", StatusReference.statusMap.get(testCase.getLastExecuteResult()), null);
+            columns.add(executeStatusColumn);
+            // 增加评论内容
+            List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(planTestCaseWithBLOBs.getCaseId());
+            if (CollectionUtils.isNotEmpty(dtos)) {
+                List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
+                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join(StringUtils.LF, names), null);
+                columns.add(detailColumn);
+            }
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCase.getId()), testCase.getProjectId(), testCase.getName(), planTestCaseWithBLOBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
