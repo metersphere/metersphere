@@ -181,6 +181,9 @@ export default {
     this.$EventBus.$on("apiConditionBus", (param)=>{
       this.param = param;
     })
+    if (this.isRelevance) {
+      this.condition.protocol = "HTTP";
+    }
   },
   beforeDestroy() {
     this.$EventBus.$off("apiConditionBus", (param)=>{
