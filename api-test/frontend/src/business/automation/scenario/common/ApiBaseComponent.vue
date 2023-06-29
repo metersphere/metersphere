@@ -81,7 +81,7 @@
             v-model="data.enable"
             class="enable-switch"
             size="mini"
-            :disabled="!showVersion || isDeleted || isEnabled()" />
+            :disabled="isEnabled()" />
         </el-tooltip>
 
         <el-button
@@ -96,7 +96,7 @@
           'PROJECT_API_SCENARIO:READ+CREATE',
           'PROJECT_API_SCENARIO:READ+COPY',
         ]"
-          :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted" />
+          :disabled="isEnabled()" />
 
         <el-button
           v-show="isSingleButton"
@@ -106,7 +106,7 @@
           style="padding: 5px"
           circle
           @click="remove"
-          :disabled="(data.disabled && !data.root && !data.isCopy) || !showVersion || isDeleted"
+          :disabled="isEnabled()"
           v-permission="[
           'PROJECT_API_SCENARIO:READ+EDIT',
           'PROJECT_API_SCENARIO:READ+CREATE',
@@ -285,7 +285,7 @@ export default {
     },
     isMoreButton() {
       if (this.data.type === 'ConstantTimer' || this.data.type === 'Assertions') {
-        return (
+        return !this.data.caseEnable && (
           !this.innerStep ||
           (this.showBtn &&
             (!this.data.disabled || this.data.root || this.data.isCopy || this.data.showExtend) &&
@@ -303,7 +303,7 @@ export default {
   },
   methods: {
     isEnabled() {
-      return this.stepFilter.get("ALlSamplerStep").indexOf(this.data.type) !== -1 && this.data.caseEnable;
+      return !this.showVersion || this.isDeleted || this.data.caseEnable;
     },
     active() {
       this.$emit('active');
