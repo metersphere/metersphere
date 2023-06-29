@@ -211,7 +211,7 @@ public class TestCaseService {
 
     public TestCaseWithBLOBs addTestCase(EditTestCaseRequest request) {
         request.setName(request.getName());
-        checkTestCaseExist(request);
+        checkTestCaseExist(request, false);
         request.setId(request.getId());
         request.setCreateTime(System.currentTimeMillis());
         request.setUpdateTime(System.currentTimeMillis());
@@ -455,6 +455,7 @@ public class TestCaseService {
         // latest 字段 createNewVersionOrNot 已经设置过了，不更新
         testCase.setLatest(null);
 
+        checkTestCaseExist(testCase, true);
         testCaseMapper.updateByPrimaryKeySelective(testCase);
 
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCase.getId());
@@ -614,7 +615,7 @@ public class TestCaseService {
         }
     }
 
-    public TestCaseWithBLOBs checkTestCaseExist(TestCaseWithBLOBs testCase) {
+    public void checkTestCaseExist(TestCaseWithBLOBs testCase, boolean isEdit) {
 
         // 全部字段值相同才判断为用例存在
         if (testCase != null) {
@@ -634,7 +635,7 @@ public class TestCaseService {
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
             }
-            if (StringUtils.isNotBlank(testCase.getId())) {
+            if (isEdit && StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
             List<TestCaseWithBLOBs> caseList = testCaseMapper.selectByExampleWithBLOBs(example);
@@ -649,13 +650,11 @@ public class TestCaseService {
                     String remark = tc.getRemark() == null ? StringUtils.EMPTY : tc.getRemark();
                     String prerequisite = tc.getPrerequisite() == null ? StringUtils.EMPTY : tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
-                        //MSException.throwException(Translator.get("test_case_already_exists"));
-                        return tc;
+                        MSException.throwException(Translator.get("test_case_already_exists_in_module"));
                     }
                 }
             }
         }
-        return null;
     }
 
     /**
@@ -2176,7 +2175,7 @@ public class TestCaseService {
             for (int i = 0; i < list.size(); i++) {
                 TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
                 BeanUtils.copyBean(batchCopy, list.get(i));
-                checkTestCaseExist(batchCopy);
+                checkTestCaseExist(batchCopy, false);
                 String oldTestCaseId = batchCopy.getId();
                 String id = UUID.randomUUID().toString();
                 batchCopy.setId(id);
@@ -2307,15 +2306,11 @@ public class TestCaseService {
      * @return
      */
     public boolean exist(TestCaseWithBLOBs testCaseWithBLOBs) {
-
         try {
-            TestCaseWithBLOBs caseWithBLOBs = checkTestCaseExist(testCaseWithBLOBs);
-            if (caseWithBLOBs != null)
-                return true;
+            checkTestCaseExist(testCaseWithBLOBs, testCaseWithBLOBs.getId() == null ? true : false);
         } catch (MSException e) {
             return true;
         }
-
         return false;
     }
 
