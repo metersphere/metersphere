@@ -461,7 +461,7 @@ export default {
 <style scoped>
 .env-container{
   max-height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
   padding-bottom: 1px;
 }
 .env-container .title {
