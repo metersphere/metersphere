@@ -303,6 +303,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     private void validateDbExist(TestCaseExcelData data, StringBuilder stringBuilder) {
+        //  校验模块是否存在，没有存在则新建一个模块
+        testCaseNodeService.createNodeByNodePath(data.getNodePath(), request.getProjectId(), nodeTrees, pathMap);
         if (this.isUpdateModel()) {
             return;
         }
@@ -313,10 +315,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
             String steps = getSteps(data);
             testCase.setSteps(steps);
 
-            //  校验模块是否存在，没有存在则新建一个模块
-            testCaseNodeService.createNodeByNodePath(testCase.getNodePath(), request.getProjectId(), nodeTrees, pathMap);
             testCase.setNodeId(pathMap.get(testCase.getNodePath()));
-
             boolean dbExist = testCaseService.exist(testCase);
             boolean excelExist = false;
 
