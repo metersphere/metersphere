@@ -41,7 +41,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect } from 'vue';
-  import { UserGroupItem } from './type';
+  import { UserGroupItem } from '@/models/system/usergroup';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();

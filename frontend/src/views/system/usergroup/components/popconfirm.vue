@@ -30,7 +30,7 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
   import { watchEffect, reactive, ref, computed, onUnmounted } from 'vue';
-  import { CustomMoreActionItem, RenameType, UserGroupItem } from './type';
+  import { CustomMoreActionItem, RenameType, UserGroupItem } from '@/models/system/usergroup';
   import { ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();

@@ -40,7 +40,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { reactive, ref, watchEffect, onUnmounted } from 'vue';
-  import { UserOption } from './type';
+  import { UserOption } from '@/models/system/usergroup';
 
   const { t } = useI18n();
   const props = defineProps<{
