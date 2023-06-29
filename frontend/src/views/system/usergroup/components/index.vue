@@ -60,7 +60,7 @@
 <script lang="ts" setup>
   import { ref, onMounted } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { CustomMoreActionItem, PopVisibleItem, RenameType, UserGroupItem } from './type';
+  import { CustomMoreActionItem, PopVisibleItem, RenameType, UserGroupItem } from '@/models/system/usergroup';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AddUserModal from './addUserModal.vue';

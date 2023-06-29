@@ -29,10 +29,10 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import UserGroupLeft from '@/components/bussiness/usergroup/index.vue';
   import useUserGroupStore from '@/store/modules/system/usergroup';
-  import UserTable from '@/components/bussiness/usergroup/userTable.vue';
-  import AuthTable from '@/components/bussiness/usergroup/authTable.vue';
+  import UserGroupLeft from './components/index.vue';
+  import UserTable from './components/userTable.vue';
+  import AuthTable from './components/authTable.vue';
 
   const currentTable = ref('auth');
 
