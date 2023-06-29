@@ -19,6 +19,7 @@ package org.apache.jmeter.assertions;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.utils.DocumentUtils;
+import io.metersphere.utils.LoggerUtil;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -130,7 +131,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     private void doAssert(String jsonString) {
         Object value = JsonPath.read(jsonString, getJsonPath());
-
+        LoggerUtil.info("json断言第一次拿到的值: " + value.toString());
         if (!isJsonValidationBool()) {
             if (value instanceof JSONArray) {
                 JSONArray arrayValue = (JSONArray) value;
@@ -236,6 +237,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     private boolean isEquals(Object subj) {
         String str = DocumentUtils.objectToString(subj, decimalFormatter);
+        LoggerUtil.info("json断言拿到的值: " + str);
         if (StringUtils.equals(str,KEY_PRE)) {
             return false;
         }
@@ -244,6 +246,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                 return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();
             } else {
                 Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
+                LoggerUtil.info("json断言正则表达式的结果: " + JMeterUtils.getMatcher().matches(str, pattern));
                 return JMeterUtils.getMatcher().matches(str, pattern);
             }
         } else {
@@ -283,6 +286,9 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         try {
             Number number1 = NumberUtils.createBigDecimal(v1);
             Number number2 = NumberUtils.createBigDecimal(v2);
+            LoggerUtil.info("json断言的值   " + number1.toString());
+            LoggerUtil.info("期望的值    " + number2.toString());
+            LoggerUtil.info("json断言比较的结果: " + number1.equals(number2));
             return number1.equals(number2);
         } catch (Exception e) {
             return StringUtils.equals(v1, v2);
@@ -293,6 +299,9 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         try {
             Number number1 = NumberUtils.createBigDecimal(v1);
             Number number2 = NumberUtils.createBigDecimal(v2);
+            LoggerUtil.info("json断言的值   " + number1.toString());
+            LoggerUtil.info("期望的值    " + number2.toString());
+            LoggerUtil.info("json断言比较的结果: " + !number1.equals(number2));
             return !number1.equals(number2);
         } catch (Exception e) {
             return !StringUtils.equals(v1, v2);
