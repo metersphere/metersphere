@@ -1,5 +1,13 @@
 <template>
-  <a-drawer v-model:visible="visible" :width="props.width" :footer="props.footer" @ok="handleOk" @cancel="handleCancel">
+  <a-drawer
+    v-model:visible="visible"
+    :width="props.width"
+    :footer="props.footer"
+    :mask="props.mask"
+    :class="props.mask ? '' : 'ms-drawer-no-mask'"
+    @ok="handleOk"
+    @cancel="handleCancel"
+  >
     <template #title>
       <slot name="title">
         <div class="flex w-full justify-between">
@@ -70,6 +78,12 @@
       @apply text-left;
 
       border-bottom: 1px solid var(--color-text-n8);
+    }
+  }
+  .ms-drawer-no-mask {
+    left: auto;
+    .arco-drawer {
+      box-shadow: -1px 0 4px 0 rgb(2 2 2 / 10%);
     }
   }
 </style>
