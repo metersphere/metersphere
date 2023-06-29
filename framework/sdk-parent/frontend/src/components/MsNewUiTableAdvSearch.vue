@@ -406,6 +406,10 @@ export default {
     min-width: 695px;
   }
 }
+
+.search-items .el-scrollbar .el-scrollbar__wrap {
+  overflow-x: auto;
+}
 </style>
 
 <style scoped>
