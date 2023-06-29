@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%; overflow: hidden">
     <div class="ms-header">
-      <el-row>
+      <el-row @click.native="handleHeaderClick">
         <el-col :span="1" v-show="scenarioDefinition.length > 1">
           <div class="ms-div" style="margin-left: 10px">
             <el-tooltip
@@ -89,7 +89,7 @@
 
     <!-- 场景步骤-->
     <ms-container :class="{ 'maximize-container': !asideHidden }">
-      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden">
+      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden" @click.native="handleMainClick">
         <div class="ms-debug-result" v-if="reqTotal > 0">
           <span style="float: right">
             <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
@@ -117,7 +117,6 @@
             @node-click="nodeClick"
             class="ms-max-tree"
             ref="maxStepTree"
-            v-custom-click-outside="outsideClick"
           >
             <el-row
               class="custom-tree-node"
@@ -202,8 +201,8 @@
         </div>
       </ms-aside-container>
 
-      <ms-main-container class="card-content" v-loading="loading">
-        <div v-if="!loading">
+      <ms-main-container class="card-content" v-loading="loading" @click.native="handleMainClick">
+        <div v-if="!loading" @click="handleComponentClick">
           <!-- 第一层当前节点内容-->
           <ms-component-config
             :isMax="false"
@@ -225,7 +224,8 @@
             @openScenario="openScenario"
             @runScenario="runScenario"
             @stopScenario="stopScenario"
-            v-if="selectedTreeNode && selectedNode" />
+            v-if="selectedTreeNode && selectedNode"
+          />
           <!-- 请求下还有的子步骤-->
           <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
             <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
@@ -537,6 +537,17 @@ export default {
     },
   },
   methods: {
+    handleHeaderClick(e){
+      if(e.target.tagName === 'DIV'){
+        this.outsideClick(e)
+      }
+    },
+    handleMainClick(e) {
+      this.outsideClick(e)
+    },
+    handleComponentClick(e) {
+      e.stopPropagation();
+    },
     initPlugins() {
       getPluginList().then((response) => {
         let data = response.data;
