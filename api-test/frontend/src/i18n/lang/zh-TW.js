@@ -130,6 +130,9 @@ const message = {
     scenario_step_ref_message: '當前操作可能導致頁面加載異常，是否繼續',
     case_message: '請選擇案例',
     scenario_message: '請選擇場景',
+    scenario_plugin_debug_warning:'場景包含挿件步驟，對應場景已經刪除不能調試! ',
+    scenario_plugin_save_warning: '場景包含挿件步驟，對應場景已經刪除不能編輯! ',
+    scenario_plugin_run_warning: '場景包含挿件步驟，對應場景已經刪除不能運行! '
   },
 };
 

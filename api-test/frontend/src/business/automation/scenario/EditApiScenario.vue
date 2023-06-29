@@ -1293,7 +1293,7 @@ export default {
       this.mergeScenario(this.scenarioDefinition);
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
-        this.$error('场景包含插件步骤，对应场景已经删除不能执行！');
+        this.$error(this.$t('automation.scenario_plugin_run_warning'));
         return;
       }
       /*触发执行操作*/
@@ -1755,7 +1755,7 @@ export default {
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
         this.debugLoading = false;
-        this.$error('场景包含插件步骤，对应场景已经删除不能调试！');
+        this.$error(this.$t('automation.scenario_plugin_run_warning'));
 
         this.clearResult(this.scenarioDefinition);
         this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
@@ -1899,7 +1899,7 @@ export default {
       }
       this.validatePluginData(this.scenarioDefinition);
       if (this.pluginDelStep) {
-        this.$error('场景包含插件步骤，对应场景已经删除不能编辑！');
+        this.$error(this.$t('automation.scenario_plugin_save_warning'));
         return;
       }
       return new Promise((resolve) => {

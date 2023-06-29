@@ -130,6 +130,9 @@ const message = {
     scenario_step_ref_message: '当前操作可能导致页面加载异常，是否继续',
     case_message: '请选择案例',
     scenario_message: '请选择场景',
+    scenario_plugin_debug_warning: '场景包含插件步骤，对应场景已经删除不能调试！',
+    scenario_plugin_save_warning: '场景包含插件步骤，对应场景已经删除不能编辑！',
+    scenario_plugin_run_warning: '场景包含插件步骤，对应场景已经删除不能执行！',
   },
 };
 

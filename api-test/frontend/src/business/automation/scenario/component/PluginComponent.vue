@@ -368,6 +368,10 @@ export default {
       }
     },
     run() {
+      if(this.request.plugin_del){
+        this.$error(this.$t('automation.scenario_plugin_save_warning'));
+        return;
+      }
       this.request.debug = true;
       this.loading = true;
       this.runData = [];

@@ -135,6 +135,9 @@ const message = {
       'The current may cause page loading exceptions, whether to continue?',
     case_message: 'Please select a case',
     scenario_message: 'Please select a scene',
+    scenario_plugin_debug_warning: 'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be debugged！ ',
+    scenario_plugin_save_warning: 'The scene contains plugin steps, and the corresponding scene has been deleted and cannot be edited！ ',
+    scenario_plugin_run_warning: 'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be executed！',
   },
 };
 export default {
