@@ -1,4 +1,4 @@
-package io.metersphere.system.dto;
+package io.metersphere.sdk.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -38,7 +38,7 @@ public class TestResourceDTO {
     /**
      *  type为 k8s 时，接口测试，性能测试的命名空间
      */
-    private String namespaces;
+    private String nameSpaces;
     /**
      *  type为 k8s 时，接口测试，性能测试，UI测试的最大并发数
      */
@@ -68,10 +68,10 @@ public class TestResourceDTO {
      */
     private String uiGrid;
 
-
-
-
-
+    /**
+     * 关联的组织id集合
+     */
+    private List<String>orgIds;
 
 
 }

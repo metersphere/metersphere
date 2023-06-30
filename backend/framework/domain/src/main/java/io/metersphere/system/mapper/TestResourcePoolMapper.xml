@@ -14,6 +14,7 @@
     <result column="load_test" jdbcType="BIT" property="loadTest" />
     <result column="ui_test" jdbcType="BIT" property="uiTest" />
     <result column="server_url" jdbcType="VARCHAR" property="serverUrl" />
+    <result column="all_org" jdbcType="BIT" property="allOrg" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, description, `enable`, create_time, update_time, create_user, 
-    api_test, load_test, ui_test, server_url, deleted
+    api_test, load_test, ui_test, server_url, all_org, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.TestResourcePoolExample" resultMap="BaseResultMap">
     select
@@ -113,12 +114,12 @@
       description, `enable`, create_time, 
       update_time, create_user, api_test, 
       load_test, ui_test, server_url, 
-      deleted)
+      all_org, deleted)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{apiTest,jdbcType=BIT}, 
       #{loadTest,jdbcType=BIT}, #{uiTest,jdbcType=BIT}, #{serverUrl,jdbcType=VARCHAR}, 
-      #{deleted,jdbcType=BIT})
+      #{allOrg,jdbcType=BIT}, #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.TestResourcePool">
     insert into test_resource_pool
@@ -158,6 +159,9 @@
       </if>
       <if test="serverUrl != null">
         server_url,
+      </if>
+      <if test="allOrg != null">
+        all_org,
       </if>
       <if test="deleted != null">
         deleted,
@@ -199,6 +203,9 @@
       </if>
       <if test="serverUrl != null">
         #{serverUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="allOrg != null">
+        #{allOrg,jdbcType=BIT},
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
@@ -250,6 +257,9 @@
       <if test="record.serverUrl != null">
         server_url = #{record.serverUrl,jdbcType=VARCHAR},
       </if>
+      <if test="record.allOrg != null">
+        all_org = #{record.allOrg,jdbcType=BIT},
+      </if>
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
@@ -272,6 +282,7 @@
       load_test = #{record.loadTest,jdbcType=BIT},
       ui_test = #{record.uiTest,jdbcType=BIT},
       server_url = #{record.serverUrl,jdbcType=VARCHAR},
+      all_org = #{record.allOrg,jdbcType=BIT},
       deleted = #{record.deleted,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -313,6 +324,9 @@
       <if test="serverUrl != null">
         server_url = #{serverUrl,jdbcType=VARCHAR},
       </if>
+      <if test="allOrg != null">
+        all_org = #{allOrg,jdbcType=BIT},
+      </if>
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
@@ -332,6 +346,7 @@
       load_test = #{loadTest,jdbcType=BIT},
       ui_test = #{uiTest,jdbcType=BIT},
       server_url = #{serverUrl,jdbcType=VARCHAR},
+      all_org = #{allOrg,jdbcType=BIT},
       deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>

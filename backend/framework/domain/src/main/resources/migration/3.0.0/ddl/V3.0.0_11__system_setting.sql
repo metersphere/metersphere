@@ -264,6 +264,7 @@ CREATE TABLE test_resource_pool(
                                    `load_test` BIT    COMMENT '是否用于性能测试' ,
                                    `ui_test` BIT    COMMENT '是否用于ui测试' ,
                                    `server_url` VARCHAR(255)    COMMENT 'ms部署地址' ,
+                                   `all_org` BIT NOT NULL  DEFAULT 1 COMMENT '资源池应用类型（组织/全部）' ,
                                    `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
                                    PRIMARY KEY (id)
 ) ENGINE = InnoDB
@@ -278,6 +279,7 @@ CREATE INDEX idx_enable ON test_resource_pool(`enable`);
 CREATE INDEX idx_create_time ON test_resource_pool(`create_time`);
 CREATE INDEX idx_update_time ON test_resource_pool(`update_time`);
 CREATE INDEX idx_create_user ON test_resource_pool(`create_user`);
+CREATE INDEX idx_all_org ON test_resource_pool(`all_org`);
 
 CREATE TABLE IF NOT EXISTS user
 (
@@ -419,6 +421,20 @@ CREATE TABLE IF NOT EXISTS plugin_blob
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '插件大字段';
 
+
+DROP TABLE IF EXISTS test_resource_pool_organization;
+CREATE TABLE test_resource_pool_organization(
+                                                `id` VARCHAR(50) NOT NULL   COMMENT '测试资源池项目关系ID' ,
+                                                `test_resource_pool_id` VARCHAR(50) NOT NULL   COMMENT '资源池ID' ,
+                                                `org_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
+                                                PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试资源池项目关系';
+
+
+CREATE INDEX idx_test_resource_pool_id ON test_resource_pool_organization(`test_resource_pool_id`);
+CREATE INDEX idx_org_id ON test_resource_pool_organization(`org_id`);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
