@@ -1,4 +1,4 @@
-package io.metersphere.system.request;
+package io.metersphere.sdk.dto;
 
 import io.metersphere.sdk.dto.BasePageRequest;
 import lombok.Getter;

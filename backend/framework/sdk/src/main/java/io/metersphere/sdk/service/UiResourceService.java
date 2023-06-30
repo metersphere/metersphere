@@ -1,6 +1,7 @@
-package io.metersphere.system.service;
+package io.metersphere.sdk.service;
 
-import io.metersphere.system.dto.TestResourceDTO;
+
+import io.metersphere.sdk.dto.TestResourceDTO;
 
 public interface UiResourceService {
 
