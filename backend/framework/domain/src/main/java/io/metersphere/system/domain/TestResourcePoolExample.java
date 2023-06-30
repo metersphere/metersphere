@@ -884,6 +884,66 @@ public class TestResourcePoolExample {
             return (Criteria) this;
         }
 
+        public Criteria andAllOrgIsNull() {
+            addCriterion("all_org is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgIsNotNull() {
+            addCriterion("all_org is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgEqualTo(Boolean value) {
+            addCriterion("all_org =", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgNotEqualTo(Boolean value) {
+            addCriterion("all_org <>", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgGreaterThan(Boolean value) {
+            addCriterion("all_org >", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("all_org >=", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgLessThan(Boolean value) {
+            addCriterion("all_org <", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgLessThanOrEqualTo(Boolean value) {
+            addCriterion("all_org <=", value, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgIn(List<Boolean> values) {
+            addCriterion("all_org in", values, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgNotIn(List<Boolean> values) {
+            addCriterion("all_org not in", values, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgBetween(Boolean value1, Boolean value2) {
+            addCriterion("all_org between", value1, value2, "allOrg");
+            return (Criteria) this;
+        }
+
+        public Criteria andAllOrgNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("all_org not between", value1, value2, "allOrg");
+            return (Criteria) this;
+        }
+
         public Criteria andDeletedIsNull() {
             addCriterion("deleted is null");
             return (Criteria) this;

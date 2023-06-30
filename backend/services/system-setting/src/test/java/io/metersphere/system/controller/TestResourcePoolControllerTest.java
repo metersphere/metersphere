@@ -1,24 +1,34 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
+
+import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.controller.handler.ResultHolder;
+import io.metersphere.sdk.dto.TestResourceDTO;
+import io.metersphere.sdk.dto.TestResourcePoolRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.dto.ResourcePoolTypeEnum;
-import io.metersphere.system.dto.TestResourcePoolDTO;
-import io.metersphere.system.request.QueryResourcePoolRequest;
+import io.metersphere.sdk.dto.QueryResourcePoolRequest;
+import io.metersphere.system.domain.TestResourcePoolOrganization;
+import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
+import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
+import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -32,13 +42,15 @@ class TestResourcePoolControllerTest extends BaseTest {
 
     @Resource
     private MockMvc mockMvc;
+    @Resource
+    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
 
     private static final String TEST_RESOURCE_POOL_ADD = "/test/resource/pool/add";
     private static final String TEST_RESOURCE_POOL_UPDATE = "/test/resource/pool/update";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
-    private static final String configuration = "{\n" +
+    private static final String configurationWidthOutOrgIds = "{\n" +
             "  \"loadTestImage\": \"123\",\n" +
             "  \"loadTestHeap\": \"123\",\n" +
             "  \"nodesList\":[{\n" +
@@ -57,51 +69,156 @@ class TestResourcePoolControllerTest extends BaseTest {
             "\"deployName\":\"hello\",\n" +
             "\"uiGrid\":\"localhost:4444\"\n" +
             "}";
+    private static final String configuration = "{\n" +
+            "  \"loadTestImage\": \"123\",\n" +
+            "  \"loadTestHeap\": \"123\",\n" +
+            "  \"nodesList\": [\n" +
+            "    {\n" +
+            "      \"ip\": \"172.2.130.1\",\n" +
+            "      \"port\": \"3306\",\n" +
+            "      \"monitor\": \"11\",\n" +
+            "      \"concurrentNumber\": 1\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"orgIds\": [\"03c751bf-20e9-5068-a760-7a9fbf0f594b\",\"233445566677788\"],\n" +
+            "  \"ip\": \"172.2.130.1\",\n" +
+            "  \"token\": \"dsdfssdsvgsd\",\n" +
+            "  \"namespaces\": \"测试\",\n" +
+            "  \"concurrentNumber\": 3,\n" +
+            "  \"podThreads\": 2,\n" +
+            "  \"jobDefinition\": \"jsfsjs\",\n" +
+            "  \"apiTestImage\": \"ddgd\",\n" +
+            "  \"deployName\": \"hello\",\n" +
+            "  \"uiGrid\": \"localhost:4444\"\n" +
+            "}";
 
-    @Test
-    @Order(1)
-    void addTestResourcePool() throws Exception {
-        TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
-        testResourcePoolDTO.setName("test_pool_1");
-        testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
-        testResourcePoolDTO.setApiTest(true);
-        testResourcePoolDTO.setLoadTest(false);
-        testResourcePoolDTO.setUiTest(false);
-        setResources(testResourcePoolDTO);
-        mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
+
+   private MvcResult addTestResourcePoolSuccess(String name,Boolean allOrg, Boolean partOrg, Boolean useApi, Boolean useLoad, Boolean useUi, String type) throws Exception {
+        TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
+        testResourcePoolRequest.setName(name);
+        testResourcePoolRequest.setType(type);
+        testResourcePoolRequest.setApiTest(useApi);
+        testResourcePoolRequest.setLoadTest(useLoad);
+        testResourcePoolRequest.setUiTest(useUi);
+        //添加成功 需要加应用组织的 全部 部分组织的测试 既有全部又有list
+        //应用全部
+        testResourcePoolRequest.setAllOrg(allOrg);
+        setResources(testResourcePoolRequest,partOrg);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(testResourcePoolDTO))
+                        .content(JSON.toJSONString(testResourcePoolRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        //应用全部 关系表里不会存值
+        TestResourcePoolRequest testResourcePoolRequest1 = getResult(mvcResult);
+        List<TestResourcePoolOrganization> testResourcePoolOrganizations = getTestResourcePoolOrganizations(testResourcePoolRequest1);
+        if (allOrg) {
+            Assertions.assertTrue(CollectionUtils.isEmpty(testResourcePoolOrganizations));
+        }
+        if (!allOrg) {
+            Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolOrganizations) && testResourcePoolOrganizations.size() == 2));
+        }
+        return mvcResult;
+    }
+
+    @Test
+    @Order(1)
+    void addTestResourcePoolOne() throws Exception {
+        // 选全部资源池，部分没值 资源池节点为NODE use： api load ui
+        this.addTestResourcePoolSuccess("test_pool_1", true,false,true,true,true,ResourcePoolTypeEnum.NODE.name());
+
     }
 
     @Test
     @Order(2)
-    void addUiTestResourcePoolFiled() throws Exception {
-        //资源池名称为空
-        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true, false, false, false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //资源池类型为空
-        testResourcePoolDTO = generatorDto(false, true, false, false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //资源池节点集合为空
-        testResourcePoolDTO = generatorDto(false, false, true, false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //用途测试
-        testResourcePoolDTO = generatorDto(false, false, false, true, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_ADD, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //ui用途为空
-        testResourcePoolDTO = generatorDto(false, false, false, false,true, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //load用途为空
-        testResourcePoolDTO = generatorDto(false, false, false, false,false, true);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
+    void addTestResourcePoolTwo() throws Exception {
+        // 选全部资源池，部分没值 资源池节点为NODE use： api load
+        this.addTestResourcePoolSuccess("test_pool_2",true,false,true,true,false,ResourcePoolTypeEnum.NODE.name());
+
     }
 
     @Test
     @Order(3)
+    void addTestResourcePoolThree() throws Exception {
+        // 选全部资源池，部分没值 资源池节点为NODE use： api
+        this.addTestResourcePoolSuccess("test_pool_3",true,false,true,false,false,ResourcePoolTypeEnum.NODE.name());
+
+    }
+    @Test
+    @Order(4)
+    void addTestResourcePoolFour() throws Exception {
+        // 选全部资源池，部分没值 资源池节点为NODE use：
+        this.addTestResourcePoolSuccess("test_pool_4",true,false,false,false,false,ResourcePoolTypeEnum.NODE.name());
+
+    }
+    @Test
+    @Order(5)
+    void addTestResourcePoolFive() throws Exception {
+        //用途只是标记，没有实际影响所以这里每种只测一遍。其余以api为例
+        // 选全部资源池，部分有值 资源池节点为NODE use： api
+        this.addTestResourcePoolSuccess("test_pool_5",true,true,true,false,false,ResourcePoolTypeEnum.NODE.name());
+
+    }
+    @Test
+    @Order(6)
+    void addTestResourcePoolSix() throws Exception {
+        // 不选全部资源池，部分有值 资源池节点为NODE use： api
+        this.addTestResourcePoolSuccess("test_pool_6",false,true,true,false,false,ResourcePoolTypeEnum.NODE.name());
+
+    }
+    @Test
+    @Order(7)
+    void addTestResourcePoolSeven() throws Exception {
+        //资源池的应用与类型无关 这里资源池正确的顺序就到此为止。换个类型只测一遍就行
+        // 不选全部资源池，部分有值 资源池节点为NODE use： api
+        this.addTestResourcePoolSuccess("test_pool_7",false,true,true,false,false,ResourcePoolTypeEnum.K8S.name());
+    }
+
+    @Test
+    @Order(8)
+    void addTestResourcePoolFailedBySameName() throws Exception {
+        TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
+        testResourcePoolRequest.setName("test_pool_7");
+        testResourcePoolRequest.setType(ResourcePoolTypeEnum.K8S.name());
+        testResourcePoolRequest.setApiTest(true);
+        testResourcePoolRequest.setLoadTest(false);
+        testResourcePoolRequest.setUiTest(false);
+        //添加成功 需要加应用组织的 全部 部分组织的测试 既有全部又有list
+        //应用全部
+        testResourcePoolRequest.setAllOrg(false);
+        setResources(testResourcePoolRequest,true);
+        mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_ADD)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(testResourcePoolRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(ERROR_REQUEST_MATCHER).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    }
+
+    private static TestResourcePoolRequest getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolRequest.class);
+    }
+
+    private List<TestResourcePoolOrganization> getTestResourcePoolOrganizations(TestResourcePoolRequest testResourcePoolRequest1) {
+        TestResourcePoolOrganizationExample testResourcePoolOrganizationExample = new TestResourcePoolOrganizationExample();
+        testResourcePoolOrganizationExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolRequest1.getId());
+        return testResourcePoolOrganizationMapper.selectByExample(testResourcePoolOrganizationExample);
+    }
+
+    @Test
+    @Order(9)
+    void addUiTestResourcePoolFiled() throws Exception {
+       this.dealTestResourcePoolFiled("ADD");
+    }
+
+    @Test
+    @Order(10)
     void listResourcePoolsWidthSearch() throws Exception {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
@@ -117,7 +234,7 @@ class TestResourcePoolControllerTest extends BaseTest {
     }
 
     @Test
-    @Order(4)
+    @Order(11)
     void listResourcePoolsNoSearch() throws Exception {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
@@ -132,57 +249,127 @@ class TestResourcePoolControllerTest extends BaseTest {
     }
 
     @Test
-    @Order(5)
+    @Sql(scripts = {"/dml/init_test_resource_pool.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Order(12)
+    void getResourcePoolsDetail() throws Exception {
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        request.setCurrent(1);
+        request.setPageSize(5);
+        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/103")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @Order(13)
+    void getResourcePoolsDetailWidthBlob() throws Exception {
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePoolRequest testResourcePoolRequest1 = getResult(testPoolBlob);
+        String id = testResourcePoolRequest1.getId();
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        request.setCurrent(1);
+        request.setPageSize(5);
+        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/"+id)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+
+    @Test
+    @Order(14)
+    void getResourcePoolsDetailFiled() throws Exception {
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        request.setCurrent(1);
+        request.setPageSize(5);
+        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/1034")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(ERROR_REQUEST_MATCHER).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @Order(15)
     void updateTestResourcePool() throws Exception {
-        TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
-        testResourcePoolDTO.setName("test_pool");
-        testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
-        setResources(testResourcePoolDTO);
-        testResourcePoolDTO.setApiTest(true);
-        testResourcePoolDTO.setLoadTest(false);
-        testResourcePoolDTO.setUiTest(false);
+        TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
+        testResourcePoolRequest.setName("test_pool");
+        testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.name());
+        setResources(testResourcePoolRequest,false);
+        testResourcePoolRequest.setApiTest(true);
+        testResourcePoolRequest.setLoadTest(false);
+        testResourcePoolRequest.setUiTest(false);
+        testResourcePoolRequest.setAllOrg(true);
         mockMvc.perform(MockMvcRequestBuilders.post(TEST_RESOURCE_POOL_UPDATE)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(testResourcePoolDTO))
+                        .content(JSON.toJSONString(testResourcePoolRequest))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private static void setResources(TestResourcePoolDTO testResourcePoolDTO) {
-        testResourcePoolDTO.setConfiguration(configuration);
+    private static void setResources(TestResourcePoolRequest testResourcePoolDTO, boolean isPart) {
+        TestResourceDTO testResourceDTO;
+        if (isPart) {
+            testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
+        } else {
+            testResourceDTO = JSON.parseObject(configurationWidthOutOrgIds, TestResourceDTO.class);
+        }
+        testResourcePoolDTO.setTestResourceDTO(testResourceDTO);
     }
 
     @Test
-    @Order(6)
-    void updateTestResourcePoolFiled() throws Exception {
-        TestResourcePoolDTO testResourcePoolDTO = generatorDto(true, false, false,false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
+    @Order(16)
+    void updateUiTestResourcePoolFiled() throws Exception {
+        this.dealTestResourcePoolFiled("UPDATE");
+    }
+
+    private void dealTestResourcePoolFiled(String urlType) throws Exception {
+        String url;
+        if (StringUtils.equals(urlType,"ADD")) {
+            url = TEST_RESOURCE_POOL_ADD;
+        } else {
+            url = TEST_RESOURCE_POOL_UPDATE;
+        }
+
+        TestResourcePoolRequest testResourcePoolRequest = generatorDto(true, false, false, false);
+        this.requestPost(url, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池类型为空
-        testResourcePoolDTO = generatorDto(false, true, false, false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
+        testResourcePoolRequest = generatorDto(false, true, false, false);
+        this.requestPost(url, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
         //资源池节点集合为空
-        testResourcePoolDTO = generatorDto(false, false, true, false, false, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //api用途为空
-        testResourcePoolDTO = generatorDto(false, false, false, true,false, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //ui用途为空
-        testResourcePoolDTO = generatorDto(false, false, false, false,true, false);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
-        //load用途为空
-        testResourcePoolDTO = generatorDto(false, false, false, false,false, true);
-        this.requestPost(TEST_RESOURCE_POOL_UPDATE, testResourcePoolDTO, ERROR_REQUEST_MATCHER);
+        testResourcePoolRequest = generatorDto(false, false, true, false);
+        this.requestPost(url, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
+        //应用组织
+        testResourcePoolRequest = generatorDto(false, false, false, true);
+        this.requestPost(url, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
+        //部分组织
+        testResourcePoolRequest = generatorDto(false, false, false,  false);
+        testResourcePoolRequest.setAllOrg(false);
+        testResourcePoolRequest.setTestResourceDTO(JSON.parseObject(configurationWidthOutOrgIds, TestResourceDTO.class));
+        this.requestPost(url, testResourcePoolRequest, ERROR_REQUEST_MATCHER);
     }
 
     @Test
-    @Sql(scripts = {"/dml/init_test_resource_pool.sql"},
+    //单独执行时请打开
+    /*@Sql(scripts = {"/dml/init_test_resource_pool.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    @Order(7)
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)*/
+    @Order(17)
     void deleteTestResourcePool() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/102")
+        mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/103")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk())
@@ -191,7 +378,7 @@ class TestResourcePoolControllerTest extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(18)
     void deleteTestResourcePoolFiled() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/105")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -211,8 +398,8 @@ class TestResourcePoolControllerTest extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private TestResourcePoolDTO generatorDto(boolean noName, boolean noType, boolean noResources, boolean noUseApi, boolean noUseUi, boolean noUseLoad) {
-        TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
+    private TestResourcePoolRequest generatorDto(boolean noName, boolean noType, boolean noResources, boolean noAllOrg) {
+        TestResourcePoolRequest testResourcePoolDTO = new TestResourcePoolRequest();
         //没名字
         if (!noName) {
             testResourcePoolDTO.setName("test_pool_test");
@@ -221,20 +408,23 @@ class TestResourcePoolControllerTest extends BaseTest {
         if (!noType) {
             testResourcePoolDTO.setType(ResourcePoolTypeEnum.NODE.name());
         }
-        //没资源池
+        //没资源池（用途为API 或者 性能测试的校验）
         if (!noResources) {
-            setResources(testResourcePoolDTO);
-        }
-        //没api
-        if(!noUseApi) {
             testResourcePoolDTO.setApiTest(true);
+            setResources(testResourcePoolDTO,true);
+        }else {
+            testResourcePoolDTO.setApiTest(true);
+            TestResourceDTO testResourceDTO = JSON.parseObject(configuration, TestResourceDTO.class);
+            testResourceDTO.setNodesList(null);
+            testResourcePoolDTO.setTestResourceDTO(testResourceDTO);
         }
-        if (!noUseUi) {
-            testResourcePoolDTO.setUiTest(true);
+        //没选全部
+        if (!noAllOrg){
+            testResourcePoolDTO.setAllOrg(true);
+        }else {
+            testResourcePoolDTO.getTestResourceDTO().setOrgIds(null);
         }
-        if (!noUseLoad) {
-            testResourcePoolDTO.setLoadTest(true);
-        }
+
         return testResourcePoolDTO;
     }
 
