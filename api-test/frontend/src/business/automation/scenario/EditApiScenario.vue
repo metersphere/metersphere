@@ -2396,10 +2396,19 @@ export default {
       }
     },
     getAllResourceIds() {
-      if (this.$refs.stepTree) {
-        return this.$refs.stepTree.getCheckedKeys();
+      let resourceIds = [];
+      this.filterAllStep(this.scenarioDefinition, resourceIds);
+      return resourceIds;
+    },
+    filterAllStep(stepArray, resourceIds) {
+      if (stepArray) {
+        stepArray.forEach(item =>{
+          resourceIds.push(item.resourceId);
+          if(item.referenced !== 'REF' && item.hashTree){
+            this.filterAllStep(item.hashTree,resourceIds);
+          }
+        })
       }
-      return [];
     },
     getAllCheckedNodes() {
       if (this.$refs.stepTree) {

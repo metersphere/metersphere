@@ -27,7 +27,7 @@
     </el-radio-group>
     <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'" class="ms-el-link">
-        <el-link style="margin-right: 5px" @click="batchAdd"> {{ $t('commons.batch_add') }}</el-link>
+        <el-link style="margin-right: 5px" @click="batchAdd" :disabled="isReadOnly"> {{ $t('commons.batch_add') }}</el-link>
         <api-params-config
           v-if="apiParamsConfigFields"
           @refresh="refreshApiParamsField"
