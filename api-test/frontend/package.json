@@ -17,6 +17,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.12.0",
     "@fortawesome/free-solid-svg-icons": "^5.12.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
+    "@ba1q1/vue-easy-tree": "^1.0.4",
     "axios": "^0.27.2",
     "diffable-html": "^4.0.0",
     "echarts": "^5.0.2",

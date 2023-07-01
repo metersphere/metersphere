@@ -270,13 +270,16 @@
               <el-col></el-col>
             </el-row>
             <el-row>
-              <el-col :span="21">
-                <!-- 场景步骤内容 -->
-                <div ref="stepInfo">
-                  <el-tree
+              <!-- 场景步骤内容 -->
+              <div ref="stepInfo" style="height: calc(100vh - 170px);">
+                  <vue-easy-tree
                     node-key="resourceId"
+                    height="calc(100vh - 170px)"
+                    :minItemSize="43"
+                    :sizeDependencies="['expanded']"
                     :props="props"
                     :data="scenarioDefinition"
+                    :buffer="200"
                     class="ms-tree"
                     :expand-on-click-node="false"
                     :allow-drop="allowDrop"
@@ -287,6 +290,7 @@
                     @node-drag-end="nodeDragEnd"
                     @node-click="nodeClick"
                     draggable
+                    isDynamic
                     ref="stepTree"
                     :key="reloadTree">
                     <el-row
@@ -356,8 +360,12 @@
                         </div>
                       </span>
                     </el-row>
-                  </el-tree>
+                  </vue-easy-tree>
                 </div>
+            </el-row>
+            <el-row>
+              <el-col :span="21">
+                
               </el-col>
               <!-- 按钮列表 -->
               <el-col :span="3">
@@ -566,7 +574,6 @@ import { buttons, setComponent } from './menu/Menu';
 import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import { ELEMENT_TYPE, STEP, TYPE_TO_C } from './Setting';
 import { KeyValue } from '@/business/definition/model/ApiTestModel';
-
 import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { getUUID, objToStrMap, strMapToObj } from 'metersphere-frontend/src/utils';
 import { hasLicense, hasPermissions } from 'metersphere-frontend/src/utils/permission';
