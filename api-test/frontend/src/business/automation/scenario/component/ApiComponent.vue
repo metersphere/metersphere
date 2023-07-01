@@ -62,6 +62,7 @@
             !loading &&
             !request.testing &&
             request.debug &&
+            request.requestResult &&
             request.requestResult[0] &&
             request.requestResult[0].responseResult &&
             request.requestResult[0].status === 'FAKE_ERROR'
@@ -71,15 +72,16 @@
         <span
           class="ms-step-debug-code"
           @click="active"
-          :class="request.requestResult[0].success && reqSuccess ? 'ms-req-success' : 'ms-req-error'"
+          :class="request.requestResult && request.requestResult[0].success && reqSuccess ? 'ms-req-success' : 'ms-req-error'"
           v-else-if="
             !loading &&
             !request.testing &&
             request.debug &&
+            request.requestResult &&
             request.requestResult[0] &&
             request.requestResult[0].responseResult
           ">
-          {{ request.requestResult[0].success && reqSuccess ? 'Success' : 'Error' }}
+          {{ request.requestResult && request.requestResult[0].success && reqSuccess ? 'Success' : 'Error' }}
         </span>
       </template>
       <template v-slot:button v-if="!ifFromVariableAdvance">
@@ -177,7 +179,7 @@
           <api-response-component
             :currentProtocol="request.protocol"
             :apiActive="true"
-            :result="request.requestResult[0]"
+            :result="request.requestResult && request.requestResult[0]"
             v-else />
         </div>
       </template>
@@ -438,7 +440,8 @@ export default {
       this.currentScenarioData = undefined;
       this.getParentVariables(this.node);
       getOwnerProjectIds().then((res) => {
-        const project = res.data.find((p) => p === this.request.projectId);
+        try {
+          const project = res.data.find((p) => p === this.request.projectId);
         if (!project) {
           this.$warning(this.$t('automation.project_no_permission'));
         } else {
@@ -524,6 +527,9 @@ export default {
           debugData.hasRequest = true;
           this.request.testing = true;
           this.$emit('runScenario', debugData);
+        }
+        } catch (error) {
+          console.error(error);
         }
       });
     },
