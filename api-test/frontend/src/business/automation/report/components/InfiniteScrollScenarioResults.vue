@@ -8,13 +8,19 @@
         <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion" />
       </el-tooltip>
     </div>
-    <infinite-scroll-tree
+    <div style="height: calc(100vh - 400px);">
+      <vue-easy-tree
       :data="treeData"
       :expand-on-click-node="false"
       :default-expand-all="defaultExpand"
       :filter-node-method="filterNode"
       highlight-current
       class="ms-tree ms-report-tree"
+      node-key="resourceId"
+      :sizeDependencies="['expanded']"
+      height="calc(100vh - 400px)"
+      :minItemSize="47"
+      isDynamic
       ref="resultsTree">
       <span slot-scope="{ node, data }" style="width: 99%" @click="nodeClick(node)">
         <ms-scenario-result
@@ -25,16 +31,16 @@
           :is-share="isShare"
           :share-id="shareId" />
       </span>
-    </infinite-scroll-tree>
+    </vue-easy-tree>
+    </div>
   </el-card>
 </template>
 <script>
 import MsScenarioResult from './ScenarioResult';
-import InfiniteScrollTree from '@/business/automation/report/components/tree/InfiniteScrollTree.vue';
 
 export default {
   name: 'MsInfiniteScrollScenarioResults',
-  components: { MsScenarioResult, InfiniteScrollTree },
+  components: { MsScenarioResult },
   props: {
     scenarios: Array,
     treeData: Array,
