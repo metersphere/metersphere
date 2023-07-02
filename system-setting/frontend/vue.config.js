@@ -15,6 +15,7 @@ module.exports = defineConfig({
     port: 4001,
     client: {
       webSocketTransport: "sockjs",
+      overlay: false,
     },
     allowedHosts: "all",
     webSocketServer: "sockjs",
