@@ -334,7 +334,6 @@ CREATE TABLE IF NOT EXISTS user_role_permission
     `id`            VARCHAR(64)  NOT NULL COMMENT '',
     `role_id`       VARCHAR(64)  NOT NULL COMMENT '用户组ID',
     `permission_id` VARCHAR(128) NOT NULL COMMENT '权限ID',
-    `module_id`     VARCHAR(64)  NOT NULL COMMENT '功能菜单',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

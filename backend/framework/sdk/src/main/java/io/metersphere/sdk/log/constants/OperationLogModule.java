@@ -6,6 +6,8 @@ public class OperationLogModule {
     public static final String SYSTEM_TEST_RESOURCE = "SYSTEM_TEST_RESOURCE";
     public static final String SYSTEM_TEST_RESOURCE_POOL = "SYSTEM_TEST_RESOURCE_POOL";
     public static final String SYSTEM_USER = "SYSTEM_USER";
+    public static final String SYSTEM_USER_ROLE = "SYSTEM_USER_ROLE";
+    public static final String SYSTEM_USER_ROLE_RELATION = "SYSTEM_USER_ROLE_RELATION";
     public static final String SYSTEM_ORGANIZATION = "SYSTEM_ORGANIZATION";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS = "ORGANIZATION_TEMPLATE_SETTINGS";
     public static final String ORGANIZATION_MESSAGE_SETTINGS = "ORGANIZATION_MESSAGE_SETTINGS";

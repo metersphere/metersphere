@@ -1,9 +1,11 @@
 package io.metersphere.sdk.util;
 
-import io.metersphere.sdk.dto.UserRoleJson;
+import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class PermissionCache {
-    private UserRoleJson userRoleJson;
+    private List<PermissionDefinitionItem> permissionDefinition;
 }

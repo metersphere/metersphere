@@ -3,6 +3,7 @@ package io.metersphere.system.utils;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
@@ -11,6 +12,7 @@ import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserImportResponse;
+import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.utils.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -117,8 +119,8 @@ public class UserTestUtils {
         //判断系统权限是否一样
         List<String> selectUserSystemRoleId
                 = selectUserDTO.getUserRoles().stream()
-                .filter(item -> (StringUtils.equals(item.getType(), "SYSTEM")
-                        && StringUtils.equals(item.getScopeId(), "global")))
+                .filter(item -> (StringUtils.equals(item.getType(), BaseUserRoleService.SYSTEM_TYPE)
+                        && StringUtils.equals(item.getScopeId(), GlobalUserRoleService.GLOBAL_SCOPE)))
                 .map(UserRole::getId).collect(Collectors.toList());
         Assertions.assertTrue(
                 editRequest.getUserRoleIdList().containsAll(selectUserSystemRoleId)

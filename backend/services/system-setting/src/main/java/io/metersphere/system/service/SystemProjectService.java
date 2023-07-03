@@ -3,7 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.UserRoleConstants;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -105,7 +105,7 @@ public class SystemProjectService {
             UserRoleRelation userRoleRelation = new UserRoleRelation(
                     UUID.randomUUID().toString(),
                     userId,
-                    UserRoleConstants.PROJECT_MEMBER,
+                    InternalUserRole.PROJECT_MEMBER.getValue(),
                     request.getProjectId(),
                     System.currentTimeMillis(),
                     request.getCreateUser());

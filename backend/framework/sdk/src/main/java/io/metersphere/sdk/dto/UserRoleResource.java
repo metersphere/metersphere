@@ -4,6 +4,11 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ *
+ * 权限所属资源，例如 SYSTEM_USER_ROLE
+ * @author jianxing
+ */
 @Data
 public class UserRoleResource implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -11,10 +16,4 @@ public class UserRoleResource implements Serializable {
     private String id;
     private String name;
     private Boolean license = false;
-
-    /**
-     * 系统设置、工作空间、项目类型 公用的权限模块
-     * e.g. 个人信息
-     */
-    private boolean global = false;
 }
