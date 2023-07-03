@@ -159,7 +159,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             }
             JSONObject requestObj = JSONUtil.parseObject(request);
             requestObj.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
-            requestObj.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
+            if (!requestObj.optString("protocol").equals(RequestTypeConstants.SQL)) {
+                requestObj.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
+            }
             requestObj.put("projectId", projectId);
             return requestObj;
         } catch (Exception e) {
