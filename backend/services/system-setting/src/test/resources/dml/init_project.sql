@@ -7,3 +7,16 @@ INSERT INTO project (id, num, organization_id, name, description, create_user, u
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('projectId4', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目4', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('projectId5', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目5', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('projectId6', null, (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认项目6', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+
+
+insert into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                 last_project_id, create_user, update_user)
+VALUES ('admin1', 'test1', 'admin1@metersphere.io', MD5('admin1@metersphere.io'),
+        UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', 'projectId1', 'admin', 'admin');
+insert into user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                 last_project_id, create_user, update_user)
+VALUES ('admin2', 'test2', 'admin2@metersphere.io', MD5('admin2@metersphere.io'),
+        UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
+
+INSERT INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487w','admin1','project_admin','projectId1','1684747668375','1684747668375');
+INSERT INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487q','admin2','project_admin','projectId1','1684747668321','1684747668336');
