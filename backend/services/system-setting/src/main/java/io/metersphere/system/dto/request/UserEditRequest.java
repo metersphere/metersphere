@@ -1,5 +1,6 @@
-package io.metersphere.system.dto;
+package io.metersphere.system.dto.request;
 
+import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;

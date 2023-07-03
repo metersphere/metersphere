@@ -1,4 +1,4 @@
-package io.metersphere.system.dto;
+package io.metersphere.system.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
@@ -11,6 +11,6 @@ public class UserEditEnableRequest {
     @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "{user.not.empty}")
     List<String> userIdList;
-    
+
     boolean enable;
 }

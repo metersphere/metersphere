@@ -4,12 +4,20 @@ import base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.dto.*;
+import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.UserRoleOption;
+import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.UserTestUtils;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
@@ -19,6 +27,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -43,6 +52,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class UserControllerTests extends BaseTest {
     @Resource
     private MockMvc mockMvc;
+
+    @Resource
+    private UserService userService;
 
     //失败请求返回编码
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
@@ -99,6 +111,17 @@ public class UserControllerTests extends BaseTest {
                         .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+    }
+
+    private MvcResult responseFile(String url, MockMultipartFile file) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.multipart(url)
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
     }
@@ -355,6 +378,10 @@ public class UserControllerTests extends BaseTest {
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setPageSize(5);
         this.requestPost(UserTestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        //pageSize超过100
+        basePageRequest = UserTestUtils.getDefaultPageRequest();
+        basePageRequest.setPageSize(250);
+        this.requestPost(UserTestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
         //当前页数不大于5
         basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
@@ -488,5 +515,84 @@ public class UserControllerTests extends BaseTest {
             this.add("BCDEDIT");
         }});
         this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
+    }
+
+
+    @Test
+    @Order(6)
+    public void testUserImportSuccess() throws Exception {
+        this.checkUserList();
+        //测试用户数据导入。  每个导入文件都有10条数据，不同文件出错的数据不同。
+        int importSuccessData = 10;//应该导入成功的数据数量
+        int[] errorDataIndex = {};//出错数据的行数
+        UserImportResponse response;//导入返回值
+        //导入正常文件
+        String filePath = this.getClass().getClassLoader().getResource("file/user_import_success.xlsx").getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
+        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+
+
+        //导入空文件
+        filePath = this.getClass().getClassLoader().getResource("file/user_import_success_empty.xlsx").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 0;
+        errorDataIndex = new int[]{};
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
+
+        //文件内没有一条合格数据
+        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_all.xlsx").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 0;
+        errorDataIndex = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
+
+        //邮箱和数据库里的重复
+        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_db.xlsx").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 8;
+        errorDataIndex = new int[]{1, 7};
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
+        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+
+        //文件内邮箱重复
+        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_in_file.xlsx").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 8;
+        errorDataIndex = new int[]{9, 10};
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
+        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+
+        //文件不符合规范
+        filePath = this.getClass().getClassLoader().getResource("file/abcde.gif").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 0;
+        errorDataIndex = new int[]{};
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
+
+        //测试03版excel正常导入
+        filePath = this.getClass().getClassLoader().getResource("file/user_import_success_03.xls").getPath();
+        file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        importSuccessData = 10;//应该导入成功的数据数量
+        errorDataIndex = new int[]{};//出错数据的行数
+        UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
+        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+    }
+
+    public void checkImportUserInDb(ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile) throws Exception {
+        for (UserExcelRowDTO item : userImportReportDTOByFile.getDataList()) {
+            Assertions.assertNotNull(this.getUserByEmail(item.getEmail()));
+        }
     }
 }

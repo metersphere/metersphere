@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
+import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.dto.BasePageRequest;
+import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
@@ -9,22 +11,30 @@ import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CodingUtil;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.OperationLog;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.dto.UserEditEnableRequest;
-import io.metersphere.system.dto.UserEditRequest;
+import io.metersphere.system.dto.excel.UserExcel;
+import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,9 +101,13 @@ public class UserService {
         }
     }
 
-    public UserBatchCreateDTO addBatch(UserBatchCreateDTO userCreateDTO, String source, String operator) {
+    public UserBatchCreateDTO addUser(UserBatchCreateDTO userCreateDTO, String source, String operator) {
         this.validateUserInfo(userCreateDTO.getUserInfoList());
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userCreateDTO.getUserRoleIdList(), true);
+        return this.saveUserAndRole(userCreateDTO, source, operator);
+    }
+
+    private UserBatchCreateDTO saveUserAndRole(UserBatchCreateDTO userCreateDTO, String source, String operator) {
         long createTime = System.currentTimeMillis();
         List<User> saveUserList = new ArrayList<>();
         //添加用户
@@ -110,9 +124,7 @@ public class UserService {
             userMapper.insertSelective(user);
             saveUserList.add(user);
         }
-
         userRoleRelationService.batchSave(userCreateDTO.getUserRoleIdList(), saveUserList);
-
         //写入操作日志
         operationLogService.batchAdd(this.getBatchAddLogs(saveUserList));
         return userCreateDTO;
@@ -184,4 +196,66 @@ public class UserService {
             throw new MSException(Translator.get("user.not.exist"));
         }
     }
+
+    public UserImportResponse importByExcel(MultipartFile excelFile, String source, String sessionId) {
+        UserImportResponse importResponse = new UserImportResponse();
+        try {
+            ExcelParseDTO<UserExcelRowDTO> excelParseDTO = this.getUserExcelParseDTO(excelFile);
+            if (CollectionUtils.isNotEmpty(excelParseDTO.getDataList())) {
+                this.saveUserByExcelData(excelParseDTO.getDataList(), source, sessionId);
+            }
+            importResponse.generateResponse(excelParseDTO);
+        } catch (Exception e) {
+            LogUtils.info("import user  error", e);
+        }
+        return importResponse;
+    }
+
+    public ExcelParseDTO<UserExcelRowDTO> getUserExcelParseDTO(MultipartFile excelFile) throws Exception {
+        UserImportEventListener userImportEventListener = new UserImportEventListener();
+        EasyExcelFactory.read(excelFile.getInputStream(), UserExcel.class, userImportEventListener).sheet().doRead();
+        ExcelParseDTO<UserExcelRowDTO> excelParseDTO = this.validateExcelUserInfo(userImportEventListener.getExcelParseDTO());
+        return excelParseDTO;
+    }
+
+    /**
+     * 校验excel导入的数据是否与数据库中的数据冲突
+     *
+     * @param excelParseDTO
+     * @return
+     */
+    private ExcelParseDTO<UserExcelRowDTO> validateExcelUserInfo(@Valid @NotNull ExcelParseDTO<UserExcelRowDTO> excelParseDTO) {
+        List<UserExcelRowDTO> prepareSaveList = excelParseDTO.getDataList();
+        if (CollectionUtils.isNotEmpty(prepareSaveList)) {
+            var userInDbMap = baseUserMapper.selectUserIdByEmailList(
+                            prepareSaveList.stream().map(UserExcelRowDTO::getEmail).collect(Collectors.toList()))
+                    .stream().collect(Collectors.toMap(User::getEmail, User::getId));
+            for (UserExcelRowDTO userExcelRow : prepareSaveList) {
+                //判断邮箱是否已存在数据库中
+                if (userInDbMap.containsKey(userExcelRow.getEmail())) {
+                    userExcelRow.setErrorMessage(Translator.get("user.email.repeat") + ": " + userExcelRow.getEmail());
+                    excelParseDTO.addErrorRowData(userExcelRow.getDataIndex(), userExcelRow);
+                }
+            }
+            excelParseDTO.getDataList().removeAll(excelParseDTO.getErrRowData().values());
+        }
+        return excelParseDTO;
+    }
+
+    private void saveUserByExcelData(@Valid @NotEmpty List<UserExcelRowDTO> dataList, @Valid @NotEmpty String source, @Valid @NotBlank String sessionId) {
+        UserBatchCreateDTO userBatchCreateDTO = new UserBatchCreateDTO();
+        userBatchCreateDTO.setUserRoleIdList(new ArrayList<>() {{
+            add("member");
+        }});
+        List<UserCreateInfo> userCreateInfoList = new ArrayList<>();
+        dataList.forEach(userExcelRowDTO -> {
+            UserCreateInfo userCreateInfo = new UserCreateInfo();
+            BeanUtils.copyBean(userCreateInfo, userExcelRowDTO);
+            userCreateInfoList.add(userCreateInfo);
+        });
+        userBatchCreateDTO.setUserInfoList(userCreateInfoList);
+        this.saveUserAndRole(userBatchCreateDTO, source, sessionId);
+    }
+
+
 }

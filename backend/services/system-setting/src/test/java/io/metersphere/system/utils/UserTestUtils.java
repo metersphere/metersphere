@@ -8,14 +8,17 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
-import io.metersphere.system.dto.UserEditRequest;
 import io.metersphere.system.dto.UserRoleOption;
+import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.utils.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +32,7 @@ public class UserTestUtils {
     public static final String URL_USER_PAGE = "/system/user/page";
     public static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
     public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
+    public static final String URL_USER_IMPORT = "/system/user/import";
 
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
@@ -75,6 +79,30 @@ public class UserTestUtils {
         }};
     }
 
+    public static byte[] getFileBytes(String filePath) {
+        File file = new File(filePath);
+        byte[] buffer = new byte[0];
+        FileInputStream fi = null;
+        try {
+            fi = new FileInputStream(file);
+            buffer = new byte[(int) file.length()];
+            int offset = 0;
+            int numRead = 0;
+            while (offset < buffer.length
+                    && (numRead = fi.read(buffer, offset, buffer.length - offset)) >= 0) {
+                offset += numRead;
+            }
+        } catch (Exception ignore) {
+        } finally {
+            try {
+                fi.close();
+            } catch (Exception ignore) {
+            }
+
+        }
+        return buffer;
+    }
+
     public static void compareUserDTO(UserEditRequest editRequest, UserDTO selectUserDTO) {
         Assertions.assertNotNull(editRequest);
         Assertions.assertNotNull(selectUserDTO);
@@ -95,5 +123,18 @@ public class UserTestUtils {
         Assertions.assertTrue(
                 editRequest.getUserRoleIdList().containsAll(selectUserSystemRoleId)
                         && selectUserSystemRoleId.containsAll(editRequest.getUserRoleIdList()));
+    }
+
+    public static void checkImportResponse(UserImportResponse responsePost, int successCount, int[] errorDataIndex) {
+        //导入总数据是否一致
+        Assertions.assertTrue(responsePost.getImportCount() == successCount + errorDataIndex.length);
+        //导入成功数据是否一致
+        Assertions.assertTrue(responsePost.getSuccessCount() == successCount);
+        //报错数据数量是否一致
+        Assertions.assertTrue(responsePost.getErrorMessages().size() == errorDataIndex.length);
+        //报错数据行编码是否一致
+        for (int index : errorDataIndex) {
+            Assertions.assertTrue(responsePost.getErrorMessages().containsKey(index));
+        }
     }
 }
