@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -29,7 +29,7 @@ public class TestResourcePoolController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL, details = "#poolDTO.name")
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL, details = "#poolDTO.name")
     public TestResourcePoolDTO addTestResourcePool(@Validated @RequestBody TestResourcePoolDTO poolDTO) {
         return testResourcePoolService.addTestResourcePool(poolDTO);
     }
@@ -37,7 +37,7 @@ public class TestResourcePoolController {
     @GetMapping("/delete/{poolId}")
     @CacheNode // 把监控节点缓存起来
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_DELETE)
-    @RequestLog(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
             details = "#msClass.getLogDetails(#testResourcePoolId)", msClass = TestResourcePoolService.class)
     public void deleteTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
         testResourcePoolService.deleteTestResourcePool(testResourcePoolId);
@@ -46,7 +46,7 @@ public class TestResourcePoolController {
     @PostMapping("/update")
     @CacheNode // 把监控节点缓存起来
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
             sourceId = "#testResourcePoolDTO.id", details = "#testResourcePoolDTO.name")
     public void updateTestResourcePool(@Validated @RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);

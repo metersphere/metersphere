@@ -7,7 +7,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSourceEnum;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -58,7 +58,7 @@ public class UserController {
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER,
             sourceId = "#request.id", details = "#request.name")
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
         return userService.updateUser(request, SessionUtils.getUserId());

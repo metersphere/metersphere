@@ -7,7 +7,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ListRequestDTO;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -32,7 +32,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_ADD_API)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.API_DEFINITION, projectId = "#request.projectId", details = "#request.name")
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.API_DEFINITION, projectId = "#request.projectId", details = "#request.name")
     public ApiDefinitionDTO add(@Validated({Created.class}) @RequestBody ApiDefinitionDTO request,
                                 @RequestParam(value = "files") List<MultipartFile> bodyFiles) {
         return apiDefinitionService.create(request, bodyFiles);
@@ -40,7 +40,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/batch-del")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ_DELETE)
-    @RequestLog(isBatch = true, isBefore = true, details = "#msClass.getLogs(#ids)", msClass = ApiDefinitionService.class)
+    @Log(isBatch = true, isBefore = true, details = "#msClass.getLogs(#ids)", msClass = ApiDefinitionService.class)
     public void batchDelete(@RequestBody List<String> ids) {
         apiDefinitionService.batchDelete(ids);
     }

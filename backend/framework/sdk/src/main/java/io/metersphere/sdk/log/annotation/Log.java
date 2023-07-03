@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  * 操作日志注解类
  * @author mr.zhao
  */
-public @interface RequestLog {
+public @interface Log {
     /**
      * 功能模块
      *
@@ -37,14 +37,14 @@ public @interface RequestLog {
     /**
      * 资源ID
      */
-    String sourceId() default "";
+    String sourceId() default "NONE";
 
     /**
      * 创建用户
      *
      * @return
      */
-    String createUser() default "";
+    String createUser() default "admin";
 
     /**
      * 操作内容

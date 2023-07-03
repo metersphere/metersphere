@@ -1,6 +1,6 @@
 package io.metersphere.sdk.log.aspect;
 
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -69,7 +69,7 @@ public class OperationLogAspect {
     /**
      * 定义切点 @Pointcut 在注解的位置切入代码
      */
-    @Pointcut("@annotation(io.metersphere.sdk.log.annotation.RequestLog)")
+    @Pointcut("@annotation(io.metersphere.sdk.log.annotation.Log)")
     public void logPointCut() {
     }
 
@@ -80,7 +80,7 @@ public class OperationLogAspect {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             //获取切入点所在的方法
             Method method = signature.getMethod();
-            RequestLog msLog = method.getAnnotation(RequestLog.class);
+            Log msLog = method.getAnnotation(Log.class);
             if (msLog != null && msLog.isBefore()) {
                 //获取参数对象数组
                 Object[] args = joinPoint.getArgs();
@@ -119,7 +119,7 @@ public class OperationLogAspect {
                 .anyMatch(input -> input.contains(keyword));
     }
 
-    private void initDetails(RequestLog msLog, EvaluationContext context) {
+    private void initDetails(Log msLog, EvaluationContext context) {
         try {
             // 批量内容处理
             if (StringUtils.isNotBlank(msLog.details()) && msLog.details().startsWith("#msClass")) {
@@ -145,7 +145,7 @@ public class OperationLogAspect {
         }
     }
 
-    private void initResourceId(RequestLog msLog, EvaluationContext context) {
+    private void initResourceId(Log msLog, EvaluationContext context) {
         try {
             // 批量内容处理
             if (StringUtils.isNotBlank(msLog.sourceId()) && msLog.sourceId().startsWith("#msClass")) {
@@ -165,7 +165,7 @@ public class OperationLogAspect {
         }
     }
 
-    private String getProjectId(RequestLog msLog, EvaluationContext context) {
+    private String getProjectId(Log msLog, EvaluationContext context) {
         try {
             if (StringUtils.isNotBlank(msLog.projectId()) && msLog.projectId().startsWith("#")) {
                 Expression titleExp = parser.parseExpression(msLog.projectId());
@@ -178,7 +178,7 @@ public class OperationLogAspect {
         }
     }
 
-    private void add(OperationLog operationLog, RequestLog msLog, JoinPoint joinPoint, Object result) {
+    private void add(OperationLog operationLog, Log msLog, JoinPoint joinPoint, Object result) {
         //从切面织入点处通过反射机制获取织入点处的方法
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         //获取切入点所在的方法
@@ -271,7 +271,7 @@ public class OperationLogAspect {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             operationLog.setPath(request.getServletPath());
             // 获取操作
-            RequestLog msLog = method.getAnnotation(RequestLog.class);
+            Log msLog = method.getAnnotation(Log.class);
             if (msLog != null) {
                 add(operationLog, msLog, joinPoint, result);
             }

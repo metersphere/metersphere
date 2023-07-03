@@ -3,7 +3,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -32,7 +32,7 @@ public class AuthSourceController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_CREAT)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
             details = "认证设置")
     public void add(@Validated @RequestBody AuthSource authSource) {
         authSourceService.addAuthSource(authSource);
@@ -40,7 +40,7 @@ public class AuthSourceController {
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
             details = "认证设置", sourceId = "#authSource.id")
     public void update(@Validated @RequestBody AuthSource authSource) {
         authSourceService.updateAuthSource(authSource);
@@ -54,7 +54,7 @@ public class AuthSourceController {
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_DELETE)
-    @RequestLog(type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
+    @Log(type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
             details = "认证设置", sourceId = "#id")
     public void delete(@PathVariable(value = "id") String id) {
         authSourceService.deleteAuthSource(id);

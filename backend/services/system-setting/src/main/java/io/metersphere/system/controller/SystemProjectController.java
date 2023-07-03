@@ -6,7 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.ProjectDTO;
-import io.metersphere.sdk.log.annotation.RequestLog;
+import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
@@ -34,7 +34,7 @@ public class SystemProjectController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_ADD)
-    @RequestLog(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PROJECT, details = "#project.name")
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PROJECT, details = "#project.name")
     public Project addProject(@RequestBody @Validated({Created.class}) Project project) {
         project.setCreateUser(SessionUtils.getUserId());
         return systemProjectService.add(project);
@@ -56,7 +56,7 @@ public class SystemProjectController {
     }
 
     @PostMapping("/update")
-    @RequestLog(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
             sourceId = "#project.id", details = "#project.name")
     @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_UPDATE)
     public void updateProject(@RequestBody @Validated({Updated.class}) Project project) {
@@ -66,7 +66,7 @@ public class SystemProjectController {
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_DELETE)
-    @RequestLog(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT,
+    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT,
             details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
     public void deleteProject(@PathVariable String id) {
         Project project = new Project();
@@ -77,7 +77,7 @@ public class SystemProjectController {
 
     @GetMapping("/revoke/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_DELETE)
-    @RequestLog(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
+    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
             details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
     public void revokeProject(@PathVariable String id) {
         systemProjectService.revoke(id);
