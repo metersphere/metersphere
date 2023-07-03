@@ -1,6 +1,6 @@
 package io.metersphere.sdk.util;
 
-import io.metersphere.sdk.constants.UserRoleConstants;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
@@ -143,7 +143,7 @@ public class SessionUtils {
 
         long count = user.getUserRoles()
                 .stream()
-                .filter(g -> StringUtils.equals(g.getId(), UserRoleConstants.ADMIN))
+                .filter(g -> StringUtils.equals(g.getId(), InternalUserRole.ADMIN.getValue()))
                 .count();
 
         if (count > 0) {

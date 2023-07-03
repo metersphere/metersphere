@@ -3,7 +3,7 @@ package io.metersphere.sdk.service;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.UserRoleConstants;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.controller.handler.ResultHolder;
@@ -143,7 +143,7 @@ public class BaseUserService {
                 List<String> superRoleIds = user.getUserRoles()
                         .stream()
                         .map(UserRole::getId)
-                        .filter(id -> StringUtils.equals(id, UserRoleConstants.ADMIN))
+                        .filter(id -> StringUtils.equals(id, InternalUserRole.ADMIN.getValue()))
                         .collect(Collectors.toList());
                 if (CollectionUtils.isNotEmpty(superRoleIds)) {
                     Project p = baseProjectMapper.selectOne();

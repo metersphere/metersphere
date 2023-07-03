@@ -5,7 +5,6 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="role_id" jdbcType="VARCHAR" property="roleId" />
     <result column="permission_id" jdbcType="VARCHAR" property="permissionId" />
-    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -66,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, role_id, permission_id, module_id
+    id, role_id, permission_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.UserRolePermissionExample" resultMap="BaseResultMap">
     select
@@ -99,10 +98,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserRolePermission">
-    insert into user_role_permission (id, role_id, permission_id, 
-      module_id)
-    values (#{id,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, #{permissionId,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR})
+    insert into user_role_permission (id, role_id, permission_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, #{permissionId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserRolePermission">
     insert into user_role_permission
@@ -116,9 +115,6 @@
       <if test="permissionId != null">
         permission_id,
       </if>
-      <if test="moduleId != null">
-        module_id,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -129,9 +125,6 @@
       </if>
       <if test="permissionId != null">
         #{permissionId,jdbcType=VARCHAR},
-      </if>
-      <if test="moduleId != null">
-        #{moduleId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -153,9 +146,6 @@
       <if test="record.permissionId != null">
         permission_id = #{record.permissionId,jdbcType=VARCHAR},
       </if>
-      <if test="record.moduleId != null">
-        module_id = #{record.moduleId,jdbcType=VARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -165,8 +155,7 @@
     update user_role_permission
     set id = #{record.id,jdbcType=VARCHAR},
       role_id = #{record.roleId,jdbcType=VARCHAR},
-      permission_id = #{record.permissionId,jdbcType=VARCHAR},
-      module_id = #{record.moduleId,jdbcType=VARCHAR}
+      permission_id = #{record.permissionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -180,17 +169,13 @@
       <if test="permissionId != null">
         permission_id = #{permissionId,jdbcType=VARCHAR},
       </if>
-      <if test="moduleId != null">
-        module_id = #{moduleId,jdbcType=VARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.UserRolePermission">
     update user_role_permission
     set role_id = #{roleId,jdbcType=VARCHAR},
-      permission_id = #{permissionId,jdbcType=VARCHAR},
-      module_id = #{moduleId,jdbcType=VARCHAR}
+      permission_id = #{permissionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

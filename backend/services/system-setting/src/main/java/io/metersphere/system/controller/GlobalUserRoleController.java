@@ -1,11 +1,18 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.PermissionSettingDTO;
+import io.metersphere.sdk.dto.PermissionDefinitionItem;
+import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.sdk.log.annotation.Log;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -13,7 +20,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,41 +44,48 @@ public class GlobalUserRoleController {
     @GetMapping("/permission/setting/{id}")
     @Operation(summary = "获取全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
-    public List<PermissionSettingDTO> getPermissionSetting(@PathVariable String id) {
-        return new ArrayList<>();
+    public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
+        return globalUserRoleService.getPermissionSetting(id);
     }
 
     @PostMapping("/permission/update")
     @Operation(summary = "编辑全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    public void updatePermissionSetting(@RequestBody PermissionSettingUpdateRequest request) {
-    }
-
-    @GetMapping("/get/{id}")
-    @Operation(summary = "获取单个全局用户组信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
-    public UserRole get(@PathVariable String id) {
-        return globalUserRoleService.get(id);
+    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
+            details = "#msClass.getLogDetails(#request.userRoleId)", msClass = GlobalUserRoleService.class)
+    public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
+        globalUserRoleService.updatePermissionSetting(request);
     }
 
     @PostMapping("/add")
     @Operation(summary = "添加自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_ADD)
-    public UserRole add(@Validated({Created.class}) @RequestBody UserRole userRole) {
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE,
+            sourceId = "#request.id", details = "#request.name")
+    public UserRole add(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
+        UserRole userRole = new UserRole();
+        userRole.setCreateUser(SessionUtils.getUserId());
+        BeanUtils.copyBean(userRole, request);
         return globalUserRoleService.add(userRole);
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    public UserRole update(@Validated({Created.class}) @RequestBody UserRole userRole) {
+    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
+            sourceId = "#request.id", details = "#request.name")
+    public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
+        UserRole userRole = new UserRole();
+        BeanUtils.copyBean(userRole, request);
         return globalUserRoleService.update(userRole);
     }
 
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_DELETE)
-    public String delete(@PathVariable String id) {
-        return globalUserRoleService.delete(id);
+    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER_ROLE,
+            details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleService.class)
+    public void delete(@PathVariable String id) {
+        globalUserRoleService.delete(id);
     }
 }
