@@ -14,9 +14,10 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.UserBatchCreateDTO;
-import io.metersphere.system.dto.UserEditEnableRequest;
-import io.metersphere.system.dto.UserEditRequest;
 import io.metersphere.system.dto.UserRoleOption;
+import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.system.service.UserService;
@@ -27,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class UserController {
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
-        return userService.addBatch(userCreateDTO, UserSourceEnum.LOCAL.name(), SessionUtils.getUserId());
+        return userService.addUser(userCreateDTO, UserSourceEnum.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
@@ -76,5 +78,11 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     public UserEditEnableRequest updateUserEnable(@Validated @RequestBody UserEditEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
+    }
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_IMPORT)
+    public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
+        return userService.importByExcel(excelFile, UserSourceEnum.LOCAL.name(), SessionUtils.getSessionId());
     }
 }

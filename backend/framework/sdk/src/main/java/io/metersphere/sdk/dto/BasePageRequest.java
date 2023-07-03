@@ -3,6 +3,7 @@ package io.metersphere.sdk.dto;
 import com.google.common.base.CaseFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +22,7 @@ public class BasePageRequest {
     private int current;
 
     @Min(value = 5, message = "每页显示条数必须不小于5")
+    @Max(value = 100, message = "每页显示条数不能大于100")
     @Schema(title = "每页显示条数")
     private int pageSize;
 
