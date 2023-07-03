@@ -1,9 +1,7 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.UserRoleConstants;
-import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.OrganizationExample;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -68,7 +66,7 @@ public class OrganizationServiceImpl implements OrganizationService{
             userRoleRelation.setId(UUID.randomUUID().toString());
             userRoleRelation.setUserId(userId);
             userRoleRelation.setSourceId(organizationMemberRequest.getOrganizationId());
-            userRoleRelation.setRoleId(UserRoleConstants.ORG_MEMBER);
+            userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
             userRoleRelation.setCreateTime(System.currentTimeMillis());
             userRoleRelation.setCreateUser(organizationMemberRequest.getCreateUserId());
             userRoleRelationMapper.insertSelective(userRoleRelation);

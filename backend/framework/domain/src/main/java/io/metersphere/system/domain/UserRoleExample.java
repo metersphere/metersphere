@@ -703,66 +703,6 @@ public class UserRoleExample {
             addCriterion("scope_id not between", value1, value2, "scopeId");
             return (Criteria) this;
         }
-
-        public Criteria andPosIsNull() {
-            addCriterion("pos is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosIsNotNull() {
-            addCriterion("pos is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosEqualTo(Long value) {
-            addCriterion("pos =", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotEqualTo(Long value) {
-            addCriterion("pos <>", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosGreaterThan(Long value) {
-            addCriterion("pos >", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosGreaterThanOrEqualTo(Long value) {
-            addCriterion("pos >=", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosLessThan(Long value) {
-            addCriterion("pos <", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosLessThanOrEqualTo(Long value) {
-            addCriterion("pos <=", value, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosIn(List<Long> values) {
-            addCriterion("pos in", values, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotIn(List<Long> values) {
-            addCriterion("pos not in", values, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosBetween(Long value1, Long value2) {
-            addCriterion("pos between", value1, value2, "pos");
-            return (Criteria) this;
-        }
-
-        public Criteria andPosNotBetween(Long value1, Long value2) {
-            addCriterion("pos not between", value1, value2, "pos");
-            return (Criteria) this;
-        }
     }
 
     public static class Criteria extends GeneratedCriteria {
