@@ -3,12 +3,12 @@
 <mapper namespace="io.metersphere.system.mapper.ExtSystemProjectMapper">
 
 
-    <select id="getProjectMemberList" resultType="io.metersphere.system.domain.User">
-        SELECT DISTINCT *
+    <select id="getProjectMemberList" resultType="io.metersphere.system.dto.UserExtend">
+        SELECT temp.* , MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag
         FROM (
-                 SELECT `user`.*
+                 SELECT `user`.* , user_role_relation.role_id
                  FROM user_role_relation
-                          JOIN `user` ON user_role_relation.user_id = `user`.id
+                        LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
         <where>
             <if test="request.projectId != null">
                 user_role_relation.source_id = #{request.projectId}
@@ -34,7 +34,7 @@
                p.deleted,
                p.delete_user,
                p.enable,
-               count(u.id) as number,
+               count(distinct u.id) as number,
                o.name as organizationName
         FROM project p
         LEFT JOIN user_role_relation u on p.id = u.source_id
