@@ -64,6 +64,8 @@ public interface ExtApiDefinitionMapper {
 
     int countByIds(@Param("ids") List<String> ids);
 
+    List<ApiDefinitionResult> selectApiByIds(@Param("ids") List<String> ids);
+
     long countByExample(ApiDefinitionExample example);
 
     void clearLatestVersion(String refId);

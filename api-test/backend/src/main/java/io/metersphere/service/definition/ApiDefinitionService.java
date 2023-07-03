@@ -1153,6 +1153,7 @@ public class ApiDefinitionService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
+
     private void batchEditDefinitionTags(ApiBatchRequest request) {
         if (request.getTagList().isEmpty()) {
             return;
@@ -1739,6 +1740,15 @@ public class ApiDefinitionService {
         return result;
     }
 
+    public List<ApiDefinitionResult> getApiByIds(List<String> ids) {
+        if(CollectionUtils.isNotEmpty(ids)) {
+            List<ApiDefinitionResult> list = extApiDefinitionMapper.selectApiByIds(ids);
+            buildCustomField(list);
+            return list;
+        }
+        return new ArrayList<>();
+    }
+
 
     public Map<String, List<ApiDefinition>> countEffectiveByProjectId(String projectId, String versionId) {
         if (StringUtils.isEmpty(projectId)) {
@@ -1919,7 +1929,7 @@ public class ApiDefinitionService {
                 ApiFileUtil.copyBodyFiles(sourceId, api.getId());
 
                 List<CustomFieldResourceDTO> byResourceId = customFieldApiService.getByResourceId(sourceId);
-                if (CollectionUtils.isNotEmpty(byResourceId)){
+                if (CollectionUtils.isNotEmpty(byResourceId)) {
                     customFieldApiService.addFields(api.getId(), byResourceId);
                 }
                 mapper.insert(api);
