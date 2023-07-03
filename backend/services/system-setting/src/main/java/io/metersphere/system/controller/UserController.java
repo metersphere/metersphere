@@ -15,8 +15,9 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.service.GlobalUserRoleService;
@@ -76,7 +77,7 @@ public class UserController {
 
     @PostMapping("/update/enable")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    public UserEditEnableRequest updateUserEnable(@Validated @RequestBody UserEditEnableRequest request) {
+    public UserBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
 
@@ -84,5 +85,12 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
         return userService.importByExcel(excelFile, UserSourceEnum.LOCAL.name(), SessionUtils.getSessionId());
+    }
+
+
+    @PostMapping("/delete")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
+    public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
+        return userService.deleteUser(userBatchProcessRequest.getUserIdList());
     }
 }

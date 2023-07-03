@@ -35,6 +35,7 @@ public class UserTestUtils {
     public static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
     public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
     public static final String URL_USER_IMPORT = "/system/user/import";
+    public static final String URL_USER_DELETE = "/system/user/delete";
 
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {

@@ -5,7 +5,8 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
-import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserBatchProcessRequest;
+import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.utils.UserTestUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,7 +25,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -81,13 +82,24 @@ public class UserControllerNonePermissionTests {
         this.requestPost(UserTestUtils.URL_USER_UPDATE,
                 UserTestUtils.getUserUpdateDTO(paramUserInfo, paramRoleList), CHECK_RESULT_MATHER);
         //校验权限：启用/禁用用户
-        UserEditEnableRequest userChangeEnableRequest = new UserEditEnableRequest();
+        UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setEnable(false);
         userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
             this.add("testId");
         }});
         this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, CHECK_RESULT_MATHER);
 
+        //用户导入
+        //导入正常文件
+        String filePath = this.getClass().getClassLoader().getResource("file/user_import_success.xlsx").getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
+        this.requestFile(UserTestUtils.URL_USER_IMPORT, file, CHECK_RESULT_MATHER);
+        //用户删除
+        UserBatchProcessRequest request = new UserBatchProcessRequest();
+        request.setUserIdList(new ArrayList<>() {{
+            this.add("testId");
+        }});
+        this.requestPost(UserTestUtils.URL_USER_DELETE, request, CHECK_RESULT_MATHER);
     }
 
     @BeforeEach
@@ -110,7 +122,17 @@ public class UserControllerNonePermissionTests {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
+                .andExpect(resultMatcher)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+    private void requestFile(String url, MockMultipartFile file, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.multipart(url)
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -119,7 +141,7 @@ public class UserControllerNonePermissionTests {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
+                .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }

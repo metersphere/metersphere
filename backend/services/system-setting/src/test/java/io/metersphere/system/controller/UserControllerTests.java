@@ -9,14 +9,19 @@ import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
-import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserBatchProcessRequest;
+import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.UserTestUtils;
 import io.metersphere.utils.JsonUtils;
@@ -40,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -55,6 +61,8 @@ public class UserControllerTests extends BaseTest {
 
     @Resource
     private UserService userService;
+    @Resource
+    private UserMapper userMapper;
 
     //失败请求返回编码
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
@@ -66,6 +74,8 @@ public class UserControllerTests extends BaseTest {
     public static final String USER_DEFAULT_NAME = "tianyang.no.1";
     public static final String USER_DEFAULT_EMAIL = "tianyang.no.1@126.com";
     public static final String USER_NONE_ROLE_EMAIL = "tianyang.none.role@163.com";
+    //已删除的用户ID
+    private static final List<String> DELETED_USER_ID_LIST = new ArrayList<>();
 
     //记录查询到的组织信息
     private void setDefaultUserRoleList(MvcResult mvcResult) throws Exception {
@@ -91,6 +101,13 @@ public class UserControllerTests extends BaseTest {
         if (CollectionUtils.isEmpty(USER_LIST)) {
             //测试数据初始化入库
             this.testAddSuccess();
+        }
+    }
+
+    private void checkUserDeleted() throws Exception {
+        if (CollectionUtils.isEmpty(DELETED_USER_ID_LIST)) {
+            //测试数据初始化入库
+            this.testUserDeleteSuccess();
         }
     }
 
@@ -492,7 +509,7 @@ public class UserControllerTests extends BaseTest {
         this.checkUserList();
         //单独修改状态
         UserCreateInfo userInfo = USER_LIST.get(0);
-        UserEditEnableRequest userChangeEnableRequest = new UserEditEnableRequest();
+        UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setUserIdList(new ArrayList<>() {{
             this.add(userInfo.getId());
         }});
@@ -507,7 +524,7 @@ public class UserControllerTests extends BaseTest {
     public void testUserChangeEnableError() throws Exception {
         this.checkUserList();
         //用户不存在
-        UserEditEnableRequest userChangeEnableRequest = new UserEditEnableRequest();
+        UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setEnable(false);
         this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, BAD_REQUEST_MATCHER);
         //含有非法用户
@@ -519,7 +536,7 @@ public class UserControllerTests extends BaseTest {
 
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testUserImportSuccess() throws Exception {
         this.checkUserList();
         //测试用户数据导入。  每个导入文件都有10条数据，不同文件出错的数据不同。
@@ -588,6 +605,43 @@ public class UserControllerTests extends BaseTest {
         errorDataIndex = new int[]{};//出错数据的行数
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
         this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+    }
+
+    @Test
+    @Order(8)
+    public void testUserDeleteSuccess() throws Exception {
+        this.checkUserList();
+        //删除已存的所有用户
+        UserBatchProcessRequest request = new UserBatchProcessRequest();
+        request.setUserIdList(USER_LIST.stream().map(UserCreateInfo::getId).collect(Collectors.toList()));
+        UserBatchProcessResponse response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_DELETE, request), UserBatchProcessResponse.class);
+        Assertions.assertEquals(request.getUserIdList().size(), response.getTotalCount());
+        Assertions.assertEquals(request.getUserIdList().size(), response.getSuccessCount());
+        //检查数据库
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(request.getUserIdList());
+        List<User> userList = userMapper.selectByExample(example);
+        for (User user : userList) {
+            Assertions.assertTrue(user.getDeleted());
+        }
+        //记录已经删除了的用户，用于反例
+        DELETED_USER_ID_LIST.clear();
+        DELETED_USER_ID_LIST.addAll(request.getUserIdList());
+    }
+
+    @Test
+    @Order(9)
+    public void testUserDeleteError() throws Exception {
+        this.checkUserDeleted();
+        //参数为空
+        UserBatchProcessRequest request = new UserBatchProcessRequest();
+        this.requestPost(UserTestUtils.URL_USER_DELETE, request, BAD_REQUEST_MATCHER);
+        //用户不存在
+        request.getUserIdList().add("123456789012345678901234");
+        this.requestPost(UserTestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        //用户已经被删除
+        request.setUserIdList(DELETED_USER_ID_LIST);
+        this.requestPost(UserTestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
     }
 
     public void checkImportUserInDb(ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile) throws Exception {

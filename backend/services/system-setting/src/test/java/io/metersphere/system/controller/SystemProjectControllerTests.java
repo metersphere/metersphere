@@ -239,7 +239,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(10)
-    public void testGetProjectListByOrg() throws Exception{
+    public void testGetProjectListByOrg() throws Exception {
         String organizationId = "organizationId";
         MvcResult mvcResult = this.responseGet(prefix + "/list/" + organizationId);
         String returnData = mvcResult.getResponse().getContentAsString();
@@ -251,7 +251,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(11)
-    public void testGetProjectListByOrgError() throws Exception{
+    public void testGetProjectListByOrgError() throws Exception {
         String organizationId = "organizationId";
         MvcResult mvcResult = this.responseGet(prefix + "/list/" + organizationId);
         String returnData = mvcResult.getResponse().getContentAsString();
@@ -263,7 +263,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(12)
-    public void testRemoveProjectMember() throws Exception{
+    public void testRemoveProjectMember() throws Exception {
         String projectId = "projectId";
         String userId = "admin1";
         mockMvc.perform(MockMvcRequestBuilders.get(prefix + "/remove-member/" + projectId + "/" + userId)
@@ -275,7 +275,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    public void testAddProjectMember() throws Exception{
+    public void testAddProjectMember() throws Exception {
         ProjectMemberRequest projectMemberRequest = new ProjectMemberRequest();
         projectMemberRequest.setProjectId("projectId");
         List<String> userIds = new ArrayList<>();
@@ -284,7 +284,6 @@ public class SystemProjectControllerTests extends BaseTest {
         projectMemberRequest.setUserIds(userIds);
         this.requestPost(prefix + "/add-member", projectMemberRequest, status().isOk());
     }
-
 
 
 }
