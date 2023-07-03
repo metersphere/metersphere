@@ -1,6 +1,6 @@
 #测试项目下的成员
 INSERT INTO `project` VALUES( 'projectId1', NULL, '3a5b1bd3-05e5-11ee-ad96-0242ac1e0a02', '默认项目1', '系统默认创建的项目', 1686219258000, 1686219258000, 'admin','admin', NULL, b '0', NULL, NULL );
-INSERT INTO `user` VALUES ('admin1', 'Administrator', 'admin1@metersphere.io', '3259a9d7f208ef9690025d1432558c5b', b'1', 1686219258000, 1686219258000, NULL, '3a5b1bd3-05e5-11ee-ad96-0242ac1e0a02', '', 'LOCAL', '3a6dbcc8-05e5-11ee-ad96-0242ac1e0a02', 'admin', 'admin');
-INSERT INTO `user` VALUES ('admin2', 'Administrator', 'admin2@metersphere.io', '3259a9d7f208ef9690025d1432558c5b', b'1', 1686219258000, 1686219258000, NULL, '3a5b1bd3-05e5-11ee-ad96-0242ac1e0a02', '', 'LOCAL', '3a6dbcc8-05e5-11ee-ad96-0242ac1e0a02', 'admin', 'admin');
+INSERT INTO `user` VALUES ('admin1', 'Administrator', 'admin1@metersphere.io', '3259a9d7f208ef9690025d1432558c5b', b'1', 1686219258000, 1686219258000, NULL, '3a5b1bd3-05e5-11ee-ad96-0242ac1e0a02', '', 'LOCAL', '3a6dbcc8-05e5-11ee-ad96-0242ac1e0a02', 'admin', 'admin',false);
+INSERT INTO `user` VALUES ('admin2', 'Administrator', 'admin2@metersphere.io', '3259a9d7f208ef9690025d1432558c5b', b'1', 1686219258000, 1686219258000, NULL, '3a5b1bd3-05e5-11ee-ad96-0242ac1e0a02', '', 'LOCAL', '3a6dbcc8-05e5-11ee-ad96-0242ac1e0a02', 'admin', 'admin',false);
 INSERT INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487w','admin1','project_admin','projectId1','1684747668375','1684747668375');
 INSERT INTO user_role_relation VALUES ('c3bb9b4f-46d8-4952-9681-8889974487q','admin2','project_admin','projectId1','1684747668321','1684747668336');

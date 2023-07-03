@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -60,6 +61,10 @@ public class User implements Serializable {
 
     @Schema(title = "修改人")
     private String updateUser;
+
+    @Schema(title = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
 
     private static final long serialVersionUID = 1L;
 }

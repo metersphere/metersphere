@@ -295,10 +295,12 @@ CREATE TABLE IF NOT EXISTS user
     `last_project_id`      VARCHAR(50) COMMENT '当前项目ID',
     `create_user`          VARCHAR(50)  NOT NULL COMMENT '创建人',
     `update_user`          VARCHAR(50)  NOT NULL COMMENT '修改人',
+    `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用户';
+
 
 
 CREATE INDEX idx_name ON user (`name`);

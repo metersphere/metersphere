@@ -205,4 +205,10 @@ public class UserRoleRelationService {
         example.createCriteria().andUserIdEqualTo(id);
         return userRoleRelationMapper.selectByExample(example);
     }
+
+    public void deleteByUserIdList(@Valid @NotEmpty List<String> userIdList) {
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdIn(userIdList);
+        userRoleRelationMapper.deleteByExample(example);
+    }
 }
