@@ -20,8 +20,9 @@ import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
-import io.metersphere.system.dto.request.UserEditEnableRequest;
+import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
+import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.UserMapper;
@@ -121,6 +122,7 @@ public class UserService {
             user.setUpdateTime(createTime);
             user.setPassword(CodingUtil.md5(user.getEmail()));
             user.setSource(source);
+            user.setDeleted(false);
             userMapper.insertSelective(user);
             saveUserList.add(user);
         }
@@ -176,8 +178,12 @@ public class UserService {
         return userEditRequest;
     }
 
-    public UserEditEnableRequest updateUserEnable(UserEditEnableRequest request, String operator) {
+    public UserBatchProcessResponse updateUserEnable(UserChangeEnableRequest request, String operator) {
         this.checkUserInDb(request.getUserIdList());
+
+        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        response.setTotalCount(request.getUserIdList().size());
+
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(
                 request.getUserIdList()
@@ -186,12 +192,12 @@ public class UserService {
         updateUser.setEnable(request.isEnable());
         updateUser.setUpdateUser(operator);
         updateUser.setUpdateTime(System.currentTimeMillis());
-        userMapper.updateByExampleSelective(updateUser, userExample);
-        return request;
+        response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
+        return response;
     }
 
     private void checkUserInDb(@Valid @NotEmpty List<String> userIdList) {
-        List<String> userInDb = baseUserMapper.selectUserIdByIdList(userIdList);
+        List<String> userInDb = baseUserMapper.selectUnDeletedUserIdByIdList(userIdList);
         if (userIdList.size() != userInDb.size()) {
             throw new MSException(Translator.get("user.not.exist"));
         }
@@ -258,4 +264,19 @@ public class UserService {
     }
 
 
+    public UserBatchProcessResponse deleteUser(@Valid @NotEmpty List<String> userIdList) {
+        this.checkUserInDb(userIdList);
+        UserBatchProcessResponse response = new UserBatchProcessResponse();
+        response.setTotalCount(userIdList.size());
+
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(userIdList);
+        //更新删除标志位
+        response.setSuccessCount(userMapper.updateByExampleSelective(new User() {{
+            setDeleted(true);
+        }}, userExample));
+        //删除用户角色关系
+        userRoleRelationService.deleteByUserIdList(userIdList);
+        return response;
+    }
 }

@@ -12,7 +12,7 @@
         SELECT *
         FROM user
                  LEFT JOIN user_extend ON user.id = user_extend.id
-        WHERE user.email = #{email}
+        WHERE user.email = #{email}  AND deleted IS FALSE
     </select>
 
     <select id="findAll" resultType="io.metersphere.system.domain.User">
@@ -23,12 +23,12 @@
     <insert id="batchSave">
         INSERT INTO user(id, name, email, password, status, create_time, update_time, language, last_organization_id,
                          phone,
-                         source, last_project_id, create_user)
+                         source, last_project_id, create_user,deleted)
         VALUES
         <foreach collection="users" item="user" separator=",">
             (#{user.id}, #{user.name}, #{user.email}, #{user.password}, #{user.status}, #{user.createTime},
              #{user.updateTime}, #{user.language},
-             #{user.lastOrganizationId}, #{user.phone}, #{user.source}, #{user.lastProjectId}, #{user.createUser})
+             #{user.lastOrganizationId}, #{user.phone}, #{user.source}, #{user.lastProjectId}, #{user.createUser}, #{user.deleted})
         </foreach>
     </insert>
 
@@ -55,13 +55,14 @@
     <select id="selectByKeyword" resultType="io.metersphere.system.domain.User">
         SELECT *
         FROM user
+        WHERE DELETED IS FALSE
         <if test="keyword != null and keyword != ''">
-            WHERE name LIKE CONCAT('%', #{keyword}, '%')
+            AND name LIKE CONCAT('%', #{keyword}, '%')
             OR email LIKE CONCAT('%', #{keyword}, '%')
         </if>
     </select>
-    <select id="selectUserIdByIdList" resultType="java.lang.String">
-        SELECT * from `user` WHERE id IN
+    <select id="selectUnDeletedUserIdByIdList" resultType="java.lang.String">
+        SELECT * from `user` WHERE deleted IS FALSE AND id IN
         <foreach collection="idList" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
