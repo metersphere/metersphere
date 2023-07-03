@@ -348,6 +348,19 @@
         </if>
     </select>
 
+    <select id="selectApiByIds" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
+        select api_definition.id, api_definition.project_id, api_definition.num,
+        api_definition.name, api_definition.version_id, api_definition.latest,
+        project_version.name as version_name, api_definition.ref_id, user.name as user_name
+        from api_definition
+        left join user on api_definition.user_id = user.id
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        where api_definition.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+         #{id}
+        </foreach>
+    </select>
+
     <select id="weekList" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select api_definition.id, api_definition.project_id, api_definition.num,
         api_definition.tags,api_definition.original_state,
