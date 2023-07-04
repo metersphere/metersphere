@@ -1,15 +1,15 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.domain.Organization;
-import io.metersphere.system.domain.OrganizationExample;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtOrganizationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
@@ -33,11 +33,19 @@ public class OrganizationServiceImpl implements OrganizationService{
     ExtOrganizationMapper extOrganizationMapper;
     @Resource
     UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    UserMapper userMapper;
 
 
     @Override
     public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
-        return extOrganizationMapper.list(organizationRequest);
+        List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
+        return buildOrgAdminInfo(organizationDTOS);
+    }
+
+    @Override
+    public List<OrganizationDTO> listAll() {
+        return extOrganizationMapper.listAll();
     }
 
     @Override
@@ -58,8 +66,9 @@ public class OrganizationServiceImpl implements OrganizationService{
 
     @Override
     public void addMember(OrganizationMemberRequest organizationMemberRequest) {
-        if (CollectionUtils.isEmpty(organizationMemberRequest.getMemberIds())) {
-            return;
+        Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
+        if (organization == null) {
+            throw new MSException(Translator.get("organization_not_exist"));
         }
         for (String userId : organizationMemberRequest.getMemberIds()) {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
@@ -75,8 +84,31 @@ public class OrganizationServiceImpl implements OrganizationService{
 
     @Override
     public void removeMember(String organizationId, String userId) {
+        Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
+        if (organization == null) {
+            throw new MSException(Translator.get("organization_not_exist"));
+        }
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            throw new MSException(Translator.get("organization_member_not_exist"));
+        }
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(userRoleRelations)) {
+            throw new MSException(Translator.get("organization_member_not_exist"));
+        }
         userRoleRelationMapper.deleteByExample(example);
+    }
+
+    private List<OrganizationDTO> buildOrgAdminInfo(List<OrganizationDTO> organizationDTOS) {
+        if (CollectionUtils.isEmpty(organizationDTOS)) {
+            return organizationDTOS;
+        }
+        organizationDTOS.forEach(organizationDTO -> {
+            List<User> orgAdminList = extOrganizationMapper.getOrgAdminList(organizationDTO.getId());
+            organizationDTO.setOrgAdmins(orgAdminList);
+        });
+        return organizationDTOS;
     }
 }
