@@ -206,6 +206,9 @@ export default {
           this.list();
         });
       } else {
+        if (!this.condition.protocol) {
+          this.condition.protocol = 'HTTP';
+        }
         this.$emit('protocolChange', this.condition.protocol);
         this.list();
       }

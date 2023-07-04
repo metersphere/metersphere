@@ -14,6 +14,7 @@
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
+        :is-relevance="true"
         ref="nodeTree" />
     </template>
 
