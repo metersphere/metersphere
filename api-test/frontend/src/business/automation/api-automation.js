@@ -146,7 +146,7 @@ export async function saveScenario(url, scenario, scenarioDefinition, _this, suc
     },
     (error) => {
       _this.isPreventReClick = false;
-      _this.errorRefresh();
+      _this.errorRefresh(error);
     }
   );
 }

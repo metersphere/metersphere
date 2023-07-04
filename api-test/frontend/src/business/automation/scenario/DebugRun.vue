@@ -66,8 +66,8 @@ export default {
         }
       }
     },
-    errorRefresh() {
-      this.$emit('errorRefresh');
+    errorRefresh(error) {
+      this.$emit('errorRefresh', error);
     },
     run() {
       let testPlan = createComponent('TestPlan');
