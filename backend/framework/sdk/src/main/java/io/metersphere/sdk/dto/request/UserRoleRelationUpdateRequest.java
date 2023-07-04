@@ -6,11 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author jianxing
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class UserRoleRelationUpdateRequest extends GlobalUserRoleRelationUpdateRequest {
 
     /**
