@@ -68,8 +68,9 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
-    public void logout(HttpServletResponse response) throws Exception {
+    public ResultHolder logout(HttpServletResponse response) throws Exception {
         SecurityUtils.getSubject().logout();
+        return ResultHolder.success("logout success");
     }
 
 }
