@@ -9,6 +9,8 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.SystemParameterService;
 import io.metersphere.system.domain.SystemParameter;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
+@Tag(name = "系统参数")
 @RequestMapping("/system/parameter")
 public class SystemParameterController {
 
@@ -25,31 +28,25 @@ public class SystemParameterController {
     SystemParameterService systemParameterService;
 
 
-    /**
-     * 基本配置
-     *
-     * @param systemParameter
-     */
     @PostMapping("/save/base-info")
+    @Operation(summary = "保存基本信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
     @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "基本配置", sourceId = "#systemParameter.get(0).paramKey")
     public void saveBaseParameter(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
 
+
     @GetMapping("/get/base-info")
+    @Operation(summary = "获取基本信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
     public BaseSystemConfigDTO getBaseInfo() {
         return systemParameterService.getBaseInfo();
     }
 
 
-    /**
-     * 邮件设置
-     *
-     * @return
-     */
     @GetMapping("/get/email-info")
+    @Operation(summary = "获取邮件信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
     public EMailInfoDto getEmailInfo() {
         return systemParameterService.getEmailInfo();
@@ -57,6 +54,7 @@ public class SystemParameterController {
 
 
     @PostMapping("/edit/email-info")
+    @Operation(summary = "保存邮件信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "邮件配置", sourceId = "#systemParameter.get(0).paramKey")
     public void editEMailInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
@@ -64,12 +62,8 @@ public class SystemParameterController {
     }
 
 
-    /**
-     * 邮件测试连接
-     *
-     * @param hashMap
-     */
     @PostMapping("/test/email")
+    @Operation(summary = "测试连接")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
     public void testEmailConnection(@RequestBody HashMap<String, String> hashMap) {
         systemParameterService.testEmailConnection(hashMap);

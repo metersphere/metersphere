@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
@@ -32,6 +33,19 @@ public class SystemParameterControllerTest {
     private static String sessionId;
     private static String csrfToken;
 
+    public static final String BASE_INFO_SAVE_URL = "/system/parameter/save/base-info";
+
+    public static final String BASE_INFO_URL = "/system/parameter/get/base-info";
+
+    public static final String EMAIL_INFO_URL = "/system/parameter/get/email-info";
+
+    public static final String EMAIL_INFO_SAVE_URL = "/system/parameter/edit/email-info";
+
+
+    public static final String EMAIL_INFO_TEST_CONNECT_URL = "/system/parameter/test/email";
+
+    private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
+
     @BeforeEach
     public void login() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -48,26 +62,20 @@ public class SystemParameterControllerTest {
     @Order(1)
     public void testSaveBaseInfo() throws Exception {
 
-        List<SystemParameter> systemParameters = new ArrayList<>();
-        SystemParameter systemParameter = new SystemParameter();
-        systemParameter.setParamKey("base.url");
-        systemParameter.setParamValue("https://baidu.com");
-        systemParameter.setType("text");
-        SystemParameter parameter = new SystemParameter();
-        parameter.setParamKey("base.prometheus.host");
-        parameter.setParamValue("http://127.0.0.1:1111");
-        parameter.setType("text");
-        systemParameters.add(systemParameter);
-        systemParameters.add(parameter);
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("base.url");
+                setParamValue("https://baidu.com");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("base.prometheus.host");
+                setParamValue("http://127.0.0.1:1111");
+                setType("text");
+            }});
+        }};
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/save/base-info")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(systemParameters))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
+        this.requestPost(BASE_INFO_SAVE_URL, systemParameters);
 
     }
 
@@ -75,21 +83,13 @@ public class SystemParameterControllerTest {
     @Test
     @Order(2)
     public void testGetBaseInfo() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/base-info")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andDo(print());
-
+        this.requestGet(BASE_INFO_URL);
     }
 
     @Test
     @Order(3)
     public void testGetEmailInfo() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/system/parameter/get/email-info")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk());
+        this.requestGet(EMAIL_INFO_URL);
     }
 
 
@@ -97,76 +97,93 @@ public class SystemParameterControllerTest {
     @Order(4)
     public void testEditEmailInfo() throws Exception {
 
-        List<SystemParameter> systemParameters = new ArrayList<>();
-        SystemParameter systemParameter1 = new SystemParameter();
-        systemParameter1.setParamKey("smtp.host");
-        systemParameter1.setParamValue("xxx.xxx.com");
-        systemParameter1.setType("text");
-
-        SystemParameter systemParameter2 = new SystemParameter();
-        systemParameter2.setParamKey("smtp.port");
-        systemParameter2.setParamValue("xxx");
-        systemParameter2.setType("text");
-
-        SystemParameter systemParameter3 = new SystemParameter();
-        systemParameter3.setParamKey("smtp.account");
-        systemParameter3.setParamValue("aaa@qq.com");
-        systemParameter3.setType("text");
-
-
-        systemParameters.add(systemParameter1);
-        systemParameters.add(systemParameter2);
-        systemParameters.add(systemParameter3);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/edit/email-info")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(systemParameters))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("smtp.host");
+                setParamValue("https://baidu.com");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("smtp.port");
+                setParamValue("8080");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("smtp.account");
+                setParamValue("aaa@fit2cloud.com");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("smtp.ssl");
+                setParamValue("true");
+                setType("text");
+            }});
+        }};
+        this.requestPost(EMAIL_INFO_SAVE_URL, systemParameters);
     }
 
     @Test
     @Order(4)
     public void testEmailConnect() throws Exception {
         HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("smtp.host", "xx");
-        hashMap.put("smtp.port", "xx");
-        hashMap.put("smtp.account", "xx");
-        hashMap.put("smtp.password", "xx");
-        hashMap.put("smtp.from", "xx");
-        hashMap.put("smtp.recipient", "xx");
+        hashMap.put("smtp.host", "https://baidu.com");
+        hashMap.put("smtp.port", "80");
+        hashMap.put("smtp.account", "aaa@fit2cloud.com");
+        hashMap.put("smtp.password", "test");
+        hashMap.put("smtp.from", "aaa@fit2cloud.com");
+        hashMap.put("smtp.recipient", "aaa@fit2cloud.com");
         hashMap.put("smtp.ssl", "ture");
         hashMap.put("smtp.tls", "false");
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/test/email")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(hashMap))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError());
+        this.requestPost(EMAIL_INFO_TEST_CONNECT_URL, hashMap, ERROR_REQUEST_MATCHER);
     }
 
 
     @Test
     @Order(5)
-    public void testSaveBaseInfoNullUrl() throws Exception {
-        List<SystemParameter> systemParameters = new ArrayList<>();
-        SystemParameter parameter = new SystemParameter();
-        parameter.setParamKey("base.prometheus.host");
-        parameter.setParamValue("http://127.0.0.1:1111");
-        parameter.setType("text");
-        systemParameters.add(parameter);
+    public void testSaveBaseInfoError() throws Exception {
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("base.url");
+                setParamValue("https://baidu.com");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("");
+                setParamValue("");
+                setType("text");
+            }});
+        }};
+        this.requestPost(BASE_INFO_SAVE_URL, systemParameters);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/system/parameter/save/base-info")
+    }
+
+
+    private MvcResult requestPost(String url, Object param) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(systemParameters))
+                        .content(JSON.toJSONString(param))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
+                .andDo(print())
+                .andReturn();
+    }
 
+    private MvcResult requestGet(String url) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk()).andDo(print()).andReturn();
+    }
+
+    private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(param))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 }
