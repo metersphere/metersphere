@@ -1,11 +1,11 @@
 import { Message, Modal } from '@arco-design/web-vue';
 import { useI18n } from '@/hooks/useI18n';
-import { useRouter } from 'vue-router';
-
 import type { ErrorMessageMode } from '#/axios';
+import useUser from '@/hooks/useUser';
 
 export default function checkStatus(status: number, msg: string, errorMessageMode: ErrorMessageMode = 'message'): void {
   const { t } = useI18n();
+  const { logout } = useUser();
   let errMessage = '';
   switch (status) {
     case 400:
@@ -13,8 +13,7 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       break;
     case 401: {
       errMessage = msg || t('api.errMsg401');
-      const router = useRouter();
-      router.push('/login');
+      logout();
       break;
     }
     case 403:
