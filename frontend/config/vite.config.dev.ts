@@ -15,7 +15,7 @@ export default mergeConfig(
         '/front': {
           target: 'http://101.43.186.75:8081/',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/front/, ''),
+          rewrite: (path: string) => path.replace(/^\/front/, ''),
         },
       },
     },

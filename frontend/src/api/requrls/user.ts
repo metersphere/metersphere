@@ -1,4 +1,4 @@
 export const LoginUrl = '/login';
-export const LogoutUrl = '/api/user/logout';
-export const GetUserInfoUrl = '/api/user/info';
+export const isLoginUrl = '/is-login';
+export const LogoutUrl = '/signout';
 export const GetMenuListUrl = '/api/user/menu';

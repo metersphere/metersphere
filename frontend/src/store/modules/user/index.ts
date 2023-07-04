@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login as userLogin, logout as userLogout, getUserInfo } from '@/api/modules/user';
+import { login as userLogin, logout as userLogout } from '@/api/modules/user';
 import { setToken, clearToken } from '@/utils/auth';
 import { removeRouteListener } from '@/utils/route-listener';
 import useAppStore from '../app';
@@ -51,22 +51,17 @@ const useUserStore = defineStore('user', {
       this.$reset();
     },
 
-    // 获取用户信息
-    async info() {
-      const res = await getUserInfo();
-      const appStore = useAppStore();
-      if (appStore.currentOrgId === '') {
-        // 第一次进系统才设置组织 ID，后续已经持久化存储了
-        appStore.setCurrentOrgId(res.organization || '');
-      }
-      this.setInfo(res);
-    },
-
     // 登录
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
         setToken(res.sessionId, res.csrfToken);
+        const appStore = useAppStore();
+        if (appStore.currentOrgId === '') {
+          // 第一次进系统才设置组织 ID，后续已经持久化存储了
+          appStore.setCurrentOrgId(res.lastOrganizationId || '');
+        }
+        this.setInfo(res);
       } catch (err) {
         clearToken();
         throw err;

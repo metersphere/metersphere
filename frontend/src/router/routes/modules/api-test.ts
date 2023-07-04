@@ -4,6 +4,7 @@ import { AppRouteRecordRaw } from '../types';
 const ApiTest: AppRouteRecordRaw = {
   path: '/api-test',
   name: 'apiTest',
+  redirect: '/api-test/list',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.apiTest',
