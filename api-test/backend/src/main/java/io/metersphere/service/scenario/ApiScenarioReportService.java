@@ -89,11 +89,6 @@ public class ApiScenarioReportService {
     @Resource
     private RedisTemplateService redisTemplateService;
 
-    public void saveResult(ResultDTO dto) {
-        // 报告详情内容
-        apiScenarioReportResultService.save(dto.getReportId(), dto.getRequestResults());
-    }
-
     public void batchSaveResult(List<ResultDTO> dtos) {
         apiScenarioReportResultService.batchSave(dtos);
     }

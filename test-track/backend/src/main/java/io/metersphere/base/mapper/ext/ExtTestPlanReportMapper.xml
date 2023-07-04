@@ -154,6 +154,10 @@
         GROUP BY t.test_plan_id
     </select>
 
+    <select id="selectLastReportByTestPlanId" resultType="java.lang.String">
+        select `status` from test_plan_report where  test_plan_id =  #{testPlanId} ORDER BY create_time DESC LIMIT 1
+    </select>
+
 
     <update id="setApiBaseCountAndPassRateIsNullById">
         update test_plan_report_content

@@ -24,4 +24,6 @@ public interface ExtTestPlanReportMapper {
     void setApiBaseCountAndPassRateIsNullById(String id);
 
     void updateAllStatus();
+
+    String selectLastReportByTestPlanId(@Param("testPlanId") String testPlanId);
 }

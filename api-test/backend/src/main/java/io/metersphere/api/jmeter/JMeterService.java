@@ -10,16 +10,15 @@ import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.config.KafkaConfig;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ExtendedParameter;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.ApiFileUtil;
+import io.metersphere.commons.utils.GenerateHashTreeUtil;
+import io.metersphere.commons.utils.HashTreeUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.config.JmeterProperties;
-import io.metersphere.constants.BackendListenerConstants;
-import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
 import io.metersphere.engine.Engine;
-import io.metersphere.jmeter.JMeterBase;
 import io.metersphere.service.ApiPoolDebugService;
 import io.metersphere.service.PluginService;
 import io.metersphere.service.RedisTemplateService;
@@ -29,13 +28,8 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jmeter.util.JMeterUtils;
-import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
@@ -86,65 +80,6 @@ public class JMeterService {
         } catch (Exception e) {
             return jmeterProperties.getHome();
         }
-    }
-
-    /**
-     * 添加调试监听
-     */
-    private void addDebugListener(JmeterRunRequestDTO request) {
-        MsDebugListener resultCollector = new MsDebugListener();
-        resultCollector.setName(request.getReportId());
-        resultCollector.setProperty(TestElement.TEST_CLASS, MsDebugListener.class.getName());
-        resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
-        resultCollector.setEnabled(true);
-        resultCollector.setRunMode(request.getRunMode());
-        resultCollector.setFakeErrorMap(request.getFakeErrorMap());
-        // 添加DEBUG标示
-        HashTree test = ArrayUtils.isNotEmpty(request.getHashTree().getArray())
-                ? request.getHashTree().getTree(request.getHashTree().getArray()[0]) : null;
-
-        if (test != null && ArrayUtils.isNotEmpty(test.getArray())
-                && test.getArray()[0] instanceof ThreadGroup) {
-            ThreadGroup group = (ThreadGroup) test.getArray()[0];
-            group.setProperty(BackendListenerConstants.MS_DEBUG.name(), true);
-        }
-        request.getHashTree().add(request.getHashTree().getArray()[0], resultCollector);
-    }
-
-    private void runLocal(JmeterRunRequestDTO request) {
-        init();
-        // 接口用例集成报告/测试计划报告日志记录
-        if (StringUtils.isNotEmpty(request.getTestPlanReportId())
-                && StringUtils.equals(request.getReportType(), RunModeConstants.SET_REPORT.toString())) {
-            FixedCapacityUtil.put(request.getTestPlanReportId(), new StringBuffer());
-        } else {
-            // 报告日志记录
-            FixedCapacityUtil.put(request.getReportId(), new StringBuffer());
-        }
-        LoggerUtil.debug("监听MessageCache.tasks当前容量：" + FixedCapacityUtil.size());
-        if (request.isDebug() && !StringUtils.equalsAny(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
-        }
-
-        if (MapUtils.isNotEmpty(request.getExtendedParameters())
-                && request.getExtendedParameters().containsKey(ExtendedParameter.SYNC_STATUS)
-                && (Boolean) request.getExtendedParameters().get(ExtendedParameter.SYNC_STATUS)) {
-            LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request);
-        }
-
-        if (request.isDebug()) {
-            LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加Debug Listener");
-            addDebugListener(request);
-        } else {
-            LoggerUtil.debug("为请求 [ " + request.getReportId() + " ] 添加同步接收结果 Listener");
-            JMeterBase.addBackendListener(request, request.getHashTree(), MsApiBackendListener.class.getCanonicalName());
-        }
-
-        LoggerUtil.info("资源：[" + request.getTestId() + "] 加入JMETER中开始执行", request.getReportId());
-        ApiLocalRunner runner = new ApiLocalRunner(request.getHashTree());
-        runner.run(request.getReportId());
     }
 
     private void fileProcessing(JmeterRunRequestDTO request) {
@@ -249,10 +184,6 @@ public class JMeterService {
             HashTreeUtil.initRepositoryFiles(request);
             execThreadPoolExecutor.addTask(request);
         }
-    }
-
-    public void addQueue(JmeterRunRequestDTO request) {
-        this.runLocal(request);
     }
 
     public boolean getRunningQueue(String poolId, String reportId) {
