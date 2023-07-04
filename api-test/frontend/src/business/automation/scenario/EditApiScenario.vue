@@ -2203,6 +2203,9 @@ export default {
       }
     },
     errorRefresh(error) {
+      if (error && error.response && error.response.status === 400) {
+        this.$error(this.$t('automation.scenario_plugin_run_warning'));
+      }
       this.debug = false;
       this.isTop = false;
       this.debugLoading = false;
