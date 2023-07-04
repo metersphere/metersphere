@@ -21,11 +21,6 @@ public class MSException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-
-    public static void throwException(IResultCode errorCode, String message) {
-        throw new MSException(errorCode, message);
-    }
-
     public MSException(IResultCode errorCode, Throwable t) {
         super(t);
         this.errorCode = errorCode;
