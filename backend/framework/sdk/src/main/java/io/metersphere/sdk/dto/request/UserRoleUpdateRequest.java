@@ -1,5 +1,7 @@
 package io.metersphere.sdk.dto.request;
 
+import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +33,7 @@ public class UserRoleUpdateRequest implements Serializable {
 
     @Schema(title = "所属类型 SYSTEM ORGANIZATION PROJECT", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class})
+    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class})
     @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 }

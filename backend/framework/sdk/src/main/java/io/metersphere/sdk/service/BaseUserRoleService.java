@@ -95,6 +95,7 @@ public class BaseUserRoleService {
     protected UserRole update(UserRole userRole) {
         userRole.setCreateUser(null);
         userRole.setCreateTime(null);
+        userRole.setType(null);
         userRole.setUpdateTime(System.currentTimeMillis());
         userRoleMapper.updateByPrimaryKeySelective(userRole);
         return userRole;
