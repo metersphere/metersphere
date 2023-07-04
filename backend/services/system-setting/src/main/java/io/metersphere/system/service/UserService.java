@@ -9,10 +9,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CodingUtil;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.OperationLog;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
@@ -20,6 +17,7 @@ import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.request.UserBatchProcessRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
@@ -73,6 +71,32 @@ public class UserService {
             log.setCreateTime(user.getCreateTime());
             log.setSourceId(user.getId());
             log.setDetails(user.getName() + "(" + user.getEmail() + ")");
+            logs.add(log);
+        });
+        return logs;
+    }
+
+    public List<User> selectByIdList(@NotEmpty List<String> userIdList) {
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(userIdList);
+        return userMapper.selectByExample(example);
+    }
+
+    //切面方法调用：获取接口日志
+    public List<OperationLog> getLogs(UserBatchProcessRequest request) {
+        List<OperationLog> logs = new ArrayList<>();
+        List<User> userList = this.selectByIdList(request.getUserIdList());
+        userList.forEach(user -> {
+            OperationLog log = new OperationLog();
+            log.setId(UUID.randomUUID().toString());
+            log.setCreateUser(SessionUtils.getUserId());
+            log.setProjectId("system");
+            log.setType(OperationLogType.DELETE.name());
+            log.setModule(OperationLogModule.SYSTEM_USER);
+            log.setCreateTime(System.currentTimeMillis());
+            log.setMethod("deleteUser");
+            log.setSourceId(user.getId());
+            log.setDetails(user.getName());
             logs.add(log);
         });
         return logs;
