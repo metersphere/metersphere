@@ -143,6 +143,7 @@ import { getProjectMemberOption } from '@/api/project';
 import { buildCustomFields, parseCustomField } from 'metersphere-frontend/src/utils/custom_field';
 import { getApiTemplate } from '@/api/api-template';
 import { parseCustomFilesForItem } from 'metersphere-frontend/src/utils/tableUtils';
+import { hasPermissions } from 'metersphere-frontend/src/utils/permission';
 const store = useApiStore();
 export default {
   name: 'EditCompleteContainer',
@@ -209,7 +210,7 @@ export default {
       }
       this.customFieldForm = parseCustomField(this.currentApi, this.apiTemplate, this.customFieldRules);
     });
-    if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP')) {
+    if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP') && hasPermissions('PROJECT_API_DEFINITION:READ+MOCK')) {
       this.mockSetting();
     }
     this.formatApi();
