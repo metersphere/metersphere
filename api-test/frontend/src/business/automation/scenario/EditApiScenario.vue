@@ -87,26 +87,26 @@
           <div class="debug-header">
             <div class="ms-col-one mt-2">
               <div class="mt-2" v-show="scenarioDefinition.length > 1">
-              <el-tooltip
-                :content="$t('test_track.case.batch_operate')"
-                placement="top"
-                effect="light"
-                v-show="!isBatchProcess">
-                <font-awesome-icon
-                  class="ms-batch-btn"
-                  :icon="['fa', 'bars']"
-                  v-prevent-re-click
-                  @click="batchProcessing" />
-              </el-tooltip>
-              <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
-              <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
-                <font-awesome-icon
-                  class="ms-batch-btn"
-                  :icon="['fa', 'times']"
-                  v-prevent-re-click
-                  @click="cancelBatchProcessing" />
-              </el-tooltip>
-            </div>
+                <el-tooltip
+                  :content="$t('test_track.case.batch_operate')"
+                  placement="top"
+                  effect="light"
+                  v-show="!isBatchProcess">
+                  <font-awesome-icon
+                    class="ms-batch-btn"
+                    :icon="['fa', 'bars']"
+                    v-prevent-re-click
+                    @click="batchProcessing" />
+                </el-tooltip>
+                <el-checkbox v-show="isBatchProcess" v-model="isCheckedAll" @change="checkedAll" />
+                <el-tooltip :content="$t('commons.cancel')" placement="top" effect="light" v-show="isBatchProcess">
+                  <font-awesome-icon
+                    class="ms-batch-btn"
+                    :icon="['fa', 'times']"
+                    v-prevent-re-click
+                    @click="cancelBatchProcessing" />
+                </el-tooltip>
+              </div>
               <div class="ml-10">{{ $t('api_test.automation.step_total') }}：{{ scenarioDefinition.length }}</div>
               <div class="ml-10">
                 <el-link class="head" @click="showScenarioParameters"
@@ -141,8 +141,7 @@
                 @saveRefresh="setDomain"
                 :has-option-group="true"
                 ref="envPopover"
-                class="ml-10"
-              />
+                class="ml-10" />
 
               <el-tooltip class="mt-2 ml-10" v-if="!debugLoading" content="Ctrl + R" placement="top">
                 <el-dropdown
@@ -271,102 +270,98 @@
             </el-row>
             <el-row>
               <!-- 场景步骤内容 -->
-              <div ref="stepInfo" style="height: calc(100vh - 170px);">
-                  <vue-easy-tree
-                    node-key="resourceId"
-                    height="calc(100vh - 170px)"
-                    :minItemSize="43"
-                    :sizeDependencies="['expanded']"
-                    :props="props"
-                    :data="scenarioDefinition"
-                    :buffer="200"
-                    class="ms-tree"
-                    :expand-on-click-node="false"
-                    :allow-drop="allowDrop"
-                    :allow-drag="allowDrag"
-                    :empty-text="$t('api_test.scenario.step_info')"
-                    highlight-current
-                    :show-checkbox="isBatchProcess"
-                    @node-drag-end="nodeDragEnd"
-                    @node-click="nodeClick"
-                    draggable
-                    isDynamic
-                    ref="stepTree"
-                    :key="reloadTree">
-                    <el-row
-                      class="custom-tree-node"
-                      :gutter="10"
-                      type="flex"
-                      align="middle"
-                      slot-scope="{ node, data }"
-                      style="width: 100%">
+              <div ref="stepInfo" style="height: calc(100vh - 170px)">
+                <vue-easy-tree
+                  node-key="id"
+                  height="calc(100vh - 170px)"
+                  :minItemSize="43"
+                  :sizeDependencies="['expanded']"
+                  :props="props"
+                  :data="scenarioDefinition"
+                  :buffer="300"
+                  class="ms-tree"
+                  :expand-on-click-node="false"
+                  :allow-drop="allowDrop"
+                  :allow-drag="allowDrag"
+                  :empty-text="$t('api_test.scenario.step_info')"
+                  highlight-current
+                  :show-checkbox="isBatchProcess"
+                  @node-drag-end="nodeDragEnd"
+                  @node-click="nodeClick"
+                  draggable
+                  isDynamic
+                  ref="stepTree"
+                  :key="reloadTree">
+                  <el-row
+                    class="custom-tree-node"
+                    :gutter="10"
+                    type="flex"
+                    align="middle"
+                    slot-scope="{ node, data }"
+                    style="width: 100%">
+                    <span
+                      class="custom-tree-node-col"
+                      style="padding-left: 0px; padding-right: 0px"
+                      v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
                       <span
-                        class="custom-tree-node-col"
-                        style="padding-left: 0px; padding-right: 0px"
-                        v-show="node && data.hashTree && data.hashTree.length > 0 && !data.isLeaf">
-                        <span
-                          v-show="!node.expanded"
-                          class="el-icon-circle-plus-outline custom-node_e"
-                          @click="openOrClose(node, data)" />
-                        <span
-                          v-show="node.expanded"
-                          class="el-icon-remove-outline custom-node_e"
-                          @click="openOrClose(node, data)" />
-                      </span>
-                      <!-- 批量操作 -->
+                        v-show="!node.expanded"
+                        class="el-icon-circle-plus-outline custom-node_e"
+                        @click="openOrClose(node, data)" />
                       <span
-                        :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
-                        style="padding-left: 0px; padding-right: 0px"
-                        v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
-                        <show-more-btn
-                          :is-show="node.checked"
-                          :buttons="batchOperators"
-                          v-show="data.checkBox"
-                          :show-size="false"
-                          style="margin-right: 10px" />
-                      </span>
-                      <span style="width: calc(100% - 40px)">
-                        <!-- 步骤组件-->
-                        <ms-component-config
-                          :scenario-definition="scenarioDefinition"
-                          :message="message"
-                          :type="data.type"
-                          :scenario="data"
-                          :response="response"
-                          :currentScenario="currentScenario"
-                          :node="node"
-                          :project-list="projectList"
-                          :env-map="projectEnvMap"
-                          :env-group-id="envGroupId"
-                          :environment-type="environmentType"
-                          @remove="remove"
-                          @copyRow="copyRow"
-                          @suggestClick="suggestClick"
-                          @refReload="refReload"
-                          @runScenario="runDebug"
-                          @stopScenario="stop"
-                          @setDomain="setDomain"
-                          @openScenario="openScenario"
-                          @editScenarioAdvance="editScenarioAdvance"
-                          ref="componentConfig"
-                          v-if="
-                            stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
-                            !node.parent ||
-                            !node.parent.data ||
-                            stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
-                          " />
-                        <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
-                          {{ hideNode(node) }}
-                        </div>
-                      </span>
-                    </el-row>
-                  </vue-easy-tree>
-                </div>
+                        v-show="node.expanded"
+                        class="el-icon-remove-outline custom-node_e"
+                        @click="openOrClose(node, data)" />
+                    </span>
+                    <!-- 批量操作 -->
+                    <span
+                      :class="data.checkBox ? 'custom-tree-node-hide' : 'custom-tree-node-col'"
+                      style="padding-left: 0px; padding-right: 0px"
+                      v-show="(data.hashTree && data.hashTree.length === 0) || data.isLeaf">
+                      <show-more-btn
+                        :is-show="node.checked"
+                        :buttons="batchOperators"
+                        v-show="data.checkBox"
+                        :show-size="false"
+                        style="margin-right: 10px" />
+                    </span>
+                    <span
+                      v-if="
+                        stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+                        !node.parent ||
+                        !node.parent.data ||
+                        stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
+                      "
+                      style="width: calc(100% - 40px)">
+                      <!-- 步骤组件-->
+                      <ms-component-config
+                        :scenario-definition="scenarioDefinition"
+                        :message="message"
+                        :type="data.type"
+                        :scenario="data"
+                        :response="response"
+                        :currentScenario="currentScenario"
+                        :node="node"
+                        :project-list="projectList"
+                        :env-map="projectEnvMap"
+                        :env-group-id="envGroupId"
+                        :environment-type="environmentType"
+                        @remove="remove"
+                        @copyRow="copyRow"
+                        @suggestClick="suggestClick"
+                        @refReload="refReload"
+                        @runScenario="runDebug"
+                        @stopScenario="stop"
+                        @setDomain="setDomain"
+                        @openScenario="openScenario"
+                        @editScenarioAdvance="editScenarioAdvance"
+                        ref="componentConfig" />
+                    </span>
+                  </el-row>
+                </vue-easy-tree>
+              </div>
             </el-row>
             <el-row>
-              <el-col :span="21">
-                
-              </el-col>
+              <el-col :span="21"> </el-col>
               <!-- 按钮列表 -->
               <el-col :span="3">
                 <div
@@ -1182,8 +1177,11 @@ export default {
     },
     margeTransaction(item, console, arr) {
       arr.forEach((sub) => {
-        if (item.data && item.data.id + '_' + item.data.parentIndex === sub.resourceId
-          && item.data.requestResult.length === 0) {
+        if (
+          item.data &&
+          item.data.id + '_' + item.data.parentIndex === sub.resourceId &&
+          item.data.requestResult.length === 0
+        ) {
           sub.responseResult.console = console;
           item.data.requestResult.push(sub);
           // 更新父节点状态
@@ -1767,7 +1765,7 @@ export default {
         this.clearResult(this.scenarioDefinition);
         this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
         runScenario.run = false;
-        this.message = "STOP";
+        this.message = 'STOP';
         return;
       }
       let hasRequest = runScenario && runScenario.hasRequest;
