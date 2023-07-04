@@ -305,7 +305,7 @@ export default {
       }
       changeLatest(row)
         .then(response => {
-          this.$success(this.$t('commons.save_success'));
+          this.$success(row.latest ? this.$t('commons.enable_success') : this.$t('commons.disable_success'));
         });
     },
     save(create) {
