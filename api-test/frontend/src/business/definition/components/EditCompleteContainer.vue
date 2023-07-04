@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="isShow && !loading">
-    <ms-aside-container>
+    <ms-aside-container >
       <api-base-info
         ref="apiBaseInfo"
         :api-template="apiTemplate"
@@ -11,7 +11,7 @@
         :is-form-alive="isFormAlive"
         :maintainer-options="maintainerOptions"
         :module-options="moduleOptions"
-        style="overflow: auto" />
+      />
     </ms-aside-container>
     <ms-main-container class="ms-api-main-container">
       <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed">
@@ -158,7 +158,7 @@ export default {
     MsApiCaseList,
     ApiBaseInfo,
     MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
-    MsAsideContainer: () => import('metersphere-frontend/src/components/MsAsideContainer'),
+    MsAsideContainer: () => import('./CustomAsideContainer.vue'),
     MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
   },
   data() {
