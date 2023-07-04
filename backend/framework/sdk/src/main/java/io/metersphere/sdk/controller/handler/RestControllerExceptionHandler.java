@@ -10,6 +10,7 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,6 +42,17 @@ public class RestControllerExceptionHandler {
         });
         return ResultHolder.error(MsHttpResultCode.VALIDATE_FAILED.getCode(),
                 MsHttpResultCode.VALIDATE_FAILED.getMessage(), errors);
+    }
+
+    /**
+     * http 状态码返回405
+     * @param exception 异常信息
+     * @return
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResultHolder handleHttpRequestMethodNotSupportedException(HttpServletResponse response, Exception exception) {
+        response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());
+        return ResultHolder.error(HttpStatus.METHOD_NOT_ALLOWED.value(), exception.getMessage());
     }
 
     /**

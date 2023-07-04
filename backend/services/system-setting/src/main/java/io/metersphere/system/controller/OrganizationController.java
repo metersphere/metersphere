@@ -14,6 +14,8 @@ import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +26,7 @@ import java.util.List;
 /**
  * @author song-cc-rock
  */
+@Tag(name = "组织")
 @RestController
 @RequestMapping("/organization")
 public class OrganizationController {
@@ -34,6 +37,7 @@ public class OrganizationController {
     private OrganizationService organizationService;
 
     @PostMapping("/list")
+    @Operation(summary = "获取组织列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
     public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
@@ -41,12 +45,14 @@ public class OrganizationController {
     }
 
     @PostMapping("/list-all")
+    @Operation(summary = "获取系统所有组织")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
-    public List<OrganizationDTO> listAll(@Validated @RequestBody OrganizationRequest organizationRequest) {
-        return organizationService.list(organizationRequest);
+    public List<OrganizationDTO> listAll() {
+        return organizationService.listAll();
     }
 
     @PostMapping("/list-member")
+    @Operation(summary = "获取组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
@@ -54,6 +60,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/add-member")
+    @Operation(summary = "添加组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest organizationMemberRequest) {
         organizationMemberRequest.setCreateUserId(SessionUtils.getUserId());
@@ -61,18 +68,21 @@ public class OrganizationController {
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
+    @Operation(summary = "删除组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
         organizationService.removeMember(organizationId, userId);
     }
 
     @GetMapping("/default")
+    @Operation(summary = "获取系统默认组织")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
     public OrganizationDTO getDefault() {
         return organizationService.getDefault();
     }
 
     @PostMapping("/list-project")
+    @Operation(summary = "获取组织下的项目列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ)
     public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody ProjectRequest projectRequest) {
         Page<Object> page = PageHelper.startPage(projectRequest.getCurrent(), projectRequest.getPageSize());
