@@ -83,6 +83,8 @@ const message = {
     save_as: "Save as",
     update: "Update",
     save_success: "Saved successfully",
+    enable_success: "Enable successfully",
+    disable_success: "Disable successfully",
     add_success: "Add successfully",
     cancel_add_success: "Cancel successfully",
     recover_success: "Recover successfully",
@@ -3657,6 +3659,9 @@ const message = {
     to_try: "Go to try it",
     view_video: "View video tutorial",
   },
+  jar_config: {
+    upload_limit_size: "Upload file size cannot exceed 50MB!",
+  }
 };
 
 export default {

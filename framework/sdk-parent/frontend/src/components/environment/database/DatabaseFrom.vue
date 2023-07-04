@@ -142,9 +142,15 @@ export default {
       this.currentConfig = new DatabaseConfig();
     },
     validate() {
-      this.result = databaseValidate(this.currentConfig).then(() => {
-        this.$success(this.$t('commons.connection_successful'));
-      })
+      this.$refs['databaseFrom'].validate((valid) => {
+        if (valid) {
+          this.result = databaseValidate(this.currentConfig).then(() => {
+            this.$success(this.$t('commons.connection_successful'));
+          })
+        } else {
+          return false;
+        }
+      });
     },
     driverChange(type){
       this.currentConfig.dbUrl = "";

@@ -81,6 +81,8 @@ const message = {
     save_as: "另存為",
     update: "更新",
     save_success: "保存成功",
+    enable_success: "啓用成功",
+    disable_success: "禁用成功",
     add_success: "添加成功",
     cancel_add_success: "取消添加成功",
     recover_success: "恢復成功",
@@ -3527,6 +3529,9 @@ const message = {
     to_try: "去完成",
     view_video: "觀看視頻教程",
   },
+  jar_config: {
+    upload_limit_size: "上传文件大小不能超过 50MB!",
+  }
 };
 
 export default {
