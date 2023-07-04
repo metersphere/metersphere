@@ -6,6 +6,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.domain.AuthSourceExample;
 import io.metersphere.system.mapper.AuthSourceMapper;
+import io.metersphere.system.request.AuthSourceRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,16 +26,26 @@ public class AuthSourceService {
         return authSourceMapper.selectByExample(example);
     }
 
-    public void addAuthSource(AuthSource authSource) {
+    public void addAuthSource(AuthSourceRequest authSource) {
         checkAuthSource(authSource);
-        long createTime = System.currentTimeMillis();
-        authSource.setCreateTime(createTime);
-        authSource.setUpdateTime(createTime);
-        authSource.setId(UUID.randomUUID().toString());
-        authSourceMapper.insertSelective(authSource);
+        AuthSource source = delRequestToDB(authSource);
+        authSourceMapper.insertSelective(source);
     }
 
-    public void checkAuthSource(AuthSource authSource) {
+    private AuthSource delRequestToDB(AuthSourceRequest authSource) {
+        long createTime = System.currentTimeMillis();
+        AuthSource source = new AuthSource();
+        source.setName(authSource.getName());
+        source.setConfiguration(authSource.getConfiguration().getBytes());
+        source.setDescription(authSource.getDescription());
+        source.setType(authSource.getType());
+        source.setCreateTime(createTime);
+        source.setUpdateTime(createTime);
+        source.setId(UUID.randomUUID().toString());
+        return source;
+    }
+
+    public void checkAuthSource(AuthSourceRequest authSource) {
         String resourcePoolName = authSource.getName();
         if (StringUtils.isBlank(resourcePoolName)) {
             throw new MSException(Translator.get("authsource_name_is_null"));
@@ -63,11 +74,23 @@ public class AuthSourceService {
         return authSourceMapper.selectByPrimaryKey(id);
     }
 
-    public void updateAuthSource(AuthSource authSource) {
+    public void updateAuthSource(AuthSourceRequest authSource) {
         checkAuthSource(authSource);
-        authSource.setCreateTime(null);
-        authSource.setUpdateTime(System.currentTimeMillis());
-        authSourceMapper.updateByPrimaryKeySelective(authSource);
+        AuthSource source = authSourceMapper.selectByPrimaryKey(authSource.getId());
+        if (source != null) {
+            source.setName(authSource.getName());
+            source.setDescription(authSource.getDescription());
+            source.setConfiguration(authSource.getConfiguration().getBytes());
+            source.setUpdateTime(System.currentTimeMillis());
+            authSourceMapper.updateByPrimaryKeySelective(source);
+        }
     }
 
+    public void updateStatus(String id, String status) {
+        AuthSource record = new AuthSource();
+        record.setId(id);
+        record.setEnable(Boolean.parseBoolean(status));
+        record.setUpdateTime(System.currentTimeMillis());
+        authSourceMapper.updateByPrimaryKeySelective(record);
+    }
 }
