@@ -21,6 +21,12 @@ public interface OrganizationService {
     List<OrganizationDTO> list(OrganizationRequest organizationRequest);
 
     /**
+     * 获取系统下所有组织
+     * @return 列表数据
+     */
+    List<OrganizationDTO> listAll();
+
+    /**
      * 获取默认组织信息
      * @return 默认组织信息
      */

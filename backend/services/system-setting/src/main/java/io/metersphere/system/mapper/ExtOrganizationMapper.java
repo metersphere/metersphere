@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationDeleteRequest;
@@ -19,6 +20,12 @@ public interface ExtOrganizationMapper {
      * @return 组织列表数据
      */
     List<OrganizationDTO> list(@Param("request") OrganizationRequest organizationRequest);
+
+    /**
+     * 获取系统下所有组织
+     * @return 组织列表数据
+     */
+    List<OrganizationDTO> listAll();
 
     /**
      * 删除组织
@@ -45,4 +52,11 @@ public interface ExtOrganizationMapper {
      * @return 组织成员列表数据
      */
     List<UserExtend> listMember(@Param("request") OrganizationRequest organizationRequest);
+
+    /**
+     * 获取组织管理员
+     * @param orgId 组织ID
+     * @return 组织管理员数据
+     */
+    List<User> getOrgAdminList(String orgId);
 }

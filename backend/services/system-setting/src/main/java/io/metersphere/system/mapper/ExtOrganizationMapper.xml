@@ -16,6 +16,10 @@
         group by o.id
     </select>
 
+    <select id="listAll" resultType="io.metersphere.system.dto.OrganizationDTO">
+        select * from organization
+    </select>
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.keyword != null">
@@ -64,7 +68,7 @@
         from (
             select u.*, urr.role_id
             from user_role_relation urr
-            JOIN `user` u ON urr.user_id = u.id
+            join `user` u on urr.user_id = u.id
             <where>
                 <if test="request.organizationId != null">
                     urr.source_id = #{request.organizationId}
@@ -78,5 +82,12 @@
             order by u.update_time desc
         ) temp
         group by temp.id
+    </select>
+
+    <select id="getOrgAdminList" resultType="io.metersphere.system.domain.User">
+        select u.*
+        from user_role_relation urr
+        join `user` u on urr.user_id = u.id
+        where urr.role_id = 'org_admin'and urr.source_id = #{orgId}
     </select>
 </mapper>
