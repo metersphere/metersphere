@@ -347,6 +347,7 @@ export default {
       this.param.trashEnable = true;
       this.param.name = '';
       this.param.combine = {};
+      this.param.filters = { status: ['Trash'] };
       this.result = postModuleByTrash(this.projectId, this.param).then((response) => {
         this.setData(response);
       });

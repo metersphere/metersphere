@@ -104,7 +104,7 @@ public class ApiDefinitionExecResultService {
                     User user = getUser(dto, result);
                     //如果是测试计划用例，更新接口用例的上次执行结果
                     TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(dto.getTestId());
-                    if (testPlanApiCase != null && redisTemplateService.has(dto.getTestId(), dto.getReportId())) {
+                    if (testPlanApiCase != null) {
                         ApiTestCaseWithBLOBs apiTestCase = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                         if (apiTestCase != null) {
                             apiTestCase.setLastResultId(dto.getReportId());
@@ -258,7 +258,7 @@ public class ApiDefinitionExecResultService {
                 ApiRunMode.MANUAL_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseMapper.selectByPrimaryKey(testId);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
-            if (testPlanApiCase != null && redisTemplateService.has(testId, saveResult.getId())) {
+            if (testPlanApiCase != null) {
                 this.setExecResult(testId, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
                 testPlanApiCase.setStatus(status);
@@ -281,7 +281,7 @@ public class ApiDefinitionExecResultService {
                 projectId = apiDefinition.getProjectId();
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testId);
-                if (caseWithBLOBs != null && redisTemplateService.has(testId, saveResult.getId())) {
+                if (caseWithBLOBs != null) {
                     // 更新用例最后执行结果
                     caseWithBLOBs.setLastResultId(reportId);
                     caseWithBLOBs.setStatus(status);
@@ -313,19 +313,16 @@ public class ApiDefinitionExecResultService {
                 ApiRunMode.SCHEDULE_API_PLAN.name(),
                 ApiRunMode.JENKINS_API_PLAN.name(),
                 ApiRunMode.MANUAL_PLAN.name())) {
-            if (redisTemplateService.has(testId, reportId)) {
-                TestPlanApiCase apiCase = new TestPlanApiCase();
-                apiCase.setId(testId);
-                apiCase.setStatus(status);
-                apiCase.setUpdateTime(System.currentTimeMillis());
-                batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
-
-                TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
-                reviewApiCase.setId(testId);
-                reviewApiCase.setStatus(status);
-                reviewApiCase.setUpdateTime(System.currentTimeMillis());
-                redisTemplateService.unlock(testId, reportId);
-            }
+            TestPlanApiCase apiCase = new TestPlanApiCase();
+            apiCase.setId(testId);
+            apiCase.setStatus(status);
+            apiCase.setUpdateTime(System.currentTimeMillis());
+            batchTestPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+            TestCaseReviewApiCase reviewApiCase = new TestCaseReviewApiCase();
+            reviewApiCase.setId(testId);
+            reviewApiCase.setStatus(status);
+            reviewApiCase.setUpdateTime(System.currentTimeMillis());
+            redisTemplateService.unlock(testId, reportId);
         } else {
             // 更新用例最后执行结果
             ApiTestCaseWithBLOBs caseWithBLOBs = new ApiTestCaseWithBLOBs();
