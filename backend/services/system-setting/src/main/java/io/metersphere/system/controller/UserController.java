@@ -89,6 +89,8 @@ public class UserController {
 
 
     @PostMapping("/delete")
+    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER, isBatch = true,
+            details = "#msClass.getLogs(#userBatchProcessRequest)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
         return userService.deleteUser(userBatchProcessRequest.getUserIdList());
