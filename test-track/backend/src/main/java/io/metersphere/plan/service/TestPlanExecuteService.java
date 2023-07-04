@@ -2,10 +2,12 @@ package io.metersphere.plan.service;
 
 import io.metersphere.base.domain.TestPlanWithBLOBs;
 import io.metersphere.base.mapper.TestPlanMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.*;
+import io.metersphere.i18n.Translator;
 import io.metersphere.plan.dto.ExecutionWay;
 import io.metersphere.plan.request.api.TestPlanRunRequest;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
@@ -51,6 +53,11 @@ public class TestPlanExecuteService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public String runTestPlan(String testPlanId, String projectId, String userId, String triggerMode, String planReportId, String executionWay, String apiRunConfig) {
+        // 校验测试计划是否在执行中
+        if (testPlanService.checkTestPlanIsRunning(testPlanId)) {
+            LogUtil.info("当前测试计划正在执行中，请稍后再试", testPlanId);
+            MSException.throwException(Translator.get("test_plan_run_message"));
+        }
         RunModeConfigDTO runModeConfig = null;
         try {
             runModeConfig = JSON.parseObject(apiRunConfig, RunModeConfigDTO.class);

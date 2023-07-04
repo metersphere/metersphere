@@ -49,8 +49,6 @@ public class TestResultService {
     @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
     @Resource
-    private RedisTemplateService redisTemplateService;
-    @Resource
     private ApiScenarioExecutionInfoService scenarioExecutionInfoService;
     @Resource
     private ApiScenarioReportStructureService apiScenarioReportStructureService;
@@ -80,53 +78,11 @@ public class TestResultService {
         this.add(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
     }};
 
-    // 接口测试 用例/接口
-    private static final List<String> caseRunModes = new ArrayList<>() {{
-        this.add(ApiRunMode.DEFINITION.name());
-        this.add(ApiRunMode.JENKINS.name());
-        this.add(ApiRunMode.API_PLAN.name());
-    }};
-
-    // 测试计划 用例/接口
-    private static final List<String> planCaseRunModes = new ArrayList<>() {{
-        this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
-        this.add(ApiRunMode.JENKINS_API_PLAN.name());
-        this.add(ApiRunMode.MANUAL_PLAN.name());
-    }};
-
     private static final List<String> apiRunModes = new ArrayList<>() {{
         this.add(ApiRunMode.DEFINITION.name());
         this.add(ApiRunMode.API_PLAN.name());
         this.add(ApiRunMode.SCHEDULE_API_PLAN.name());
     }};
-
-    /**
-     * 执行结果存储
-     *
-     * @param dto 执行结果
-     */
-    public void saveResults(ResultDTO dto) {
-        // 处理环境
-        List<String> environmentList = new LinkedList<>();
-        if (dto.getArbitraryData() != null && dto.getArbitraryData().containsKey("ENV")) {
-            environmentList = (List<String>) dto.getArbitraryData().get("ENV");
-        }
-        //处理环境参数
-        if (CollectionUtils.isNotEmpty(environmentList)) {
-            apiEnvironmentRunningParamService.parseEnvironment(environmentList);
-        }
-
-        // 测试计划用例触发结果处理
-        if (planCaseRunModes.contains(dto.getRunMode())) {
-            apiDefinitionExecResultService.saveApiResultByScheduleTask(dto);
-        } else if (caseRunModes.contains(dto.getRunMode())) {
-            // 手动触发/批量触发 用例结果处理
-            apiDefinitionExecResultService.saveApiResult(dto);
-        } else if (scenarioRunModes.contains(dto.getRunMode())) {
-            // 场景报告结果处理
-            apiScenarioReportService.saveResult(dto);
-        }
-    }
 
     /**
      * 批量存储来自NODE/K8s的执行结果

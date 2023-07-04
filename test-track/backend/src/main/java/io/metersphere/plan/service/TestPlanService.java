@@ -161,7 +161,7 @@ public class TestPlanService {
     private TestPlanService testPlanService;
     @Resource
     private BaseTestResourcePoolService baseTestResourcePoolService;
-    
+
     public TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
@@ -2358,5 +2358,10 @@ public class TestPlanService {
 
         // 进行中：0 < 测试进度 < 100%
         return TestPlanStatus.Underway.name();
+    }
+
+    public boolean checkTestPlanIsRunning(String testPlanId) {
+        String status = testPlanReportService.selectLastReportByTestPlanId(testPlanId);
+        return StringUtils.equalsIgnoreCase(status, TestPlanReportStatus.RUNNING.name());
     }
 }

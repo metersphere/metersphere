@@ -1769,4 +1769,8 @@ public class TestPlanReportService {
             testPlanReportContentMapper.updateByExampleSelective(reportContentWithBLOBs, example);
         }
     }
+
+    public String selectLastReportByTestPlanId(String testPlanId) {
+        return extTestPlanReportMapper.selectLastReportByTestPlanId(testPlanId);
+    }
 }
