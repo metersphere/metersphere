@@ -107,14 +107,12 @@ const transform: AxiosTransform = {
   /**
    * @description: 请求拦截器处理
    */
-  requestInterceptors: (config, options) => {
+  requestInterceptors: (config) => {
     // 请求之前处理config
     const token = getToken();
     if (token && (config as Recordable)?.requestOptions?.withToken !== false) {
-      // jwt token
-      (config as Recordable).headers.Authorization = options.authenticationScheme
-        ? `${options.authenticationScheme} ${token}`
-        : token;
+      const { sessionId, csrfToken } = token;
+      (config as Recordable).headers = { 'X-AUTH-TOKEN': sessionId, 'CSRF-TOKEN': csrfToken };
     }
     return config;
   },
@@ -162,8 +160,6 @@ const transform: AxiosTransform = {
   },
 };
 
-const { sessionId, csrfToken } = getToken();
-
 function createAxios(opt?: Partial<CreateAxiosOptions>) {
   return new MSAxios(
     deepMerge(
@@ -174,7 +170,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         authenticationScheme: '',
         baseURL: `${window.location.origin}/${import.meta.env.VITE_API_BASE_URL as string}`,
         timeout: 30 * 1000,
-        headers: { 'Content-Type': ContentTypeEnum.JSON, 'X-AUTH-TOKEN': sessionId, 'CSRF-TOKEN': csrfToken },
+        headers: { 'Content-Type': ContentTypeEnum.JSON },
         // 如果是form-data格式
         // headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
         // 数据处理方式

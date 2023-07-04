@@ -1,23 +1,22 @@
 import { Message, Modal } from '@arco-design/web-vue';
 import { useI18n } from '@/hooks/useI18n';
-import useUser from '@/store/modules/user';
+import { useRouter } from 'vue-router';
 
 import type { ErrorMessageMode } from '#/axios';
 
 export default function checkStatus(status: number, msg: string, errorMessageMode: ErrorMessageMode = 'message'): void {
   const { t } = useI18n();
-  const userStore = useUser();
   let errMessage = '';
-
   switch (status) {
     case 400:
       errMessage = `${msg}`;
       break;
-    // 401: Not logged in
-    case 401:
+    case 401: {
       errMessage = msg || t('api.errMsg401');
-      userStore.logout();
+      const router = useRouter();
+      router.push('/login');
       break;
+    }
     case 403:
       errMessage = t('api.errMsg403');
       break;

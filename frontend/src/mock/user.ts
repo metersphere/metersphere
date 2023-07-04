@@ -1,14 +1,15 @@
 import Mock from 'mockjs';
 import setupMock, { successResponseWrap, failResponseWrap, makeMockUrl } from '@/utils/setup-mock';
 
-import { GetMenuListUrl, LogoutUrl, GetUserInfoUrl, LoginUrl } from '@/api/requrls/user';
+import { GetMenuListUrl, LogoutUrl, LoginUrl } from '@/api/requrls/user';
 import { isLogin } from '@/utils/auth';
 
 setupMock({
+  mock: false,
   setup() {
     // 用户信息
-    Mock.mock(makeMockUrl(GetUserInfoUrl), () => {
-      if (isLogin()) {
+    Mock.mock(makeMockUrl('/api/userinfo'), async () => {
+      if (await isLogin()) {
         const role = window.localStorage.getItem('userRole') || 'admin';
         return successResponseWrap({
           name: '王立群',
@@ -32,7 +33,7 @@ setupMock({
       return failResponseWrap(null, '未登录', 50008);
     });
 
-    // 登出
+    // 登陆
     Mock.mock(makeMockUrl(LoginUrl), () => {
       return successResponseWrap({});
     });

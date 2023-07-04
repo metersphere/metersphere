@@ -154,6 +154,7 @@ export default function useTableProps(
       setPagination({ current: data.current, total: data.total });
       return data;
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.log(err);
       // TODO 表格异常放到solt的empty
     } finally {

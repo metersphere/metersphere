@@ -17,9 +17,9 @@
       const { t } = useI18n();
       const appStore = useAppStore();
       const userStore = useUserStore();
+      const { logout } = useUser();
       const router = useRouter();
       const route = useRoute();
-      const { logout } = useUser();
       const { menuTree } = useMenuTree();
       const collapsed = computed({
         get() {
@@ -121,7 +121,6 @@
         {
           label: t('personal.switchOrg'),
           icon: <icon-swap />,
-          event: () => {},
         },
         {
           divider: <a-divider class="ms-dropdown-divider" />,
@@ -129,7 +128,7 @@
         {
           label: t('personal.exit'),
           icon: <icon-export />,
-          event: logout,
+          event: () => logout(),
         },
       ];
 

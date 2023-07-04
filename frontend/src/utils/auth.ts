@@ -1,8 +1,15 @@
+import { isLogin as isLoginFun } from '@/api/modules/user';
+
 const SESSION_ID = 'sessionId';
 const CSRF_TOKEN = 'csrfToken';
 
-const isLogin = () => {
-  return !!localStorage.getItem(SESSION_ID);
+const isLogin = async () => {
+  try {
+    await isLoginFun();
+    return true;
+  } catch (err) {
+    return false;
+  }
 };
 // 获取token
 const getToken = () => {
