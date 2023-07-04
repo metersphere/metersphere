@@ -468,14 +468,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         try {
             URL urlObject = new URL(url);
-            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
-            if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                sampler.setProperty("HTTPSampler.port", this.getPort());
-            } else if (urlObject.getPort() != -1) {
-                sampler.setPort(urlObject.getPort());
+            String envPath;
+            if (url.contains("${")) {
+                envPath = url;
+            } else {
+                sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
+                if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    sampler.setProperty("HTTPSampler.port", this.getPort());
+                } else if (urlObject.getPort() != -1) {
+                    sampler.setPort(urlObject.getPort());
+                }
+                envPath = urlObject.getPath();
             }
             sampler.setProtocol(urlObject.getProtocol());
-            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(urlObject.getPath(), StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
+            sampler.setProperty("HTTPSampler.path", URLDecoder.decode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name());
         } catch (Exception e) {
             sampler.setProperty("HTTPSampler.path", url);
             LogUtil.error(e.getMessage(), e);
