@@ -10,27 +10,31 @@
     </div>
     <div style="height: calc(100vh - 400px);">
       <vue-easy-tree
-      :data="treeData"
-      :expand-on-click-node="false"
-      :default-expand-all="defaultExpand"
-      :filter-node-method="filterNode"
-      highlight-current
-      class="ms-tree ms-report-tree"
-      node-key="resourceId"
-      :sizeDependencies="['expanded']"
-      height="calc(100vh - 400px)"
-      :minItemSize="47"
-      isDynamic
-      ref="resultsTree">
-      <span slot-scope="{ node, data }" style="width: 99%" @click="nodeClick(node)">
+        :data="treeData"
+        node-key="id"
+        :sizeDependencies="['expanded']"
+        height="calc(100vh - 400px)"
+        :minItemSize="47"
+        :buffer="500"
+        :expand-on-click-node="false"
+        :default-expand-all="defaultExpand"
+        :filter-node-method="filterNode"
+        highlight-current
+        class="ms-tree ms-report-tree"
+        isDynamic
+        ref="resultsTree"
+        @node-click="nodeClick"
+      >
+      <template slot-scope="{ node, data }">
         <ms-scenario-result
+          :key="data.resourceId"
           :node="data"
+          :expanded="node.expanded"
           :console="console"
           v-on:requestResult="requestResult"
-          :isActive="isActive"
           :is-share="isShare"
           :share-id="shareId" />
-      </span>
+      </template>
     </vue-easy-tree>
     </div>
   </el-card>
@@ -56,7 +60,6 @@ export default {
   },
   data() {
     return {
-      isActive: false,
     };
   },
   created() {
@@ -98,7 +101,7 @@ export default {
     requestResult(requestResult) {
       this.$emit('requestResult', requestResult);
     },
-    nodeClick(node) {
+    nodeClick(data, node) {
       node.expanded = !node.expanded;
     },
     // 改变节点的状态
@@ -114,7 +117,6 @@ export default {
       }
     },
     closeExpansion() {
-      this.isActive = false;
       this.expandAll = false;
       this.changeTreeNodeStatus(this.$refs.resultsTree.store.root, 0);
     },

@@ -40,8 +40,8 @@
         :scenarioName="node.label"
         :resourceId="node.resourceId"
         :total-status="node.totalStatus"
+        :expanded="expanded"
         :console="console"
-        :isActive="isActive"
         :is-share="isShare"
         :share-id="shareId"
         v-on:requestResult="requestResult" />
@@ -64,8 +64,8 @@ export default {
     scenario: Object,
     node: Object,
     console: String,
-    isActive: Boolean,
     isShare: Boolean,
+    expanded: Boolean,
     shareId: String,
   },
   data() {
@@ -110,9 +110,6 @@ export default {
 
       let element = document.getElementById(id);
       element.parentNode.removeChild(element);
-    },
-    active() {
-      this.isActive = !this.isActive;
     },
     requestResult(requestResult) {
       this.$emit('requestResult', requestResult);
