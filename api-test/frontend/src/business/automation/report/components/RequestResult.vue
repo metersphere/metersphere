@@ -9,7 +9,7 @@
                 <div class="el-step__icon is-text ms-api-col-create">
                   <div class="el-step__icon-inner">{{ indexNumber }}</div>
                 </div>
-                <i class="icon el-icon-arrow-right" :class="{ 'is-active': showActive }" @click="active" @click.stop />
+                <i class="icon el-icon-arrow-right" :class="{ 'is-active': showActive }" @click.stop="active" />
                 <span class="report-label-req" @click="isLink" v-if="redirect && resourceId">
                   {{ request.name }}
                 </span>
@@ -76,8 +76,7 @@
             :scenario-name="scenarioName"
             :request-type="requestType"
             :request="requestInfo"
-            :console="console"
-            v-if="showActive" />
+            :console="console" />
         </div>
       </el-collapse-transition>
     </div>
@@ -119,16 +118,12 @@ export default {
       type: String,
       default: '',
     },
-    isActive: {
+    expanded: {
       type: Boolean,
       default: false,
     },
     isShare: Boolean,
     shareId: String,
-  },
-  created() {
-    this.showActive = this.isActive;
-    this.baseErrorCode = this.errorCode;
   },
   data() {
     return {
@@ -156,9 +151,9 @@ export default {
     };
   },
   watch: {
-    isActive() {
+    expanded() {
       this.loadRequestInfoExpand();
-      this.showActive = this.isActive;
+      this.showActive = this.expanded;
     },
     errorCode() {
       this.baseErrorCode = this.errorCode;
@@ -175,6 +170,13 @@ export default {
         }
       },
     },
+  },
+  created() {
+    this.showActive = this.expanded;
+    this.baseErrorCode = this.errorCode;
+    if(this.expanded === true) {
+      this.loadRequestInfoExpand();
+    }
   },
   methods: {
     statusColor(status) {
@@ -224,6 +226,7 @@ export default {
         }
       } else {
         this.requestInfo = this.request;
+        this.requestInfo.loading = false;
       }
     },
     active() {
