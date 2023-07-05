@@ -24,7 +24,6 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -104,11 +103,28 @@ public class TestResourcePoolService {
         if (testResourcePool.getLoadTest() == null || !testResourcePool.getLoadTest()) {
             return true;
         }
-        LoadResourceService resourcePoolService = CommonBeanFactory.getBean(LoadResourceService.class);
-        if (resourcePoolService == null) {
-            return false;
+        boolean validate = checkNodeOrK8s(testResourceDTO, type, false);
+        if (!validate) {
+            testResourcePool.setEnable(false);
         }
-        return resourcePoolService.validate(testResourceDTO,type);
+        return validate;
+    }
+
+    private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type, Boolean usedApiType) {
+        if (StringUtils.equalsIgnoreCase(type,ResourcePoolTypeEnum.NODE.name())) {
+            NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
+            if (resourcePoolService != null) {
+                return resourcePoolService.validate(testResourceDTO);
+            } else {
+                return false;
+            }
+        } else {
+            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
+            if (resourcePoolService == null) {
+                return false;
+            }
+            return resourcePoolService.validate(testResourceDTO, usedApiType);
+        }
     }
 
     private boolean checkUiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool) {
@@ -124,19 +140,13 @@ public class TestResourcePoolService {
 
     private boolean checkApiConfig(TestResourceDTO testResourceDTO, TestResourcePool testResourcePool, String type) {
         if (testResourcePool.getApiTest() == null || !testResourcePool.getApiTest()) {
-            return false;
+            return true;
         }
-
-        if (StringUtils.equalsIgnoreCase(type,ResourcePoolTypeEnum.NODE.name())) {
-            NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
-            return resourcePoolService.validate(testResourceDTO);
-        } else {
-            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
-            if (resourcePoolService == null) {
-                return false;
-            }
-            return resourcePoolService.validate(testResourceDTO);
+        boolean validate = checkNodeOrK8s(testResourceDTO, type, true);
+        if (!validate) {
+            testResourcePool.setEnable(false);
         }
+        return validate;
     }
 
     public void deleteTestResourcePool(String testResourcePoolId) {
