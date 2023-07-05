@@ -20,7 +20,6 @@ public class HttpConfig {
     private String socket;
     private String domain;
     private String protocol = "https";
-    private int port;
     private boolean isMock;
     private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
