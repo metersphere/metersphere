@@ -168,10 +168,7 @@ export default {
             this.data.push(item);
             item['box'] = true;
             newObj['style'] = background_old;
-            newObj['required'] =
-              newObj.required === this.$t('commons.selector.required')
-                ? this.$t('commons.selector.required')
-                : this.$t('commons.selector.not_required');
+            newObj['required'] = newObj.required ? this.$t('commons.selector.required') : this.$t('commons.selector.not_required');
             this.data.push(newObj);
           } else {
             this.data.push(item);
