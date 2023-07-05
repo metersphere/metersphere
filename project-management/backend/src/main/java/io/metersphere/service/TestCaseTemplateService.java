@@ -258,7 +258,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
         List<CustomFieldDao> fields = template.getCustomFields().stream()
                 .filter(field -> !StringUtils.equalsAnyIgnoreCase(field.getType(),
                         CustomFieldType.TEXTAREA.getValue(), CustomFieldType.RICH_TEXT.getValue()))
-                .toList();
+                .collect(Collectors.toList());
         template.setCustomFields(fields);
         return template;
     }
