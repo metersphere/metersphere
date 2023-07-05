@@ -16,7 +16,7 @@ export default {
   project: "项目",
   save: "保 存",
   return: "返 回",
-  length_less_than: "长度必须小于",
+  length_less_than: "长度必须小于等于",
   recent_plan: "我最近的计划",
   recent_case: "我最近的用例",
   recent_review: "我最近的评审",

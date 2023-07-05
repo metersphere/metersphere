@@ -16,7 +16,7 @@ export default {
   project: "Project",
   save: "Save",
   return: "Return",
-  length_less_than: "The length less than",
+  length_less_than: "Length must be less than or equal to",
   recent_plan: "My recent plan",
   recent_case: "My recent case",
   recent_review: "My recent review",
