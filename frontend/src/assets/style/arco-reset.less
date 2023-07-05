@@ -98,67 +98,37 @@
 /** 按钮 **/
 .arco-btn-primary {
   background-color: rgb(var(--primary-5)) !important;
-  &:not(:disabled):hover {
-    background-color: rgb(var(--primary-4)) !important;
-  }
-  &:not(:disabled):active {
-    background-color: rgb(var(--primary-7)) !important;
-  }
-  &:disabled {
-    background-color: rgb(var(--primary-3)) !important;
-  }
+  .btn-base-primary-hover();
+  .btn-base-primary-active();
+  .btn-base-primary-disabled();
 }
 .arco-btn-status-danger {
   background-color: rgb(var(--danger-6)) !important;
-  &:not(:disabled):hover {
-    background-color: rgb(var(--danger-5)) !important;
-  }
-  &:not(:disabled):active {
-    background-color: rgb(var(--danger-7)) !important;
-  }
-  &:disabled {
-    background-color: rgb(var(--danger-2)) !important;
-  }
+  .btn-base-danger-hover();
+  .btn-base-danger-active();
+  .btn-base-danger-disabled();
 }
 .arco-btn-secondary:not(.arco-btn-disabled) {
   color: var(--clolor-text-1) !important;
   background-color: var(--color-text-n8) !important;
-  &:not(:disabled):hover {
-    background-color: var(--color-text-input-border) !important;
-  }
-  &:not(:disabled):active {
-    background-color: var(--color-text-brand) !important;
-  }
+  .btn-base-sec-hover();
+  .btn-base-sec-active();
 }
 .arco-btn-text {
-  &:not(:disabled):hover {
-    background-color: var(--color-text-n9) !important;
-  }
-  &:not(:disabled):active {
-    background-color: var(--color-text-n8) !important;
-  }
+  .btn-text-sec-hover();
+  .btn-text-sec-active();
+  .btn-text-sec-disabled();
 }
 .arco-btn-outline {
   color: rgb(var(--primary-5)) !important;
-  &:not(:disabled):hover {
-    border-color: rgb(var(--primary-4)) !important;
-    color: rgb(var(--primary-4)) !important;
-    background-color: rgb(var(--primary-1)) !important;
-  }
-  &:not(:disabled):active {
-    border-color: rgb(var(--primary-7)) !important;
-    color: rgb(var(--primary-7)) !important;
-    background-color: rgb(var(--primary-9)) !important;
-  }
-  &:disabled {
-    border-color: rgb(var(--primary-3)) !important;
-    color: rgb(var(--primary-3)) !important;
-    background-color: rgb(var(--primary-1)) !important;
-  }
+  .btn-outline-primary-hover();
+  .btn-outline-primary-active();
+  .btn-outline-primary-disabled();
 }
 
-/** 输入框，选择器 **/
+/** 输入框，选择器，文本域 **/
 .arco-input-wrapper,
+.arco-textarea-wrapper,
 .arco-input-tag,
 .arco-select {
   border: 1px solid var(--color-text-input-border);
@@ -189,6 +159,36 @@
   background-color: var(--color-bg-2) !important;
   box-shadow: 0 0 0 0 var(--color-danger-light-2) !important;
 }
+.arco-input-outer {
+  .arco-input-wrapper {
+    border-radius: var(--border-radius-small) !important;
+  }
+}
+.arco-input-number-mode-button {
+  .arco-input-prepend {
+    .arco-input-number-step-button {
+      margin-right: 4px;
+    }
+  }
+  .arco-input-append {
+    .arco-input-number-step-button {
+      margin-left: 4px;
+    }
+  }
+  .arco-input-prepend,
+  .arco-input-append {
+    @apply bg-white;
+    .arco-input-number-step-button {
+      @apply !bg-white;
+
+      border: 1px solid var(--color-text-input-border);
+      border-radius: var(--border-radius-small) !important;
+      .btn-outline-sec-disabled();
+      .btn-outline-sec-hover();
+      .btn-outline-sec-active();
+    }
+  }
+}
 
 /** form-item **/
 .arco-form-item-content-flex {
@@ -202,6 +202,12 @@
   .arco-form-item-label-col {
     @apply !hidden;
   }
+}
+.arco-form-item-label {
+  color: var(--clolor-text-1) !important;
+}
+.arco-form-item-label-required-symbol {
+  @apply inline-flex;
 }
 
 /** 多选框 **/
