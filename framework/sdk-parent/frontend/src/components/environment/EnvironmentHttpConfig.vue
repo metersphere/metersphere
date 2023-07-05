@@ -173,7 +173,6 @@ export default {
         protocol: "http",
         socket: "",
         domain: "",
-        port: 0,
         headers: [new KeyValue()],
         headlessEnabled: true,
         browser: 'CHROME'
@@ -237,7 +236,6 @@ export default {
     clearHisData() {
       this.httpConfig.socket = undefined;
       this.httpConfig.protocol = undefined;
-      this.httpConfig.port = undefined;
       this.httpConfig.domain = undefined;
     },
     getDetails(row) {
@@ -265,7 +263,6 @@ export default {
         protocol: "http",
         socket: "",
         domain: "",
-        port: 0,
         headers: [new KeyValue()]
       };
       if (row) {
@@ -340,7 +337,6 @@ export default {
         socket: this.condition.socket,
         headers: this.condition.headers,
         protocol: this.condition.protocol,
-        port: this.condition.port,
         time: this.condition.time
       };
       if (obj.type === "PATH") {
@@ -403,7 +399,6 @@ export default {
         protocol: this.condition.protocol,
         headers: this.condition.headers,
         domain: this.condition.domain,
-        port: this.condition.port,
         time: new Date().getTime(),
         description: this.condition.description
       };
@@ -444,6 +439,7 @@ export default {
     },
     validateSocket(socket) {
       if (!socket) return true;
+      this.condition.socket = socket;
       let urlStr = this.condition.protocol + "://" + socket;
       let url = {};
       try {
@@ -456,13 +452,6 @@ export default {
         let split = socket.split(":");
         this.condition.domain = split[0];
         return true;
-      }
-      this.condition.port = url.port;
-      let path = url.pathname === "/" ? "" : url.pathname;
-      if (url.port) {
-        this.condition.socket = this.condition.domain + ":" + url.port + path;
-      } else {
-        this.condition.socket = this.condition.domain + path;
       }
       return true;
     },

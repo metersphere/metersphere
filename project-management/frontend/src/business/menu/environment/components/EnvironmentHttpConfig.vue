@@ -177,8 +177,6 @@ export default {
         details: [new KeyValue({name: "", value: "contains"})],
         protocol: "http",
         socket: "",
-        domain: "",
-        port: 0,
         headers: [new KeyValue()],
         headlessEnabled: true,
         browser: 'CHROME'
@@ -206,8 +204,6 @@ export default {
         this.condition.type = "NONE";
         this.condition.socket = this.httpConfig.socket;
         this.condition.protocol = this.httpConfig.protocol;
-        this.condition.port = this.httpConfig.port;
-        this.condition.domain = this.httpConfig.domain;
         this.condition.time = new Date().getTime();
         this.condition.headers = this.httpConfig.headers;
         this.condition.description = this.httpConfig.description;
@@ -219,8 +215,6 @@ export default {
         details: [new KeyValue({name: "", value: "contains"})],
         protocol: "http",
         socket: "",
-        domain: "",
-        port: 0,
         headers: [new KeyValue()]
       };
     },
@@ -242,8 +236,6 @@ export default {
     clearHisData() {
       this.httpConfig.socket = undefined;
       this.httpConfig.protocol = undefined;
-      this.httpConfig.port = undefined;
-      this.httpConfig.domain = undefined;
     },
     getDetails(row) {
       if (row && row.type === "MODULE") {
@@ -269,8 +261,6 @@ export default {
         details: [new KeyValue({name: "", value: "contains"})],
         protocol: "http",
         socket: "",
-        domain: "",
-        port: 0,
         headers: [new KeyValue()]
       };
       if (row) {
@@ -345,7 +335,6 @@ export default {
         socket: this.condition.socket,
         headers: this.condition.headers,
         protocol: this.condition.protocol,
-        port: this.condition.port,
         time: this.condition.time
       };
       if (obj.type === "PATH") {
@@ -360,7 +349,6 @@ export default {
           details: [new KeyValue({name: "", value: "contains"})],
           protocol: "http",
           socket: "",
-          domain: "",
           headers: [new KeyValue()]
         };
         this.reload();
@@ -373,7 +361,6 @@ export default {
         details: [new KeyValue({name: "", value: "contains"})],
         protocol: "http",
         socket: "",
-        domain: "",
         headers: [new KeyValue()]
       };
       this.$refs.envTable.setCurrentRow(0);
@@ -407,8 +394,6 @@ export default {
         socket: this.condition.socket,
         protocol: this.condition.protocol,
         headers: this.condition.headers,
-        domain: this.condition.domain,
-        port: this.condition.port,
         time: new Date().getTime(),
         description: this.condition.description
       };
@@ -438,7 +423,6 @@ export default {
         details: row.details,
         protocol: row.protocol,
         headers: JSON.parse(JSON.stringify(row.headers)),
-        domain: row.domain,
         time: new Date().getTime()
       };
       if (index != -1) {
@@ -448,7 +432,7 @@ export default {
       }
     },
     validateSocket(socket) {
-      if (!socket) return true;
+      this.condition.socket = socket;
       let urlStr = this.condition.protocol + "://" + socket;
       let url = {};
       try {
@@ -462,14 +446,6 @@ export default {
         this.condition.domain = split[0];
         return true;
       }
-      this.condition.port = url.port;
-      let path = url.pathname === "/" ? "" : url.pathname;
-      if (url.port) {
-        this.condition.socket = this.condition.domain + ":" + url.port + path;
-      } else {
-        this.condition.socket = this.condition.domain + path;
-      }
-      return true;
     },
     validate() {
       let isValidate = false;
