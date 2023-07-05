@@ -81,6 +81,29 @@ const System: AppRouteRecordRaw = {
         },
       ],
     },
+    {
+      path: 'organization',
+      name: 'settingOrganization',
+      redirect: '/setting/organization/member',
+      component: null,
+      meta: {
+        locale: 'menu.settings.organization',
+        roles: ['*'],
+        hideChildrenInMenu: true,
+      },
+      children: [
+        {
+          path: 'member',
+          name: 'settingOrganizationMember',
+          component: () => import('@/views/organization/member/index.vue'),
+          meta: {
+            locale: 'menu.settings.organization.member',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
+      ],
+    },
   ],
 };
 

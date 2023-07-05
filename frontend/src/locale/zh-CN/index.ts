@@ -21,6 +21,7 @@ export default {
     'menu.settings': '系统设置',
     'menu.settings.system': '系统',
     'menu.settings.organization': '组织',
+    'menu.settings.organization.member': '成员',
     'menu.settings.system.user': '用户',
     'menu.settings.system.usergroup': '用户组',
     'menu.settings.system.organizationAndProject': '组织与项目',
