@@ -16,4 +16,5 @@ export default {
   'organization.member.member': '成员',
   'organization.member.selectMemberScope': '请选择需要添加的成员支持多选',
   'organization.member.pleaseSelectMember': '请选择成员',
+  'organization.member.Save': '保存',
 };

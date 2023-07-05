@@ -16,4 +16,5 @@ export default {
   'organization.member.member': 'Member',
   'organization.member.selectMemberScope': 'Select the member you want to add. Multiple selection is supported',
   'organization.member.pleaseSelectMember': 'Please select user',
+  'organization.member.Save': 'Save',
 };
