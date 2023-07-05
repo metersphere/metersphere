@@ -177,7 +177,7 @@ public class IssuesService {
                     JSON.parseArray(JSON.toJSONString(issuesRequest.getRequestFields()), PlatformCustomFieldItemDTO.class);
             customFieldItemDTOS = customFieldItemDTOS.stream()
                     .filter(item -> item != null && item.getValue() != null)
-                    .toList();
+                    .collect(Collectors.toList());
             platformIssuesUpdateRequest.setCustomFieldList(customFieldItemDTOS); // todo 全部插件化后去掉
             platformIssuesUpdateRequest.setUserPlatformUserConfig(userService.getCurrentPlatformInfoStr(SessionUtils.getCurrentWorkspaceId()));
             platformIssuesUpdateRequest.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
@@ -386,7 +386,7 @@ public class IssuesService {
             List<PlatformCustomFieldItemDTO> customFieldItemDTOS = JSON.parseArray(JSON.toJSONString(issuesRequest.getRequestFields()), PlatformCustomFieldItemDTO.class);
             customFieldItemDTOS = customFieldItemDTOS.stream()
                     .filter(item -> item != null && item.getValue() != null)
-                    .toList();
+                    .collect(Collectors.toList());
             platformIssuesUpdateRequest.setCustomFieldList(customFieldItemDTOS); // todo 全部插件化后去掉
             platformIssuesUpdateRequest.setUserPlatformUserConfig(userService.getCurrentPlatformInfoStr(SessionUtils.getCurrentWorkspaceId()));
             platformIssuesUpdateRequest.setProjectConfig(PlatformPluginService.getCompatibleProjectConfig(project));
