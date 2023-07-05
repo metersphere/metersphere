@@ -3,8 +3,8 @@
     v-model:visible="memberVisible"
     title-align="start"
     width="680px"
-    ok-text="保存"
-    @ok="handelOk"
+    :ok-text="t('organization.member.Save')"
+    @ok="handleOK"
     @cancel="handleCancel"
   >
     <template #title> {{ t('organization.member.addMember') }} </template>
@@ -94,9 +94,7 @@
     memberVisible.value = props.visible;
   });
 
-  const handelOk = () => {
-    // eslint-disable-next-line no-console
-    console.log('ok');
+  const handleOK = () => {
     // eslint-disable-next-line no-use-before-define
     handleCancel();
   };
