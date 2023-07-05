@@ -21,6 +21,7 @@ export default {
     'menu.settings': 'System Settings',
     'menu.settings.system': 'System',
     'menu.settings.organization': 'Organization',
+    'menu.settings.organization.member': 'Member',
     'menu.settings.system.usergroup': 'User Group',
     'menu.settings.system.user': 'User',
     'menu.settings.system.organizationAndProject': 'Org & Project',
