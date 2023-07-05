@@ -6,4 +6,7 @@ import lombok.Data;
 @Data
 public class TestResourcePoolDTO extends TestResourcePool {
     private TestResourceDTO testResourceDTO;
+
+    private Boolean inUsed;
+
 }

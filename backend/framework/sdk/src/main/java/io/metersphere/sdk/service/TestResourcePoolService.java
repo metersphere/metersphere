@@ -7,10 +7,7 @@ import io.metersphere.sdk.dto.TestResourceDTO;
 import io.metersphere.sdk.dto.TestResourcePoolDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
-import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.domain.TestResourcePoolBlob;
-import io.metersphere.system.domain.TestResourcePoolExample;
-import io.metersphere.system.domain.TestResourcePoolOrganization;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
@@ -37,6 +34,8 @@ public class TestResourcePoolService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
+    @Resource
+    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
 
@@ -154,10 +153,18 @@ public class TestResourcePoolService {
         if (testResourcePool == null) {
             throw new MSException(Translator.get("test_resource_pool_not_exists"));
         }
+        //删除与组织的关系
+        deleteOrgRelation(testResourcePoolId);
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         testResourcePool.setEnable(false);
         testResourcePool.setDeleted(true);
         testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+    }
+
+    private void deleteOrgRelation(String testResourcePoolId) {
+        TestResourcePoolOrganizationExample testResourcePoolOrganizationExample = new TestResourcePoolOrganizationExample();
+        testResourcePoolOrganizationExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
+        testResourcePoolOrganizationMapper.deleteByExample(testResourcePoolOrganizationExample);
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -192,6 +199,12 @@ public class TestResourcePoolService {
             TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
             BeanUtils.copyBean(testResourcePoolDTO, pool);
             testResourcePoolDTO.setTestResourceDTO(testResourceDTO);
+            TestResourcePoolOrganizationExample testResourcePoolOrganizationExample = new TestResourcePoolOrganizationExample();
+            testResourcePoolOrganizationExample.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
+            List<TestResourcePoolOrganization> testResourcePoolOrganizations = testResourcePoolOrganizationMapper.selectByExample(testResourcePoolOrganizationExample);
+            if (pool.getAllOrg() || CollectionUtils.isNotEmpty(testResourcePoolOrganizations)) {
+                testResourcePoolDTO.setInUsed(true);
+            }
             testResourcePoolDTOS.add(testResourcePoolDTO);
         });
         return testResourcePoolDTOS;
