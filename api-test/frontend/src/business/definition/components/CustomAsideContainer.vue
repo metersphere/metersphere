@@ -1,5 +1,9 @@
 <template>
-  <el-aside width="300px" class="ms-aside-container">
+  <el-aside width="300px" class="ms-aside-container" :style="{'margin-left': !asideHidden ? 0 : '-300px'}">
+    <div class="hiddenBottom" @click="asideHidden = !asideHidden">
+      <i v-if="!asideHidden" class="el-icon-arrow-left"/>
+      <i v-if="asideHidden" class="el-icon-arrow-right"/>
+    </div>
     <div class="node-tree">
       <slot></slot>
     </div>
@@ -13,6 +17,11 @@ import MsHorizontalDragBar from 'metersphere-frontend/src/components/dragbar/MsL
 export default {
   name: 'MsAsideContainer',
   components: { MsHorizontalDragBar },
+  data() {
+    return {
+      asideHidden: false,
+    };
+  },
 };
 </script>
 
@@ -37,9 +46,8 @@ export default {
 .hiddenBottom {
   width: 8px;
   height: 50px;
-  /*top: calc((100vh - 80px)/3);*/
+  top: 33%;
   right: -10px;
-  /*top: 0;*/
   line-height: 50px;
   border-radius: 0 15px 15px 0;
   background-color: #acb7c1;
