@@ -7,7 +7,7 @@
 ./mvnw install -N
 
 # 此命令会将 domain sdk metersphere-jmeter-core，其他外部子工程可以获得最新的 jar
-./mvnw clean install -pl backend,backend/framework,backend/framework/domain,backend/framework/jmeter,backend/framework/plugin,backend/framework/sdk,backend/services,backend/services/load-test,backend/services/ui-test
+./mvnw mvn clean install -DskipTests -DskipAntRunForJenkins -pl !app --file backend/pom.xml
 
 ```
 
