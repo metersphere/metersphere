@@ -3,7 +3,7 @@ package io.metersphere.bug.controller;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.validation.groups.Created;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author : jianxing
  * @date : 2023-5-17
  */
-@Api(tags = "缺陷")
+@Schema(title = "缺陷")
 @RestController
 @RequestMapping("/bug")
 public class BugController {

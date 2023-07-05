@@ -18,6 +18,22 @@
             <artifactId>metersphere-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
+        <!-- swagger 解析 -->
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>${swagger-parser.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>swagger-core</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>swagger-models</artifactId>
+                    <groupId>io.swagger.core.v3</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 
