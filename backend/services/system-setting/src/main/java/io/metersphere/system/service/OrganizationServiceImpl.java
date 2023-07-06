@@ -65,7 +65,7 @@ public class OrganizationServiceImpl implements OrganizationService{
     }
 
     @Override
-    public void addMember(OrganizationMemberRequest organizationMemberRequest) {
+    public void addMember(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
         Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
         if (organization == null) {
             throw new MSException(Translator.get("organization_not_exist"));
@@ -77,7 +77,7 @@ public class OrganizationServiceImpl implements OrganizationService{
             userRoleRelation.setSourceId(organizationMemberRequest.getOrganizationId());
             userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
             userRoleRelation.setCreateTime(System.currentTimeMillis());
-            userRoleRelation.setCreateUser(organizationMemberRequest.getCreateUserId());
+            userRoleRelation.setCreateUser(createUserId);
             userRoleRelationMapper.insertSelective(userRoleRelation);
         }
     }
