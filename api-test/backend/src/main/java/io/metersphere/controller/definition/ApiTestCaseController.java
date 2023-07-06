@@ -225,7 +225,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping(value = "/batch/run")
-    @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     public List<MsExecResponseDTO> batchRun(@RequestBody ApiCaseRunRequest request) {
         request.setTriggerMode(ReportTriggerMode.BATCH.name());
         return apiCaseExecuteService.run(request);
