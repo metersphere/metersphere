@@ -41,15 +41,20 @@ public class SystemParameterService {
             if (StringUtils.equals(param.getParamKey(), "base.url")) {
                 example.createCriteria().andParamKeyEqualTo(param.getParamKey());
                 List<SystemParameter> baseUrlParameterList = systemParameterMapper.selectByExample(example);
+                String oldBaseUrl = null;
                 if (CollectionUtils.isNotEmpty(baseUrlParameterList)) {
                     SystemParameter parameter = baseUrlParameterList.get(0);
                     if (!StringUtils.equals(parameter.getParamValue(), param.getParamValue())) {
+                        oldBaseUrl = parameter.getParamValue();
                         systemParameterMapper.updateByPrimaryKey(param);
                     }
                 } else {
                     systemParameterMapper.insert(param);
                 }
                 example.clear();
+                if (StringUtils.isNotEmpty(oldBaseUrl)) {
+                    //TODO 当前站点改变,mock环境的站点也需要改变
+                }
             } else {
                 example.createCriteria().andParamKeyEqualTo(param.getParamKey());
                 if (systemParameterMapper.countByExample(example) > 0) {

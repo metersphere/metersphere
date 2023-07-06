@@ -72,6 +72,8 @@ public class AuthSourceController {
 
 
     @GetMapping("/update/{authId}/status/{status}")
+    @Operation(summary = "更新状态")
+    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
             details = "认证设置", sourceId = "#authSource.authId")
     public void updateStatus(@PathVariable(value = "authId") String authId, @PathVariable("status") String status) {
