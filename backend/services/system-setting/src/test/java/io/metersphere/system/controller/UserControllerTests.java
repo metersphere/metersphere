@@ -6,6 +6,7 @@ import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
@@ -90,8 +91,15 @@ public class UserControllerTests extends BaseTest {
     }
 
     //成功入库的用户保存内存中，其他用例会使用到
-    private void addUser2List(MvcResult mvcResult) {
+    private void addUser2List(MvcResult mvcResult){
         UserBatchCreateDTO userMaintainRequest = UserTestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateDTO.class);
+        userMaintainRequest.getUserInfoList().forEach(item ->{
+            try {
+                checkLog(item.getId(), OperationLogType.ADD.name());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         //返回值不为空
         Assertions.assertNotNull(userMaintainRequest);
         USER_LIST.addAll(userMaintainRequest.getUserInfoList());

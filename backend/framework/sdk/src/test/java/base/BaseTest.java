@@ -4,6 +4,8 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.domain.OperationLogExample;
+import io.metersphere.system.mapper.OperationLogMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,8 @@ public abstract class BaseTest {
     private MockMvc mockMvc;
     protected static String sessionId;
     protected static String csrfToken;
+    @Resource
+    private OperationLogMapper operationLogMapper;
 
     /**
      * 可以重写该方法定义 BASE_PATH
@@ -69,8 +73,8 @@ public abstract class BaseTest {
     }
 
     protected ResultActions requestPost(String url, Object param, Object... uriVariables) throws Exception {
-       return mockMvc.perform(getPostRequestBuilder(url, param, uriVariables))
-               .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        return mockMvc.perform(getPostRequestBuilder(url, param, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     protected MvcResult requestPostAndReturn(String url, Object... uriVariables) throws Exception {
@@ -102,7 +106,7 @@ public abstract class BaseTest {
                 .andExpect(status().isOk());
     }
 
-    protected MvcResult requestPostWithOkAndReturn(String url,  Object param, Object... uriVariables) throws Exception {
+    protected MvcResult requestPostWithOkAndReturn(String url, Object param, Object... uriVariables) throws Exception {
         return this.requestPostWithOk(url, param, uriVariables).andReturn();
     }
 
@@ -125,5 +129,17 @@ public abstract class BaseTest {
         pager.setTotal(Long.valueOf(pagerResult.get("total").toString()));
         pager.setList(list);
         return pager;
+    }
+
+    protected void checkLog(String resourceId, String type) throws Exception {
+        OperationLogExample example = new OperationLogExample();
+        example.createCriteria().andSourceIdEqualTo(resourceId).andTypeEqualTo(type);
+        operationLogMapper.selectByExample(example).stream()
+                .filter(operationLog -> operationLog.getSourceId().equals(resourceId))
+                .filter(operationLog -> operationLog.getType().equals(type))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getProjectId()))
+                .filter(operationLog -> StringUtils.isNotBlank(operationLog.getModule()))
+                .findFirst()
+                .orElseThrow(() -> new Exception("日志不存在，请补充操作日志"));
     }
 }
