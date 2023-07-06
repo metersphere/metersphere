@@ -38,7 +38,7 @@ public class SystemProjectController {
     private SystemProjectService systemProjectService;
 
     @PostMapping("/add")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
     @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PROJECT, details = "#project.name")
     @Operation(summary = "添加项目")
     public Project addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
@@ -48,13 +48,13 @@ public class SystemProjectController {
 
     @GetMapping("/get/{id}")
     @Operation(summary = "根据ID获取项目信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Project getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
     }
 
     @PostMapping("/page")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     @Operation(summary = "获取项目列表")
     public Pager<List<ProjectDTO>> getProjectList(@Validated @RequestBody ProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -66,13 +66,13 @@ public class SystemProjectController {
     @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
             sourceId = "#project.id", details = "#project.name")
     @Operation(summary = "更新项目信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public Project updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
         return systemProjectService.update(project, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
     @Operation(summary = "删除项目")
     @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT,
             details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
@@ -81,7 +81,7 @@ public class SystemProjectController {
     }
 
     @GetMapping("/revoke/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
     @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
             details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
     public int revokeProject(@PathVariable String id) {
@@ -89,7 +89,7 @@ public class SystemProjectController {
     }
 
     @PostMapping("/member-list")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_ADD_USER)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
     @Operation(summary = "获取项目下成员列表")
     public Pager<List<UserExtend>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -98,7 +98,7 @@ public class SystemProjectController {
     }
 
     @PostMapping("/add-member")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_ADD_USER)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Operation(summary = "添加项目成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         systemProjectService.addProjectMember(request, SessionUtils.getUserId(), false);
@@ -106,7 +106,7 @@ public class SystemProjectController {
 
     @GetMapping("/remove-member/{projectId}/{userId}")
     @Operation(summary = "移除项目成员")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ_DELETE_USER)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT_MEMBER, sourceId = "#projectId",
             details = "#msClass.getLogs(#userId)", msClass = SystemProjectService.class)
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {

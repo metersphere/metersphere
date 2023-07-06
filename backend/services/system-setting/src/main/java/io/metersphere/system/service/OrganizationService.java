@@ -42,8 +42,9 @@ public interface OrganizationService {
     /**
      * 添加组织成员
      * @param organizationMemberRequest 添加组织成员请求参数
+     * @param createUserId 创建人ID
      */
-    void addMember(OrganizationMemberRequest organizationMemberRequest);
+    void addMember(OrganizationMemberRequest organizationMemberRequest, String createUserId);
 
     /**
      * 移除组织成员

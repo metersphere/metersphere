@@ -15,6 +15,9 @@ import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -38,7 +41,7 @@ public class OrganizationController {
 
     @PostMapping("/list")
     @Operation(summary = "获取组织列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
         return PageUtils.setPageInfo(page, organizationService.list(organizationRequest));
@@ -46,14 +49,14 @@ public class OrganizationController {
 
     @PostMapping("/list-all")
     @Operation(summary = "获取系统所有组织")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<OrganizationDTO> listAll() {
         return organizationService.listAll();
     }
 
     @PostMapping("/list-member")
     @Operation(summary = "获取组织成员")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
     public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest organizationRequest) {
         Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
         return PageUtils.setPageInfo(page, organizationService.listMember(organizationRequest));
@@ -61,29 +64,32 @@ public class OrganizationController {
 
     @PostMapping("/add-member")
     @Operation(summary = "添加组织成员")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest organizationMemberRequest) {
-        organizationMemberRequest.setCreateUserId(SessionUtils.getUserId());
-        organizationService.addMember(organizationMemberRequest);
+        organizationService.addMember(organizationMemberRequest, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
     @Operation(summary = "删除组织成员")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
+    @Parameters({
+            @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+            @Parameter(name = "userId", description = "用户ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    })
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
         organizationService.removeMember(organizationId, userId);
     }
 
     @GetMapping("/default")
     @Operation(summary = "获取系统默认组织")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public OrganizationDTO getDefault() {
         return organizationService.getDefault();
     }
 
     @PostMapping("/list-project")
     @Operation(summary = "获取组织下的项目列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody ProjectRequest projectRequest) {
         Page<Object> page = PageHelper.startPage(projectRequest.getCurrent(), projectRequest.getPageSize());
         return PageUtils.setPageInfo(page, systemProjectService.getProjectList(projectRequest));
