@@ -35,7 +35,7 @@ public class DocumentUtils {
                             isTrue = StringUtils.contains(resValue, expectedValue);
                             break;
                         case "length_eq":
-                            isTrue = getLength(subj, decimalFormatter) == numberOf(item.getValue());
+                            isTrue = getLength(resValue, decimalFormatter) == numberOf(item.getValue());
                             break;
                         case "length_not_eq":
                             isTrue = getLength(subj, decimalFormatter) != numberOf(item.getValue());
@@ -116,18 +116,12 @@ public class DocumentUtils {
     }
 
 
-    private static int getLength(Object value) {
-        if (value != null) {
-            if (value instanceof List) {
-                return ((List) value).size();
-            }
-            return value.toString().length();
-        }
-        return 0;
-    }
-
     private static int getLength(Object value, ThreadLocal<DecimalFormat> decimalFormatter) {
         if (value != null) {
+            String resValue = objectToString(value, decimalFormatter);
+            if (StringUtils.equals(resValue, "[[]]")) {
+                return 0;
+            }
             if (value instanceof Map) {
                 return ((Map) value).size();
             } else if (value instanceof List) {
@@ -167,7 +161,7 @@ public class DocumentUtils {
         return getType(value);
     }
 
-    public static String documentMsg(String name, Object resValue, String condition) {
+    public static String documentMsg(String name, Object resValue, String condition, ThreadLocal<DecimalFormat> decimalFormatter) {
         String msg = "";
         if (StringUtils.isNotEmpty(condition)) {
             ElementCondition elementCondition = JsonUtils.parseObject(condition, ElementCondition.class);
@@ -176,7 +170,7 @@ public class DocumentUtils {
                     if (StringUtils.equalsAny(item.getKey(), "value_eq", "value_not_eq", "value_in")) {
                         msg = resValue != null ? resValue.toString() : "";
                     } else if (StringUtils.equalsAny(item.getKey(), "length_eq", "length_not_eq", "length_gt", "length_lt")) {
-                        msg = "长度是：" + getLength(resValue) + "";
+                        msg = "长度是：" + getLength(resValue, decimalFormatter) + "";
                     } else {
                         msg = resValue != null ? resValue.toString() : "";
                     }

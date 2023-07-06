@@ -19,6 +19,9 @@ package org.apache.jmeter.assertions;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.utils.DocumentUtils;
+import io.metersphere.utils.JsonUtils;
+import io.metersphere.vo.Condition;
+import io.metersphere.vo.ElementCondition;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -126,6 +129,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     public boolean isUseRegex() {
         return getPropertyAsBoolean(ISREGEX, true);
     }
+
     private static final String KEY_PRE = "[]";
 
     private void doAssert(String jsonString) {
@@ -179,7 +183,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         msg = "Value < '%s', but found '%s'";
                         break;
                     case "DOCUMENT":
-                        msg = DocumentUtils.documentMsg(this.getName(), value, this.getElementCondition());
+                        msg = DocumentUtils.documentMsg(this.getName(), value, this.getElementCondition(),decimalFormatter);
                         break;
                 }
             } else {
@@ -193,8 +197,24 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     private boolean arrayMatched(JSONArray value) {
 
         List<Boolean> result = new ArrayList<>();
+
+        boolean isDocument = false;
+        if (StringUtils.isNotEmpty(this.getElementCondition())) {
+            ElementCondition elementCondition = JsonUtils.parseObject(this.getElementCondition(), ElementCondition.class);
+            if (CollectionUtils.isNotEmpty(elementCondition.getConditions()) && StringUtils.equals(this.getOption(), "DOCUMENT")) {
+                for (Condition item : elementCondition.getConditions()) {
+                    if (StringUtils.equalsAnyIgnoreCase(item.getKey(), "length_eq", "length_not_eq", "length_gt", "length_lt")) {
+                        isDocument = true;
+                    }
+                }
+            }
+        }
+        if (isDocument) {
+            return isEquals(value);
+        }
+
         for (Object subj : value.toArray()) {
-            if (!StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS","EQUALS")) {
+            if (!StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS", "EQUALS")) {
                 if (subj == null && this.isExpectNull() || isEquals(subj)) {
                     return true;
                 }
@@ -235,7 +255,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
 
     private boolean isEquals(Object subj) {
         String str = DocumentUtils.objectToString(subj, decimalFormatter);
-        if (StringUtils.equals(str,KEY_PRE)) {
+        if (StringUtils.equals(str, KEY_PRE)) {
             return false;
         }
         if (isUseRegex()) {
