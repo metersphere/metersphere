@@ -220,6 +220,9 @@ export default {
           parseEnvironment(environment);
           // 找到原始环境和数据源名称
           if (environment.id === this.request.environmentId) {
+            if (!environmentId) {
+              environmentId = environment.id;
+            }
             if (environment.config && environment.config.databaseConfigs) {
               environment.config.databaseConfigs.forEach((item) => {
                 if (item.id === this.request.dataSourceId) {
