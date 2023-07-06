@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown size="medium" @command="changeWs" placement="bottom" class="align-right shepherd-workspace"
+  <el-dropdown size="medium" @command="changeWs" placement="bottom" class="align-right shepherd-workspace" trigger="click"
                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
