@@ -94,9 +94,13 @@ public class ApiPoolDebugService {
             List<TestResourcePoolDTO> poolList = systemParameterService.getTestResourcePool();
 
             QuotaService baseQuotaService = CommonBeanFactory.getBean(QuotaService.class);
-            Set<String> poolSets = baseQuotaService.getQuotaResourcePools();
+            Set<String> poolSets = null;
+            if (baseQuotaService != null) {
+                poolSets = baseQuotaService.getQuotaResourcePools();
+            }
             if (CollectionUtils.isNotEmpty(poolSets)) {
-                poolList = poolList.stream().filter(pool -> poolSets.contains(pool.getId())).collect(Collectors.toList());
+                Set<String> finalPoolSets = poolSets;
+                poolList = poolList.stream().filter(pool -> finalPoolSets.contains(pool.getId())).collect(Collectors.toList());
             }
 
             if (CollectionUtils.isEmpty(poolList)) {
