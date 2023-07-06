@@ -10,6 +10,7 @@ import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -167,6 +168,9 @@ public class SystemProjectControllerTests extends BaseTest {
         projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
         List<Project> projects = projectMapper.selectByExample(projectExample);
         projectId = result.getId();
+        // 校验日志
+        checkLog(projectId, OperationLogType.ADD.name());
+
         this.compareProjectDTO(projects.get(0), result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
