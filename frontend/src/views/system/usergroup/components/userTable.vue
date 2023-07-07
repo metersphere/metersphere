@@ -1,94 +1,45 @@
 <template>
-  <MsBaseTable v-bind="propsRes" v-on="propsEvent"> </MsBaseTable>
+  <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <template #action="{ record }">
+      <ms-button type="link" @click="handleRemove(record)">{{ t('system.userGroup.remove') }}</ms-button>
+    </template>
+  </MsBaseTable>
 </template>
 
 <script lang="ts" setup>
-  import { getTableList } from '@/api/modules/api-test/index';
+  import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import { onMounted } from 'vue';
+  import useUserGroupStore from '@/store/modules/system/usergroup';
+  import { watchEffect } from 'vue';
+  import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/system/usergroup';
+  import { UserTableItem } from '@/models/system/usergroup';
+
+  const { t } = useI18n();
+  const store = useUserGroupStore();
 
   const columns: MsTableColumn = [
     {
-      title: 'ID',
-      dataIndex: 'num',
-      filterable: {
-        filters: [
-          {
-            text: '> 20000',
-            value: '20000',
-          },
-          {
-            text: '> 30000',
-            value: '30000',
-          },
-        ],
-        filter: (value, record) => record.salary > value,
-        multiple: true,
-      },
-    },
-    {
-      title: '接口名称',
+      title: 'system.userGroup.name',
       dataIndex: 'name',
-      width: 200,
     },
     {
-      title: '请求类型',
-      dataIndex: 'method',
+      title: 'system.userGroup.email',
+      dataIndex: 'email',
     },
     {
-      title: '责任人',
-      dataIndex: 'username',
+      title: 'system.userGroup.phone',
+      dataIndex: 'email',
     },
     {
-      title: '路径',
-      dataIndex: 'path',
-    },
-    {
-      title: '标签',
-      dataIndex: 'tags',
-    },
-    {
-      title: '更新时间',
-      dataIndex: 'updateTime',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-      },
-    },
-    {
-      title: '用例数',
-      dataIndex: 'caseTotal',
-    },
-    {
-      title: '用例状态',
-      dataIndex: 'caseStatus',
-    },
-    {
-      title: '用例通过率',
-      dataIndex: 'casePassingRate',
-    },
-    {
-      title: '接口状态',
-      dataIndex: 'status',
-    },
-    {
-      title: '创建时间',
-      slotName: 'createTime',
-      width: 200,
-    },
-    {
-      title: '描述',
-      dataIndex: 'description',
-    },
-    {
-      title: '操作',
+      title: 'system.userGroup.operation',
       slotName: 'action',
       fixed: 'right',
       width: 200,
     },
   ];
-  const { propsRes, propsEvent, loadList } = useTable(getTableList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
     columns,
     scroll: { y: 750, x: 2000 },
     selectable: true,
@@ -96,7 +47,14 @@
   const fetchData = async () => {
     await loadList();
   };
-  onMounted(() => {
-    fetchData();
+  const handleRemove = async (record: UserTableItem) => {
+    await deleteUserFromUserGroup(record.id);
+    await fetchData();
+  };
+  watchEffect(() => {
+    if (store.currentId) {
+      setLoadListParams({ roleId: store.currentId });
+      fetchData();
+    }
   });
 </script>

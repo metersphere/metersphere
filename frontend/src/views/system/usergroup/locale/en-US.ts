@@ -1,6 +1,7 @@
 export default {
   system: {
     userGroup: {
+      addUserGroupSuccess: 'Add user group success',
       searchHolder: 'Please input user group name',
       inSystem: 'In system',
       customUserGroup: 'Custom user group',
@@ -40,6 +41,34 @@ export default {
       beforeDeleteUserGroup:
         'After deletion, the project data under the organization will be deleted together. Please operate with caution!',
       confirmDelete: 'Confirm delete',
+      function: 'Function',
+      operationObject: 'Operation object',
+      system: 'System',
+      project: 'Project',
+      organization: 'Organization',
+      save: 'Save',
+      reset: 'Restore default',
+      name: 'Name',
+      email: 'Email',
+      operation: 'Operation',
+      phone: 'Phone',
+      remove: 'Remove',
+    },
+  },
+  permission: {
+    system_user_role: {
+      name: 'Name',
+      read: 'Read',
+      add: 'Add',
+      update: 'Update',
+      delete: 'Delete',
+    },
+    system_test_resource_pool: {
+      name: 'Name',
+      read: 'Read',
+      add: 'Add',
+      update: 'Update',
+      delete: 'Delete',
     },
   },
 };

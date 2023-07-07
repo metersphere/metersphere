@@ -121,7 +121,7 @@ export default function useTableProps(
 
   // 设置请求参数，如果出了分页参数还有搜索参数，在模板页面调用此方法，可以加入参数
   const loadListParams = ref<object>({});
-  const setLoadPaListrams = (params?: object) => {
+  const setLoadListParams = (params?: object) => {
     loadListParams.value = params || {};
   };
 
@@ -140,6 +140,7 @@ export default function useTableProps(
         sort: sortItem.value,
         filter: filterItem.value,
         keyword: keyword.value,
+        ...loadListParams.value,
       });
       const tmpArr = data.list as unknown as MsTableData;
       propsRes.value.data = tmpArr.map((item: TableData) => {
@@ -155,8 +156,8 @@ export default function useTableProps(
       return data;
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.log(err);
       // TODO 表格异常放到solt的empty
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -213,7 +214,7 @@ export default function useTableProps(
     setLoading,
     loadList,
     setPagination,
-    setLoadPaListrams,
+    setLoadListParams,
     setKeyword,
   };
 }

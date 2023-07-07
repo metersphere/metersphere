@@ -39,3 +39,63 @@ export interface UserGroupItem {
   // 自定义排序
   pos: number;
 }
+
+export interface UserGroupPermissionItem {
+  id: string;
+  name: string;
+  enable: boolean;
+  license: boolean;
+}
+
+export type AuthScopeType = 'SYSTEM' | 'PROJECT' | 'ORGANIZATION';
+
+// 用户组对应的权限配置
+export interface UserGroupAuthSeting {
+  // 菜单项ID
+  id: AuthScopeType;
+  // 菜单所属类型
+  type?: string;
+  // 菜单项名称
+  name: string;
+  // 是否企业版
+  license: boolean;
+  // 是否全选
+  enable: boolean;
+  // 菜单下的权限列表
+  permissions?: UserGroupPermissionItem[];
+  // 子菜单
+  children?: UserGroupAuthSeting[];
+}
+
+// 权限表格DataItem
+export interface AuthTableItem {
+  id: string;
+  name?: string;
+  enable: boolean;
+  license: boolean;
+  ability?: string | undefined;
+  permissions?: UserGroupPermissionItem[];
+  // 对应表格权限的复选框组的绑定值
+  perChecked?: string[];
+  operationObject?: string;
+  isSystem?: boolean;
+  isOrganization?: boolean;
+  isProject?: boolean;
+  indeterminate?: boolean;
+}
+export interface SavePermissions {
+  id: string;
+  enable: boolean;
+}
+export interface SaveGlobalUSettingData {
+  userRoleId: string;
+  permissions: SavePermissions[];
+}
+
+export interface UserTableItem {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+}

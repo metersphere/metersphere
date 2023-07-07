@@ -1,6 +1,7 @@
 export default {
   system: {
     userGroup: {
+      addUserGroupSuccess: '添加用户组成功',
       global: '全局用户组',
       searchHolder: '请输入用户组名称',
       inSystem: '系统内置',
@@ -39,6 +40,34 @@ export default {
       isDeleteUserGroup: '是否删除: {name}?',
       beforeDeleteUserGroup: '删除后，该组织下的项目数据将一起删除，请谨慎操作！',
       confirmDelete: '确认删除',
+      function: '功能',
+      operationObject: '操作对象',
+      system: '系统',
+      project: '项目',
+      organization: '组织',
+      save: '保存',
+      reset: '恢复默认',
+      name: '姓名',
+      email: '邮箱',
+      operation: '操作',
+      phone: '手机',
+      remove: '移除',
+    },
+  },
+  permission: {
+    system_user_role: {
+      name: '系统用户',
+      read: '读取',
+      add: '添加',
+      update: '更新',
+      delete: '删除',
+    },
+    system_test_resource_pool: {
+      name: '系统测试资源池',
+      read: '读取',
+      add: '添加',
+      update: '更新',
+      delete: '删除',
     },
   },
 };

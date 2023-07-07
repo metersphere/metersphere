@@ -4,7 +4,8 @@
       v-model="searchKey"
       class="w-[252px]"
       :placeholder="t('system.userGroup.searchHolder')"
-      @press-enter="searchData"
+      @press-enter="enterData"
+      @search="searchData"
     />
     <div class="mt-2 flex flex-col">
       <div class="flex h-[38px] items-center justify-between px-[8px] leading-[24px]">
@@ -109,6 +110,33 @@
       eventTag: 'delete',
     },
   ];
+
+  // 点击用户组列表
+  const handleListItemClick = (element: UserGroupItem) => {
+    const { id, name, type } = element;
+    currentId.value = id;
+    store.setInfo({ currentName: name, currentTitle: type, currentId: id });
+  };
+
+  // 用户组数据初始化
+  const initData = async () => {
+    try {
+      const res = await getUserGroupList();
+      if (res.length > 0) {
+        userGroupList.value = res;
+        handleListItemClick(res[0]);
+        // 弹窗赋值
+        const tmpObj: PopVisibleItem = {};
+        res.forEach((element) => {
+          tmpObj[element.id] = false;
+        });
+        popVisible.value = tmpObj;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
   // 新增用户组
   const addUserGroup = () => {
     // eslint-disable-next-line no-console
@@ -139,6 +167,7 @@
           try {
             await deleteUserGroup(id);
             Message.success(t('system.user.deleteUserSuccess'));
+            initData();
             return true;
           } catch (error) {
             // eslint-disable-next-line no-console
@@ -151,39 +180,12 @@
     }
   };
 
-  // 点击用户组列表
-  const handleListItemClick = (element: UserGroupItem) => {
-    const { id, name, type } = element;
-    currentId.value = id;
-    store.setInfo({ currentName: name, currentTitle: type });
-  };
-
-  // 用户组数据初始化
-  const initData = async () => {
-    try {
-      const res = await getUserGroupList();
-      if (res.length > 0) {
-        userGroupList.value = res;
-        handleListItemClick(res[0]);
-        // 弹窗赋值
-        const tmpObj: PopVisibleItem = {};
-        res.forEach((element) => {
-          tmpObj[element.id] = false;
-        });
-        popVisible.value = tmpObj;
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
-  };
   // 关闭confirm 弹窗
   const handlePopConfirmCancel = (id: string) => {
     popVisible.value = { ...popVisible.value, [id]: false };
   };
   // 修改用户组名字，权限范围
   const handlePopConfirmSubmit = async (item: CustomMoreActionItem, id: string) => {
-    popVisible.value = { ...popVisible.value, [id]: false };
     if (item.eventKey === 'rename') {
       // 修改用户组名字
       try {
@@ -207,15 +209,25 @@
         console.error(error);
       }
     }
+    popVisible.value = { ...popVisible.value, [id]: false };
     initData();
   };
 
-  function searchData(eve: Event) {
+  function enterData(eve: Event) {
     if (!(eve.target as HTMLInputElement).value) {
       initData();
       return;
     }
     const keyword = (eve.target as HTMLInputElement).value;
+    const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
+    userGroupList.value = tmpArr;
+  }
+  function searchData(value: string) {
+    if (!value) {
+      initData();
+      return;
+    }
+    const keyword = value;
     const tmpArr = userGroupList.value.filter((ele) => ele.name.includes(keyword));
     userGroupList.value = tmpArr;
   }
@@ -226,6 +238,7 @@
       const res = await updateOrAddUserGroup(value);
       if (res) {
         Message.success(t('system.userGroup.addUserGroupSuccess'));
+        addUserGroupVisible.value = false;
         initData();
       }
     } catch (error) {

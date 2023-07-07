@@ -1,7 +1,11 @@
 <template>
   <div class="user-group flex flex-row bg-white">
     <div class="user-group-left">
-      <UserGroupLeft />
+      <user-group-left v-if="collapse" />
+      <div class="usergroup-collapse">
+        <icon-double-left v-if="collapse" class="icon" @click="collapse = false" />
+        <icon-double-right v-else class="icon" @click="collapse = true" />
+      </div>
     </div>
     <div class="grow-1 w-[100%] overflow-x-scroll p-[24px]">
       <div class="grow-1 flex flex-row items-center justify-between">
@@ -35,6 +39,7 @@
   import AuthTable from './components/authTable.vue';
 
   const currentTable = ref('auth');
+  const collapse = ref(true);
 
   const { t } = useI18n();
 
@@ -52,5 +57,21 @@
     position: relative;
     padding: 24px;
     border-right: 1px solid var(--color-border);
+    .usergroup-collapse {
+      position: absolute;
+      top: 50%;
+      right: -16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 16px;
+      height: 36px;
+      background-color: var(--color-text-n8);
+      cursor: pointer;
+      .icon {
+        font-size: 12px;
+        color: var(--color-text-brand);
+      }
+    }
   }
 </style>

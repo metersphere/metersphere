@@ -3,7 +3,7 @@
     :popup-visible="renameVisible"
     :ok-text="t('system.userGroup.confirm')"
     :cancel-text="t('system.userGroup.cancel')"
-    @ok="handleSubmit"
+    @before-ok="handleSubmit"
     @cancel="handleCancel"
     @popup-visible-change="() => (form.name = '')"
   >
@@ -29,13 +29,13 @@
 
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
-  import { watchEffect, reactive, ref, computed, onUnmounted } from 'vue';
+  import { watchEffect, ref, computed, onUnmounted } from 'vue';
   import { CustomMoreActionItem, RenameType, UserGroupItem } from '@/models/system/usergroup';
   import { ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const formRef = ref();
-  const form = reactive({
+  const form = ref({
     name: '',
   });
 
@@ -46,9 +46,9 @@
     list: UserGroupItem[];
   }>();
 
-  const validateName = (value: string, callback: (error?: string) => void) => {
+  const validateName = (value: string | undefined, callback: (error?: string) => void) => {
     if (props.type === 'rename') {
-      if (value === '') {
+      if (value === undefined || value === '') {
         callback(t('system.userGroup.userGroupNameIsNotNone'));
       } else {
         if (value === props.defaultName) {
@@ -88,20 +88,22 @@
 
   const renameVisible = ref(props.visible);
 
-  const handleSubmit = () => {
-    formRef.value.validate((errors: undefined | Record<string, ValidatedError>) => {
+  const handleSubmit = async () => {
+    await formRef.value.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
-        emit('submit', { eventKey: props.type, name: form.name });
+        emit('submit', { eventKey: props.type, name: form.value.name });
+        return true;
       }
     });
+    return false;
   };
   const handleCancel = () => {
-    form.name = '';
+    form.value.name = '';
     emit('cancel');
   };
   watchEffect(() => {
     renameVisible.value = props.visible;
-    form.name = props.defaultName;
+    form.value.name = props.defaultName;
   });
 
   onUnmounted(() => {
