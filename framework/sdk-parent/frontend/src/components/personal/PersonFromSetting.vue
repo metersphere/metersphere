@@ -51,7 +51,7 @@ export default {
       ruleForm: {},
       rule: {
         name: [
-          {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
+          {required: true, message: this.$t('user.input_name'), trigger: 'blur'},
           {min: 2, max: 20, message: this.$t('commons.input_limit', [2, 20]), trigger: 'blur'},
           {
             required: true,
@@ -63,7 +63,7 @@ export default {
         phone: [
           {
             pattern: PHONE_REGEX,
-            message: this.$t('member.mobile_number_format_is_incorrect'),
+            message: this.$t('user.mobile_number_format_is_incorrect'),
             trigger: 'blur'
           }
         ],
