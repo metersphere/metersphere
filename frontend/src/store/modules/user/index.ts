@@ -9,6 +9,8 @@ import type { LoginData } from '@/models/user';
 import type { UserState } from './types';
 
 const useUserStore = defineStore('user', {
+  // 开启数据持久化
+  persist: true,
   state: (): UserState => ({
     name: undefined,
     avatar: undefined,
