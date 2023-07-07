@@ -14,6 +14,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MailInfo;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.SystemParameterService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +69,13 @@ public class SystemParameterController {
     }
 
     @GetMapping("/base/info")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_SETTING_READ,
+            PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN,
+            PermissionConstants.PROJECT_API_SCENARIO_READ_RUN,
+            PermissionConstants.PROJECT_API_DEFINITION_READ_RUN,
+            PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN,
+            PermissionConstants.PROJECT_UI_SCENARIO_READ_RUN
+    }, logical = Logical.OR)
     public BaseSystemConfigDTO getBaseInfo() {
         return systemParameterService.getBaseInfo();
     }
