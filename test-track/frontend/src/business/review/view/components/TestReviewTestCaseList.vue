@@ -63,7 +63,7 @@
           :field="item"
           sortable
           :fields-width="fieldsWidth"
-          :label="$t('commons.name')"
+          :label="$t('test_track.case.name')"
           min-width="120px"/>
 
         <ms-table-column
