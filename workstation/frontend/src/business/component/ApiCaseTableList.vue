@@ -207,6 +207,7 @@
 
     <api-case-run-mode-with-env
       :project-id="projectId"
+      :run-case-ids="runCaseIds"
       @handleRunBatch="runBatch"
       @close="initTable"
       ref="batchRun"/>
@@ -472,7 +473,8 @@ export default {
       hasEditPermission: false,
       store: {},
       openUpdateRule: true,
-      showColum: false
+      showColum: false,
+      runCaseIds: []
     };
   },
   props: {
@@ -941,7 +943,10 @@ export default {
       });
     },
     handleRunBatch() {
-      this.$refs.batchRun.open();
+      this.runCaseIds = Array.from(this.selectRows).map((row) => row.id);
+      this.$nextTick(() => {
+        this.$refs.batchRun.open();
+      });
     },
     runBatch(config) {
       let obj = {};

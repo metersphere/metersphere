@@ -7,18 +7,20 @@
     :visible.sync="runModeVisible"
   >
     <div style="margin-bottom: 10px;">
-      <span class="ms-mode-span">{{ $t("commons.environment") }}：</span>
-      <env-popover :project-ids="projectIds"
-                   :placement="'bottom-start'"
-                   :project-list="projectList"
-                   :project-env-map="projectEnvListMap"
-                   :environment-type.sync="runConfig.environmentType"
-                   :group-id="runConfig.environmentGroupId"
-                   @setEnvGroup="setEnvGroup"
-                   @setProjectEnvMap="setProjectEnvMap"
-                   @showPopover="showPopover"
-                   :show-env-group="false"
-                   ref="envPopover" class="env-popover"/>
+      <div>{{ $t('commons.environment') }}：</div>
+      <env-select-popover
+        :project-ids="projectIds"
+        :project-list="projectList"
+        :case-id-env-name-map="caseIdEnvNameMap"
+        :environment-type.sync="runConfig.environmentType"
+        :is-scenario="false"
+        :has-option-group="true"
+        :project-env-map="projectEnvListMap"
+        :group-id="runConfig.environmentGroupId"
+        @setProjectEnvMap="setProjectEnvMap"
+        @setEnvGroup="setEnvGroup"
+        ref="envSelectPopover"
+        class="env-select-popover"></env-select-popover>
     </div>
     <div>
       <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
@@ -78,7 +80,7 @@
 
 <script>
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
-import EnvPopover from "@/business/module/environment/EnvPopover";
+import EnvSelectPopover from "../environment/EnvSelectPopover";
 import {strMapToObj} from "metersphere-frontend/src/utils";
 import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import {parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
@@ -86,10 +88,11 @@ import { getOwnerProjects, getProjectConfig} from "@/api/project";
 import {getTestResourcePools} from "@/api/test-resource-pool";
 import {getEnvironmentByProjectId} from "metersphere-frontend/src/api/environment";
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { getApiCaseEnvironments } from "@/api/api";
 
 export default {
   name: "MsApiCaseRunModeWithEnv",
-  components: {EnvPopover, MsDialogFooter},
+  components: {EnvSelectPopover, MsDialogFooter},
   data() {
     return {
       runModeVisible: false,
@@ -108,15 +111,20 @@ export default {
       projectEnvListMap: {},
       projectList: [],
       projectIds: new Set(),
+      caseIdEnvNameMap: {},
     };
   },
-  props: ['projectId'],
+  props: {
+    runCaseIds: Array,
+    projectId: String
+  },
   methods: {
     open() {
       this.runModeVisible = true;
       this.getResourcePools();
       this.getWsProjects();
       this.getDefaultResourcePool();
+      this.showPopover();
     },
     getDefaultResourcePool() {
       getProjectConfig(getCurrentProjectID())
@@ -189,9 +197,16 @@ export default {
       })
     },
     showPopover() {
+      let currentProjectID = getCurrentProjectID();
       this.projectIds.clear();
-      this.projectIds.add(this.projectId);
-      this.$refs.envPopover.openEnvSelect();
+      this.projectIds.add(currentProjectID);
+      getApiCaseEnvironments(this.runCaseIds).then((res) => {
+        let data = res.data;
+        if (data) {
+          this.caseIdEnvNameMap = data;
+        }
+        this.$refs.envSelectPopover.open();
+      });
     },
   },
 };
