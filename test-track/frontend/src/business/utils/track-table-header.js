@@ -156,7 +156,7 @@ const TRACK_HEADER = {
   //用例评审-功能用例
   TEST_CASE_REVIEW_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: 'commons.id'},
-    {id: 'name', key: '2', label: 'commons.name'},
+    {id: 'name', key: '2', label: 'test_track.case.name'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'tags', key: '4', label: 'commons.tag'},
     {id: 'nodePath', key: '5', label: 'test_track.case.module'},
