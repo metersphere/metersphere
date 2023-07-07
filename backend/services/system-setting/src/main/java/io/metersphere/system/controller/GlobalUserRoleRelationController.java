@@ -48,8 +48,7 @@ public class GlobalUserRoleRelationController {
     @PostMapping("/add")
     @Operation(summary = "创建全局用户组和用户的关联关系")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_RELATION_ADD)
-    @Log(isBefore = true, type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE_RELATION,
-            details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleRelationService.class)
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE_RELATION, details = "#request.name")
     public UserRoleRelation add(@Validated({Created.class}) @RequestBody GlobalUserRoleRelationUpdateRequest request) {
         UserRoleRelation userRoleRelation = new UserRoleRelation();
         BeanUtils.copyBean(userRoleRelation, request);
@@ -60,7 +59,7 @@ public class GlobalUserRoleRelationController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除全局用户组和用户的关联关系")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_RELATION_DELETE)
-    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+    @Log(isBefore = true, type = OperationLogType.DELETE, sourceId = "#id", module = OperationLogModule.SYSTEM_USER_ROLE_RELATION,
             details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleRelationService.class)
     public void delete(@PathVariable String id) {
         globalUserRoleRelationService.delete(id);

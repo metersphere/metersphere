@@ -75,4 +75,10 @@ public class BaseUserRolePermissionService {
             }
         });
     }
+
+    public void deleteByRoleId(String roleId) {
+        UserRolePermissionExample example = new UserRolePermissionExample();
+        example.createCriteria().andRoleIdEqualTo(roleId);
+        userRolePermissionMapper.deleteByExample(example);
+    }
 }

@@ -51,7 +51,7 @@ public class GlobalUserRoleController {
     @PostMapping("/permission/update")
     @Operation(summary = "编辑全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
             details = "#msClass.getLogDetails(#request.userRoleId)", msClass = GlobalUserRoleService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         globalUserRoleService.updatePermissionSetting(request);
@@ -60,8 +60,7 @@ public class GlobalUserRoleController {
     @PostMapping("/add")
     @Operation(summary = "添加自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_ADD)
-    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE,
-            sourceId = "#request.id", details = "#request.name")
+    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE, details = "#request.name")
     public UserRole add(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
@@ -72,7 +71,7 @@ public class GlobalUserRoleController {
     @PostMapping("/update")
     @Operation(summary = "更新自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
+    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
             sourceId = "#request.id", details = "#request.name")
     public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
@@ -84,7 +83,7 @@ public class GlobalUserRoleController {
     @Operation(summary = "删除自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_DELETE)
     @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER_ROLE,
-            details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleService.class)
+            sourceId = "#id", details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleService.class)
     public void delete(@PathVariable String id) {
         globalUserRoleService.delete(id);
     }

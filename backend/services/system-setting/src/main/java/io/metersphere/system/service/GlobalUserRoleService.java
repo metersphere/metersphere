@@ -14,7 +14,6 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,15 +51,6 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     public void checkGlobalUserRole(UserRole userRole) {
         if (!StringUtils.equals(userRole.getScopeId(), GLOBAL_SCOPE)) {
             throw new MSException(GLOBAL_USER_ROLE_PERMISSION);
-        }
-    }
-
-    /**
-     * 校验是否是内置用户组，是内置抛异常
-     */
-    public void checkInternalUserRole(UserRole userRole) {
-        if (BooleanUtils.isTrue(userRole.getInternal())) {
-            throw new MSException(INTERNAL_USER_ROLE_PERMISSION);
         }
     }
 
@@ -105,15 +95,10 @@ public class GlobalUserRoleService extends BaseUserRoleService {
         return super.update(userRole);
     }
 
-    public UserRole get(String id) {
-        return userRoleMapper.selectByPrimaryKey(id);
-    }
-
     public void delete(String id) {
         UserRole userRole = get(id);
         checkGlobalUserRole(userRole);
-        checkInternalUserRole(userRole);
-        userRoleMapper.deleteByPrimaryKey(id);
+        delete(userRole);
     }
 
     public void checkRoleIsGlobalAndHaveMember(@Valid @NotEmpty List<String> roleIdList, boolean isSystem) {
@@ -154,10 +139,5 @@ public class GlobalUserRoleService extends BaseUserRoleService {
         checkGlobalUserRole(userRole);
         checkInternalUserRole(userRole);
         super.updatePermissionSetting(request);
-    }
-
-    public String getLogDetails(String id) {
-        UserRole userRole = userRoleMapper.selectByPrimaryKey(id);
-        return userRole == null ? null : userRole.getName();
     }
 }
