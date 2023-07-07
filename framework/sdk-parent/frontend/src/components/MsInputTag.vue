@@ -124,7 +124,11 @@ export default {
     addTag(tag) {
       tag = tag.trim()
       if (tag && !this.innerTags.includes(tag)) {
-        this.innerTags.push(tag)
+        if (tag.length > 15) {
+          this.$error(this.$t('commons.tag_length_tip'));
+          return false
+        }
+        this.innerTags.push(tag);
         return true
       } else {
         if (tag !== "" && this.errorInfo) {

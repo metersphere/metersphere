@@ -383,6 +383,7 @@ const message = {
     image: "鏡像",
     tag: "標簽",
     append_tag: "追加標籤",
+    tag_length_tip: "標籤長度不能超過15個字符",
     append_tag_tip: "勾選：新增標籤；不勾選：覆蓋原有標籤；",
     module: {
       select_module: "選擇模塊",
