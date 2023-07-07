@@ -83,6 +83,8 @@ const message = {
     save_as: "Save as",
     update: "Update",
     save_success: "Saved successfully",
+    enable_success: "Enable successfully",
+    disable_success: "Disable successfully",
     add_success: "Add successfully",
     cancel_add_success: "Cancel successfully",
     recover_success: "Recover successfully",
@@ -387,6 +389,7 @@ const message = {
     },
     image: "Image",
     tag: "Tag",
+    tag_length_tip: "The length of the tag cannot exceed 15 characters",
     append_tag: "Append Tag",
     append_tag_tip:
       "Checked: add a new label; unchecked: overwrite the original label;",
@@ -1051,14 +1054,14 @@ const message = {
     id: "User ID",
     create: "Create",
     modify: "Modify",
-    input_name: "Please enter a user name",
+    input_name: "Please enter a name",
     input_id: "Please enter a ID",
     input_email: "Please enter a email",
     input_password: "Please enter a password",
     input_phone: "Please enter phone number",
     special_characters_are_not_supported:
       "Special characters are not supported",
-    mobile_number_format_is_incorrect: "Mobile number format is incorrect",
+    mobile_number_format_is_incorrect: "Phone number format is incorrect",
     email_format_is_incorrect: "Email format is incorrect",
     delete_confirm: "Are you sure you want to delete this User?",
     apikey_delete_confirm: "Are you sure you want to delete this API Key?",
@@ -3657,6 +3660,9 @@ const message = {
     to_try: "Go to try it",
     view_video: "View video tutorial",
   },
+  jar_config: {
+    upload_limit_size: "Upload file size cannot exceed 50MB!",
+  }
 };
 
 export default {

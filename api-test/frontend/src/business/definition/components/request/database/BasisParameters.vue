@@ -261,6 +261,12 @@ export default {
       },
       deep: true,
     },
+    // 接口/用例 自身环境监听
+    'request.environmentId': function () {
+      if (!this.scenarioId) {
+        this.setStep(undefined, undefined, this.request.targetDataSourceName);
+      }
+    },
   },
   created() {
     this.getEnvironments();
@@ -534,6 +540,21 @@ export default {
     },
     environmentConfigClose() {
       this.getEnvironments();
+    },
+    setStep(envId, currentEnvironment, targetDataSourceName) {
+      let envs = this.environments.filter((item) => this.request && item.id === this.request.environmentId);
+      if (envs && envs.length === 0) {
+        let id = this.request.projectId ? this.request.projectId : this.projectId;
+        this.result = getEnvironmentByProjectId(id).then((response) => {
+          this.environments = response.data;
+          this.environments.forEach((environment) => {
+            parseEnvironment(environment);
+          });
+          this.initDataSource(envId, currentEnvironment, targetDataSourceName);
+        });
+      } else {
+        this.initDataSource(envId, currentEnvironment, targetDataSourceName);
+      }
     },
   },
 };

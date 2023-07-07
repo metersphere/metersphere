@@ -27,6 +27,6 @@ public class PropertyConstant {
     public final static String ENVIRONMENT = "useEnvironment";
     public final static String ENVIRONMENT_ID = "environmentId";
     public final static String DATASOURCE_ID = "dataSourceId";
-
+    public final static String PROJECT_ID = "projectId";
 
 }

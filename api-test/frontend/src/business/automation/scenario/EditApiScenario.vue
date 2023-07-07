@@ -2201,6 +2201,9 @@ export default {
       }
     },
     errorRefresh(error) {
+      if (error && error.response && error.response.status === 400) {
+        this.$error(this.$t('automation.scenario_plugin_run_warning'));
+      }
       this.debug = false;
       this.isTop = false;
       this.debugLoading = false;
@@ -2401,10 +2404,19 @@ export default {
       }
     },
     getAllResourceIds() {
-      if (this.$refs.stepTree) {
-        return this.$refs.stepTree.getCheckedKeys();
+      let resourceIds = [];
+      this.filterAllStep(this.scenarioDefinition, resourceIds);
+      return resourceIds;
+    },
+    filterAllStep(stepArray, resourceIds) {
+      if (stepArray) {
+        stepArray.forEach(item =>{
+          resourceIds.push(item.resourceId);
+          if(item.referenced !== 'REF' && item.hashTree){
+            this.filterAllStep(item.hashTree,resourceIds);
+          }
+        })
       }
-      return [];
     },
     getAllCheckedNodes() {
       if (this.$refs.stepTree) {

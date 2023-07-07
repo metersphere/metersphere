@@ -50,6 +50,10 @@ export function testCaseBatchRun(params) {
   return post(CASE_URL+'batch/run', params);
 }
 
+export function getApiCaseEnvironments(param) {
+  return post(CASE_URL + '/get/env', param);
+}
+
 
 /*sync*/
 

@@ -206,6 +206,9 @@ export default {
           this.list();
         });
       } else {
+        if (!this.condition.protocol) {
+          this.condition.protocol = 'HTTP';
+        }
         this.$emit('protocolChange', this.condition.protocol);
         this.list();
       }
@@ -249,6 +252,9 @@ export default {
         });
       } else {
         if (this.condition.protocol) {
+          if (this.currentVersion && !this.param.versionId) {
+            this.param.versionId = this.currentVersion;
+          }
           this.result = postApiModules(projectId, this.condition.protocol, this.currentVersion, this.param).then((response) => {
             this.setData(response);
           });

@@ -81,6 +81,8 @@ const message = {
     save_as: "另存为",
     update: "更新",
     save_success: "保存成功",
+    enable_success: "启用成功",
+    disable_success: "禁用成功",
     add_success: "添加成功",
     cancel_add_success: "取消添加成功",
     recover_success: "恢复成功",
@@ -380,6 +382,7 @@ const message = {
     },
     image: "镜像",
     tag: "标签",
+    tag_length_tip: "标签长度不能超过15个字符",
     append_tag: "追加标签",
     append_tag_tip: "勾选：新增标签；不勾选：覆盖原有标签；",
     module: {
@@ -1023,13 +1026,13 @@ const message = {
     id: "用户ID",
     create: "创建用户",
     modify: "修改用户",
-    input_name: "请输入用户姓名",
+    input_name: "请输入姓名",
     input_id: "请输入ID",
     input_email: "请输入邮箱",
     input_password: "请输入密码",
     input_phone: "请输入电话号码",
     special_characters_are_not_supported: "不支持特殊字符",
-    mobile_number_format_is_incorrect: "手机号码格式不正确",
+    mobile_number_format_is_incorrect: "电话号码格式不正确",
     email_format_is_incorrect: "邮箱格式不正确",
     delete_confirm: "这个用户确定要删除吗?",
     apikey_delete_confirm: "这个 API Key 确定要删除吗?",
@@ -3530,6 +3533,9 @@ const message = {
     to_try: "去完成",
     view_video: "观看视频教程",
   },
+  jar_config: {
+    upload_limit_size: "上传文件大小不能超过 50MB!",
+  }
 };
 
 export default {

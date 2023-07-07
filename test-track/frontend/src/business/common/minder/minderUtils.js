@@ -291,14 +291,16 @@ export function appendCase(parent, item, isDisable, setParamCallback) {
       if (!(item.steps instanceof Array)) {
         item.steps = JSON.parse(item.steps);
       }
-      item.steps.forEach((step) => {
-        let descData = getNodeData(step.desc, null, isDisable);
-        if (descData) {
-          descData.num = step.num;
-          let descNode = appendChildNode(caseNode, descData);
-          appendChildNode(descNode, getNodeData(step.result, null, isDisable));
-        }
-      });
+      if (item.steps) {
+        item.steps.forEach((step) => {
+          let descData = getNodeData(step.desc, null, isDisable);
+          if (descData) {
+            descData.num = step.num;
+            let descNode = appendChildNode(caseNode, descData);
+            appendChildNode(descNode, getNodeData(step.result, null, isDisable));
+          }
+        });
+      }
     }
   }
 

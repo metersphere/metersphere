@@ -19,7 +19,7 @@
             </span>
           </el-tooltip>
           <el-row>
-            <el-link class="ms-el-link" @click="batchAdd" style="color: var(--primary_color)">
+            <el-link class="ms-el-link" @click="batchAdd" :disabled="isReadOnly">
               {{ $t('commons.batch_add') }}
             </el-link>
           </el-row>
@@ -53,7 +53,7 @@
             </span>
           </el-tooltip>
           <el-row class="ms-el-link">
-            <el-link @click="batchAdd" style="margin-right: 5px; color: var(--primary_color)">
+            <el-link @click="batchAdd" style="margin-right: 5px;" :disabled="isReadOnly">
               {{ $t('commons.batch_add') }}
             </el-link>
             <api-params-config
@@ -89,7 +89,7 @@
             </span>
           </el-tooltip>
           <el-row class="ms-el-link">
-            <el-link @click="batchAdd" style="margin-right: 5px; color: var(--primary_color)">
+            <el-link @click="batchAdd" style="margin-right: 5px" :disabled="isReadOnly">
               {{ $t('commons.batch_add') }}
             </el-link>
             <api-params-config

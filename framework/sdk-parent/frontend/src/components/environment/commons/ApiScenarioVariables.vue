@@ -44,7 +44,7 @@
       <ms-table
         v-loading="loading"
         row-key="id"
-        :data="variables"
+        :data="pageData"
         :screen-height="screenHeight"
         :batch-operators="batchButtons"
         :remember-order="true"
@@ -53,6 +53,7 @@
         :total="total"
         enableSelection
         :condition="condition"
+        @filter="filterScope"
         @refresh="onChange"
         ref="variableTable">
         <ms-table-column prop="num" sortable label="ID" min-width="60" />
@@ -61,7 +62,6 @@
           sortable
           :label="$t('commons.scope')"
           :filters="scopeTypeFilters"
-          :filter-method="filterScope"
           min-width="120">
           <template slot-scope="scope">
             <el-select
@@ -148,7 +148,7 @@
         </ms-table-column>
       </ms-table>
       <ms-table-pagination
-        :change="nextPage"
+        :change="queryPage"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
         :total="total" />
@@ -227,7 +227,7 @@ export default {
         { value: 'JSON', label: this.$t('api_test.automation.json') },
         { value: 'NUMBER', label: this.$t('api_test.automation.number') },
       ],
-      variables: {},
+      pageData: [],
       selectVariable: '',
       editData: {},
       allData: [],
@@ -239,17 +239,13 @@ export default {
       condition: {
        selectAll : false,
         unSelectIds: [],
-      }
+      },
     };
   },
   watch: {
     items: {
       handler(v) {
-        this.allData = v;
-        this.pageSize = 10;
-        this.total = this.allData.length;
         this.sortParameters();
-        this.nextPage();
       },
       immediate: true,
       deep: true,
@@ -257,26 +253,22 @@ export default {
   },
   methods: {
     remove: function (index) {
-      const dataIndex = this.variables.findIndex((d) => d.name === index.name);
-      this.variables.splice(dataIndex, 1);
+      const dataIndex = this.pageData.findIndex((d) => d.name === index.name);
+      this.pageData.splice(dataIndex, 1);
 
       const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
       this.allData.splice(allDataIndex, 1);
-      this.nextPage();
+      this.queryPage();
     },
-    nextPage() {
-      // 如果是第一页，则截取0到pageSize（每页显示多少条数据）即可
-      if (this.currentPage == 1) {
-        this.variables = this.allData.slice(0, this.pageSize);
-        this.variables.forEach((item) => {
-          item.showMore = false;
-          delete item.hashTree;
-        });
-      }
+    queryPage() {
+      this.total = this.allData.length;
       let start = (this.currentPage - 1) * this.pageSize;
       let end = this.currentPage * this.pageSize;
-      this.variables = this.allData.slice(start, end);
-      this.total = this.allData.length;
+      this.pageData = this.allData.slice(start, end);
+      this.pageData.forEach((item) => {
+        item.showMore = false;
+        delete item.hashTree;
+      });
     },
     change: function () {
       let isNeedCreate = true;
@@ -375,10 +367,10 @@ export default {
         let ids = this.$refs.variableTable.selectRows;
         ids.forEach((row) => {
           if (row.id) {
-            const index = this.variables.findIndex((d) => d.id === row.id);
+            const index = this.pageData.findIndex((d) => d.id === row.id);
             const allIndex = this.allData.findIndex((d) => d.id === row.id);
-            if (index !== this.variables.length - 1) {
-              this.variables.splice(index, 1);
+            if (index !== this.pageData.length - 1) {
+              this.pageData.splice(index, 1);
             }
             if (allIndex !== this.allData.length - 1) {
               this.allData.splice(allIndex, 1);
@@ -388,15 +380,15 @@ export default {
         this.sortParameters();
         this.$refs.variableTable.cancelCurrentRow();
         this.$refs.variableTable.clear();
-        this.variables.forEach((item) => {
+        this.pageData.forEach((item) => {
           item.showMore = false;
         });
       });
     },
-    filter(scope) {
+    filter() {
       let datas = [];
       this.items.forEach((item) => {
-        if (this.selectVariable && this.selectVariable != '' && item.name) {
+        if (this.selectVariable && this.selectVariable !== '' && item.name) {
           if (item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) === -1) {
             item.hidden = true;
           } else {
@@ -410,20 +402,39 @@ export default {
         }
       });
       this.total = datas.length;
-      // 如果是第一页，则截取0到pageSize（每页显示多少条数据）即可
-      if (this.currentPage == 1) {
-        this.variables = datas.slice(0, this.pageSize);
-        return;
-      }
       let start = (this.currentPage - 1) * this.pageSize;
       let end = this.currentPage * this.pageSize;
-      this.variables = datas.slice(start, end);
+      this.pageData = datas.slice(start, end);
     },
-    filterScope(value, row) {
-      if (value == 'ui') {
-        return row.scope == 'ui';
+    filterScope() {
+      /**
+       * 全量数据过滤, 过滤后分页
+       */
+      this.currentPage = 1;
+      this.allData = [];
+      let scopes = this.condition.filters.scope;
+      if (!scopes || scopes.length === 0) {
+        // 重置或者清空
+        forEach(this.items, (item) => {
+          delete item.hidden;
+          if (!item.scope) {
+            this.$set(item, 'scope', 'api');
+          }
+        });
+        this.allData = this.items;
+      } else {
+        this.items.forEach((item) => {
+          if (scopes.indexOf(item.scope) === -1) {
+            item.hidden = true;
+          } else {
+            item.hidden = undefined;
+          }
+          if (!item.hidden) {
+            this.allData.push(item);
+          }
+        });
       }
-      return !row.scope || row.scope == 'api';
+      this.queryPage();
     },
     openSetting(data) {
       this.$refs.apiVariableSetting.open(data);
@@ -474,7 +485,7 @@ export default {
           });
           if (isAdd) {
             this.items.splice(
-              this.variables.indexOf((i) => !i.name),
+              this.pageData.indexOf((i) => !i.name),
               0,
               keyValue
             );
@@ -553,9 +564,8 @@ export default {
         }
       });
       this.allData = this.items;
-      this.nextPage();
+      this.queryPage();
     }
-    this.total = this.allData.length;
   },
 };
 </script>

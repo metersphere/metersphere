@@ -129,12 +129,14 @@
         <if test="versionId != null">
             AND (
             sch.group IN ('SWAGGER_IMPORT')
-            OR
+            and
             resource_id IN (SELECT id FROM api_scenario WHERE status != 'Trash' AND version_id = #{versionId})
             )
         </if>
         <if test="versionId == null">
             AND sch.group IN ('API_SCENARIO_TEST','SWAGGER_IMPORT')
+            and
+            resource_id IN (SELECT id FROM api_scenario WHERE status != 'Trash' AND latest = 1)
         </if>
         ORDER BY sch.update_time DESC
     </select>

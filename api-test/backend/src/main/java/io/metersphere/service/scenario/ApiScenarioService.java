@@ -9,6 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.export.ScenarioToPerformanceInfoDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioParamDTO;
 import io.metersphere.api.exec.scenario.ApiScenarioEnvService;
@@ -47,6 +48,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.quota.service.BaseQuotaService;
+import io.metersphere.request.BodyFile;
 import io.metersphere.request.ResetOrderRequest;
 import io.metersphere.sechedule.ApiScenarioTestJob;
 import io.metersphere.sechedule.SwaggerUrlImportJob;
@@ -462,14 +464,38 @@ public class ApiScenarioService {
      */
     public void deleteUpdateBodyFile(ApiScenarioWithBLOBs scenario, ApiScenarioWithBLOBs oldScenario) {
         try {
-            Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
-            MsTestElement msTestElement = GenerateHashTreeUtil.parseScenarioDefinition(oldScenario.getScenarioDefinition());
+            MsScenario msScenario = GenerateHashTreeUtil.parseScenarioDefinition(scenario.getScenarioDefinition());
+            // 获取所有请求
+            List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msScenario);
+            Set<String> newRequestIds = httpSampleFromHashTree.stream().map(MsHTTPSamplerProxy::getId).collect(Collectors.toSet());
+
+            MsScenario msTestElement = GenerateHashTreeUtil.parseScenarioDefinition(oldScenario.getScenarioDefinition());
             List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
             oldRequests.forEach(item -> {
                 if (item.isCustomizeReq() && !newRequestIds.contains(item.getId())) {
                     ApiFileUtil.deleteBodyFiles(item.getId());
                 }
             });
+            // 清理场景csv附件
+            if (CollectionUtils.isNotEmpty(msScenario.getVariables())
+                    && CollectionUtils.isNotEmpty(msTestElement.getVariables())) {
+                List<ScenarioVariable> newVariables = msScenario.getVariables().stream()
+                        .filter(ScenarioVariable::isCSVValid)
+                        .filter(ScenarioVariable::isEnable).collect(toList());
+
+                List<ScenarioVariable> oldVariables = msTestElement.getVariables().stream()
+                        .filter(ScenarioVariable::isCSVValid)
+                        .filter(ScenarioVariable::isEnable).collect(toList());
+
+                if (CollectionUtils.isNotEmpty(oldVariables) && CollectionUtils.isNotEmpty(newVariables)) {
+                    List<String> ids = newVariables.get(0).getFiles().stream().map(BodyFile::getId).collect(toList());
+                    oldVariables.get(0).getFiles().forEach(item -> {
+                        if (!ids.contains(item.getId())) {
+                            ApiFileUtil.deleteBodyFiles(item.getId() + "_" + item.getName());
+                        }
+                    });
+                }
+            }
         } catch (Exception e) {
             LogUtil.error("Historical data processing exception");
         }

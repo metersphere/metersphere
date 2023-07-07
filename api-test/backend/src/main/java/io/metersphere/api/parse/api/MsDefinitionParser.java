@@ -158,9 +158,15 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 return null;
             }
             JSONObject requestObj = JSONUtil.parseObject(request);
-            requestObj.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
-            requestObj.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
-            requestObj.put("projectId", projectId);
+            if (!requestObj.has(PropertyConstant.ENVIRONMENT)) {
+                requestObj.put(PropertyConstant.ENVIRONMENT, StringUtils.EMPTY);
+            }
+            if (!requestObj.has(PropertyConstant.ENVIRONMENT_ID)) {
+                requestObj.put(PropertyConstant.ENVIRONMENT_ID, StringUtils.EMPTY);
+            }
+            if (!requestObj.has(PropertyConstant.PROJECT_ID)) {
+                requestObj.put(PropertyConstant.PROJECT_ID, projectId);
+            }
             return requestObj;
         } catch (Exception e) {
             LogUtil.error(request, e);

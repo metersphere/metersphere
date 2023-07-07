@@ -81,6 +81,8 @@ const message = {
     save_as: "另存為",
     update: "更新",
     save_success: "保存成功",
+    enable_success: "啓用成功",
+    disable_success: "禁用成功",
     add_success: "添加成功",
     cancel_add_success: "取消添加成功",
     recover_success: "恢復成功",
@@ -381,6 +383,7 @@ const message = {
     image: "鏡像",
     tag: "標簽",
     append_tag: "追加標籤",
+    tag_length_tip: "標籤長度不能超過15個字符",
     append_tag_tip: "勾選：新增標籤；不勾選：覆蓋原有標籤；",
     module: {
       select_module: "選擇模塊",
@@ -1022,13 +1025,13 @@ const message = {
     id: "用戶ID",
     create: "創建用戶",
     modify: "修改用戶",
-    input_name: "請輸入用戶姓名",
+    input_name: "請輸入姓名",
     input_id: "請輸入ID",
     input_email: "請輸入郵箱",
     input_password: "請輸入密碼",
     input_phone: "請輸入電話號碼",
     special_characters_are_not_supported: "不支持特殊字符",
-    mobile_number_format_is_incorrect: "手機號碼格式不正確",
+    mobile_number_format_is_incorrect: "電話號碼格式不正確",
     email_format_is_incorrect: "郵箱格式不正確",
     delete_confirm: "這個用戶確定要刪除嗎?",
     apikey_delete_confirm: "這個 API Key 確定要刪除嗎?",
@@ -3527,6 +3530,9 @@ const message = {
     to_try: "去完成",
     view_video: "觀看視頻教程",
   },
+  jar_config: {
+    upload_limit_size: "上传文件大小不能超过 50MB!",
+  }
 };
 
 export default {

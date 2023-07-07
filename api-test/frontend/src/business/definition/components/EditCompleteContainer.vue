@@ -1,6 +1,6 @@
 <template>
   <ms-container v-if="isShow && !loading">
-    <ms-aside-container>
+    <ms-aside-container >
       <api-base-info
         ref="apiBaseInfo"
         :api-template="apiTemplate"
@@ -11,7 +11,7 @@
         :is-form-alive="isFormAlive"
         :maintainer-options="maintainerOptions"
         :module-options="moduleOptions"
-        style="overflow: auto" />
+      />
     </ms-aside-container>
     <ms-main-container class="ms-api-main-container">
       <el-button-group v-if="currentApi.id" style="z-index: 10; position: fixed">
@@ -143,6 +143,7 @@ import { getProjectMemberOption } from '@/api/project';
 import { buildCustomFields, parseCustomField } from 'metersphere-frontend/src/utils/custom_field';
 import { getApiTemplate } from '@/api/api-template';
 import { parseCustomFilesForItem } from 'metersphere-frontend/src/utils/tableUtils';
+import { hasPermissions } from 'metersphere-frontend/src/utils/permission';
 const store = useApiStore();
 export default {
   name: 'EditCompleteContainer',
@@ -157,7 +158,7 @@ export default {
     MsApiCaseList,
     ApiBaseInfo,
     MsMainContainer: () => import('metersphere-frontend/src/components/MsMainContainer'),
-    MsAsideContainer: () => import('metersphere-frontend/src/components/MsAsideContainer'),
+    MsAsideContainer: () => import('./CustomAsideContainer.vue'),
     MsContainer: () => import('metersphere-frontend/src/components/MsContainer'),
   },
   data() {
@@ -209,7 +210,7 @@ export default {
       }
       this.customFieldForm = parseCustomField(this.currentApi, this.apiTemplate, this.customFieldRules);
     });
-    if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP')) {
+    if (this.currentApi.id && (this.currentProtocol === 'HTTP' || this.currentProtocol === 'TCP') && hasPermissions('PROJECT_API_DEFINITION:READ+MOCK')) {
       this.mockSetting();
     }
     this.formatApi();

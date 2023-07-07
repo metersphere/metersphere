@@ -1263,9 +1263,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 String xml = XMLUtil.delXmlHeader(xmlText);
                 int startIndex = xml.indexOf("<", 0);
                 int endIndex = xml.indexOf(">", 0);
-                String substring = xml.substring(startIndex + 1, endIndex);
+                if (endIndex > startIndex+ 1 ) {
+                    String substring = xml.substring(startIndex + 1, endIndex);
+                    bodyInfo = buildRefSchema(substring);
+                }
                 JSONObject xmlToJson = XMLUtil.xmlConvertJson(xmlText);
-                bodyInfo = buildRefSchema(substring);
                 JSONObject jsonObject = buildRequestBodyXmlSchema(xmlToJson);
                 if (schemas == null) {
                     schemas = new LinkedList<>();

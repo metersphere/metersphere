@@ -128,7 +128,7 @@ public class ApiHomeController {
             apiCountResult.setApiCoveredRate(df.format(coveredRateNumber) + "%");
         }
         //计算用例的通过率和执行率
-        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(allCount, projectId, versionId);
+        List<ExecuteResultCountDTO> apiCaseExecResultList = apiTestCaseService.selectExecuteResultByProjectId(apiCountResult.getTotal(), projectId, versionId);
         apiCountResult.countApiCaseRunResult(apiCaseExecResultList);
         if (apiCountResult.getExecutedCount() > 0) {
             //通过率

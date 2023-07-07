@@ -483,7 +483,9 @@ export default {
   },
   beforeCreate() {
     getUserDefaultApiType().then(response => {
-      this.currentProtocol = response.data;
+      if (!this.currentProtocol) {
+        this.currentProtocol = response.data;
+      }
     })
   },
   created() {
@@ -865,6 +867,9 @@ export default {
     initForwardData() {
       let dataRange = this.$route.params.dataSelectRange;
       let dataType = this.$route.params.dataType;
+      if (this.$route && this.$route.params && this.$route.params.type) {
+        this.currentProtocol = this.$route.params.type;
+      }
       if (dataRange && typeof dataRange === 'string' && dataType === 'api') {
         let selectParamArr = dataRange.split('edit:');
         if (selectParamArr.length === 2) {

@@ -72,7 +72,7 @@
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <org-json.version>20220924</org-json.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
-        <nacos.version>2.2.3</nacos.version>
+        <nacos.version>1.4.6</nacos.version>
         <minio.version>8.5.3</minio.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
