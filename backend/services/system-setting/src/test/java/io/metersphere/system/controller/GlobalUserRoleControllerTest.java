@@ -8,8 +8,12 @@ import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
+import io.metersphere.sdk.service.BaseUserRoleRelationService;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
+import io.metersphere.system.controller.param.UserRoleUpdateRequestDefinition;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
@@ -24,9 +28,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 import static io.metersphere.system.service.GlobalUserRoleService.GLOBAL_SCOPE;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,7 +40,8 @@ class GlobalUserRoleControllerTest extends BaseTest {
     private UserRoleMapper userRoleMapper;
     @Resource
     private BaseUserRolePermissionService baseUserRolePermissionService;
-
+    @Resource
+    private BaseUserRoleRelationService baseUserRoleRelationService;
     private static final String BASE_PATH = "/user/role/global/";
     private static final String LIST = "list";
     private static final String ADD = "add";
@@ -54,7 +59,6 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
     @Test
     void list() throws Exception {
-
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(LIST)
                 .andReturn();
@@ -74,7 +78,6 @@ class GlobalUserRoleControllerTest extends BaseTest {
     @Test
     @Order(0)
     void add() throws Exception {
-
         // @@请求成功
         UserRoleUpdateRequest request = new UserRoleUpdateRequest();
         request.setName("test");
@@ -84,23 +87,23 @@ class GlobalUserRoleControllerTest extends BaseTest {
         UserRole resultData = getResultData(mvcResult, UserRole.class);
         UserRole userRole = userRoleMapper.selectByPrimaryKey(resultData.getId());
         // 校验请求成功数据
+        this.addUserRole = userRole;
         Assertions.assertEquals(request.getName(), userRole.getName());
         Assertions.assertEquals(request.getType(), userRole.getType());
         Assertions.assertEquals(request.getDescription(), userRole.getDescription());
-        this.addUserRole = userRole;
+        // @@校验日志
+        checkLog(this.addUserRole.getId(), OperationLogType.ADD);
 
         // @@重名校验异常
-        this.requestPost(ADD, request)
-                .andExpect(
-                        jsonPath("$.code")
-                                .value(GLOBAL_USER_ROLE_EXIST.getCode())
-                );
+        assertErrorCode(this.requestPost(ADD, request), GLOBAL_USER_ROLE_EXIST);
+
+        // @@异常参数校验
+        createdGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, ADD);
     }
 
     @Test
     @Order(1)
     void update() throws Exception {
-
         // @@请求成功
         UserRoleUpdateRequest request = new UserRoleUpdateRequest();
         request.setId(addUserRole.getId());
@@ -114,23 +117,25 @@ class GlobalUserRoleControllerTest extends BaseTest {
         Assertions.assertEquals(request.getType(), userRoleResult.getType());
         Assertions.assertEquals(request.getDescription(), userRoleResult.getDescription());
 
+        // @@校验日志
+        checkLog(request.getId(), OperationLogType.UPDATE);
+
         // @@操作非全局用户组异常
         BeanUtils.copyBean(request, getNonGlobalUserRole());
-        this.requestPost(UPDATE, request)
-                .andExpect(jsonPath("$.code").value(GLOBAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestPost(UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@操作内置用户组异常
         request.setId(ADMIN.getValue());
         request.setName(ADMIN.getValue());
-        this.requestPost(UPDATE, request)
-                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestPost(UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
 
         // @@重名校验异常
         request.setId(addUserRole.getId());
         request.setName("系统管理员");
-        this.requestPost(UPDATE, request)
-                .andExpect(jsonPath("$.code").value(GLOBAL_USER_ROLE_EXIST.getCode()));
-        this.requestPost(UPDATE, new UserRole());
+        assertErrorCode(this.requestPost(UPDATE, request), GLOBAL_USER_ROLE_EXIST);
+
+        // @@异常参数校验
+        updatedGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, UPDATE);
     }
 
     @Test
@@ -176,15 +181,13 @@ class GlobalUserRoleControllerTest extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(permissionIds));
 
         // @@操作非全局用户组异常
-        this.requestGet(PERMISSION_SETTING, getNonGlobalUserRole().getId())
-                .andExpect(jsonPath("$.code").value(GLOBAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestGet(PERMISSION_SETTING, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
     }
 
     @Test
     @Order(2)
     void updatePermissionSetting() throws Exception {
-
         PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
         request.setPermissions(new ArrayList<>() {{
             PermissionSettingUpdateRequest.PermissionUpdateRequest permission1
@@ -211,15 +214,19 @@ class GlobalUserRoleControllerTest extends BaseTest {
         // 校验请求成功数据
         Assertions.assertEquals(requestPermissionIds, permissionIds);
 
+        // @@校验日志
+        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
+
         // @@操作非全局用户组异常
         request.setUserRoleId(getNonGlobalUserRole().getId());
-        this.requestPost(PERMISSION_UPDATE, request)
-                .andExpect(jsonPath("$.code").value(GLOBAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@操作内置用户组异常
         request.setUserRoleId(ADMIN.getValue());
-        this.requestPost(PERMISSION_UPDATE, request)
-                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
+
+        // @@异常参数校验
+        paramValidateTest(PermissionSettingUpdateRequestDefinition.class, PERMISSION_UPDATE);
     }
 
     @Test
@@ -229,21 +236,25 @@ class GlobalUserRoleControllerTest extends BaseTest {
         this.requestGet(DELETE, addUserRole.getId());
         // 校验请求成功数据
         Assertions.assertNull(userRoleMapper.selectByPrimaryKey(addUserRole.getId()));
+        // 校验用户组与权限的关联关系是否删除
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseUserRolePermissionService.getByRoleId(addUserRole.getId())));
+        // 校验用户组与用户的关联关系是否删除
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseUserRoleRelationService.getByRoleId(addUserRole.getId())));
+
+        // @@校验日志
+        checkLog(addUserRole.getId(), OperationLogType.DELETE);
 
         // @@操作非全局用户组异常
-        this.requestGet(DELETE, getNonGlobalUserRole().getId())
-                .andExpect(jsonPath("$.code").value(GLOBAL_USER_ROLE_PERMISSION.getCode()));
+        assertErrorCode(this.requestGet(DELETE, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@操作内置用户组异常
-        this.requestGet(DELETE, ADMIN.getValue())
-                .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
-
+        assertErrorCode(this.requestGet(DELETE, ADMIN.getValue()), INTERNAL_USER_ROLE_PERMISSION);
     }
 
     /**
      * 插入一条非全局用户组，并返回
      */
-    private UserRole getNonGlobalUserRole() {
+    protected UserRole getNonGlobalUserRole() {
         // 插入一条非全局用户组数据
         UserRole nonGlobalUserRole = userRoleMapper.selectByPrimaryKey(ADMIN.getValue());
         nonGlobalUserRole.setName("非全局用户组");

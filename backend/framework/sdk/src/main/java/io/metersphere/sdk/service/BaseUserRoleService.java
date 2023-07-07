@@ -3,11 +3,13 @@ package io.metersphere.sdk.service;
 import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.PermissionCache;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 
 /**
  * @author jianxing
@@ -29,6 +33,8 @@ public class BaseUserRoleService {
     private UserRoleMapper userRoleMapper;
     @Resource
     private BaseUserRolePermissionService baseUserRolePermissionService;
+    @Resource
+    private BaseUserRoleRelationService baseUserRoleRelationService;
 
     /**
      * 根据用户组获取对应的权限配置项
@@ -99,5 +105,35 @@ public class BaseUserRoleService {
         userRole.setUpdateTime(System.currentTimeMillis());
         userRoleMapper.updateByPrimaryKeySelective(userRole);
         return userRole;
+    }
+
+    /**
+     * 删除用户组，并且删除用户组与用户的关联关系，用户组与权限的关联关系
+     * @param userRole
+     */
+    public void delete(UserRole userRole) {
+        String id = userRole.getId();
+        checkInternalUserRole(userRole);
+        baseUserRolePermissionService.deleteByRoleId(id);
+        baseUserRoleRelationService.deleteByRoleId(id);
+        userRoleMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 校验是否是内置用户组，是内置抛异常
+     */
+    public void checkInternalUserRole(UserRole userRole) {
+        if (BooleanUtils.isTrue(userRole.getInternal())) {
+            throw new MSException(INTERNAL_USER_ROLE_PERMISSION);
+        }
+    }
+
+    public UserRole get(String id) {
+        return userRoleMapper.selectByPrimaryKey(id);
+    }
+
+    public String getLogDetails(String id) {
+        UserRole userRole = userRoleMapper.selectByPrimaryKey(id);
+        return userRole == null ? null : userRole.getName();
     }
 }

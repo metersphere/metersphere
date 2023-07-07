@@ -95,7 +95,7 @@ public class UserControllerTests extends BaseTest {
         UserBatchCreateDTO userMaintainRequest = UserTestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateDTO.class);
         userMaintainRequest.getUserInfoList().forEach(item ->{
             try {
-                checkLog(item.getId(), OperationLogType.ADD.name());
+                checkLog(item.getId(), OperationLogType.ADD);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

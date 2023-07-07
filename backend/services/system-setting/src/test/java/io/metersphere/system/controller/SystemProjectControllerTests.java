@@ -169,7 +169,7 @@ public class SystemProjectControllerTests extends BaseTest {
         List<Project> projects = projectMapper.selectByExample(projectExample);
         projectId = result.getId();
         // 校验日志
-        checkLog(projectId, OperationLogType.ADD.name());
+        checkLog(projectId, OperationLogType.ADD);
 
         this.compareProjectDTO(projects.get(0), result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();

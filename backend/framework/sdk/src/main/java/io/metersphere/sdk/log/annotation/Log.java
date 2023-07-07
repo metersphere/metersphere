@@ -37,7 +37,7 @@ public @interface Log {
     /**
      * 资源ID
      */
-    String sourceId() default "NONE";
+    String sourceId() default "";
 
     /**
      * 创建用户

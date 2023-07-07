@@ -1,6 +1,7 @@
 package io.metersphere.sdk.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class PermissionSettingUpdateRequest {
     private String userRoleId;
     @NotNull
     @Schema(title = "菜单下的权限列表", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Valid
     private List<PermissionUpdateRequest> permissions;
 
     @Data
