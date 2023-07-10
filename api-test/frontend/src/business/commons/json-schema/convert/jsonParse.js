@@ -4,6 +4,10 @@ export const jsonParse = (jsonStr) => {
   let index = 0;
   function parseValue() {
     let char = jsonStr[index];
+    while (char === ' ' || char === '\n') {
+      index++;
+      char = jsonStr[index];
+    }
     if (char === '{') {
       return parseObject();
     } else if (char === '[') {
@@ -45,6 +49,9 @@ export const jsonParse = (jsonStr) => {
     while (jsonStr[index] !== ']') {
       arr.push(parseValue());
       if (jsonStr[index] === ',') {
+        index++;
+      }
+      while(jsonStr[index] === ' ' || jsonStr[index] === '\n'){
         index++;
       }
     }
