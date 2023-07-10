@@ -1480,7 +1480,7 @@ public class ApiScenarioService {
             request.setVersionId(defaultVersion);
         }
 
-        UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request, initData, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule());
+        UpdateScenarioModuleDTO updateScenarioModuleDTO = apiScenarioModuleService.checkScenarioModule(request, initData, StringUtils.equals("fullCoverage", request.getModeId()), request.getCoverModule(), defaultVersion);
         List<ApiScenarioModule> moduleList = updateScenarioModuleDTO.getModuleList();
         List<ApiScenarioWithBLOBs> data = updateScenarioModuleDTO.getApiScenarioWithBLOBsList();
         List<ApiScenarioWithBLOBs> needUpdateList = updateScenarioModuleDTO.getNeedUpdateList();

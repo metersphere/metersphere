@@ -23,7 +23,10 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -31,9 +34,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.collections.CollectionUtils;
-
-import jakarta.annotation.Resource;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -475,9 +475,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
      * @param data
      * @param fullCoverage         是否覆盖接口
      * @param fullCoverageScenario 是否更新当前接口所在模块
+     * @param defaultVersion
      * @return Return to the newly added module map
      */
-    public UpdateScenarioModuleDTO checkScenarioModule(ApiTestImportRequest request, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageScenario) {
+    public UpdateScenarioModuleDTO checkScenarioModule(ApiTestImportRequest request, List<ApiScenarioWithBLOBs> data, Boolean fullCoverage, Boolean fullCoverageScenario, String defaultVersion) {
         //需要新增的模块，key 为模块路径
         Map<String, ApiScenarioModule> moduleMap = new HashMap<>();
         List<ApiScenarioWithBLOBs> toUpdateList = new ArrayList<>();
@@ -525,7 +526,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         List<ApiScenarioWithBLOBs> repeatAllScenarioWithBLOBs = extApiScenarioMapper.selectRepeatByBLOBs(names, projectId);
         ArrayList<ApiScenarioWithBLOBs> repeatApiScenarioWithBLOBs = repeatAllScenarioWithBLOBs.stream().collect(
                 Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(t -> t.getName() + t.getModulePath()))), ArrayList::new)
+                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(t -> t.getName() + t.getModulePath() + t.getVersionId()))), ArrayList::new)
         );
 
         Map<String, ApiScenarioWithBLOBs> nameModuleMap = null;
@@ -534,39 +535,28 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             if (!CollectionUtils.isEmpty(repeatApiScenarioWithBLOBs)) {
                 String chooseModuleParentId = getChooseModuleParentId(chooseModule);
                 String chooseModulePath = getChooseModulePath(idPathMap, chooseModule, chooseModuleParentId);
-                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() +t.getModulePath() + chooseModulePath, scenario -> scenario));
-                repeatDataMap = repeatApiScenarioWithBLOBs.stream().filter(t -> t.getApiScenarioModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+                nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath() + chooseModulePath + t.getVersionId(), scenario -> scenario));
+                repeatDataMap = repeatApiScenarioWithBLOBs.stream().filter(t -> t.getApiScenarioModuleId().equals(chooseModuleId)).collect(Collectors.toMap(t -> t.getName() + t.getModulePath() + "==" + t.getVersionId(), scenario -> scenario));
             }
         } else {
             nameModuleMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + (t.getModulePath() == null ? StringUtils.EMPTY : t.getModulePath()), scenario -> scenario));
-            repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
+            repeatDataMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath() + "==" + t.getVersionId(), scenario -> scenario));
         }
         //处理数据
         if (fullCoverage) {
             if (fullCoverageScenario) {
-                startCoverModule(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId);
+                startCoverModule(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, defaultVersion);
             } else {
                 //覆盖但不覆盖模块
                 if (nameModuleMap != null) {
                     //导入文件没有新增场景无需创建接口模块
                     moduleMap = judgeModuleMap(moduleMap, nameModuleMap, repeatDataMap);
-                    startCover(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId);
+                    startCover(toUpdateList, nameModuleMap, repeatDataMap, updateVersionId, defaultVersion);
                 }
             }
         } else {
             //不覆盖
-                    removeRepeat(optionData, nameModuleMap, repeatDataMap, moduleMap, versionId);
-        }
-
-        if (!CollectionUtils.isEmpty(repeatApiScenarioWithBLOBs)) {
-            Map<String, ApiScenarioWithBLOBs> repeatMap = repeatApiScenarioWithBLOBs.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
-            Map<String, ApiScenarioWithBLOBs> optionMap = optionData.stream().collect(Collectors.toMap(t -> t.getName() + t.getModulePath(), scenario -> scenario));
-            if (fullCoverage) {
-                startCover(toUpdateList, optionMap, repeatMap, updateVersionId);
-            } else {
-                //不覆盖,同一接口不做更新
-                removeRepeat(optionData, optionMap, repeatMap, moduleMap, versionId);
-            }
+            removeRepeat(optionData, nameModuleMap, repeatDataMap, moduleMap, versionId, defaultVersion);
         }
 
         if (optionData.isEmpty()) {
@@ -581,11 +571,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     private void removeRepeat(List<ApiScenarioWithBLOBs> optionData, Map<String, ApiScenarioWithBLOBs> nameModuleMap,
                               Map<String, ApiScenarioWithBLOBs> repeatDataMap, Map<String, ApiScenarioModule> moduleMap,
-                              String versionId) {
+                              String versionId, String defaultVersion) {
         if (repeatDataMap != null) {
             Map<String, List<ApiScenarioWithBLOBs>> moduleOptionData = optionData.stream().collect(Collectors.groupingBy(ApiScenario::getModulePath));
-            repeatDataMap.forEach((k, v) -> {
-                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
+            nameModuleMap.forEach((k, v) -> {
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = repeatDataMap.get(k + "==" + versionId);
                 if (apiScenarioWithBLOBs != null) {
                     String modulePath = apiScenarioWithBLOBs.getModulePath();
                     List<ApiScenarioWithBLOBs> moduleData = moduleOptionData.get(modulePath);
@@ -594,11 +584,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
                         removeModulePath(moduleMap, moduleOptionData, modulePath);
                         moduleData.remove(apiScenarioWithBLOBs);
                     }
-                    //不覆盖选择版本，如果被选版本有同接口，不导入，否则创建新版本接口
-                    if (v.getVersionId().equals(versionId)) {
-                        optionData.remove(apiScenarioWithBLOBs);
-                    } else {
-                        addNewVersionScenario(apiScenarioWithBLOBs, v, "new");
+                    optionData.remove(v);
+                } else {
+                    ApiScenarioWithBLOBs apiScenarioDefault = repeatDataMap.get(k + "==" + defaultVersion);
+                    if (ObjectUtils.isNotEmpty(apiScenarioDefault)) {
+                        addNewVersionScenario(v, apiScenarioDefault, "new");
                     }
                 }
             });
@@ -629,28 +619,31 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     }
 
-    private void startCover(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap, String updateVersionId) {
-        repeatDataMap.forEach((k, v) -> {
-            ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
+    private void startCover(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap, String updateVersionId, String defaultVersion) {
+
+        nameModuleMap.forEach((k, v) -> {
+            ApiScenarioWithBLOBs apiScenarioWithBLOBs = repeatDataMap.get(k + "==" + updateVersionId);
             if (apiScenarioWithBLOBs != null) {
-                if (!v.getVersionId().equals(updateVersionId)) {
-                    addNewVersionScenario(apiScenarioWithBLOBs, v, "update");
-                    return;
+                v.setId(apiScenarioWithBLOBs.getId());
+                v.setVersionId(updateVersionId);
+                v.setApiScenarioModuleId(apiScenarioWithBLOBs.getApiScenarioModuleId());
+                v.setModulePath(apiScenarioWithBLOBs.getModulePath());
+                v.setNum(apiScenarioWithBLOBs.getNum());
+                v.setStatus(apiScenarioWithBLOBs.getStatus());
+                v.setCreateTime(apiScenarioWithBLOBs.getCreateTime());
+                v.setRefId(apiScenarioWithBLOBs.getRefId());
+                v.setOrder(apiScenarioWithBLOBs.getOrder());
+                v.setLatest(apiScenarioWithBLOBs.getLatest());
+                v.setCreateTime(apiScenarioWithBLOBs.getCreateTime());
+                toUpdateList.add(v);
+            } else {
+                ApiScenarioWithBLOBs apiScenarioDefault = repeatDataMap.get(k + "==" + defaultVersion);
+                if (ObjectUtils.isNotEmpty(apiScenarioDefault)) {
+                    addNewVersionScenario(v, apiScenarioDefault, "update");
                 }
-                apiScenarioWithBLOBs.setId(v.getId());
-                apiScenarioWithBLOBs.setVersionId(updateVersionId);
-                apiScenarioWithBLOBs.setApiScenarioModuleId(v.getApiScenarioModuleId());
-                apiScenarioWithBLOBs.setModulePath(v.getModulePath());
-                apiScenarioWithBLOBs.setNum(v.getNum());
-                apiScenarioWithBLOBs.setStatus(v.getStatus());
-                apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
-                apiScenarioWithBLOBs.setRefId(v.getRefId());
-                apiScenarioWithBLOBs.setOrder(v.getOrder());
-                apiScenarioWithBLOBs.setLatest(v.getLatest());
-                apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
-                toUpdateList.add(apiScenarioWithBLOBs);
             }
         });
+
     }
 
     private Map<String, ApiScenarioModule> judgeModuleMap(Map<String, ApiScenarioModule> moduleMap, Map<String, ApiScenarioWithBLOBs> nameModuleMap, Map<String, ApiScenarioWithBLOBs> repeatDataMap) {
@@ -658,7 +651,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
         if (repeatDataMap.size() >= nameModuleMap.size()) {
             repeatDataMap.forEach((k, v) -> {
-                ApiScenarioWithBLOBs scenario = nameModuleMap.get(k);
+                ApiScenarioWithBLOBs scenario = nameModuleMap.get(k.substring(0, k.indexOf("==")));
                 if (scenario == null) {
                     remove.set(false);
                 }
@@ -671,25 +664,26 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     private void startCoverModule(List<ApiScenarioWithBLOBs> toUpdateList, Map<String, ApiScenarioWithBLOBs> nameModuleMap,
-                                  Map<String, ApiScenarioWithBLOBs> repeatDataMap, String updateVersionId) {
+                                  Map<String, ApiScenarioWithBLOBs> repeatDataMap, String updateVersionId, String defaultVersion) {
         if (repeatDataMap != null) {
-            repeatDataMap.forEach((k, v) -> {
-                ApiScenarioWithBLOBs apiScenarioWithBLOBs = nameModuleMap.get(k);
+            nameModuleMap.forEach((k, v) -> {
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = repeatDataMap.get(k + "==" + updateVersionId);
                 if (apiScenarioWithBLOBs != null) {
-                    if (!v.getVersionId().equals(updateVersionId)) {
-                        addNewVersionScenario(apiScenarioWithBLOBs, v, "update");
-                        return;
+                    v.setId(apiScenarioWithBLOBs.getId());
+                    v.setVersionId(updateVersionId);
+                    v.setNum(apiScenarioWithBLOBs.getNum());
+                    v.setStatus(apiScenarioWithBLOBs.getStatus());
+                    v.setCreateTime(apiScenarioWithBLOBs.getCreateTime());
+                    v.setRefId(apiScenarioWithBLOBs.getRefId());
+                    v.setOrder(apiScenarioWithBLOBs.getOrder());
+                    v.setLatest(apiScenarioWithBLOBs.getLatest());
+                    v.setCreateTime(apiScenarioWithBLOBs.getCreateTime());
+                    toUpdateList.add(v);
+                }else {
+                    ApiScenarioWithBLOBs apiScenarioDefault = repeatDataMap.get(k + "==" + defaultVersion);
+                    if (ObjectUtils.isNotEmpty(apiScenarioDefault)) {
+                        addNewVersionScenario(v, apiScenarioDefault, "update");
                     }
-                    apiScenarioWithBLOBs.setId(v.getId());
-                    apiScenarioWithBLOBs.setVersionId(updateVersionId);
-                    apiScenarioWithBLOBs.setNum(v.getNum());
-                    apiScenarioWithBLOBs.setStatus(v.getStatus());
-                    apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
-                    apiScenarioWithBLOBs.setRefId(v.getRefId());
-                    apiScenarioWithBLOBs.setOrder(v.getOrder());
-                    apiScenarioWithBLOBs.setLatest(v.getLatest());
-                    apiScenarioWithBLOBs.setCreateTime(v.getCreateTime());
-                    toUpdateList.add(apiScenarioWithBLOBs);
                 }
             });
         }
