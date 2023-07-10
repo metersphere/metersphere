@@ -8,10 +8,10 @@
         <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion" />
       </el-tooltip>
     </div>
-    <div style="height: calc(100vh - 400px);">
+    <div style="height: calc(100vh - 400px)">
       <vue-easy-tree
         :data="treeData"
-        node-key="id"
+        node-key="resourceId"
         :sizeDependencies="['expanded']"
         height="calc(100vh - 400px)"
         :minItemSize="47"
@@ -22,20 +22,18 @@
         highlight-current
         class="ms-tree ms-report-tree"
         isDynamic
-        ref="resultsTree"
-        @node-click="nodeClick"
-      >
-      <template slot-scope="{ node, data }">
-        <ms-scenario-result
-          :key="data.resourceId"
-          :node="data"
-          :expanded="node.expanded"
-          :console="console"
-          v-on:requestResult="requestResult"
-          :is-share="isShare"
-          :share-id="shareId" />
-      </template>
-    </vue-easy-tree>
+        ref="resultsTree">
+        <template slot-scope="{ node, data }">
+          <ms-scenario-result
+            :key="data.resourceId"
+            :node="data"
+            :expanded="node.expanded"
+            :console="console"
+            v-on:requestResult="requestResult"
+            :is-share="isShare"
+            :share-id="shareId" />
+        </template>
+      </vue-easy-tree>
     </div>
   </el-card>
 </template>
@@ -59,8 +57,7 @@ export default {
     shareId: String,
   },
   data() {
-    return {
-    };
+    return {};
   },
   created() {
     if (this.$refs.resultsTree && this.$refs.resultsTree.root) {
