@@ -1053,6 +1053,7 @@ export default {
               this.httpForm.newVersionCase ||
               this.httpForm.newVersionMock
             ) {
+              this.httpForm.caseTotal = 0;
               this.createNewVersionVisible = true;
             } else {
               this.saveApi();
