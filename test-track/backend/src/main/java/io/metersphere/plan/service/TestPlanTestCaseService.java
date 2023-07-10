@@ -197,6 +197,7 @@ public class TestPlanTestCaseService {
     private void setUpdateCaseExecutor(TestPlanTestCaseWithBLOBs testPlanTestCase) {
         if (StringUtils.isNotBlank(testPlanTestCase.getStatus())) {
             TestPlanTestCaseWithBLOBs originData = testPlanTestCaseMapper.selectByPrimaryKey(testPlanTestCase.getId());
+            testPlanTestCase.setCaseId(originData.getCaseId());
             if (!StringUtils.equals(originData.getStatus(), testPlanTestCase.getStatus())) {
                 // 更新了状态才更新执行人
                 testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
