@@ -1,11 +1,16 @@
 package io.metersphere.sdk.service;
 
+import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.dto.EMailInfoDto;
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.notice.sender.impl.MailNoticeSender;
 import io.metersphere.sdk.util.EncryptUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.SystemParameter;
@@ -204,4 +209,38 @@ public class SystemParameterService {
         }
     }
 
+    /**
+     * 添加接口日志
+
+     * @return
+     */
+    public LogDTO addLog(List<SystemParameter> systemParameter) {
+        LogDTO dto = new LogDTO(
+                "system",
+                "system-parameter",
+                null,
+                OperationLogType.ADD.name(),
+                OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                "系统参数");
+
+        dto.setPath("/system/parameter/save/base-info");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(systemParameter));
+        return dto;
+    }
+
+    public LogDTO updateLog(List<SystemParameter> systemParameter) {
+        LogDTO dto = new LogDTO(
+                "system",
+                "system-parameter",
+                null,
+                OperationLogType.ADD.name(),
+                OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                "编辑邮件信息");
+
+        dto.setPath("/system/parameter/edit/email-info");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(systemParameter));
+        return dto;
+    }
 }

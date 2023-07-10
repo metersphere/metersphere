@@ -1,0 +1,120 @@
+package io.metersphere.system.service;
+
+import io.metersphere.constants.HttpMethodConstants;
+import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.service.BaseUserRoleService;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.UserRole;
+import jakarta.annotation.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * 系统设置的接口增删改查都是针对全局用户组
+ *
+ * @author jianxing
+ * @date : 2023-6-8
+ */
+@Service
+@Transactional(rollbackFor = Exception.class)
+public class GlobalUserRoleLogService extends BaseUserRoleService {
+    @Resource
+    private BaseUserRoleService baseUserRoleService;
+
+    private static final String PRE_URI = "/user/role/global";
+
+    /**
+     * 添加接口日志
+     *
+     * @param request
+     * @return
+     */
+    public LogDTO addLog(UserRoleUpdateRequest request) {
+        LogDTO dto = new LogDTO(
+                "system",
+                request.getId(),
+                null,
+                OperationLogType.ADD.name(),
+                OperationLogModule.SYSTEM_PROJECT,
+                request.getName());
+
+        dto.setPath(PRE_URI + "/permission/update");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    public LogDTO updateLog(UserRoleUpdateRequest request) {
+        UserRole userRole = baseUserRoleService.get(request.getId());
+        if (userRole != null) {
+            LogDTO dto = new LogDTO(
+                    "system",
+                    userRole.getId(),
+                    userRole.getCreateUser(),
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_PROJECT,
+                    userRole.getName());
+
+            dto.setPath("/update");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(userRole));
+            return dto;
+        }
+        return null;
+    }
+
+    public LogDTO updateLog(PermissionSettingUpdateRequest request) {
+        UserRole userRole = get(request.getUserRoleId());
+        if (userRole != null) {
+            LogDTO dto = new LogDTO(
+                    "system",
+                    request.getUserRoleId(),
+                    userRole.getCreateUser(),
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_PROJECT,
+                    userRole.getName());
+
+            dto.setPath("/update");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(request));
+            return dto;
+        }
+        return null;
+    }
+
+
+    /**
+     * 删除接口日志
+     *
+     * @param id
+     * @return
+     */
+    public LogDTO deleteLog(String id) {
+        UserRole userRole = baseUserRoleService.get(id);
+        if (userRole == null) {
+            return null;
+        }
+        LogDTO dto = new LogDTO(
+                "system",
+                userRole.getId(),
+                null,
+                OperationLogType.DELETE.name(),
+                OperationLogModule.SYSTEM_PROJECT,
+                userRole.getName());
+
+        dto.setPath("/delete");
+        dto.setMethod(HttpMethodConstants.POST.name());
+
+        dto.setOriginalValue(JSON.toJSONBytes(userRole));
+        return dto;
+    }
+
+}

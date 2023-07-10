@@ -1,9 +1,11 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleEnum;
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
@@ -46,18 +48,18 @@ public class UserRoleRelationService {
     private OperationLogService operationLogService;
 
     //批量添加用户记录日志
-    public List<OperationLog> getBatchLogs(@Valid @NotEmpty List<String> userRoleId,
-                                           @Valid User user,
-                                           @Valid @NotEmpty String operationMethod,
-                                           @Valid @NotEmpty String operator,
-                                           @Valid @NotEmpty String operationType) {
+    public List<LogDTO> getBatchLogs(@Valid @NotEmpty List<String> userRoleId,
+                                     @Valid User user,
+                                     @Valid @NotEmpty String operationMethod,
+                                     @Valid @NotEmpty String operator,
+                                     @Valid @NotEmpty String operationType) {
         long operationTime = System.currentTimeMillis();
-        List<OperationLog> logs = new ArrayList<>();
+        List<LogDTO> logs = new ArrayList<>();
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andIdIn(userRoleId);
         List<UserRole> userRoleList = userRoleMapper.selectByExample(example);
         userRoleList.forEach(userRole -> {
-            OperationLog log = new OperationLog();
+            LogDTO log = new LogDTO();
             log.setId(UUID.randomUUID().toString());
             log.setProjectId("system");
             log.setType(operationType);
@@ -66,10 +68,11 @@ public class UserRoleRelationService {
             log.setMethod(operationMethod);
             log.setCreateTime(operationTime);
             log.setSourceId(user.getId());
-            log.setDetails(user.getName() + StringUtils.SPACE
+            log.setContent(user.getName() + StringUtils.SPACE
                     + operationType + StringUtils.SPACE
                     + "UserRole" + StringUtils.SPACE
                     + userRole.getName());
+            log.setOriginalValue(JSON.toJSONBytes(userRole));
             logs.add(log);
         });
         return logs;

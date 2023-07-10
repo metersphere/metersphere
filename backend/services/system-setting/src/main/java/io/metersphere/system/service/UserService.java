@@ -1,8 +1,10 @@
 package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
+import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.ExcelParseDTO;
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
@@ -10,14 +12,12 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.*;
-import io.metersphere.system.domain.OperationLog;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
-import io.metersphere.system.dto.request.UserBatchProcessRequest;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
@@ -58,10 +58,10 @@ public class UserService {
     private UserRoleService userRoleService;
 
     //批量添加用户记录日志
-    public List<OperationLog> getBatchAddLogs(@Valid List<User> userList) {
-        List<OperationLog> logs = new ArrayList<>();
+    public List<LogDTO> getBatchAddLogs(@Valid List<User> userList) {
+        List<LogDTO> logs = new ArrayList<>();
         userList.forEach(user -> {
-            OperationLog log = new OperationLog();
+            LogDTO log = new LogDTO();
             log.setId(UUID.randomUUID().toString());
             log.setCreateUser(user.getCreateUser());
             log.setProjectId("system");
@@ -70,7 +70,8 @@ public class UserService {
             log.setMethod("addUser");
             log.setCreateTime(user.getCreateTime());
             log.setSourceId(user.getId());
-            log.setDetails(user.getName() + "(" + user.getEmail() + ")");
+            log.setContent(user.getName() + "(" + user.getEmail() + ")");
+            log.setOriginalValue(JSON.toJSONBytes(user));
             logs.add(log);
         });
         return logs;
@@ -80,26 +81,6 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andIdIn(userIdList);
         return userMapper.selectByExample(example);
-    }
-
-    //切面方法调用：获取接口日志
-    public List<OperationLog> getLogs(UserBatchProcessRequest request) {
-        List<OperationLog> logs = new ArrayList<>();
-        List<User> userList = this.selectByIdList(request.getUserIdList());
-        userList.forEach(user -> {
-            OperationLog log = new OperationLog();
-            log.setId(UUID.randomUUID().toString());
-            log.setCreateUser(SessionUtils.getUserId());
-            log.setProjectId("system");
-            log.setType(OperationLogType.DELETE.name());
-            log.setModule(OperationLogModule.SYSTEM_USER);
-            log.setCreateTime(System.currentTimeMillis());
-            log.setMethod("deleteUser");
-            log.setSourceId(user.getId());
-            log.setDetails(user.getName());
-            logs.add(log);
-        });
-        return logs;
     }
 
     private void validateUserInfo(List<UserCreateInfo> userList) {
@@ -302,5 +283,47 @@ public class UserService {
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
         return response;
+    }
+
+    public LogDTO updateLog(UserEditRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        if (user != null) {
+            LogDTO dto = new LogDTO(
+                    "system",
+                    request.getId(),
+                    null,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_USER,
+                    request.getName());
+
+            dto.setPath("/update");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(user));
+            return dto;
+        }
+        return null;
+    }
+
+    public List<LogDTO> deleteLog(UserChangeEnableRequest request) {
+        List<LogDTO> logDTOList = new ArrayList<>();
+        request.getUserIdList().forEach(item -> {
+            User user = userMapper.selectByPrimaryKey(item);
+            if (user != null) {
+
+                LogDTO dto = new LogDTO(
+                        "system",
+                        user.getId(),
+                        user.getCreateUser(),
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.SYSTEM_PROJECT,
+                        user.getName());
+
+                dto.setPath("/delete");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(user));
+                logDTOList.add(dto);
+            }
+        });
+        return logDTOList;
     }
 }

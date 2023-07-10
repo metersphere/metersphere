@@ -14,5 +14,9 @@ public enum OperationLogType {
     EXPORT,
     LOGIN,
     SELECT,
-    RECOVER
+    RECOVER;
+
+    public boolean contains(OperationLogType keyword) {
+        return this.name().contains(keyword.name());
+    }
 }

@@ -8,11 +8,7 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.log.constants.OperationLogModule;
-import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.OperationLog;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
@@ -25,14 +21,12 @@ import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,8 +43,6 @@ public class SystemProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
-    @Resource
-    private OperationLogService operationLogService;
 
     public Project get(String id) {
         return projectMapper.selectByPrimaryKey(id);
@@ -189,8 +181,6 @@ public class SystemProjectService {
                     createUser);
             userRoleRelationMapper.insertSelective(memberRole);
         });
-        //写入操作日志
-        operationLogService.batchAdd(this.getBatchAddLogs(request, createUser, OperationLogType.ADD.name(), "addMember"));
 
     }
 
@@ -217,7 +207,6 @@ public class SystemProjectService {
     }
 
     public void deleteProject(List<Project> projects) {
-        List<OperationLog> operationLogs = new ArrayList<>();
         // 删除项目
         projects.forEach(project -> {
             LoggerUtil.info("send delete_project message, project id: " + project.getId());
@@ -228,11 +217,7 @@ public class SystemProjectService {
 
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
-            //记录日志
-            operationLogs.add(this.getDeleteLogs(project));
         });
-        operationLogService.batchAdd(operationLogs);
-
     }
 
     private void deleteProjectUserGroup(String projectId) {
@@ -240,65 +225,4 @@ public class SystemProjectService {
         userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
         userRoleRelationMapper.deleteByExample(userGroupExample);
     }
-    public OperationLog getDeleteLogs(Project project) {
-        OperationLog log = new OperationLog();
-        log.setId(UUID.randomUUID().toString());
-        log.setProjectId(project.getId());
-        log.setCreateUser("system");
-        log.setType(OperationLogType.DELETE.name());
-        log.setModule(OperationLogModule.SYSTEM_PROJECT);
-        log.setCreateTime(System.currentTimeMillis());
-        log.setDetails(project.getName());
-        log.setMethod("deleteProject");
-        return log;
-    }
-
-    public List<OperationLog> getBatchAddLogs(@Valid ProjectAddMemberRequest request,
-                                              String createUser,
-                                              String operationType,
-                                              String operationMethod) {
-        long operationTime = System.currentTimeMillis();
-        List<OperationLog> logs = new ArrayList<>();
-        request.getUserIds().forEach(userId -> {
-            User userInfo = userMapper.selectByPrimaryKey(userId);
-            OperationLog log = new OperationLog();
-            log.setId(UUID.randomUUID().toString());
-            log.setCreateUser(createUser);
-            log.setProjectId(request.getProjectId());
-            log.setType(operationType);
-            log.setModule(OperationLogModule.SYSTEM_PROJECT_MEMBER);
-            log.setMethod(operationMethod);
-            log.setCreateTime(operationTime);
-            log.setSourceId(request.getProjectId());
-            log.setDetails(userInfo.getName());
-            logs.add(log);
-        });
-        return logs;
-    }
-    public String getLogDetails(String id) {
-        Project project = projectMapper.selectByPrimaryKey(id);
-        if (ObjectUtils.isNotEmpty(project)) {
-            return project.getName();
-        }
-        return null;
-    }
-
-    public String getLogs(String userId) {
-        User user = userMapper.selectByPrimaryKey(userId);
-        if (ObjectUtils.isNotEmpty(user)) {
-            return user.getName();
-        }
-        return null;
-    }
-
-    /*public String getCreateLogDetail(@Validated  AddProjectDTO request) {
-        List<String> addMemberNames = new ArrayList<>();
-        request.getUserIds().forEach(memberId -> {
-            User user = userMapper.selectByPrimaryKey(memberId);
-            addMemberNames.add(user.getName());
-        });
-        return request.getName() + StringUtils.SPACE + "并添加项目管理员" + StringUtils.SPACE
-                + StringUtils.join(addMemberNames, ",");
-
-    }*/
 }

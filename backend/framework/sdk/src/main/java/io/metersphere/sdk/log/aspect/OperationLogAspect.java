@@ -1,13 +1,14 @@
 package io.metersphere.sdk.log.aspect;
 
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.annotation.Log;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SessionUtils;
-import io.metersphere.system.domain.OperationLog;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -24,14 +25,13 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 系统日志：切面处理类
@@ -55,16 +55,15 @@ public class OperationLogAspect {
 
     @Resource
     private OperationLogService operationLogService;
-
-    private ThreadLocal<List<OperationLog>> beforeValue = new ThreadLocal<>();
-
-    private ThreadLocal<String> treadLocalDetails = new ThreadLocal<>();
-
-    private ThreadLocal<String> treadLocalSourceId = new ThreadLocal<>();
+    // 批量变更前后内容
+    private ThreadLocal<List<LogDTO>> beforeValues = new ThreadLocal<>();
 
     private ThreadLocal<String> localUser = new ThreadLocal<>();
 
-    private final String[] methodNames = new String[]{"delete", "update", "add"};
+    // 此方法随时补充类型，需要在内容变更前执行的类型都可以加入
+    private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE};
+    // 需要后置执行合并内容的
+    private final OperationLogType[] postMethodNames = new OperationLogType[]{OperationLogType.ADD, OperationLogType.UPDATE};
 
     /**
      * 定义切点 @Pointcut 在注解的位置切入代码
@@ -76,12 +75,13 @@ public class OperationLogAspect {
     @Before("logPointCut()")
     public void before(JoinPoint joinPoint) {
         try {
+            localUser.set(SessionUtils.getUserId());
             //从切面织入点处通过反射机制获取织入点处的方法
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             //获取切入点所在的方法
             Method method = signature.getMethod();
             Log msLog = method.getAnnotation(Log.class);
-            if (msLog != null && msLog.isBefore()) {
+            if (msLog != null && isMatch(msLog.type())) {
                 //获取参数对象数组
                 Object[] args = joinPoint.getArgs();
                 //获取方法参数名
@@ -94,10 +94,6 @@ public class OperationLogAspect {
                 }
                 boolean isNext = false;
                 for (Class clazz : msLog.msClass()) {
-                    if (clazz.getName().endsWith("SessionUtils")) {
-                        localUser.set(SessionUtils.getUserId());
-                        continue;
-                    }
                     context.setVariable("msClass", applicationContext.getBean(clazz));
                     isNext = true;
                 }
@@ -105,133 +101,86 @@ public class OperationLogAspect {
                     return;
                 }
                 // 初始化details内容
-                initDetails(msLog, context);
-                // 初始化资源id
-                initResourceId(msLog, context);
+                initBeforeDetails(msLog, context);
             }
         } catch (Exception e) {
             LogUtils.error("操作日志写入异常：" + joinPoint.getSignature());
         }
     }
 
-    public boolean isMatch(String keyword) {
-        return Arrays.stream(methodNames)
+    public boolean isMatch(OperationLogType keyword) {
+        return Arrays.stream(beforeMethodNames)
                 .anyMatch(input -> input.contains(keyword));
     }
 
-    private void initDetails(Log msLog, EvaluationContext context) {
+    private void initBeforeDetails(Log msLog, EvaluationContext context) {
         try {
             // 批量内容处理
-            if (StringUtils.isNotBlank(msLog.details()) && msLog.details().startsWith("#msClass")) {
-                if (msLog.isBatch()) {
-                    Expression expression = parser.parseExpression(msLog.details());
-                    List<OperationLog> beforeContent = expression.getValue(context, List.class);
-                    beforeValue.set(beforeContent);
-                } else {
-                    Expression detailsEx = parser.parseExpression(msLog.details());
-                    String details = detailsEx.getValue(context, String.class);
-                    this.treadLocalDetails.set(details);
-                }
-            } else if (StringUtils.isNotBlank(msLog.details()) && msLog.details().startsWith("#")) {
-                Expression titleExp = parser.parseExpression(msLog.details());
-                String details = titleExp.getValue(context, String.class);
-                this.treadLocalDetails.set(details);
-            } else {
-                this.treadLocalDetails.set(msLog.details());
+            Expression expression = parser.parseExpression(msLog.expression());
+            Object obj = expression.getValue(context);
+            if (obj == null) {
+                return;
             }
+            if (obj instanceof List<?>) {
+                beforeValues.set((List<LogDTO>) obj);
+            } else {
+                List<LogDTO> LogDTOs = new ArrayList<>();
+                LogDTOs.add((LogDTO) obj);
+                beforeValues.set(LogDTOs);
+            }
+
         } catch (Exception e) {
             LogUtils.error("未获取到details内容", e);
-            this.treadLocalDetails.set(msLog.details());
         }
     }
 
-    private void initResourceId(Log msLog, EvaluationContext context) {
-        try {
-            // 批量内容处理
-            if (StringUtils.isNotBlank(msLog.sourceId()) && msLog.sourceId().startsWith("#msClass")) {
-                Expression detailsEx = parser.parseExpression(msLog.sourceId());
-                String sourceId = detailsEx.getValue(context, String.class);
-                treadLocalSourceId.set(sourceId);
-            } else if (StringUtils.isNotBlank(msLog.sourceId()) && msLog.sourceId().startsWith("#")) {
-                Expression titleExp = parser.parseExpression(msLog.sourceId());
-                String sourceId = titleExp.getValue(context, String.class);
-                treadLocalSourceId.set(sourceId);
-            } else {
-                treadLocalSourceId.set(msLog.sourceId());
-            }
-        } catch (Exception e) {
-            LogUtils.error("未获取到资源id", e);
-            treadLocalSourceId.set(msLog.sourceId());
-        }
-    }
-
-    private String getProjectId(Log msLog, EvaluationContext context) {
-        try {
-            if (StringUtils.isNotBlank(msLog.projectId()) && msLog.projectId().startsWith("#")) {
-                Expression titleExp = parser.parseExpression(msLog.projectId());
-                return titleExp.getValue(context, String.class);
-            } else {
-                return msLog.projectId();
-            }
-        } catch (Exception e) {
-            return msLog.projectId();
-        }
-    }
-
-    private void add(OperationLog operationLog, Log msLog, JoinPoint joinPoint, Object result) {
-        //从切面织入点处通过反射机制获取织入点处的方法
-        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        //获取切入点所在的方法
-        Method method = signature.getMethod();
-        //获取参数对象数组
-        Object[] args = joinPoint.getArgs();
-        // 操作类型
-        operationLog.setType(msLog.type().name());
-        // 创建用户
-        if (StringUtils.isNotBlank(msLog.createUser())) {
-            operationLog.setCreateUser(msLog.createUser());
-        }
-        // 项目ID
-        operationLog.setProjectId(msLog.projectId());
-        operationLog.setModule(msLog.module());
-        //获取方法参数名
-        String[] params = discoverer.getParameterNames(method);
-        //将参数纳入Spring管理
-        EvaluationContext context = new StandardEvaluationContext();
-        for (int len = 0; len < params.length; len++) {
-            context.setVariable(params[len], args[len]);
-        }
-        for (Class clazz : msLog.msClass()) {
-            context.setVariable("msClass", applicationContext.getBean(clazz));
-        }
-        // 批量编辑操作
-        if (msLog.isBatch()) {
-            operationLogService.batchAdd(beforeValue.get());
+    public void mergeLists(List<LogDTO> beforeLogs, List<LogDTO> postLogs) {
+        if (CollectionUtils.isEmpty(beforeLogs) && CollectionUtils.isNotEmpty(postLogs)) {
+            beforeValues.set(postLogs);
             return;
         }
-        // 项目ID表达式
-        operationLog.setProjectId(getProjectId(msLog, context));
-
-        if (!msLog.isBefore()) {
-            // 初始化资源id
-            initResourceId(msLog, context);
-            // 初始化内容详情
-            initDetails(msLog, context);
+        if (CollectionUtils.isEmpty(beforeLogs) && CollectionUtils.isEmpty(postLogs)) {
+            return;
         }
-        // 内容详情
-        operationLog.setDetails(treadLocalDetails.get());
-        // 资源id
-        operationLog.setSourceId(treadLocalSourceId.get());
-
-        if (StringUtils.isBlank(operationLog.getCreateUser())) {
-            operationLog.setCreateUser(localUser.get());
-        }
-        // 从返回内容中获取资源id
-        if (StringUtils.isEmpty(operationLog.getSourceId()) && !msLog.isBatch()) {
-            operationLog.setSourceId(getId(result));
-        }
-        operationLogService.add(operationLog);
+        Map<String, LogDTO> postDto = postLogs.stream().collect(Collectors.toMap(LogDTO::getSourceId, item -> item));
+        beforeLogs.forEach(item -> {
+            LogDTO post = postDto.get(item.getSourceId());
+            if (post != null) {
+                item.setModifiedValue(post.getOriginalValue());
+            }
+        });
     }
+
+    private void initPostDetails(Log msLog, EvaluationContext context) {
+        try {
+            if (StringUtils.isBlank(msLog.expression())) {
+                return;
+            }
+            // 批量内容处理
+            Expression expression = parser.parseExpression(msLog.expression());
+            Object obj = expression.getValue(context);
+            if (obj == null) {
+                return;
+            }
+
+            if (obj instanceof List<?>) {
+                mergeLists(beforeValues.get(), (List<LogDTO>) obj);
+            } else if (obj instanceof LogDTO) {
+                LogDTO log = (LogDTO) obj;
+                if (CollectionUtils.isNotEmpty(beforeValues.get())) {
+                    beforeValues.get().get(0).setModifiedValue(log.getOriginalValue());
+                } else {
+                    beforeValues.set(new ArrayList<>() {{
+                        this.add(log);
+                    }});
+                }
+            }
+
+        } catch (Exception e) {
+            LogUtils.error("未获取到details内容", e);
+        }
+    }
+
 
     public String getId(Object result) {
         try {
@@ -251,6 +200,26 @@ public class OperationLogAspect {
         return null;
     }
 
+    private void save(Object result) {
+        List<LogDTO> logDTOList = beforeValues.get();
+        if (CollectionUtils.isEmpty(logDTOList)) {
+            return;
+        }
+        // 单条存储
+        if (logDTOList.size() == 1) {
+            LogDTO logDTO = logDTOList.get(0);
+            if (StringUtils.isBlank(logDTO.getSourceId())) {
+                logDTO.setSourceId(getId(result));
+            }
+            if (StringUtils.isBlank(logDTO.getCreateUser())) {
+                logDTO.setCreateUser(localUser.get());
+            }
+            operationLogService.add(logDTO);
+        } else {
+            operationLogService.batchAdd(logDTOList);
+        }
+    }
+
     /**
      * 切面 配置通知
      */
@@ -261,30 +230,33 @@ public class OperationLogAspect {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             //获取切入点所在的方法
             Method method = signature.getMethod();
-            //保存日志
-            OperationLog operationLog = new OperationLog();
-            //保存获取的操作
-            operationLog.setId(UUID.randomUUID().toString());
-            operationLog.setMethod(method.getName());
-            operationLog.setCreateTime(System.currentTimeMillis());
-            operationLog.setCreateUser(SessionUtils.getUserId());
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            operationLog.setPath(request.getServletPath());
             // 获取操作
             Log msLog = method.getAnnotation(Log.class);
             if (msLog != null) {
-                add(operationLog, msLog, joinPoint, result);
-            }
-            // 兼容遗漏注解的内容
-            else if (isMatch(method.getName())) {
-                operationLogService.add(operationLog);
+                //获取参数对象数组
+                Object[] args = joinPoint.getArgs();
+                //获取方法参数名
+                String[] params = discoverer.getParameterNames(method);
+                //将参数纳入Spring管理
+                EvaluationContext context = new StandardEvaluationContext();
+                for (int len = 0; len < params.length; len++) {
+                    context.setVariable(params[len], args[len]);
+                }
+                for (Class clazz : msLog.msClass()) {
+                    context.setVariable("msClass", applicationContext.getBean(clazz));
+                }
+                // 需要后置再次执行的方法
+                if (Arrays.stream(postMethodNames).anyMatch(input -> input.contains(msLog.type()))) {
+                    initPostDetails(msLog, context);
+                }
+                // 存储日志结果
+                save(result);
             }
         } catch (Exception e) {
             LogUtils.error("操作日志写入异常：", e);
         } finally {
             localUser.remove();
-            beforeValue.remove();
-            treadLocalDetails.remove();
+            beforeValues.remove();
         }
     }
 

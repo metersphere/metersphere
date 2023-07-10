@@ -37,6 +37,14 @@ public class JSON {
         }
     }
 
+    public static byte[] toJSONBytes(Object value) {
+        try {
+            return objectMapper.writeValueAsBytes(value);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Object parseObject(String content) {
         return parseObject(content, Object.class);
     }

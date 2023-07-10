@@ -1,7 +1,7 @@
-package io.metersphere.system.mapper;
+package io.metersphere.sdk.mapper;
 
-import io.metersphere.system.domain.OperationLog;
-import io.metersphere.system.domain.OperationLogExample;
+import io.metersphere.sdk.domain.OperationLog;
+import io.metersphere.sdk.domain.OperationLogExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 

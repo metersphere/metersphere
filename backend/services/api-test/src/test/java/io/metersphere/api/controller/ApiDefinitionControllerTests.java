@@ -1,24 +1,17 @@
 package io.metersphere.api.controller;
 
 import com.jayway.jsonpath.JsonPath;
-import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
-import io.metersphere.api.dto.definition.ListRequestDTO;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Pager;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -90,86 +83,69 @@ public class ApiDefinitionControllerTests {
                 .andExpect(jsonPath("$.data.id").value("test-api-id"));
     }
 
-    //正常接口获取
     @Test
-    @Sql(scripts = {"/sql/init_api_definition.sql"},
-            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Order(2)
-    public void testPageSuccess() throws Exception {
-        int pageSize = 10;
-        int current = 1;
-        ListRequestDTO request = new ListRequestDTO();
-        request.setCurrent(current);
-        request.setPageSize(pageSize);
+    public void testUpdate() throws Exception {
+        LogUtils.info("delete api test");
+        ApiDefinitionDTO request = new ApiDefinitionDTO();
+        // 补充属性内容
+        request.setId("test-api-id");
+        request.setCreateUser("test-user");
+        request.setCreateTime(System.currentTimeMillis());
+        request.setUpdateUser("test-api-id");
+        request.setUpdateTime(System.currentTimeMillis());
         request.setProjectId("test-project-id");
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+        request.setName("test-api-name");
+        request.setMethod("test-api-method");
+        request.setPath("test-api-path");
+        request.setProtocol("test-api-protocol");
+        request.setPos(1l);
+        request.setLatest(true);
+        request.setSyncEnable(true);
+        request.setStatus("test-api-status");
+        request.setVersionId("test-api-version");
+        request.setDeleted(false);
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/update")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request))
+                        .content(JSON.toJSONString(request))
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isOk())
-                .andReturn();
+                .andExpect(status().isOk());
 
-        MockHttpServletResponse mockResponse = mvcResult.getResponse();
-
-        String returnData = mockResponse.getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
-
-        //返回请求正常
-        Assertions.assertNotNull(resultHolder);
-
-        Pager<ApiDefinition> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
-
-        //返回值不为空
-        Assertions.assertNotNull(returnPager);
-        //返回值的页码和当前页码相同
-        Assertions.assertEquals(returnPager.getCurrent(), current);
-        //返回的数据量不超过规定要返回的数据量相同
-        Assertions.assertTrue(((List<ApiDefinition>) returnPager.getList()).size() <= pageSize);
     }
 
-    //没有传入必填值
     @Test
-    @Order(3)
-    public void testPageError() throws Exception {
-        // projectId为空
-        ListRequestDTO request = new ListRequestDTO();
-        request.setCurrent(1);
-        request.setPageSize(20);
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request))
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isBadRequest());
+    @Order(2)
+    public void testBatchUpdate() throws Exception {
+        LogUtils.info("delete api test");
+        List<String> tests = new ArrayList<>();
+        tests.add("test-api-id");
 
-        //pageSize为空
-        request = new ListRequestDTO();
-        request.setCurrent(1);
-        request.setProjectId("test-project-id");
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/batch-update")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request))
+                        .content(JSON.toJSONString(tests))
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
 
-        //current为空
-        request = new ListRequestDTO();
-        request.setPageSize(20);
-        request.setProjectId("test-project-id");
-        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/page")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(JsonUtils.toJSONString(request))
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().isBadRequest());
     }
 
     @Test
     @Order(4)
+    public void testDel() throws Exception {
+        LogUtils.info("delete api test");
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart(prefix + "/delete")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("test-api-id")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
+    @Order(5)
     public void testBatchDel() throws Exception {
         LogUtils.info("delete api test");
         List<String> tests = new ArrayList<>();
@@ -183,4 +159,5 @@ public class ApiDefinitionControllerTests {
                 .andExpect(status().isOk());
 
     }
+
 }
