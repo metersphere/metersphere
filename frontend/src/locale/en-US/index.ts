@@ -23,6 +23,7 @@ export default {
     'menu.settings.organization': 'Organization',
     'menu.settings.organization.member': 'Member',
     'menu.settings.system.usergroup': 'User Group',
+    'menu.settings.system.pluginmanger': 'Plugin Manger',
     'menu.settings.system.user': 'User',
     'menu.settings.system.organizationAndProject': 'Org & Project',
     'menu.settings.system.resourcePool': 'Resource Pool',

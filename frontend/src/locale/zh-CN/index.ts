@@ -24,6 +24,7 @@ export default {
     'menu.settings.organization.member': '成员',
     'menu.settings.system.user': '用户',
     'menu.settings.system.usergroup': '用户组',
+    'menu.settings.system.pluginmanger': '插件管理',
     'menu.settings.system.organizationAndProject': '组织与项目',
     'menu.settings.system.resourcePool': '资源池',
     'menu.settings.system.resourcePoolDetail': '添加资源池',
