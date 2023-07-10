@@ -428,12 +428,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 try {
                     URL urlObject = new URL(url);
                     if (StringUtils.isNotBlank(this.getPath())) {
-                        envPath += this.getPath();
+                        envPath = this.getPath().startsWith("/") ? this.getPath() : StringUtils.join("/", this.getPath());
                     }
                     if (httpConfig.getSocket().contains("${")) {
                         envPath = StringUtils.isNotBlank(this.path) ? StringUtils.join(url, this.path) : url;
                     } else if (StringUtils.isNotEmpty(urlObject.getHost())) {
-                        envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
+                        if (StringUtils.isNotBlank(urlObject.getPath()) && urlObject.getPath().endsWith("/")) {
+                            envPath = StringUtils.join(urlObject.getPath().substring(0, urlObject.getPath().length() - 1), envPath);
+                        } else {
+                            envPath = StringUtils.join(urlObject.getPath(), envPath);
+                        }
                         sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                         sampler.setProtocol(httpConfig.getProtocol());
                         sampler.setPort(urlObject.getPort());
@@ -451,9 +455,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                 sampler.setProtocol(urlObject.getProtocol());
             }
-            /*if (StringUtils.isNotEmpty(envPath) && !envPath.startsWith("/")) {
-                envPath = "/" + envPath;
-            }*/
             sampler.setProperty("HTTPSampler.path", URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
         }
     }
