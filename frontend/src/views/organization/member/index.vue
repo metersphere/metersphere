@@ -51,10 +51,12 @@
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import { Message } from '@arco-design/web-vue';
   import useTable from '@/components/pure/ms-table/useTable';
   import addMemberModal from './components/addMemberModal.vue';
   import { getMemberList } from '@/api/modules/system/member';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useModal from '@/hooks/useModal';
 
   const columns: MsTableColumn = [
     {
@@ -124,9 +126,29 @@
   });
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   function deleteMember(record: any) {
-    console.log(record, 1);
+    openModal({
+      type: 'warning',
+      title: t('organization.member.deleteMemberTip', { name: record.name }),
+      content: '',
+      okText: t('organization.member.deleteMemberConfirm'),
+      cancelText: t('organization.member.deleteMemberCancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('organization.member.deleteMemberSuccess'));
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+      },
+      hideCancel: false,
+    });
   }
   const tableSelected = ref<(string | number)[]>([]);
   function handleTableSelect(selectArr: (string | number)[]) {
