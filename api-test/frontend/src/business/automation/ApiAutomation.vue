@@ -313,10 +313,13 @@ export default {
     addTab(tab) {
       this.trashEnable = tab.name === 'trash';
       if (tab.name === 'default') {
-        this.$refs.apiScenarioList.condition.combine = {};
         this.trashEnable = false;
-        this.$refs.nodeTree.list(this.projectId);
-        this.$refs.apiScenarioList.search(this.projectId);
+        if(this.$refs.apiScenarioList){
+          if (this.$refs.apiScenarioList.condition && this.$refs.apiScenarioList.condition.combine) {
+            this.$refs.apiScenarioList.condition.combine = {};
+          }
+          this.$refs.apiScenarioList.search(this.projectId);
+        }
       } else if (tab.name === 'trash') {
         this.trashEnable = true;
         this.$refs.apiTrashScenarioList.search();
