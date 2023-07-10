@@ -127,16 +127,17 @@
         WHERE sch.`enable` = true
         AND sch.project_id = #{projectId,jdbcType=VARCHAR}
         <if test="versionId != null">
-            AND (
-            sch.group IN ('SWAGGER_IMPORT')
+            AND
+             (sch.group IN ('API_SCENARIO_TEST')
             and
             resource_id IN (SELECT id FROM api_scenario WHERE status != 'Trash' AND version_id = #{versionId})
             )
         </if>
         <if test="versionId == null">
-            AND sch.group IN ('API_SCENARIO_TEST','SWAGGER_IMPORT')
+            AND (sch.group IN ('SWAGGER_IMPORT')
+            or (sch.group IN ('API_SCENARIO_TEST')
             and
-            resource_id IN (SELECT id FROM api_scenario WHERE status != 'Trash' AND latest = 1)
+            resource_id IN (SELECT id FROM api_scenario WHERE status != 'Trash' AND latest = 1)))
         </if>
         ORDER BY sch.update_time DESC
     </select>
