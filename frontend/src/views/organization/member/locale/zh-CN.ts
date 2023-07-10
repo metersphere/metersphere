@@ -17,4 +17,9 @@ export default {
   'organization.member.selectMemberScope': '请选择需要添加的成员支持多选',
   'organization.member.pleaseSelectMember': '请选择成员',
   'organization.member.Save': '保存',
+  'organization.member.deleteMemberTip': '确认删除 `{name}` 这个成员吗？',
+  'organization.member.deleteMemberConfirm': '确认删除',
+  'organization.member.deleteMemberCancel': '取消',
+  'organization.member.deleteMemberSuccess': '删除成功',
+  'organization.member.batchModalSuccess': '添加成功',
 };
