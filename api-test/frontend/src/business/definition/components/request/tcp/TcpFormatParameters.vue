@@ -357,6 +357,10 @@ export default {
   },
   methods: {
     toXml() {
+      if (!this.request.rawDataStruct) {
+        this.$warning(this.$t('api_definition.raw_not_null'));
+        return;
+      }
       this.result = definitionRawToXML({
         stringData: this.request.rawDataStruct,
       }).then((response) => {

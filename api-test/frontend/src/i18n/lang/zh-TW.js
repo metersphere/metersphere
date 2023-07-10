@@ -37,6 +37,7 @@ const message = {
       auto_redirects: '自動重定向',
     },
     document_tooltip: '僅對已顯示的參與數據生成效率',
+    raw_not_null: 'raw數據不能為空',
   },
   filters: {
     schedule: {

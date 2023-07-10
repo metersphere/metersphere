@@ -37,6 +37,7 @@ const message = {
       auto_redirects: '自动重定向',
     },
     document_tooltip: '仅对已展示的参数生效',
+    raw_not_null: 'raw数据不能为空',
   },
   filters: {
     schedule: {
