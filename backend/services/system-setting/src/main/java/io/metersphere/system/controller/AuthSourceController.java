@@ -5,12 +5,12 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
+import io.metersphere.system.service.AuthSourceLogService;
 import io.metersphere.system.service.AuthSourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
@@ -39,8 +39,7 @@ public class AuthSourceController {
     @PostMapping("/add")
     @Operation(summary = "新增认证设置")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_CREAT)
-    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置")
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#authSource)", msClass = AuthSourceLogService.class)
     public void add(@Validated @RequestBody AuthSourceRequest authSource) {
         authSourceService.addAuthSource(authSource);
     }
@@ -48,8 +47,7 @@ public class AuthSourceController {
     @PostMapping("/update")
     @Operation(summary = "更新认证设置")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置", sourceId = "#authSource.id")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authSource)", msClass = AuthSourceLogService.class)
     public void update(@Validated @RequestBody AuthSourceRequest authSource) {
         authSourceService.updateAuthSource(authSource);
     }
@@ -64,8 +62,7 @@ public class AuthSourceController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除认证设置")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_DELETE)
-    @Log(type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置", sourceId = "#id")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = AuthSourceLogService.class)
     public void delete(@PathVariable(value = "id") String id) {
         authSourceService.deleteAuthSource(id);
     }
@@ -74,8 +71,7 @@ public class AuthSourceController {
     @GetMapping("/update/{authId}/status/{status}")
     @Operation(summary = "更新状态")
     @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING,
-            details = "认证设置", sourceId = "#authSource.authId")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authId)", msClass = AuthSourceLogService.class)
     public void updateStatus(@PathVariable(value = "authId") String authId, @PathVariable("status") String status) {
         authSourceService.updateStatus(authId, status);
     }

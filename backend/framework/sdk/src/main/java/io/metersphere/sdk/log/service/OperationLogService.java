@@ -1,7 +1,9 @@
 package io.metersphere.sdk.log.service;
 
-import io.metersphere.system.domain.OperationLog;
-import io.metersphere.system.mapper.OperationLogMapper;
+import io.metersphere.sdk.domain.OperationLogBlob;
+import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.mapper.OperationLogBlobMapper;
+import io.metersphere.sdk.mapper.OperationLogMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -20,9 +23,11 @@ public class OperationLogService {
     @Resource
     private OperationLogMapper operationLogMapper;
     @Resource
+    private OperationLogBlobMapper operationLogBlobMapper;
+    @Resource
     private SqlSessionFactory sqlSessionFactory;
 
-    public void add(OperationLog log) {
+    public void add(LogDTO log) {
         if (StringUtils.isBlank(log.getProjectId())) {
             log.setProjectId("none");
         }
@@ -30,30 +35,41 @@ public class OperationLogService {
             log.setCreateUser("admin");
         }
         // 限制长度
-        if (StringUtils.isNotBlank(log.getDetails()) && log.getDetails().length() > 500) {
-            log.setDetails(log.getDetails().substring(0, 499));
-        }
-        operationLogMapper.insert(log);
+        saveBlob(operationLogMapper, operationLogBlobMapper, log);
     }
 
-    public void batchAdd(List<OperationLog> logs) {
+    public void batchAdd(List<LogDTO> logs) {
         if (CollectionUtils.isEmpty(logs)) {
             return;
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         OperationLogMapper logMapper = sqlSession.getMapper(OperationLogMapper.class);
+        OperationLogBlobMapper logBlobMapper = sqlSession.getMapper(OperationLogBlobMapper.class);
+
         if (CollectionUtils.isNotEmpty(logs)) {
             logs.forEach(item -> {
-                // 限制长度
-                if (StringUtils.isNotBlank(item.getDetails()) && item.getDetails().length() > 500) {
-                    item.setDetails(item.getDetails().substring(0, 499));
+                if (StringUtils.isBlank(item.getId())) {
+                    item.setId(UUID.randomUUID().toString());
                 }
-                logMapper.insert(item);
+                // 限制长度
+                saveBlob(logMapper, logBlobMapper, item);
             });
         }
         sqlSession.flushStatements();
         if (sqlSession != null && sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    private void saveBlob(OperationLogMapper logMapper, OperationLogBlobMapper logBlobMapper, LogDTO item) {
+        if (StringUtils.isNotBlank(item.getContent()) && item.getContent().length() > 500) {
+            item.setContent(item.getContent().substring(0, 499));
+        }
+        logMapper.insert(item);
+        OperationLogBlob blob = new OperationLogBlob();
+        blob.setId(item.getId());
+        blob.setOriginalValue(item.getOriginalValue());
+        blob.setModifiedValue(item.getModifiedValue());
+        logBlobMapper.insert(blob);
     }
 }

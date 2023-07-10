@@ -5,11 +5,11 @@ import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.service.GlobalUserRoleLogService;
 import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -51,8 +51,7 @@ public class GlobalUserRoleController {
     @PostMapping("/permission/update")
     @Operation(summary = "编辑全局用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
-            details = "#msClass.getLogDetails(#request.userRoleId)", msClass = GlobalUserRoleService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = GlobalUserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         globalUserRoleService.updatePermissionSetting(request);
     }
@@ -60,7 +59,7 @@ public class GlobalUserRoleController {
     @PostMapping("/add")
     @Operation(summary = "添加自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_ADD)
-    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_USER_ROLE, details = "#request.name")
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = GlobalUserRoleLogService.class)
     public UserRole add(@Validated({Created.class}) @RequestBody UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
@@ -71,8 +70,7 @@ public class GlobalUserRoleController {
     @PostMapping("/update")
     @Operation(summary = "更新自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER_ROLE,
-            sourceId = "#request.id", details = "#request.name")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = GlobalUserRoleLogService.class)
     public UserRole update(@Validated({Updated.class}) @RequestBody UserRoleUpdateRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
@@ -82,8 +80,7 @@ public class GlobalUserRoleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除自定义全局用户组")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_DELETE)
-    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER_ROLE,
-            sourceId = "#id", details = "#msClass.getLogDetails(#id)", msClass = GlobalUserRoleService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleLogService.class)
     public void delete(@PathVariable String id) {
         globalUserRoleService.delete(id);
     }

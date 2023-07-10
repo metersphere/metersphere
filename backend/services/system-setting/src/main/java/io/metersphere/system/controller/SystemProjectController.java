@@ -9,7 +9,6 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
@@ -18,6 +17,7 @@ import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
+import io.metersphere.system.service.SystemProjectLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -39,7 +39,7 @@ public class SystemProjectController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
-    @Log(type = OperationLogType.ADD, module = OperationLogModule.SYSTEM_PROJECT, details = "#project.name")
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "添加项目")
     public Project addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
         return systemProjectService.add(project, SessionUtils.getUserId());
@@ -63,8 +63,7 @@ public class SystemProjectController {
     }
 
     @PostMapping("/update")
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
-            sourceId = "#project.id", details = "#project.name")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
     @Operation(summary = "更新项目信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public Project updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
@@ -74,16 +73,14 @@ public class SystemProjectController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
     @Operation(summary = "删除项目")
-    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT,
-            details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemProjectLogService.class)
     public int deleteProject(@PathVariable String id) {
         return systemProjectService.delete(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/revoke/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
-    @Log(isBefore = true, type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PROJECT,
-            details = "#msClass.getLogDetails(#id)", msClass = SystemProjectService.class, sourceId = "#id")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
     public int revokeProject(@PathVariable String id) {
        return systemProjectService.revoke(id);
     }
@@ -107,8 +104,7 @@ public class SystemProjectController {
     @GetMapping("/remove-member/{projectId}/{userId}")
     @Operation(summary = "移除项目成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_PROJECT_MEMBER, sourceId = "#projectId",
-            details = "#msClass.getLogs(#userId)", msClass = SystemProjectService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         return systemProjectService.removeProjectMember(projectId, userId);
     }

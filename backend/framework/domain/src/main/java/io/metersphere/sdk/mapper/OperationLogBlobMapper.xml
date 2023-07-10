@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.sdk.mapper.OperationLogBlobMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.OperationLogBlob">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.OperationLogBlob">
+    <result column="original_value" jdbcType="LONGVARBINARY" property="originalValue" />
+    <result column="modified_value" jdbcType="LONGVARBINARY" property="modifiedValue" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id
+  </sql>
+  <sql id="Blob_Column_List">
+    original_value, modified_value
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.sdk.domain.OperationLogBlobExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from operation_log_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.OperationLogBlobExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from operation_log_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from operation_log_blob
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from operation_log_blob
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.OperationLogBlobExample">
+    delete from operation_log_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
+    insert into operation_log_blob (id, original_value, modified_value
+      )
+    values (#{id,jdbcType=VARCHAR}, #{originalValue,jdbcType=LONGVARBINARY}, #{modifiedValue,jdbcType=LONGVARBINARY}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
+    insert into operation_log_blob
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="originalValue != null">
+        original_value,
+      </if>
+      <if test="modifiedValue != null">
+        modified_value,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="originalValue != null">
+        #{originalValue,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="modifiedValue != null">
+        #{modifiedValue,jdbcType=LONGVARBINARY},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.OperationLogBlobExample" resultType="java.lang.Long">
+    select count(*) from operation_log_blob
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update operation_log_blob
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.originalValue != null">
+        original_value = #{record.originalValue,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="record.modifiedValue != null">
+        modified_value = #{record.modifiedValue,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update operation_log_blob
+    set id = #{record.id,jdbcType=VARCHAR},
+      original_value = #{record.originalValue,jdbcType=LONGVARBINARY},
+      modified_value = #{record.modifiedValue,jdbcType=LONGVARBINARY}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update operation_log_blob
+    set id = #{record.id,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
+    update operation_log_blob
+    <set>
+      <if test="originalValue != null">
+        original_value = #{originalValue,jdbcType=LONGVARBINARY},
+      </if>
+      <if test="modifiedValue != null">
+        modified_value = #{modifiedValue,jdbcType=LONGVARBINARY},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.sdk.domain.OperationLogBlob">
+    update operation_log_blob
+    set original_value = #{originalValue,jdbcType=LONGVARBINARY},
+      modified_value = #{modifiedValue,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

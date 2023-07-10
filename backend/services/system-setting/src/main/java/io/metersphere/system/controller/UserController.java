@@ -8,7 +8,6 @@ import io.metersphere.sdk.constants.UserSourceEnum;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
@@ -61,8 +60,7 @@ public class UserController {
 
     @PostMapping("/update")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_USER,
-            sourceId = "#request.id", details = "#request.name")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserService.class)
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
         return userService.updateUser(request, SessionUtils.getUserId());
     }
@@ -89,8 +87,7 @@ public class UserController {
 
 
     @PostMapping("/delete")
-    @Log(isBefore = true, type = OperationLogType.DELETE, module = OperationLogModule.SYSTEM_USER, isBatch = true,
-            details = "#msClass.getLogs(#userBatchProcessRequest)", msClass = UserService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#userBatchProcessRequest)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
         return userService.deleteUser(userBatchProcessRequest.getUserIdList());

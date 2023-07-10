@@ -1,12 +1,16 @@
 package io.metersphere.sdk.service;
 
 import groovy.util.logging.Slf4j;
+import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
-import io.metersphere.sdk.dto.QueryResourcePoolRequest;
-import io.metersphere.sdk.dto.TestResourceDTO;
-import io.metersphere.sdk.dto.TestResourcePoolDTO;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -65,21 +69,21 @@ public class TestResourcePoolService {
 
     private void checkAndSaveOrgRelation(TestResourcePool testResourcePool, String id, TestResourceDTO testResourceDTO) {
         //防止前端传入的应用组织为空
-        if ((testResourcePool.getAllOrg() == null || !testResourcePool.getAllOrg())&& CollectionUtils.isEmpty(testResourceDTO.getOrgIds())){
+        if ((testResourcePool.getAllOrg() == null || !testResourcePool.getAllOrg()) && CollectionUtils.isEmpty(testResourceDTO.getOrgIds())) {
             throw new MSException(Translator.get("resource_pool_application_organization_is_empty"));
         }
 
         //前端应用组织选择了全部，但是也传了部分组织，以全部组织为主
-        if ((testResourcePool.getAllOrg() != null && testResourcePool.getAllOrg()) && CollectionUtils.isNotEmpty(testResourceDTO.getOrgIds()) ) {
+        if ((testResourcePool.getAllOrg() != null && testResourcePool.getAllOrg()) && CollectionUtils.isNotEmpty(testResourceDTO.getOrgIds())) {
             testResourceDTO.setOrgIds(new ArrayList<>());
         }
 
         //前端选择部分组织保存资源池与组织关系
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestResourcePoolOrganizationMapper poolOrganizationMapper = sqlSession.getMapper(TestResourcePoolOrganizationMapper.class);
-        if ((testResourcePool.getAllOrg() == null || !testResourcePool.getAllOrg())&& CollectionUtils.isNotEmpty(testResourceDTO.getOrgIds())){
+        if ((testResourcePool.getAllOrg() == null || !testResourcePool.getAllOrg()) && CollectionUtils.isNotEmpty(testResourceDTO.getOrgIds())) {
             testResourcePool.setAllOrg(false);
-            testResourceDTO.getOrgIds().forEach(orgId->{
+            testResourceDTO.getOrgIds().forEach(orgId -> {
                 TestResourcePoolOrganization testResourcePoolOrganization = new TestResourcePoolOrganization();
                 testResourcePoolOrganization.setId(UUID.randomUUID().toString());
                 testResourcePoolOrganization.setOrgId(orgId);
@@ -110,7 +114,7 @@ public class TestResourcePoolService {
     }
 
     private static boolean checkNodeOrK8s(TestResourceDTO testResourceDTO, String type, Boolean usedApiType) {
-        if (StringUtils.equalsIgnoreCase(type,ResourcePoolTypeEnum.NODE.name())) {
+        if (StringUtils.equalsIgnoreCase(type, ResourcePoolTypeEnum.NODE.name())) {
             NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
             if (resourcePoolService != null) {
                 return resourcePoolService.validate(testResourceDTO);
@@ -249,10 +253,56 @@ public class TestResourcePoolService {
         return testResourcePoolDTO;
     }
 
-    public String getLogDetails(String id) {
+    public LogDTO addLog(TestResourcePoolRequest request) {
+        LogDTO dto = new LogDTO(
+                "system",
+                request.getId(),
+                null,
+                OperationLogType.ADD.name(),
+                OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                request.getName());
+
+        dto.setPath("/test/resource/pool/add");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    public LogDTO deleteLog(String id) {
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
         if (pool != null) {
-            return pool.getName();
+            LogDTO dto = new LogDTO(
+                    "system",
+                    id,
+                    pool.getCreateUser(),
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                    pool.getName());
+
+            dto.setPath("/delete");
+            dto.setMethod(HttpMethodConstants.POST.name());
+
+            dto.setOriginalValue(JSON.toJSONBytes(pool));
+            return dto;
+        }
+        return null;
+    }
+
+    public LogDTO updateLog(TestResourcePoolRequest request) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getId());
+        if (pool != null) {
+            LogDTO dto = new LogDTO(
+                    "system",
+                    pool.getId(),
+                    pool.getCreateUser(),
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_TEST_RESOURCE_POOL,
+                    "编辑全局用户组对应的权限配置");
+
+            dto.setPath("/update");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(pool));
+            return dto;
         }
         return null;
     }

@@ -1,4 +1,4 @@
-package io.metersphere.system.domain;
+package io.metersphere.sdk.domain;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -43,8 +43,8 @@ public class OperationLog implements Serializable {
     @Schema(title = "操作模块/api/case/scenario/ui")
     private String module;
 
-    @Schema(title = "操作详情")
-    private String details;
+    @Schema(title = "操作内容")
+    private String content;
 
     @Schema(title = "操作路径")
     private String path;

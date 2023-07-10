@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.OperationLogMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.OperationLog">
+<mapper namespace="io.metersphere.sdk.mapper.OperationLogMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.OperationLog">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -10,7 +10,7 @@
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="module" jdbcType="VARCHAR" property="module" />
-    <result column="details" jdbcType="VARCHAR" property="details" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="path" jdbcType="VARCHAR" property="path" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -73,9 +73,9 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, create_time, create_user, source_id, `method`, `type`, `module`, 
-    details, `path`
+    content, `path`
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.OperationLogExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -99,23 +99,23 @@
     delete from operation_log
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.OperationLogExample">
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample">
     delete from operation_log
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.OperationLog">
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLog">
     insert into operation_log (id, project_id, create_time, 
       create_user, source_id, `method`, 
-      `type`, `module`, details, 
+      `type`, `module`, content, 
       `path`)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, #{details,jdbcType=VARCHAR}, 
+      #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
       #{path,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.OperationLog">
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLog">
     insert into operation_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -142,8 +142,8 @@
       <if test="module != null">
         `module`,
       </if>
-      <if test="details != null">
-        details,
+      <if test="content != null">
+        content,
       </if>
       <if test="path != null">
         `path`,
@@ -174,15 +174,15 @@
       <if test="module != null">
         #{module,jdbcType=VARCHAR},
       </if>
-      <if test="details != null">
-        #{details,jdbcType=VARCHAR},
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
       </if>
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.OperationLogExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample" resultType="java.lang.Long">
     select count(*) from operation_log
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -215,8 +215,8 @@
       <if test="record.module != null">
         `module` = #{record.module,jdbcType=VARCHAR},
       </if>
-      <if test="record.details != null">
-        details = #{record.details,jdbcType=VARCHAR},
+      <if test="record.content != null">
+        content = #{record.content,jdbcType=VARCHAR},
       </if>
       <if test="record.path != null">
         `path` = #{record.path,jdbcType=VARCHAR},
@@ -236,13 +236,13 @@
       `method` = #{record.method,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       `module` = #{record.module,jdbcType=VARCHAR},
-      details = #{record.details,jdbcType=VARCHAR},
+      content = #{record.content,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.OperationLog">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.OperationLog">
     update operation_log
     <set>
       <if test="projectId != null">
@@ -266,8 +266,8 @@
       <if test="module != null">
         `module` = #{module,jdbcType=VARCHAR},
       </if>
-      <if test="details != null">
-        details = #{details,jdbcType=VARCHAR},
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
       </if>
       <if test="path != null">
         `path` = #{path,jdbcType=VARCHAR},
@@ -275,7 +275,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.OperationLog">
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.OperationLog">
     update operation_log
     set project_id = #{projectId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -284,7 +284,7 @@
       `method` = #{method,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       `module` = #{module,jdbcType=VARCHAR},
-      details = #{details,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

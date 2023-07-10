@@ -5,7 +5,6 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.EMailInfoDto;
 import io.metersphere.sdk.log.annotation.Log;
-import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.SystemParameterService;
 import io.metersphere.system.domain.SystemParameter;
@@ -32,7 +31,7 @@ public class SystemParameterController {
     @PostMapping("/save/base-info")
     @Operation(summary = "保存基本信息")
     @RequiresPermissions(value= {PermissionConstants.SYSTEM_SETTING_READ_UPDATE, PermissionConstants.SYSTEM_SETTING_READ_CREAT}, logical = Logical.OR)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "基本配置", sourceId = "#systemParameter.get(0).paramKey")
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#systemParameter)", msClass = SystemParameterService.class)
     public void saveBaseParameter(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
@@ -57,7 +56,7 @@ public class SystemParameterController {
     @PostMapping("/edit/email-info")
     @Operation(summary = "保存邮件信息")
     @RequiresPermissions(value= {PermissionConstants.SYSTEM_SETTING_READ_UPDATE, PermissionConstants.SYSTEM_SETTING_READ_CREAT}, logical = Logical.OR)
-    @Log(type = OperationLogType.UPDATE, module = OperationLogModule.SYSTEM_PARAMETER_SETTING, details = "邮件配置", sourceId = "#systemParameter.get(0).paramKey")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#systemParameter)", msClass = SystemParameterService.class)
     public void editEMailInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editEMailInfo(systemParameter);
     }
