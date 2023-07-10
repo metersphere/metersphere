@@ -125,7 +125,7 @@ public class JSONSchemaParser {
                 if (FormatterUtil.isNumber(FormatterUtil.getStrValue(object))) {
                     String value = FormatterUtil.getElementValue(object).getAsString();
                     if (value.indexOf(".") == -1) {
-                        concept.put(propertyName, Integer.valueOf(value));
+                        concept.put(propertyName, Long.valueOf(value));
                     } else {
                         concept.put(propertyName, new BigDecimal(value));
                     }
