@@ -39,6 +39,7 @@ const message = {
       auto_redirects: 'Auto redirects',
     },
     document_tooltip: 'Only valid for displayed parameters',
+    raw_not_null: 'Raw data cannot be empty',
   },
   filters: {
     schedule: {
