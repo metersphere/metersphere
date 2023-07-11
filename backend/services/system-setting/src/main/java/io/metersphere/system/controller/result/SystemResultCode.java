@@ -12,8 +12,11 @@ public enum SystemResultCode implements IResultCode {
      */
     GLOBAL_USER_ROLE_PERMISSION(101001, "global_user_role_permission_error"),
     GLOBAL_USER_ROLE_EXIST(101002, "global_user_role_exist_error"),
-    GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION(101003, "global_user_role_relation_system_permission_error")
-    ;
+    GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION(101003, "global_user_role_relation_system_permission_error"),
+    /**
+     * 获取/编辑组织自定义用户组，如果非组织自定义用户组，会返回该响应码
+     */
+    NO_ORG_USER_ROLE_PERMISSION(101007, "organization_user_role_permission_error");
 
     private final int code;
     private final String message;

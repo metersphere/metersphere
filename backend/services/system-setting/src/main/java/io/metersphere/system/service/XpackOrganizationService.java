@@ -5,7 +5,7 @@ import io.metersphere.system.request.OrganizationDeleteRequest;
 
 /**
  * @author song-cc-rock
- * 组织功能(XPACK)
+ * 组织功能
  */
 public interface XpackOrganizationService {
 

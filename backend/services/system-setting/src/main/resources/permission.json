@@ -5,6 +5,32 @@
     "type": "SYSTEM",
     "children": [
       {
+        "id": "SYSTEM_ORGANIZATION_PROJECT",
+        "name": "permission.system_organization_project.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ",
+            "name": "permission.system_organization_project.read"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+ADD",
+            "name": "permission.system_organization_project.add"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE",
+            "name": "permission.system_organization_project.update"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+DELETE",
+            "name": "permission.system_organization_project.delete"
+          },
+          {
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER",
+            "name": "permission.system_organization_project.recover"
+          }
+        ]
+      },
+      {
         "id": "SYSTEM_USER_ROLE",
         "name": "permission.system_user_role.name",
         "permissions": [
@@ -45,6 +71,35 @@
           {
             "id": "SYSTEM_TEST_RESOURCE_POOL:READ+DELETE",
             "name": "permission.system_test_resource_pool.delete"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ORGANIZATION",
+    "name": "permission.organization.name",
+    "type": "ORGANIZATION",
+    "children": [
+      {
+        "id": "ORGANIZATION_USER_ROLE",
+        "name": "permission.organization_user_role.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_USER_ROLE:READ",
+            "name": "permission.organization_user_role.read"
+          },
+          {
+            "id": "ORGANIZATION_USER_ROLE:READ+ADD",
+            "name": "permission.organization_user_role.add"
+          },
+          {
+            "id": "ORGANIZATION_USER_ROLE:READ+UPDATE",
+            "name": "permission.organization_user_role.update"
+          },
+          {
+            "id": "ORGANIZATION_USER_ROLE:READ+DELETE",
+            "name": "permission.organization_user_role.delete"
           }
         ]
       }

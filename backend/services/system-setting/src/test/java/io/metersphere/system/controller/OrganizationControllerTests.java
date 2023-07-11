@@ -112,7 +112,6 @@ public class OrganizationControllerTests extends BaseTest{
         this.requestPost(ORGANIZATION_LIST, organizationRequest, status().isBadRequest());
     }
 
-
     @Test
     @Order(2)
     public void testListAllOrganizationSuccess() throws Exception {
@@ -287,7 +286,7 @@ public class OrganizationControllerTests extends BaseTest{
     @Test
     @Order(12)
     public void testGetDefaultOrganizationSuccess() throws Exception {
-        MvcResult mvcResult = this.responseGet();
+        MvcResult mvcResult = this.responseGet(OrganizationControllerTests.ORGANIZATION_DEFAULT);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
@@ -305,6 +304,8 @@ public class OrganizationControllerTests extends BaseTest{
     public void testGetDefaultOrganizationError() throws Exception {
         this.requestPost(ORGANIZATION_DEFAULT, null, status().isMethodNotAllowed());
     }
+
+
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -336,8 +337,8 @@ public class OrganizationControllerTests extends BaseTest{
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private MvcResult responseGet() throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.get(OrganizationControllerTests.ORGANIZATION_DEFAULT)
+    private MvcResult responseGet(String url) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
