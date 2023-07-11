@@ -116,7 +116,7 @@ export default {
               }
               this.$emit("mergeData", fileString, this.modeId);
               this.dialogVisible = false;
-              this.$success(this.$t('commons.save_success'));
+              this.$success(this.$t('commons.upload_success'));
             } catch (exception) {
               this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
             }
@@ -156,5 +156,11 @@ export default {
 .project-item {
   padding-left: 20px;
   padding-right: 20px;
+}
+
+:deep(a.el-upload-list__item-name) {
+  overflow: visible;
+  text-overflow: unset;
+  white-space: normal;
 }
 </style>

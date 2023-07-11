@@ -94,6 +94,7 @@ const message = {
     relate_success: "Related successfully",
     unrelated_success: "Unrelated successfully",
     modify_success: "Modify Success",
+    upload_success: "Upload Success",
     copy_success: "Copy Success",
     delete_cancel: "Deleted Cancel",
     confirm: "Confirm",
