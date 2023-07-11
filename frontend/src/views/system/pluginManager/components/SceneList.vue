@@ -7,7 +7,9 @@
       :class="{ 'ms-ls-row--active': item.isSelected }"
       @click="selectHandler(item)"
     >
-      <div class="ms-icon-list ml-4 mr-5" :class="`ms-icon-list--${item.svg}`"></div>
+      <div class="ms-icon-list ml-4 mr-5">
+        <svg-icon :width="'64px'" :height="'46px'" :name="item.svg" />
+      </div>
       <div class="flex flex-col justify-center">
         <div class="mb-1 font-medium">{{ t(item.name) }}</div>
         <div class="text-sm">{{ t(item.description) }}</div>
@@ -27,13 +29,13 @@
       name: 'system.plugin.interfaceTest',
       description: 'system.plugin.interfaceTestDescribe',
       isSelected: true,
-      svg: 'api',
+      svg: 'apitest',
     },
     {
       name: 'system.plugin.projectManger',
       description: 'system.plugin.projectMangerDescribe',
       isSelected: false,
-      svg: 'project',
+      svg: 'promanger',
     },
   ]);
 
@@ -46,16 +48,6 @@
 </script>
 
 <style scoped lang="less">
-  .ms-icon-list {
-    width: 48px;
-    height: 48px;
-    &--api {
-      background-image: url('@/assets/svg/icons/apitest.svg');
-    }
-    &--project {
-      background-image: url('@/assets/svg/icons/promanger.svg');
-    }
-  }
   .ms-ls-row {
     border-width: 1px;
     @apply flex flex-row items-center rounded border-solid py-2;
