@@ -89,7 +89,7 @@
 
     <!-- 场景步骤-->
     <ms-container :class="{ 'maximize-container': !asideHidden }">
-      <ms-aside-container @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden" @click.native="handleMainClick">
+      <ms-aside-container :draggable="false" @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden" width="50%" @click.native="handleMainClick">
         <div class="ms-debug-result" v-if="reqTotal > 0">
           <span style="float: right">
             <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
@@ -543,6 +543,7 @@ export default {
       }
     },
     handleMainClick(e) {
+      console.log(e.target.tagName);
       this.outsideClick(e)
     },
     handleComponentClick(e) {
@@ -1323,11 +1324,13 @@ export default {
     },
     getEnv(definition) {
       return new Promise((resolve) => {
-        getApiScenarioEnv({ definition: definition }).then((res) => {
-          if (res.data) {
-            res.data.projectIds.push(this.projectId);
-            this.$emit('update:projectIds', new Set(res.data.projectIds));
-            this.$emit('update:isFullUrl', res.data.fullUrl);
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(definition, 'utf-8');
+        getApiScenarioEnv(bytes).then((res) => {
+          if (res.data && res.data.data) {
+            res.data.data.projectIds.push(this.projectId);
+            this.$emit('update:projectIds', new Set(res.data.data.projectIds));
+            this.$emit('update:isFullUrl', res.data.data.fullUrl);
           }
           resolve();
         });
