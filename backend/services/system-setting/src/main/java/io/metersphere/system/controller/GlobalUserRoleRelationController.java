@@ -39,7 +39,7 @@ public class GlobalUserRoleRelationController {
 
     @PostMapping("/list")
     @Operation(summary = "获取全局用户组对应的用户列表")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_RELATION_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public Pager<List<UserRoleRelationUserDTO>> list(@Validated @RequestBody GlobalUserRoleRelationQueryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
         return PageUtils.setPageInfo(page, globalUserRoleRelationService.list(request));
@@ -47,7 +47,7 @@ public class GlobalUserRoleRelationController {
 
     @PostMapping("/add")
     @Operation(summary = "创建全局用户组和用户的关联关系")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_RELATION_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = GlobalUserRoleRelationLogService.class)
     public UserRoleRelation add(@Validated({Created.class}) @RequestBody GlobalUserRoleRelationUpdateRequest request) {
         UserRoleRelation userRoleRelation = new UserRoleRelation();
@@ -58,7 +58,7 @@ public class GlobalUserRoleRelationController {
 
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除全局用户组和用户的关联关系")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_RELATION_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_UPDATE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleRelationLogService.class)
     public void delete(@PathVariable String id) {
         globalUserRoleRelationService.delete(id);

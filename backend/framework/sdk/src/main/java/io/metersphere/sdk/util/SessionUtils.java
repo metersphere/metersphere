@@ -2,6 +2,7 @@ package io.metersphere.sdk.util;
 
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.SessionUser;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRolePermission;
 import jakarta.servlet.http.HttpServletRequest;
@@ -167,8 +168,8 @@ public class SessionUtils {
 
     private static Set<String> getSystemPermissions(Map<String, List<UserRolePermission>> userRolePermissions, Map<String, UserRole> role, SessionUser user) {
         return user.getUserRoleRelations().stream()
-                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), "SYSTEM"))
-                .filter(ug -> StringUtils.equals(ug.getSourceId(), "system") || StringUtils.equals(ug.getSourceId(), "'adminSourceId'"))
+                .filter(ug -> role.get(ug.getId()) != null && StringUtils.equals(role.get(ug.getId()).getType(), BaseUserRoleService.SYSTEM_TYPE))
+                .filter(ug -> StringUtils.equals(ug.getSourceId(), BaseUserRoleService.SYSTEM_TYPE) || StringUtils.equals(ug.getSourceId(), "'adminSourceId'"))
                 .flatMap(ug -> userRolePermissions.get(ug.getId()).stream())
                 .map(UserRolePermission::getPermissionId)
                 .collect(Collectors.toSet());

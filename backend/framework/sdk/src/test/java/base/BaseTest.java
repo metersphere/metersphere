@@ -4,15 +4,20 @@ import base.param.InvalidateParamInfo;
 import base.param.ParamGeneratorFactory;
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.controller.handler.result.IResultCode;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.mapper.OperationLogMapper;
+import io.metersphere.system.domain.UserRolePermission;
+import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +25,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,8 +33,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -37,11 +46,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public abstract class BaseTest {
     @Resource
-    private MockMvc mockMvc;
+    protected MockMvc mockMvc;
     protected static String sessionId;
     protected static String csrfToken;
+    protected static AuthInfo adminAuthInfo;
+    protected static Map<String, AuthInfo> permissionAuthInfoMap = new HashMap(3);
     @Resource
     private OperationLogMapper operationLogMapper;
+    @Resource
+    private UserRolePermissionMapper userRolePermissionMapper;
 
     /**
      * 可以重写该方法定义 BASE_PATH
@@ -52,30 +65,45 @@ public abstract class BaseTest {
 
     @BeforeEach
     public void login() throws Exception {
-        if (StringUtils.isAnyBlank(sessionId, csrfToken)) {
-            MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                            .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andReturn();
-            sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-            csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+        if (this.adminAuthInfo == null) {
+            this.adminAuthInfo = initAuthInfo("admin", "metersphere");
+            this.sessionId = this.adminAuthInfo.getSessionId();
+            this.csrfToken = this.adminAuthInfo.getCsrfToken();
+        }
+        if (permissionAuthInfoMap.isEmpty()) {
+            // 获取系统，组织，项目对应的权限测试用户的认证信息
+            // 暂时只支持 SYSTEM
+            // todo 补充 ORGANIZATION PROJECT
+            String permissionType = UserRoleType.SYSTEM.name();
+            AuthInfo authInfo = initAuthInfo(permissionType, "metersphere");
+            permissionAuthInfoMap.put(permissionType, authInfo);
         }
     }
 
-    protected MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
+    private AuthInfo initAuthInfo(String username, String password) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+        return new AuthInfo(sessionId, csrfToken);
+    }
+
+    private MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
         return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, sessionId)
-                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken())
                 .content(JSON.toJSONString(param))
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    protected MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
+    private MockHttpServletRequestBuilder getRequestBuilder(String url, Object... uriVariables) {
         return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
-                .header(SessionConstants.HEADER_TOKEN, sessionId)
-                .header(SessionConstants.CSRF_TOKEN, csrfToken);
+                .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
     }
 
     protected ResultActions requestPost(String url, Object param, Object... uriVariables) throws Exception {
@@ -207,5 +235,137 @@ public abstract class BaseTest {
             Assertions.assertTrue(resultData.containsKey(invalidateParamInfo.getName()));
         }
         System.out.println("paramValidateTest-end: ====================================");
+    }
+
+    protected void requestPostPermissionTest(String permissionId, String url, Object param, Object... uriVariables) throws Exception {
+        requestPermissionTest(permissionId, url, () -> getPermissionPostRequestBuilder(permissionId, url, param, uriVariables));
+    }
+
+    /**
+     * 校验权限
+     * 实现步骤
+     * 1. 在 application.properties 配置权限的初始化 sql
+     *      spring.sql.init.mode=always
+     *      spring.sql.init.schema-locations=classpath*:dml/init_permission_test.sql
+     * 2. 在 init_permission_test.sql 中配置权限，
+     *    初始化名称为 permissionId 前缀（SYSTEM, ORGANIZATION, PROJECT）的用户组和用户，并关联
+     * 3. 向该用户组中添加权限测试是否生效，删除权限测试是否可以访问
+     * @param permissionId
+     * @param url
+     * @param requestBuilderGetFunc 请求构造器，一个 builder 只能使用一次，需要重新生成
+     * @throws Exception
+     */
+    private void requestPermissionTest(String permissionId, String url, Supplier<MockHttpServletRequestBuilder> requestBuilderGetFunc)  throws Exception {
+        String roleId = permissionId.split("_")[0];
+        // 先给初始化的用户组添加权限
+        UserRolePermission userRolePermission = initUserRolePermission(roleId, permissionId);
+
+        // 添加后刷新下权限
+        refreshUserPermission(permissionId);
+
+        int status = mockMvc.perform(requestBuilderGetFunc.get())
+                .andReturn()
+                .getResponse()
+                .getStatus();
+
+        // 校验是否有权限
+        if (status == HttpStatus.FORBIDDEN.value()) {
+            throw new MSException(String.format("接口 %s 权限校验失败 %s", getBasePath() + url, permissionId));
+        }
+
+        // 删除权限
+        userRolePermissionMapper.deleteByPrimaryKey(userRolePermission.getId());
+
+        // 删除后刷新下权限
+        refreshUserPermission(permissionId);
+
+        // 删除权限后，调用接口，校验是否没有权限
+        status = mockMvc.perform(requestBuilderGetFunc.get())
+                .andReturn()
+                .getResponse()
+                .getStatus();
+
+        if (status != HttpStatus.FORBIDDEN.value()) {
+            throw new MSException(String.format("接口 %s 没有设置权限 %s", getBasePath() + url, permissionId));
+        }
+    }
+
+    /**
+     * 调用 is-login 接口刷新权限
+     * @param permissionId
+     * @throws Exception
+     */
+    private void refreshUserPermission(String permissionId) throws Exception {
+        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login")
+                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+        mockMvc.perform(requestBuilder);
+    }
+
+    protected void requestGetPermissionTest(String permissionId, String url, Object... uriVariables) throws Exception {
+        requestPermissionTest(permissionId, url, () -> getPermissionRequestBuilder(permissionId, url, uriVariables));
+    }
+
+    /**
+     * 给用户组绑定对应权限
+     * @param roleId
+     * @param permissionId
+     * @return
+     */
+    private UserRolePermission initUserRolePermission(String roleId, String permissionId) {
+        UserRolePermission userRolePermission = new UserRolePermission();
+        userRolePermission.setRoleId(roleId);
+        userRolePermission.setId(UUID.randomUUID().toString());
+        userRolePermission.setPermissionId(permissionId);
+        userRolePermissionMapper.insert(userRolePermission);
+        return userRolePermission;
+    }
+
+    private MockHttpServletRequestBuilder getPermissionPostRequestBuilder(String permissionId, String url, Object param, Object... uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+        return MockMvcRequestBuilders.post(getBasePath() + url, uriVariables)
+                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken())
+                .content(JSON.toJSONString(param))
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    private AuthInfo getPermissionAuthInfo(String permissionId) {
+        return permissionAuthInfoMap.get(permissionId.split("_")[0]);
+    }
+
+    private MockHttpServletRequestBuilder getPermissionRequestBuilder(String permissionId, String url, Object... uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+        return MockMvcRequestBuilders.get(getBasePath() + url, uriVariables)
+                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+    }
+
+    public String getSessionId() {
+        return adminAuthInfo.getSessionId();
+    }
+
+    public String getCsrfToken() {
+        return adminAuthInfo.getCsrfToken();
+    }
+
+    @Data
+    class AuthInfo {
+        private String sessionId;
+        private String csrfToken;
+
+        public AuthInfo(String sessionId, String csrfToken) {
+            this.sessionId = sessionId;
+            this.csrfToken = csrfToken;
+        }
+
+        public String getSessionId() {
+            return sessionId;
+        }
+
+        public String getCsrfToken() {
+            return csrfToken;
+        }
     }
 }

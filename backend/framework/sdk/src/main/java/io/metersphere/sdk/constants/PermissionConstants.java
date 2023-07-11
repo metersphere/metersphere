@@ -12,13 +12,6 @@ public class PermissionConstants {
     public static final String SYSTEM_USER_ROLE_DELETE = "SYSTEM_USER_ROLE:READ+DELETE";
     /*------ end: SYSTEM_USER_ROLE ------*/
 
-    /*------ start: SYSTEM_USER_ROLE_RELATION ------*/
-    public static final String SYSTEM_USER_ROLE_RELATION_READ = "SYSTEM_USER_ROLE_RELATION_READ:READ";
-    public static final String SYSTEM_USER_ROLE_RELATION_ADD = "SYSTEM_USER_ROLE_RELATION_READ:READ+ADD";
-    public static final String SYSTEM_USER_ROLE_RELATION_UPDATE = "SYSTEM_USER_ROLE_RELATION_READ:READ+UPDATE";
-    public static final String SYSTEM_USER_ROLE_RELATION_DELETE = "SYSTEM_USER_ROLE_RELATION_READ:READ+DELETE";
-    /*------ end: SYSTEM_USER_ROLE_RELATION ------*/
-
     public static final String SYSTEM_USER_READ = "SYSTEM_USER:READ";
     public static final String SYSTEM_USER_READ_ADD = "SYSTEM_USER:READ+ADD";
     public static final String SYSTEM_USER_READ_IMPORT = "SYSTEM_USER:READ+IMPORT";

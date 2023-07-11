@@ -73,6 +73,9 @@ class GlobalUserRoleControllerTest extends BaseTest {
                 .map(InternalUserRole::getValue)
                 .toList();
         Assertions.assertTrue(CollectionUtils.isSubCollection(internalUserRoleIds, userRoleIds));
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, LIST);
     }
 
     @Test
@@ -99,6 +102,9 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
         // @@异常参数校验
         createdGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, ADD);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_ADD, ADD, request);
     }
 
     @Test
@@ -136,6 +142,9 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
         // @@异常参数校验
         updatedGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, UPDATE);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, UPDATE, request);
     }
 
     @Test
@@ -183,6 +192,8 @@ class GlobalUserRoleControllerTest extends BaseTest {
         // @@操作非全局用户组异常
         assertErrorCode(this.requestGet(PERMISSION_SETTING, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, PERMISSION_SETTING, ADMIN.getValue());
     }
 
     @Test
@@ -198,7 +209,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
             PermissionSettingUpdateRequest.PermissionUpdateRequest permission2
                     = new PermissionSettingUpdateRequest.PermissionUpdateRequest();
             permission2.setEnable(false);
-            permission2.setId(PermissionConstants.SYSTEM_USER_ROLE_RELATION_READ);
+            permission2.setId(PermissionConstants.SYSTEM_USER_ROLE_READ);
             add(permission2);
         }});
 
@@ -227,6 +238,9 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
         // @@异常参数校验
         paramValidateTest(PermissionSettingUpdateRequestDefinition.class, PERMISSION_UPDATE);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, PERMISSION_UPDATE, request);
     }
 
     @Test
@@ -249,6 +263,9 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
         // @@操作内置用户组异常
         assertErrorCode(this.requestGet(DELETE, ADMIN.getValue()), INTERNAL_USER_ROLE_PERMISSION);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_DELETE, DELETE, addUserRole.getId());
     }
 
     /**
