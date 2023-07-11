@@ -863,6 +863,7 @@ const message = {
     search_by_name: "根据名称搜索",
     search_by_name_jar: "根据 名称 / jar包 搜索",
     input_name: "请输入项目名称",
+    owning_project: "所属项目",
     owning_workspace: "所属工作空间",
     please_choose_workspace: "请选择工作空间",
     batch_choose_workspace: "批量选择工作空间",

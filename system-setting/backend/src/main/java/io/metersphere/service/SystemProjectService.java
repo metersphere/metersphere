@@ -362,4 +362,8 @@ public class SystemProjectService {
             projectApplicationMapper.insert(projectApplication);
         }
     }
+
+    public List<Project> getProjects() {
+        return baseProjectMapper.getProjects();
+    }
 }
