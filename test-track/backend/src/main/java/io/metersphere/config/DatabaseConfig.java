@@ -5,6 +5,7 @@ import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.TestPlanReportContentWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.utils.CompressUtils;
+import io.metersphere.interceptor.LikeStringEscapeInterceptor;
 import io.metersphere.interceptor.MybatisInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +31,10 @@ public class DatabaseConfig {
         configList.add(new io.metersphere.commons.utils.MybatisInterceptorConfig(TestPlanReportContentWithBLOBs.class, "planUiScenarioReportStruct", CompressUtils.class, "zipString", "unzipString"));
         interceptor.setInterceptorConfigList(configList);
         return interceptor;
+    }
+
+    @Bean
+    public LikeStringEscapeInterceptor likeStringEscapeInterceptor() {
+        return new LikeStringEscapeInterceptor();
     }
 }
