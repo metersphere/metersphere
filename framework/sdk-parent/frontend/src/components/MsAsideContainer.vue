@@ -13,13 +13,14 @@
     <div style="overflow: scroll" class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
       <slot></slot>
     </div>
-    <ms-horizontal-drag-bar/>
+    <ms-horizontal-drag-bar v-if="draggable"/>
   </el-aside>
 </template>
 
 <script>
 import MsHorizontalDragBar from "./dragbar/MsLeft2RightDragBar";
 import {getUUID} from "../utils";
+import {boolean} from "../../public/js/dev/mock";
 
 export default {
   name: "MsAsideContainer",
@@ -49,6 +50,10 @@ export default {
       type: Number,
       default: null
     },
+    draggable: {
+      type: Boolean,
+      default: true,
+    }
   },
   watch: {
     asideHidden() {

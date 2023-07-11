@@ -81,7 +81,7 @@
         </div>
       </el-col>
     </el-row>
-    <el-row type="flex" style="margin-top: 5px">
+    <el-row type="flex" style="margin-top: 5px;">
       <el-col v-if="this.mode">
         <div style="float: left">
           <span> {{ $t('report.run_model') + ':' }} </span>
@@ -100,7 +100,7 @@
       </el-col>
       <el-col></el-col>
     </el-row>
-    <el-row v-if="showProjectEnv" type="flex" style="margin-top: 5px">
+    <el-row v-if="showProjectEnv" type="flex" style="margin-top: 5px; padding-left: 10px;">
       <span> {{ $t('commons.environment') + ':' }} </span>
       <div v-for="(values, key) in projectEnvMap" :key="key" style="margin-right: 10px">
         {{ key + ':' }}
