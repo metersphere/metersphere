@@ -1929,10 +1929,11 @@ public class TestCaseService {
 
     private void buildExportCustomField(Map<String, Map<String, String>> customSelectValueMap,
                                         Map<String, String> customNameMap, TestCaseDTO t, TestCaseExcelData data, Set<String> textFields) {
-        try {
-            List<CustomFieldResourceDTO> fields = customFieldTestCaseService.getByResourceId(t.getId());
-            Map<String, Object> map = new HashMap<>();
-            for (int index = 0; index < fields.size(); index++) {
+
+        List<CustomFieldResourceDTO> fields = customFieldTestCaseService.getByResourceId(t.getId());
+        Map<String, Object> map = new HashMap<>();
+        for (int index = 0; index < fields.size(); index++) {
+            try {
                 CustomFieldResourceDTO field = fields.get(index);
                 //进行key value对换
                 String id = field.getFieldId();
@@ -1942,6 +1943,9 @@ public class TestCaseService {
                 }
                 if (StringUtils.isNotBlank(field.getValue())) {
                     Object value = JSON.parseObject(field.getValue());
+                    if (value ==  null) {
+                        continue;
+                    }
                     Map<String, String> optionMap = customSelectValueMap.get(id);
                     if (value instanceof List) {
                         List<String> results = new ArrayList<>();
@@ -1961,11 +1965,11 @@ public class TestCaseService {
                         map.put(customNameMap.get(id), value.toString());
                     }
                 }
+            } catch (Exception e) {
+                LogUtil.error(e);
             }
-            data.setCustomData(map);
-        } catch (Exception e) {
-            LogUtil.error(e);
         }
+        data.setCustomData(map);
     }
 
     private void buildExportStep(TestCaseDTO t, List<String> stepDescList, List<String> stepResultList, TestCaseExcelData data) {
