@@ -1,5 +1,5 @@
 <template>
-  <div class="banner-wrap mt-40">
+  <div class="banner-wrap">
     <img class="img w-567px m-auto block" :src="bannerImage" />
   </div>
 </template>
@@ -10,6 +10,7 @@
 
 <style lang="less" scoped>
   .banner-wrap {
+    padding-top: 160px;
     height: 760px;
     .img {
       height: 365px;
