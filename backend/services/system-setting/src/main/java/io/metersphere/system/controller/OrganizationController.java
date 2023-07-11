@@ -73,7 +73,7 @@ public class OrganizationController {
     @Operation(summary = "删除组织成员")
     @Parameters({
             @Parameter(name = "organizationId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
-            @Parameter(name = "userId", description = "用户ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+            @Parameter(name = "userId", description = "成员ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     })
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
