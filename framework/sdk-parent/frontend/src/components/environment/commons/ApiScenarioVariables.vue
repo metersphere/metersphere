@@ -53,7 +53,7 @@
         :total="total"
         enableSelection
         :condition="condition"
-        @filter="filterScope"
+        @filter="filter"
         @refresh="onChange"
         ref="variableTable">
         <ms-table-column prop="num" sortable label="ID" min-width="60" />
@@ -258,6 +258,7 @@ export default {
 
       const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
       this.allData.splice(allDataIndex, 1);
+      this.sortParameters();
       this.queryPage();
     },
     queryPage() {
@@ -301,7 +302,11 @@ export default {
       if (isNeedCreate) {
         this.items.push(new KeyValue({ enable: true, id: getUUID(), type: 'CONSTANT', scope: 'api' }));
       }
-      this.currentPage = Math.ceil(this.items.length / this.pageSize);
+      // 需过滤数据
+      this.allData = [];
+      this._filter();
+      this.currentPage = Math.ceil(this.allData.length / this.pageSize);
+      this.queryPage();
       this.$emit('change', this.items);
       // TODO 检查key重复
     },
@@ -386,34 +391,17 @@ export default {
       });
     },
     filter() {
-      let datas = [];
-      this.items.forEach((item) => {
-        if (this.selectVariable && this.selectVariable !== '' && item.name) {
-          if (item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) === -1) {
-            item.hidden = true;
-          } else {
-            item.hidden = undefined;
-          }
-        } else {
-          item.hidden = undefined;
-        }
-        if (!item.hidden) {
-          datas.push(item);
-        }
-      });
-      this.total = datas.length;
-      let start = (this.currentPage - 1) * this.pageSize;
-      let end = this.currentPage * this.pageSize;
-      this.pageData = datas.slice(start, end);
-    },
-    filterScope() {
-      /**
-       * 全量数据过滤, 过滤后分页
-       */
+      // 过滤
       this.currentPage = 1;
       this.allData = [];
-      let scopes = this.condition.filters.scope;
-      if (!scopes || scopes.length === 0) {
+      this._filter();
+      this.sortParameters();
+      this.queryPage();
+    },
+    _filter() {
+      // filter by scope
+      let scopeFilterData = [];
+      if (!this.condition.filters || !this.condition.filters.scope || this.condition.filters.scope.length === 0) {
         // 重置或者清空
         forEach(this.items, (item) => {
           delete item.hidden;
@@ -421,8 +409,9 @@ export default {
             this.$set(item, 'scope', 'api');
           }
         });
-        this.allData = this.items;
+        scopeFilterData = this.items;
       } else {
+        let scopes = this.condition.filters.scope;
         this.items.forEach((item) => {
           if (scopes.indexOf(item.scope) === -1) {
             item.hidden = true;
@@ -430,11 +419,30 @@ export default {
             item.hidden = undefined;
           }
           if (!item.hidden) {
-            this.allData.push(item);
+            scopeFilterData.push(item);
           }
         });
       }
-      this.queryPage();
+      // filter by keyword
+      if (!scopeFilterData || scopeFilterData.length === 0) {
+        return scopeFilterData;
+      }
+      let keyword = this.selectVariable;
+      scopeFilterData.forEach((filterData) => {
+        if (keyword && keyword !== '' && filterData.name) {
+          if (filterData.name.toLowerCase().indexOf(keyword.toLowerCase()) === -1) {
+            filterData.hidden = true;
+          } else {
+            filterData.hidden = undefined;
+          }
+        } else {
+          filterData.hidden = undefined;
+        }
+        if (!filterData.hidden) {
+          this.allData.push(filterData);
+        }
+      });
+      return this.allData;
     },
     openSetting(data) {
       this.$refs.apiVariableSetting.open(data);
@@ -546,7 +554,11 @@ export default {
           this.items.splice(this.items.length - 1, 0, importData);
         }
       });
-      this.currentPage = Math.ceil(this.items.length / this.pageSize);
+      this.allData = [];
+      this._filter();
+      this.currentPage = Math.ceil(this.allData.length / this.pageSize);
+      this.sortParameters();
+      this.queryPage();
     },
     handleExportCommand(command) {
       this.exportJSON();
