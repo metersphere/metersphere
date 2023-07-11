@@ -1,6 +1,7 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -85,6 +86,9 @@ class GlobalUserRoleRelationControllerTest extends BaseTest {
 
         // @@异常参数校验
         paramValidateTest(GlobalUserRoleRelationQueryRequestDefinition.class, LIST);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, LIST, request);
     }
 
     @Test
@@ -127,6 +131,9 @@ class GlobalUserRoleRelationControllerTest extends BaseTest {
 
         // @@异常参数校验
         createdGroupParamValidateTest(GlobalUserRoleRelationUpdateRequestDefinition.class, ADD);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, ADD, request);
     }
 
     @Test
@@ -155,6 +162,9 @@ class GlobalUserRoleRelationControllerTest extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         assertErrorCode(this.requestGet(DELETE, userRoleRelations.get(0).getId()),
                USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, DELETE, addUserRoleRelation.getId());
     }
 
     /**

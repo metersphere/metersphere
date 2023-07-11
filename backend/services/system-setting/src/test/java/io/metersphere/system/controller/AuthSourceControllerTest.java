@@ -1,6 +1,7 @@
 package io.metersphere.system.controller;
 
-import com.jayway.jsonpath.JsonPath;
+import base.BaseTest;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
@@ -9,12 +10,13 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
 import io.metersphere.utils.JsonUtils;
-import jakarta.annotation.Resource;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -29,17 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class AuthSourceControllerTest {
-
-    @Resource
-    private MockMvc mockMvc;
-
-    private static String sessionId;
-    private static String csrfToken;
+public class AuthSourceControllerTest extends BaseTest {
 
     public static final String AUTH_SOURCE_ADD = "/system/authsource/add";
 
-    public static final String AUTH_SOURCE_List = "/system/authsource/list";
+    public static final String AUTH_SOURCE_LIST = "/system/authsource/list";
 
     public static final String AUTH_SOURCE_UPDATE = "/system/authsource/update";
 
@@ -48,19 +44,6 @@ public class AuthSourceControllerTest {
     public static final String AUTH_SOURCE_DELETE = "/system/authsource/delete/";
 
     private static final ResultMatcher CLIENT_ERROR_MATCHER = status().is4xxClientError();
-
-    @BeforeEach
-    public void login() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
-
 
     @Test
     @Order(1)
@@ -71,6 +54,8 @@ public class AuthSourceControllerTest {
         authSource.setType("CAS");
         this.requestPost(AUTH_SOURCE_ADD, authSource);
 
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_CREAT, AUTH_SOURCE_ADD, authSource);
     }
 
     @Test
@@ -79,7 +64,9 @@ public class AuthSourceControllerTest {
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
         basePageRequest.setPageSize(10);
-        this.requestPost(AUTH_SOURCE_List, basePageRequest);
+        this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
+
+        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ, AUTH_SOURCE_LIST, basePageRequest);
     }
 
 
@@ -93,13 +80,18 @@ public class AuthSourceControllerTest {
         authSource.setName("更新");
         authSource.setType("CAS");
         this.requestPost(AUTH_SOURCE_UPDATE, authSource);
+
+        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_UPDATE, AUTH_SOURCE_UPDATE, authSource);
     }
 
     @Test
     @Order(4)
     public void testUpdateStatus() throws Exception {
         List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
-        this.requestGet(AUTH_SOURCE_UPDATE + "/" + authSourceList.get(0).getId() + "/status/false");
+        String url = AUTH_SOURCE_UPDATE + "/" + authSourceList.get(0).getId() + "/status/false";
+        this.requestGet(url);
+
+        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_UPDATE, url);
     }
 
 
@@ -107,7 +99,10 @@ public class AuthSourceControllerTest {
     @Order(5)
     public void testGetSourceById() throws Exception {
         List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
-        this.requestGet(AUTH_SOURCE_GET + authSourceList.get(0).getId());
+        String url = AUTH_SOURCE_GET + authSourceList.get(0).getId();
+        this.requestGet(url);
+
+        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ, url);
     }
 
 
@@ -115,7 +110,10 @@ public class AuthSourceControllerTest {
     @Order(6)
     public void testDelSourceById() throws Exception {
         List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
-        this.requestGet(AUTH_SOURCE_DELETE + authSourceList.get(0).getId());
+        String url = AUTH_SOURCE_DELETE + authSourceList.get(0).getId();
+        this.requestGet(url);
+
+        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_DELETE, url);
     }
 
 
@@ -151,7 +149,7 @@ public class AuthSourceControllerTest {
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
         basePageRequest.setPageSize(10);
-        MvcResult mvcResult = this.requestPost(AUTH_SOURCE_List, basePageRequest);
+        MvcResult mvcResult = this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
         Pager<?> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
