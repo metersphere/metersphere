@@ -133,3 +133,16 @@ export function resetCaseSystemField(customFields, testCase) {
     }
   });
 }
+
+export function resetPlanCaseSystemField(customFields, testCase) {
+  // 用例等级等字段以表中对应字段为准
+  customFields.forEach((field) => {
+    if (field.name === "用例等级") {
+      field.defaultValue = testCase.priority;
+    } else if (field.name === "责任人") {
+      field.defaultValue = testCase.maintainer;
+    } else if (field.name === "用例状态") {
+      field.defaultValue = testCase.caseStatus;
+    }
+  });
+}
