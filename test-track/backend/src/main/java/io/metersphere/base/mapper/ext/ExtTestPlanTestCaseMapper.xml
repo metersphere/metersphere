@@ -441,7 +441,8 @@
                test_plan_test_case.*,
                test_case.*,
                test_case_node.name                                                            as model,
-               project.name                                                                   as projectName
+               project.name                                                                   as projectName,
+               test_case.status as caseStatus
         from test_plan_test_case
                  inner join test_case on test_plan_test_case.case_id = test_case.id
                  left join test_case_node on test_case_node.id = test_case.node_id

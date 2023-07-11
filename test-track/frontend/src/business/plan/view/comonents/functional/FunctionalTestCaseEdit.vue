@@ -229,7 +229,7 @@ import {
 import { testPlanEditStatus } from "@/api/remote/plan/test-plan";
 import { getTestTemplate } from "@/api/custom-field-template";
 import { checkProjectPermission } from "@/api/testCase";
-import {openCaseEdit, resetCaseSystemField} from "@/business/case/test-case";
+import {openCaseEdit, resetPlanCaseSystemField} from "@/business/case/test-case";
 import CustomFieldFormItems from "@/business/common/CustomFieldFormItems";
 
 export default {
@@ -511,7 +511,7 @@ export default {
       });
     },
     resetSystemField() {
-      resetCaseSystemField(this.testCaseTemplate.customFields, this.testCase);
+      resetPlanCaseSystemField(this.testCaseTemplate.customFields, this.testCase);
     },
     openTestCaseEdit(testCase, tableData) {
       checkProjectPermission(testCase.projectId).then((r) => {
