@@ -34,7 +34,10 @@ import io.metersphere.dto.*;
 import io.metersphere.environment.service.BaseEnvGroupProjectService;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.MsTestElement;
-import io.metersphere.service.*;
+import io.metersphere.service.ApiExecutionQueueService;
+import io.metersphere.service.RedisTemplateService;
+import io.metersphere.service.ServiceUtils;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.definition.TcpApiParamService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import io.metersphere.service.scenario.ApiScenarioReportStructureService;
@@ -48,12 +51,15 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -363,13 +369,18 @@ public class ApiScenarioExecuteService {
 
             RunModeConfigWithEnvironmentDTO runModeConfig = new RunModeConfigWithEnvironmentDTO();
             BeanUtils.copyBean(runModeConfig, request.getConfig());
+            List<String> projectIdLists = getProjectIds(item.getScenarioDefinition());
             if (StringUtils.equals(runModeConfig.getEnvironmentType(), EnvironmentType.JSON.name()) && MapUtils.isEmpty(runModeConfig.getEnvMap())) {
                 Map<String, List<String>> projectEnvMap = apiScenarioEnvService.selectApiScenarioEnv(new ArrayList<>() {{
                     this.add(item);
                 }});
+                projectEnvMap = getProjectMap(projectIdLists, projectEnvMap);
                 runModeConfig.setExecutionEnvironmentMap(projectEnvMap);
-                request.setConfig(runModeConfig);
+            } else {
+                Map<String, String> stringListMap = getProjectEnvMap(projectIdLists, request.getConfig().getEnvMap());
+                runModeConfig.setEnvMap(stringListMap);
             }
+            request.setConfig(runModeConfig);
             ApiScenarioReportResult report = apiScenarioReportService.initResult(reportId, item.getId(), item.getName(), request);
             report.setVersionId(item.getVersionId());
 
@@ -387,6 +398,36 @@ public class ApiScenarioExecuteService {
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
         }
+    }
+    private static Map<String, String> getProjectEnvMap(List<String> projectIdLists, Map<String, String> projectEnvMap) {
+        if (CollectionUtils.isNotEmpty(projectIdLists)) {
+             projectEnvMap = projectEnvMap.entrySet().stream()
+                    .filter(entry -> projectIdLists.contains(entry.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+        return projectEnvMap;
+    }
+
+    @NotNull
+    private static List<String> getProjectIds(String scenarioDefinition) {
+        Pattern pattern = Pattern.compile("\"projectId\"\\s*:\\s*\"?([^\"]*)\"?,");
+        Matcher matcher = pattern.matcher(scenarioDefinition);
+        List<String> projectIdLists = new ArrayList<>();
+        while (matcher.find()) {
+            if (!projectIdLists.contains(matcher.group(1))){
+                projectIdLists.add(matcher.group(1));
+            }
+        }
+        return projectIdLists;
+    }
+
+    private static Map<String, List<String>> getProjectMap(List<String> projectIdLists, Map<String, List<String>> projectEnvMap) {
+        if (CollectionUtils.isNotEmpty(projectIdLists)) {
+            projectEnvMap = projectEnvMap.entrySet().stream()
+                    .filter(entry -> projectIdLists.contains(entry.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+        return projectEnvMap;
     }
 
     protected RunModeDataDTO getRunModeDataDTO(String testId, ApiScenarioReportResult report) {
@@ -428,6 +469,10 @@ public class ApiScenarioExecuteService {
                 report.setVersionId(scenario.getVersionId());
                 String scenarioDefinition = JSON.toJSONString(request.getTestElement().getHashTree().get(0).getHashTree().get(0));
                 scenario.setScenarioDefinition(scenarioDefinition);
+                List<String> projectIdLists = getProjectIds(scenarioDefinition);
+                Map<String, String> envMap = getProjectEnvMap(projectIdLists, request.getEnvironmentMap());
+                request.getConfig().setEnvMap(envMap);
+                report.setEnvConfig(JSON.toJSONString(request.getConfig()));
                 apiScenarioReportStructureService.save(scenario, report.getId(), request.getConfig().getReportType());
             } else {
                 if (request.getTestElement() != null && CollectionUtils.isNotEmpty(request.getTestElement().getHashTree())) {
