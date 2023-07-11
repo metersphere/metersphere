@@ -47,9 +47,15 @@ const System: AppRouteRecordRaw = {
           name: 'settingSystemResourcePool',
           component: () => import('@/views/system/resourcePool/index.vue'),
           meta: {
-            locale: 'menu.settings.system.pluginmanger',
+            locale: 'menu.settings.system.resourcePool',
             roles: ['*'],
             isTopMenu: true,
+            breadcrumbs: [
+              {
+                name: 'settingSystemResourcePool',
+                locale: 'menu.settings.system.resourcePool',
+              },
+            ],
           },
         },
         {
@@ -81,12 +87,6 @@ const System: AppRouteRecordRaw = {
             locale: 'menu.settings.system.pluginmanger',
             roles: ['*'],
             isTopMenu: true,
-            breadcrumbs: [
-              {
-                name: 'settingSystemResourcePool',
-                locale: 'menu.settings.system.pluginmanger',
-              },
-            ],
           },
         },
       ],
