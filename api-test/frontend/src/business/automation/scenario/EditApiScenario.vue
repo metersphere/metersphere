@@ -2404,16 +2404,26 @@ export default {
       }
     },
     getAllResourceIds() {
+      let selectNodes = [];
+      let selectIds = [];
+      if (this.$refs.stepTree) {
+        selectNodes = this.$refs.stepTree.getCheckedNodes();
+         selectNodes.forEach(item => {
+          selectIds.push(item.resourceId)
+        });
+      }
       let resourceIds = [];
-      this.filterAllStep(this.scenarioDefinition, resourceIds);
+      this.filterAllStep(this.scenarioDefinition, resourceIds, selectIds);
       return resourceIds;
     },
-    filterAllStep(stepArray, resourceIds) {
+    filterAllStep(stepArray, resourceIds,selectIds) {
       if (stepArray) {
         stepArray.forEach(item =>{
-          resourceIds.push(item.resourceId);
+          if (selectIds && selectIds.includes(item.resourceId)) {
+            resourceIds.push(item.resourceId);
+          }
           if(item.referenced !== 'REF' && item.hashTree){
-            this.filterAllStep(item.hashTree,resourceIds);
+            this.filterAllStep(item.hashTree,resourceIds, selectIds);
           }
         })
       }
