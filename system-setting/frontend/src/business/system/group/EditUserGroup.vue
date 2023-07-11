@@ -26,7 +26,7 @@
         <el-switch v-model="form.global" :disabled="dialogType === 'edit' || form.type === 'SYSTEM'" @change="change(form.global)"></el-switch>
       </el-form-item>
 
-      <el-form-item :label="$t('project.owning_workspace')" v-if="show" prop="scopeId">
+      <el-form-item :label="showLabel" v-if="show" prop="scopeId">
         <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" :disabled="dialogType === 'edit'" clearable style="width: 83%">
           <el-option v-for="item in workspaces" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
@@ -44,6 +44,7 @@
 import {GROUP_SYSTEM} from "metersphere-frontend/src/utils/constants";
 import {createUserGroup, modifyUserGroup} from "../../../api/user-group";
 import {getWorkspaces} from "../../../api/workspace";
+import {getproject} from "../../../api/project";
 
 export default {
   name: "EditUserGroup",
@@ -74,6 +75,7 @@ export default {
       workspaces: [],
       title: this.$t('group.create'),
       loading: false,
+      showLabel: '',
     }
   },
   props: {
@@ -119,6 +121,8 @@ export default {
       })
     },
     open(row, type, title) {
+      this.workspaces = [];
+      this.showLabel = '';
       this.title = title;
       this.isSystem = false;
       this.show = true;
@@ -135,6 +139,9 @@ export default {
         }
       }
       this.getWorkspace();
+      if(type === 'edit'){
+        this.getproject();
+      }
     },
     cancel() {
       this.dialogVisible = false;
@@ -156,6 +163,20 @@ export default {
         let data = res.data;
         if (data) {
           this.workspaces = data;
+          let name = this.workspaces.find(item => item.id === this.form.scopeId)
+          if (name) {
+            this.showLabel = this.$t('project.owning_workspace');
+          } else {
+            this.showLabel = this.$t('project.owning_project')
+          }
+        }
+      })
+    },
+    getproject() {
+      getproject().then(res => {
+        let data = res.data;
+        if (data) {
+          this.workspaces = this.workspaces.concat(data);
         }
       })
     }
