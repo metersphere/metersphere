@@ -1,7 +1,7 @@
 /* stylelint-disable order/properties-order */
 <template>
   <div>
-    <MSAlert :closable="isClose" :show-icon="showIcon" type="primary">
+    <MSAlert :closable="true" type="primary" :banner="false">
       <template #content>
         <div>
           MeterSphereV2.10LTS版本支持DevOps、API导入、请求、项目管理、协议类型的插件，具体支持插件请
@@ -17,12 +17,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import MSAlert from '@/components/pure/ms-alert/index.vue';
   import pluginTable from './components/pluginTable.vue';
-
-  const isClose = ref<boolean>(true);
-  const showIcon = ref<boolean>(false);
 </script>
 
 <style scoped>
