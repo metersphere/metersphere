@@ -543,7 +543,6 @@ export default {
       }
     },
     handleMainClick(e) {
-      console.log(e.target.tagName);
       this.outsideClick(e)
     },
     handleComponentClick(e) {
