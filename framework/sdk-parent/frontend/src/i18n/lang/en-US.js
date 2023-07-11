@@ -2239,6 +2239,7 @@ const message = {
           open_title: "Do you want to start this scheduled task?？",
         },
       },
+      host_config: "Only interface testing is supported",
     },
     script: {
       tip_3:

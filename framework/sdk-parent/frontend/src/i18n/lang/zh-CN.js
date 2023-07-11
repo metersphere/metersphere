@@ -2153,6 +2153,7 @@ const message = {
           open_title: "要开启这条定时任务吗？",
         },
       },
+      host_config: "仅支持接口测试",
     },
     script: {
       tip_3:
