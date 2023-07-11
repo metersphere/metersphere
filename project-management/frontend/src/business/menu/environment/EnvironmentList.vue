@@ -67,6 +67,7 @@
                               @confirm="save" @fullScreen="fullScreen"/>
           </template>
           <environment-edit
+            v-if="dialogVisible"
             :if-create="ifCreate"
             :environment="currentEnvironment"
             ref="environmentEdit"
