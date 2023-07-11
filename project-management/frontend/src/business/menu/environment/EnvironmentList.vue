@@ -75,6 +75,7 @@
             @confirm="save"
             :project-id="currentProjectId"
             :is-project="true"
+            :key="currentEnvironment.id"
             @refreshAfterSave="refresh">
           </environment-edit>
         </el-dialog>
