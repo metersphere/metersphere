@@ -93,6 +93,7 @@ const message = {
     unrelated_success: "取消关联成功",
     copy_success: "复制成功",
     modify_success: "修改成功",
+    upload_success: "上传成功",
     delete_cancel: "已取消删除",
     option_cannot_spread_pages: "这个操作不支持跨页，是否继续？",
     confirm: "确定",
