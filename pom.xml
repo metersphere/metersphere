@@ -55,7 +55,7 @@
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <xz.version>1.9</xz.version>
         <flatten.version>1.2.7</flatten.version>
-        <jmeter.version>5.6</jmeter.version>
+        <jmeter.version>5.6.1</jmeter.version>
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
         <jython.version>2.7.0</jython.version>
         <docker-java.version>3.2.14</docker-java.version>
