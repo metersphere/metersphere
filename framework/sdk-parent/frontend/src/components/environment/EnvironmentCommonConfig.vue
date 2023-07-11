@@ -4,6 +4,9 @@
       <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables" :is-read-only="isReadOnly"/>
       <el-form-item>
         <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
+        <el-tooltip class="hostItem" effect="dark" :content="$t('api_test.home_page.host_config')" placement="right">
+          <i class="el-icon-info"></i>
+        </el-tooltip>
       </el-form-item>
       <el-form-item>
         <span>{{ $t('api_test.environment.request_timeout') }}:</span>
@@ -94,5 +97,7 @@ export default {
 </script>
 
 <style scoped>
-
+.hostItem {
+  padding-left: 5px;
+}
 </style>
