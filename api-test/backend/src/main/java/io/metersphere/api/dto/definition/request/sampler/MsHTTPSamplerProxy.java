@@ -402,7 +402,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isEmpty(url)) {
                     MSException.throwException("当前步骤：" + this.getName() + " 环境为空，请重新选择环境");
                 }
-                String envPath = url;
+                String envPath = "";
+                try {
+                    URL urlObject = new URL(url);
+                    if (url.contains("${")){
+                        envPath = url;
+                    } else {
+                        sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
+                        envPath = urlObject.getPath();
+                    }
+                    sampler.setProtocol(urlObject.getProtocol());
+                } catch (Exception e) {
+                    envPath = url;
+                }
                 sampler.setProperty("HTTPSampler.path", envPath, StandardCharsets.UTF_8.name());
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, StandardCharsets.UTF_8.name()), StandardCharsets.UTF_8.name()));
