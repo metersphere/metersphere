@@ -482,6 +482,10 @@ public class ApiScenarioExecuteService {
                     if (testElement != null) {
                         apiScenario.setName(testElement.getName());
                         apiScenario.setScenarioDefinition(JSON.toJSONString(testElement));
+                        List<String> projectIdLists = getProjectIds(apiScenario.getScenarioDefinition());
+                        Map<String, String> envMap = getProjectEnvMap(projectIdLists, request.getEnvironmentMap());
+                        request.getConfig().setEnvMap(envMap);
+                        report.setEnvConfig(JSON.toJSONString(request.getConfig()));
                         apiScenarioReportStructureService.save(apiScenario, report.getId(), request.getConfig().getReportType());
                     }
                 }

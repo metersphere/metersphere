@@ -192,18 +192,15 @@ public class MsAssertions extends MsTestElement {
     }
 
     private TestElement jsr223Assertion(MsAssertionJSR223 assertionJSR223) {
-        TestElement assertion = new BeanShellAssertion();
-        if (assertionJSR223.getJsrEnable() == null || BooleanUtils.isTrue(assertionJSR223.getJsrEnable())) {
-            assertion = new JSR223Assertion();
-        }
+        TestElement assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
             assertion.setName("JSR223" + delimiter + this.getName() + delimiter + assertionJSR223.getDesc() + delimiterScript + assertionJSR223.getScript());
         } else {
             assertion.setName("JSR223" + delimiter + this.getName() + delimiter + "JSR223Assertion" + delimiterScript + assertionJSR223.getScript());
         }
-        assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+        assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty("cacheKey", "false");
         String scriptLanguage = assertionJSR223.getScriptLanguage();
         if (StringUtils.equals(scriptLanguage, "nashornScript")) {
@@ -214,6 +211,12 @@ public class MsAssertions extends MsTestElement {
         }
         if (StringUtils.equals(scriptLanguage, "javascript")) {
             scriptLanguage = "rhino";
+        }
+        if (StringUtils.equals(scriptLanguage, "beanshell") && BooleanUtils.isFalse(assertionJSR223.getJsrEnable())) {
+            assertion = new BeanShellAssertion();
+            scriptLanguage = "beanshell";
+            assertion.setProperty(TestElement.TEST_CLASS, BeanShellAssertion.class.getName());
+            assertion.setProperty(BeanShellAssertion.SCRIPT, assertionJSR223.getScript());
         }
         assertion.setProperty("scriptLanguage", scriptLanguage);
         assertion.setProperty(ElementConstants.SCRIPT, assertionJSR223.getScript());
