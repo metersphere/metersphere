@@ -886,6 +886,7 @@ const message = {
     search_by_name: "Search by name",
     search_by_name_jar: "Search by name/jar",
     input_name: "Please enter a workspace name",
+    owning_project: "Owning Project",
     owning_workspace: "Owning Workspace",
     please_choose_workspace: "Please select Workspace",
     special_characters_are_not_supported:

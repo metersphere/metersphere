@@ -129,4 +129,11 @@ public class SystemProjectController {
     public void checkThirdProjectExist(@RequestBody Project project) {
         microService.postForData(MicroServiceName.TEST_TRACK, "/issues/check/third/project", project);
     }
+
+
+    @GetMapping("/list")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
+    public List<Project> getProjects() {
+        return systemProjectService.getProjects();
+    }
 }

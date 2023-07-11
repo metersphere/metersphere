@@ -6,6 +6,7 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.request.ProjectRequest;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -55,4 +56,7 @@ public interface BaseProjectMapper {
     List<String> selectPage(long pageNum, long pageSize);
 
     long count();
+
+    @Select("select id, name from project")
+    List<Project> getProjects();
 }
