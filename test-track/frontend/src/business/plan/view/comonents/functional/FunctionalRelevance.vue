@@ -224,7 +224,7 @@ export default {
       this.setConditionModuleIdParam();
       this.page.condition.projectId = this.projectId;
       this.page.condition.versionId = null;
-      this.getProjectNode();
+      this.getProjectNodeForce();
       this.getTestCases();
       this.getCustomNum();
       this.getVersionOptions();
@@ -310,6 +310,12 @@ export default {
       this.$refs.table.clear();
     },
     getProjectNode(projectId, condition) {
+      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+        return;
+      }
+      this.getProjectNodeForce(projectId, condition);
+    },
+    getProjectNodeForce(projectId, condition) {
       const index = this.projects.findIndex(project => project.id === projectId);
       if (index !== -1) {
         this.projectName = this.projects[index].name;
