@@ -1,3 +1,19 @@
+export interface organizationItem {
+  id?: string;
+  num: number;
+  name: string;
+  description: string;
+  createTime: number;
+  updateTime: number;
+  createUser: string;
+  updateUser: string;
+  deleted: boolean;
+  deleteUser: string;
+  deleteTime: number;
+  enable: boolean;
+}
+export type organizationList = organizationItem[];
+
 export interface PluginItem {
   id: string;
   name: string;
@@ -10,6 +26,7 @@ export interface PluginItem {
   applicationScene: string;
   createUser: string;
   updateUser: string;
+  organizationList: organizationList;
   children?: PluginItem[];
 }
 export type PluginList = PluginItem[];
@@ -28,3 +45,10 @@ export interface SceneItem {
   svg: string;
 }
 export type SceneList = SceneItem[];
+
+export type PluginForm = {
+  pluginName: string;
+  organize: string | number;
+  describe: string;
+  organizeGroup: Array<string | number>;
+};

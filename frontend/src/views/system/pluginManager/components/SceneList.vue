@@ -24,6 +24,9 @@
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+  const props = defineProps<{
+    setCurrent: (step: number) => void;
+  }>();
   const sceneList = ref<SceneList>([
     {
       name: 'system.plugin.interfaceTest',
@@ -44,6 +47,7 @@
       item.isSelected = false;
     });
     currentItem.isSelected = true;
+    props.setCurrent(2);
   };
 </script>
 
@@ -53,7 +57,10 @@
     @apply flex flex-row items-center rounded border-solid py-2;
     &--active {
       /* stylelint-disable-next-line color-function-notation */
-      background-color: rgba(var(--primary-5), 0.1);
+      background-color: rgb(var(--primary-1));
+    }
+    &:hover {
+      background-color: rgb(var(--primary-1));
     }
   }
 </style>
