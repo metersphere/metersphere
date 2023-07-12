@@ -358,6 +358,7 @@ export default {
     projectList: Array,
     enableCookie: Boolean,
     onSampleError: Boolean,
+    pluginList: Array,
   },
   components: {
     MsAsideContainer,
@@ -517,9 +518,6 @@ export default {
     this.cookieShare = this.enableCookie;
     this.sampleError = this.onSampleError;
   },
-  mounted() {
-    this.$refs.refFab.openMenu();
-  },
 
   watch: {
     reloadDebug() {
@@ -549,34 +547,28 @@ export default {
       e.stopPropagation();
     },
     initPlugins() {
-      getPluginList().then((response) => {
-        let data = response.data;
-        if (data) {
-          data.forEach((item) => {
-            let plugin = {
-              title: item.name,
-              show: this.showButton(item.jmeterClazz),
-              titleColor: '#555855',
-              titleBgColor: '#F4F4FF',
-              icon: 'colorize',
-              click: () => {
-                this.addComponent(item.name, item);
-              },
-            };
-            if (item.license) {
-              if (hasLicense()) {
-                if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
-                  this.buttonData.push(plugin);
-                }
-              }
-            } else {
-              if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
-                this.buttonData.push(plugin);
-              }
+      if(this.pluginList && this.pluginList.length > 0){
+        this.pluginList.forEach((item) => {
+          let plugin = {
+            title: item.name,
+            show: this.showButton(item.jmeterClazz),
+            titleColor: '#555855',
+            titleBgColor: '#F4F4FF',
+            icon: 'colorize',
+            click: () => {
+              this.addComponent(item.name, item);
+            },
+          };
+          if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+            this.buttonData.push(plugin);
+          }
+          this.$nextTick(() => {
+            if (!this.currentScenario.name && this.$refs.refFab) {
+              this.$refs.refFab.openMenu();
             }
           });
-        }
-      });
+        });
+      }
     },
     // 打开引用的场景
     openScenario(data) {
@@ -624,8 +616,17 @@ export default {
       }
       return false;
     },
-    addComponent(type) {
-      setComponent(type, this);
+    addComponent(type, plugin) {
+      if (
+        this.selectedNode &&
+        this.selectedNode.parent &&
+        this.selectedNode.parent.data &&
+        this.selectedNode.parent.data.disabled
+      ) {
+        this.$warning(this.$t('api_test.scenario.scenario_warning'));
+        return;
+      }
+      setComponent(type, this, plugin);
     },
     setAsideHidden(data) {
       this.asideHidden = data;
