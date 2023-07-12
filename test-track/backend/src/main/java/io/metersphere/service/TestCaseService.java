@@ -2179,11 +2179,13 @@ public class TestCaseService {
             for (int i = 0; i < list.size(); i++) {
                 TestCaseWithBLOBs batchCopy = new TestCaseWithBLOBs();
                 BeanUtils.copyBean(batchCopy, list.get(i));
+                batchCopy.setNodeId(request.getNodeId());
+                batchCopy.setName("copy_" + batchCopy.getName());
+                batchCopy.setProjectId(SessionUtils.getCurrentProjectId());
                 checkTestCaseExist(batchCopy, false);
                 String oldTestCaseId = batchCopy.getId();
                 String id = UUID.randomUUID().toString();
                 batchCopy.setId(id);
-                batchCopy.setName("copy_" + batchCopy.getName());
                 if (batchCopy.getName().length() > 255) {
                     batchCopy.setName(batchCopy.getName().substring(0, 250) + batchCopy.getName().substring(batchCopy.getName().length() - 5));
                 }
@@ -2194,14 +2196,12 @@ public class TestCaseService {
                 batchCopy.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                 batchCopy.setStatus(TestCaseReviewStatus.Prepare.name());
                 batchCopy.setNodePath(StringUtils.EMPTY);
-                batchCopy.setNodeId(request.getNodeId());
                 batchCopy.setCasePublic(false);
                 batchCopy.setRefId(id);
                 if (!(batchCopy.getProjectId()).equals(SessionUtils.getCurrentProjectId())) {
                     String versionId = baseProjectVersionMapper.getDefaultVersion(SessionUtils.getCurrentProjectId());
                     batchCopy.setVersionId(versionId);
                 }
-                batchCopy.setProjectId(SessionUtils.getCurrentProjectId());
                 batchCopy.setOrder(nextOrder += ServiceUtils.ORDER_STEP);
                 batchCopy.setCustomNum(String.valueOf(nextNum));
                 batchCopy.setNum(nextNum++);
