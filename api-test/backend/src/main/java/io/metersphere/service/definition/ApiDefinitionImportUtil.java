@@ -394,8 +394,7 @@ public class ApiDefinitionImportUtil {
         Map<String, List<ApiTestCaseWithBLOBs>> oldCaseMap;
         List<String> definitionIds = repeatApiDefinitionWithBLOBs.stream().map(ApiDefinition::getId).collect(Collectors.toList());
         ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
-        testCaseExample.createCriteria().andApiDefinitionIdIn(definitionIds);
-        testCaseExample.or(testCaseExample.createCriteria().andStatusNotEqualTo(ApiTestDataStatus.TRASH.getValue()).andStatusIsNull());
+        testCaseExample.createCriteria().andApiDefinitionIdIn(definitionIds).andStatusNotEqualTo(ApiTestDataStatus.TRASH.getValue());
         List<ApiTestCaseWithBLOBs> caseWithBLOBs = apiTestCaseMapper.selectByExampleWithBLOBs(testCaseExample);
         oldCaseMap = caseWithBLOBs.stream().collect(Collectors.groupingBy(ApiTestCase::getApiDefinitionId));
         return oldCaseMap;
