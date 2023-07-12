@@ -682,9 +682,22 @@
         AND status != #{execResult}
     </update>
 
+    <update id="updateTestCaseLastResultByIds">
+        UPDATE test_case SET last_execute_result = #{execResult}
+        WHERE id IN
+        <foreach collection="caseIds" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
+        AND (last_execute_result != #{execResult} or last_execute_result is null)
+    </update>
+
     <update id="updateDiffExecResultByTestCaseIdAndTestPlanId">
         UPDATE test_plan_test_case SET status = #{execResult}
         WHERE case_id = #{testCaseId} AND plan_id = #{testPlanId} AND status != #{execResult}
+    </update>
+    <update id="updateTestCaseLastResult">
+        UPDATE test_case SET last_execute_result = #{execResult}
+        WHERE id = #{testCaseId} AND (last_execute_result != #{execResult} or last_execute_result is null)
     </update>
     <select id="findFailureCaseInTestPlanByProjectIDAndExecuteTimeAndLimitNumber"
             resultType="io.metersphere.dto.ExecutedCaseInfoResult">
