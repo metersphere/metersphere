@@ -3,7 +3,7 @@
     v-model:visible="pluginVisible"
     class="ms-modal-form ms-modal-small"
     title-align="start"
-    width="500px"
+    width="480px"
     @ok="handleOk"
     @cancel="handleCancel"
   >
