@@ -28,6 +28,7 @@ const message = {
   pj_custom_field: {
     copy: "Copy",
     delete: "Delete",
+    delete_tips: "Delete it will cause the template with this field to be displayed abnormally. Be Careful!"
   },
   pj_app_manage: {
     timing_clean_ui_report: "Regularly clean up report",

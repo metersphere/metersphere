@@ -353,6 +353,9 @@ public class IssueTemplateService extends TemplateBaseService {
             } else {
                 recordName = sourceIssueTemplate.getName();
             }
+            if (recordName.length() > 64) {
+                MSException.throwException(Translator.get("copy_template_name_too_long"));
+            }
             BeanUtils.copyBean(issueTemplateRecord, sourceIssueTemplate);
             issueTemplateRecord.setId(UUID.randomUUID().toString());
             issueTemplateRecord.setName(recordName);
