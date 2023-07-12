@@ -612,6 +612,7 @@ export default {
     fail_case: "失敗用例",
     issue_list: "缺陷列錶",
     all_case: "所有用例",
+    report_summary_length_tips: "報告總結不能超過60000個字符"
   },
   reporter: "報告人",
   lastmodify: "最後更改",

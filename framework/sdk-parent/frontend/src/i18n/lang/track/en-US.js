@@ -646,6 +646,7 @@ export default {
     fail_case: "Fail Case",
     issue_list: "Issue List",
     all_case: "All Case",
+    report_summary_length_tips: "Report summary cannot exceed 60000 words",
   },
   reporter: "Reporter",
   lastmodify: "Last Modify",

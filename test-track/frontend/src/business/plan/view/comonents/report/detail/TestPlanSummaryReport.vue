@@ -60,6 +60,10 @@ export default {
   },
   methods: {
     saveSummary() {
+      if (this.report.summary.length > 60000) {
+        this.$message.error(this.$t("test_track.report.report_summary_length_tips"));
+        return;
+      }
       if (this.isDb) {
         testPlanDbReportEdit({
           testPlanReportId: this.report.id,
