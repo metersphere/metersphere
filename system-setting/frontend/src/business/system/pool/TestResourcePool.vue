@@ -324,6 +324,9 @@ export default {
             trigger: 'blur'
           }
         ],
+        image: [
+          {max: 100, message: this.$t('commons.input_limit', [0, 100])}
+        ],
         description: [
           {max: 60, message: this.$t('commons.input_limit', [0, 60]), trigger: 'blur'}
         ],
