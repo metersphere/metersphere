@@ -18,6 +18,8 @@
         <el-input size="mini" type="text"
                   class="text-item"
                   :placeholder="$t('custom_field.field_text')"
+                  maxlength="50"
+                  show-word-limit
                   v-if="editIndex === idx"
                   @blur="handleTextEdit(element)"
                   v-model="element.text"/>
@@ -30,9 +32,11 @@
           </span>
         </span>
 
-        <el-input size="mini" type="value"
+        <el-input size="mini" type="text"
                   class="text-item"
                   :placeholder="$t('custom_field.field_value')"
+                  maxlength="10"
+                  show-word-limit
                   v-if="editIndex === idx && isKv"
                   @blur="handleValueEdit(element)"
                   v-model="element.value"/>
