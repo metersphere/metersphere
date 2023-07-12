@@ -12,10 +12,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.StandardReflectionParameterNameDiscoverer;
@@ -70,6 +67,13 @@ public class OperationLogAspect {
      */
     @Pointcut("@annotation(io.metersphere.sdk.log.annotation.Log)")
     public void logPointCut() {
+    }
+
+    @AfterThrowing(pointcut = "logPointCut()", throwing = "ex")
+    public void handleException(Exception ex) {
+        localUser.remove();
+        beforeValues.remove();
+        LogUtils.error(ex);
     }
 
     @Before("logPointCut()")
