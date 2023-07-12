@@ -106,18 +106,30 @@ public class TestCaseSyncStatusService {
             if (MapUtils.isNotEmpty(successCaseMap)) {
                 extTestPlanTestCaseMapper.updateDiffExecResultByTestPlanCaseIdList(new ArrayList<>(successCaseMap.keySet()), FunctionCaseExecResult.SUCCESS.toString());
                 functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(successCaseMap.keySet()), FunctionCaseExecResult.SUCCESS.toString());
+                updateTestCaseLastResultByIds(successCaseMap, FunctionCaseExecResult.SUCCESS.toString());
             }
             if (MapUtils.isNotEmpty(errorCaseMap)) {
                 extTestPlanTestCaseMapper.updateDiffExecResultByTestPlanCaseIdList(new ArrayList<>(errorCaseMap.keySet()), FunctionCaseExecResult.ERROR.toString());
                 functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(errorCaseMap.keySet()), FunctionCaseExecResult.ERROR.toString());
+                updateTestCaseLastResultByIds(errorCaseMap, FunctionCaseExecResult.ERROR.toString());
             }
             if (MapUtils.isNotEmpty(blockingCaseMap)) {
                 int updateDataCount = extTestPlanTestCaseMapper.updateDiffExecResultByTestPlanCaseIdList(new ArrayList<>(blockingCaseMap.keySet()), FunctionCaseExecResult.BLOCKING.toString());
                 functionCaseExecutionInfoService.insertExecutionInfoByIdList(new ArrayList<>(blockingCaseMap.keySet()), FunctionCaseExecResult.BLOCKING.toString());
+                updateTestCaseLastResultByIds(blockingCaseMap, FunctionCaseExecResult.BLOCKING.toString());
                 if (updateDataCount > 0) {
                     this.addTestCaseComment(operator, testPlanName, blockingCaseMap, FunctionCaseExecResult.BLOCKING.toString());
                 }
             }
+        }
+    }
+
+    private void updateTestCaseLastResultByIds(Map<String, CaseExecResult> caseMap, String status) {
+        try {
+            List<String> caseIds = caseMap.values().stream().map(CaseExecResult::getTestCaseId).distinct().toList();
+            extTestPlanTestCaseMapper.updateTestCaseLastResultByIds(caseIds, status);
+        } catch (Exception e) {
+            LoggerUtil.error(e);
         }
     }
 
@@ -161,6 +173,8 @@ public class TestCaseSyncStatusService {
 
                         //通过 triggerCaseRunResult(触发操作的用例的执行结果) 进行判断，会不会直接影响最终结果。如果是，在改变功能用例状态时也要增加一条评论。
                         int updateDataCount = extTestPlanTestCaseMapper.updateDiffExecResultByTestCaseIdAndTestPlanId(entry.getKey(), testPlanId, priorityResult.getExecResult());
+                        // 更新用例的最后一次执行结果
+                        extTestPlanTestCaseMapper.updateTestCaseLastResult(entry.getKey(), priorityResult.getExecResult());
                         //记录功能用例执行信息
                         functionCaseExecutionInfoService.insertExecutionInfoByCaseIdAndPlanId(entry.getKey(), testPlanId, priorityResult.getExecResult());
                         if (updateDataCount > 0 && StringUtils.equalsIgnoreCase(automationCaseResult, ApiReportStatus.FAKE_ERROR.name())) {

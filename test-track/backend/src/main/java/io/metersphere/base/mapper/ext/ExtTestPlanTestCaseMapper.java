@@ -73,9 +73,10 @@ public interface ExtTestPlanTestCaseMapper {
     List<String> getCaseIdsByIds(@Param("ids") List<String> ids);
 
     int updateDiffExecResultByTestPlanCaseIdList(@Param("ids") List<String> testPlanCaseIdList, @Param("execResult") String execResult);
-
+    int updateTestCaseLastResultByIds(@Param("caseIds") List<String> caseIds, @Param("execResult") String execResult);
     //修改
     int updateDiffExecResultByTestCaseIdAndTestPlanId(@Param("testCaseId") String testCaseId, @Param("testPlanId") String testPlanId, @Param("execResult") String execResult);
+    int updateTestCaseLastResult(@Param("testCaseId") String testCaseId, @Param("execResult") String execResult);
 
     List<TestPlanTestCase> selectByAutomationCaseIdAndTestPlanId(@Param("automationCaseId") String automationCaseId, @Param("test_plan_id") String testPlanId);
 
