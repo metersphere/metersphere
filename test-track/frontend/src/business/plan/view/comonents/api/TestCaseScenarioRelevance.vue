@@ -76,13 +76,13 @@ export default {
   },
   methods: {
     open() {
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.search();
+      }
       this.$refs.baseRelevance.open();
-      this.$nextTick(() => {
-        if (this.$refs.apiScenarioList) {
-          this.$refs.apiScenarioList.clear();
-          this.$refs.apiScenarioList.search();
-        }
-      });
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.clear();
+      }
     },
     setProject(projectId) {
       this.projectId = projectId;

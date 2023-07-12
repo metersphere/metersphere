@@ -94,7 +94,6 @@ export default {
   },
   created() {
     this.condition.versionId = this.currentVersion;
-    this.initTable();
   },
   watch: {
     selectNodeIds() {
