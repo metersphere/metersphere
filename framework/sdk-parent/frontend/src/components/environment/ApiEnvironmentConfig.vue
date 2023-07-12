@@ -10,7 +10,7 @@
                        :delete-fuc="openDelEnv" @itemSelected="environmentSelected" ref="environmentItems"/>
         <environment-edit :if-create="ifCreate" :environment="currentEnvironment"
                           ref="environmentEdit" :is-read-only="isReadOnly"
-                          @confirm="save" :is-project="true"
+                          @confirm="save" :is-project="true" :key="currentEnvironment.id"
                           @close="close" @refreshAfterSave="refresh">
         </environment-edit>
       </el-container>

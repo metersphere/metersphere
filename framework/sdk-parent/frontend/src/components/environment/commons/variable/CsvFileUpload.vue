@@ -58,7 +58,8 @@
           </el-upload>
         </el-col>
         <el-col :span="7">
-          <el-button size="small" style="margin: 3px 5px" @click="download">下载</el-button>
+          <el-button size="small" style="margin: 3px 5px" @click="download" :disabled="this.parameter.files.length === 0">
+            {{this.$t('project.file_download')}}</el-button>
         </el-col>
       </el-row>
       <ms-file-batch-move ref="module" @setModuleId="setModuleId"/>
@@ -194,12 +195,14 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.$refs.upload.handleRemove(file);
+            this.$refs.uploadLocal.handleRemove(file);
             for (let i = 0; i < this.parameter.files.length; i++) {
               let paramFileName = this.parameter.files[i].name ?
                 this.parameter.files[i].name : this.parameter.files[i].file.name;
               if (fileName === paramFileName) {
                 this.parameter.files.splice(i, 1);
                 this.$refs.upload.handleRemove(file);
+                this.$refs.uploadLocal.handleRemove(file);
                 break;
               }
             }
