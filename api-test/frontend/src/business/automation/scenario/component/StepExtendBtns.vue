@@ -42,7 +42,7 @@
 
     <ms-add-api-case :currentProtocol="currentProtocol" ref="apiCase" />
 
-    <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="700px">
+    <el-dialog :title="$t('commons.reference_settings')" :visible.sync="dialogVisible" width="700px" append-to-body>
       <ul>
         <el-tooltip :content="$t('commons.enable_scene_info')" placement="top" v-if="showEnableScenario">
           <el-checkbox v-model="data.environmentEnable" @change="checkEnv">
