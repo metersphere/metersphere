@@ -488,10 +488,23 @@ public class ApiScenarioService {
                         .filter(ScenarioVariable::isEnable).collect(toList());
 
                 if (CollectionUtils.isNotEmpty(oldVariables) && CollectionUtils.isNotEmpty(newVariables)) {
-                    List<String> ids = newVariables.get(0).getFiles().stream().map(BodyFile::getId).collect(toList());
-                    oldVariables.get(0).getFiles().forEach(item -> {
-                        if (!ids.contains(item.getId())) {
-                            ApiFileUtil.deleteBodyFiles(item.getId() + "_" + item.getName());
+                    List<String> ids = newVariables.stream()
+                            .flatMap(nv -> Optional.ofNullable(nv.getFiles()).orElse(List.of()).stream())
+                            .map(BodyFile::getId)
+                            .toList();
+                    oldVariables.forEach(item ->{
+                        if (CollectionUtils.isNotEmpty(item.getFiles()) &&
+                                StringUtils.isNotBlank(item.getFiles().get(0).getId()) &&
+                                !ids.contains(item.getFiles().get(0).getId())) {
+                            ApiFileUtil.deleteBodyFiles(item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
+                        }
+                    });
+                }
+                if (CollectionUtils.isEmpty(newVariables) && CollectionUtils.isNotEmpty(oldVariables)) {
+                    oldVariables.forEach(item ->{
+                        if (CollectionUtils.isNotEmpty(item.getFiles()) &&
+                                StringUtils.isNotBlank(item.getFiles().get(0).getId())) {
+                            ApiFileUtil.deleteBodyFiles(item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
                         }
                     });
                 }
