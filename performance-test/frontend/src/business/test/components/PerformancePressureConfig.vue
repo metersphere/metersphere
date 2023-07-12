@@ -584,11 +584,13 @@ export default {
       handler.options = {
         color: color,
         xAxis: {
+          name: this.$t('load_test.duration'),
           type: 'category',
           boundaryGap: false,
           data: []
         },
         yAxis: {
+          name: this.$t('load_test.thread_num'),
           type: 'value'
         },
         tooltip: {
