@@ -103,7 +103,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
-        
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
@@ -145,8 +145,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         config.compatible(this);
         this.initConnectAndResponseTimeout(config);
-        sampler.setConnectTimeout(this.getConnectTimeout() == null ? DEF_TIME_OUT : this.getConnectTimeout());
-        sampler.setResponseTimeout(this.getResponseTimeout() == null ? DEF_TIME_OUT : this.getResponseTimeout());
+        sampler.setConnectTimeout(StringUtils.isBlank(this.getConnectTimeout()) ? DEF_TIME_OUT : this.getConnectTimeout());
+        sampler.setResponseTimeout(StringUtils.isBlank(this.getResponseTimeout()) ? DEF_TIME_OUT : this.getResponseTimeout());
         HttpConfig httpConfig = getHttpConfig(config);
         setSamplerPath(config, httpConfig, sampler);
         // 请求体处理
@@ -301,12 +301,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             CommonConfig commonConfig = config.getConfig().get(this.getProjectId()).getCommonConfig();
             if (commonConfig != null) {
-                if (this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(), DEF_TIME_OUT)) {
+                if (StringUtils.isBlank(this.getConnectTimeout())) {
                     if (commonConfig.getRequestTimeout() != 0) {
                         this.setConnectTimeout(String.valueOf(commonConfig.getRequestTimeout()));
                     }
                 }
-                if (this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(), DEF_TIME_OUT)) {
+                if (StringUtils.isBlank(this.getResponseTimeout())) {
                     if (commonConfig.getResponseTimeout() != 0) {
                         this.setResponseTimeout(String.valueOf(commonConfig.getResponseTimeout()));
                     }
@@ -405,7 +405,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String envPath = "";
                 try {
                     URL urlObject = new URL(url);
-                    if (url.contains("${")){
+                    if (url.contains("${")) {
                         envPath = url;
                     } else {
                         sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
@@ -482,7 +482,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         try {
             URL urlObject = new URL(url);
             String envPath;
-            if (url.contains("${")){
+            if (url.contains("${")) {
                 envPath = url;
             } else {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
