@@ -64,7 +64,7 @@ export default {
         [
           "Prepare",
           {
-            name: this.$t("test_track.plan.plan_status_prepare"),
+            name: this.$t("api_test.home_page.detail_card.unexecute"),
             itemStyle: { color: "#DEDE10" },
           },
         ],
