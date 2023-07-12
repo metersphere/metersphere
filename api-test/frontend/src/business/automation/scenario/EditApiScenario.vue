@@ -499,6 +499,8 @@
               :message="message"
               :enable-cookie="enableCookieShare"
               :on-sample-error="onSampleError"
+              :environment-type.sync="environmentType"
+              :pluginList="plugins"
               @setEnvType="setEnvType"
               @envGroupId="setEnvGroup"
               @closePage="close"
