@@ -72,7 +72,9 @@
         <span
           class="ms-step-debug-code"
           @click="active"
-          :class="request.requestResult && request.requestResult[0].success && reqSuccess ? 'ms-req-success' : 'ms-req-error'"
+          :class="
+            request.requestResult && request.requestResult[0].success && reqSuccess ? 'ms-req-success' : 'ms-req-error'
+          "
           v-else-if="
             !loading &&
             !request.testing &&
@@ -93,10 +95,7 @@
             class="ms-btn"
             size="mini"
             circle
-            v-permission="[
-              'PROJECT_API_SCENARIO:READ+DEBUG',
-              'PROJECT_API_SCENARIO:READ+RUN'
-            ]"/>
+            v-permission="['PROJECT_API_SCENARIO:READ+DEBUG', 'PROJECT_API_SCENARIO:READ+RUN']" />
         </el-tooltip>
         <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
           <el-button
@@ -105,10 +104,7 @@
             style="color: white; padding: 0 0.1px; width: 24px; height: 24px"
             class="stop-btn"
             circle
-            v-permission="[
-              'PROJECT_API_SCENARIO:READ+DEBUG',
-              'PROJECT_API_SCENARIO:READ+RUN'
-            ]">
+            v-permission="['PROJECT_API_SCENARIO:READ+DEBUG', 'PROJECT_API_SCENARIO:READ+RUN']">
             <div style="transform: scale(0.66)">
               <span style="margin-left: -4.5px; font-weight: bold">STOP</span>
             </div>
@@ -171,7 +167,7 @@
             <el-tab-pane
               v-for="(item, i) in request.requestResult"
               :label="'循环' + (i + 1)"
-              :key="i"
+              :key="`api-response${i}`"
               style="margin-bottom: 5px">
               <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item" />
             </el-tab-pane>

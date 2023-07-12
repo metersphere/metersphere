@@ -275,7 +275,7 @@
                   node-key="id"
                   height="calc(100vh - 170px)"
                   :minItemSize="43"
-                  :sizeDependencies="['expanded']"
+                  :sizeDependencies="['expanded', 'checked']"
                   :props="props"
                   :data="scenarioDefinition"
                   :buffer="300"
@@ -293,11 +293,12 @@
                   ref="stepTree"
                   :key="reloadTree">
                   <el-row
+                    slot-scope="{ node, data }"
+                    v-if="isNodeShow(node, data)"
                     class="custom-tree-node"
                     :gutter="10"
                     type="flex"
                     align="middle"
-                    slot-scope="{ node, data }"
                     style="width: 100%">
                     <span
                       class="custom-tree-node-col"
@@ -324,14 +325,7 @@
                         :show-size="false"
                         style="margin-right: 10px" />
                     </span>
-                    <span
-                      v-if="
-                        stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
-                        !node.parent ||
-                        !node.parent.data ||
-                        stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1
-                      "
-                      style="width: calc(100% - 40px)">
+                    <span style="width: calc(100% - 40px)">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -357,6 +351,9 @@
                         ref="componentConfig" />
                     </span>
                   </el-row>
+                  <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                    {{ hideNode(node) }}
+                  </div>
                 </vue-easy-tree>
               </div>
             </el-row>
@@ -2393,39 +2390,51 @@ export default {
     },
     changeNodeStatus(resourceIds, nodes) {
       for (let i in nodes) {
-        if (nodes[i] && !(nodes[i].type === 'scenario' && nodes[i].referenced === 'REF')) {
-          if (resourceIds.indexOf(nodes[i].resourceId) !== -1) {
-            nodes[i].active = this.expandedStatus;
+        const node = nodes[i];
+        if (node && !(node.type === 'scenario' && node.referenced === 'REF')) {
+          if (
+            resourceIds.indexOf(node.resourceId) !== -1 &&
+            this.stepFilter.get('ALlSamplerStep').indexOf(node.type) === -1
+          ) {
+            node.active = this.expandedStatus;
           }
-          if (nodes[i].hashTree && nodes[i].hashTree.length > 0 && !this.expandedStatus) {
-            this.changeNodeStatus(resourceIds, nodes[i].hashTree);
+          if (node.hashTree && node.hashTree.length > 0 && !this.expandedStatus) {
+            this.changeNodeStatus(resourceIds, node.hashTree);
           }
         }
       }
+    },
+    isNodeShow(node, data) {
+      const res =
+        this.stepFilter.get('ALlSamplerStep').indexOf(data.type) === -1 ||
+        !node.parent ||
+        !node.parent.data ||
+        this.stepFilter.get('AllSamplerProxy').indexOf(node.parent.data.type) === -1;
+      return res;
     },
     getAllResourceIds() {
       let selectNodes = [];
       let selectIds = [];
       if (this.$refs.stepTree) {
         selectNodes = this.$refs.stepTree.getCheckedNodes();
-         selectNodes.forEach(item => {
-          selectIds.push(item.resourceId)
+        selectNodes.forEach((item) => {
+          selectIds.push(item.resourceId);
         });
       }
       let resourceIds = [];
       this.filterAllStep(this.scenarioDefinition, resourceIds, selectIds);
       return resourceIds;
     },
-    filterAllStep(stepArray, resourceIds,selectIds) {
+    filterAllStep(stepArray, resourceIds, selectIds) {
       if (stepArray) {
-        stepArray.forEach(item =>{
+        stepArray.forEach((item) => {
           if (selectIds && selectIds.includes(item.resourceId)) {
             resourceIds.push(item.resourceId);
           }
-          if(item.referenced !== 'REF' && item.hashTree){
-            this.filterAllStep(item.hashTree,resourceIds, selectIds);
+          if (item.referenced !== 'REF' && item.hashTree) {
+            this.filterAllStep(item.hashTree, resourceIds, selectIds);
           }
-        })
+        });
       }
     },
     getAllCheckedNodes() {
