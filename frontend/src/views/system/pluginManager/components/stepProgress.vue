@@ -1,11 +1,11 @@
 <template>
-  <a-steps v-bind="attrs" @change="changeCurrent">
+  <a-steps :current="currentStep" @change="changeCurrent">
     <a-step v-for="item of stepList" :key="item.title">{{ t(item.title) }}</a-step>
   </a-steps>
 </template>
 
 <script setup lang="ts">
-  import { ref, useAttrs } from 'vue';
+  import { ref, watchEffect } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import type { StepList } from '@/models/system/plugin';
 
@@ -15,10 +15,13 @@
     stepList: StepList;
     setCurrent: (step: number) => void;
   }>();
-  const attrs = useAttrs();
+  const currentStep = ref(1);
   const changeCurrent = (step: number) => {
     props.setCurrent(step);
   };
+  watchEffect(() => {
+    currentStep.value = props.current;
+  });
 </script>
 
 <style scoped lang="less">
