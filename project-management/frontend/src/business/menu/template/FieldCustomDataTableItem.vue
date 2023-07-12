@@ -5,7 +5,7 @@
     class="custom-with"
     prop="customData">
     <template v-slot="scope">
-      <el-input :placeholder="$t('commons.input_content')" v-model="scope.row.customData">
+      <el-input :placeholder="$t('commons.input_content')" v-model="scope.row.customData" maxlength="255" show-word-limit>
       </el-input>
     </template>
   </ms-table-column>

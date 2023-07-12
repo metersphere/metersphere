@@ -26,6 +26,7 @@ const message = {
   pj_custom_field: {
     copy: "复制字段",
     delete: "删除字段",
+    delete_tips: "删除字段会导致使用该字段的模板显示异常, 请谨慎操作."
   },
   pj_app_manage: {
     timing_clean_ui_report: "定时清理UI测试报告",
