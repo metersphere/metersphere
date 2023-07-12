@@ -27,6 +27,7 @@
                              :max="9999"
                              size="mini"/>
           </el-form-item>
+          <el-form-item v-if="autoStop" :label="$t('load_test.seconds')" label-width="20px"/>
         </el-form>
       </el-col>
     </el-row>
@@ -107,6 +108,7 @@
                                      @change="calculateTotalChart()"
                                      size="mini"/>
                   </el-form-item>
+                  <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
                   <el-form-item label="Step" label-width="50px">
                     <el-input-number controls-position="right"
                                      :min="1"
@@ -128,6 +130,7 @@
                                      @change="calculateTotalChart()"
                                      size="mini"/>
                   </el-form-item>
+                  <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
                 </div>
 
               </div>
