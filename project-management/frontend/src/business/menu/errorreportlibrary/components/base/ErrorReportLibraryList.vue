@@ -262,7 +262,7 @@ export default {
       } else {
         let param = { id: row.id, status: row.status };
         this.loading = modifyErrorReportLibrary(param).then(() => {
-          this.$success(this.$t("commons.save_success"));
+          this.$success(row.status ? this.$t("commons.enable_success") : this.$t("commons.disable_success"));
         });
       }
     },
