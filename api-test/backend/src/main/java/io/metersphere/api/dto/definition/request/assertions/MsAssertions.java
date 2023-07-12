@@ -216,6 +216,7 @@ public class MsAssertions extends MsTestElement {
             assertion = new BeanShellAssertion();
             scriptLanguage = "beanshell";
             assertion.setProperty(TestElement.TEST_CLASS, BeanShellAssertion.class.getName());
+            assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("BeanShellAssertionGui"));
             assertion.setProperty(BeanShellAssertion.SCRIPT, assertionJSR223.getScript());
         }
         assertion.setProperty("scriptLanguage", scriptLanguage);
