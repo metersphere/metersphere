@@ -846,6 +846,9 @@ public class MockConfigService {
         if (project != null) {
             RequestMockParams requestMockParams = MockApiUtils.genRequestMockParamsFromHttpRequest(request, true);
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
+            LogUtil.info("Mock urlSuffix:{}", urlSuffix);
+            LogUtil.info("Mock requestHeaderMap:{}", requestHeaderMap);
+            LogUtil.info("Mock requestMockParams:{}", requestMockParams);
             List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             for (ApiDefinitionWithBLOBs api : qualifiedApiList) {
                 if (StringUtils.isEmpty(returnStr)) {
