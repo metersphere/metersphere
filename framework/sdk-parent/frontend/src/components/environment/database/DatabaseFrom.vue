@@ -97,8 +97,7 @@ export default {
       currentConfig: new DatabaseConfig(),
       rules: {
         name: [
-          {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
-          {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
+          {required: true, message: this.$t('commons.input_name'), trigger: 'blur'}
         ],
         driver: [
           {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
@@ -107,12 +106,10 @@ export default {
           {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
         ],
         dbUrl: [
-          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-          {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'}
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'}
         ],
         username: [
-          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-          {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'}
         ],
         poolMax: [
           {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
