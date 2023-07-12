@@ -3,8 +3,21 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper">
 
     <select id="selectByProjectIdAndStatusIsOpen" resultType="io.metersphere.base.domain.MockExpectConfigWithBLOBs">
-        SELECT * FROM mock_expect_config WHERE status = 'true' AND mock_config_id IN
-            (SELECT id FROM mock_config WHERE api_path IS NULL AND project_id = #{0} )
+        SELECT
+            m.*
+        FROM
+            mock_expect_config m
+        WHERE
+            m.STATUS = 'true'
+          AND m.mock_config_id IN (
+            SELECT
+                c.id
+            FROM
+                mock_config c
+                    INNER JOIN api_definition a ON a.id = c.api_id and a.project_id = c.project_id
+            WHERE
+                c.api_path IS NULL
+              AND c.project_id = #{0} and a.status !='Trash' and a.protocol='TCP')
     </select>
     <select id="selectByApiId" resultType="io.metersphere.base.domain.MockExpectConfigWithBLOBs">
         SELECT * FROM mock_expect_config WHERE mock_config_id IN
