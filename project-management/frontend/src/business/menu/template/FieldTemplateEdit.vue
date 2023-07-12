@@ -25,7 +25,7 @@
             <slot name="base"></slot>
 
             <el-form-item :label="$t('commons.description')" prop="description" :label-width="labelWidth">
-              <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
+              <el-input :autosize="{ minRows: 3, maxRows: 4}" type="textarea" v-model="form.description" maxlength="255" show-word-limit></el-input>
             </el-form-item>
 
             <ms-form-divider :title="$t('custom_field.template_setting')"/>

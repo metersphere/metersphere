@@ -12,7 +12,7 @@
 
     <template v-slot:default>
       <el-form-item :label="$t('test_track.case.name')" prop="caseName" :label-width="labelWidth">
-        <el-input v-model="form.caseName" autocomplete="off"></el-input>
+        <el-input v-model="form.caseName" autocomplete="off" maxlength="64" show-word-limit></el-input>
       </el-form-item>
 
       <form-rich-text-item

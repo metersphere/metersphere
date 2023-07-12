@@ -116,7 +116,9 @@
       ref="customFieldEdit">
     </custom-field-edit>
 
-    <ms-delete-confirm :title="$t('pj_custom_field.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('pj_custom_field.delete')" @delete="_handleDelete" ref="deleteConfirm" :with-tip="true">
+      <i style="font-size: 13px">{{ $t('pj_custom_field.delete_tips') }}</i>
+    </ms-delete-confirm>
 
   </el-card>
 </template>
