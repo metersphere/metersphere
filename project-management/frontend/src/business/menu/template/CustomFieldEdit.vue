@@ -24,11 +24,8 @@
       </el-form-item>
 
       <el-form-item :label="$t('custom_field.field_remark')" prop="remark" :label-width="labelWidth">
-        <el-input
-          :autosize="{ minRows: 2, maxRows: 4}"
-          type="textarea"
-          v-model="form.remark">
-        </el-input>
+        <el-input :autosize="{ minRows: 6}" type="textarea"
+                  maxlength="255" show-word-limit v-model="form.remark" />
       </el-form-item>
 
       <el-form-item :label="$t('custom_field.scene')" prop="type" :label-width="labelWidth">

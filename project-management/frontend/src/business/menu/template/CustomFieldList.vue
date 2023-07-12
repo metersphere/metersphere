@@ -26,7 +26,7 @@
         <ms-table-column
           :field="item"
           :fields-width="fieldsWidth"
-          :label="$t('commons.name')"
+          :label="$t('custom_field.field_name')"
           prop="name">
           <template v-slot="scope">
             <span v-if="scope.row.system">
@@ -51,7 +51,7 @@
 
         <ms-table-column
           :field="item"
-          :label="$t('custom_field.attribute_type')"
+          :label="$t('custom_field.field_type')"
           :filters="fieldFilters"
           :fields-width="fieldsWidth"
           prop="type">
@@ -76,7 +76,7 @@
         </ms-table-column>
 
         <ms-table-column
-          :label="$t('commons.remark')"
+          :label="$t('custom_field.field_remark')"
           :field="item"
           :fields-width="fieldsWidth"
           prop="remark">
