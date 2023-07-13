@@ -14,22 +14,18 @@ import io.metersphere.dto.PluginResourceDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.plugin.core.api.UiScriptApi;
 import io.metersphere.plugin.core.ui.PluginResource;
+import io.metersphere.plugin.loader.PluginClassLoader;
+import io.metersphere.plugin.loader.PluginManager;
 import io.metersphere.utils.CommonUtil;
+import io.metersphere.utils.PluginManagerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jorphan.reflect.ClassFinder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -39,13 +35,13 @@ public class ApiPluginService {
 
     @Resource
     private PluginMapper pluginMapper;
-
+    PluginManager pluginManager = new PluginManager();
     public List<PluginWithBLOBs> addApiPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
         String path = FileUtils.create(id, file);
         List<PluginWithBLOBs> addPlugins = new ArrayList<>();
         if (StringUtils.isNotEmpty(path)) {
-            List<PluginResourceDTO> resources = this.getMethod(path, file.getOriginalFilename());
+            List<PluginResourceDTO> resources = this.getMethod(path, file.getOriginalFilename(), file);
             if (CollectionUtils.isNotEmpty(resources)) {
                 for (PluginResourceDTO resource : resources) {
                     PluginExample example = new PluginExample();
@@ -61,30 +57,6 @@ public class ApiPluginService {
             }
         }
         return addPlugins;
-    }
-
-    private boolean loadJar(String jarPath) {
-        try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            try {
-                File file = new File(jarPath);
-                if (!file.exists()) {
-                    return false;
-                }
-                Method method = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, file.toURI().toURL());
-            } catch (NoSuchMethodException e) {
-                Method method = classLoader.getClass()
-                        .getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, jarPath);
-            }
-            return true;
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
-        return false;
     }
 
     /**
@@ -108,31 +80,47 @@ public class ApiPluginService {
         }
     }
 
-    private List<PluginResourceDTO> getMethod(String path, String fileName) {
+    private List<PluginResourceDTO> getMethod(String path, String fileName, MultipartFile file) {
         List<PluginResourceDTO> resources = new LinkedList<>();
         validatePluginType(path);
         try {
-            this.loadJar(path);
-            String jarPath[] = new String[]{path};
-            List<String> classes = ClassFinder.findClassesThatExtend(jarPath, new Class[]{UiScriptApi.class}, true);
-            for (String clazzName : classes) {
-                UiScriptApi uiScriptApi = Class.forName(clazzName)
+            PluginManagerUtil.loadPlugin(path, pluginManager,file);
+            PluginClassLoader classLoader = pluginManager.getClassLoader(path);
+            List<Class<?>> classes = this.findImplementations(UiScriptApi.class, classLoader.getClazzSet());
+            for (Class clazzName : classes) {
+                UiScriptApi uiScriptApi = classLoader.loadClass(clazzName.getName())
                         .asSubclass(UiScriptApi.class)
                         .getDeclaredConstructor().newInstance();
                 PluginResource pluginObj = uiScriptApi.init();
                 if (pluginObj != null) {
                     PluginResourceDTO pluginResourceDTO = new PluginResourceDTO();
                     BeanUtils.copyBean(pluginResourceDTO, pluginObj);
-                    pluginResourceDTO.setEntry(clazzName);
+                    pluginResourceDTO.setEntry(clazzName.getName());
                     resources.add(pluginResourceDTO);
                 }
             }
+            pluginManager.deletePlugin(path);
         } catch (Exception e) {
             this.init(fileName, resources);
         }
         return resources;
     }
 
+    public List<Class<?>> findImplementations(Class<?> interfaceClass,  Set<Class> allClasses) {
+        List<Class<?>> implementations = new ArrayList<>();
+
+        try {
+            for (Class<?> clazz : allClasses) {
+                if (interfaceClass.isAssignableFrom(clazz) && !clazz.equals(interfaceClass)) {
+                    implementations.add(clazz);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("获取jar包类异常：" + e);
+        }
+
+        return implementations;
+    }
     private void init(String fileName, List<PluginResourceDTO> resources) {
         List<Class<?>> classes = CommonUtil.getSubClass(fileName);
         try {
