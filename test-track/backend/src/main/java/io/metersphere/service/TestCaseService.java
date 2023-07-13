@@ -635,6 +635,11 @@ public class TestCaseService {
             if (StringUtils.isNotBlank(testCase.getTestId())) {
                 criteria.andTestIdEqualTo(testCase.getTestId());
             }
+
+            if (StringUtils.isNotBlank(testCase.getVersionId())) {
+                criteria.andVersionIdEqualTo(testCase.getVersionId());
+            }
+
             if (isEdit && StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
