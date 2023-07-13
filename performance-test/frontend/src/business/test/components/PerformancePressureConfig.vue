@@ -154,6 +154,7 @@
                                    v-model="threadGroup.iterateRampUp"
                                    size="mini"/>
                 </el-form-item>
+                <el-form-item :label="$t('load_test.seconds')" label-width="20px"/>
                 <br>
               </div>
               <el-form-item :label="$t('load_test.duration')">
