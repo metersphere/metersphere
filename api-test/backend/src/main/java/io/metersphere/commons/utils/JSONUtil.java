@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -230,6 +231,17 @@ public class JSONUtil {
             }
             Map<String, Object> map = JSON.parseObject(value, Map.class);
             return new JSONObject(map);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static JsonNode parseNode(String value) {
+        try {
+            if (StringUtils.isEmpty(value)) {
+                MSException.throwException("value is null");
+            }
+            return objectMapper.readTree(value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
