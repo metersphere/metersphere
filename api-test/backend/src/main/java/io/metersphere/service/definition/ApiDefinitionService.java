@@ -14,9 +14,11 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.exec.api.ApiExecuteService;
+import io.metersphere.api.exec.generator.JSONSchemaParser;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
@@ -327,6 +329,20 @@ public class ApiDefinitionService {
             return new ArrayList<>();
         }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
+        resList.forEach(item -> {
+            MsTestElement msTestElement = JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
+            if (msTestElement instanceof MsHTTPSamplerProxy) {
+                        MsHTTPSamplerProxy requestBody = (MsHTTPSamplerProxy) msTestElement;
+                        Body body = requestBody.getBody();
+                        if (StringUtils.isNotBlank(body.getType()) && StringUtils.equals(body.getType(), Body.JSON_STR)) {
+                            if (StringUtils.isNotEmpty(body.getFormat()) && body.getJsonSchema() != null && Body.JSON_SCHEMA.equals(body.getFormat())) {
+                                body.setRaw(JSONSchemaParser.preview(JSONUtil.toJSONString(body.getJsonSchema())));
+                            }
+                        }
+                        item.setRequest(JSONUtil.toJSONString(requestBody));
+                    }
+                }
+        );
         // 排序
         FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
         fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
@@ -1741,7 +1757,7 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionResult> getApiByIds(List<String> ids) {
-        if(CollectionUtils.isNotEmpty(ids)) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             List<ApiDefinitionResult> list = extApiDefinitionMapper.selectApiByIds(ids);
             buildCustomField(list);
             return list;

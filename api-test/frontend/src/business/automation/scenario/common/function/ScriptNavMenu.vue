@@ -177,6 +177,9 @@ export default {
             requestBodyKvs.set(arg.name, arg.value);
           }
         });
+      } else if (body.type === 'JSON' && body.format === 'JSON-SCHEMA') {
+        requestBody = body.raw;
+        bodyType = 'json';
       }
       return {
         requestPath,
