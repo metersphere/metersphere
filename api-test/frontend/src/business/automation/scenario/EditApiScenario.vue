@@ -275,7 +275,7 @@
                   node-key="id"
                   height="calc(100vh - 170px)"
                   :minItemSize="43"
-                  :sizeDependencies="['expanded', 'checked']"
+                  :sizeDependencies="['expanded']"
                   :props="props"
                   :data="scenarioDefinition"
                   :buffer="300"
@@ -294,7 +294,6 @@
                   :key="reloadTree">
                   <el-row
                     slot-scope="{ node, data }"
-                    v-if="isNodeShow(node, data)"
                     class="custom-tree-node"
                     :gutter="10"
                     type="flex"
@@ -325,7 +324,7 @@
                         :show-size="false"
                         style="margin-right: 10px" />
                     </span>
-                    <span style="width: calc(100% - 40px)">
+                    <span v-if="isNodeShow(node, data)" style="width: calc(100% - 40px)">
                       <!-- 步骤组件-->
                       <ms-component-config
                         :scenario-definition="scenarioDefinition"
@@ -350,10 +349,10 @@
                         @editScenarioAdvance="editScenarioAdvance"
                         ref="componentConfig" />
                     </span>
+                    <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
+                      {{ hideNode(node) }}
+                    </div>
                   </el-row>
-                  <div v-else class="el-tree-node is-hidden is-focusable is-leaf" style="display: none">
-                    {{ hideNode(node) }}
-                  </div>
                 </vue-easy-tree>
               </div>
             </el-row>
