@@ -3,9 +3,10 @@
   <div>
     <a-alert type="info" :closable="true">
       <div>
-        MeterSphereV2.10LTS版本支持DevOps、API导入、请求、项目管理、协议类型的插件，具体支持插件请
-        <a class="mx-1" href="javascript:;">查看表格</a>更多开源插件，请在此下载
-        <a class="mx-1" href="javascript:;">去下载 </a>
+        {{ t('system.plugin.alertDescribe') }}
+        <a class="mx-1" href="javascript:;">{{ t('system.plugin.viewTable') }}</a
+        >{{ t('system.plugin.downAddress') }}
+        <a class="mx-1" href="javascript:;">{{ t('system.plugin.goDownload') }} </a>
       </div>
     </a-alert>
     <div class="mt-4">
@@ -16,6 +17,9 @@
 
 <script setup lang="ts">
   import pluginTable from './components/pluginTable.vue';
+  import { useI18n } from '@/hooks/useI18n';
+
+  const { t } = useI18n();
 </script>
 
 <style scoped>

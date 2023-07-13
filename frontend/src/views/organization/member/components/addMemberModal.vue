@@ -1,15 +1,15 @@
 <template>
   <a-modal
-    v-model:visible="memberVisible"
+    v-model:visible="dialogVisible"
     title-align="start"
-    width="680px"
+    class="ms-modal-form ms-modal-medium"
     :ok-text="t('organization.member.Save')"
     @ok="handleOK"
     @cancel="handleCancel"
   >
     <template #title> {{ t('organization.member.addMember') }} </template>
     <div class="form">
-      <a-form :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form :model="form" size="large" layout="vertical">
         <a-form-item
           v-model="form.members"
           field="members"
@@ -43,18 +43,21 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, reactive } from 'vue';
+  import { ref, reactive } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import type { AddMemberForm } from '@/models/system/member';
+  import { useDialog } from '@/hooks/useDialog';
 
   const { t } = useI18n();
-
-  const emit = defineEmits<{
-    (e: 'cancel'): void;
-  }>();
   const props = defineProps<{
     visible: boolean;
+    title?: string;
   }>();
+  const emits = defineEmits<{
+    (event: 'update:visible', visible: boolean): void;
+    (event: 'close'): void;
+  }>();
+  const { dialogVisible } = useDialog(props, emits);
   const userGroupOptions = ref([
     {
       label: 'Beijing',
@@ -85,22 +88,16 @@
     },
   ]);
 
-  const memberVisible = ref<boolean>(props.visible);
   const form = reactive<AddMemberForm>({
     userGroups: '',
     members: [],
   });
-  watchEffect(() => {
-    memberVisible.value = props.visible;
-  });
-
-  const handleOK = () => {
-    // eslint-disable-next-line no-use-before-define
-    handleCancel();
+  const handleCancel = () => {
+    emits('close');
   };
 
-  const handleCancel = () => {
-    emit('cancel');
+  const handleOK = () => {
+    handleCancel();
   };
 </script>
 
