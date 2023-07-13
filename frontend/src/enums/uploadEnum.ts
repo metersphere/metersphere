@@ -9,6 +9,7 @@ export enum UploadAcceptEnum {
   zip = '.zip',
   xmind = '.xmind',
   image = '.jpg,.png',
+  jar = '.jar',
 }
 
 export default UploadAcceptEnum;
