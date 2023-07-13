@@ -272,7 +272,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
                     item.setOriginalValue(StringUtils.EMPTY);
                 }
             });
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), templateWithBLOBs.getProjectId(), templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
