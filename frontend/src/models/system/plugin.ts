@@ -27,7 +27,7 @@ export interface PluginItem {
   createUser: string;
   updateUser: string;
   organizationList: organizationList;
-  children?: PluginItem[];
+  steps?: string[];
 }
 export type PluginList = PluginItem[];
 

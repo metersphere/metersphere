@@ -40,6 +40,10 @@
         <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
       </template>
     </ms-base-table>
+    <div class="mt-4 text-sm text-slate-500"
+      >共<span class="mx-2">{{ 101 }}</span
+      >项数据</div
+    >
     <UploadModel :visible="uploadVisible" @cancel="uploadVisible = false" @upload="uploadPlugin" @success="okHandler" />
     <UpdatePluginModal ref="updateModalRef" :visible="updateVisible" @cancel="updateVisible = false" />
   </div>
@@ -60,6 +64,8 @@
   import uploadSuccessModal from './uploadSuccessModal.vue';
   import sceneChangeModal from './sceneChangeModal.vue';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
+  import useModal from '@/hooks/useModal';
+  import { Message } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   export type Options = {
@@ -123,10 +129,13 @@
   ];
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(getPluginList, {
     columns,
-    scroll: { y: 'auto', x: 1800 },
-    selectable: false,
-    showSelectAll: false,
+    'scroll': { y: 'auto', x: 1800 },
+    'selectable': false,
+    'showSelectAll': false,
+    'pagination': false,
+    'virtual-list-props': { height: 380 },
   });
+  const { openModal } = useModal();
   const keyword = ref('');
   const scene = ref('1');
   const sceneList = ref([
@@ -146,7 +155,28 @@
     setKeyword(keyword.value);
     await loadList();
   }
-  function deletePlugin() {}
+  function deletePlugin(record: any) {
+    openModal({
+      type: 'warning',
+      title: t('system.plugin.deletePluginTip', { name: record.name }),
+      content: '',
+      okText: t('system.plugin.deletePluginConfirm'),
+      cancelText: t('system.plugin.pluginCancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('system.plugin.deletePluginSuccess'));
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+      },
+      hideCancel: false,
+    });
+  }
   /**
    * 处理表格更多按钮事件
    * @param item
@@ -154,7 +184,7 @@
   function handleSelect(item: ActionsItem, record: any) {
     switch (item.eventTag) {
       case 'delete':
-        deletePlugin();
+        deletePlugin(record);
         break;
       default:
         break;
@@ -191,7 +221,7 @@
   const okHandler = () => {
     dialogOpen(uploadSuccessOptions);
   };
-  const changeScene = () => {
+  const changeScene = (record: any) => {
     sceneChangeOptions.visible = true;
     mySceneChangeDialog(sceneChangeOptions);
   };

@@ -1,27 +1,15 @@
 <template>
-  <a-modal
-    v-model:visible="updateVisible"
-    class="ms-modal-form ms-modal-small"
-    title-align="start"
-    width="480px"
-    @ok="handleOk"
-    @cancel="handleCancel"
-  >
+  <a-modal v-model:visible="updateVisible" width="680px" title-align="start" class="ms-modal-form ms-modal-medium">
     <template #title> {{ t('system.plugin.updateTitle', { name: title }) }}</template>
-    <a-row class="grid-demo">
-      <a-form :model="form" size="small" :style="{ width: '600px' }" layout="vertical">
+    <div class="form">
+      <a-form :model="form" layout="vertical">
         <!-- <a-col :span="24"> -->
         <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
-          <a-input
-            v-model="form.pluginName"
-            size="small"
-            :placeholder="t('system.plugin.defaultJarNameTip')"
-            allow-clear
-          />
+          <a-input v-model="form.pluginName" :placeholder="t('system.plugin.defaultJarNameTip')" allow-clear />
         </a-form-item>
         <!-- </a-col> -->
         <a-form-item field="organize" :label="t('system.plugin.appOrganize')" asterisk-position="end">
-          <a-radio-group v-model="form.organize" size="small">
+          <a-radio-group v-model="form.organize">
             <a-radio value="1">全部组织</a-radio>
             <a-radio value="2">指定组织</a-radio>
           </a-radio-group>
@@ -38,15 +26,16 @@
           </a-select>
         </a-form-item>
         <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
-          <a-textarea
-            v-model="form.describe"
-            size="small"
-            :placeholder="t('system.plugin.pluginDescription')"
-            allow-clear
-          />
+          <a-textarea v-model="form.describe" :placeholder="t('system.plugin.pluginDescription')" allow-clear />
         </a-form-item>
       </a-form>
-    </a-row>
+    </div>
+    <template #footer>
+      <a-button type="secondary" @click="emit('cancel')">{{ t('system.plugin.pluginCancel') }}</a-button>
+      <a-button type="primary" @click="handleOk">
+        {{ t('system.plugin.pluginConfirm') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 

@@ -2,6 +2,7 @@ export default {
   'organization.member.addMember': 'Add Member',
   'organization.member.searchMember': 'Search by name or email address',
   'organization.member.remove': 'Remove',
+  'organization.member.edit': 'Edit',
   'organization.member.batchActionAddProject': 'Add to project',
   'organization.member.batchActionAddUsergroup': 'Add to usergroup',
   'organization.member.tableEnable': 'Enabled',

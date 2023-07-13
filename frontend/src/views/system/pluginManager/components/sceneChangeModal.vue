@@ -1,8 +1,8 @@
 <template>
-  <a-modal v-model:visible="dialogVisible" class="ms-modal-form ms-modal-small" title-align="start">
+  <a-modal v-model:visible="dialogVisible" class="ms-modal-form ms-modal-medium" title-align="start">
     <template #title> {{ title }} </template>
     <a-alert type="warning" :closable="true">
-      <div> 插件内容与应用场景不一致时插件功能将无法启用，请谨慎操作！ </div>
+      <div>{{ t('system.plugin.changeSceneTips') }}</div>
     </a-alert>
     <div class="mt-6 flex flex-col">
       <div
@@ -22,13 +22,19 @@
               v-show="item.isSelected"
               size="small"
               class="ml-[4px] border-[rgb(var(--primary-4))] bg-transparent px-1 text-xs !text-[rgb(var(--primary-4))]"
-              >当前场景</a-tag
+              >{{ t('system.plugin.currentScene') }}</a-tag
             >
           </div>
           <div class="text-sm">{{ t(item.description) }}</div>
         </div>
       </div>
     </div>
+    <template #footer>
+      <a-button type="secondary" @click="emits('close')">{{ t('system.plugin.pluginCancel') }}</a-button>
+      <a-button type="primary" @click="handelOk">
+        {{ t('system.plugin.pluginConfirm') }}
+      </a-button>
+    </template>
   </a-modal>
 </template>
 
@@ -68,6 +74,9 @@
       item.isSelected = false;
     });
     currentItem.isSelected = true;
+  };
+  const handelOk = () => {
+    emits('close');
   };
 </script>
 

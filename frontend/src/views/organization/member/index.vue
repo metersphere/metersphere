@@ -39,15 +39,16 @@
       </template>
 
       <template #action="{ record }">
+        <MsButton @click="editMember(record)">{{ t('organization.member.edit') }}</MsButton>
         <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton>
       </template>
     </ms-base-table>
-    <add-member-modal :visible="addMemberVisible" @cancel="addMemberVisible = false" />
+    <!-- <add-member-modal :visible="addMemberVisible" @cancel="addMemberVisible = false" /> -->
   </div>
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref, reactive } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -57,6 +58,7 @@
   import { getMemberList } from '@/api/modules/system/member';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useModal from '@/hooks/useModal';
+  import { useCommandComponent } from '@/hooks/useCommandComponent';
 
   const columns: MsTableColumn = [
     {
@@ -93,7 +95,7 @@
       title: 'organization.member.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
-      width: 80,
+      width: 110,
     },
   ];
 
@@ -117,8 +119,14 @@
   });
 
   const keyword = ref('');
-
-  const addMemberVisible = ref<boolean>(false);
+  const addMemberDialog = useCommandComponent(addMemberModal);
+  const addMembersOptions = reactive({
+    title: '添加成员',
+    visible: false,
+    onClose: () => {
+      addMemberDialog.close();
+    },
+  });
 
   onMounted(async () => {
     setKeyword(keyword.value);
@@ -150,12 +158,14 @@
       hideCancel: false,
     });
   }
+  function editMember(record: any) {}
   const tableSelected = ref<(string | number)[]>([]);
   function handleTableSelect(selectArr: (string | number)[]) {
     tableSelected.value = selectArr;
   }
   function AddMember() {
-    addMemberVisible.value = true;
+    addMembersOptions.visible = true;
+    addMemberDialog(addMembersOptions);
   }
 </script>
 
