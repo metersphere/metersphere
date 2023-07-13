@@ -415,27 +415,30 @@ public class TestCaseService {
         return testCaseDTO;
     }
 
-    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
+    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase, boolean handleDemand) {
         checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         TestCaseWithBLOBs originCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
 
-        try {
-            // 同步缺陷与需求的关联关系
-            updateThirdPartyIssuesLink(testCase);
+        if (handleDemand) {
+            try {
+                // 同步缺陷与需求的关联关系
+                updateThirdPartyIssuesLink(testCase);
 
-            // 同步用例与需求的关联关系
-            addDemandHyperLink(testCase, "edit");
+                // 同步用例与需求的关联关系
+                addDemandHyperLink(testCase, "edit");
 
-            handleDemandUpdate(testCase, DemandUpdateRequest.OperateType.EDIT,
-                    projectMapper.selectByPrimaryKey(testCase.getProjectId()), originCase.getDemandId());
-        } catch (Exception e) {
-            LogUtil.error(e);
+                handleDemandUpdate(testCase, DemandUpdateRequest.OperateType.EDIT,
+                        projectMapper.selectByPrimaryKey(testCase.getProjectId()), originCase.getDemandId());
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+
+            if (StringUtils.isEmpty(testCase.getDemandId())) {
+                testCase.setDemandId(StringUtils.EMPTY);
+            }
         }
 
-        if (StringUtils.isEmpty(testCase.getDemandId())) {
-            testCase.setDemandId(StringUtils.EMPTY);
-        }
         createNewVersionOrNot(testCase);
 
         if (StringUtils.isNotBlank(testCase.getCustomNum()) && StringUtils.isNotBlank(testCase.getId())) {
@@ -463,6 +466,10 @@ public class TestCaseService {
         reReviewTestReviewTestCase(originCase, testCaseWithBLOBs);
 
         return testCaseWithBLOBs;
+    }
+
+    public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
+       return editTestCase(testCase, true);
     }
 
     /**
@@ -2456,7 +2463,7 @@ public class TestCaseService {
                     BeanUtils.copyBean(editRequest, item);
                     editRequest.setCustomFields(null);
                     editRequest.setTags(null);
-                    editTestCase(editRequest);
+                    editTestCase(editRequest, false);
                     changeOrder(item, request.getProjectId());
                     lastAddId = null;
                 } else {
