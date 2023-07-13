@@ -15,6 +15,7 @@ export default {
   planning_execution: "Planning&Execution",
   project: "Project",
   save: "Save",
+  save_and_next: "Save and next",
   return: "Return",
   length_less_than: "Length must be less than or equal to",
   recent_plan: "My recent plan",

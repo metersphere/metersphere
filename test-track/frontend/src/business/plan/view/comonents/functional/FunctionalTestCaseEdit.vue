@@ -347,7 +347,7 @@ export default {
         },
       };
     },
-    saveCase() {
+    saveCase(command) {
       let param = {};
       param.id = this.testCase.id;
       param.caseId = this.testCase.caseId;
@@ -396,6 +396,9 @@ export default {
           this.testCase.comment = "";
         }
         this.originalStatus = this.testCase.status;
+        if (command === 'save') {
+          this.handleNext();
+        }
       });
     },
     updateTestCases(param) {

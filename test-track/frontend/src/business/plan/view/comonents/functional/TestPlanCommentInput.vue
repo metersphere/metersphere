@@ -103,9 +103,9 @@ export default {
 <style scoped>
 
 .comment-form {
-  padding-right: 20px;
+  padding-right: 10px;
   padding-left: 30px;
-  margin-top: 100px;
+  margin-top: 56px;
 }
 
 .inputWarning :deep(.v-note-panel) {

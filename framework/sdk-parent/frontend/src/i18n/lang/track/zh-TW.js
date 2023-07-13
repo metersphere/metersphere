@@ -15,6 +15,7 @@ export default {
   cancel: "取 消",
   project: "項目",
   save: "保 存",
+  save_and_next: "保存並下一條",
   return: "返 回",
   length_less_than: "長度必須小於等于",
   recent_plan: "我最近的計劃",
