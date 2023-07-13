@@ -432,6 +432,9 @@ export default {
       }
     },
     validateSocket(socket) {
+      if (!socket) {
+        return true;
+      }
       this.condition.socket = socket;
       let urlStr = this.condition.protocol + "://" + socket;
       let url = {};
@@ -441,7 +444,7 @@ export default {
         return true;
       }
       this.condition.domain = decodeURIComponent(url.hostname);
-      if (socket.startsWith("${")){
+      if (socket && socket.startsWith("${")){
         let split = socket.split(":");
         this.condition.domain = split[0];
       }

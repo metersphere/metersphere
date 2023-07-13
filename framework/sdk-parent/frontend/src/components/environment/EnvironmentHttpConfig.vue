@@ -451,7 +451,6 @@ export default {
       if (socket.startsWith("${")){
         let split = socket.split(":");
         this.condition.domain = split[0];
-        return true;
       }
       return true;
     },
