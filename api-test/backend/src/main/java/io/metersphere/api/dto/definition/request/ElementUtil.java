@@ -66,6 +66,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,6 +74,8 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1173,5 +1176,26 @@ public class ElementUtil {
             return true;
         }
         return false;
+    }
+    @NotNull
+    public static List<String> getProjectIds(String scenarioDefinition) {
+        Pattern pattern = Pattern.compile("\"projectId\"\\s*:\\s*\"?([^\"]*)\"?,");
+        Matcher matcher = pattern.matcher(scenarioDefinition);
+        List<String> projectIdLists = new ArrayList<>();
+        while (matcher.find()) {
+            if (!projectIdLists.contains(matcher.group(1))){
+                projectIdLists.add(matcher.group(1));
+            }
+        }
+        return projectIdLists;
+    }
+
+    public static Map<String, String> getProjectEnvMap(List<String> projectIdLists, Map<String, String> projectEnvMap) {
+        if (CollectionUtils.isNotEmpty(projectIdLists)) {
+            projectEnvMap = projectEnvMap.entrySet().stream()
+                    .filter(entry -> projectIdLists.contains(entry.getKey()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }
+        return projectEnvMap;
     }
 }
