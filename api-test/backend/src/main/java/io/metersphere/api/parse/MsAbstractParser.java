@@ -1,11 +1,12 @@
 package io.metersphere.api.parse;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.parse.api.ms.NodeTree;
+import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,9 +14,16 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
+    private static final String URL = "url";
+    private static final String METHOD = "method";
+    private static final String HEADERS = "headers";
+    private static final String BODY = "body";
 
     protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JSONObject testObject, String tag, boolean isSetUrl) {
         JSONObject requests = testObject.optJSONObject(tag);
@@ -23,8 +31,8 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
         if (requests != null) {
             requests.keySet().forEach(requestName -> {
                 JSONObject requestObject = requests.optJSONObject(requestName);
-                String path = requestObject.optString("url");
-                String method = requestObject.optString("method");
+                String path = requestObject.optString(URL);
+                String method = requestObject.optString(METHOD);
                 MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
                 parseBody(requestObject, request.getBody());
                 parseHeader(requestObject, request.getHeaders());
@@ -36,6 +44,29 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
             });
         }
         return msHTTPSamplerProxies;
+    }
+
+    protected List<MsHTTPSamplerProxy> parseMsHTTPSamplerProxy(JsonNode requests, boolean isSetUrl) {
+        List<MsHTTPSamplerProxy> samplerProxies = new ArrayList<>();
+        Iterator<Map.Entry<String, JsonNode>> fields = requests.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> field = fields.next();
+            if (field.getValue().isNull()) {
+                continue;
+            }
+            JSONObject requestObject = JSONUtil.parseObject(JSON.toJSONString(field.getValue()));
+            String path = requestObject.optString(URL);
+            String method = requestObject.optString(METHOD);
+            MsHTTPSamplerProxy request = buildRequest(field.getKey(), path, method);
+            parseBody(requestObject, request.getBody());
+            parseHeader(requestObject, request.getHeaders());
+            parsePath(request);
+            if (isSetUrl) {
+                request.setUrl(path);
+            }
+            samplerProxies.add(request);
+        }
+        return samplerProxies;
     }
 
     private void parsePath(MsHTTPSamplerProxy request) {
@@ -60,14 +91,13 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
                     arguments.add(new KeyValue(kv[0], kv.length < 2 ? null : kv[1]));
                 }
             } catch (UnsupportedEncodingException e) {
-                LogUtil.info(e.getMessage(), e);
-                return;
+                LogUtil.error(e);
             }
         }
     }
 
     private void parseHeader(JSONObject requestObject, List<KeyValue> msHeaders) {
-        JSONArray headers = requestObject.optJSONArray("headers");
+        JSONArray headers = requestObject.optJSONArray(HEADERS);
         if (headers != null) {
             for (int i = 0; i < headers.length(); i++) {
                 JSONObject header = headers.optJSONObject(i);
@@ -77,10 +107,10 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
     }
 
     private void parseBody(JSONObject requestObject, Body msBody) {
-        if (requestObject.has("body")) {
-            Object body = requestObject.get("body");
+        if (requestObject.has(BODY)) {
+            Object body = requestObject.get(BODY);
             if (body instanceof JSONArray) {
-                JSONArray bodies = requestObject.optJSONArray("body");
+                JSONArray bodies = requestObject.optJSONArray(BODY);
                 if (bodies != null) {
                     StringBuilder bodyStr = new StringBuilder();
                     for (int i = 0; i < bodies.length(); i++) {
@@ -91,7 +121,7 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
                     msBody.setRaw(bodyStr.toString());
                 }
             } else if (body instanceof JSONObject) {
-                JSONObject bodyObj = requestObject.optJSONObject("body");
+                JSONObject bodyObj = requestObject.optJSONObject(BODY);
                 if (bodyObj != null) {
                     ArrayList<KeyValue> kvs = new ArrayList<>();
                     bodyObj.keySet().forEach(key -> {
@@ -101,66 +131,6 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
                     msBody.setType(Body.WWW_FROM);
                 }
             }
-        }
-    }
-
-
-    /**
-     * 删除没有用例的节点
-     *
-     * @param nodeTree
-     * @param ids
-     * @return
-     */
-    public void cutDownTree(List<NodeTree> nodeTree, Set<String> ids) {
-        Iterator<NodeTree> iterator = nodeTree.iterator();
-        while (iterator.hasNext()) {
-            NodeTree item = iterator.next();
-            if (cutDownTree(item, ids)) {
-                iterator.remove();
-            }
-        }
-    }
-
-    private boolean cutDownTree(NodeTree nodeTree, Set<String> ids) {
-        boolean delete = true;
-        if (ids.contains(nodeTree.getId())) {
-            delete = false;
-        }
-
-        List<NodeTree> children = nodeTree.getChildren();
-
-        if (CollectionUtils.isNotEmpty(children)) {
-            Iterator<NodeTree> iterator = children.iterator();
-            while (iterator.hasNext()) {
-                NodeTree item = iterator.next();
-                if (cutDownTree(item, ids)) {
-                    iterator.remove();
-                } else {
-                    delete = false;
-                }
-            }
-        }
-        return delete;
-    }
-
-    public Map<String, NodeTree> getNodeMap(List<NodeTree> nodeTree) {
-        Map<String, NodeTree> nodeMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(nodeTree)) {
-            nodeTree.forEach(item -> {
-                getNodeMap(nodeMap, item);
-            });
-        }
-        return nodeMap;
-    }
-
-    private void getNodeMap(Map<String, NodeTree> nodeMap, NodeTree nodeTree) {
-        nodeMap.put(nodeTree.getId(), nodeTree);
-        List<NodeTree> children = nodeTree.getChildren();
-        if (CollectionUtils.isNotEmpty(children)) {
-            children.forEach(item -> {
-                getNodeMap(nodeMap, item);
-            });
         }
     }
 }

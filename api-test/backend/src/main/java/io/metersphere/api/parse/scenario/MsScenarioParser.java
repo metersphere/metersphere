@@ -1,6 +1,7 @@
 package io.metersphere.api.parse.scenario;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.definition.request.MsScenario;
@@ -30,18 +31,21 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         if (StringUtils.isNotEmpty(testObject.optString("projectName")) || StringUtils.isNotEmpty(testObject.optString("projectId"))) {
             return parseMsFormat(testStr, request);
         } else {
+            JsonNode node = JSONUtil.parseNode(testStr);
             ScenarioImport apiImport = new ScenarioImport();
             ArrayList<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = new ArrayList<>();
-            apiScenarioWithBLOBs.add(parsePluginFormat(testObject, request));
+            apiScenarioWithBLOBs.add(parsePluginFormat(node, request));
             apiImport.setData(apiScenarioWithBLOBs);
             return apiImport;
         }
     }
 
-    protected ApiScenarioWithBLOBs parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest) {
+    protected ApiScenarioWithBLOBs parsePluginFormat(JsonNode  testObject, ApiTestImportRequest importRequest) {
         LinkedList<MsTestElement> results = new LinkedList<>();
-        testObject.keySet().forEach(tag -> {
-            results.addAll(parseMsHTTPSamplerProxy(testObject, tag, true));
+        testObject.forEach(node -> {
+            if(node != null ) {
+                results.addAll(parseMsHTTPSamplerProxy(node, true));
+            }
         });
         MsScenario msScenario = new MsScenario();
         msScenario.setName(importRequest.getFileName());
