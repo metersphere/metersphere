@@ -287,7 +287,7 @@ export default {
     changeSwitch(row) {
       changeStatus(row)
         .then(response => {
-          this.$success(this.$t('commons.save_success'));
+          this.$success(row.status === 'open' ? this.$t('commons.enable_success') : this.$t('commons.disable_success'));
         });
     },
     changeLatest(row) {
