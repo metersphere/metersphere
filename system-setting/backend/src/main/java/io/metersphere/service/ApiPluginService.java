@@ -35,7 +35,6 @@ public class ApiPluginService {
 
     @Resource
     private PluginMapper pluginMapper;
-    PluginManager pluginManager = new PluginManager();
     public List<PluginWithBLOBs> addApiPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
         String path = FileUtils.create(id, file);
@@ -83,6 +82,7 @@ public class ApiPluginService {
     private List<PluginResourceDTO> getMethod(String path, String fileName, MultipartFile file) {
         List<PluginResourceDTO> resources = new LinkedList<>();
         validatePluginType(path);
+        PluginManager pluginManager = new PluginManager();
         try {
             PluginManagerUtil.loadPlugin(path, pluginManager,file);
             PluginClassLoader classLoader = pluginManager.getClassLoader(path);

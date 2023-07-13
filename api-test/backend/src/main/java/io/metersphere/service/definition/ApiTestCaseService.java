@@ -11,6 +11,8 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.exec.generator.JSONSchemaParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -115,10 +117,10 @@ public class ApiTestCaseService {
     private BaseProjectService baseProjectService;
 
 
-
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     private static final String DEFAULT_TIME_DATE = "-3D";
+
     //查询测试用例详情
     public ApiTestCaseWithBLOBs getInfoJenkins(String id) {
         ApiTestCaseWithBLOBs apiTest = apiTestCaseMapper.selectByPrimaryKey(id);
@@ -286,11 +288,12 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseInfo> selectByCaseIds(List<String> ids) {
-        if(CollectionUtils.isEmpty(ids)){
+        if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
         return extApiTestCaseMapper.selectByCaseIds(ids);
     }
+
     public ApiTestCaseInfo getResult(String id) {
         return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
     }
@@ -439,7 +442,7 @@ public class ApiTestCaseService {
                     requestOrg,
                     test.getRequest(),
                     test.getCreateUserId()
-                    );
+            );
         }
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.CASE.name());
@@ -514,7 +517,7 @@ public class ApiTestCaseService {
                 null,
                 test.getRequest(),
                 test.getCreateUserId()
-                );
+        );
         // 存储附件关系
         extFileAssociationService.saveApi(test.getId(), request.getRequest(), FileAssociationTypeEnums.CASE.name());
         return test;
@@ -847,6 +850,20 @@ public class ApiTestCaseService {
             list = new ArrayList<>();
         } else {
             list = extApiTestCaseMapper.getCaseInfo(request);
+            list.forEach(item -> {
+                        MsTestElement msTestElement = JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
+                        if (msTestElement instanceof MsHTTPSamplerProxy) {
+                            MsHTTPSamplerProxy requestBody = (MsHTTPSamplerProxy) JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
+                            Body body = requestBody.getBody();
+                            if (StringUtils.isNotBlank(body.getType()) && StringUtils.equals(body.getType(), Body.JSON_STR)) {
+                                if (StringUtils.isNotEmpty(body.getFormat()) && body.getJsonSchema() != null && Body.JSON_SCHEMA.equals(body.getFormat())) {
+                                    body.setRaw(JSONSchemaParser.preview(JSONUtil.toJSONString(body.getJsonSchema())));
+                                }
+                            }
+                            item.setRequest(JSONUtil.toJSONString(requestBody));
+                        }
+                    }
+            );
         }
         // 排序
         FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
