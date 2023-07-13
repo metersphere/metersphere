@@ -52,11 +52,12 @@
                          :filter-method="(value) => filterWorkspaceOption(value, group)"
                          @visible-change="(value) => resetWorkspaceOption(value, group)"
                          class="edit-user-select" @change="updateWorkSpace(group.index,group.type)">
-                <el-option
+                <el-option style="width:690px"
                     v-for="item in group.workspaceOptions"
                     :key="item.id"
                     :label="item.name"
-                    :value="item.id">
+                    :value="item.id"
+                    :title="item.name">
                 </el-option>
               </el-select>
             </el-form-item>
@@ -70,11 +71,12 @@
                          :filter-method="(value) => filterProjectOption(value, group)"
                          @visible-change="(value) => resetProjectOption(value, group)"
                          class="edit-user-select" @change="setWorkSpaceIds(group.ids,group.projects)">
-                <el-option
+                <el-option style="width:690px"
                     v-for="item in group.projectOptions"
                     :key="item.id"
                     :label="item.name"
-                    :value="item.id">
+                    :value="item.id"
+                    :title="item.name">
                 </el-option>
               </el-select>
             </el-form-item>
