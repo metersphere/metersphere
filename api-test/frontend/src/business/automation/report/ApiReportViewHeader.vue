@@ -1,7 +1,7 @@
 <template>
   <header class="report-header">
-    <el-row>
-      <el-col>
+    <div class="action-row">
+      <div>
         <span v-if="!debug">
           <el-input
             v-if="nameIsEdit"
@@ -33,88 +33,79 @@
           <span style="margin-left: 10px">{{ $t('report.test_end_time') }}：</span>
           <span class="time"> {{ report.endTime | datetimeFormat }}</span>
         </span>
-        <div style="float: right">
-          <el-button
-            v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
-            v-permission="['PROJECT_API_REPORT:READ+EXPORT']"
-            :disabled="isReadOnly"
-            class="export-button"
-            plain
-            type="primary"
-            size="mini"
-            @click="handleExport(report.name)"
-            style="margin-right: 10px">
-            {{ $t('test_track.plan_view.export_report') }}
-          </el-button>
-
-          <el-popover
-            v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
-            v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
-            style="margin-right: 10px"
-            placement="bottom"
-            trigger="click"
-            popperClass="ms-custom-message-class"
-            width="300">
-            <p>{{ shareUrl }}</p>
-            <span style="color: red; float: left; margin-left: 10px" v-if="application.typeValue">{{
-              $t('commons.validity_period') + application.typeValue
-            }}</span>
-            <div style="text-align: right; margin: 0">
-              <el-button type="primary" size="mini" :disabled="!shareUrl" v-clipboard:copy="shareUrl"
-                >{{ $t('commons.copy') }}
-              </el-button>
-            </div>
-            <template v-slot:reference>
-              <el-button :disabled="isReadOnly" type="danger" plain size="mini" @click="handleShare(report)">
-                {{ $t('test_track.plan_view.share_report') }}
-              </el-button>
-            </template>
-          </el-popover>
-
-          <el-button v-if="showRerunButton" class="rerun-button" plain size="mini" @click="rerun">
-            {{ $t('api_test.automation.rerun') }}
-          </el-button>
-
-          <el-button v-if="showCancelButton" class="export-button" plain size="mini" @click="returnView">
-            {{ $t('commons.cancel') }}
-          </el-button>
-        </div>
-      </el-col>
-    </el-row>
-    <el-row type="flex" style="margin-top: 5px;">
-      <el-col v-if="this.mode">
-        <div style="float: left">
-          <span> {{ $t('report.run_model') + ':' }} </span>
-        </div>
-        <div style="color: #61c550; margin-left: 10px; float: left">
+      </div>
+      <div>
+        <el-popover
+          v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
+          v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']"
+          placement="bottom"
+          trigger="click"
+          popperClass="ms-custom-message-class"
+          width="300"
+          >
+          <p>{{ shareUrl }}</p>
+          <span style="color: red" v-if="application.typeValue">{{
+            $t('commons.validity_period') + application.typeValue
+          }}</span>
+          <div>
+            <el-button type="primary" size="mini" :disabled="!shareUrl" v-clipboard:copy="shareUrl"
+              >{{ $t('commons.copy') }}
+            </el-button>
+          </div>
+          <template v-slot:reference>
+            <el-button :disabled="isReadOnly" type="danger" plain size="mini" @click="handleShare(report)">
+              {{ $t('test_track.plan_view.share_report') }}
+            </el-button>
+          </template>
+        </el-popover>
+        <el-button class="btn-second" v-if="showCancelButton" size="mini" @click="returnView">
+          {{ $t('commons.cancel') }}
+        </el-button>
+        <el-button
+          v-if="!isPlan && (!debug || exportFlag) && !isTemplate"
+          v-permission="['PROJECT_API_REPORT:READ+EXPORT']"
+          :disabled="isReadOnly"
+          plain
+          type="primary"
+          size="mini"
+          class="btn-second"
+          @click="handleExport(report.name)">
+          {{ $t('test_track.plan_view.export_report') }}
+        </el-button>
+        <el-button class="btn-second" v-if="showRerunButton" plain size="mini" @click="rerun">
+          {{ $t('api_test.automation.rerun') }}
+        </el-button>
+      </div>
+    </div>
+    <div class="content-row">
+      <div v-if="this.mode">
+        <span> {{ $t('report.run_model') + ':' }} </span>
+          <span style="color: #61c550">
           {{ getModeName(this.mode) }}
-        </div>
-      </el-col>
-      <el-col v-if="this.poolName">
-        <div style="float: left">
-          <span> {{ $t('load_test.select_resource_pool') + ':' }} </span>
-        </div>
-        <div style="color: #61c550; margin-left: 10px; float: left">
+        </span>
+      </div>
+      <div v-if="this.poolName">
+        <span> {{ $t('load_test.select_resource_pool') + ':' }} </span>
+        <span style="color: #61c550;">
           {{ this.poolName }}
-        </div>
-      </el-col>
-      <el-col></el-col>
-    </el-row>
-    <el-row v-if="showProjectEnv" type="flex" style="margin-top: 5px; padding-left: 10px;">
+        </span>
+      </div>
+    </div>
+    <div v-if="showProjectEnv" class="content-row">
       <span> {{ $t('commons.environment') + ':' }} </span>
-      <div v-for="(values, key) in projectEnvMap" :key="key" style="margin-right: 10px">
+      <span v-for="(values, key) in projectEnvMap" :key="key">
         {{ key + ':' }}
         <ms-tag v-for="(item, index) in values" :key="index" type="success" :content="item" style="margin-left: 2px" />
-      </div>
-    </el-row>
+      </span>
+    </div>
   </header>
 </template>
 
 <script>
 import { generateShareInfoWithExpired, getShareRedirectUrl } from '../../../api/share';
-import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend/src/utils/token';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
-import {apiProjectByScenarioId, getProjectApplicationConfig} from '../../../api/project';
+import { apiProjectByScenarioId, getProjectApplicationConfig } from '../../../api/project';
 import { apiTestReRun } from '../../../api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getApiScenarioIdByPlanScenarioId } from '@/api/test-plan';
@@ -140,8 +131,12 @@ export default {
       default: false,
     },
     isPlan: Boolean,
-    poolName: String,
-    mode: String,
+    poolName: {
+      type: String,
+    },
+    mode: {
+      type: String,
+    },
     isShare: Boolean,
   },
   computed: {
@@ -190,15 +185,15 @@ export default {
       let resourceId = this.scenarioId;
       getApiScenarioIdByPlanScenarioId(this.scenarioId).then((res) => {
         resourceId = res.data;
-          apiProjectByScenarioId(resourceId).then((response) =>{
-            if (response.data) {
-              let projectId = response.data.id;
-              let workspaceId = response.data.workspaceId;
-              let projectName = response.data.name;
-              let workspaceName = response.data.workspaceName;
-              this.showDetails(resourceId, projectId, projectName, workspaceId, workspaceName);
-            }
-          })
+        apiProjectByScenarioId(resourceId).then((response) => {
+          if (response.data) {
+            let projectId = response.data.id;
+            let workspaceId = response.data.workspaceId;
+            let projectName = response.data.name;
+            let workspaceName = response.data.workspaceName;
+            this.showDetails(resourceId, projectId, projectName, workspaceId, workspaceName);
+          }
+        });
       });
     },
     showDetails(resourceId, projectId, projectName, workspaceId, workspaceName) {
@@ -275,24 +270,22 @@ export default {
 };
 </script>
 
-<style scoped>
-.export-button {
-  float: right;
-  margin-right: 10px;
-}
-
-.rerun-button {
-  float: right;
-  margin-right: 10px;
-  background-color: #f2f9ef;
-  color: #87c45d;
-}
-
-.report-name {
-  border-bottom: 1px solid var(--primary_color);
-}
-
+<style lang="scss" scoped>
 .report-header {
   min-width: 1200px;
+  .btn-second {
+    margin-left: 10px;
+  }
+  .action-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .report-name {
+      border-bottom: 1px solid var(--primary_color);
+    }
+  }
+  .content-row{
+    margin-top: 5px;
+  }
 }
 </style>
