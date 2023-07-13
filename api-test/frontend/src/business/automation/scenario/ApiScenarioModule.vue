@@ -159,6 +159,9 @@ export default {
     relevanceProjectId() {
       this.list();
     },
+    isTrashData() {
+      this.list();
+    },
   },
   created() {
     this.$EventBus.$on('scenarioConditionBus', (param) => {
