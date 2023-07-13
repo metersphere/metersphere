@@ -4,6 +4,7 @@ import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.commons.constants.MicroServiceName;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SubListUtil;
 import io.metersphere.dto.*;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.*;
@@ -197,13 +198,10 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
             return null;
         }
         //分批处理参数时为了不影响初始参数，这里使用新的对象进行处理
-        List<TestPlanScenarioDTO> paramList = new ArrayList<>(scenarioCases);
         List<TestPlanScenarioDTO> returnList = new ArrayList<>();
-        while (CollectionUtils.isNotEmpty(paramList)) {
-            List<TestPlanScenarioDTO> requestList = BatchProcessingUtil.subList(paramList, 5);
-            returnList.addAll(microService.postForDataArray(serviceName, BASE_UEL + "/build/response", scenarioCases, TestPlanScenarioDTO.class));
-            paramList.removeAll(requestList);
-        }
+        SubListUtil.dealForSubList(scenarioCases, 20, (list) -> {
+            returnList.addAll(microService.postForDataArray(serviceName, BASE_UEL + "/build/response", list, TestPlanScenarioDTO.class));
+        });
         return returnList;
     }
 
