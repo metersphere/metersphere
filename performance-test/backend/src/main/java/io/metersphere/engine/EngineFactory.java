@@ -15,6 +15,7 @@ import io.metersphere.parse.EngineSourceParser;
 import io.metersphere.parse.EngineSourceParserFactory;
 import io.metersphere.service.BaseTestResourcePoolService;
 import io.metersphere.service.PerformanceReportService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,9 +24,9 @@ import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -149,11 +150,19 @@ public class EngineFactory {
                                             if (resourceIndex + 1 == tgRatios.size()) {
                                                 double beforeLast = 0; // 前几个线程数
                                                 for (int k = 0; k < tgRatios.size() - 1; k++) {
-                                                    beforeLast += Math.round(threadNum2 * (double) tgRatios.get(k));
+                                                    if (tgRatios.get(k) instanceof BigDecimal) {
+                                                        beforeLast += Math.round(threadNum2 * ((BigDecimal) tgRatios.get(k)).floatValue());
+                                                    } else {
+                                                        beforeLast += Math.round(threadNum2 * (double) tgRatios.get(k));
+                                                    }
                                                 }
                                                 value = Math.round(threadNum2 - beforeLast);
                                             } else {
-                                                value = Math.round(threadNum2 * (double) tgRatios.get(resourceIndex));
+                                                if (tgRatios.get(resourceIndex) instanceof BigDecimal) {
+                                                    value = Math.round(threadNum2 * ((BigDecimal) tgRatios.get(resourceIndex)).floatValue());
+                                                } else {
+                                                    value = Math.round(threadNum2 * (double) tgRatios.get(resourceIndex));
+                                                }
                                             }
                                         }
                                         break;
