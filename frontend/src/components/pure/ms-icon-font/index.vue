@@ -1,9 +1,5 @@
 <template>
-  <icon-font
-    :type="props.type"
-    :size="props.size || 14"
-    :class="props.color ? `text-[${props.color}]` : 'text-[var(--color-text-4)]'"
-  />
+  <icon-font :type="props.type" :size="props.size || 14" />
 </template>
 
 <script lang="ts" setup>
@@ -15,7 +11,6 @@
     size?: string | number;
     rotate?: number;
     spin?: boolean;
-    color?: string;
   }>();
 
   const IconFont = Icon.addFromIconFontCn({
