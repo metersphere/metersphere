@@ -199,7 +199,7 @@ public class PlanTestPlanScenarioCaseService extends ApiTestService {
         }
         //分批处理参数时为了不影响初始参数，这里使用新的对象进行处理
         List<TestPlanScenarioDTO> returnList = new ArrayList<>();
-        SubListUtil.dealForSubList(scenarioCases, 20, (list) -> {
+        SubListUtil.dealForSubList(scenarioCases, 10, (list) -> {
             returnList.addAll(microService.postForDataArray(serviceName, BASE_UEL + "/build/response", list, TestPlanScenarioDTO.class));
         });
         return returnList;
