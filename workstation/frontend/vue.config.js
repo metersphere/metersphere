@@ -50,17 +50,6 @@ module.exports = defineConfig({
       filename: `js/${name}-[name].[contenthash:8].js`,
       chunkFilename: `js/${name}-[name].[contenthash:8].js`,
     },
-    externals: {
-      qiankun: "qiankun",
-      vue: "Vue",
-      "element-ui": "ELEMENT",
-      "vue-router": "VueRouter",
-      // 'echarts': 'echarts',
-      // 'echarts/core': 'echarts', // TODO:外链使用的话需要改造导入及 vue-echarts 的源码
-      // brace: 'brace', // TODO:暂时未发现能外链的方法，本体包未提供cdn 外链形式的包
-      "mavon-editor": "MavonEditor",
-      "vue-shepherd": "VueShepherd",
-    },
     optimization: {
       splitChunks: {
         cacheGroups: {

@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueI18n from 'vue-i18n';
-
 Vue.use(VueI18n);
 // 直接加载翻译的语言文件
 const LOADED_LANGUAGES = ['zh-CN', 'zh-TW', 'en-US'];
