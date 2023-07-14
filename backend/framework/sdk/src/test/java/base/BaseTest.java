@@ -149,6 +149,11 @@ public abstract class BaseTest {
         return JSON.parseObject(JSON.toJSONString(data), clazz);
     }
 
+    protected <T> T getResultMessageDetail(MvcResult mvcResult, Class<T> clazz) throws Exception {
+        Object data = JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("messageDetail");
+        return JSON.parseObject(JSON.toJSONString(data), clazz);
+    }
+
     protected <T> List<T> getResultDataArray(MvcResult mvcResult, Class<T> clazz) throws Exception {
         Object data = JSON.parseMap(mvcResult.getResponse().getContentAsString()).get("data");
         return JSON.parseArray(JSON.toJSONString(data), clazz);
@@ -229,10 +234,10 @@ public abstract class BaseTest {
             MvcResult mvcResult = this.requestPostAndReturn(path, invalidateParamInfo.getValue());
             // 校验错误是否是参数错误
             Assertions.assertEquals(400, mvcResult.getResponse().getStatus());
-            Map resultData = getResultData(mvcResult, Map.class);
-            System.out.println("result: " + resultData);
+            Map messageDetail = getResultMessageDetail(mvcResult, Map.class);
+            System.out.println("result: " + messageDetail);
             // 校验错误信息中包含了该字段
-            Assertions.assertTrue(resultData.containsKey(invalidateParamInfo.getName()));
+            Assertions.assertTrue(messageDetail.containsKey(invalidateParamInfo.getName()));
         }
         System.out.println("paramValidateTest-end: ====================================");
     }
