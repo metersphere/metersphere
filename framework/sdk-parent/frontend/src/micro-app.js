@@ -42,7 +42,6 @@ getApps()
         app.entry = app.entry.replace(/127\.0\.0\.1:\d+/g, window.location.host + "/" + app.name);
       });
     }
-
     //注册子应用
     registerMicroApps(apps);
     //启动
