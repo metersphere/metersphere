@@ -109,9 +109,6 @@ export default {
       }
     }
   },
-  mounted() {
-    this.initProtocol();
-  },
   computed: {
     isPlanModel() {
       return !!this.planId;
