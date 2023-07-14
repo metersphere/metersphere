@@ -36,6 +36,7 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
     public LogDTO addLog(UserRoleUpdateRequest request) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
@@ -57,6 +58,7 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
         if (userRole != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     userRole.getId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -76,6 +78,7 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
         if (userRole != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     request.getUserRoleId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -104,6 +107,7 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
         }
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 userRole.getId(),
                 null,
                 OperationLogType.DELETE.name(),

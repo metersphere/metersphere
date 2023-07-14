@@ -30,6 +30,7 @@ public class AuthSourceLogService {
     public LogDTO addLog(AuthSourceRequest request) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
@@ -53,6 +54,7 @@ public class AuthSourceLogService {
         if (authSource != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
@@ -72,6 +74,7 @@ public class AuthSourceLogService {
         if (authSource != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     id,
                     null,
                     OperationLogType.UPDATE.name(),
@@ -99,6 +102,7 @@ public class AuthSourceLogService {
         }
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 authSource.getId(),
                 null,
                 OperationLogType.DELETE.name(),

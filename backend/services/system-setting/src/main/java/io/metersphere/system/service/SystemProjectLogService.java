@@ -30,6 +30,7 @@ public class SystemProjectLogService {
     public LogDTO addLog(AddProjectRequest project) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 null,
                 null,
                 OperationLogType.ADD.name(),
@@ -51,6 +52,7 @@ public class SystemProjectLogService {
         if (project != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -70,6 +72,7 @@ public class SystemProjectLogService {
         if (project != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
@@ -96,6 +99,7 @@ public class SystemProjectLogService {
         if (project != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),

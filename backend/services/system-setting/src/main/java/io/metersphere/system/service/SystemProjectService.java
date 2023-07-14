@@ -12,6 +12,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserMapper;
@@ -224,5 +225,9 @@ public class SystemProjectService {
         UserRoleRelationExample userGroupExample = new UserRoleRelationExample();
         userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
         userRoleRelationMapper.deleteByExample(userGroupExample);
+    }
+
+    public List<OrganizationProjectOptionsDto> getprojectOptions() {
+        return extSystemProjectMapper.selectProjectOptions();
     }
 }
