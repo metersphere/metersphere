@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.sdk.mapper.BaseOperationLogMapper">
+
+    <select id="list" resultType="io.metersphere.sdk.log.vo.OperationLogResponse">
+        SELECT
+        t.id,
+        t.project_id,
+        t.organization_id,
+        t.create_time,
+        t.create_user,
+        t.type,
+        t.content
+        FROM
+        operation_log t
+        <where>
+            <if test="request.operUser != null and request.operUser != ''">
+                AND t.create_user = #{request.operUser, jdbcType=VARCHAR}
+            </if>
+            <if test="request.startTime != null and request.endTime != null">
+                AND t.create_time BETWEEN #{request.startTime} AND #{request.endTime}
+            </if>
+            <if test="request.level != null and request.level != 'system'">
+                AND t.project_id != 'system'
+            </if>
+            <if test="request.projectIds != null and request.projectIds.size > 0 ">
+                AND t.project_id IN
+                <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
+                    #{projectId}
+                </foreach>
+            </if>
+            <if test="request.organizationIds != null and request.organizationIds.size > 0 ">
+                AND t.organization_id IN
+                <foreach collection="request.organizationIds" item="organizationId" separator="," open="(" close=")">
+                    #{organizationId}
+                </foreach>
+            </if>
+            <if test="request.type != null and request.type != ''">
+                AND t.type = #{request.type, jdbcType=VARCHAR}
+            </if>
+            <if test="request.module != null and request.module != ''">
+                AND t.module = #{module, jdbcType=VARCHAR}
+            </if>
+            <if test="request.content != null and request.content != ''">
+                AND t.content like #{request.content, jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY t.oper_time DESC
+    </select>
+
+
+</mapper>

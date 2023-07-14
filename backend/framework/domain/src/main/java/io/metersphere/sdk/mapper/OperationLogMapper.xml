@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.OperationLog">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="organization_id" jdbcType="VARCHAR" property="organizationId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, create_time, create_user, source_id, `method`, `type`, `module`, 
-    content, `path`
+    id, project_id, organization_id, create_time, create_user, source_id, `method`, `type`, 
+    `module`, content, `path`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.OperationLogExample" resultMap="BaseResultMap">
     select
@@ -106,14 +107,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.sdk.domain.OperationLog">
-    insert into operation_log (id, project_id, create_time, 
-      create_user, source_id, `method`, 
-      `type`, `module`, content, 
-      `path`)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
-      #{path,jdbcType=VARCHAR})
+    insert into operation_log (id, project_id, organization_id, 
+      create_time, create_user, source_id, 
+      `method`, `type`, `module`, 
+      content, `path`)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{organizationId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
+      #{method,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{module,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.OperationLog">
     insert into operation_log
@@ -123,6 +124,9 @@
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="organizationId != null">
+        organization_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -155,6 +159,9 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -197,6 +204,9 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.organizationId != null">
+        organization_id = #{record.organizationId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -230,6 +240,7 @@
     update operation_log
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      organization_id = #{record.organizationId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
@@ -247,6 +258,9 @@
     <set>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationId != null">
+        organization_id = #{organizationId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -278,6 +292,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.OperationLog">
     update operation_log
     set project_id = #{projectId,jdbcType=VARCHAR},
+      organization_id = #{organizationId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},

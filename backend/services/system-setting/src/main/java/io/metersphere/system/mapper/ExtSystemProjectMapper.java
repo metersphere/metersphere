@@ -2,6 +2,7 @@ package io.metersphere.system.mapper;
 
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -16,4 +17,6 @@ public interface ExtSystemProjectMapper {
     List<ProjectDTO> getProjectList(@Param("request") ProjectRequest request);
 
     List<User> getProjectAdminList(String projectId);
+
+    List<OrganizationProjectOptionsDto> selectProjectOptions();
 }

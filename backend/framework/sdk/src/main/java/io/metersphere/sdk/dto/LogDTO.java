@@ -16,8 +16,9 @@ public class LogDTO extends OperationLog {
 
     public LogDTO() {
     }
-    public LogDTO(String projectId, String sourceId, String createUser, String type, String module, String content) {
+    public LogDTO(String projectId, String organizationId, String sourceId, String createUser, String type, String module, String content) {
         this.setProjectId(projectId);
+        this.setOrganizationId(organizationId);
         this.setSourceId(sourceId);
         this.setCreateUser(createUser);
         this.setType(type);

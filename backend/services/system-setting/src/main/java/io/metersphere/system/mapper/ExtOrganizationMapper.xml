@@ -90,4 +90,8 @@
         join `user` u on urr.user_id = u.id
         where urr.role_id = 'org_admin'and urr.source_id = #{orgId}
     </select>
+
+    <select id="selectOrganizationOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDto">
+        select id, name from organization order by create_time desc
+    </select>
 </mapper>

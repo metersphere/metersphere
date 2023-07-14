@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS operation_log
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '主键',
     `project_id`  VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '项目id',
+    `organization_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '组织id',
     `create_time` BIGINT       NOT NULL COMMENT '操作时间',
     `create_user` VARCHAR(50) COMMENT '操作人',
     `source_id`   VARCHAR(50) COMMENT '资源id',

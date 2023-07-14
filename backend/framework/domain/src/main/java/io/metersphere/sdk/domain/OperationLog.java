@@ -5,9 +5,8 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class OperationLog implements Serializable {
@@ -20,6 +19,11 @@ public class OperationLog implements Serializable {
     @NotBlank(message = "{operation_log.project_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{operation_log.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
+
+    @Schema(title = "组织id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{operation_log.organization_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{operation_log.organization_id.length_range}", groups = {Created.class, Updated.class})
+    private String organizationId;
 
     @Schema(title = "操作时间")
     private Long createTime;
@@ -43,7 +47,7 @@ public class OperationLog implements Serializable {
     @Schema(title = "操作模块/api/case/scenario/ui")
     private String module;
 
-    @Schema(title = "操作内容")
+    @Schema(title = "操作详情")
     private String content;
 
     @Schema(title = "操作路径")
