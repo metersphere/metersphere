@@ -567,6 +567,13 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else if (value instanceof ObjectProperty) {
             subItem.setType(PropertyConstant.OBJECT);
             subItem.setProperties(parseSchemaProperties(((ObjectProperty) value).getProperties(), refSet));
+            List<String> required = new ArrayList<>();
+            ((ObjectProperty) value).getProperties().forEach((key, property) -> {
+                if (property.getRequired()) {
+                    required.add(key);
+                }
+            });
+            subItem.setRequired(required);
         } else {
             handleBaseProperties(subItem, value);
         }
