@@ -320,6 +320,9 @@ export default {
           }
           this.$refs.apiScenarioList.search(this.projectId);
         }
+        this.$nextTick(() => {
+          this.$refs.nodeTree.list()
+        })
       } else if (tab.name === 'trash') {
         this.trashEnable = true;
         this.$refs.apiTrashScenarioList.search();
@@ -627,6 +630,9 @@ export default {
       if (targetName === 'trash') {
         this.selectNodeIds = [];
         this.trashEnable = false;
+        this.$nextTick(() => {
+          this.$refs.nodeTree.list()
+        })
       } else {
         let message = '';
         this.tabs.forEach((tab) => {
@@ -711,7 +717,9 @@ export default {
     },
     refreshTree() {
       if (this.$refs.nodeTree) {
-        this.$refs.nodeTree.list();
+        this.$nextTick(() => {
+          this.$refs.nodeTree.list()
+        })
       }
     },
     refreshAll() {
