@@ -372,16 +372,6 @@ export function getPermissionUrl(d, _this) {
     case "Project template settings field" :
       res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
       break;
-    case "项目-模版设置-用例模版" :
-    case "項目-模版設置-用例模板" :
-    case "Project template settings case" :
-      res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
-      break;
-    case "项目-模版设置-缺陷模版" :
-    case "項目-模版設置-缺陷模板" :
-    case "Project template settings issue" :
-      res = [url + "/project/template", ["PROJECT_TEMPLATE:READ"]];
-      break;
     case "项目-成员":
     case "項目-成員" :
     case "Project member" :
