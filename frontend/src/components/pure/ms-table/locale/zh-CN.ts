@@ -15,5 +15,13 @@ export default {
       addPublic: '添加到公用用例库',
       clear: '清空',
     },
+    columnSetting: {
+      display: '表格显示设置',
+      mode: '模式设置',
+      drawer: '抽屉',
+      newWindow: '新窗口',
+      header: '表头设置',
+      resetDefault: '恢复默认',
+    },
   },
 };

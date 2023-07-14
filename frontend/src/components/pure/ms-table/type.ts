@@ -7,10 +7,14 @@ export interface MsPaginationI {
   showPageSize: boolean;
 }
 
+export interface MsTableColumnData extends TableColumnData {
+  // 是否展示设置按钮
+  showSetting?: boolean;
+}
 // 表格属性
 export interface MsTableProps {
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
-  columns: TableColumnData[];
+  columns: MsTableColumnData[];
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
   data: TableData[];
   // 表格尺寸
@@ -57,7 +61,7 @@ export interface MsTableSelectAll {
 }
 
 export type MsTableData = TableData[];
-export type MsTableColumn = TableColumnData[];
+export type MsTableColumn = MsTableColumnData[];
 export type MSTableChangeExtra = TableChangeExtra;
 
 // eslint-disable-next-line no-shadow

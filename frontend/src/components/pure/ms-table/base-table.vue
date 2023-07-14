@@ -14,7 +14,13 @@
       @selection-change="(e) => selectionChange(e, true)"
     >
       <template #columns>
-        <a-table-column v-for="(item, key) in props.columns" :key="key" v-bind="item" :title="t(item.title as string)">
+        <a-table-column v-for="(item, key) in props.columns" :key="key">
+          <template #title>
+            <span>{{ t(item.title as string) }}</span>
+            <div v-if="item.showSetting">
+              <columnSelector />
+            </div>
+          </template>
           <template #cell="{ column, record, rowIndex }">
             <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
             <template v-else>{{ record[item.dataIndex as string] }}</template>
@@ -37,17 +43,24 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAttrs, computed, ref, onMounted } from 'vue';
   import selectAll from './select-all.vue';
-  import { MsTableProps, SelectAllEnum, MsPaginationI, BatchActionParams, BatchActionConfig } from './type';
+  import {
+    MsTableProps,
+    SelectAllEnum,
+    MsPaginationI,
+    BatchActionParams,
+    BatchActionConfig,
+    MsTableColumnData,
+  } from './type';
   import BatchAction from './batchAction.vue';
 
-  import type { TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { TableData } from '@arco-design/web-vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
-    columns?: TableColumnData[];
+    columns?: MsTableColumnData[];
     noDisable?: boolean;
   }>();
   const emit = defineEmits<{
@@ -117,7 +130,7 @@
       case 'mini':
         return '10px';
       default:
-        return '10px';
+        return '8px';
     }
   };
 
@@ -139,7 +152,7 @@
       position: absolute;
       top: 3px;
       left: v-bind(batchleft);
-      z-index: 100;
+      z-index: 99;
       border-radius: 2px;
       line-height: 40px;
       cursor: pointer;
