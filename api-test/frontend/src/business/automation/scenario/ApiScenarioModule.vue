@@ -159,9 +159,6 @@ export default {
     relevanceProjectId() {
       this.list();
     },
-    isTrashData() {
-      this.list();
-    },
   },
   created() {
     this.$EventBus.$on('scenarioConditionBus', (param) => {
@@ -191,7 +188,6 @@ export default {
       this.$refs.nodeTree.filter(this.condition.filterText);
     },
     list(projectId) {
-
       if (this.isRelevanceModel) {
         this.result = getModuleByRelevanceProjectId(this.relevanceProjectId).then((response) => {
           this.setData(response);
