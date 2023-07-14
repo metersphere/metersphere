@@ -68,11 +68,7 @@
             :document="assertions.document"
             :callback="after"
             v-if="type === options.DOCUMENT" />
-          <el-button
-            v-if="!type"
-            :disabled="true"
-            type="primary"
-            size="mini">
+          <el-button v-if="!type" :disabled="true" type="primary" size="mini">
             {{ $t('api_test.request.assertions.add') }}
           </el-button>
         </el-col>
@@ -170,6 +166,11 @@ export default {
       },
       deep: true,
     },
+  },
+  created() {
+    if (!this.assertions.xpathType) {
+      this.assertions.xpathType = 'xml';
+    }
   },
   methods: {
     computeStep() {

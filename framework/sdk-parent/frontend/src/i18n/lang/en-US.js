@@ -1924,6 +1924,7 @@ const message = {
           'Special characters "$ () * +. [] \\ ^ {} |" need to be escaped as "\\ "+"special characters", such as "\\$"',
         xpath_info:
           "Select the extraction method according to the content format of the request response",
+        assert_info: "According to the content format of the request response, select the assertion method",
         regular_match: "Regular match",
         none: "Do not verify []",
         value_eq: "Value-equal to [value=]",

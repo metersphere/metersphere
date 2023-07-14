@@ -1858,6 +1858,7 @@ const message = {
         regex_info:
           '特殊字符"$ ( ) * + . [ ] \\ ^ { } |"需转义为"\\ "+"特殊字符",如"\\$"',
         xpath_info: "根据请求响应内容格式，选择提取方式",
+        assert_info: "根据请求响应内容格式，选择断言方式",
         regular_match: "正则匹配",
         none: "不校验[]",
         value_eq: "值-等于[value=]",
