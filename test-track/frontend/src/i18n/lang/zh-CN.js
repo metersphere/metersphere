@@ -64,6 +64,7 @@ const message = {
   },
   plan: {
     batch_delete_tip: "批量删除测试计划，是否继续?",
+    relevance_case_success: "已添加至测试计划"
   },
   review: {
     result_distribution: "结果分布",

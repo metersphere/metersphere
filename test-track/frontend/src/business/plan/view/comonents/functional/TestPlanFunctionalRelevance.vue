@@ -62,8 +62,7 @@ export default {
           .then(() => {
             vueObj.page.loading = false;
             vueObj.isSaving = false;
-            this.$success(this.$t('commons.save_success'));
-            vueObj.$refs.baseRelevance.close();
+            this.$success(this.$t("plan.relevance_case_success"));
             vueObj.setSelectCounts(0);
             this.$emit('refresh');
           }).catch((error) => {

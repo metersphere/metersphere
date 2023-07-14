@@ -182,11 +182,10 @@ export default {
         .then(() => {
           this.loading = false;
           this.isSaving = false;
-          this.$success(this.$t("commons.save_success"));
+          this.$success(this.$t("plan.relevance_case_success"));
           this.$emit("refresh");
           this.refresh();
           this.autoCheckStatus();
-          this.$refs.baseRelevance.close();
         })
         .catch(() => {
           this.isSaving = false;

@@ -64,6 +64,7 @@ const message = {
   },
   plan: {
     batch_delete_tip: "Do you want to continue deleting the test plan?",
+    relevance_case_success: "Relevance success"
   },
   review: {
     result_distribution: "Result Distribution",
