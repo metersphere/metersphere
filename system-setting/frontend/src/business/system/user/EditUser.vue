@@ -51,8 +51,9 @@
               <el-select filterable v-model="group.ids" :placeholder="$t('system_user.search_get_more_tip')" multiple
                          :filter-method="(value) => filterWorkspaceOption(value, group)"
                          @visible-change="(value) => resetWorkspaceOption(value, group)"
-                         class="edit-user-select" @change="updateWorkSpace(group.index,group.type)">
-                <el-option style="width:690px"
+                         :popper-append-to-body="false"
+                         class="edit-user-select" @change="updateWorkSpace(group.index,group.type)" @focus="focusWorkspace" ref="workspaceContent">
+                <el-option :style="{width: workspaceOptionWidth}"
                     v-for="item in group.workspaceOptions"
                     :key="item.id"
                     :label="item.name"
@@ -70,8 +71,9 @@
               <el-select filterable v-model="group.ids" :placeholder="$t('system_user.search_get_more_tip')" multiple
                          :filter-method="(value) => filterProjectOption(value, group)"
                          @visible-change="(value) => resetProjectOption(value, group)"
-                         class="edit-user-select" @change="setWorkSpaceIds(group.ids,group.projects)">
-                <el-option style="width:690px"
+                         :popper-append-to-body="false"
+                         class="edit-user-select" @change="setWorkSpaceIds(group.ids,group.projects)" @focus="focusProject" ref="projectContent">
+                <el-option :style="{width: projectOptionWidth}"
                     v-for="item in group.projectOptions"
                     :key="item.id"
                     :label="item.name"
@@ -121,6 +123,8 @@ export default {
       createVisible: false,
       updateVisible: false,
       btnAddGroup: false,
+      workspaceOptionWidth: "100%",
+      projectOptionWidth: "100%",
       form: {
         groups: [{
           type: '',
@@ -184,6 +188,18 @@ export default {
     }
   },
   methods: {
+    focusWorkspace() {
+      this.$nextTick(() => {
+        let el = this.$refs.workspaceContent;
+        this.workspaceOptionWidth = el[0].$el.offsetWidth + 'px'
+      });
+    },
+    focusProject() {
+      this.$nextTick(() => {
+        let el = this.$refs.projectContent;
+        this.projectOptionWidth = el[0].$el.offsetWidth + 'px'
+      });
+    },
     open(type, title, row) {
       this.type = type ? type : this.type;
       this.title = title ? title : this.title;
