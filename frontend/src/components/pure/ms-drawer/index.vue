@@ -18,21 +18,24 @@
       </slot>
     </template>
     <slot>
-      <MsDescription :descriptions="props.descriptions"></MsDescription>
+      <MsDescription v-if="props.descriptions?.length > 0" :descriptions="props.descriptions"></MsDescription>
     </slot>
   </a-drawer>
 </template>
 
 <script setup lang="ts">
-  import { ref, watch } from 'vue';
-  import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
+  import { ref, watch, defineAsyncComponent } from 'vue';
+  import type { Description } from '@/components/pure/ms-description/index.vue';
+
+  // 懒加载描述组件
+  const MsDescription = defineAsyncComponent(() => import('@/components/pure/ms-description/index.vue'));
 
   interface DrawerProps {
     visible: boolean;
     title: string | undefined;
     titleTag?: string;
     titleTagColor?: string;
-    descriptions: Description[];
+    descriptions?: Description[];
     footer?: boolean;
     [key: string]: any;
   }
@@ -75,8 +78,6 @@
       }
     }
     .arco-drawer-footer {
-      @apply text-left;
-
       border-bottom: 1px solid var(--color-text-n8);
     }
   }

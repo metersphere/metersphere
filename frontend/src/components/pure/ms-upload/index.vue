@@ -24,10 +24,12 @@
   type UploadProps = Partial<{
     mainText: string;
     subText: string;
+    class: string;
     multiple: boolean;
     limit: number;
     imagePreview: boolean;
     showFileList: boolean;
+    [key: string]: any;
   }> & {
     accept: UploadType;
   };
