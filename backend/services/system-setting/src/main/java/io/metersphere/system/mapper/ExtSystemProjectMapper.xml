@@ -59,4 +59,9 @@
             and user_role_relation.role_id = 'project_admin'
         </where>
     </select>
+
+
+    <select id="selectProjectOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDto">
+        select id, name from project order by create_time desc
+    </select>
 </mapper>

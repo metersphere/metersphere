@@ -33,6 +33,7 @@ public class GlobalUserRoleRelationLogService extends BaseUserRoleRelationServic
     public LogDTO addLog(GlobalUserRoleRelationUpdateRequest request) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 null,
                 null,
                 OperationLogType.ADD.name(),
@@ -56,6 +57,7 @@ public class GlobalUserRoleRelationLogService extends BaseUserRoleRelationServic
         if (userRoleRelation != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     id,
                     userRoleRelation.getCreateUser(),
                     OperationLogType.DELETE.name(),

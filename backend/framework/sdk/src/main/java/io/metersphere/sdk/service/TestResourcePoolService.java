@@ -256,6 +256,7 @@ public class TestResourcePoolService {
     public LogDTO addLog(TestResourcePoolRequest request) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
@@ -273,6 +274,7 @@ public class TestResourcePoolService {
         if (pool != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     id,
                     pool.getCreateUser(),
                     OperationLogType.DELETE.name(),
@@ -293,6 +295,7 @@ public class TestResourcePoolService {
         if (pool != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     pool.getId(),
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
