@@ -35,8 +35,8 @@ class CommonParamTest extends BaseTest {
         MvcResult mvcResult = this.requestPostAndReturn(url, basePageRequestDefinition);
         // 校验错误是否是参数错误
         Assertions.assertEquals(400, mvcResult.getResponse().getStatus());
-        Map resultData = getResultData(mvcResult, Map.class);
+        Map messageDetail = getResultMessageDetail(mvcResult, Map.class);
         // 校验错误信息中包含了该字段
-        Assertions.assertTrue(resultData.containsKey(String.format("sort[%s]", sortName)));
+        Assertions.assertTrue(messageDetail.containsKey(String.format("sort[%s]", sortName)));
     }
 }
