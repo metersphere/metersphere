@@ -875,6 +875,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             } else if (StringUtils.equals(type, PropertyConstant.OBJECT)) {
                 parsedParam.put(PropertyConstant.TYPE, PropertyConstant.OBJECT);
+                if (requestBody.optJSONArray(PropertyConstant.REQUIRED) != null) {
+                    parsedParam.put(PropertyConstant.REQUIRED, requestBody.optJSONArray(PropertyConstant.REQUIRED));
+                }
                 JSONObject properties = requestBody.optJSONObject(PropertyConstant.PROPERTIES);
                 JSONObject jsonObject = buildFormDataSchema(properties);
                 if (StringUtils.isNotBlank(requestBody.optString("description"))) {
@@ -1062,11 +1065,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 property.put("example", value);
             }
             property.put("description", obj.optString("description"));
-            property.put(PropertyConstant.REQUIRED, obj.optString(PropertyConstant.REQUIRED));
-            if (obj.optJSONObject(PropertyConstant.REQUIRED) != null) {
-                JSONObject childProperties = buildFormDataSchema(obj.optJSONObject(PropertyConstant.REQUIRED));
-                property.put(PropertyConstant.REQUIRED, childProperties.optJSONObject(PropertyConstant.REQUIRED));
-            }
+            property.put(PropertyConstant.REQUIRED, obj.optJSONArray(PropertyConstant.REQUIRED));
             if (obj.optJSONObject(PropertyConstant.PROPERTIES) != null) {
                 JSONObject childProperties = buildFormDataSchema(obj.optJSONObject(PropertyConstant.PROPERTIES));
                 property.put(PropertyConstant.PROPERTIES, childProperties.optJSONObject(PropertyConstant.PROPERTIES));
@@ -1227,7 +1226,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                                     items.forEach(item -> {
                                         if (item instanceof JSONObject) {
                                             JSONObject itemRequired = ((JSONObject) item).optJSONObject(PropertyConstant.REQUIRED);
-                                            finalRequired.put(itemRequired);
+                                            if (itemRequired != null) {
+                                                finalRequired.put(itemRequired);
+                                            }
+                                            finalRequired.putAll(((JSONObject) item).optJSONArray(PropertyConstant.REQUIRED));
                                         }
                                     });
                                     required = finalRequired;
