@@ -256,10 +256,9 @@ export default {
       param.environmentId = environmentId;
       relevanceList(param)
         .then(() => {
-          this.$success(this.$t("commons.save_success"));
+          this.$success(this.$t("plan.relevance_case_success"));
           this.$emit("refresh");
           this.refresh();
-          this.$refs.baseRelevance.close();
           this.isSaving = false;
         })
         .catch(() => {

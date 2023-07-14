@@ -208,9 +208,9 @@ export default {
             testPlanLoadRelevance(condition)
               .then(() => {
                 this.loading = false;
-                this.$success(this.$t('commons.save_success'));
-                this.$refs.baseRelevance.close();
+                this.$success(this.$t("plan.relevance_case_success"));
                 this.$emit('refresh');
+                this.search();
               })
               .catch((e) => {
               });
