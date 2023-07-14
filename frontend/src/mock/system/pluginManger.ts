@@ -7,7 +7,7 @@ const getPluginList = () => {
       id: '1-1',
       name: '插件一',
       describe: '插件一',
-      enable: true,
+      enable: false,
       createTime: 'number',
       updateTime: 'number',
       jarPackage: 'string',

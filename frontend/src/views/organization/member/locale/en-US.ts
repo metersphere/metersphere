@@ -1,5 +1,6 @@
 export default {
   'organization.member.addMember': 'Add Member',
+  'organization.member.updateMember': 'Update Member',
   'organization.member.searchMember': 'Search by name or email address',
   'organization.member.remove': 'Remove',
   'organization.member.edit': 'Edit',
@@ -17,7 +18,8 @@ export default {
   'organization.member.member': 'Member',
   'organization.member.selectMemberScope': 'Select the member you want to add. Multiple selection is supported',
   'organization.member.pleaseSelectMember': 'Please select user',
-  'organization.member.Save': 'Save',
+  'organization.member.Confirm': 'Confirm',
+  'organization.member.Cancel': 'Cancel',
   'organization.member.deleteMemberTip': 'Are you sure to delete the user `{name}` ?',
   'system.user.deleteUserTip': 'Are you sure to delete the user `{name}` ?',
   'organization.member.deleteMemberConfirm': 'Delete',

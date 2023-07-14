@@ -10,8 +10,8 @@
         <!-- </a-col> -->
         <a-form-item field="organize" :label="t('system.plugin.appOrganize')" asterisk-position="end">
           <a-radio-group v-model="form.organize">
-            <a-radio value="1">全部组织</a-radio>
-            <a-radio value="2">指定组织</a-radio>
+            <a-radio value="1">{{ t('system.plugin.allOrganize') }}</a-radio>
+            <a-radio value="2">{{ t('system.plugin.theOrganize') }}</a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item

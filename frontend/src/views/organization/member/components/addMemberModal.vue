@@ -3,11 +3,12 @@
     v-model:visible="dialogVisible"
     title-align="start"
     class="ms-modal-form ms-modal-medium"
-    :ok-text="t('organization.member.Save')"
+    :ok-text="t('organization.member.Confirm')"
+    :cancel-text="t('organization.member.Cancel')"
     @ok="handleOK"
-    @cancel="handleCancel"
+    @cancel="emits('close')"
   >
-    <template #title> {{ t('organization.member.addMember') }} </template>
+    <template #title> {{ title }} </template>
     <div class="form">
       <a-form :model="form" size="large" layout="vertical">
         <a-form-item

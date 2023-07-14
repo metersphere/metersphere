@@ -8,47 +8,97 @@
     @cancel="handleCancel"
   >
     <template #title> {{ t('system.plugin.uploadPlugin') }} </template>
-    <div>
-      <StepProgress :step-list="stepList" :current="currentStep" small :set-current="setCurrent" changeable />
-      <SceneList v-show="currentStep === 1" :set-current="setCurrent" />
-      <uploadPlugin v-show="currentStep === 2" />
+    <div class="form grid grid-cols-1">
+      <a-row class="grid-demo">
+        <a-form :model="form" size="small" :style="{ width: '600px' }" layout="vertical">
+          <div class="relative">
+            <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
+              <a-input
+                v-model="form.pluginName"
+                size="small"
+                :placeholder="t('system.plugin.defaultJarNameTip')"
+                allow-clear
+              />
+              <span class="absolute right-0 top-1 flex items-center">
+                <span class="float-left">{{ t('system.plugin.getPlugin') }}</span>
+                <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
+                  <a class="float-left mx-2" href="javascript:;">
+                    <svg-icon :width="'16px'" :height="'16px'" :name="'infotip'"
+                  /></a>
+                </a-tooltip>
+              </span>
+            </a-form-item>
+          </div>
+          <a-form-item field="organize" :label="t('system.plugin.appOrganize')" asterisk-position="end">
+            <a-radio-group v-model="form.organize" size="small">
+              <a-radio value="1">{{ t('system.plugin.allOrganize') }}</a-radio>
+              <a-radio value="2">{{ t('system.plugin.theOrganize') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item
+            v-if="form.organize === '2'"
+            field="organize"
+            :label="t('system.plugin.selectOrganization')"
+            asterisk-position="end"
+            :rules="[{ required: true, message: t('system.plugin.selectOriginize') }]"
+          >
+            <a-select
+              v-model="form.organizeGroup"
+              multiple
+              :placeholder="t('system.plugin.selectOriginize')"
+              allow-clear
+            >
+              <a-option v-for="item of originizeList" :key="item.value">{{ item.label }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
+            <a-textarea
+              v-model="form.describe"
+              size="small"
+              :placeholder="t('system.plugin.pluginDescription')"
+              allow-clear
+            />
+          </a-form-item>
+        </a-form>
+      </a-row>
+      <MsUpload
+        action="/"
+        accept="excel"
+        main-text="system.user.importModalDragtext"
+        :sub-text="t('system.plugin.supportFormat')"
+        :show-file-list="false"
+      ></MsUpload>
     </div>
     <template #footer>
-      <div v-show="currentStep === 2" class="float-right">
-        <a-space>
-          <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button type="secondary" @click="preStep">{{ t('system.plugin.pluginPreStep') }}</a-button>
-          <a-button type="secondary" @click="saveAndAddPlugin">{{ t('system.plugin.saveAndAdd') }}</a-button>
-          <a-button type="primary" @click="saveConfirm('confirm')">{{ t('system.plugin.pluginConfirm') }}</a-button>
-        </a-space>
+      <div class="flex justify-between">
+        <div class="flex flex-row items-center justify-center">
+          <a-switch v-model="form.status" size="small" />
+          <a-tooltip>
+            <template #content>
+              <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>
+              <div class="text-sm">{{ t('system.plugin.statusDisableTip') }}</div>
+            </template>
+            <a class="mx-2" href="javascript:;"> <svg-icon :width="'16px'" :height="'16px'" :name="'infotip'" /></a>
+          </a-tooltip>
+        </div>
+        <div>
+          <a-space>
+            <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
+            <a-button type="secondary" @click="saveAndAddPlugin">{{ t('system.plugin.saveAndAdd') }}</a-button>
+            <a-button type="primary" @click="saveConfirm('confirm')">{{ t('system.plugin.pluginConfirm') }}</a-button>
+          </a-space>
+        </div>
       </div>
     </template>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect } from 'vue';
+  import { ref, watchEffect, reactive } from 'vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { useI18n } from '@/hooks/useI18n';
-  import type { StepList } from '@/models/system/plugin';
-  import StepProgress from './stepProgress.vue';
-  import SceneList from './SceneList.vue';
-  import uploadPlugin from './uploadPlugin.vue';
 
   const { t } = useI18n();
-  const currentStep = ref<number>(1);
-
-  const stepList = ref<StepList>([
-    {
-      name: '选择应用场景',
-      title: 'system.plugin.SelectApplicationScene',
-      status: true,
-    },
-    {
-      name: '上传插件',
-      title: 'system.plugin.uploadPlugin',
-      status: true,
-    },
-  ]);
   const pluginVisible = ref(false);
   const emits = defineEmits<{
     (e: 'cancel'): void;
@@ -58,6 +108,23 @@
   const props = defineProps<{
     visible: boolean;
   }>();
+  const form = reactive({
+    pluginName: '',
+    organize: '1',
+    describe: '',
+    organizeGroup: [],
+    status: false,
+  });
+  const originizeList = ref([
+    {
+      label: '组织一',
+      value: '1',
+    },
+    {
+      label: '组织二',
+      value: '2',
+    },
+  ]);
   watchEffect(() => {
     pluginVisible.value = props.visible;
   });
@@ -68,12 +135,6 @@
   const handleOk = () => {
     handleCancel();
   };
-  const setCurrent = (step: number) => {
-    currentStep.value = step;
-  };
-  const preStep = () => {
-    currentStep.value = currentStep.value === 2 ? 1 : 2;
-  };
   const saveConfirm = (flag: string) => {
     if (flag === 'confirm') {
       handleCancel();
@@ -82,8 +143,14 @@
   };
   const saveAndAddPlugin = () => {
     saveConfirm('saveAndAdd');
-    preStep();
   };
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  :deep(.arco-switch-checked) {
+    background: rgb(var(--primary-6)) !important;
+  }
+  :deep(.arco-switch) {
+    background: var(--color-fill-4);
+  }
+</style>

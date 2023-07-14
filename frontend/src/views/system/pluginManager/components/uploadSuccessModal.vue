@@ -6,7 +6,7 @@
     :footer="false"
     @open="BeforeOpen"
   >
-    <template #title> {{ title }} </template>
+    <template #title> {{ t(title as string) }} </template>
     <div class="flex w-full flex-col items-center justify-center">
       <div class="mb-5"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
       <div class="font-semibold">{{ t('system.plugin.uploadSuccess') }}</div>

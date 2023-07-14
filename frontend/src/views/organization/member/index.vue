@@ -2,7 +2,7 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="AddMember">{{ t('organization.member.addMember') }}</a-button>
+        <a-button class="mr-3" type="primary" @click="addMember">{{ t('organization.member.addMember') }}</a-button>
       </div>
       <a-input-search :placeholder="t('organization.member.searchMember')" class="w-[230px]"></a-input-search>
     </div>
@@ -11,6 +11,7 @@
       :action-config="tableBatchActions"
       @selected-change="handleTableSelect"
       v-on="propsEvent"
+      @batch-action="handelTableBatch"
     >
       <template #project="{ record }">
         <a-tag v-for="pro of record.projectList.slice(0, 2)" :key="pro.id" class="mr-[4px] bg-transparent" bordered>
@@ -43,7 +44,14 @@
         <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton>
       </template>
     </ms-base-table>
-    <!-- <add-member-modal :visible="addMemberVisible" @cancel="addMemberVisible = false" /> -->
+    <MSBatchModal
+      v-model:visible="showBatchModal"
+      :table-selected="tableSelected"
+      :action="batchAction"
+      :tree-data="treeData"
+      @add-project="addProject"
+      @add-user-group="addUserGroup"
+    />
   </div>
 </template>
 
@@ -59,6 +67,7 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useModal from '@/hooks/useModal';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
+  import MSBatchModal from '@/components/bussiness/ms-batch-modal/index.vue';
 
   const columns: MsTableColumn = [
     {
@@ -121,7 +130,7 @@
   const keyword = ref('');
   const addMemberDialog = useCommandComponent(addMemberModal);
   const addMembersOptions = reactive({
-    title: '添加成员',
+    title: '',
     visible: false,
     onClose: () => {
       addMemberDialog.close();
@@ -158,15 +167,63 @@
       hideCancel: false,
     });
   }
-  function editMember(record: any) {}
+  function editMember(record: any) {
+    addMembersOptions.visible = true;
+    addMembersOptions.title = t('organization.member.updateMember');
+    addMemberDialog(addMembersOptions);
+  }
   const tableSelected = ref<(string | number)[]>([]);
   function handleTableSelect(selectArr: (string | number)[]) {
     tableSelected.value = selectArr;
   }
-  function AddMember() {
+  function addMember() {
     addMembersOptions.visible = true;
+    addMembersOptions.title = t('organization.member.addMember');
     addMemberDialog(addMembersOptions);
   }
+  const showBatchModal = ref(false);
+  const batchAction = ref('');
+  const treeData = ref([
+    {
+      title: 'Trunk 0-3',
+      key: '0-3',
+    },
+    {
+      title: 'Trunk 0-0',
+      key: '0-0',
+      children: [
+        {
+          title: 'Leaf 0-0-1',
+          key: '0-0-1',
+        },
+        {
+          title: 'Branch 0-0-2',
+          key: '0-0-2',
+        },
+      ],
+    },
+    {
+      title: 'Trunk 0-1',
+      key: '0-1',
+      children: [
+        {
+          title: 'Branch 0-1-1',
+          key: '0-1-1',
+        },
+        {
+          title: 'Leaf 0-1-2',
+          key: '0-1-2',
+        },
+      ],
+    },
+  ]);
+
+  function handelTableBatch(actionItem: any) {
+    showBatchModal.value = true;
+    batchAction.value = actionItem.eventTag;
+  }
+  function addProject() {}
+  function addUserGroup() {}
 </script>
 
 <style lang="less" scoped></style>

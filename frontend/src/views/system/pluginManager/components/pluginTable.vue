@@ -34,15 +34,26 @@
           +{{ record.organizationList.length - 2 }}
         </a-tag>
       </template>
+      <template #enable="{ record }">
+        <div v-if="record.enable" class="flex items-center">
+          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+          {{ t('system.user.tableEnable') }}
+        </div>
+        <div v-else class="flex items-center text-[var(--color-text-4)]">
+          <icon-stop class="mr-[2px]" />
+          {{ t('system.user.tableDisable') }}
+        </div>
+      </template>
       <template #action="{ record }">
         <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
-        <MsButton @click="changeScene(record)">{{ t('system.plugin.ChangeScene') }}</MsButton>
+        <MsButton v-if="record.enable">{{ t('system.plugin.tableDisable') }}</MsButton>
+        <MsButton v-else>{{ t('system.plugin.tableEnable') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
       </template>
     </ms-base-table>
     <div class="mt-4 text-sm text-slate-500"
-      >共<span class="mx-2">{{ 101 }}</span
-      >项数据</div
+      >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
+      >{{ t('system.plugin.dataList') }}</div
     >
     <UploadModel :visible="uploadVisible" @cancel="uploadVisible = false" @upload="uploadPlugin" @success="okHandler" />
     <UpdatePluginModal ref="updateModalRef" :visible="updateVisible" @cancel="updateVisible = false" />
@@ -62,7 +73,6 @@
   import UploadModel from './uploadModel.vue';
   import UpdatePluginModal from './updatePluginModal.vue';
   import uploadSuccessModal from './uploadSuccessModal.vue';
-  import sceneChangeModal from './sceneChangeModal.vue';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
   import useModal from '@/hooks/useModal';
   import { Message } from '@arco-design/web-vue';
@@ -85,6 +95,11 @@
       dataIndex: 'describe',
     },
     {
+      title: 'system.plugin.tableColunmStatus',
+      slotName: 'enable',
+      dataIndex: 'enable',
+    },
+    {
       title: 'system.plugin.tableColunmApplicationScene',
       dataIndex: 'applicationScene',
     },
@@ -92,6 +107,7 @@
       title: 'system.user.tableColunmOrg',
       slotName: 'organization',
       dataIndex: 'organizationList',
+      width: 400,
     },
     {
       title: 'system.plugin.tableColunmJarPackage',
@@ -110,7 +126,7 @@
       dataIndex: 'createdBy',
     },
     {
-      title: 'system.plugin.tableColunmExpirationDate',
+      title: 'system.plugin.tableColunmUpdateTime',
       dataIndex: 'expirationDate',
     },
     {
@@ -134,7 +150,9 @@
     'showSelectAll': false,
     'pagination': false,
     'virtual-list-props': { height: 380 },
+    'noDisable': true,
   });
+  const totalNum = ref(2);
   const { openModal } = useModal();
   const keyword = ref('');
   const scene = ref('1');
@@ -198,32 +216,19 @@
     updateModalRef.value.title = record.name;
   }
   const myUploadSuccessDialog = useCommandComponent(uploadSuccessModal);
-  const mySceneChangeDialog = useCommandComponent(sceneChangeModal);
   const uploadSuccessOptions = reactive({
-    title: '上传插件',
+    title: 'system.plugin.uploadPlugin',
     visible: false,
     onClose: () => {
       myUploadSuccessDialog.close();
     },
   });
-  const sceneChangeOptions = reactive({
-    title: '场景变更-(插件名称)',
-    visible: false,
-    onClose: () => {
-      myUploadSuccessDialog.close();
-    },
-  });
-
   const dialogOpen = (options: Options) => {
     options.visible = true;
     myUploadSuccessDialog(uploadSuccessOptions);
   };
   const okHandler = () => {
     dialogOpen(uploadSuccessOptions);
-  };
-  const changeScene = (record: any) => {
-    sceneChangeOptions.visible = true;
-    mySceneChangeDialog(sceneChangeOptions);
   };
 </script>
 

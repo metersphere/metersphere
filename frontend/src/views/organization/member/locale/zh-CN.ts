@@ -1,5 +1,6 @@
 export default {
   'organization.member.addMember': '添加成员',
+  'organization.member.updateMember': '更新成员',
   'organization.member.searchMember': '通过名称或邮箱搜索搜索',
   'organization.member.remove': '移除',
   'organization.member.edit': '编辑',
@@ -17,7 +18,8 @@ export default {
   'organization.member.member': '成员',
   'organization.member.selectMemberScope': '请选择需要添加的成员支持多选',
   'organization.member.pleaseSelectMember': '请选择成员',
-  'organization.member.Save': '保存',
+  'organization.member.Confirm': '确定',
+  'organization.member.Cancel': '取消',
   'organization.member.deleteMemberTip': '确认删除 `{name}` 这个成员吗？',
   'organization.member.deleteMemberConfirm': '确认删除',
   'organization.member.deleteMemberCancel': '取消',
