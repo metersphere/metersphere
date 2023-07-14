@@ -188,10 +188,6 @@ export default {
       });
     },
     testConnection() {
-      if (!(this.form.url === AZURE_DEVOP_URL)) {
-        this.$warning(this.$t('organization.integration.azure_url_check'));
-        return false;
-      }
       if (this.form.pat) {
         this.$parent.loading = authServiceIntegration(getCurrentWorkspaceId(), AZURE_DEVOPS).then(() => {
           this.$success(this.$t('organization.integration.verified'));
