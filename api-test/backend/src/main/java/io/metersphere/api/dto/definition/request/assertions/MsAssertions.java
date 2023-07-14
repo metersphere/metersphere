@@ -24,6 +24,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class MsAssertions extends MsTestElement {
     private String clazzName = MsAssertions.class.getCanonicalName();
+    private String xpathType;
 
     private boolean scenarioAss;
     private List<MsAssertionRegex> regex;
@@ -87,9 +88,15 @@ public class MsAssertions extends MsTestElement {
         }
 
         if (CollectionUtils.isNotEmpty(this.getXpath2())) {
-            this.getXpath2().stream().filter(MsAssertionXPath2::isValid).forEach(assertion ->
-                    hashTree.add(xPath2Assertion(assertion))
-            );
+            if (StringUtils.equals("html", this.getXpathType())) {
+                this.getXpath2().stream().filter(MsAssertionXPath2::isValid).forEach(assertion ->
+                        hashTree.add(xPathAssertion(assertion))
+                );
+            } else {
+                this.getXpath2().stream().filter(MsAssertionXPath2::isValid).forEach(assertion ->
+                        hashTree.add(xPath2Assertion(assertion))
+                );
+            }
         }
 
         if (CollectionUtils.isNotEmpty(this.getJsr223())) {
@@ -174,6 +181,23 @@ public class MsAssertions extends MsTestElement {
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
         assertion.setXPathString(assertionXPath2.getExpression());
+        assertion.setNegated(false);
+        return assertion;
+    }
+
+    private XPathAssertion xPathAssertion(MsAssertionXPath2 assertionXPath) {
+        XPathAssertion assertion = new XPathAssertion();
+        assertion.setEnabled(this.isEnable());
+        assertion.setTolerant(true);
+        assertion.setValidating(false);
+        if (StringUtils.isNotEmpty(assertionXPath.getExpression())) {
+            assertion.setName(this.getName() + delimiter + assertionXPath.getExpression());
+        } else {
+            assertion.setName(this.getName() + delimiter + "XPath2Assertion");
+        }
+        assertion.setProperty(TestElement.TEST_CLASS, XPathAssertion.class.getName());
+        assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPathAssertionGui"));
+        assertion.setXPathString(assertionXPath.getExpression());
         assertion.setNegated(false);
         return assertion;
     }
