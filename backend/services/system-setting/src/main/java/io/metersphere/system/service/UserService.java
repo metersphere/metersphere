@@ -65,6 +65,7 @@ public class UserService {
             log.setId(UUID.randomUUID().toString());
             log.setCreateUser(user.getCreateUser());
             log.setProjectId("system");
+            log.setOrganizationId("");
             log.setType(OperationLogType.ADD.name());
             log.setModule(OperationLogModule.SYSTEM_USER);
             log.setMethod("addUser");
@@ -290,6 +291,7 @@ public class UserService {
         if (user != null) {
             LogDTO dto = new LogDTO(
                     "system",
+                    "",
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
@@ -312,6 +314,7 @@ public class UserService {
 
                 LogDTO dto = new LogDTO(
                         "system",
+                        "",
                         user.getId(),
                         user.getCreateUser(),
                         OperationLogType.DELETE.name(),
@@ -325,5 +328,11 @@ public class UserService {
             }
         });
         return logDTOList;
+    }
+
+    public List<User> getUserList() {
+        UserExample example = new UserExample();
+        example.setOrderByClause("update_time desc");
+        return userMapper.selectByExample(example);
     }
 }

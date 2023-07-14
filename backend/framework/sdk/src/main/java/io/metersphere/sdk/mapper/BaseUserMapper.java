@@ -2,9 +2,11 @@ package io.metersphere.sdk.mapper;
 
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.domain.User;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BaseUserMapper {
     UserDTO selectByEmail(String email);
@@ -24,4 +26,6 @@ public interface BaseUserMapper {
     List<User> selectByKeyword(String keyword);
 
     List<String> selectUnDeletedUserIdByIdList(@Param("idList") List<String> userIdList);
+
+    List<User> selectUserByIdList(List<String> userIds);
 }

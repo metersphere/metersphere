@@ -62,6 +62,7 @@ public class UserRoleRelationService {
             LogDTO log = new LogDTO();
             log.setId(UUID.randomUUID().toString());
             log.setProjectId("system");
+            log.setOrganizationId("");
             log.setType(operationType);
             log.setCreateUser(operator);
             log.setModule(OperationLogModule.SYSTEM_USER);

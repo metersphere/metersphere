@@ -6,6 +6,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtOrganizationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
@@ -106,5 +107,10 @@ public class OrganizationService{
             organizationDTO.setOrgAdmins(orgAdminList);
         });
         return organizationDTOS;
+    }
+
+
+    public List<OrganizationProjectOptionsDto> getOrganizationOptions() {
+        return extOrganizationMapper.selectOrganizationOptions();
     }
 }

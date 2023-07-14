@@ -217,6 +217,7 @@ public class SystemParameterService {
     public LogDTO addLog(List<SystemParameter> systemParameter) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),
@@ -232,6 +233,7 @@ public class SystemParameterService {
     public LogDTO updateLog(List<SystemParameter> systemParameter) {
         LogDTO dto = new LogDTO(
                 "system",
+                "",
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),
