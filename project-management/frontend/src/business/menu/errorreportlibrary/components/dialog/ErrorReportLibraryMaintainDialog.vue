@@ -41,6 +41,8 @@
                 type="textarea"
                 :rows="2"
                 :placeholder="$t('commons.input_content')"
+                maxlength="1000"
+                show-word-limit
                 v-model="libraryData.description">
               </el-input>
             </el-form-item>
