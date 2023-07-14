@@ -576,16 +576,6 @@ export function getUrl(d, _this) {
     case "Project template settings field" :
       url += "/project/template";
       break;
-    case "项目-模版设置-用例模版" :
-    case "項目-模版設置-用例模板" :
-    case "Project template settings case" :
-      url += "/project/template";
-      break;
-    case "项目-模版设置-缺陷模版" :
-    case "項目-模版設置-缺陷模板" :
-    case "Project template settings issue" :
-      url += "/project/template";
-      break;
     case "项目-成员":
     case "項目-成員" :
     case "Project member" :
