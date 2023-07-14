@@ -2,8 +2,6 @@ package io.metersphere.system.controller;
 
 import base.BaseTest;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.dto.QueryResourcePoolRequest;
-import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -16,13 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemVersionControllerTest extends BaseTest {
+public class SystemVersionControllerTests extends BaseTest {
 
     @Resource
     private MockMvc mockMvc;

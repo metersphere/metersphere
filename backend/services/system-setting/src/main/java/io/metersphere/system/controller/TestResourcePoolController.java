@@ -15,6 +15,8 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.consul.CacheNode;
 import io.metersphere.system.domain.TestResourcePool;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+@Tag(name = "系统资源池")
 @RequestMapping("/test/resource/pool")
 @RestController
 public class TestResourcePoolController {
@@ -31,6 +33,7 @@ public class TestResourcePoolController {
     private TestResourcePoolService testResourcePoolService;
 
     @PostMapping("/add")
+    @Operation(summary = "添加资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = TestResourcePoolService.class)
     public TestResourcePool addTestResourcePool(@Validated @RequestBody TestResourcePoolRequest request) {
@@ -44,6 +47,7 @@ public class TestResourcePoolController {
 
     @GetMapping("/delete/{poolId}")
     @CacheNode // 把监控节点缓存起来
+    @Operation(summary = "删除资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#testResourcePoolId)", msClass = TestResourcePoolService.class)
     public void deleteTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
@@ -52,6 +56,7 @@ public class TestResourcePoolController {
 
     @PostMapping("/update")
     @CacheNode // 把监控节点缓存起来
+    @Operation(summary = "更新资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = TestResourcePoolService.class)
     public void updateTestResourcePool(@Validated @RequestBody TestResourcePoolRequest request) {
@@ -63,6 +68,7 @@ public class TestResourcePoolController {
     }
 
     @PostMapping("/page")
+    @Operation(summary = "获取资源池列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
     public Pager<List<TestResourcePoolDTO>> listResourcePools(@Validated @RequestBody QueryResourcePoolRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), true);
@@ -70,6 +76,7 @@ public class TestResourcePoolController {
     }
 
     @GetMapping("/detail/{poolId}")
+    @Operation(summary = "查看资源池详细")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
     public TestResourcePoolDTO getTestResourcePoolDetail(@PathVariable(value = "poolId") String testResourcePoolId) {
         return testResourcePoolService.getTestResourcePoolDetail(testResourcePoolId);
