@@ -30,6 +30,7 @@ public class ApiDefinitionLogService {
     public LogDTO addLog(ApiDefinitionDTO request) {
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
+                "",
                 request.getId(),
                 request.getCreateUser(),
                 OperationLogType.ADD.name(),
@@ -53,6 +54,7 @@ public class ApiDefinitionLogService {
 
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
+                "",
                 request.getId(),
                 request.getCreateUser(),
                 OperationLogType.UPDATE.name(),
@@ -78,6 +80,7 @@ public class ApiDefinitionLogService {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getId());
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
+                "",
                 request.getId(),
                 request.getCreateUser(),
                 OperationLogType.DELETE.name(),
@@ -106,6 +109,7 @@ public class ApiDefinitionLogService {
         apiDefinitions.forEach(item -> {
             LogDTO dto = new LogDTO(
                     item.getProjectId(),
+                    "",
                     item.getId(),
                     item.getCreateUser(),
                     OperationLogType.DELETE.name(),
@@ -132,6 +136,7 @@ public class ApiDefinitionLogService {
         apiDefinitions.forEach(item -> {
             LogDTO dto = new LogDTO(
                     item.getProjectId(),
+                    "",
                     item.getId(),
                     item.getCreateUser(),
                     OperationLogType.UPDATE.name(),

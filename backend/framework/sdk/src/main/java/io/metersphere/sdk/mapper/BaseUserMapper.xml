@@ -67,4 +67,14 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectUserByIdList" resultType="io.metersphere.system.domain.User">
+        SELECT id, name
+        FROM user
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

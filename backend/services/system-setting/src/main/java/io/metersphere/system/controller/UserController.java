@@ -12,6 +12,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
@@ -23,8 +24,10 @@ import io.metersphere.system.service.GlobalUserRoleService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -91,5 +94,12 @@ public class UserController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
         return userService.deleteUser(userBatchProcessRequest.getUserIdList());
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "系统/组织日志页面，获取用户列表")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_OPERATING_LOG_READ, PermissionConstants.ORGANIZATION_OPERATING_LOG_READ}, logical = Logical.OR)
+    public List<User> getUserList() {
+        return userService.getUserList();
     }
 }

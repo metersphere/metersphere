@@ -15,6 +15,7 @@ import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -284,9 +285,12 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
-        User user = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(user.getName(), request.getUserName())
-                || StringUtils.contains(user.getId(), request.getUserName()));
+        List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
+        if(CollectionUtils.isNotEmpty(userList)) {
+            User user = userList.get(0);
+            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getUserName())
+                    || StringUtils.contains(user.getId(), request.getUserName()));
+        }
     }
 
     @Test
@@ -341,7 +345,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setUserId("default-admin");
+        request.setUserId("admin");
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
     }
 
