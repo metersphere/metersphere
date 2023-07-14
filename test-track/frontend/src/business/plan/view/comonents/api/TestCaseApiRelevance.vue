@@ -2,6 +2,7 @@
   <test-case-relevance-base
     @setProject="setProject"
     @save="saveCaseRelevance"
+    @close="close"
     :plan-id="planId"
     :is-saving="isSaving"
     ref="baseRelevance"
@@ -132,6 +133,9 @@ export default {
     this.getVersionOptions();
   },
   methods: {
+    close() {
+      this.projectId = "";
+    },
     open() {
       this.init();
       this.$refs.baseRelevance.open();
