@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.constants.MicroServiceName;
+import io.metersphere.commons.constants.ProjectModuleDefaultNodeEnum;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -36,6 +37,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -69,6 +72,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     TestPlanProjectService testPlanProjectService;
     @Resource
     TestPlanService testPlanService;
+    @Resource
+    private RedissonClient redissonClient;
+
+    private static final String TEST_CASE_DEFAULT_NODE_CREATE_KEY = "TEST_CASE:DEFAULT_NODE:CREATE";
 
     public TestCaseNodeService() {
         super(TestCaseNodeDTO.class);
@@ -122,25 +129,12 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
     }
 
-    public TestCaseNode getDefaultNode(String projectId) {
-        TestCaseNodeExample example = new TestCaseNodeExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划用例").andParentIdIsNull();
-        List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(list)) {
-            NodeNumDTO record = new NodeNumDTO();
-            record.setId(UUID.randomUUID().toString());
-            record.setCreateUser(SessionUtils.getUserId());
-            record.setName("未规划用例");
-            record.setPos(1.0);
-            record.setLevel(1);
-            record.setCreateTime(System.currentTimeMillis());
-            record.setUpdateTime(System.currentTimeMillis());
-            record.setProjectId(projectId);
-            testCaseNodeMapper.insert(record);
-            record.setCaseNum(0);
-            return record;
+    public TestCaseNode checkDefaultNode(String projectId) {
+        TestCaseNode defaultNode = getDefaultNode(projectId);
+        if (defaultNode == null) {
+            return this.createDefaultNode(projectId);
         } else {
-            return list.get(0);
+            return defaultNode;
         }
     }
 
@@ -222,7 +216,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         request.setQueryUi(queryUi);
         this.setRequestWeekParam(request);
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        this.getDefaultNode(projectId);
+        this.checkDefaultNode(projectId);
         request.setProjectId(projectId);
         request.setUserId(SessionUtils.getUserId());
         request.setNodeIds(null);
@@ -291,8 +285,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getTrashCaseNode(String projectId, QueryTestCaseRequest request) {
         // 初始化回收站中模块被删除的用例, 挂在默认未规划模块, 获取回收站模块节点数据
-        TestCaseNode defaultNode = this.getDefaultNode(projectId);
-        extTestCaseMapper.updateNoModuleTrashNodeToDefault(projectId, defaultNode.getId(), defaultNode.getName());
+        TestCaseNode defaultNode = this.checkDefaultNode(projectId);
+        if (defaultNode != null) {
+            extTestCaseMapper.updateNoModuleTrashNodeToDefault(projectId, defaultNode.getId(), defaultNode.getName());
+        }
         request.setProjectId(projectId);
         request.setNodeIds(null);
         ServiceUtils.setBaseQueryRequestCustomMultipleFields(request);
@@ -759,6 +755,51 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             if (weekFirstTime != null) {
                 request.setRelevanceCreateTime(weekFirstTime.getTime());
             }
+        }
+    }
+
+    public NodeNumDTO createDefaultNode(String projectId) {
+        // 加锁, 防止并发创建
+        RLock lock = redissonClient.getLock(TEST_CASE_DEFAULT_NODE_CREATE_KEY + ":" + projectId);
+        if (lock.tryLock()) {
+            try {
+                // 双重检查, 判断是否已经存在默认节点
+                if (getDefaultNode(projectId) != null) {
+                    return null;
+                }
+
+                // 创建默认节点, 只执行一次
+                NodeNumDTO record = new NodeNumDTO();
+                record.setId(UUID.randomUUID().toString());
+                record.setCreateUser(SessionUtils.getUserId());
+                record.setName(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getNodeName());
+                record.setPos(1.0);
+                record.setLevel(1);
+                record.setCreateTime(System.currentTimeMillis());
+                record.setUpdateTime(System.currentTimeMillis());
+                record.setProjectId(projectId);
+                testCaseNodeMapper.insert(record);
+                record.setCaseNum(0);
+                return record;
+            }catch (Exception e){
+                LogUtil.error(e);
+                return null;
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public TestCaseNode getDefaultNode(String projectId) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(ProjectModuleDefaultNodeEnum.TEST_CASE_DEFAULT_NODE.getNodeName()).andParentIdIsNull();
+        List<TestCaseNode> defaultNodes = testCaseNodeMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(defaultNodes)) {
+            return null;
+        } else {
+            return defaultNodes.get(0);
         }
     }
 }
