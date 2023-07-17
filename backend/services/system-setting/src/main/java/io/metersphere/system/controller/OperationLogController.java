@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/operating/log")
+@RequestMapping("/operation/log")
 public class OperationLogController {
 
     @Resource

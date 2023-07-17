@@ -2,13 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.sdk.mapper.BaseOperationLogMapper">
 
-    <select id="list" resultType="io.metersphere.sdk.log.vo.OperationLogResponse">
+    <select id="list" parameterType="io.metersphere.sdk.log.vo.OperationLogRequest" resultType="io.metersphere.sdk.log.vo.OperationLogResponse">
         SELECT
         t.id,
         t.project_id,
         t.organization_id,
         t.create_time,
         t.create_user,
+        t.module,
         t.type,
         t.content
         FROM
@@ -23,6 +24,9 @@
             <if test="request.level != null and request.level != 'system'">
                 AND t.project_id != 'system'
             </if>
+            <if test="request.level != null and request.level == 'project'">
+                AND t.project_id <![CDATA[<>]]> ''
+            </if>
             <if test="request.projectIds != null and request.projectIds.size > 0 ">
                 AND t.project_id IN
                 <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
@@ -36,13 +40,13 @@
                 </foreach>
             </if>
             <if test="request.type != null and request.type != ''">
-                AND t.type = #{request.type, jdbcType=VARCHAR}
+                AND t.type = #{request.type}
             </if>
             <if test="request.module != null and request.module != ''">
-                AND t.module = #{module, jdbcType=VARCHAR}
+                AND t.module = #{request.module}
             </if>
             <if test="request.content != null and request.content != ''">
-                AND t.content like #{request.content, jdbcType=VARCHAR}
+                AND t.content like CONCAT('%', #{request.content},'%')
             </if>
         </where>
         ORDER BY t.oper_time DESC
