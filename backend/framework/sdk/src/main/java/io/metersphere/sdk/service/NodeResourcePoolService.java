@@ -32,10 +32,28 @@ public class NodeResourcePoolService {
         restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
     }
 
-    public boolean validate(TestResourceDTO testResourceDTO) {
+    public boolean validate(TestResourceDTO testResourceDTO, Boolean usedApiType) {
         List<TestResourceNodeDTO> nodesList = testResourceDTO.getNodesList();
         if (CollectionUtils.isEmpty(nodesList)) {
             throw new MSException(Translator.get("no_nodes_message"));
+        }
+        boolean isValid = true;
+        for (TestResourceNodeDTO testResourceNodeDTO : nodesList) {
+            if (StringUtils.isBlank(testResourceNodeDTO.getIp())) {
+                throw new MSException(Translator.get("ip_is_null"));
+            }
+            if (StringUtils.isBlank(testResourceNodeDTO.getPort())) {
+                throw new MSException(Translator.get("port_is_null"));
+            }
+            if (testResourceNodeDTO.getConcurrentNumber() == null) {
+                throw new MSException(Translator.get("concurrent_number_is_null"));
+            }
+            if (!usedApiType) {
+                if (StringUtils.isBlank(testResourceNodeDTO.getMonitor())) {
+                    throw new MSException(Translator.get("monitor_number_is_null"));
+                }
+            }
+            isValid = validateNode(testResourceNodeDTO);
         }
         //校验节点
         List<ImmutablePair<String, String>> ipPort = nodesList.stream()
@@ -46,10 +64,6 @@ public class NodeResourcePoolService {
                 .toList();
         if (ipPort.size() < nodesList.size()) {
             throw new MSException(Translator.get("duplicate_node_ip_port"));
-        }
-        boolean isValid = true;
-        for (TestResourceNodeDTO testResourceNodeDTO : nodesList) {
-            isValid = validateNode(testResourceNodeDTO);
         }
         return isValid;
     }
