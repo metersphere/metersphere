@@ -91,10 +91,6 @@ public class OrganizationService{
         }
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
-        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(userRoleRelations)) {
-            throw new MSException(Translator.get("organization_member_not_exist"));
-        }
         userRoleRelationMapper.deleteByExample(example);
     }
 

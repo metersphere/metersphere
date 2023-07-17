@@ -14,8 +14,11 @@ import java.util.List;
 @Data
 public class OrganizationEditRequest implements Serializable {
 
+    @Schema(title = "组织ID")
+    private String id;
+
     @Schema(title = "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{organization.name.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{organization.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 100, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
@@ -23,6 +26,6 @@ public class OrganizationEditRequest implements Serializable {
     private String description;
 
     @Schema(title = "成员ID集合")
-    @NotEmpty(groups = {Created.class}, message = "{member.id.not_empty}")
+    @NotEmpty(message = "{member.id.not_empty}", groups = {Created.class, Updated.class})
     private List<String> memberIds;
 }
