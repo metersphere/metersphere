@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.QueryResourcePoolRequest;
 import io.metersphere.sdk.dto.TestResourcePoolDTO;
 import io.metersphere.sdk.dto.TestResourcePoolRequest;
+import io.metersphere.sdk.dto.TestResourceReturnDTO;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.TestResourcePoolService;
@@ -78,7 +79,7 @@ public class TestResourcePoolController {
     @GetMapping("/detail/{poolId}")
     @Operation(summary = "查看资源池详细")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
-    public TestResourcePoolDTO getTestResourcePoolDetail(@PathVariable(value = "poolId") String testResourcePoolId) {
+    public TestResourcePoolReturnDTO getTestResourcePoolDetail(@PathVariable(value = "poolId") String testResourcePoolId) {
         return testResourcePoolService.getTestResourcePoolDetail(testResourcePoolId);
     }
 

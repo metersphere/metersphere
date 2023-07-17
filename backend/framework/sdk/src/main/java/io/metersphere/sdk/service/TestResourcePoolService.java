@@ -12,6 +12,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
@@ -25,9 +26,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -117,7 +116,7 @@ public class TestResourcePoolService {
         if (StringUtils.equalsIgnoreCase(type, ResourcePoolTypeEnum.NODE.name())) {
             NodeResourcePoolService resourcePoolService = CommonBeanFactory.getBean(NodeResourcePoolService.class);
             if (resourcePoolService != null) {
-                return resourcePoolService.validate(testResourceDTO);
+                return resourcePoolService.validate(testResourceDTO, usedApiType);
             } else {
                 return false;
             }
@@ -234,23 +233,50 @@ public class TestResourcePoolService {
         }
     }
 
-    public TestResourcePoolDTO getTestResourcePoolDetail(String testResourcePoolId) {
-        TestResourcePoolDTO testResourcePoolDTO = new TestResourcePoolDTO();
+    public TestResourcePoolReturnDTO getTestResourcePoolDetail(String testResourcePoolId) {
+        TestResourcePoolReturnDTO testResourcePoolReturnDTO = new TestResourcePoolReturnDTO();
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
         if (testResourcePool == null) {
             throw new MSException(Translator.get("test_resource_pool_not_exists"));
         }
         TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(testResourcePoolId);
         if (testResourcePoolBlob == null) {
-            BeanUtils.copyBean(testResourcePoolDTO, testResourcePool);
-            return testResourcePoolDTO;
+            BeanUtils.copyBean(testResourcePoolReturnDTO, testResourcePool);
+            return testResourcePoolReturnDTO;
         }
         byte[] configuration = testResourcePoolBlob.getConfiguration();
         String testResourceDTOStr = new String(configuration);
         TestResourceDTO testResourceDTO = JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
-        BeanUtils.copyBean(testResourcePoolDTO, testResourcePool);
-        testResourcePoolDTO.setTestResourceDTO(testResourceDTO);
-        return testResourcePoolDTO;
+        TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
+        BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
+        List<String> orgIds = testResourceDTO.getOrgIds();
+        Map<String,String> orgIdNameMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(orgIds)) {
+            for (String orgId : orgIds) {
+                OrganizationMapper organizationMapper = CommonBeanFactory.getBean(OrganizationMapper.class);
+                Organization organization = organizationMapper.selectByPrimaryKey(orgId);
+                if (organization != null) {
+                    orgIdNameMap.put(orgId,organization.getName());
+                } else {
+                    orgIdNameMap.put(orgId,Translator.get("organization_not_exists"));
+                }
+            }
+        }
+        testResourceReturnDTO.setOrgIdNameMap(orgIdNameMap);
+        BeanUtils.copyBean(testResourcePoolReturnDTO, testResourcePool);
+        testResourcePoolReturnDTO.setTestResourceReturnDTO(testResourceReturnDTO);
+        return testResourcePoolReturnDTO;
+    }
+
+    public static void main(String[] args) {
+        TestResourceDTO testResourceDTO = new TestResourceDTO();
+        testResourceDTO.setIp("124556");
+        List<String>ids = new ArrayList<>();
+        ids.add("333");
+        testResourceDTO.setOrgIds(ids);
+        TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
+        BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
+        System.out.println(testResourceReturnDTO);
     }
 
     public LogDTO addLog(TestResourcePoolRequest request) {
