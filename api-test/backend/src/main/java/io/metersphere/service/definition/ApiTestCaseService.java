@@ -851,19 +851,21 @@ public class ApiTestCaseService {
         } else {
             list = extApiTestCaseMapper.getCaseInfo(request);
             list.forEach(item -> {
-                        MsTestElement msTestElement = JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
-                        if (msTestElement instanceof MsHTTPSamplerProxy) {
-                            MsHTTPSamplerProxy requestBody = (MsHTTPSamplerProxy) JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
-                            Body body = requestBody.getBody();
-                            if (StringUtils.isNotBlank(body.getType()) && StringUtils.equals(body.getType(), Body.JSON_STR)) {
-                                if (StringUtils.isNotEmpty(body.getFormat()) && body.getJsonSchema() != null && Body.JSON_SCHEMA.equals(body.getFormat())) {
-                                    body.setRaw(JSONSchemaParser.preview(JSONUtil.toJSONString(body.getJsonSchema())));
-                                }
-                            }
-                            item.setRequest(JSONUtil.toJSONString(requestBody));
-                        }
+                JSONObject jsonObject = JSONUtil.parseObject(item.getRequest());
+                if (jsonObject != null && jsonObject.has(ApiDefinitionService.TYPE) && jsonObject.optString(ApiDefinitionService.TYPE).equals(ApiDefinitionService.HTTP)) {
+                    jsonObject.put(ApiDefinitionService.CLAZZ, MsHTTPSamplerProxy.class.getCanonicalName());
+                    JSONObject body = jsonObject.optJSONObject(ApiDefinitionService.BODY);
+                    if (StringUtils.isNotBlank(body.optString(ApiDefinitionService.TYPE))
+                            && StringUtils.equals(body.optString(ApiDefinitionService.TYPE), Body.JSON_STR)
+                            && StringUtils.isNotEmpty(body.optString(ApiDefinitionService.FORMAT))
+                            && body.optJSONObject(ApiDefinitionService.JSONSCHEMA) != null
+                            && Body.JSON_SCHEMA.equals(body.optString(ApiDefinitionService.FORMAT))) {
+                        body.put(ApiDefinitionService.RAW, JSONSchemaParser.preview(body.optString(ApiDefinitionService.JSONSCHEMA)));
+                        jsonObject.put(ApiDefinitionService.BODY, body);
                     }
-            );
+                    item.setRequest(jsonObject.toString());
+                }
+            });
         }
         // 排序
         FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());

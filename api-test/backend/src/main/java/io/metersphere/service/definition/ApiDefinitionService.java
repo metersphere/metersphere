@@ -180,6 +180,12 @@ public class ApiDefinitionService {
     public static final String ARGUMENTS = "arguments";
     public static final String BODY = "body";
     private static final String SCHEDULE = "schedule";
+    public static final String TYPE = "type";
+    public static final String HTTP = "HTTPSamplerProxy";
+    public static final String CLAZZ = "className";
+    public static final String FORMAT = "format";
+    public static final String RAW = "raw";
+    public static final String JSONSCHEMA = "jsonSchema";
 
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
@@ -330,19 +336,21 @@ public class ApiDefinitionService {
         }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
         resList.forEach(item -> {
-            MsTestElement msTestElement = JSONUtil.parseObject(item.getRequest(), MsTestElement.class);
-            if (msTestElement instanceof MsHTTPSamplerProxy) {
-                        MsHTTPSamplerProxy requestBody = (MsHTTPSamplerProxy) msTestElement;
-                        Body body = requestBody.getBody();
-                        if (StringUtils.isNotBlank(body.getType()) && StringUtils.equals(body.getType(), Body.JSON_STR)) {
-                            if (StringUtils.isNotEmpty(body.getFormat()) && body.getJsonSchema() != null && Body.JSON_SCHEMA.equals(body.getFormat())) {
-                                body.setRaw(JSONSchemaParser.preview(JSONUtil.toJSONString(body.getJsonSchema())));
-                            }
-                        }
-                        item.setRequest(JSONUtil.toJSONString(requestBody));
-                    }
+            JSONObject jsonObject = JSONUtil.parseObject(item.getRequest());
+            if (jsonObject != null && jsonObject.has(TYPE) && jsonObject.optString(TYPE).equals(HTTP)) {
+                jsonObject.put(CLAZZ, MsHTTPSamplerProxy.class.getCanonicalName());
+                JSONObject body = jsonObject.optJSONObject(BODY);
+                if (StringUtils.isNotBlank(body.optString(TYPE))
+                        && StringUtils.equals(body.optString(TYPE), Body.JSON_STR)
+                        && StringUtils.isNotEmpty(body.optString(FORMAT))
+                        && body.optJSONObject(JSONSCHEMA) != null
+                        && Body.JSON_SCHEMA.equals(body.optString(FORMAT))) {
+                    body.put(RAW, JSONSchemaParser.preview(body.optString(JSONSCHEMA)));
+                    jsonObject.put(BODY, body);
                 }
-        );
+                item.setRequest(jsonObject.toString());
+            }
+        });
         // 排序
         FixedOrderComparator<String> fixedOrderComparator = new FixedOrderComparator<String>(request.getIds());
         fixedOrderComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.BEFORE);
@@ -1563,9 +1571,12 @@ public class ApiDefinitionService {
          */
         List<ApiDefinitionWithBLOBs> specifyData = new ArrayList<>();
         if (StringUtils.isNotBlank(mockApiResourceId)) {
-            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionMapper.selectByPrimaryKey(mockApiResourceId);
-            if (apiDefinition != null) {
-                specifyData.add(apiDefinition);
+            ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+            apiDefinitionExample.createCriteria().andIdEqualTo(mockApiResourceId).andStatusNotEqualTo("Trash");
+            List<ApiDefinitionWithBLOBs> apiDefinitions = apiDefinitionMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            ApiDefinitionWithBLOBs apiDefinition;
+            if (CollectionUtils.isNotEmpty(apiDefinitions)) {
+                specifyData.add(apiDefinitions.get(0));
             } else {
                 ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(mockApiResourceId);
                 if (testCase != null) {
