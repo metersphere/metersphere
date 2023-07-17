@@ -4,10 +4,14 @@
                   'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                   'PROJECT_USER:READ', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_FILE:READ+JAR', 'PROJECT_FILE:READ+FILE', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_CUSTOM_CODE:READ',
                   'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ','WORKSPACE_USER:READ']">
-    <span class="dropdown-link">
+    <el-tooltip effect="light" placement="right">
+      <div slot="content">{{ currentWorkspaceName }}</div>
+      <span class="dropdown-link" style="max-width: 100px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; display: inline-block">
       {{ currentWorkspaceName }}
-      <i class="el-icon-caret-bottom el-icon--right"/>
-    </span>
+      </span>
+    </el-tooltip>
+
+    <i class="el-icon-caret-bottom el-icon--right"/>
     <template v-slot:dropdown>
       <el-dropdown-menu style="margin-top: 5px;" :style="{'color':color}">
         <el-input :placeholder="$t('project.search_by_name')"
@@ -17,9 +21,10 @@
                   class="search-input"
                   size="small"/>
         <div class="dropdown-content">
-          <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index">
+          <el-dropdown-item :command="item" v-for="(item, index) in workspaceList" :key="index"
+              style="max-width: 250px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+            <i class="el-icon-check" :style="{'visibility': workspaceId === item.id ? 'visible' : 'hidden'}"/>
             {{ item.name }}
-            <i class="el-icon-check" v-if="workspaceId === item.id"/>
           </el-dropdown-item>
         </div>
       </el-dropdown-menu>
@@ -159,7 +164,6 @@ export default {
 <style scoped>
 .el-icon-check {
   color: #783887;
-  margin-left: 10px;
   font-weight: bold;
 }
 
@@ -237,4 +241,9 @@ export default {
   color: var(--color);
 }
 
+.el-icon-caret-bottom:before {
+  position: relative;
+  top: -15px;
+  left: -10px;
+}
 </style>
