@@ -14,13 +14,14 @@ import io.metersphere.dto.*;
 import io.metersphere.request.MetricDataRequest;
 import io.metersphere.request.MetricQuery;
 import io.metersphere.request.MetricRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -126,13 +127,13 @@ public class MetricQueryService {
                 List jsonArray = (List) resultObject.get("values");
                 jsonArray.forEach(value -> {
                     List ja = JSON.parseArray(value.toString());
-                    double timestamp = (double) ja.get(0);
-                    try {
-                        timestamps.add(DateUtils.getTimeString((long) (timestamp * 1000)));
-                    } catch (Exception e) {
-                        LogUtil.error(e.getMessage(), e);
-                        LogUtil.error(e);
+                    double timestamp;
+                    if (ja.get(0) instanceof BigDecimal) {
+                        timestamp = ((BigDecimal) ja.get(0)).floatValue();
+                    } else {
+                        timestamp = (double) ja.get(0);
                     }
+                    timestamps.add(DateUtils.getTimeString((long) (timestamp * 1000)));
                     values.add(Double.valueOf(ja.get(1).toString()));
                 });
 
