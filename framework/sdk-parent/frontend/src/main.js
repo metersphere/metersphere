@@ -15,12 +15,15 @@ import "./micro-app";
 import VueShepherd from 'vue-shepherd' // 新手引导
 import './assets/shepherd/shepherd-theme.css'
 import { gotoCancel, gotoNext } from "./utils";
+import ElementUI from "element-ui";
 
 Vue.config.productionTip = false
 
 const pinia = createPinia()
 pinia.use(PersistedState)//开启缓存，存储在localstorage
-
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+});
 Vue.use(icons);
 Vue.use(svg);
 Vue.use(plugins);
