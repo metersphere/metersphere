@@ -141,24 +141,41 @@ CREATE INDEX idx_type ON operation_log(`type`);
 
 CREATE TABLE IF NOT EXISTS plugin
 (
-    `id`           VARCHAR(50)  NOT NULL COMMENT 'ID',
-    `name`         VARCHAR(255) COMMENT 'plugin name',
-    `plugin_id`    VARCHAR(300) NOT NULL COMMENT 'Plugin id',
-    `script_id`    VARCHAR(300) NOT NULL COMMENT 'Ui script id',
-    `clazz_name`   VARCHAR(500) NOT NULL COMMENT 'Plugin clazzName',
-    `jmeter_clazz` VARCHAR(300) NOT NULL COMMENT 'Jmeter base clazzName',
-    `source_path`  VARCHAR(300) NOT NULL COMMENT 'Plugin jar path',
-    `source_name`  VARCHAR(300) NOT NULL COMMENT 'Plugin jar name',
-    `exec_entry`   VARCHAR(300) COMMENT 'plugin init entry class',
-    `create_time`  BIGINT COMMENT '',
-    `update_time`  BIGINT COMMENT '',
-    `create_user`  VARCHAR(50) COMMENT '',
-    `xpack`        BIT COMMENT 'Is xpack plugin',
-    `scenario`     VARCHAR(50)  NOT NULL COMMENT 'Plugin usage scenarios',
+    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '插件名称' ,
+    `plugin_id` VARCHAR(300) NOT NULL   COMMENT '插件ID（名称加版本号）' ,
+    `file_name` VARCHAR(300) NOT NULL   COMMENT '文件名' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `enable` BIT NOT NULL  DEFAULT 1 COMMENT '是否启用插件' ,
+    `global` BIT NOT NULL  DEFAULT 1 COMMENT '是否是全局插件' ,
+    `xpack` BIT NOT NULL  DEFAULT 0 COMMENT '是否是企业版插件' ,
+    `description` VARCHAR(500)    COMMENT '插件描述' ,
+    `scenario` VARCHAR(50) NOT NULL   COMMENT '插件使用场景PAI/PLATFORM' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE = utf8mb4_general_ci COMMENT = '插件';
+
+CREATE TABLE IF NOT EXISTS plugin_front_script
+(
+    `plugin_id` VARCHAR(50) NOT NULL   COMMENT '插件的ID' ,
+    `script_id` VARCHAR(50) NOT NULL   COMMENT '插件中对应表单配置的ID' ,
+    `script` TEXT    COMMENT '脚本内容' ,
+    PRIMARY KEY (plugin_id,script_id)
+) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '插件';
+  COLLATE = utf8mb4_general_ci COMMENT = '插件的前端配置脚本';
+
+CREATE TABLE IF NOT EXISTS plugin_organization
+(
+    `plugin_id` VARCHAR(50) NOT NULL   COMMENT '插件ID' ,
+    `organization_id` VARCHAR(50) NOT NULL   COMMENT '组织ID' ,
+    PRIMARY KEY (plugin_id,organization_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '插件和组织的关联表';
 
 CREATE TABLE IF NOT EXISTS quota
 (
@@ -410,17 +427,6 @@ CREATE TABLE IF NOT EXISTS message_task_blob
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '消息通知任务大字段';
-
-CREATE TABLE IF NOT EXISTS plugin_blob
-(
-    `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
-    `form_option` LONGBLOB COMMENT 'plugin form option',
-    `form_script` LONGBLOB COMMENT 'plugin form script',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '插件大字段';
-
 
 DROP TABLE IF EXISTS test_resource_pool_organization;
 CREATE TABLE test_resource_pool_organization(

@@ -6,12 +6,12 @@ import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.controller.handler.result.IResultCode;
+import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.sdk.domain.OperationLogExample;
-import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.system.domain.UserRolePermission;
 import io.metersphere.system.mapper.UserRolePermissionMapper;
 import io.metersphere.validation.groups.Created;
@@ -27,12 +27,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +62,12 @@ public abstract class BaseTest {
     private OperationLogMapper operationLogMapper;
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
+
+    protected static final String DEFAULT_LIST = "list";
+    protected static final String DEFAULT_GET = "get/{0}";
+    protected static final String DEFAULT_ADD = "add";
+    protected static final String DEFAULT_UPDATE = "update";
+    protected static final String DEFAULT_DELETE = "delete/{0}";
 
     /**
      * 可以重写该方法定义 BASE_PATH
@@ -142,6 +155,74 @@ public abstract class BaseTest {
 
     protected MvcResult requestPostWithOkAndReturn(String url, Object param, Object... uriVariables) throws Exception {
         return this.requestPostWithOk(url, param, uriVariables).andReturn();
+    }
+
+    protected ResultActions requestMultipartWithOk(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilder(url, paramMap, uriVariables);
+        return mockMvc.perform(requestBuilder)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    protected MvcResult requestMultipartWithOkAndReturn(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        return this.requestMultipartWithOk(url, paramMap, uriVariables).andReturn();
+    }
+    private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String permissionId, String url,
+                                                                          MultiValueMap<String, Object> paramMap,
+                                                                          Object[] uriVariables) {
+        AuthInfo authInfo = getPermissionAuthInfo(permissionId);
+        return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
+                .header(SessionConstants.HEADER_TOKEN, authInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, authInfo.getCsrfToken());
+    }
+
+    private MockHttpServletRequestBuilder getMultipartRequestBuilder(String url,
+                                                                          MultiValueMap<String, Object> paramMap,
+                                                                          Object[] uriVariables) {
+        return getMultipartRequestBuilderWithParam(url, paramMap, uriVariables)
+                .header(SessionConstants.HEADER_TOKEN, adminAuthInfo.getSessionId())
+                .header(SessionConstants.CSRF_TOKEN, adminAuthInfo.getCsrfToken());
+    }
+
+    /**
+     * 构建 multipart 带参数的请求
+     * @param url
+     * @param paramMap
+     * @param uriVariables
+     * @return
+     */
+    private MockMultipartHttpServletRequestBuilder getMultipartRequestBuilderWithParam(String url, MultiValueMap<String, Object> paramMap, Object[] uriVariables) {
+        MockMultipartHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.multipart(getBasePath() + url, uriVariables);
+        paramMap.forEach((key, value) -> {
+            List list = value;
+            for (Object o : list) {
+                try {
+                    MockMultipartFile multipartFile;
+                    if (o instanceof File) {
+                        File file = (File) o;
+                        multipartFile = new MockMultipartFile(key, file.getName(),
+                                MediaType.APPLICATION_OCTET_STREAM_VALUE, Files.readAllBytes(file.toPath()));
+                    } else {
+                        multipartFile = new MockMultipartFile(key, null,
+                                MediaType.APPLICATION_JSON_VALUE, o.toString().getBytes());
+                    }
+
+                    requestBuilder.file(multipartFile);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        });
+        return requestBuilder;
+    }
+
+    protected MultiValueMap<String, Object> getDefaultMultiPartParam(Object param, File file) {
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", file);
+        paramMap.add("request", JSON.toJSONString(param));
+        return paramMap;
     }
 
     protected <T> T getResultData(MvcResult mvcResult, Class<T> clazz) throws Exception {
@@ -250,17 +331,18 @@ public abstract class BaseTest {
      * 校验权限
      * 实现步骤
      * 1. 在 application.properties 配置权限的初始化 sql
-     *      spring.sql.init.mode=always
-     *      spring.sql.init.schema-locations=classpath*:dml/init_permission_test.sql
+     * spring.sql.init.mode=always
+     * spring.sql.init.schema-locations=classpath*:dml/init_permission_test.sql
      * 2. 在 init_permission_test.sql 中配置权限，
-     *    初始化名称为 permissionId 前缀（SYSTEM, ORGANIZATION, PROJECT）的用户组和用户，并关联
+     * 初始化名称为 permissionId 前缀（SYSTEM, ORGANIZATION, PROJECT）的用户组和用户，并关联
      * 3. 向该用户组中添加权限测试是否生效，删除权限测试是否可以访问
+     *
      * @param permissionId
      * @param url
      * @param requestBuilderGetFunc 请求构造器，一个 builder 只能使用一次，需要重新生成
      * @throws Exception
      */
-    private void requestPermissionTest(String permissionId, String url, Supplier<MockHttpServletRequestBuilder> requestBuilderGetFunc)  throws Exception {
+    private void requestPermissionTest(String permissionId, String url, Supplier<MockHttpServletRequestBuilder> requestBuilderGetFunc) throws Exception {
         String roleId = permissionId.split("_")[0];
         // 先给初始化的用户组添加权限
         UserRolePermission userRolePermission = initUserRolePermission(roleId, permissionId);
@@ -297,6 +379,7 @@ public abstract class BaseTest {
 
     /**
      * 调用 is-login 接口刷新权限
+     *
      * @param permissionId
      * @throws Exception
      */
@@ -312,8 +395,13 @@ public abstract class BaseTest {
         requestPermissionTest(permissionId, url, () -> getPermissionRequestBuilder(permissionId, url, uriVariables));
     }
 
+    protected void requestMultipartPermissionTest(String permissionId, String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        requestPermissionTest(permissionId, url, () -> getPermissionMultipartRequestBuilder(permissionId, url, paramMap, uriVariables));
+    }
+
     /**
      * 给用户组绑定对应权限
+     *
      * @param roleId
      * @param permissionId
      * @return

@@ -35,7 +35,7 @@ import static io.metersphere.system.service.GlobalUserRoleService.GLOBAL_SCOPE;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class GlobalUserRoleControllerTest extends BaseTest {
+class GlobalUserRoleControllerTests extends BaseTest {
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
@@ -43,10 +43,6 @@ class GlobalUserRoleControllerTest extends BaseTest {
     @Resource
     private BaseUserRoleRelationService baseUserRoleRelationService;
     private static final String BASE_PATH = "/user/role/global/";
-    private static final String LIST = "list";
-    private static final String ADD = "add";
-    private static final String UPDATE = "update";
-    private static final String DELETE = "delete/{0}";
     private static final String PERMISSION_SETTING = "permission/setting/{0}";
     private static final String PERMISSION_UPDATE = "permission/update";
 
@@ -60,7 +56,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
     @Test
     void list() throws Exception {
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(LIST)
+        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST)
                 .andReturn();
         List<UserRole> userRoles = getResultDataArray(mvcResult, UserRole.class);
 
@@ -75,7 +71,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isSubCollection(internalUserRoleIds, userRoleIds));
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, LIST);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_READ, DEFAULT_LIST);
     }
 
     @Test
@@ -86,7 +82,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
         request.setName("test");
         request.setType(UserRoleType.SYSTEM.name());
         request.setDescription("test desc");
-        MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, request);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         UserRole resultData = getResultData(mvcResult, UserRole.class);
         UserRole userRole = userRoleMapper.selectByPrimaryKey(resultData.getId());
         // 校验请求成功数据
@@ -98,13 +94,13 @@ class GlobalUserRoleControllerTest extends BaseTest {
         checkLog(this.addUserRole.getId(), OperationLogType.ADD);
 
         // @@重名校验异常
-        assertErrorCode(this.requestPost(ADD, request), GLOBAL_USER_ROLE_EXIST);
+        assertErrorCode(this.requestPost(DEFAULT_ADD, request), GLOBAL_USER_ROLE_EXIST);
 
         // @@异常参数校验
-        createdGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, ADD);
+        createdGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, DEFAULT_ADD);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_ADD, ADD, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_ADD, DEFAULT_ADD, request);
     }
 
     @Test
@@ -116,7 +112,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
         request.setName("test update");
         request.setType(UserRoleType.SYSTEM.name());
         request.setDescription("test desc !!!!");
-        this.requestPostWithOk(UPDATE, request);
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
         UserRole userRoleResult = userRoleMapper.selectByPrimaryKey(request.getId());
         Assertions.assertEquals(request.getName(), userRoleResult.getName());
@@ -128,23 +124,23 @@ class GlobalUserRoleControllerTest extends BaseTest {
 
         // @@操作非全局用户组异常
         BeanUtils.copyBean(request, getNonGlobalUserRole());
-        assertErrorCode(this.requestPost(UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@操作内置用户组异常
         request.setId(ADMIN.getValue());
         request.setName(ADMIN.getValue());
-        assertErrorCode(this.requestPost(UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
 
         // @@重名校验异常
         request.setId(addUserRole.getId());
         request.setName("系统管理员");
-        assertErrorCode(this.requestPost(UPDATE, request), GLOBAL_USER_ROLE_EXIST);
+        assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), GLOBAL_USER_ROLE_EXIST);
 
         // @@异常参数校验
-        updatedGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, UPDATE);
+        updatedGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, DEFAULT_UPDATE);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, UPDATE, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
@@ -247,7 +243,7 @@ class GlobalUserRoleControllerTest extends BaseTest {
     @Order(3)
     void delete() throws Exception {
         // @@请求成功
-        this.requestGet(DELETE, addUserRole.getId());
+        this.requestGet(DEFAULT_DELETE, addUserRole.getId());
         // 校验请求成功数据
         Assertions.assertNull(userRoleMapper.selectByPrimaryKey(addUserRole.getId()));
         // 校验用户组与权限的关联关系是否删除
@@ -259,13 +255,13 @@ class GlobalUserRoleControllerTest extends BaseTest {
         checkLog(addUserRole.getId(), OperationLogType.DELETE);
 
         // @@操作非全局用户组异常
-        assertErrorCode(this.requestGet(DELETE, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, getNonGlobalUserRole().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
         // @@操作内置用户组异常
-        assertErrorCode(this.requestGet(DELETE, ADMIN.getValue()), INTERNAL_USER_ROLE_PERMISSION);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, ADMIN.getValue()), INTERNAL_USER_ROLE_PERMISSION);
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_DELETE, DELETE, addUserRole.getId());
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_DELETE, DEFAULT_DELETE, addUserRole.getId());
     }
 
     /**

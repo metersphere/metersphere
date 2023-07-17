@@ -23,7 +23,7 @@ public class UserRoleUpdateRequestDefinition {
     private String name;
 
     @NotBlank(groups = {Created.class})
-    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class})
+    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class, Updated.class})
     @Size(min = 1, max = 20, groups = {Created.class, Updated.class})
     private String type;
 }
