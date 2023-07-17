@@ -80,7 +80,7 @@ public class SystemProjectController {
 
     @GetMapping("/revoke/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
     public int revokeProject(@PathVariable String id) {
        return systemProjectService.revoke(id);
     }

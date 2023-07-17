@@ -101,7 +101,7 @@ public class OperationLogService {
         }
         List<OperationLogResponse> list = baseOperationLogMapper.list(request);
 
-        if (CollectionUtils.isNotEmpty(list) && !"system".equals(request.getLevel())) {
+        if (CollectionUtils.isNotEmpty(list)) {
             List<String> userIds = list.stream().map(OperationLogResponse::getCreateUser).collect(Collectors.toList());
             List<String> projectIds = list.stream().map(OperationLogResponse::getProjectId).collect(Collectors.toList());
             List<String> organizationIds = list.stream().map(OperationLogResponse::getOrganizationId).collect(Collectors.toList());
