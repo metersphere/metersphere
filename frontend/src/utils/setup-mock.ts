@@ -1,8 +1,8 @@
-import debug from './env';
+import MSR from '@/api/http';
+import { RequestEnum } from '@/enums/httpEnum';
+import MockAdapter from 'axios-mock-adapter';
 
-export default ({ mock, setup }: { mock?: boolean; setup: () => void }) => {
-  if (mock !== false && debug) setup();
-};
+const MOCK = new MockAdapter(MSR.axiosInstance, { onNoMatch: 'throwException' });
 
 /**
  * mock- 成功返回结果结构体
@@ -39,13 +39,33 @@ export const successTableResponseWrap = (data: unknown) => {
  * @param code
  * @returns
  */
-export const failResponseWrap = (data: unknown, message: string, code = 50000) => {
+export const failResponseWrap = (data: unknown, message?: string, messageDetail?: string) => {
   return {
     data,
-    status: 'fail',
-    message,
-    code,
+    message: message || '请求失败',
+    messageDetail,
   };
+};
+
+export const mock = (
+  method: RequestEnum,
+  url: string | RegExp,
+  data: unknown,
+  code: number,
+  isTable?: boolean,
+  message?: string,
+  messageDetail?: string
+) => {
+  const methodMap = {
+    [RequestEnum.GET]: MOCK.onGet(url),
+    [RequestEnum.POST]: MOCK.onPost(url),
+    [RequestEnum.PUT]: MOCK.onPut(url),
+    [RequestEnum.DELETE]: MOCK.onDelete(url),
+  };
+  if (code === 200) {
+    return methodMap[method].reply(code, isTable ? successTableResponseWrap(data) : successResponseWrap(data));
+  }
+  return methodMap[method].reply(code, failResponseWrap(data, message, messageDetail));
 };
 
 /**
@@ -57,3 +77,5 @@ export const makeMockUrl = (url: string) => {
   const mockOrigin = window.location.origin;
   return `${mockOrigin}/front${url}`;
 };
+
+export default MOCK;

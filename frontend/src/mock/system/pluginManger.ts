@@ -1,5 +1,5 @@
-import Mock from 'mockjs';
-import setupMock, { successTableResponseWrap } from '@/utils/setup-mock';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
 const getPluginList = () => {
   return [
@@ -176,10 +176,4 @@ const getPluginList = () => {
   ];
 };
 
-setupMock({
-  setup: () => {
-    Mock.mock(new RegExp('/plugin/page'), () => {
-      return successTableResponseWrap(getPluginList());
-    });
-  },
-});
+mock(RequestEnum.POST, '/plugin/page', getPluginList(), 200, true);

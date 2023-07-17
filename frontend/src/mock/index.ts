@@ -1,4 +1,4 @@
-import Mock from 'mockjs';
+import MOCK from '@/utils/setup-mock';
 
 import './user';
 import './message-box';
@@ -9,6 +9,4 @@ import './system/resourcePool';
 import './system/member';
 import './system/pluginManger';
 
-Mock.setup({
-  timeout: '600-1000',
-});
+MOCK.onAny().passThrough();

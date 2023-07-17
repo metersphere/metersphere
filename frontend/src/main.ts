@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import FormCreate from '@form-create/arco-design';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import SvgIcon from '@/components/pure/svg-icon/index.vue';
+import MSIcon from '@/components/pure/ms-icon-font/index.vue';
 import router from './router';
 import store from './store';
 import { setupI18n } from './locale';
@@ -23,6 +24,7 @@ async function bootstrap() {
   await setupI18n(app);
 
   app.use(ArcoVueIcon);
+  app.component('MsIcon', MSIcon);
   app.component('SvgIcon', SvgIcon);
 
   app.use(router);
