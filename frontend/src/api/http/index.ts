@@ -1,7 +1,7 @@
 import { MSAxios } from './Axios';
 import checkStatus from './checkStatus';
 import { Message, Modal } from '@arco-design/web-vue';
-import { RequestEnum, ContentTypeEnum, ResultEnum } from '@/enums/httpEnum';
+import { RequestEnum, ContentTypeEnum } from '@/enums/httpEnum';
 import { isString } from '@/utils/is';
 import { getToken } from '@/utils/auth';
 import { setObjToUrlParams, deepMerge } from '@/utils';
@@ -31,7 +31,7 @@ const transform: AxiosTransform = {
         config.params = Object.assign(params || {}, joinTimestamp(joinTime, false));
       } else {
         // 兼容restful风格
-        config.url = `${config.url}${params}${joinTimestamp(joinTime, true)}`;
+        config.url = `${config.url}/${params}${joinTimestamp(joinTime, true)}`;
         config.params = undefined;
       }
     } else if (isString(params)) {
@@ -76,32 +76,33 @@ const transform: AxiosTransform = {
       throw new Error(t('api.apiRequestFailed'));
     }
     //  这里 code，result，message为 后台统一的字段
-    const { code, data: dataResult, message } = data;
+    const { data: dataResult } = data;
 
-    // TODO:定义完成功code后需要重写
-    const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
-    if (hasSuccess) {
-      return dataResult;
-    }
+    // 这里直接返回正常结果，因为拦截器已经拦截了非 200 的请求
+    return dataResult;
+    // const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
+    // if (hasSuccess) {
+    //   return dataResult;
+    // }
 
-    // 在此处根据自己项目的实际情况对不同的code执行不同的操作
-    // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
-    let timeoutMsg = '';
-    if (Number(code) === ResultEnum.TIMEOUT) {
-      timeoutMsg = t('api.timeoutMessage');
-    } else if (message) {
-      timeoutMsg = message;
-    }
+    // // 在此处根据自己项目的实际情况对不同的code执行不同的操作
+    // // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
+    // let timeoutMsg = '';
+    // if (Number(code) === ResultEnum.TIMEOUT) {
+    //   timeoutMsg = t('api.timeoutMessage');
+    // } else if (message) {
+    //   timeoutMsg = message;
+    // }
 
-    // errorMessageMode=‘modal’的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
-    // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
-    if (options.errorMessageMode === 'modal') {
-      Modal.error({ title: t('api.errorTip'), content: timeoutMsg });
-    } else if (options.errorMessageMode === 'message') {
-      Message.error(timeoutMsg);
-    }
+    // // errorMessageMode=‘modal’的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
+    // // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
+    // if (options.errorMessageMode === 'modal') {
+    //   Modal.error({ title: t('api.errorTip'), content: timeoutMsg });
+    // } else if (options.errorMessageMode === 'message') {
+    //   Message.error(timeoutMsg);
+    // }
 
-    throw new Error(timeoutMsg || t('api.apiRequestFailed'));
+    // throw new Error(timeoutMsg || t('api.apiRequestFailed'));
   },
 
   /**

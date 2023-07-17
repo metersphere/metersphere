@@ -413,55 +413,36 @@ export interface LoginRes {
 提供全局接口数据 mock 功能，避免因为调试而修改请求代码导致出现问题，按功能模块划分文件，通过`index.ts`暴露，示例如下：
 
 ```typescript
-import Mock from 'mockjs';
-import './user';
-import '@/views/dashboard/workplace/mock';
+import MOCK from '@/utils/setup-mock';
 
-Mock.setup({
-  timeout: '600-1000',
-});
+import './user';
 ```
 
 ```typescript
-import Mock from 'mockjs';
-import setupMock, { successResponseWrap, failResponseWrap } from '@/utils/setup-mock';
-import { isLogin } from '@/utils/auth';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
-import { MockParams } from '@/types/mock';
+const getProjectList = () => {
+  return [
+    {
+      id: '0283f238hf2',
+      num: 0,
+      organizationId: 'v3v4h434c3',
+      name: '发了多少',
+      description: 'string',
+      createTime: 0,
+      updateTime: 0,
+      updateUser: 'string',
+      createUser: 'string',
+      deleteTime: 0,
+      deleted: true,
+      deleteUser: 'string',
+      enable: true,
+    },
+  ];
+};
 
-setupMock({
-  setup() {
-    // 用户信息
-    Mock.mock(new RegExp('/api/user/info'), () => {
-      if (isLogin()) {
-        const role = window.localStorage.getItem('userRole') || 'admin';
-        return successResponseWrap({
-          name: '王立群',
-          avatar: '//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
-          email: 'wangliqun@email.com',
-          job: 'frontend',
-          jobName: '前端艺术家',
-          organization: 'Frontend',
-          organizationName: '前端',
-          location: 'beijing',
-          locationName: '北京',
-          introduction: '人潇洒，性温存',
-          personalWebsite: 'https://www.arco.design',
-          phone: '150****0000',
-          registrationDate: '2013-05-10 12:10:00',
-          accountId: '15012312300',
-          certification: 1,
-          role,
-        });
-      }
-      return failResponseWrap(null, '未登录', 50008);
-    });
-    // 登出
-    Mock.mock(new RegExp('/api/user/logout'), () => {
-      return successResponseWrap(null);
-    });
-  },
-});
+mock(RequestEnum.GET, '/system/project/list', getProjectList(), 200);
 ```
 
 <a name="QgxDQ"></a>
@@ -557,10 +538,11 @@ export default i18n;
 <a name="RwVcu"></a>
 
 ## -theme 主题配置
-1. 去Desing Lab 创建主题 https://arco.design/themes/home
+
+1. 去 Desing Lab 创建主题 https://arco.design/themes/home
 2. 以`ms-theme-` 命名为开头
 3. 点击页面的配置主题
-**“CSS 变量” + “Tailwind 配置变量” + “基于 css 变量自行计算混合色覆盖 arco-theme 变量”**
+   **“CSS 变量” + “Tailwind 配置变量” + “基于 css 变量自行计算混合色覆盖 arco-theme 变量”**
 
 ## -.env.\*环境变量配置
 

@@ -1,5 +1,5 @@
-import Mock from 'mockjs';
-import setupMock, { successResponseWrap } from '@/utils/setup-mock';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
 const getProjectList = () => {
   return [
@@ -51,10 +51,4 @@ const getProjectList = () => {
   ];
 };
 
-setupMock({
-  setup: () => {
-    Mock.mock(new RegExp('/system/project/list'), () => {
-      return successResponseWrap(getProjectList());
-    });
-  },
-});
+mock(RequestEnum.GET, '/system/project/list', getProjectList(), 200);

@@ -1,5 +1,5 @@
-import Mock from 'mockjs';
-import setupMock, { successResponseWrap } from '@/utils/setup-mock';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
 const haveReadIds: number[] = [];
 const getMessageList = () => {
@@ -70,16 +70,14 @@ const getMessageList = () => {
   }));
 };
 
-setupMock({
-  setup: () => {
-    Mock.mock(new RegExp('/api/message/list'), () => {
-      return successResponseWrap(getMessageList());
-    });
-
-    Mock.mock(new RegExp('/api/message/read'), (params: { body: string }) => {
-      const { ids } = JSON.parse(params.body);
-      haveReadIds.push(...(ids || []));
-      return successResponseWrap(true);
-    });
+mock(RequestEnum.GET, '/api/message/list', getMessageList(), 200);
+mock(
+  RequestEnum.GET,
+  '/api/message/read',
+  (params: { body: string }) => {
+    const { ids } = JSON.parse(params.body);
+    haveReadIds.push(...(ids || []));
+    return true;
   },
-});
+  200
+);

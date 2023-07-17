@@ -1,5 +1,5 @@
-import Mock from 'mockjs';
-import setupMock, { successResponseWrap } from '@/utils/setup-mock';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
 const getList = () => {
   return {
@@ -108,10 +108,4 @@ const getList = () => {
   };
 };
 
-setupMock({
-  setup: () => {
-    Mock.mock(new RegExp('/mock/api-test/define/list/'), () => {
-      return successResponseWrap(getList());
-    });
-  },
-});
+mock(RequestEnum.POST, '/mock/api-test/define/list/', getList(), 200);

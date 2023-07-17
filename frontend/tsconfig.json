@@ -12,10 +12,8 @@
     "build/**/*.d.ts",
     "mock/**/*.ts",
     "__test__/**/*.ts",
+    "node_modules/monaco-editor/monaco.d.ts"
   ], // TS解析路径配置
-  "exclude": [
-    "node_modules"
-  ],
   "compilerOptions": {
     "allowJs": true, // 允许编译器编译JS，JSX文件
     "noEmit": true,

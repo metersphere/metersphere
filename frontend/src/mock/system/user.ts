@@ -1,5 +1,5 @@
-import Mock from 'mockjs';
-import setupMock, { successTableResponseWrap } from '@/utils/setup-mock';
+import { mock } from '@/utils/setup-mock';
+import { RequestEnum } from '@/enums/httpEnum';
 
 const getUserList = () => {
   return [
@@ -250,10 +250,4 @@ const getUserList = () => {
   ];
 };
 
-setupMock({
-  setup: () => {
-    Mock.mock(new RegExp('/user/page'), () => {
-      return successTableResponseWrap(getUserList());
-    });
-  },
-});
+mock(RequestEnum.POST, '/user/page', getUserList(), 200, true);
