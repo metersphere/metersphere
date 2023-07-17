@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.log.annotation.Log;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
@@ -14,6 +16,7 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,6 +48,7 @@ public class OrganizationUserRoleController {
     @PostMapping("/add")
     @Operation(summary = "添加组织用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_ADD)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public UserRole add(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
@@ -55,6 +59,7 @@ public class OrganizationUserRoleController {
     @PostMapping("/update")
     @Operation(summary = "修改组织用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public UserRole update(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
@@ -64,6 +69,7 @@ public class OrganizationUserRoleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除组织用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationUserRoleLogService.class)
     public void delete(@PathVariable String id) {
         organizationUserRoleService.delete(id);
     }
@@ -78,6 +84,7 @@ public class OrganizationUserRoleController {
     @PostMapping("/permission/update")
     @Operation(summary = "编辑组织用户组对应的权限配置")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePermissionSettingLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void updatePermissionSetting(@Validated @RequestBody PermissionSettingUpdateRequest request) {
         organizationUserRoleService.updatePermissionSetting(request);
     }
@@ -93,6 +100,7 @@ public class OrganizationUserRoleController {
     @PostMapping("/add-member")
     @Operation(summary = "添加组织用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void addMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.addMember(request, SessionUtils.getUserId());
     }
@@ -100,6 +108,7 @@ public class OrganizationUserRoleController {
     @PostMapping("/remove-member")
     @Operation(summary = "删除组织用户组成员")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.editMemberLog(#request)", msClass = OrganizationUserRoleLogService.class)
     public void removeMember(@Validated @RequestBody OrganizationUserRoleMemberEditRequest request) {
         organizationUserRoleService.removeMember(request);
     }

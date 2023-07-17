@@ -9,6 +9,7 @@ public class OperationLogModule {
     public static final String SYSTEM_USER_ROLE = "SYSTEM_USER_ROLE";
     public static final String SYSTEM_USER_ROLE_RELATION = "SYSTEM_USER_ROLE_RELATION";
     public static final String SYSTEM_ORGANIZATION = "SYSTEM_ORGANIZATION";
+    public static final String ORGANIZATION_USER_ROLE = "ORGANIZATION_USER_ROLE";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS = "ORGANIZATION_TEMPLATE_SETTINGS";
     public static final String ORGANIZATION_MESSAGE_SETTINGS = "ORGANIZATION_MESSAGE_SETTINGS";
     public static final String ORGANIZATION_TEMPLATE_SETTINGS_FIELD = "ORGANIZATION_TEMPLATE_SETTINGS_FIELD";

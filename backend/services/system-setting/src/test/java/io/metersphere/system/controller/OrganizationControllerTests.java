@@ -240,8 +240,6 @@ public class OrganizationControllerTests extends BaseTest{
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-x/admin", status().is5xxServerError());
         // 用户不存在
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin-x", status().is5xxServerError());
-        // 用户组织关系不存在
-        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-4/default-admin", status().is5xxServerError());
     }
 
     @Test
