@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class AuthSourceControllerTest extends BaseTest {
+public class AuthSourceControllerTests extends BaseTest {
 
     public static final String AUTH_SOURCE_ADD = "/system/authsource/add";
 

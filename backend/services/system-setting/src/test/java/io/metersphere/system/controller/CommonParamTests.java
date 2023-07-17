@@ -16,7 +16,7 @@ import java.util.Map;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class CommonParamTest extends BaseTest {
+class CommonParamTests extends BaseTest {
 
     /**
      * 校验 BasePageRequestDefinition 参数
@@ -24,7 +24,7 @@ class CommonParamTest extends BaseTest {
      */
     @Test
     void testBasePageRequestDefinition() throws Exception {
-        String url = GlobalUserRoleRelationControllerTest.BASE_URL + GlobalUserRoleRelationControllerTest.LIST;
+        String url = GlobalUserRoleRelationControllerTests.BASE_URL + "list";
         paramValidateTest(BasePageRequestDefinition.class, url);
         BasePageRequestDefinition basePageRequestDefinition = new BasePageRequestDefinition();
         // @@校验 sort 字段 sql 防注入,有点复杂,手动写校验

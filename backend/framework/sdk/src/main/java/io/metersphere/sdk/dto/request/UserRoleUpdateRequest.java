@@ -33,7 +33,7 @@ public class UserRoleUpdateRequest implements Serializable {
 
     @Schema(title = "所属类型 SYSTEM ORGANIZATION PROJECT", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_role.type.not_blank}", groups = {Created.class})
-    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class})
+    @EnumValue(enumClass = UserRoleType.class, groups = {Created.class, Updated.class})
     @Size(min = 1, max = 20, message = "{user_role.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 }

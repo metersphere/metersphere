@@ -1,0 +1,25 @@
+package io.metersphere.system.controller.param;
+
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Data
+public class PluginUpdateRequestDefinition {
+    @NotBlank(message = "{plugin.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{plugin.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
+    @NotBlank(groups = {Created.class})
+    @Size(min = 1, max = 255, groups = {Created.class, Updated.class})
+    private String name;
+
+    @Size(min = 1, max = 500, groups = {Created.class, Updated.class})
+    private String description;
+
+    @NotBlank(groups = {Created.class})
+    @Size(min = 1, max = 50, groups = {Created.class, Updated.class})
+    private String scenario;
+}

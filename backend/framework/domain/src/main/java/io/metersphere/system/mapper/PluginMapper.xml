@@ -5,16 +5,14 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
-    <result column="script_id" jdbcType="VARCHAR" property="scriptId" />
-    <result column="clazz_name" jdbcType="VARCHAR" property="clazzName" />
-    <result column="jmeter_clazz" jdbcType="VARCHAR" property="jmeterClazz" />
-    <result column="source_path" jdbcType="VARCHAR" property="sourcePath" />
-    <result column="source_name" jdbcType="VARCHAR" property="sourceName" />
-    <result column="exec_entry" jdbcType="VARCHAR" property="execEntry" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="global" jdbcType="BIT" property="global" />
     <result column="xpack" jdbcType="BIT" property="xpack" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="scenario" jdbcType="VARCHAR" property="scenario" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -76,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, plugin_id, script_id, clazz_name, jmeter_clazz, source_path, source_name, 
-    exec_entry, create_time, update_time, create_user, xpack, scenario
+    id, `name`, plugin_id, file_name, create_time, update_time, create_user, `enable`, 
+    `global`, xpack, description, scenario
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.PluginExample" resultMap="BaseResultMap">
     select
@@ -111,15 +109,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.Plugin">
     insert into plugin (id, `name`, plugin_id, 
-      script_id, clazz_name, jmeter_clazz, 
-      source_path, source_name, exec_entry, 
-      create_time, update_time, create_user, 
-      xpack, scenario)
+      file_name, create_time, update_time, 
+      create_user, `enable`, `global`, 
+      xpack, description, scenario
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pluginId,jdbcType=VARCHAR}, 
-      #{scriptId,jdbcType=VARCHAR}, #{clazzName,jdbcType=VARCHAR}, #{jmeterClazz,jdbcType=VARCHAR}, 
-      #{sourcePath,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, #{execEntry,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{xpack,jdbcType=BIT}, #{scenario,jdbcType=VARCHAR})
+      #{fileName,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{global,jdbcType=BIT}, 
+      #{xpack,jdbcType=BIT}, #{description,jdbcType=VARCHAR}, #{scenario,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Plugin">
     insert into plugin
@@ -133,23 +131,8 @@
       <if test="pluginId != null">
         plugin_id,
       </if>
-      <if test="scriptId != null">
-        script_id,
-      </if>
-      <if test="clazzName != null">
-        clazz_name,
-      </if>
-      <if test="jmeterClazz != null">
-        jmeter_clazz,
-      </if>
-      <if test="sourcePath != null">
-        source_path,
-      </if>
-      <if test="sourceName != null">
-        source_name,
-      </if>
-      <if test="execEntry != null">
-        exec_entry,
+      <if test="fileName != null">
+        file_name,
       </if>
       <if test="createTime != null">
         create_time,
@@ -160,8 +143,17 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
+      <if test="global != null">
+        `global`,
+      </if>
       <if test="xpack != null">
         xpack,
+      </if>
+      <if test="description != null">
+        description,
       </if>
       <if test="scenario != null">
         scenario,
@@ -177,23 +169,8 @@
       <if test="pluginId != null">
         #{pluginId,jdbcType=VARCHAR},
       </if>
-      <if test="scriptId != null">
-        #{scriptId,jdbcType=VARCHAR},
-      </if>
-      <if test="clazzName != null">
-        #{clazzName,jdbcType=VARCHAR},
-      </if>
-      <if test="jmeterClazz != null">
-        #{jmeterClazz,jdbcType=VARCHAR},
-      </if>
-      <if test="sourcePath != null">
-        #{sourcePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceName != null">
-        #{sourceName,jdbcType=VARCHAR},
-      </if>
-      <if test="execEntry != null">
-        #{execEntry,jdbcType=VARCHAR},
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -204,8 +181,17 @@
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        #{global,jdbcType=BIT},
+      </if>
       <if test="xpack != null">
         #{xpack,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
       <if test="scenario != null">
         #{scenario,jdbcType=VARCHAR},
@@ -230,23 +216,8 @@
       <if test="record.pluginId != null">
         plugin_id = #{record.pluginId,jdbcType=VARCHAR},
       </if>
-      <if test="record.scriptId != null">
-        script_id = #{record.scriptId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.clazzName != null">
-        clazz_name = #{record.clazzName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.jmeterClazz != null">
-        jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
-      </if>
-      <if test="record.sourcePath != null">
-        source_path = #{record.sourcePath,jdbcType=VARCHAR},
-      </if>
-      <if test="record.sourceName != null">
-        source_name = #{record.sourceName,jdbcType=VARCHAR},
-      </if>
-      <if test="record.execEntry != null">
-        exec_entry = #{record.execEntry,jdbcType=VARCHAR},
+      <if test="record.fileName != null">
+        file_name = #{record.fileName,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -257,8 +228,17 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
+      <if test="record.global != null">
+        `global` = #{record.global,jdbcType=BIT},
+      </if>
       <if test="record.xpack != null">
         xpack = #{record.xpack,jdbcType=BIT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.scenario != null">
         scenario = #{record.scenario,jdbcType=VARCHAR},
@@ -273,16 +253,14 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       plugin_id = #{record.pluginId,jdbcType=VARCHAR},
-      script_id = #{record.scriptId,jdbcType=VARCHAR},
-      clazz_name = #{record.clazzName,jdbcType=VARCHAR},
-      jmeter_clazz = #{record.jmeterClazz,jdbcType=VARCHAR},
-      source_path = #{record.sourcePath,jdbcType=VARCHAR},
-      source_name = #{record.sourceName,jdbcType=VARCHAR},
-      exec_entry = #{record.execEntry,jdbcType=VARCHAR},
+      file_name = #{record.fileName,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
+      `global` = #{record.global,jdbcType=BIT},
       xpack = #{record.xpack,jdbcType=BIT},
+      description = #{record.description,jdbcType=VARCHAR},
       scenario = #{record.scenario,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -297,23 +275,8 @@
       <if test="pluginId != null">
         plugin_id = #{pluginId,jdbcType=VARCHAR},
       </if>
-      <if test="scriptId != null">
-        script_id = #{scriptId,jdbcType=VARCHAR},
-      </if>
-      <if test="clazzName != null">
-        clazz_name = #{clazzName,jdbcType=VARCHAR},
-      </if>
-      <if test="jmeterClazz != null">
-        jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
-      </if>
-      <if test="sourcePath != null">
-        source_path = #{sourcePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceName != null">
-        source_name = #{sourceName,jdbcType=VARCHAR},
-      </if>
-      <if test="execEntry != null">
-        exec_entry = #{execEntry,jdbcType=VARCHAR},
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -324,8 +287,17 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        `global` = #{global,jdbcType=BIT},
+      </if>
       <if test="xpack != null">
         xpack = #{xpack,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="scenario != null">
         scenario = #{scenario,jdbcType=VARCHAR},
@@ -337,16 +309,14 @@
     update plugin
     set `name` = #{name,jdbcType=VARCHAR},
       plugin_id = #{pluginId,jdbcType=VARCHAR},
-      script_id = #{scriptId,jdbcType=VARCHAR},
-      clazz_name = #{clazzName,jdbcType=VARCHAR},
-      jmeter_clazz = #{jmeterClazz,jdbcType=VARCHAR},
-      source_path = #{sourcePath,jdbcType=VARCHAR},
-      source_name = #{sourceName,jdbcType=VARCHAR},
-      exec_entry = #{execEntry,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
+      `global` = #{global,jdbcType=BIT},
       xpack = #{xpack,jdbcType=BIT},
+      description = #{description,jdbcType=VARCHAR},
       scenario = #{scenario,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>

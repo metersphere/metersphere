@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemParameterControllerTest {
+public class SystemParameterControllerTests {
 
     @Resource
     private MockMvc mockMvc;

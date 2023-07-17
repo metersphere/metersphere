@@ -1,0 +1,86 @@
+package io.metersphere.system.controller;
+
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.log.annotation.Log;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.dto.PluginDTO;
+import io.metersphere.system.dto.PluginListDTO;
+import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.service.PluginService;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+
+/**
+ * @author : jianxing
+ * @date : 2023-7-13
+ */
+@RestController
+@RequestMapping("/plugin")
+@Tag(name = "插件")
+public class PluginController {
+
+    @Resource
+    private PluginService pluginService;
+
+    @GetMapping("/list")
+    @Operation(summary = "获取插件列表")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
+    public List<PluginListDTO> list() {
+        return pluginService.list();
+    }
+
+    @GetMapping("/get/{id}")
+    @Operation(summary = "获取插件详情")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
+    public PluginDTO get(@PathVariable String id) {
+        return pluginService.get(id);
+    }
+
+    @PostMapping("/add")
+    @Operation(summary = "创建插件")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_ADD)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#request)", msClass = PluginService.class)
+    public Plugin add(@Validated({Created.class}) @RequestPart(value = "request") PluginUpdateRequest request,
+                      @RequestPart(value = "file") MultipartFile file) {
+        request.setCreateUser(SessionUtils.getUserId());
+        return pluginService.add(request, file);
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "更新插件")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_UPDATE)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.updateLog(#request)", msClass = PluginService.class)
+    public Plugin update(@Validated({Updated.class}) @RequestPart(value = "request") PluginUpdateRequest request,
+                         @RequestPart(value = "file", required = false) MultipartFile file) {
+        Plugin plugin = new Plugin();
+        BeanUtils.copyBean(plugin, request);
+        return pluginService.update(request, file);
+    }
+
+    @GetMapping("/delete/{id}")
+    @Operation(summary = "删除插件")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = PluginService.class)
+    public String delete(@PathVariable String id) {
+        return pluginService.delete(id);
+    }
+
+    @GetMapping("/script/get/{pluginId}/{scriptId}")
+    @Operation(summary = "获取插件对应表单的脚本内容")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
+    public String getScript(@PathVariable String pluginId, String scriptId) {
+        return pluginService.getScript(pluginId, scriptId);
+    }
+}

@@ -77,7 +77,8 @@
         <table tableName="operating_log"/>
         <table tableName="operating_log_resource"/>
         <table tableName="plugin"/>
-        <table tableName="plugin_blob"/>
+        <table tableName="plugin_front_script"/>
+        <table tableName="plugin_organization"/>
         <table tableName="schedule"/>
         <table tableName="service_integration"/>
         <table tableName="system_parameter"/>

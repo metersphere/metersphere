@@ -73,6 +73,26 @@
             "name": "permission.system_test_resource_pool.delete"
           }
         ]
+      },
+      {
+        "id": "SYSTEM_PLUGIN:READ",
+        "name": "permission.system_plugin.read",
+        "resourceId": "SYSTEM_PLUGIN"
+      },
+      {
+        "id": "SYSTEM_PLUGIN:READ+ADD",
+        "name": "permission.system_plugin.add",
+        "resourceId": "SYSTEM_PLUGIN"
+      },
+      {
+        "id": "SYSTEM_PLUGIN:READ+UPDATE",
+        "name": "permission.system_plugin.edit",
+        "resourceId": "SYSTEM_PLUGIN"
+      },
+      {
+        "id": "SYSTEM_PLUGIN:READ+DELETE",
+        "name": "permission.system_plugin.delete",
+        "resourceId": "SYSTEM_PLUGIN"
       }
     ]
   },

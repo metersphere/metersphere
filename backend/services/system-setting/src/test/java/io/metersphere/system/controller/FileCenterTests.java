@@ -13,7 +13,7 @@ import org.springframework.mock.web.MockMultipartFile;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class FileCenterTest {
+public class FileCenterTests {
 
     @Resource
     private MinioRepository repository;

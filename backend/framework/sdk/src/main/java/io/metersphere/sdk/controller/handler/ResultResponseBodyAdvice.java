@@ -28,7 +28,8 @@ public class ResultResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterType, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         // 处理空值
         if (o == null && StringHttpMessageConverter.class.isAssignableFrom(converterType)) {
-            return null;
+            serverHttpResponse.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return JSON.toJSONString(ResultHolder.success(o));
         }
 
         if (methodParameter.hasMethodAnnotation(NoResultHolder.class)) {
@@ -37,6 +38,7 @@ public class ResultResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
         if (!(o instanceof ResultHolder)) {
             if (o instanceof String) {
+                serverHttpResponse.getHeaders().setContentType(MediaType.APPLICATION_JSON);
                 return JSON.toJSONString(ResultHolder.success(o));
             }
             return ResultHolder.success(o);
