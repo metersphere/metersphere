@@ -17,35 +17,35 @@ export default function checkStatus(status: number, msg: string, errorMessageMod
       break;
     }
     case 403:
-      errMessage = t('api.errMsg403');
+      errMessage = msg || t('api.errMsg403');
       break;
     // 404请求不存在
     case 404:
-      errMessage = t('api.errMsg404');
+      errMessage = msg || t('api.errMsg404');
       break;
     case 405:
-      errMessage = t('api.errMsg405');
+      errMessage = msg || t('api.errMsg405');
       break;
     case 408:
-      errMessage = t('api.errMsg408');
+      errMessage = msg || t('api.errMsg408');
       break;
     case 500:
-      errMessage = t('api.errMsg500');
+      errMessage = msg || t('api.errMsg500');
       break;
     case 501:
-      errMessage = t('api.errMsg501');
+      errMessage = msg || t('api.errMsg501');
       break;
     case 502:
-      errMessage = t('api.errMsg502');
+      errMessage = msg || t('api.errMsg502');
       break;
     case 503:
-      errMessage = t('api.errMsg503');
+      errMessage = msg || t('api.errMsg503');
       break;
     case 504:
-      errMessage = t('api.errMsg504');
+      errMessage = msg || t('api.errMsg504');
       break;
     case 505:
-      errMessage = t('api.errMsg505');
+      errMessage = msg || t('api.errMsg505');
       break;
     default:
   }
