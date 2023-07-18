@@ -57,18 +57,26 @@ export default {
   },
   permission: {
     system_user_role: {
-      name: 'Name',
+      name: 'User role',
       read: 'Read',
       add: 'Add',
       update: 'Update',
       delete: 'Delete',
     },
     system_test_resource_pool: {
-      name: 'Name',
+      name: 'Resource pool',
       read: 'Read',
       add: 'Add',
       update: 'Update',
       delete: 'Delete',
+    },
+    system_organization_project: {
+      name: 'Organization project',
+      read: 'Read',
+      add: 'Add',
+      update: 'Update',
+      delete: 'Delete',
+      recover: 'Recover',
     },
   },
 };

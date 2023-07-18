@@ -22,6 +22,7 @@ export default {
       newWindow: 'New Window',
       header: 'Header Settings',
       resetDefault: 'Reset default',
+      nonSort: 'The above properties cannot be sorted',
     },
   },
 };

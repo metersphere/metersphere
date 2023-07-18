@@ -5,3 +5,7 @@ export enum TableOpenDetailModeEnum {
 export enum TableModuleEnum {
   USERGROUPINDEX = 'userGroupIndex',
 }
+
+export enum TableKeyEnum {
+  USERGROUPUSER = 'userGroupUser',
+}

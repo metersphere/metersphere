@@ -28,6 +28,7 @@ export default function useTableProps(
   };
 
   const defaultProps: MsTableProps = {
+    tableKey: '',
     bordered: true,
     showPagination: true,
     size: 'small',

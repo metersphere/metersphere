@@ -22,6 +22,7 @@ export default {
       newWindow: '新窗口',
       header: '表头设置',
       resetDefault: '恢复默认',
+      nonSort: '以上属性不可排序',
     },
   },
 };

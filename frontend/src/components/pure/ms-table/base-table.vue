@@ -16,10 +16,11 @@
       <template #columns>
         <a-table-column v-for="(item, key) in props.columns" :key="key">
           <template #title>
-            <span>{{ t(item.title as string) }}</span>
-            <div v-if="item.showSetting">
-              <columnSelector />
+            <div v-if="item.showSetting" class="column-selector">
+              <div class="title">{{ t(item.title as string) }}</div>
+              <ColumnSelector :table-key="(attrs.tableKey as string)" />
             </div>
+            <slot v-else-if="item.titleSlotName" :name="item.titleSlotName" />
           </template>
           <template #cell="{ column, record, rowIndex }">
             <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
@@ -54,6 +55,7 @@
   import BatchAction from './batchAction.vue';
 
   import type { TableData } from '@arco-design/web-vue';
+  import ColumnSelector from './columnSelector.vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();
@@ -156,6 +158,14 @@
       border-radius: 2px;
       line-height: 40px;
       cursor: pointer;
+    }
+    .column-selector {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      .title {
+        color: var(--color-text-3);
+      }
     }
   }
 </style>

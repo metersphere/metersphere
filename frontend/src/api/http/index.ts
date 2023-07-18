@@ -79,7 +79,7 @@ const transform: AxiosTransform = {
     const { code, data: dataResult, message } = data;
 
     // TODO:定义完成功code后需要重写
-    const hasSuccess = data && Reflect.has(data, 'code') && Number(code) === ResultEnum.SUCCESS;
+    const hasSuccess = data && Reflect.has(data, 'code');
     if (hasSuccess) {
       return dataResult;
     }

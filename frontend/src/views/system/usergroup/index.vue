@@ -38,7 +38,7 @@
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
 
-  const currentTable = ref('auth');
+  const currentTable = ref('user');
   const collapse = ref(true);
 
   const { t } = useI18n();

@@ -10,9 +10,17 @@ export interface MsPaginationI {
 export interface MsTableColumnData extends TableColumnData {
   // 是否展示设置按钮
   showSetting?: boolean;
+  // 是否可排序
+  showDrag?: boolean;
+  // 是否展示在表格上
+  showInTable?: boolean;
+  // 优先级
+  priority?: number;
 }
 // 表格属性
 export interface MsTableProps {
+  // 表格key, 用于存储表格列配置
+  tableKey: string;
   // 表格列 - 详见 TableColumn  https://arco.design/web-vue/components/table-column;
   columns: MsTableColumnData[];
   // 表格数据 - 详见 TableData  https://arco.design/web-vue/components/table-data;
@@ -37,8 +45,6 @@ export interface MsTableProps {
   selectable?: boolean;
   // 展示自定义全选
   showSelectAll?: boolean;
-  // 表格是否可展开
-  expandable?: boolean;
   // 表格是否可固定表头
   fixedHeader?: boolean;
   // 表格是否可固定列
@@ -48,7 +54,7 @@ export interface MsTableProps {
   // loading
   loading?: boolean;
   bordered?: boolean;
-  // pagination
+  // 分页配置
   pagination: MsPaginationI | boolean;
   [key: string]: any;
 }

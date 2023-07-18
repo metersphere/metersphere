@@ -1,7 +1,7 @@
 <template>
   <MsBaseTable v-bind="propsRes" v-on="propsEvent">
     <template #action="{ record }">
-      <ms-button type="link" @click="handleRemove(record)">{{ t('system.userGroup.remove') }}</ms-button>
+      <ms-button @click="handleRemove(record)">{{ t('system.userGroup.remove') }}</ms-button>
     </template>
   </MsBaseTable>
 </template>
@@ -15,6 +15,8 @@
   import { watchEffect } from 'vue';
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/system/usergroup';
   import { UserTableItem } from '@/models/system/usergroup';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import MsButton from '@/components/pure/ms-button/index.vue';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
@@ -23,25 +25,39 @@
     {
       title: 'system.userGroup.name',
       dataIndex: 'name',
+      showDrag: false,
+      priority: 1,
+      showInTable: true,
     },
     {
       title: 'system.userGroup.email',
       dataIndex: 'email',
+      showDrag: false,
+      priority: 1,
+      showInTable: true,
     },
     {
       title: 'system.userGroup.phone',
       dataIndex: 'email',
+      showDrag: true,
+      priority: 1,
+      showInTable: true,
     },
     {
       title: 'system.userGroup.operation',
       slotName: 'action',
       fixed: 'right',
       width: 200,
+      showDrag: true,
+      priority: 1,
+      showInTable: true,
+      showSetting: true,
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
+    tableKey: TableKeyEnum.USERGROUPUSER,
     columns,
-    scroll: { y: 750, x: 2000 },
+    scroll: { y: 750, x: '600px' },
     selectable: true,
   });
   const fetchData = async () => {
