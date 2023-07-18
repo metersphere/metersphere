@@ -57,6 +57,10 @@ public class OperationLogAspect {
 
     private ThreadLocal<String> localUser = new ThreadLocal<>();
 
+    private ThreadLocal<String> localOrganizationId = new ThreadLocal<>();
+
+    private ThreadLocal<String> localProjectId = new ThreadLocal<>();
+
     // 此方法随时补充类型，需要在内容变更前执行的类型都可以加入
     private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE};
     // 需要后置执行合并内容的
@@ -73,6 +77,8 @@ public class OperationLogAspect {
     public void handleException(Exception ex) {
         localUser.remove();
         beforeValues.remove();
+        localOrganizationId.remove();
+        localProjectId.remove();
         LogUtils.error(ex);
     }
 
@@ -80,6 +86,9 @@ public class OperationLogAspect {
     public void before(JoinPoint joinPoint) {
         try {
             localUser.set(SessionUtils.getUserId());
+            localOrganizationId.set(SessionUtils.getCurrentOrganizationId());
+            localProjectId.set(SessionUtils.getCurrentProjectId());
+
             //从切面织入点处通过反射机制获取织入点处的方法
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             //获取切入点所在的方法
@@ -209,16 +218,16 @@ public class OperationLogAspect {
         if (CollectionUtils.isEmpty(logDTOList)) {
             return;
         }
+        logDTOList.forEach(logDTO -> {
+            logDTO.setSourceId(StringUtils.defaultIfBlank(logDTO.getSourceId(), getId(result)));
+            logDTO.setCreateUser(StringUtils.defaultIfBlank(logDTO.getCreateUser(), localUser.get()));
+            logDTO.setOrganizationId(StringUtils.defaultIfBlank(logDTO.getOrganizationId(), localOrganizationId.get()));
+            logDTO.setProjectId(StringUtils.defaultIfBlank(logDTO.getProjectId(), localProjectId.get()));
+        });
+
         // 单条存储
         if (logDTOList.size() == 1) {
-            LogDTO logDTO = logDTOList.get(0);
-            if (StringUtils.isBlank(logDTO.getSourceId())) {
-                logDTO.setSourceId(getId(result));
-            }
-            if (StringUtils.isBlank(logDTO.getCreateUser())) {
-                logDTO.setCreateUser(localUser.get());
-            }
-            operationLogService.add(logDTO);
+            operationLogService.add(logDTOList.get(0));
         } else {
             operationLogService.batchAdd(logDTOList);
         }
