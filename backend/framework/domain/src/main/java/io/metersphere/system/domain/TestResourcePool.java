@@ -18,7 +18,7 @@ public class TestResourcePool implements Serializable {
     @Size(min = 1, max = 255, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(title = "类型(node/k8s)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 30, message = "{test_resource_pool.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
