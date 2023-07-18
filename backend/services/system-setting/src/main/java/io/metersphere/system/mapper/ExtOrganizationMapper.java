@@ -17,10 +17,10 @@ public interface ExtOrganizationMapper {
 
     /**
      * 查询组织列表
-     * @param organizationRequest 列表请求参数
+     * @param request 列表请求参数
      * @return 组织列表数据
      */
-    List<OrganizationDTO> list(@Param("request") OrganizationRequest organizationRequest);
+    List<OrganizationDTO> list(@Param("request") OrganizationRequest request);
 
     /**
      * 获取系统下所有组织
@@ -49,10 +49,10 @@ public interface ExtOrganizationMapper {
 
     /**
      * 获取组织成员列表(角色)
-     * @param organizationRequest 组织成员列表请求参数
+     * @param request 组织成员列表请求参数
      * @return 组织成员列表数据
      */
-    List<UserExtend> listMember(@Param("request") OrganizationRequest organizationRequest);
+    List<UserExtend> listMember(@Param("request") OrganizationRequest request);
 
     /**
      * 获取组织管理员

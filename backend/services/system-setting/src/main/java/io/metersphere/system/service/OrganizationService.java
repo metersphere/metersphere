@@ -40,8 +40,8 @@ public class OrganizationService{
     @Resource
     UserMapper userMapper;
 
-    public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
-        List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
+    public List<OrganizationDTO> list(OrganizationRequest request) {
+        List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(request);
         return buildOrgAdminInfo(organizationDTOS);
     }
 
@@ -59,20 +59,20 @@ public class OrganizationService{
         return organizationDTO;
     }
 
-    public List<UserExtend> listMember(OrganizationRequest organizationRequest) {
-        return extOrganizationMapper.listMember(organizationRequest);
+    public List<UserExtend> listMember(OrganizationRequest request) {
+        return extOrganizationMapper.listMember(request);
     }
 
-    public void addMember(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
-        Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
+    public void addMember(OrganizationMemberRequest request, String createUserId) {
+        Organization organization = organizationMapper.selectByPrimaryKey(request.getOrganizationId());
         if (organization == null) {
             throw new MSException(Translator.get("organization_not_exist"));
         }
-        for (String userId : organizationMemberRequest.getMemberIds()) {
+        for (String userId : request.getMemberIds()) {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
             userRoleRelation.setId(UUID.randomUUID().toString());
             userRoleRelation.setUserId(userId);
-            userRoleRelation.setSourceId(organizationMemberRequest.getOrganizationId());
+            userRoleRelation.setSourceId(request.getOrganizationId());
             userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
             userRoleRelation.setCreateTime(System.currentTimeMillis());
             userRoleRelation.setCreateUser(createUserId);
