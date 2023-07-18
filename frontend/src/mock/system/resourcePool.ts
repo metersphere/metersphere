@@ -158,3 +158,4 @@
 // };
 
 // mock(RequestEnum.POST, PoolListUrl, getPoolList(), 200, true);
+export default {};
