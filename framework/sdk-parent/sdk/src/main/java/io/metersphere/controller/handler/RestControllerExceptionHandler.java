@@ -36,7 +36,7 @@ public class RestControllerExceptionHandler {
     public ResultHolder sqlExceptionHandler(HttpServletRequest request, HttpServletResponse response, SQLException e) {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         LogUtil.error(e.getMessage(), e);
-        return ResultHolder.error("SQL error happened, please check logs.");
+        return ResultHolder.error("Internal exception occured, please check logs or contact administrator.");
     }
 
     @ExceptionHandler(MSException.class)
