@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
@@ -53,6 +54,14 @@ public interface ExtOrganizationMapper {
      * @return 组织成员列表数据
      */
     List<UserExtend> listMember(@Param("request") OrganizationRequest request);
+
+
+    /**
+     * 获取组织成员列表(角色)
+     * @param request 组织成员列表请求参数
+     * @return 组织成员列表数据
+     */
+    List<OrgUserExtend> listMemberByOrg(@Param("request") OrganizationRequest request);
 
     /**
      * 获取组织管理员
