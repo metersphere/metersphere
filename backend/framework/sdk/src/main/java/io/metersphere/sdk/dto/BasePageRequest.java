@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -30,7 +31,10 @@ public class BasePageRequest {
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
 
     @Schema(title = "过滤字段")
-    private Map<String, Object> filter;
+    private Map<String, List<String>> filter;
+
+    @Schema(title = "高级搜索")
+    private Map<String, Object> combine;
 
     public String getSortString() {
         if (sort == null || sort.isEmpty()) {

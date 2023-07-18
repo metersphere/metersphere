@@ -8,48 +8,12 @@
         from organization o left join user_role_relation ur on ur.source_id = o.id
         left join project p on p.organization_id = o.id
         <include refid="queryWhereCondition"/>
-<!--        <if test="request.sort != null">-->
-<!--            <include refid="sort">-->
-<!--                <property name="orderMap" value="request.sort"/>-->
-<!--            </include>-->
-<!--        </if>-->
         group by o.id
     </select>
 
     <select id="listAll" resultType="io.metersphere.system.dto.OrganizationDTO">
         select * from organization
     </select>
-
-    <sql id="queryWhereCondition">
-        <where>
-            <if test="request.keyword != null">
-                and (
-                    o.name like concat('%', #{request.keyword},'%')
-                    or o.id like concat('%', #{request.keyword},'%')
-                )
-            </if>
-<!--            <if test="request.filter != null">-->
-<!--                <include refid="filter">-->
-<!--                    <property name="filterMap" value="request.filter"/>-->
-<!--                </include>-->
-<!--            </if>-->
-        </where>
-    </sql>
-
-<!--    <sql id="filter">-->
-<!--        <if test="filterMap.keySet().size() > 0">-->
-
-<!--        </if>-->
-<!--    </sql>-->
-
-<!--    <sql id="sort">-->
-<!--        <if test="orderMap.keySet().size() > 0">-->
-<!--            order by-->
-<!--            <foreach collection="orderMap.keySet()" separator="," item="orderKey">-->
-<!--                orderKey ${orderMap[orderKey]}-->
-<!--            </foreach>-->
-<!--        </if>-->
-<!--    </sql>-->
 
     <update id="delete" parameterType="io.metersphere.system.request.OrganizationDeleteRequest">
         update organization set deleted = true , delete_time = #{request.deleteTime} , delete_user = #{request.deleteUserId} where id = #{request.organizationId}
@@ -94,4 +58,45 @@
     <select id="selectOrganizationOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDto">
         select id, name from organization order by create_time desc
     </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.keyword != null">
+                and (
+                o.name like concat('%', #{request.keyword},'%')
+                or o.id like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <include refid="filter"/>
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='createUser'">
+                            and o.create_user in
+                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.createUser != null'>
+                and o.create_user
+                <include refid="io.metersphere.sdk.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+            </if>
+        </if>
+    </sql>
 </mapper>
