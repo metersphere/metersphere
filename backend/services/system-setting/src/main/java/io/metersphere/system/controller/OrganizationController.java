@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,9 +43,10 @@ public class OrganizationController {
     @PostMapping("/list")
     @Operation(summary = "获取组织列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest organizationRequest) {
-        Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
-        return PageUtils.setPageInfo(page, organizationService.list(organizationRequest));
+    public Pager<List<OrganizationDTO>> list(@Validated @RequestBody OrganizationRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, organizationService.list(request));
     }
 
     @PostMapping("/list-all")
@@ -57,16 +59,17 @@ public class OrganizationController {
     @PostMapping("/list-member")
     @Operation(summary = "获取组织成员")
     @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
-    public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest organizationRequest) {
-        Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
-        return PageUtils.setPageInfo(page, organizationService.listMember(organizationRequest));
+    public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, organizationService.listMember(request));
     }
 
     @PostMapping("/add-member")
     @Operation(summary = "添加组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    public void addMember(@Validated @RequestBody OrganizationMemberRequest organizationMemberRequest) {
-        organizationService.addMember(organizationMemberRequest, SessionUtils.getUserId());
+    public void addMember(@Validated @RequestBody OrganizationMemberRequest request) {
+        organizationService.addMember(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
@@ -90,8 +93,9 @@ public class OrganizationController {
     @PostMapping("/list-project")
     @Operation(summary = "获取组织下的项目列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody ProjectRequest projectRequest) {
-        Page<Object> page = PageHelper.startPage(projectRequest.getCurrent(), projectRequest.getPageSize());
-        return PageUtils.setPageInfo(page, systemProjectService.getProjectList(projectRequest));
+    public Pager<List<ProjectDTO>> listProject(@Validated @RequestBody ProjectRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, systemProjectService.getProjectList(request));
     }
 }
