@@ -127,13 +127,7 @@ public class MetricQueryService {
                 List jsonArray = (List) resultObject.get("values");
                 jsonArray.forEach(value -> {
                     List ja = JSON.parseArray(value.toString());
-                    double timestamp;
-                    if (ja.get(0) instanceof BigDecimal) {
-                        timestamp = ((BigDecimal) ja.get(0)).floatValue();
-                    } else {
-                        timestamp = (double) ja.get(0);
-                    }
-                    timestamps.add(DateUtils.getTimeString((long) (timestamp * 1000)));
+                    timestamps.add(DateUtils.getTimeString((long) (Double.parseDouble(ja.get(0).toString()) * 1000)));
                     values.add(Double.valueOf(ja.get(1).toString()));
                 });
 

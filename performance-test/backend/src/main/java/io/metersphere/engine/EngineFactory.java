@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.i18n.Translator;
@@ -150,19 +151,11 @@ public class EngineFactory {
                                             if (resourceIndex + 1 == tgRatios.size()) {
                                                 double beforeLast = 0; // 前几个线程数
                                                 for (int k = 0; k < tgRatios.size() - 1; k++) {
-                                                    if (tgRatios.get(k) instanceof BigDecimal) {
-                                                        beforeLast += Math.round(threadNum2 * ((BigDecimal) tgRatios.get(k)).floatValue());
-                                                    } else {
-                                                        beforeLast += Math.round(threadNum2 * (double) tgRatios.get(k));
-                                                    }
+                                                    beforeLast += Math.round(threadNum2 * Double.parseDouble(tgRatios.get(k).toString()));
                                                 }
                                                 value = Math.round(threadNum2 - beforeLast);
                                             } else {
-                                                if (tgRatios.get(resourceIndex) instanceof BigDecimal) {
-                                                    value = Math.round(threadNum2 * ((BigDecimal) tgRatios.get(resourceIndex)).floatValue());
-                                                } else {
-                                                    value = Math.round(threadNum2 * (double) tgRatios.get(resourceIndex));
-                                                }
+                                                value = Math.round(threadNum2 * Double.parseDouble(tgRatios.get(resourceIndex).toString()));
                                             }
                                         }
                                         break;
