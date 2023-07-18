@@ -100,6 +100,13 @@
   }
 }
 
+/** 气泡确认框 **/
+.ms-pop-confirm {
+  .arco-btn-secondary {
+    @apply hidden;
+  }
+}
+
 /** 按钮 **/
 .arco-btn-primary {
   background-color: rgb(var(--primary-5)) !important;
@@ -159,6 +166,7 @@
   }
 }
 .arco-input-error,
+.arco-select-view-error,
 .arco-input-tag-error {
   border-color: rgb(var(--danger-6)) !important;
   background-color: var(--color-bg-2) !important;
@@ -188,9 +196,13 @@
 
       border: 1px solid var(--color-text-input-border);
       border-radius: var(--border-radius-small) !important;
-      .btn-outline-sec-disabled();
       .btn-outline-sec-hover();
       .btn-outline-sec-active();
+      &:disabled {
+        border: 1px solid var(--color-text-input-border) !important;
+        color: var(--color-text-4);
+        background-color: var(--color-text-n8) !important;
+      }
     }
   }
 }
@@ -238,6 +250,52 @@
     @apply bg-white;
 
     border: 1px solid var(--color-text-input-border);
+  }
+}
+
+/** radio **/
+.arco-radio-group-button {
+  padding: 1px;
+  background-color: var(--color-text-n8);
+  .arco-radio-button {
+    @apply bg-transparent;
+
+    margin: 1px;
+  }
+  .arco-radio-checked {
+    @apply bg-white;
+
+    color: rgb(var(--primary-4));
+  }
+}
+.arco-radio {
+  .arco-radio-icon {
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    border: 1px solid var(--color-text-input-border);
+    &::after {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+.arco-radio-checked {
+  .arco-radio-icon {
+    @apply !bg-white;
+
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    border: 1px solid rgb(var(--primary-6));
+    &::after {
+      top: 2px;
+      left: 2px;
+      width: 10px;
+      height: 10px;
+      background-color: rgb(var(--primary-6)) !important;
+      transform: scale(0.8) !important;
+    }
   }
 }
 
