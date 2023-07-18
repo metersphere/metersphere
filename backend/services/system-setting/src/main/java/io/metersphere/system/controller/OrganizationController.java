@@ -7,8 +7,10 @@ import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.request.OrganizationMemberExtendRequest;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -62,11 +64,34 @@ public class OrganizationController {
         return PageUtils.setPageInfo(page, organizationService.listMember(organizationRequest));
     }
 
+
+    @PostMapping("/member/list/page")
+    @Operation(summary = "组织级别获取组织成员")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ})
+    public Pager<List<OrgUserExtend>> getMemberList(@Validated @RequestBody OrganizationRequest organizationRequest) {
+        Page<Object> page = PageHelper.startPage(organizationRequest.getCurrent(), organizationRequest.getPageSize());
+        return PageUtils.setPageInfo(page, organizationService.getMemberList(organizationRequest));
+    }
+
     @PostMapping("/add-member")
     @Operation(summary = "添加组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest organizationMemberRequest) {
         organizationService.addMember(organizationMemberRequest, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/list/add-member")
+    @Operation(summary = "在组织列表添加组织成员/批量添加用户组")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void addMemberByList(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
+        organizationService.addMemberByList(organizationMemberExtendRequest, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/update-member")
+    @Operation(summary = "更新组织成员")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void updateMember(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
+        organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")

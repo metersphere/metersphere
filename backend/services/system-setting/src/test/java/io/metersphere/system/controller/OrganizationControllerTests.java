@@ -5,8 +5,10 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
+import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.request.OrganizationMemberExtendRequest;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -27,6 +29,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,8 +48,12 @@ public class OrganizationControllerTests extends BaseTest{
     public static final String ORGANIZATION_DEFAULT = "/organization/default";
     public static final String ORGANIZATION_LIST_MEMBER = "/organization/list-member";
     public static final String ORGANIZATION_ADD_MEMBER = "/organization/add-member";
+    public static final String ORGANIZATION_LIST_ADD_MEMBER = "/organization/list/add-member";
+    public static final String ORGANIZATION_UPDATE_MEMBER = "/organization/update-member";
     public static final String ORGANIZATION_REMOVE_MEMBER = "/organization/remove-member";
     public static final String ORGANIZATION_LIST_PROJECT = "/organization/list-project";
+    public static final String ORGANIZATION_MEMBER_LIST_PAGE = "/organization/member/list/page";
+
 
     @Test
     @Order(0)
@@ -284,7 +291,7 @@ public class OrganizationControllerTests extends BaseTest{
     @Test
     @Order(12)
     public void testGetDefaultOrganizationSuccess() throws Exception {
-        MvcResult mvcResult = this.responseGet(OrganizationControllerTests.ORGANIZATION_DEFAULT);
+        MvcResult mvcResult = this.responseGet();
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
@@ -304,15 +311,186 @@ public class OrganizationControllerTests extends BaseTest{
     }
 
 
+    @Test
+    @Order(14)
+    public void testListAddOrganizationMemberSuccess() throws Exception {
+        OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
+        organizationMemberRequest.setOrganizationId("default-organization-3");
+        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
+        organizationMemberRequest.setUserGroupIds(Arrays.asList("default-org-role-id-2", "default-org-role-id-3"));
+        this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
+        // 批量添加成员成功后, 验证是否添加成功
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-3");
+        MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), organizationRequest.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
+        // 返回值中取出第一条数据, 并判断是否包含关键字admin
+        UserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtend.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+    }
+
+    @Test
+    @Order(15)
+    public void testListAddOrganizationMemberError() throws Exception {
+        //组织ID正确
+        // 成员选择为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-3", Collections.emptyList(), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+        // 用户组不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-3", Arrays.asList("admin", "default-admin"), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组都为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
+        // 组织不存在
+        // 成员选择为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Collections.emptyList(), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+        // 用户组不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Arrays.asList("admin", "default-admin"), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组都为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "default-organization-x", Arrays.asList("admin", "default-admin"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
+        //组织为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, null, Arrays.asList("admin", "default-admin"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+
+    }
+
+    @Test
+    @Order(16)
+    public void testUpdateOrganizationMemberSuccess() throws Exception {
+        OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
+        organizationMemberRequest.setOrganizationId("default-organization-3");
+        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
+        organizationMemberRequest.setUserGroupIds(Arrays.asList("default-org-role-id-1"));
+        this.requestPost(ORGANIZATION_UPDATE_MEMBER, organizationMemberRequest, status().isOk());
+        // 批量添加成员成功后, 验证是否添加成功
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-3");
+        MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), organizationRequest.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
+        // 返回值中取出第一条数据, 并判断是否包含关键字admin
+        UserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), UserExtend.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+    }
+
+    @Test
+    @Order(17)
+    public void testUpdateOrganizationMemberError() throws Exception {
+        //组织ID正确
+        // 成员选择为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-3", Collections.emptyList(), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+        // 用户组不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-3", Arrays.asList("admin", "default-admin"), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组都为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
+        // 组织不存在
+        // 成员选择为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-x", Collections.emptyList(), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+        // 用户组不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-x", Arrays.asList("admin", "default-admin"), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组都为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-x", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
+        //成员和用户组存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "default-organization-x", Arrays.asList("admin", "default-admin"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
+        //组织为空
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, null, Arrays.asList("admin", "default-admin"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
+
+    }
+
+    @Test
+    @Order(18)
+    public void testOrganizationMemberListSuccess() throws Exception {
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-2");
+        MvcResult mvcResult = this.responsePost(ORGANIZATION_MEMBER_LIST_PAGE, organizationRequest);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), organizationRequest.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
+        // 返回值中取出第一条数据, 并判断是否包含关键字admin
+        OrgUserExtend userExtend = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
+                || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+    }
+
+    @Test
+    @Order(19)
+    public void testOrganizationMemberListError() throws Exception {
+        // 页码有误
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(0);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-2");
+        this.requestPost(ORGANIZATION_MEMBER_LIST_PAGE, organizationRequest, status().isBadRequest());
+        // 页数有误
+        organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(1);
+        organizationRequest.setKeyword("admin");
+        organizationRequest.setOrganizationId("default-organization-2");
+        this.requestPost(ORGANIZATION_MEMBER_LIST_PAGE, organizationRequest, status().isBadRequest());
+    }
+
+    private void addOrUpdateOrganizationMemberError(String url, String organizationId, List<String> memberIds, List<String> userGroupIds, ResultMatcher resultMatcher) throws Exception {
+        OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
+        organizationMemberRequest.setOrganizationId(organizationId);
+        organizationMemberRequest.setMemberIds(memberIds);
+        organizationMemberRequest.setUserGroupIds(userGroupIds);
+        this.requestPost(url, organizationMemberRequest, resultMatcher);
+    }
+
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post(url)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(param))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(resultMatcher).andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    mockMvc.perform(MockMvcRequestBuilders.post(url)
+                    .header(SessionConstants.HEADER_TOKEN, sessionId)
+                    .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                    .content(JSON.toJSONString(param))
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(resultMatcher).andDo(print())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     private MvcResult responsePost(String url, Object param) throws Exception {
@@ -335,8 +513,8 @@ public class OrganizationControllerTests extends BaseTest{
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
-    private MvcResult responseGet(String url) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.get(url)
+    private MvcResult responseGet() throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get(OrganizationControllerTests.ORGANIZATION_DEFAULT)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
