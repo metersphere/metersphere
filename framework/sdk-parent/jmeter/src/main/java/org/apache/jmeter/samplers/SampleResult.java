@@ -33,11 +33,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 // For unit tests, @see TestSampleResult
 
@@ -1277,6 +1276,19 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      */
     public int getErrorCount() {
         return success ? 0 : 1;
+    }
+
+    public boolean isAssertionSuccessful() {
+        AssertionResult[] results = getAssertionResults();
+        boolean allPass = Optional.ofNullable(results)
+                .map(Stream::of)
+                .orElse(Stream.empty())
+                .allMatch(result -> (!result.isFailure() && !result.isError()));
+        return allPass;
+    }
+
+    public boolean isSuccess() {
+        return isAssertionSuccessful() && isSuccessful();
     }
 
     public void setErrorCount(int i) {// for reading from CSV files
