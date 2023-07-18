@@ -62,14 +62,14 @@ public class SystemOrganizationController {
     public Pager<List<UserExtend>> listMember(@Validated @RequestBody OrganizationRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, organizationService.listMember(request));
+        return PageUtils.setPageInfo(page, organizationService.getMemberListBySystem(request));
     }
 
     @PostMapping("/add-member")
     @Operation(summary = "添加组织成员")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     public void addMember(@Validated @RequestBody OrganizationMemberRequest request) {
-        organizationService.addMember(request, SessionUtils.getUserId());
+        organizationService.addMemberBySystem(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{organizationId}/{userId}")
