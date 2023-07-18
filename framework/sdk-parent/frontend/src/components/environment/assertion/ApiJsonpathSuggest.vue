@@ -1,17 +1,31 @@
 <template>
-  <ms-drawer class="json-path-picker" :visible="visible" :size="30" @close="close" direction="right"
-             v-clickoutside="close">
+  <ms-drawer
+    class="json-path-picker"
+    :visible="visible"
+    :size="30"
+    @close="close"
+    direction="right"
+    v-clickoutside="close"
+  >
     <template v-slot:header>
-      <ms-instructions-icon :content="tip"/>
+      <ms-instructions-icon :content="tip" />
       {{ tip }}
     </template>
-    <jsonpath-picker :code="data" v-on:path="pathChangeHandler" ref="jsonpathPicker"/>
+    <jsonpath-picker
+      :code="data"
+      v-on:path="pathChangeHandler"
+      ref="jsonpathPicker"
+    />
   </ms-drawer>
 </template>
 
 <script>
+import Vue from "vue";
+import JsonPathPicker from "vue-jsonpath-picker";
 import MsDrawer from "../../MsDrawer";
 import MsInstructionsIcon from "../../MsInstructionsIcon";
+
+Vue.use(JsonPathPicker);
 
 let dotReplace = "#DOT_MASK#";
 
@@ -21,32 +35,31 @@ const clickoutside = {
     function documentHandler(e) {
       // 这里判断点击的元素是否是本身，是本身，则返回
       if (el.contains(e.target)) {
-        return false
+        return false;
       }
       // 判断指令中是否绑定了函数
       if (binding.expression) {
         // 如果绑定了函数 则调用那个函数，此处binding.value就是handleClose方法
-        binding.value(e)
+        binding.value(e);
       }
     }
 
     // 给当前元素绑定个私有变量，方便在unbind中可以解除事件监听
-    el.__vueClickOutside__ = documentHandler
-    document.addEventListener('click', documentHandler)
+    el.__vueClickOutside__ = documentHandler;
+    document.addEventListener("click", documentHandler);
   },
-  update() {
-  },
+  update() {},
   unbind(el, binding) {
     // 解除事件监听
-    document.removeEventListener('click', el.__vueClickOutside__)
-    delete el.__vueClickOutside__
-  }
-}
+    document.removeEventListener("click", el.__vueClickOutside__);
+    delete el.__vueClickOutside__;
+  },
+};
 
 export default {
   name: "MsApiJsonpathSuggest",
-  components: {MsInstructionsIcon, MsDrawer},
-  directives: {clickoutside},
+  components: { MsInstructionsIcon, MsDrawer },
+  directives: { clickoutside },
   data() {
     return {
       visible: false,
@@ -58,8 +71,8 @@ export default {
     tip: {
       type: String,
       default() {
-        return ""
-      }
+        return "";
+      },
     },
   },
   methods: {
@@ -69,9 +82,12 @@ export default {
     open(objStr) {
       this.data = {};
       try {
-        let stringedJSON = objStr.replace(/(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g, '"$1"');
+        let stringedJSON = objStr.replace(
+          /(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g,
+          '"$1"'
+        );
         let param;
-        let JSONBig = require('json-bigint')({"storeAsString": true});
+        let JSONBig = require("json-bigint")({ storeAsString: true });
         // 解决精度丢失问题
         try {
           param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
@@ -79,12 +95,12 @@ export default {
           param = JSON.parse(JSON.stringify(JSONBig.parse(objStr)));
         }
         if (param instanceof Array) {
-          this.$warning('不支持解析JSON数组');
+          this.$warning("不支持解析JSON数组");
           return;
         }
         this.data = param;
       } catch (e) {
-        this.$warning(this.$t('api_test.request.assertions.json_path_err'));
+        this.$warning(this.$t("api_test.request.assertions.json_path_err"));
         return;
       }
       this.visible = true;
@@ -97,10 +113,10 @@ export default {
         result = this.getParamValue(this.data, 0, paramNames);
       } catch (e) {
         result = {};
-        result.key = 'var';
+        result.key = "var";
       }
-      result.path = '$.' + data;
-      this.$emit('addSuggest', result);
+      result.path = "$." + data;
+      this.$emit("addSuggest", result);
     },
     // 替换. 等特殊字符
     parseSpecialChar(data) {
@@ -108,22 +124,22 @@ export default {
       let reg = /\['.*'\]/;
       let searchStr = reg.exec(data);
       if (searchStr) {
-        searchStr.forEach(item => {
+        searchStr.forEach((item) => {
           if (data.startsWith("['")) {
-            data = data.replace(item, item.replace('.', dotReplace));
+            data = data.replace(item, item.replace(".", dotReplace));
           } else {
-            data = data.replace(item, '.' + item.replace('.', dotReplace));
+            data = data.replace(item, "." + item.replace(".", dotReplace));
           }
         });
-        paramNames = data.split('.');
+        paramNames = data.split(".");
       } else {
-        paramNames = data.split('.');
+        paramNames = data.split(".");
       }
       for (let i in paramNames) {
         if (paramNames[i].search(reg) > -1) {
           paramNames[i] = paramNames[i].substring(2, paramNames[i].length - 2);
         }
-        paramNames[i] = paramNames[i].replace(dotReplace, '.');
+        paramNames[i] = paramNames[i].replace(dotReplace, ".");
       }
       return paramNames;
     },
@@ -153,18 +169,17 @@ export default {
         }
         return {
           key: param,
-          value: childObj
+          value: childObj,
         };
       }
       index++;
       return this.getParamValue(childObj, index, params);
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 .json-path-picker {
   padding: 10px 13px;
 }
@@ -178,5 +193,4 @@ export default {
   font-size: 30px;
   font-weight: bold;
 }
-
 </style>
