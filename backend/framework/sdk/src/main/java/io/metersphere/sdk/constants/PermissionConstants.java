@@ -34,6 +34,13 @@ public class PermissionConstants {
     public static final String ORGANIZATION_USER_ROLE_READ_DELETE = "ORGANIZATION_USER_ROLE:READ+DELETE";
     /*------ end: ORGANIZATION_USER_ROLE ------*/
 
+    /*------ start: ORGANIZATION_MEMBER ------*/
+    public static final String ORGANIZATION_MEMBER_READ = "ORGANIZATION_MEMBER:READ";
+    public static final String ORGANIZATION_MEMBER_ADD = "ORGANIZATION_MEMBER:READ+ADD";
+    public static final String ORGANIZATION_MEMBER_UPDATE = "ORGANIZATION_MEMBER:READ+UPDATE";
+    public static final String ORGANIZATION_MEMBER_DELETE = "ORGANIZATION_MEMBER:READ+DELETE";
+    /*------ end: ORGANIZATION_MEMBER ------*/
+
     /*------ start: SYSTEM_PLUGIN ------*/
     public static final String SYSTEM_PLUGIN_READ = "SYSTEM_PLUGIN_READ:READ";
     public static final String SYSTEM_PLUGIN_ADD = "SYSTEM_PLUGIN_READ:READ+ADD";
