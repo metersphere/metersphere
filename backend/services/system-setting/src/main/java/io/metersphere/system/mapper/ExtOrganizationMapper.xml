@@ -48,6 +48,27 @@
         group by temp.id
     </select>
 
+    <select id="listMemberByOrg" resultType="io.metersphere.system.dto.OrgUserExtend">
+        select temp.*
+        from (
+        select u.*, urr.role_id
+        from user_role_relation urr
+        join `user` u on urr.user_id = u.id
+        <where>
+            <if test="request.organizationId != null">
+                urr.source_id = #{request.organizationId}
+            </if>
+            <if test="request.keyword != null">
+                and (u.name like CONCAT('%', #{request.keyword},'%')
+                or u.email like CONCAT('%', #{request.keyword},'%')
+                or u.phone like CONCAT('%', #{request.keyword},'%'))
+            </if>
+        </where>
+        order by u.update_time desc
+        ) temp
+        group by temp.id
+    </select>
+
     <select id="getOrgAdminList" resultType="io.metersphere.system.domain.User">
         select u.*
         from user_role_relation urr
