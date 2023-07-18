@@ -122,6 +122,28 @@
             "name": "permission.organization_user_role.delete"
           }
         ]
+      },
+      {
+        "id": "ORGANIZATION_MEMBER",
+        "name": "permission.organization_member.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_MEMBER:READ",
+            "name": "permission.organization_member.read"
+          },
+          {
+            "id": "ORGANIZATION_MEMBER:READ+ADD",
+            "name": "permission.organization_member.add"
+          },
+          {
+            "id": "ORGANIZATION_MEMBER:READ+UPDATE",
+            "name": "permission.organization_member.update"
+          },
+          {
+            "id": "ORGANIZATION_MEMBER:READ+DELETE",
+            "name": "permission.organization_member.delete"
+          }
+        ]
       }
     ]
   }
