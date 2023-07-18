@@ -35,7 +35,7 @@
     <div class="extract-item-editing xpath" v-if="extract.xpath.length > 0">
       <div>
         XPath
-        <el-select v-model="extract.xpathType" size="mini" v-loading="loading" @change="reload">
+        <el-select v-model="extract.xpathType" size="mini" v-loading="loading" @change="reload" :disabled="isReadOnly">
           <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
         <el-tooltip placement="top">

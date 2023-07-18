@@ -27,7 +27,8 @@
     <div class="assertion-item-editing x_path" v-if="assertions.xpath2.length > 0">
       <div>
         XPath
-        <el-select v-model="assertions.xpathType" size="mini" v-loading="loading" @change="reload">
+        <el-select v-model="assertions.xpathType" size="mini" v-loading="loading" @change="reload"
+                   :disabled="isReadOnly && !assertions.document.label">
           <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
         <el-tooltip placement="top">
