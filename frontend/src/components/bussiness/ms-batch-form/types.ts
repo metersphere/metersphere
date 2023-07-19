@@ -29,7 +29,8 @@ declare const _default: import('vue').DefineComponent<
   import('vue').ComponentOptionsMixin,
   import('vue').ComponentOptionsMixin,
   {
-    formValidate: (cb: (res?: Record<string, string[] | string>) => void, isSubmit = true) => void;
+    formValidate: (cb: (res?: Record<string, any>) => void, isSubmit = true) => void;
+    getFormResult: <T>() => T[];
   }
 >;
 

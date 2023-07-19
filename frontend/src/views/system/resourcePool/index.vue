@@ -48,6 +48,7 @@
       </a-button>
     </template>
   </MsDrawer>
+  <JobTemplateDrawer v-model:visible="showJobDrawer" :value="activePool?.testResourceDTO.jobDefinition || ''" />
 </template>
 
 <script setup lang="ts">
@@ -62,6 +63,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -218,6 +220,7 @@
   const showDetailDrawer = ref(false);
   const activePoolDesc: Ref<Description[]> = ref([]);
   const activePool: Ref<ResourcePoolItem | null> = ref(null);
+  const showJobDrawer = ref(false);
   /**
    * 查看资源池详情
    * @param record
@@ -230,6 +233,101 @@
         activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
         activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
       ];
+      const { type, testResourceDTO, loadTest, apiTest, uiTest } = activePool.value;
+      const {
+        ip,
+        token, // k8s token
+        nameSpaces, // k8s 命名空间
+        concurrentNumber, // k8s 最大并发数
+        podThreads, // k8s 单pod最大线程数
+        apiTestImage, // k8s api测试镜像
+        deployName, // k8s api测试部署名称
+        nodesList,
+        loadTestImage,
+        loadTestHeap,
+        uiGrid,
+      } = testResourceDTO;
+      // Node
+      const nodeResourceDesc =
+        type === 'Node'
+          ? [
+              {
+                label: t('system.resourcePool.detailResources'),
+                value: nodesList?.map((e) => `${e.ip},${e.port},${e.monitor},${e.concurrentNumber}`),
+                isTag: true,
+              },
+            ]
+          : [];
+      // K8S
+      const k8sResourceDesc =
+        type === 'Kubernetes'
+          ? [
+              {
+                label: t('system.resourcePool.testResourceDTO.ip'),
+                value: ip,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.token'),
+                value: token,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.nameSpaces'),
+                value: nameSpaces,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.deployName'),
+                value: deployName,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.apiTestImage'),
+                value: apiTestImage,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.concurrentNumber'),
+                value: concurrentNumber,
+              },
+              {
+                label: t('system.resourcePool.testResourceDTO.podThreads'),
+                value: podThreads,
+              },
+              {
+                label: t('system.resourcePool.jobTemplate'),
+                value: t('system.resourcePool.customJobTemplate'),
+                isButton: true,
+                onClick: () => {
+                  showJobDrawer.value = true;
+                },
+              },
+            ]
+          : [];
+      // 性能测试
+      const performanceDesc = loadTest
+        ? [
+            {
+              label: t('system.resourcePool.mirror'),
+              value: loadTestImage,
+            },
+            {
+              label: t('system.resourcePool.testHeap'),
+              value: loadTestHeap,
+            },
+          ]
+        : [];
+      // 接口测试/性能测试
+      const resourceDesc = apiTest || loadTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
+      // ui 测试资源
+      const uiDesc = uiTest
+        ? [
+            {
+              label: t('system.resourcePool.uiGrid'),
+              value: uiGrid,
+            },
+            {
+              label: t('system.resourcePool.concurrentNumber'),
+              value: concurrentNumber,
+            },
+          ]
+        : [];
       activePoolDesc.value = [
         {
           label: t('system.resourcePool.detailDesc'),
@@ -241,31 +339,23 @@
         },
         {
           label: t('system.resourcePool.detailRange'),
-          value: activePool.value.organizationList.map((e) => e.name).join(','),
+          value: activePool.value.allOrg
+            ? [t('system.resourcePool.orgAll')]
+            : activePool.value.testResourceDTO.orgIds.join(','),
           isTag: true,
         },
         {
           label: t('system.resourcePool.detailUse'),
-          value: poolUses.filter((e) => e !== '').join(','),
+          value: poolUses.filter((e) => e !== ''),
           isTag: true,
         },
-        {
-          label: t('system.resourcePool.detailMirror'),
-          value: activePool.value.configuration,
-        },
-        {
-          label: t('system.resourcePool.detailJMHeap'),
-          value: activePool.value.configuration,
-        },
+        ...performanceDesc,
+        ...uiDesc,
         {
           label: t('system.resourcePool.detailType'),
-          value: activePool.value.configuration,
+          value: activePool.value.type,
         },
-        {
-          label: t('system.resourcePool.detailResources'),
-          value: activePool.value.resources.join(','),
-          isTag: true,
-        },
+        ...resourceDesc,
       ];
     }
 
