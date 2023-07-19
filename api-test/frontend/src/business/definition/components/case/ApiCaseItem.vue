@@ -575,6 +575,7 @@ export default {
       mergeRequestDocumentData(data.request);
       if (data.apiMethod !== 'SQL' && data.apiMethod !== 'DUBBO' && data.apiMethod !== 'dubbo://') {
         data.request.useEnvironment = this.environment;
+        data.request.environmentId = this.environment;
       } else {
         data.request.useEnvironment = data.request.environmentId;
       }
