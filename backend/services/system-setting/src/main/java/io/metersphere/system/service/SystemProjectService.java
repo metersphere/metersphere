@@ -8,13 +8,13 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -26,6 +26,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,8 +46,13 @@ public class SystemProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
-    @Resource
-    private OperationLogService operationLogService;
+
+    private final ProjectServiceInvoker serviceInvoker;
+
+    @Autowired
+    public SystemProjectService(ProjectServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
 
     public Project get(String id) {
         return projectMapper.selectByPrimaryKey(id);
@@ -218,12 +224,10 @@ public class SystemProjectService {
     public void deleteProject(List<Project> projects) {
         // 删除项目
         projects.forEach(project -> {
+            serviceInvoker.invokeServices(project.getId());
             LoggerUtil.info("send delete_project message, project id: " + project.getId());
             //删除项目关联的自定义组织
             deleteProjectUserGroup(project.getId());
-
-            //TODO 需要删除环境，文件管理，各个资源涉及到的，定时任务
-
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
         });
