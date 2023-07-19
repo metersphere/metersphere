@@ -18,14 +18,14 @@
 
   const props = defineProps<{
     visible: boolean;
-    value: string;
+    value: string | null;
   }>();
 
   const emit = defineEmits(['update:value', 'update:visible']);
 
   const { t } = useI18n();
   const showJobDrawer = ref(props.visible);
-  const jobDefinition = ref(props.value);
+  const jobDefinition = ref(props.value || '');
 
   watch(
     () => props.visible,
