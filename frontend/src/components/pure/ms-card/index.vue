@@ -1,29 +1,31 @@
 <template>
-  <div class="relative h-full">
-    <div class="card-header">
-      <div class="back-btn" @click="back"><icon-arrow-left /></div>
-      <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
-    </div>
-    <a-divider class="my-[16px]" />
-    <a-scrollbar class="mt-[16px]" style="overflow-y: auto; height: calc(100vh - 256px)">
-      <slot></slot>
-    </a-scrollbar>
-    <div
-      v-if="!hideFooter"
-      class="relative z-10 m-[0_-24px_-24px] flex justify-end gap-[16px] p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
-    >
-      <div class="ml-0 mr-auto">
-        <slot name="footerLeft"></slot>
+  <a-spin style="display: block" :loading="props.loading">
+    <div class="relative h-full">
+      <div class="card-header">
+        <div class="back-btn" @click="back"><icon-arrow-left /></div>
+        <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
       </div>
-      <slot name="footerRight">
-        <a-button type="secondary" @click="back">{{ t('mscard.defaultCancelText') }}</a-button>
-        <a-button v-if="!props.hideContinue" type="secondary" @click="emit('saveAndContinue')">
-          {{ t('mscard.defaultSaveAndContinueText') }}
-        </a-button>
-        <a-button type="primary" @click="emit('save')">{{ t('mscard.defaultConfirm') }}</a-button>
-      </slot>
+      <a-divider class="my-[16px]" />
+      <a-scrollbar class="mt-[16px]" style="overflow-y: auto; height: calc(100vh - 256px)">
+        <slot></slot>
+      </a-scrollbar>
+      <div
+        v-if="!hideFooter"
+        class="relative z-10 m-[0_-24px_-24px] flex justify-end gap-[16px] p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+      >
+        <div class="ml-0 mr-auto">
+          <slot name="footerLeft"></slot>
+        </div>
+        <slot name="footerRight">
+          <a-button type="secondary" @click="back">{{ t('mscard.defaultCancelText') }}</a-button>
+          <a-button v-if="!props.hideContinue" type="secondary" @click="emit('saveAndContinue')">
+            {{ t('mscard.defaultSaveAndContinueText') }}
+          </a-button>
+          <a-button type="primary" @click="emit('save')">{{ t('mscard.defaultConfirm') }}</a-button>
+        </slot>
+      </div>
     </div>
-  </div>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -36,6 +38,7 @@
       hideContinue?: boolean;
       handleBack?: () => void;
       hideFooter?: boolean;
+      loading?: boolean;
     }>(),
     {
       hideContinue: false,
