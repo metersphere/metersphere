@@ -7,6 +7,7 @@
     :class="props.mask ? '' : 'ms-drawer-no-mask'"
     @ok="handleOk"
     @cancel="handleCancel"
+    @close="handleCancel"
   >
     <template #title>
       <slot name="title">
@@ -37,11 +38,13 @@
     titleTagColor?: string;
     descriptions?: Description[];
     footer?: boolean;
+    mask?: boolean;
     [key: string]: any;
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
     footer: true,
+    mask: true,
   });
   const emit = defineEmits(['update:visible']);
 

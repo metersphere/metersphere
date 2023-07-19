@@ -198,8 +198,12 @@
   const projectList: Ref<ProjectListItem[]> = ref([]);
 
   onBeforeMount(async () => {
-    const res = await getProjectList(appStore.getCurrentOrgId);
-    projectList.value = res;
+    try {
+      const res = await getProjectList(appStore.getCurrentOrgId);
+      projectList.value = res;
+    } catch (error) {
+      console.log(error);
+    }
   });
 
   const showProjectSelect = computed(() => {

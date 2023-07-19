@@ -1,9 +1,9 @@
 <template>
-  <a-descriptions :data="props.descriptions" size="large" :column="1">
+  <a-descriptions :data="(props.descriptions as unknown as DescData[])" size="large" :column="1">
     <a-descriptions-item v-for="item of props.descriptions" :key="item.label" :label="item.label">
       <template v-if="item.isTag">
         <a-tag
-          v-for="tag of item.value.split(',')"
+          v-for="tag of item.value"
           :key="tag"
           color="var(--color-text-n8)"
           class="mr-[8px] font-normal !text-[var(--color-text-1)]"
@@ -11,19 +11,32 @@
           {{ tag }}
         </a-tag>
       </template>
-      <div v-else>{{ item.value }}</div>
+      <a-button v-else-if="item.isButton" type="text" @click="handleItemClick(item)">{{ item.value }}</a-button>
+      <div v-else>
+        {{ item.value }}
+      </div>
     </a-descriptions-item>
   </a-descriptions>
 </template>
 
 <script setup lang="ts">
+  import type { DescData } from '@arco-design/web-vue';
+
   export interface Description {
     label: string;
-    value: string;
+    value: (string | number) | (string | number)[];
     isTag?: boolean;
+    isButton?: boolean;
+    onClick?: () => void;
   }
 
   const props = defineProps<{ descriptions: Description[] }>();
+
+  function handleItemClick(item: Description) {
+    if (typeof item.onClick === 'function') {
+      item.onClick();
+    }
+  }
 </script>
 
 <style lang="less" scoped>
