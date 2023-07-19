@@ -859,7 +859,6 @@ export default {
       }
     },
     search(projectId) {
-      this.$EventBus.$emit('scenarioConditionBus', this.condition);
       this.nodeChange(projectId);
     },
     nodeChange(projectId) {
@@ -934,6 +933,7 @@ export default {
           }
         }
       }
+      this.$EventBus.$emit('scenarioConditionBus', this.condition);
       if (this.condition.projectId) {
         this.result = getScenarioList(this.currentPage, this.pageSize, this.condition).then((response) => {
           let data = response.data;
