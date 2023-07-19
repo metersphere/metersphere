@@ -185,10 +185,10 @@
   import TopMenu from '@/components/bussiness/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
   import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
-  import { getProjectList } from '@/api/modules/system/project';
+  import { getProjectList } from '@/api/modules/setting/project';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { ProjectListItem } from '@/models/system/project';
+  import type { ProjectListItem } from '@/models/setting/project';
 
   const appStore = useAppStore();
   // const { logout } = useUser();
@@ -355,3 +355,4 @@
     }
   }
 </style>
+@/models/setting/project @/api/modules/setting/project

@@ -42,7 +42,6 @@
                 width: `calc(100vw - ${menuWidth}px)`,
               }"
             >
-              <TabBar v-if="appStore.tabBar" />
               <a-layout-content>
                 <PageLayout />
               </a-layout-content>
@@ -62,7 +61,6 @@
   import NavBar from '@/components/pure/navbar/index.vue';
   import Menu from '@/components/pure/menu/index.vue';
   import Footer from '@/components/pure/footer/index.vue';
-  import TabBar from '@/components/pure/tab-bar/index.vue';
   import usePermission from '@/hooks/usePermission';
   import PageLayout from './page-layout.vue';
   import MsBreadCrumb from '@/components/bussiness/ms-breadcrumb/index.vue';

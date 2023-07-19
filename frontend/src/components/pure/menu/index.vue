@@ -10,6 +10,7 @@
   import useMenuTree from './use-menu-tree';
   import { PERSONAL_ROUTE } from '@/router/routes/base';
   import { BOTTOM_MENU_LIST } from '@/router/constants';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   export default defineComponent({
     emit: ['collapse'],
@@ -114,20 +115,20 @@
       const personalMenus = [
         {
           label: t('personal.info'),
-          icon: <icon-user />,
+          icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           route: PERSONAL_ROUTE.children![0],
         },
         {
           label: t('personal.switchOrg'),
-          icon: <icon-swap />,
+          icon: <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />,
         },
         {
           divider: <a-divider class="ms-dropdown-divider" />,
         },
         {
           label: t('personal.exit'),
-          icon: <icon-export />,
+          icon: <MsIcon type="icon-icon_into-item_outlined" class="text-[var(--color-text-4)]" />,
           event: () => logout(),
         },
       ];
@@ -176,7 +177,7 @@
           >
             <a-menu-item class="flex items-center justify-between" key="personalInfo">
               <div class="hover:!bg-transparent">
-                <icon-face-smile-fill />
+                <MsIcon type="icon-icon_member_outlined" />
                 {userStore.name}
               </div>
               <icon-caret-down class="!m-0" />
@@ -189,7 +190,7 @@
         function travel(_route: (RouteRecordRaw | null)[] | null, nodes = []) {
           if (_route) {
             _route.forEach((element) => {
-              const icon = element?.meta?.icon ? () => h(compile(`<${element?.meta?.icon}/>`)) : null;
+              const icon = element?.meta?.icon ? () => <MsIcon type={element?.meta?.icon as string} /> : null;
               const node =
                 element?.children && element?.children.length !== 0 ? (
                   <a-sub-menu
