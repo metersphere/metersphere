@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import { PoolListUrl, UpdatePoolUrl, AddPoolUrl, DetailPoolUrl } from '@/api/requrls/system/resourcePool';
 
+import type { LocationQueryValue } from 'vue-router';
 import type { ResourcePoolItem, AddResourcePoolParams } from '@/models/system/resourcePool';
 import type { TableQueryParams } from '@/models/common';
 
@@ -20,6 +21,6 @@ export function addPool(data: AddResourcePoolParams) {
 }
 
 // 获取资源池详情
-export function getPoolInfo(poolId: string) {
+export function getPoolInfo(poolId: LocationQueryValue | LocationQueryValue[]) {
   return MSR.get<ResourcePoolItem>({ url: DetailPoolUrl, params: poolId });
 }
