@@ -14,7 +14,15 @@
       @selection-change="(e) => selectionChange(e, true)"
     >
       <template #columns>
-        <a-table-column v-for="(item, key) in props.columns" :key="key" v-bind="item" :title="t(item.title as string)">
+        <a-table-column v-for="(item, idx) in columns" :key="idx">
+          <template #title>
+            <div v-if="attrs.showSetting && idx === columns.length - 1" class="column-selector">
+              <div class="title">{{ t(item.title as string) }}</div>
+              <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
+            </div>
+            <slot v-else-if="item.titleSlotName" :name="item.titleSlotName" />
+            <div v-else class="title">{{ t(item.title as string) }}</div>
+          </template>
           <template #cell="{ column, record, rowIndex }">
             <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
             <template v-else>{{ record[item.dataIndex as string] }}</template>
@@ -36,18 +44,28 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { useAttrs, computed, ref, onMounted } from 'vue';
+  import { useTableStore } from '@/store';
   import selectAll from './select-all.vue';
-  import { MsTableProps, SelectAllEnum, MsPaginationI, BatchActionParams, BatchActionConfig } from './type';
+  import {
+    MsTableProps,
+    SelectAllEnum,
+    MsPaginationI,
+    BatchActionParams,
+    BatchActionConfig,
+    MsTableColumn,
+  } from './type';
   import BatchAction from './batchAction.vue';
 
-  import type { TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { TableData } from '@arco-design/web-vue';
+  import ColumnSelector from './columnSelector.vue';
 
   const batchleft = ref('10px');
   const { t } = useI18n();
+  const tableStore = useTableStore();
+  const columns = ref<MsTableColumn>([]);
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
-    columns?: TableColumnData[];
     noDisable?: boolean;
   }>();
   const emit = defineEmits<{
@@ -55,11 +73,9 @@
     (e: 'batchAction', value: BatchActionParams): void;
   }>();
   const isSelectAll = ref(false);
+  const attrs = useAttrs();
   // 全选按钮-当前的条数
   const selectCurrent = ref(0);
-
-  const attrs = useAttrs();
-
   const { rowKey, pagination }: Partial<MsTableProps> = attrs;
 
   // 全选按钮-总条数
@@ -71,6 +87,10 @@
     }
     return data ? data.length : 20;
   });
+
+  const initColumn = () => {
+    columns.value = tableStore.getShowInTableColumns(attrs.tableKey as string);
+  };
   // 选择行change事件
   const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean) => {
     emit('selectedChange', arr);
@@ -117,8 +137,12 @@
       case 'mini':
         return '10px';
       default:
-        return '10px';
+        return '8px';
     }
+  };
+
+  const handleColumnSelectorClose = () => {
+    initColumn();
   };
 
   function getRowClass(record: TableData) {
@@ -128,6 +152,7 @@
   }
 
   onMounted(() => {
+    initColumn();
     batchleft.value = getBatchLeft();
   });
 </script>
@@ -139,10 +164,18 @@
       position: absolute;
       top: 3px;
       left: v-bind(batchleft);
-      z-index: 100;
+      z-index: 99;
       border-radius: 2px;
       line-height: 40px;
       cursor: pointer;
+    }
+    .column-selector {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+    }
+    .title {
+      color: var(--color-text-3);
     }
   }
 </style>

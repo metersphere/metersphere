@@ -22,6 +22,7 @@ export interface AppState {
   breadcrumbList: BreadcrumbItem[];
   currentOrgId: string;
   currentProjectId: string;
+  pageSize: number;
   [key: string]: unknown;
 }
 

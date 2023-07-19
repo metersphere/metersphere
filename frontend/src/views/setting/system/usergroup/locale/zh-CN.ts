@@ -69,5 +69,13 @@ export default {
       update: '更新',
       delete: '删除',
     },
+    system_organization_project: {
+      name: '组织项目',
+      read: '读取',
+      add: '添加',
+      update: '更新',
+      delete: '删除',
+      recover: '恢复',
+    },
   },
 };
