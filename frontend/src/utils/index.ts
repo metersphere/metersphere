@@ -88,3 +88,14 @@ export const downloadStringFile = (type: string, content: string, fileName: stri
   link.click();
   document.body.removeChild(link);
 };
+
+/**
+ * 休眠
+ * @param ms 睡眠时长，单位毫秒
+ * @returns
+ */
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(), ms);
+  });
+}

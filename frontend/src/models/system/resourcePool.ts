@@ -20,6 +20,7 @@ export interface TestResourceDTO {
   apiTestImage: string; // k8s api测试镜像
   deployName: string; // k8s api测试部署名称
   uiGrid: string; // ui测试selenium-grid
+  girdConcurrentNumber: number; // ui测试selenium-grid最大并发数
   orgIds: string[]; // 应用范围选择指定组织时的id集合
 }
 

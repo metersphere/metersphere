@@ -3,32 +3,32 @@
     <div class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight }">
         <div class="flex flex-wrap items-start justify-between gap-[8px]">
-          <template v-for="(order, i) of form.list" :key="`form-item-${order}`">
+          <template v-for="(item, i) of form.list" :key="`form-item-${i}`">
             <div class="flex w-full items-start justify-between gap-[8px]">
               <a-form-item
-                v-for="item of props.models"
-                :key="`${item.filed}${order}`"
-                :field="`${item.filed}${order}`"
+                v-for="model of props.models"
+                :key="`${model.filed}${i}`"
+                :field="`list[${i}].${model.filed}`"
                 :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                :label="i === 0 && item.label ? t(item.label) : ''"
-                :rules="item.rules"
+                :label="i === 0 && model.label ? t(model.label) : ''"
+                :rules="model.rules"
                 asterisk-position="end"
               >
                 <a-input
-                  v-if="item.type === 'input'"
-                  v-model="form[`${item.filed}${order}`]"
+                  v-if="model.type === 'input'"
+                  v-model="item[model.filed]"
                   class="mb-[4px] flex-1"
-                  :placeholder="t(item.placeholder || '')"
-                  :max-length="item.maxLength || 250"
+                  :placeholder="t(model.placeholder || '')"
+                  :max-length="model.maxLength || 250"
                   allow-clear
                 />
                 <a-input-number
-                  v-if="item.type === 'inputNumber'"
-                  v-model="form[`${item.filed}${order}`]"
+                  v-if="model.type === 'inputNumber'"
+                  v-model="item[model.filed]"
                   class="mb-[4px] flex-1"
-                  :placeholder="t(item.placeholder || '')"
-                  :min="item.min"
-                  :max="item.max || 9999999"
+                  :placeholder="t(model.placeholder || '')"
+                  :min="model.min"
+                  :max="model.max || 9999999"
                   allow-clear
                 />
               </a-form-item>
@@ -44,7 +44,7 @@
                   'text-[var(--color-text-brand)]',
                   i === 0 ? 'mt-[36px]' : 'mt-[5px]',
                 ]"
-                @click="removeField(order, i)"
+                @click="removeField(i)"
               >
                 <icon-minus-circle />
               </div>
@@ -65,8 +65,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect } from 'vue';
+  import { ref, watchEffect, unref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
+  import { scrollIntoView } from '@/utils/dom';
 
   import type { ValidatedError, FormInstance } from '@arco-design/web-vue';
   import type { FormItemModel, FormMode, ValueType } from './types';
@@ -81,7 +82,7 @@
       maxHeight?: string;
       valueType?: ValueType;
       delimiter?: string; // 当valueType为 string 类型时的分隔符，默认为英文逗号,
-      defaultVals?: Record<string, string | string[] | number[]>; // 当外层是编辑状态时，可传入已填充的数据
+      defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
     }>(),
     {
       valueType: 'Array',
@@ -91,10 +92,11 @@
   );
 
   const defaultForm = {
-    list: [0],
+    list: [] as Record<string, any>[],
   };
-  const form = ref<Record<string, any>>({ ...defaultForm });
+  const form = ref<Record<string, any>>({ list: [...defaultForm.list] });
   const formRef = ref<FormInstance | null>(null);
+  const formItem: Record<string, any> = {};
 
   /**
    * 监测defaultVals和models的变化
@@ -103,42 +105,17 @@
    */
   watchEffect(() => {
     props.models.forEach((e) => {
-      form.value[`${e.filed}0`] = e.type === 'inputNumber' ? null : '';
+      formItem[e.filed] = e.type === 'inputNumber' ? null : '';
     });
-    if (props.defaultVals) {
-      // 重置表单，因为组件初始化后可能输入过值或创建过表单项
-      form.value = { list: [0] };
+    form.value.list = [{ ...formItem }];
+    if (props.defaultVals?.length) {
       // 取出defaultVals的表单 filed
-      const arr = Object.keys(props.defaultVals);
-      for (let i = 0; i < arr.length; i++) {
-        const filed = arr[i];
-        // 取出当前 filed 的默认值
-        const dVals = props.defaultVals[filed];
-        // 判断默认值为数组还是字符串，字符串需要根据传入的分隔符delimiter分割
-        const vals = Array.isArray(dVals) ? dVals : dVals.split(`${props.delimiter}`);
-        // 遍历当前 filed 的默认值数组，填充至表单对象
-        vals.forEach((val, order) => {
-          form.value[`${filed}${order}`] = val;
-          if (i === 0 && order > 0) {
-            // 行数只需要遍历一次字段的值数组长度即可
-            form.value.list.push(order);
-          }
-        });
-      }
+      form.value.list = props.defaultVals.map((e) => e);
     }
   });
 
   function getFormResult() {
-    const res: Record<string, any> = {};
-    props.models.forEach((e) => {
-      res[e.filed] = [];
-    });
-    form.value.list.forEach((e: number) => {
-      props.models.forEach((m) => {
-        res[m.filed].push(form.value[`${m.filed}${e}`]);
-      });
-    });
-    return res;
+    return unref<Record<string, any>[]>(form.value.list);
   }
 
   /**
@@ -146,15 +123,15 @@
    * @param cb 校验通过后执行回调
    * @param isSubmit 是否需要将表单值拼接后传入回调函数
    */
-  function formValidate(cb: (res?: Record<string, string[] | string>) => void, isSubmit = true) {
+  function formValidate(cb: (res?: Record<string, any>[]) => void, isSubmit = true) {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (errors) {
+        scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
         return;
       }
       if (typeof cb === 'function') {
         if (isSubmit) {
-          const res = getFormResult();
-          cb(props.valueType === 'Array' ? res : res.join(','));
+          cb(getFormResult());
           return;
         }
         cb();
@@ -167,24 +144,15 @@
    */
   function addField() {
     formValidate(() => {
-      const lastIndex = form.value.list.length - 1;
-      const lastOrder = form.value.list[lastIndex] + 1;
-      form.value.list.push(lastOrder); // 序号自增，不会因为删除而重复
-      props.models.forEach((e) => {
-        form.value[`${e.filed}${lastOrder}`] = e.type === 'inputNumber' ? null : '';
-      });
+      form.value.list.push({ ...formItem }); // 序号自增，不会因为删除而重复
     }, false);
   }
 
   /**
    * 移除表单项
-   * @param index 表单项的序号
    * @param i 表单项对应 list 的下标
    */
-  function removeField(index: number, i: number) {
-    props.models.forEach((e) => {
-      delete form.value[`${e.filed}${index}`];
-    });
+  function removeField(i: number) {
     form.value.list.splice(i, 1);
   }
 
