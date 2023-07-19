@@ -26,7 +26,7 @@ public class CleanProjectJob {
     /**
      * 清理状态为删除的项目  每天凌晨三点执行
      */
-    @QuartzScheduled(cron = "0 3 0 * * ?")
+    @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanupProject() {
         LoggerUtil.info("clean up project start.");
         try {
@@ -47,6 +47,4 @@ public class CleanProjectJob {
             systemProjectService.deleteProject(projects);
         }
     }
-
-
 }
