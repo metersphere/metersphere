@@ -34,7 +34,7 @@ public class SystemProjectLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_USER_ROLE,
+                OperationLogModule.SYSTEM_PROJECT,
                 project.getName());
 
         dto.setPath(PRE_URI + "/add");
@@ -56,7 +56,7 @@ public class SystemProjectLogService {
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER_ROLE,
+                    OperationLogModule.SYSTEM_PROJECT,
                     "编辑全局用户组对应的权限配置");
             dto.setPath("/update");
             dto.setMethod(HttpMethodConstants.POST.name());
@@ -75,11 +75,11 @@ public class SystemProjectLogService {
                     "",
                     project.getId(),
                     project.getCreateUser(),
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_USER_ROLE,
+                    OperationLogType.RECOVER.name(),
+                    OperationLogModule.SYSTEM_PROJECT,
                     "编辑全局用户组对应的权限配置");
             dto.setPath("/revoke");
-            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setMethod(HttpMethodConstants.GET.name());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
@@ -103,11 +103,11 @@ public class SystemProjectLogService {
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SYSTEM_USER_ROLE,
+                    OperationLogModule.SYSTEM_PROJECT,
                     project.getName());
 
             dto.setPath("/delete");
-            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
         }

@@ -39,15 +39,7 @@
         FROM project p
         LEFT JOIN user_role_relation u on p.id = u.source_id
         INNER JOIN organization o on p.organization_id = o.id
-        <where>
-            <if test="request.organizationId != null">
-                 p.organization_id = #{request.organizationId}
-            </if>
-            <if test="request.keyword != null">
-               and  (p.name like CONCAT('%', #{request.keyword},'%')
-                or p.num like CONCAT('%', #{request.keyword},'%'))
-            </if>
-        </where>
+        <include refid="queryWhereCondition"/>
             group by p.id
     </select>
     <select id="getProjectAdminList" resultType="io.metersphere.system.domain.User">
@@ -64,4 +56,48 @@
     <select id="selectProjectOptions" resultType="io.metersphere.system.dto.OrganizationProjectOptionsDto">
         select id, name from project order by create_time desc
     </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.organizationId != null">
+                p.organization_id = #{request.organizationId}
+            </if>
+            <if test="request.keyword != null">
+                and (
+                p.name like concat('%', #{request.keyword},'%')
+                or p.num like concat('%', #{request.keyword},'%')
+                )
+            </if>
+            <include refid="filter"/>
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+            </include>
+        </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filter != null and request.filter.size() > 0">
+            <foreach collection="request.filter.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='createUser'">
+                            and p.create_user in
+                            <include refid="io.metersphere.sdk.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test="request.combine != null">
+            <if test='${condition}.createUser != null'>
+                and p.create_user
+                <include refid="io.metersphere.sdk.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+            </if>
+        </if>
+    </sql>
 </mapper>

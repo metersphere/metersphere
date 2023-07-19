@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -44,6 +45,8 @@ public class SystemProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     public Project get(String id) {
         return projectMapper.selectByPrimaryKey(id);
@@ -173,14 +176,19 @@ public class SystemProjectService {
                         createUser);
                 userRoleRelationMapper.insertSelective(adminRole);
             }
-            UserRoleRelation memberRole = new UserRoleRelation(
-                    UUID.randomUUID().toString(),
-                    userId,
-                    InternalUserRole.PROJECT_MEMBER.getValue(),
-                    request.getProjectId(),
-                    System.currentTimeMillis(),
-                    createUser);
-            userRoleRelationMapper.insertSelective(memberRole);
+            UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+            userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
+                    .andSourceIdEqualTo(request.getProjectId()).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+            if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
+                UserRoleRelation memberRole = new UserRoleRelation(
+                        UUID.randomUUID().toString(),
+                        userId,
+                        InternalUserRole.PROJECT_MEMBER.getValue(),
+                        request.getProjectId(),
+                        System.currentTimeMillis(),
+                        createUser);
+                userRoleRelationMapper.insertSelective(memberRole);
+            }
         });
 
     }
