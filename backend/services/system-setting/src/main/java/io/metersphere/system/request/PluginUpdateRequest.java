@@ -1,7 +1,5 @@
 package io.metersphere.system.request;
 
-import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.sdk.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,12 +30,6 @@ public class PluginUpdateRequest {
     @Schema(title = "插件描述")
     @Size(min = 1, max = 500, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
     private String description;
-
-    @Schema(title = "插件使用场景PAI/PLATFORM", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{plugin.scenario.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})
-    @EnumValue(enumClass = PluginScenarioType.class, groups = {Created.class, Updated.class})
-    private String scenario;
 
     @Schema(hidden = true)
     private String createUser;

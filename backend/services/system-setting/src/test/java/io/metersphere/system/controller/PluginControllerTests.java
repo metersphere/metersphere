@@ -2,7 +2,6 @@ package io.metersphere.system.controller;
 
 import base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
@@ -54,7 +53,6 @@ public class PluginControllerTests extends BaseTest {
         PluginUpdateRequest request = new PluginUpdateRequest();
         request.setName("test");
         request.setDescription("test desc");
-        request.setScenario(PluginScenarioType.PAI.name());
         MultiValueMap<String, Object> multiValueMap = getDefaultMultiPartParam(request,
                 new File("src/test/resources/application.properties"));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD, multiValueMap);
