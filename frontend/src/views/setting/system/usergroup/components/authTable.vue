@@ -2,7 +2,7 @@
   <div class="relative">
     <a-table
       :span-method="dataSpanMethod"
-      :scroll="{ y: '860px', x: '1440px' }"
+      :scroll="{ y: '860px', x: '800px' }"
       :data="tableData"
       :loading="loading"
       :bordered="{ wrapper: true, cell: true }"

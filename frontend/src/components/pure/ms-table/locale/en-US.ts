@@ -15,5 +15,14 @@ export default {
       addPublic: '添加到公用用例库',
       clear: 'clear',
     },
+    columnSetting: {
+      display: 'Table Display Settings',
+      mode: 'Mode Settings',
+      drawer: 'Drawer',
+      newWindow: 'New Window',
+      header: 'Header Settings',
+      resetDefault: 'Reset default',
+      nonSort: 'The above properties cannot be sorted',
+    },
   },
 };
