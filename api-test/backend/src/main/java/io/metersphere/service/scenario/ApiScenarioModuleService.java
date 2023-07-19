@@ -15,6 +15,7 @@ import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -73,6 +74,13 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         filters.put(ApiTestConstants.STATUS, ApiTestConstants.STATUS_ALL);
         request.setFilters(filters);
         request.setModuleIds(new ArrayList<>());
+        if (request.isSelectThisWeedData()) {
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if (weekFirstTime != null) {
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
         List<ApiScenarioModuleDTO> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
         return getNodeTrees(nodes, getCountMap(moduleCountList));
 

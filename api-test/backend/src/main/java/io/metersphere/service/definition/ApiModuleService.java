@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiTestDataStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -167,6 +168,13 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (isCaseRelevance) {
             countMNodes = extApiDefinitionMapper.moduleCaseCountByCollection(request);
         } else {
+            if (request.isSelectThisWeedData()) {
+                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
             countMNodes = extApiDefinitionMapper.moduleCountByCollection(request);
         }
         return getNodeTrees(apiModules, getCountMap(countMNodes));
