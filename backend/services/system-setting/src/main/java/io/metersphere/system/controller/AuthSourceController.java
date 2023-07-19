@@ -13,6 +13,7 @@ import io.metersphere.system.request.AuthSourceRequest;
 import io.metersphere.system.service.AuthSourceLogService;
 import io.metersphere.system.service.AuthSourceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "认证设置")
 @RestController
 @RequestMapping("/system/authsource")
 public class AuthSourceController {
