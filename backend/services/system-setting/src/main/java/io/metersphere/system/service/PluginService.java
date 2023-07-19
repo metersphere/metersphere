@@ -1,11 +1,11 @@
 package io.metersphere.system.service;
 
 
+import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginFrontScript;
 import io.metersphere.system.dto.PluginDTO;
-import io.metersphere.system.dto.PluginListDTO;
 import io.metersphere.system.mapper.PluginFrontScriptMapper;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
@@ -31,7 +31,7 @@ public class PluginService {
     @Resource
     private PluginFrontScriptMapper pluginFrontScriptMapper;
 
-    public List<PluginListDTO> list() {
+    public List<PluginDTO> list() {
         return new ArrayList<>();
     }
 
@@ -51,6 +51,7 @@ public class PluginService {
         plugin.setCreateTime(System.currentTimeMillis());
         plugin.setUpdateTime(System.currentTimeMillis());
         plugin.setXpack(false);
+        plugin.setScenario(PluginScenarioType.PAI.name());
         pluginMapper.insert(plugin);
         return plugin;
     }

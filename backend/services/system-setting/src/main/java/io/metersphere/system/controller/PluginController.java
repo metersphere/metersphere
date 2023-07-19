@@ -7,7 +7,6 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.PluginDTO;
-import io.metersphere.system.dto.PluginListDTO;
 import io.metersphere.system.request.PluginUpdateRequest;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.validation.groups.Created;
@@ -37,7 +36,7 @@ public class PluginController {
     @GetMapping("/list")
     @Operation(summary = "获取插件列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_PLUGIN_READ)
-    public List<PluginListDTO> list() {
+    public List<PluginDTO> list() {
         return pluginService.list();
     }
 
