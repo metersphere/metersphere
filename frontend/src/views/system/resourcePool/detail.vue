@@ -173,7 +173,7 @@
           v-show="form.addType === 'single'"
           ref="batchFormRef"
           :models="batchFormModels"
-          :form-mode="isEdit ? 'edit' : 'create'"
+          form-mode="create"
           add-text="system.resourcePool.addResource"
           :default-vals="defaultVals"
           max-height="250px"
@@ -402,11 +402,19 @@
     try {
       loading.value = true;
       const res = await getPoolInfo(route.query.id);
+      const { testResourceDTO } = res;
+      const { girdConcurrentNumber, podThreads, concurrentNumber } = testResourceDTO;
       form.value = {
         ...res,
         addType: 'single',
         orgType: res.allOrg ? 'allOrg' : 'set',
         use: [res.loadTest ? 'performance' : '', res.apiTest ? 'API' : '', res.uiTest ? 'UI' : ''].filter((e) => e),
+        testResourceDTO: {
+          ...testResourceDTO,
+          girdConcurrentNumber: girdConcurrentNumber || 1,
+          podThreads: podThreads || 1,
+          concurrentNumber: concurrentNumber || 1,
+        },
       };
     } catch (error) {
       console.log(error);
@@ -464,10 +472,10 @@
   // 是否显示K8S资源配置信息
   const isShowK8SResources = computed(() => form.value.type === 'Kubernetes' && isShowTypeItem.value);
   // 是否填写了命名空间
-  const isFillNameSpaces = computed(() => form.value.testResourceDTO.nameSpaces.trim() !== '');
+  const isFillNameSpaces = computed(() => form.value.testResourceDTO.nameSpaces?.trim() !== '');
   // 是否填写了命名空间及Deploy Name
   const isFillNameSpacesAndDeployName = computed(
-    () => isFillNameSpaces.value && form.value.testResourceDTO.deployName.trim() !== ''
+    () => isFillNameSpaces.value && form.value.testResourceDTO.deployName?.trim() !== ''
   );
 
   const batchFormRef = ref<MsBatchFormInstance | null>(null);
@@ -564,11 +572,11 @@
             monitor: line[2],
             concurrentNumber: Number(line[3]),
           };
-          if (form.value.testResourceDTO.nodesList.length === 0) {
+          if (i === 0) {
             // 第四个是concurrentNumber，需要是数字
-            form.value.testResourceDTO.nodesList.push(item);
-          } else {
             form.value.testResourceDTO.nodesList = [item];
+          } else {
+            form.value.testResourceDTO.nodesList.push(item);
           }
         }
       }
