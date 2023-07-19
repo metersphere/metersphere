@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *用来返回TestResourceBlob的结构
@@ -84,6 +83,6 @@ public class TestResourceReturnDTO {
     /**
      * 关联的组织id集合
      */
-    @Schema(title = "关联的组织id和名称map")
-    private Map<String,String> orgIdNameMap;
+    @Schema(title = "关联的组织id和名称的集合")
+    private List<OrgIdNameDTO> orgIdNameMap;
 }

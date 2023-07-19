@@ -52,13 +52,11 @@ public class TestResourcePoolService {
         testResourcePoolBlob.setId(id);
         TestResourceDTO testResourceDTO = testResourcePool.getTestResourceDTO();
         checkAndSaveOrgRelation(testResourcePool, id, testResourceDTO);
-
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkUiConfig(testResourceDTO, testResourcePool);
         String configuration = JSON.toJSONString(testResourceDTO);
         testResourcePoolBlob.setConfiguration(configuration.getBytes());
-
         buildTestPoolBaseInfo(testResourcePool, id);
         testResourcePoolMapper.insert(testResourcePool);
         testResourcePoolBlobMapper.insert(testResourcePoolBlob);
@@ -178,14 +176,21 @@ public class TestResourcePoolService {
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkUiConfig(testResourceDTO, testResourcePool);
-        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+
+        String configuration = JSON.toJSONString(testResourceDTO);
+        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
+        testResourcePoolBlob.setId(testResourcePool.getId());
+        testResourcePoolBlob.setConfiguration(configuration.getBytes());
+
+        testResourcePoolBlobMapper.updateByPrimaryKeyWithBLOBs(testResourcePoolBlob);
+        testResourcePoolMapper.updateByPrimaryKey(testResourcePool);
     }
 
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(request.getName())) {
-            criteria.andNameLike(StringUtils.wrapIfMissing(request.getName(), "%"));
+        if (StringUtils.isNotBlank(request.getKeyword())) {
+            criteria.andNameLike(StringUtils.wrapIfMissing(request.getKeyword(), "%"));
         }
         if (request.getEnable() != null) {
             criteria.andEnableEqualTo(request.getEnable());
@@ -250,15 +255,17 @@ public class TestResourcePoolService {
         TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
         BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
         List<String> orgIds = testResourceDTO.getOrgIds();
-        Map<String,String> orgIdNameMap = new HashMap<>();
+       List<OrgIdNameDTO>orgIdNameMap = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(orgIds)) {
             for (String orgId : orgIds) {
+                OrgIdNameDTO orgIdNameDTO = new OrgIdNameDTO();
                 OrganizationMapper organizationMapper = CommonBeanFactory.getBean(OrganizationMapper.class);
                 Organization organization = organizationMapper.selectByPrimaryKey(orgId);
+                orgIdNameDTO.setId(orgId);
                 if (organization != null) {
-                    orgIdNameMap.put(orgId,organization.getName());
+                    orgIdNameDTO.setName(organization.getName());
                 } else {
-                    orgIdNameMap.put(orgId,Translator.get("organization_not_exists"));
+                    orgIdNameDTO.setName(Translator.get("organization_not_exists"));
                 }
             }
         }
@@ -305,8 +312,8 @@ public class TestResourcePoolService {
         return null;
     }
 
-    public LogDTO updateLog(TestResourcePoolRequest request) {
-        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(request.getId());
+    public LogDTO updateLog(String resourcePoolId) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null) {
             LogDTO dto = new LogDTO(
                     "system",
@@ -323,5 +330,19 @@ public class TestResourcePoolService {
             return dto;
         }
         return null;
+    }
+
+
+    public void unableTestResourcePool(String testResourcePoolId) {
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
+        if (testResourcePool == null) {
+            throw new MSException(Translator.get("test_resource_pool_not_exists"));
+        }
+        if (testResourcePool.getEnable()) {
+            testResourcePool.setEnable(false);
+        } else {
+            testResourcePool.setEnable(true);
+        }
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 }

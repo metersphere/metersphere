@@ -5,11 +5,9 @@ import base.BaseTest;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
-import io.metersphere.sdk.dto.TestResourceDTO;
-import io.metersphere.sdk.dto.TestResourceNodeDTO;
-import io.metersphere.sdk.dto.TestResourcePoolRequest;
+import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.dto.QueryResourcePoolRequest;
+import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.TestResourcePoolOrganization;
 import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
@@ -29,6 +27,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -222,18 +221,27 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     @Test
     @Order(10)
+    /*@Sql(scripts = {"/dml/init_test_resource_pool.sql"},
+            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
+            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)*/
     void listResourcePoolsWidthSearch() throws Exception {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
         request.setPageSize(5);
-        request.setName("test_pool");
-        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/page")
+        request.setKeyword("test_pool_1");
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/page")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
+        // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
+        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.equals(testResourcePoolDTO.getName(), "test_pool_1"));
     }
 
     @Test
@@ -408,6 +416,28 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Order(18)
     void deleteTestResourcePoolFiled() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/105")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(ERROR_REQUEST_MATCHER)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    }
+
+    @Test
+    @Order(19)
+    void unableTestResourcePoolSuccess() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/104")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+    }
+
+    @Test
+    @Order(20)
+    void unableTestResourcePoolFiled() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/105")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(ERROR_REQUEST_MATCHER)
