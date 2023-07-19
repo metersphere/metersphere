@@ -5,6 +5,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.AddProjectRequest;
@@ -179,6 +180,10 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+
+        project.setName("testAddProjectSuccess1");
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD, addProject, project);
     }
 
     @Test
@@ -210,6 +215,8 @@ public class SystemProjectControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(getProject + projectId);
         Project project = this.parseObjectFromMvcResult(mvcResult, Project.class);
         Assertions.assertTrue(StringUtils.equals(project.getId(), projectId));
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
     @Test
     @Order(4)
@@ -246,6 +253,18 @@ public class SystemProjectControllerTests extends BaseTest {
         for (ProjectDTO projectDTO : projectDTOS) {
             Assertions.assertFalse(projectDTO.getCreateTime() > firstCreateTime);
         }
+        projectRequest.setFilter(new HashMap<>() {{
+            put("createUser", List.of("test"));
+        }});
+        mvcResult = this.responsePost(getProjectList, projectRequest);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回的数据中的createUser是admin或者admin1
+        projectDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ProjectDTO.class);
+        //拿到所有的createUser
+        List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).collect(Collectors.toList());
+        Assertions.assertTrue(List.of("test").containsAll(createUsers));
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
     }
 
     @Test
@@ -289,13 +308,16 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId").andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin", "admin1")), true);
+        // @@校验权限
+        project.setName("TestName2");
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, updateProject, project);
     }
 
     @Test
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId","TestName", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId","TestName2", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
@@ -328,6 +350,8 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertEquals(currentProject.getDeleted(), true);
         Assertions.assertTrue(currentProject.getId().equals(id));
         Assertions.assertTrue(count == 1);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE, deleteProject + id);
     }
 
     @Test
@@ -349,6 +373,8 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertEquals(currentProject.getDeleted(), false);
         Assertions.assertTrue(currentProject.getId().equals(id));
         Assertions.assertTrue(count == 1);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER, revokeProject + id);
     }
 
     @Test

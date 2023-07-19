@@ -22,6 +22,9 @@ import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "系统-项目")
 @RequestMapping("/system/project")
 public class SystemProjectController {
     @Resource
@@ -48,6 +52,7 @@ public class SystemProjectController {
 
     @GetMapping("/get/{id}")
     @Operation(summary = "根据ID获取项目信息")
+    @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public Project getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
@@ -73,6 +78,7 @@ public class SystemProjectController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
     @Operation(summary = "删除项目")
+    @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemProjectLogService.class)
     public int deleteProject(@PathVariable String id) {
         return systemProjectService.delete(id, SessionUtils.getUserId());
@@ -81,6 +87,7 @@ public class SystemProjectController {
     @GetMapping("/revoke/{id}")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
+    @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public int revokeProject(@PathVariable String id) {
        return systemProjectService.revoke(id);
     }
@@ -103,6 +110,8 @@ public class SystemProjectController {
 
     @GetMapping("/remove-member/{projectId}/{userId}")
     @Operation(summary = "移除项目成员")
+    @Parameter(name = "userId", description = "用户id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
