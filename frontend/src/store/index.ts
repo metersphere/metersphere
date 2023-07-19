@@ -5,9 +5,10 @@ import useVisitStore from './modules/app/visit';
 import useUserStore from './modules/user';
 import useTabBarStore from './modules/tab-bar';
 import useTableStore from './modules/ms-table';
+import useUserGroupStore from './modules/system/usergroup';
 import { debouncePlugin } from './plugins';
 
 const pinia = createPinia().use(debouncePlugin).use(piniaPluginPersistedstate);
 
-export { useAppStore, useUserStore, useTabBarStore, useVisitStore, useTableStore };
+export { useAppStore, useUserStore, useTabBarStore, useVisitStore, useTableStore, useUserGroupStore };
 export default pinia;

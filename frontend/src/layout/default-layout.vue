@@ -58,7 +58,7 @@
 <script lang="ts" setup>
   import { ref, computed, watch, provide, onMounted } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
-  import { useAppStore, useUserStore, useTableStore } from '@/store';
+  import { useAppStore, useUserStore } from '@/store';
   import NavBar from '@/components/pure/navbar/index.vue';
   import Menu from '@/components/pure/menu/index.vue';
   import Footer from '@/components/pure/footer/index.vue';
@@ -70,7 +70,6 @@
   const isInit = ref(false);
   const appStore = useAppStore();
   const userStore = useUserStore();
-  const tableStore = useTableStore();
   const router = useRouter();
   const route = useRoute();
   const permission = usePermission();
@@ -110,7 +109,6 @@
   });
   onMounted(() => {
     isInit.value = true;
-    tableStore.initColumn();
   });
 </script>
 

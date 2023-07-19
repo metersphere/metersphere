@@ -1,15 +1,32 @@
 <template>
   <icon-settings class="icon" @click="handleClick" />
-  <a-drawer :width="480" :visible="visible" unmount-on-close :footer="false" @cancel="handleCancel">
-    <template #title> {{ t('msTable.columnSetting.display') }} </template>
+  <MsDrawer
+    :width="480"
+    :visible="visible"
+    unmount-on-close
+    :footer="false"
+    :title="t('msTable.columnSetting.display')"
+    :descriptions="[]"
+    @cancel="handleCancel"
+  >
     <div class="ms-table-column-seletor">
       <div>
         <span>{{ t('msTable.columnSetting.mode') }}</span>
         <icon-question-circle class="ml-1" />
       </div>
       <a-radio-group :model-value="currentMode" class="ml-[14px]" type="button" @change="handleModeChange">
-        <a-radio value="drawer">{{ t('msTable.columnSetting.drawer') }}</a-radio>
-        <a-radio value="new_window">{{ t('msTable.columnSetting.newWindow') }}</a-radio>
+        <a-radio value="drawer">
+          <div class="mode-button">
+            <MsIcon :class="{ 'active-color': currentMode === 'drawer' }" type="icon-icon_drawer" />
+            <span class="mode-button-title">{{ t('msTable.columnSetting.drawer') }}</span>
+          </div>
+        </a-radio>
+        <a-radio value="new_window">
+          <div class="mode-button">
+            <MsIcon :class="{ 'active-color': currentMode === 'new_window' }" type="icon-icon_into-item_outlined" />
+            <span class="mode-button-title">{{ t('msTable.columnSetting.newWindow') }}</span>
+          </div>
+        </a-radio>
       </a-radio-group>
       <a-divider />
       <div class="flex items-center justify-between">
@@ -23,9 +40,19 @@
         </div>
       </div>
       <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
-      <Draggable tag="div" :list="secondColumns" class="list-group" handle=".handle" item-key="dateIndex"> </Draggable>
+      <Draggable tag="div" :list="secondColumns" class="list-group" handle=".handle" item-key="dateIndex">
+        <template #item="{ element, index }">
+          <div class="column-drag-item">
+            <div class="flex items-center">
+              <icon-drag-dot-vertical class="handle" />
+              <div class="ml-[8px]">{{ t(element.title as string) }}</div>
+            </div>
+            <a-switch size="small" :model-value="element.showInTable" @change="handleSecondColumnChange(index)" />
+          </div>
+        </template>
+      </Draggable>
     </div>
-  </a-drawer>
+  </MsDrawer>
 </template>
 
 <script lang="ts" setup>
@@ -36,6 +63,8 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import { TableOpenDetailMode } from '@/store/modules/ms-table/types';
   import Draggable from 'vuedraggable';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   const tableStore = useTableStore();
   const { t } = useI18n();
@@ -46,6 +75,10 @@
   const secondColumns = ref<MsTableColumn>([]);
   // 是否有改动
   const hasChange = ref(false);
+
+  const emit = defineEmits<{
+    (e: 'close'): void;
+  }>();
 
   const props = defineProps<{
     tableKey: string;
@@ -58,7 +91,13 @@
   };
 
   const handleCancel = () => {
+    tableStore.setColumns(
+      props.tableKey,
+      [...firstColumns.value, ...secondColumns.value],
+      currentMode.value as TableOpenDetailMode
+    );
     visible.value = false;
+    emit('close');
   };
 
   const loadColumn = (key: string) => {
@@ -73,6 +112,12 @@
 
   const handleFisrtColumnChange = (idx: number) => {
     const item = firstColumns.value[idx];
+    item.showInTable = !item.showInTable;
+    hasChange.value = true;
+  };
+
+  const handleSecondColumnChange = (idx: number) => {
+    const item = secondColumns.value[idx];
     item.showInTable = !item.showInTable;
     hasChange.value = true;
   };
@@ -96,6 +141,17 @@
     color: var(--color-text-4);
     background-color: var(--color-text-10);
   }
+  .mode-button {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    .active-color {
+      color: var(--color-primary-5);
+    }
+    .mode-button-title {
+      margin-left: 4px;
+    }
+  }
   .column-item {
     display: flex;
     flex-flow: row nowrap;
@@ -103,10 +159,16 @@
     align-items: center;
     padding: 8px 12px 8px 36px;
   }
+  .column-drag-item {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+  }
   :deep(.arco-divider-text) {
     padding: 0 8px;
     color: var(--color-text-4);
-    background: var(--color-bg-3);
   }
   .non-sort {
     font-size: 12px;

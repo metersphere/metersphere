@@ -8,14 +8,10 @@ export interface MsPaginationI {
 }
 
 export interface MsTableColumnData extends TableColumnData {
-  // 是否展示设置按钮
-  showSetting?: boolean;
   // 是否可排序
   showDrag?: boolean;
   // 是否展示在表格上
   showInTable?: boolean;
-  // 优先级
-  priority?: number;
 }
 // 表格属性
 export interface MsTableProps {
@@ -56,6 +52,8 @@ export interface MsTableProps {
   bordered?: boolean;
   // 分页配置
   pagination: MsPaginationI | boolean;
+  // 展示列表选择按钮
+  showSetting?: boolean;
   [key: string]: any;
 }
 

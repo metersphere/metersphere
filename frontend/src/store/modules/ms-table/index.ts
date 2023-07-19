@@ -20,13 +20,13 @@ const msTableStore = defineStore('msTable', {
       this.selectorColumnMap = tmpMap;
     },
     getMode(key: string): string {
-      if (this.selectorColumnMap?.has(key)) {
+      if (this.selectorColumnMap.has(key)) {
         return this.selectorColumnMap.get(key)?.mode || '';
       }
       return '';
     },
     setMode(key: string, mode: TableOpenDetailMode) {
-      if (this.selectorColumnMap?.has(key)) {
+      if (this.selectorColumnMap.has(key)) {
         const item = this.selectorColumnMap.get(key);
         if (item) {
           item.mode = mode;
@@ -34,19 +34,23 @@ const msTableStore = defineStore('msTable', {
       }
     },
     getColumns(key: string): { nonSortableColumns: MsTableColumn; couldSortableColumns: MsTableColumn } {
-      if (this.selectorColumnMap?.has(key)) {
+      if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column || [];
-        const sortArr = tmpArr.sort((a, b) => {
-          if (a.priority && b.priority) {
-            return a.priority - b.priority || 0;
-          }
-          return 0;
-        });
-        const nonSortableColumns = sortArr.filter((item) => !item.showDrag);
-        const couldSortableColumns = sortArr.filter((item) => item.showDrag);
+        const nonSortableColumns = tmpArr.filter((item) => !item.showDrag);
+        const couldSortableColumns = tmpArr.filter((item) => item.showDrag);
         return { nonSortableColumns, couldSortableColumns };
       }
       return { nonSortableColumns: [], couldSortableColumns: [] };
+    },
+    setColumns(key: string, columns: MsTableColumn, mode: TableOpenDetailMode) {
+      this.selectorColumnMap.set(key, { mode, column: columns });
+    },
+    getShowInTableColumns(key: string): MsTableColumn {
+      if (this.selectorColumnMap?.has(key)) {
+        const tmpArr = this.selectorColumnMap.get(key)?.column;
+        return tmpArr?.filter((item) => item.showInTable) || [];
+      }
+      return [];
     },
   },
 });

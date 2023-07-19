@@ -50,6 +50,7 @@ export default function useTableProps(
     selectedAll: false,
     enableDrag: false,
     showSelectAll: true,
+    showSetting: true,
     ...props,
   };
 
@@ -164,6 +165,14 @@ export default function useTableProps(
     }
   };
 
+  // 重置页码和条数
+  const resetPagination = () => {
+    if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
+      propsRes.value.pagination.current = 1;
+      propsRes.value.pagination.pageSize = appStore.pageSize;
+    }
+  };
+
   // 事件触发组
   const propsEvent = ref({
     // 排序触发
@@ -217,5 +226,6 @@ export default function useTableProps(
     setPagination,
     setLoadListParams,
     setKeyword,
+    resetPagination,
   };
 }

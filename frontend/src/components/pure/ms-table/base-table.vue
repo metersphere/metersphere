@@ -14,13 +14,14 @@
       @selection-change="(e) => selectionChange(e, true)"
     >
       <template #columns>
-        <a-table-column v-for="(item, key) in props.columns" :key="key">
+        <a-table-column v-for="(item, idx) in columns" :key="idx">
           <template #title>
-            <div v-if="item.showSetting" class="column-selector">
+            <div v-if="attrs.showSetting && idx === columns.length - 1" class="column-selector">
               <div class="title">{{ t(item.title as string) }}</div>
-              <ColumnSelector :table-key="(attrs.tableKey as string)" />
+              <ColumnSelector :table-key="(attrs.tableKey as string)" @close="handleColumnSelectorClose" />
             </div>
             <slot v-else-if="item.titleSlotName" :name="item.titleSlotName" />
+            <div v-else class="title">{{ t(item.title as string) }}</div>
           </template>
           <template #cell="{ column, record, rowIndex }">
             <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
@@ -43,6 +44,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { useAttrs, computed, ref, onMounted } from 'vue';
+  import { useTableStore } from '@/store';
   import selectAll from './select-all.vue';
   import {
     MsTableProps,
@@ -50,7 +52,7 @@
     MsPaginationI,
     BatchActionParams,
     BatchActionConfig,
-    MsTableColumnData,
+    MsTableColumn,
   } from './type';
   import BatchAction from './batchAction.vue';
 
@@ -59,10 +61,11 @@
 
   const batchleft = ref('10px');
   const { t } = useI18n();
+  const tableStore = useTableStore();
+  const columns = ref<MsTableColumn>([]);
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
-    columns?: MsTableColumnData[];
     noDisable?: boolean;
   }>();
   const emit = defineEmits<{
@@ -70,11 +73,9 @@
     (e: 'batchAction', value: BatchActionParams): void;
   }>();
   const isSelectAll = ref(false);
+  const attrs = useAttrs();
   // 全选按钮-当前的条数
   const selectCurrent = ref(0);
-
-  const attrs = useAttrs();
-
   const { rowKey, pagination }: Partial<MsTableProps> = attrs;
 
   // 全选按钮-总条数
@@ -86,6 +87,10 @@
     }
     return data ? data.length : 20;
   });
+
+  const initColumn = () => {
+    columns.value = tableStore.getShowInTableColumns(attrs.tableKey as string);
+  };
   // 选择行change事件
   const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean) => {
     emit('selectedChange', arr);
@@ -136,6 +141,10 @@
     }
   };
 
+  const handleColumnSelectorClose = () => {
+    initColumn();
+  };
+
   function getRowClass(record: TableData) {
     if (!record.raw.enable && !props.noDisable) {
       return 'ms-table-row-disabled';
@@ -143,6 +152,7 @@
   }
 
   onMounted(() => {
+    initColumn();
     batchleft.value = getBatchLeft();
   });
 </script>
@@ -163,9 +173,9 @@
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
-      .title {
-        color: var(--color-text-3);
-      }
+    }
+    .title {
+      color: var(--color-text-3);
     }
   }
 </style>

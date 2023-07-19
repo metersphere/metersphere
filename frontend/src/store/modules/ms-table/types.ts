@@ -9,5 +9,5 @@ export interface MsTableSelectorItem {
   column: MsTableColumn;
 }
 export interface MsTableState {
-  selectorColumnMap?: Map<string, MsTableSelectorItem>;
+  selectorColumnMap: Map<string, MsTableSelectorItem>;
 }
