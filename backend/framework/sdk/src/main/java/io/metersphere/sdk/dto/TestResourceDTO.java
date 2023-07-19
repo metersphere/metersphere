@@ -81,6 +81,9 @@ public class TestResourceDTO {
     @Schema(title = "UI测试的grid配置")
     private String uiGrid;
 
+    @Schema(title = "grid最大线程数")
+    private String girdConcurrentNumber;
+
     /**
      * 关联的组织id集合
      */

@@ -59,7 +59,7 @@ public class TestResourcePoolController {
     @CacheNode // 把监控节点缓存起来
     @Operation(summary = "更新资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = TestResourcePoolService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = TestResourcePoolService.class)
     public void updateTestResourcePool(@Validated @RequestBody TestResourcePoolRequest request) {
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         BeanUtils.copyBean(testResourcePool, request);
@@ -81,6 +81,14 @@ public class TestResourcePoolController {
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ)
     public TestResourcePoolReturnDTO getTestResourcePoolDetail(@PathVariable(value = "poolId") String testResourcePoolId) {
         return testResourcePoolService.getTestResourcePoolDetail(testResourcePoolId);
+    }
+
+    @PostMapping("/set/enable/{poolId}")
+    @Operation(summary = "资源池禁用")
+    @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#testResourcePoolId)", msClass = TestResourcePoolService.class)
+    public void unableTestResourcePool(@PathVariable(value = "poolId") String testResourcePoolId) {
+        testResourcePoolService.unableTestResourcePool(testResourcePoolId);
     }
 
 
