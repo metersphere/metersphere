@@ -1,16 +1,16 @@
 <template>
   <a-spin style="display: block" :loading="props.loading">
     <div class="relative h-full">
-      <div class="card-header">
+      <div v-if="!simple" class="card-header">
         <div class="back-btn" @click="back"><icon-arrow-left /></div>
         <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
       </div>
-      <a-divider class="my-[16px]" />
+      <a-divider v-if="!simple" class="my-[16px]" />
       <a-scrollbar class="mt-[16px]" style="overflow-y: auto; height: calc(100vh - 256px)">
         <slot></slot>
       </a-scrollbar>
       <div
-        v-if="!hideFooter"
+        v-if="!hideFooter && !simple"
         class="relative z-10 m-[0_-24px_-24px] flex justify-end gap-[16px] p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
       >
         <div class="ml-0 mr-auto">
@@ -34,13 +34,15 @@
 
   const props = withDefaults(
     defineProps<{
-      title: string;
+      simple?: boolean;
+      title?: string;
       hideContinue?: boolean;
       handleBack?: () => void;
       hideFooter?: boolean;
       loading?: boolean;
     }>(),
     {
+      simple: false,
       hideContinue: false,
       hideFooter: false,
     }
