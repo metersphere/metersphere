@@ -177,7 +177,7 @@
           >
             <a-menu-item class="flex items-center justify-between" key="personalInfo">
               <div class="hover:!bg-transparent">
-                <MsIcon type="icon-icon_member_outlined" />
+                <MsIcon type="icon-icon_that_person" />
                 {userStore.name}
               </div>
               <icon-caret-down class="!m-0" />
