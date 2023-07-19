@@ -362,20 +362,12 @@ export default function usePermission() {
     <transition name="fade" mode="out-in" appear>
       <component :is="Component" v-if="route.meta.ignoreCache" :key="route.fullPath" />
       <!-- keep-alive提供组件状态缓存，以便快速渲染组件内容 -->
-      <keep-alive v-else :include="cacheList">
+      <keep-alive v-else>
         <component :is="Component" :key="route.fullPath" />
       </keep-alive>
     </transition>
   </router-view>
 </template>
-
-<script lang="ts" setup>
-  import { computed } from 'vue';
-  import { useTabBarStore } from '@/store';
-
-  const tabBarStore = useTabBarStore();
-  const cacheList = computed(() => tabBarStore.getCacheList);
-</script>
 ```
 
 <a name="KZkaZ"></a>
