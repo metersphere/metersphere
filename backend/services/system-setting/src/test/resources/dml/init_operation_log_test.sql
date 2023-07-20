@@ -2,8 +2,8 @@
 INSERT INTO organization (id, num, name, description, create_user, update_user, create_time, update_time) VALUES ('organization_id_001', 100010, '测试日志组织', '测试日志的组织', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 INSERT INTO organization (id, num, name, description, create_user, update_user, create_time, update_time) VALUES ('organization_id_002', 100011, '测试日志组织2', '测试日志的组织2', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
-INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('project_id_001', 100010, 'organization_id_001', '测试日志项目', '测试日志的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
-INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('project_id_002', 100011, 'organization_id_002', '测试日志项目2', '测试日志的项目2', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('project_id_001', null, 'organization_id_001', '测试日志项目', '测试日志的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES ('project_id_002', null, 'organization_id_002', '测试日志项目2', '测试日志的项目2', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 
 
 -- 初始化日志记录

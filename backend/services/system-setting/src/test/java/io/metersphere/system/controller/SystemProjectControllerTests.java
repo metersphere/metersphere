@@ -192,8 +192,10 @@ public class SystemProjectControllerTests extends BaseTest {
      * 测试添加项目失败的用例
      */
     public void testAddProjectError() throws Exception {
+        AddProjectRequest project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
+        this.responsePost(addProject, project);
         //项目名称存在 500
-        AddProjectRequest project = this.generatorAdd("organizationId","name", "description", true, List.of("admin"));
+        project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorAdd(null, null, null, true, List.of("admin"));
@@ -212,9 +214,13 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testGetProject() throws Exception {
-        MvcResult mvcResult = this.responseGet(getProject + projectId);
-        Project project = this.parseObjectFromMvcResult(mvcResult, Project.class);
-        Assertions.assertTrue(StringUtils.equals(project.getId(), projectId));
+        AddProjectRequest project = this.generatorAdd("organizationId","getName", "description", true, List.of("admin"));
+        MvcResult mvcResult = this.responsePost(addProject, project);
+        Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        projectId = result.getId();
+        mvcResult = this.responseGet(getProject + projectId);
+        Project getProjects = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
