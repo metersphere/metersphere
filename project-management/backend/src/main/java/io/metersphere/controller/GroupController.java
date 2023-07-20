@@ -91,11 +91,6 @@ public class GroupController {
         groupService.editGroupPermission(editGroupRequest);
     }
 
-    @GetMapping("/all/{userId}")
-    public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
-        return groupService.getAllUserGroup(userId);
-    }
-
     @PostMapping("/list")
     public List<Group> getGroupsByType(@RequestBody GroupRequest request) {
         return groupService.getGroupsByType(request);
