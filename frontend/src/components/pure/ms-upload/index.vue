@@ -3,7 +3,7 @@
     <template #upload-button>
       <div class="ms-upload-area">
         <div class="ms-upload-icon-box">
-          <div class="ms-upload-icon ms-upload-icon--excel"></div>
+          <div class="ms-upload-icon" :class="`ms-upload-icon--${props.iconType}`"></div>
         </div>
         <div v-if="props.mainText" class="ms-upload-main-text">{{ t(props.mainText) }}</div>
         <div v-if="props.subText" class="ms-upload-sub-text">{{ t(props.subText) }}</div>
@@ -29,6 +29,7 @@
     limit: number;
     imagePreview: boolean;
     showFileList: boolean;
+    iconType: string;
     [key: string]: any;
   }> & {
     accept: UploadType;
@@ -85,6 +86,9 @@
         }
         &--image {
           background-image: url('@/assets/svg/icons/image.svg');
+        }
+        &--jar {
+          background-image: url('@/assets/svg/icons/jar.svg');
         }
       }
     }
