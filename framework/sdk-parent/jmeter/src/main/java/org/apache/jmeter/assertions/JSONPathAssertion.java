@@ -129,7 +129,6 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     public boolean isUseRegex() {
         return getPropertyAsBoolean(ISREGEX, true);
     }
-    private static final String KEY_PRE = "[]";
 
     private void doAssert(String jsonString) {
         Object value = JsonPath.read(jsonString, getJsonPath());
@@ -213,7 +212,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         }
 
         for (Object subj : value.toArray()) {
-            if (!StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS", "EQUALS")) {
+            if (!StringUtils.equals(getOption(), "NOT_CONTAINS")) {
                 if (subj == null && this.isExpectNull() || isEquals(subj)) {
                     return true;
                 }
@@ -221,7 +220,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                 result.add(isEquals(subj));
             }
         }
-        if (CollectionUtils.isNotEmpty(result) && StringUtils.equalsAnyIgnoreCase(getOption(), "NOT_CONTAINS", "EQUALS")) {
+        if (CollectionUtils.isNotEmpty(result) && StringUtils.equals(getOption(), "NOT_CONTAINS")) {
             if (result.stream().filter(item -> item == true).collect(Collectors.toList()).size() == result.size()) {
                 return true;
             } else {
@@ -255,9 +254,6 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     private boolean isEquals(Object subj) {
         String str = DocumentUtils.objectToString(subj, decimalFormatter);
         if (isUseRegex()) {
-            if (StringUtils.equals(str,KEY_PRE)) {
-                return false;
-            }
             if (USE_JAVA_REGEX) {
                 return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();
             } else {

@@ -276,6 +276,7 @@ export default {
         this.debugForm.path = url.pathname;
       } else {
         this.debugForm.path = url;
+        this.debugForm.url = url;
       }
     },
     getURL(urlStr) {
