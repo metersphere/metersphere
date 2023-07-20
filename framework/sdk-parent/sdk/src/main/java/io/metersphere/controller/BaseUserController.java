@@ -1,8 +1,11 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -11,12 +14,10 @@ import io.metersphere.request.member.EditPassWordRequest;
 import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.service.BaseUserService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @RequestMapping("/user")
@@ -26,6 +27,13 @@ public class BaseUserController {
 
     @GetMapping("/ws/current/member/list")
     public List<User> getCurrentWorkspaceMember() {
+        SessionUser user = SessionUtils.getUser();
+        Optional<UserGroup> any = user.getUserGroups().stream()
+                .filter(ug -> (ug.getSourceId().equals(SessionUtils.getCurrentWorkspaceId()) || ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isEmpty()) {
+            return new ArrayList<>();
+        }
         QueryMemberRequest request = new QueryMemberRequest();
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return baseUserService.getMemberList(request);
@@ -56,6 +64,13 @@ public class BaseUserController {
 
     @GetMapping("/project/member/list")
     public List<User> getProjectMemberListAll() {
+        SessionUser user = SessionUtils.getUser();
+        Optional<UserGroup> any = user.getUserGroups().stream()
+                .filter(ug -> (ug.getSourceId().equals(SessionUtils.getCurrentProjectId()) || ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isEmpty()) {
+            return new ArrayList<>();
+        }
         QueryMemberRequest request = new QueryMemberRequest();
         request.setProjectId(SessionUtils.getCurrentProjectId());
         return baseUserService.getProjectMemberList(request);
@@ -68,6 +83,13 @@ public class BaseUserController {
 
     @GetMapping("/project/member/{projectId}")
     public List<User> getProjectMembers(@PathVariable String projectId) {
+        SessionUser user = SessionUtils.getUser();
+        Optional<UserGroup> any = user.getUserGroups().stream()
+                .filter(ug -> (ug.getSourceId().equals(projectId) || ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isEmpty()) {
+            return new ArrayList<>();
+        }
         QueryMemberRequest request = new QueryMemberRequest();
         request.setProjectId(projectId);
         return baseUserService.getProjectMemberList(request);

@@ -4,10 +4,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.constants.UserGroupConstants;
+import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -25,9 +28,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.annotation.Resource;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 
 @RequestMapping("/user/group")
@@ -47,6 +49,13 @@ public class GroupController {
 
     @GetMapping("/get/all")
     public List<GroupDTO> getAllGroup() {
+        SessionUser user = SessionUtils.getUser();
+        Optional<UserGroup> any = user.getUserGroups().stream()
+                .filter(ug -> (ug.getGroupId().equals(UserGroupConstants.SUPER_GROUP)))
+                .findAny();
+        if (any.isEmpty()) {
+            return new ArrayList<>();
+        }
         return groupService.getAllGroup();
     }
 
@@ -91,6 +100,7 @@ public class GroupController {
     }
 
     @GetMapping("/all/{userId}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
     public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
         return groupService.getAllUserGroup(userId);
     }
