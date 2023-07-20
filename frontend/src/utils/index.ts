@@ -99,3 +99,24 @@ export function sleep(ms: number): Promise<void> {
     setTimeout(() => resolve(), ms);
   });
 }
+
+/**
+ *
+ * 返回文件的大小
+ * @param fileSize file文件的大小size
+ * @returns
+ */
+export function formatFileSize(fileSize: number): string {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = fileSize;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+  const formattedSize = size.toFixed(2);
+  const unit = units[unitIndex];
+
+  return `${formattedSize} ${unit}`;
+}

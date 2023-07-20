@@ -83,28 +83,16 @@ export class MSAxios {
    */
   uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
     const formData = new window.FormData();
-    const customFilename = params.name || 'file';
+    const fileName = params.fileList.length === 1 ? 'file' : 'files';
 
-    if (params.filename) {
-      formData.append(customFilename, params.file, params.filename);
-    } else {
-      formData.append(customFilename, params.file);
+    params.fileList.forEach((file: File) => {
+      formData.append(fileName, file);
+    });
+    if (params.request) {
+      const requestData = JSON.stringify(params.request);
+      const requestDataBlob = new Blob([requestData], { type: 'application/json' });
+      formData.append('request', requestDataBlob);
     }
-
-    if (params.data) {
-      Object.keys(params.data).forEach((key) => {
-        const value = params.data[key];
-        if (Array.isArray(value)) {
-          value.forEach((item) => {
-            formData.append(`${key}[]`, item);
-          });
-          return;
-        }
-
-        formData.append(key, params.data[key]);
-      });
-    }
-
     return this.axiosInstance.request<T>({
       ...config,
       method: 'POST',
