@@ -11,6 +11,8 @@
   import { BatchActionConfig, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { getTableList } from '@/api/modules/api-test/index';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { useTableStore } from '@/store';
 
   const columns: MsTableColumn = [
     {
@@ -149,6 +151,10 @@
       },
     ],
   };
+
+  const tableStore = useTableStore();
+
+  tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
 
   const { propsRes, propsEvent, loadList } = useTable(getTableList, {
     columns,

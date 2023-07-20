@@ -26,4 +26,20 @@ const clearToken = () => {
   localStorage.removeItem(CSRF_TOKEN);
 };
 
-export { isLogin, getToken, setToken, clearToken };
+const hasToken = () => {
+  return !!localStorage.getItem(SESSION_ID) && !!localStorage.getItem(CSRF_TOKEN);
+};
+
+const setLoginExpires = () => {
+  localStorage.setItem('loginExpires', Date.now().toString());
+};
+
+const isLoginExpires = () => {
+  const lastLoginTime = Number(localStorage.getItem('loginExpires'));
+  const now = Date.now();
+  const diff = now - lastLoginTime;
+  const thirtyDay = 24 * 60 * 60 * 1000 * 30;
+  return diff > thirtyDay;
+};
+
+export { isLogin, getToken, setToken, clearToken, hasToken, setLoginExpires, isLoginExpires };
