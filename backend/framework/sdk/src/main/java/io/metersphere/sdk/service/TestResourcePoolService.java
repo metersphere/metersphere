@@ -176,14 +176,13 @@ public class TestResourcePoolService {
         checkApiConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkLoadConfig(testResourceDTO, testResourcePool, testResourcePool.getType());
         checkUiConfig(testResourceDTO, testResourcePool);
-
         String configuration = JSON.toJSONString(testResourceDTO);
         TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
         testResourcePoolBlob.setId(testResourcePool.getId());
         testResourcePoolBlob.setConfiguration(configuration.getBytes());
 
-        testResourcePoolBlobMapper.updateByPrimaryKeyWithBLOBs(testResourcePoolBlob);
-        testResourcePoolMapper.updateByPrimaryKey(testResourcePool);
+        testResourcePoolBlobMapper.updateByPrimaryKeySelective(testResourcePoolBlob);
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
     }
 
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {
