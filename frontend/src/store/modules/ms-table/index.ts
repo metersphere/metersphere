@@ -1,10 +1,16 @@
 import { defineStore } from 'pinia';
 import { MsTableSelectorItem, MsTableState, TableOpenDetailMode } from './types';
 import { MsTableColumn } from '@/components/pure/ms-table/type';
+import { parse, stringify } from '@/utils/serializeMap';
 
 const msTableStore = defineStore('msTable', {
   // 开启数据持久化
-  persist: true,
+  persist: {
+    serializer: {
+      deserialize: parse,
+      serialize: stringify,
+    },
+  },
   state: (): MsTableState => ({
     selectorColumnMap: new Map<string, MsTableSelectorItem>(),
   }),
@@ -43,7 +49,7 @@ const msTableStore = defineStore('msTable', {
       this.selectorColumnMap.set(key, { mode, column: columns });
     },
     getShowInTableColumns(key: string): MsTableColumn {
-      if (this.selectorColumnMap?.has(key)) {
+      if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column;
         return tmpArr?.filter((item) => item.showInTable) || [];
       }

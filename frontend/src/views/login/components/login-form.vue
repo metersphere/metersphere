@@ -70,6 +70,7 @@
   import { useUserStore } from '@/store';
   import useLoading from '@/hooks/useLoading';
   import type { LoginData } from '@/models/user';
+  import { setLoginExpires } from '@/utils/auth';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -109,6 +110,7 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        setLoginExpires();
         router.push({
           name: (redirect as string) || 'apiTest',
           query: {
