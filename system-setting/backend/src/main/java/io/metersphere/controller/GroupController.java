@@ -91,6 +91,7 @@ public class GroupController {
     }
 
     @GetMapping("/all/{userId}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_EDIT)
     public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
         return groupService.getAllUserGroup(userId);
     }
