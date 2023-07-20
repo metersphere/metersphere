@@ -90,8 +90,7 @@ export class MSAxios {
     });
     if (params.request) {
       const requestData = JSON.stringify(params.request);
-      const requestDataBlob = new Blob([requestData], { type: 'application/json' });
-      formData.append('request', requestDataBlob);
+      formData.append('request', requestData);
     }
     return this.axiosInstance.request<T>({
       ...config,
