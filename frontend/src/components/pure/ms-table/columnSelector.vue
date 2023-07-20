@@ -6,7 +6,6 @@
     unmount-on-close
     :footer="false"
     :title="t('msTable.columnSetting.display')"
-    :descriptions="[]"
     @cancel="handleCancel"
   >
     <div class="ms-table-column-seletor">
@@ -34,13 +33,13 @@
         <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
       <div class="flex-col">
-        <div v-for="(item, idx) in firstColumns" :key="item.dataIndex" class="column-item">
+        <div v-for="(item, idx) in nonSortColumn" :key="item.dataIndex" class="column-item">
           <div>{{ t(item.title as string) }}</div>
           <a-switch size="small" :model-value="item.showInTable" @change="handleFisrtColumnChange(idx)" />
         </div>
       </div>
       <a-divider orientation="center" class="non-sort">{{ t('msTable.columnSetting.nonSort') }}</a-divider>
-      <Draggable tag="div" :list="secondColumns" class="list-group" handle=".handle" item-key="dateIndex">
+      <Draggable tag="div" :list="couldSortColumn" class="list-group" handle=".handle" item-key="dateIndex">
         <template #item="{ element, index }">
           <div class="column-drag-item">
             <div class="flex items-center">
@@ -57,7 +56,7 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { onMounted, ref } from 'vue';
+  import { onBeforeMount, ref } from 'vue';
   import { useTableStore } from '@/store';
   import { MsTableColumn } from './type';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -70,9 +69,9 @@
   const { t } = useI18n();
   const currentMode = ref('');
   // 不能拖拽的列
-  const firstColumns = ref<MsTableColumn>([]);
+  const nonSortColumn = ref<MsTableColumn>([]);
   // 可以拖拽的列
-  const secondColumns = ref<MsTableColumn>([]);
+  const couldSortColumn = ref<MsTableColumn>([]);
   // 是否有改动
   const hasChange = ref(false);
 
@@ -93,7 +92,7 @@
   const handleCancel = () => {
     tableStore.setColumns(
       props.tableKey,
-      [...firstColumns.value, ...secondColumns.value],
+      [...nonSortColumn.value, ...couldSortColumn.value],
       currentMode.value as TableOpenDetailMode
     );
     visible.value = false;
@@ -101,9 +100,9 @@
   };
 
   const loadColumn = (key: string) => {
-    const { nonSortableColumns: noSort, couldSortableColumns: couldSort } = tableStore.getColumns(key);
-    firstColumns.value = noSort;
-    secondColumns.value = couldSort;
+    const { nonSort, couldSort } = tableStore.getColumns(key);
+    nonSortColumn.value = nonSort;
+    couldSortColumn.value = couldSort;
   };
 
   const handleReset = () => {
@@ -111,13 +110,13 @@
   };
 
   const handleFisrtColumnChange = (idx: number) => {
-    const item = firstColumns.value[idx];
+    const item = nonSortColumn.value[idx];
     item.showInTable = !item.showInTable;
     hasChange.value = true;
   };
 
   const handleSecondColumnChange = (idx: number) => {
-    const item = secondColumns.value[idx];
+    const item = couldSortColumn.value[idx];
     item.showInTable = !item.showInTable;
     hasChange.value = true;
   };
@@ -127,7 +126,7 @@
     tableStore.setMode(props.tableKey, value as TableOpenDetailMode);
   };
 
-  onMounted(() => {
+  onBeforeMount(() => {
     if (props.tableKey) {
       currentMode.value = tableStore.getMode(props.tableKey);
       loadColumn(props.tableKey);

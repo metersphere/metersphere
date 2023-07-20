@@ -10,21 +10,55 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { useUserGroupStore } from '@/store';
+  import { useUserGroupStore, useTableStore } from '@/store';
   import { watchEffect } from 'vue';
   import { postUserByUserGroup, deleteUserFromUserGroup } from '@/api/modules/setting/usergroup';
   import { UserTableItem } from '@/models/setting/usergroup';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
 
   const { t } = useI18n();
   const store = useUserGroupStore();
+  const tableStore = useTableStore();
+
+  const userGroupUsercolumns: MsTableColumn = [
+    {
+      title: 'system.userGroup.name',
+      dataIndex: 'name',
+      showDrag: false,
+      showInTable: true,
+    },
+    {
+      title: 'system.userGroup.email',
+      dataIndex: 'email',
+      showDrag: false,
+      showInTable: true,
+    },
+    {
+      title: 'system.userGroup.phone',
+      dataIndex: 'email',
+      showDrag: true,
+      showInTable: true,
+    },
+    {
+      title: 'system.userGroup.operation',
+      slotName: 'action',
+      fixed: 'right',
+      width: 200,
+      showDrag: true,
+      showInTable: true,
+    },
+  ];
+
+  tableStore.initColumn(TableKeyEnum.USERGROUPUSER, userGroupUsercolumns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
     tableKey: TableKeyEnum.USERGROUPUSER,
     scroll: { y: 750, x: '600px' },
     selectable: true,
   });
+
   const fetchData = async () => {
     await loadList();
   };
