@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia';
 import { MsTableSelectorItem, MsTableState, TableOpenDetailMode } from './types';
-import userGroupUsercolumns from './module/setting/system/usergroup';
-import { TableKeyEnum } from '@/enums/tableEnum';
 import { MsTableColumn } from '@/components/pure/ms-table/type';
 
 const msTableStore = defineStore('msTable', {
@@ -11,13 +9,12 @@ const msTableStore = defineStore('msTable', {
     selectorColumnMap: new Map<string, MsTableSelectorItem>(),
   }),
   actions: {
-    initColumn() {
-      const tmpMap = new Map<string, MsTableSelectorItem>();
-      tmpMap.set(TableKeyEnum.USERGROUPUSER, {
-        mode: 'drawer',
-        column: userGroupUsercolumns,
-      });
-      this.selectorColumnMap = tmpMap;
+    initColumn(tableKey: string, column: MsTableColumn, mode: TableOpenDetailMode) {
+      if (!this.selectorColumnMap.has(tableKey)) {
+        const tmpMap = this.selectorColumnMap;
+        tmpMap.set(tableKey, { mode, column });
+        this.selectorColumnMap = tmpMap;
+      }
     },
     getMode(key: string): string {
       if (this.selectorColumnMap.has(key)) {
@@ -33,14 +30,14 @@ const msTableStore = defineStore('msTable', {
         }
       }
     },
-    getColumns(key: string): { nonSortableColumns: MsTableColumn; couldSortableColumns: MsTableColumn } {
+    getColumns(key: string): { nonSort: MsTableColumn; couldSort: MsTableColumn } {
       if (this.selectorColumnMap.has(key)) {
         const tmpArr = this.selectorColumnMap.get(key)?.column || [];
         const nonSortableColumns = tmpArr.filter((item) => !item.showDrag);
         const couldSortableColumns = tmpArr.filter((item) => item.showDrag);
-        return { nonSortableColumns, couldSortableColumns };
+        return { nonSort: nonSortableColumns, couldSort: couldSortableColumns };
       }
-      return { nonSortableColumns: [], couldSortableColumns: [] };
+      return { nonSort: [], couldSort: [] };
     },
     setColumns(key: string, columns: MsTableColumn, mode: TableOpenDetailMode) {
       this.selectorColumnMap.set(key, { mode, column: columns });
