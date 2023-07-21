@@ -1,3 +1,3 @@
-<template> Loading ... </template>
+<template> Workplace is waiting for development </template>
 
-<script></script>
+<script setup></script>
