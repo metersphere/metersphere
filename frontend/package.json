@@ -36,7 +36,7 @@
   "dependencies": {
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
-    "@arco-design/web-vue": "^2.48.0",
+    "@arco-design/web-vue": "^2.47.0",
     "@arco-themes/vue-ms-theme-default": "^0.0.19",
     "@form-create/arco-design": "^3.1.21",
     "@vueuse/core": "^9.13.0",
@@ -55,6 +55,7 @@
     "pinia-plugin-persistedstate": "^3.1.0",
     "query-string": "^8.1.0",
     "sortablejs": "^1.15.0",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "^3.3.4",
     "vue-echarts": "^6.5.5",
     "vue-i18n": "^9.2.2",
