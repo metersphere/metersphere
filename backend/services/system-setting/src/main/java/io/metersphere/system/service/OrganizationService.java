@@ -140,7 +140,7 @@ public class OrganizationService {
             String projectId = userRoleRelationsByUser.getSourceId();
             String roleId = userRoleRelationsByUser.getRoleId();
             String userId = userRoleRelationsByUser.getUserId();
-            Map<String, String> pIdNameMap = userIdprojectIdMap.get(projectId);
+            Map<String, String> pIdNameMap = userIdprojectIdMap.get(userId);
             if (pIdNameMap == null || MapUtils.isEmpty(pIdNameMap)) {
                 pIdNameMap = new HashMap<>();
             }
@@ -213,9 +213,6 @@ public class OrganizationService {
     }
 
     private Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds) {
-        if (CollectionUtils.isEmpty(userRoleIds)) {
-            throw new MSException(Translator.get("user_role_not_exist"));
-        }
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andIdIn(userRoleIds).andTypeEqualTo("ORGANIZATION");
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
@@ -227,9 +224,6 @@ public class OrganizationService {
     }
 
     private Map<String, User> checkUserExist(List<String> memberIds) {
-        if (CollectionUtils.isEmpty(memberIds)) {
-            throw new MSException(Translator.get("user.not.exist"));
-        }
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(memberIds);
         List<User> users = userMapper.selectByExample(userExample);
