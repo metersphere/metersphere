@@ -265,6 +265,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testRemoveOrganizationMemberError() throws Exception {
         // 组织不存在
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-x/admin-x", status().is5xxServerError());
+        // 用户不存在
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin-x", status().is5xxServerError());
     }
 
     @Test
