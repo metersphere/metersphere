@@ -212,6 +212,15 @@ public class ApiScenarioReportStructureService {
                     children.setAllIndex(StringUtils.EMPTY + (children.getIndex() == 0 ? (i + 1) : children.getIndex()));
                     children.setResourceId(resourceId + "_" + children.getAllIndex());
                 }
+                if (StringUtils.equals(element.optString(TYPE), "GenericController") && element.has(HASH_TREE)) {
+                    JSONArray jsonArray = element.optJSONArray(HASH_TREE);
+                    for (int j = 0; j < jsonArray.length(); j++) {
+                        if (StringUtils.equals(jsonArray.optJSONObject(j).optString(TYPE), ElementConstants.ASSERTIONS)) {
+                            jsonArray.remove(j);
+                            break;
+                        }
+                    }
+                }
                 dto.getChildren().add(children);
                 if (element.has(HASH_TREE) && !REQUESTS.contains(children.getType())) {
                     JSONArray elementJSONArray = element.optJSONArray(HASH_TREE);
