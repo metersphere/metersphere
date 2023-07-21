@@ -385,6 +385,6 @@ span.ms-top.el-tag.el-tag--info.el-tag--small.el-tag--light span {
 .el-select__tags .el-tag .el-tag__close.el-icon-close::before {
   font-size: 24px;
   position: relative;
-  top: 9px;
+  top: -2px;
 }
 </style>

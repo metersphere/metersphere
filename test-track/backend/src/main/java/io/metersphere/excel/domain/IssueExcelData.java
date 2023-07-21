@@ -66,6 +66,8 @@ public class IssueExcelData implements Serializable {
     private String priority;
     @ExcelIgnore
     Map<String, Object> customData = new LinkedHashMap<>();
+    @ExcelIgnore
+    List<String> tapdUsers = new ArrayList<>();
 
     public List<List<String>> getHead(Boolean isThirdTemplate, List<CustomFieldDao> customFields, IssueExportRequest request) {
         return new ArrayList<>();

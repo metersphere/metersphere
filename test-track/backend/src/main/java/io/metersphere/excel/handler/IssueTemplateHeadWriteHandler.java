@@ -1,9 +1,16 @@
 package io.metersphere.excel.handler;
 
+import com.alibaba.excel.metadata.Head;
+import com.alibaba.excel.metadata.data.DataFormatData;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.util.BooleanUtils;
+import com.alibaba.excel.write.handler.CellWriteHandler;
 import com.alibaba.excel.write.handler.RowWriteHandler;
 import com.alibaba.excel.write.handler.SheetWriteHandler;
 import com.alibaba.excel.write.handler.context.RowWriteHandlerContext;
+import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
+import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import io.metersphere.commons.constants.CustomFieldScene;
 import io.metersphere.commons.constants.CustomFieldType;
 import io.metersphere.commons.utils.JSON;
@@ -12,25 +19,23 @@ import io.metersphere.dto.CustomFieldOptionDTO;
 import io.metersphere.excel.constants.IssueExportHeadField;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.Drawing;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 表头, 单元格后置处理
  */
-public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWriteHandler {
+public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWriteHandler, CellWriteHandler {
 
     private Sheet sheet;
     private Drawing<?> drawingPatriarch;
     private Map<String, String> memberMap;
     private Map<Integer, String> headCommentIndexMap = new HashMap<>();
+    private Map<Integer, String> dateFieldIndexMap = new HashMap<>();
 
     public IssueTemplateHeadWriteHandler(Map<String, String> memberMap, List<List<String>> headList, List<CustomFieldDao> customFields) {
         this.memberMap = memberMap;
@@ -56,7 +61,7 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
                     customFieldDao.setType(CustomFieldType.MEMBER.getValue());
                 } else {
                     // 自定义字段
-                    List<CustomFieldDao> fields = customFields.stream().filter(field -> StringUtils.equals(field.getName(), head)).collect(Collectors.toList());
+                    List<CustomFieldDao> fields = customFields.stream().filter(field -> StringUtils.equals(field.getName(), head)).toList();
                     if (fields.size() > 0) {
                         customFieldDao = fields.get(0);
                     } else {
@@ -79,6 +84,18 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
         }
     }
 
+    @Override
+    public void afterCellDispose(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder, List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead) {
+        Workbook workbook = writeSheetHolder.getSheet().getWorkbook();
+        DataFormat dataFormat = workbook.createDataFormat();
+        for (WriteCellData<?> writeCellData : cellDataList) {
+            WriteCellStyle writeCellStyle = writeCellData.getOrCreateStyle();
+            DataFormatData dataFormatData = new DataFormatData();
+            dataFormatData.setIndex(dataFormat.getFormat("@"));
+            writeCellStyle.setDataFormatData(dataFormatData);
+        }
+    }
+
     private String getCommentByCustomField(CustomFieldDao field) {
         String commentText = "";
         if (StringUtils.equalsAnyIgnoreCase(field.getType(),
@@ -86,6 +103,8 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
             if (StringUtils.equalsAnyIgnoreCase(field.getScene(), CustomFieldScene.ISSUE.name()) &&
                     StringUtils.equalsAnyIgnoreCase(field.getName(), "状态", "严重程度")) {
                 commentText = Translator.get("options").concat(JSON.toJSONString(getOptionValues(field)));
+            } else if (StringUtils.equalsAnyIgnoreCase(field.getName(), Translator.get("platform_status"))) {
+                commentText = Translator.get("options").concat(JSON.toJSONString(getOptionsLabel(field.getOptions())));
             } else {
                 commentText = Translator.get("options").concat(JSON.toJSONString(getOptionsText(field.getOptions())));
             }
@@ -154,6 +173,20 @@ public class IssueTemplateHeadWriteHandler implements RowWriteHandler, SheetWrit
         List<Map> optionMapList = JSON.parseArray(optionStr, Map.class);
         optionMapList.forEach(optionMap -> {
             String optionText = optionMap.get("text").toString();
+            options.add(optionText);
+        });
+        return options;
+    }
+
+    private List<String> getOptionsLabel(String optionStr) {
+        if (StringUtils.isEmpty(optionStr)) {
+            return Collections.emptyList();
+        }
+
+        List<String> options = new ArrayList<>();
+        List<Map> optionMapList = JSON.parseArray(optionStr, Map.class);
+        optionMapList.forEach(optionMap -> {
+            String optionText = optionMap.get("label").toString();
             options.add(optionText);
         });
         return options;

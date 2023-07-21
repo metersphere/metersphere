@@ -131,13 +131,13 @@ const TRACK_HEADER = {
     {id: 'num', key: '1', label: 'test_track.issue.id'},
     {id: 'title', key: '2', label: 'test_track.issue.title'},
     {id: 'platformStatus', key: '3', label: 'test_track.issue.platform_status', width: 120},
-    {id: 'platform', key: '4', label: 'test_track.issue.platform'},
+    {id: 'platform', key: '4', label: 'test_track.issue.issue_platform'},
     {id: 'creatorName', key: '5', label: 'custom_field.issue_creator'},
     {id: 'resourceName', key: '6', label: 'test_track.issue.issue_resource'},
     {id: 'description', key: '7', label: 'test_track.issue.description'},
     {id: 'caseCount', key: '9', label: 'api_test.definition.api_case_number'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
-    {id: 'updateTime', key: 'a', label: 'commons.update_time'}
+    {id: 'updateTime', key: '0', label: 'commons.update_time'}
   ],
   //用例评审
   TEST_CASE_REVIEW: [
