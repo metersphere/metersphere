@@ -3,7 +3,7 @@
     <transition name="fade" mode="out-in" appear>
       <!-- transition内必须有且只有一个根元素，不然会导致二级路由的组件无法渲染 -->
       <div class="page-content">
-        <component :is="Component" v-if="route.meta.ignoreCache" :key="route.fullPath" />
+        <component :is="Component" v-if="!route.meta.isCache" :key="route.fullPath" />
         <keep-alive v-else>
           <component :is="Component" :key="route.fullPath" />
         </keep-alive>
@@ -18,7 +18,7 @@
   .page-content {
     @apply overflow-hidden bg-white;
 
-    padding: 24px;
+    padding: 24px 14px 24px 24px;
     border-radius: var(--border-radius-large);
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
   }

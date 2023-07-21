@@ -11,7 +11,16 @@
                 :field="`list[${i}].${model.filed}`"
                 :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
                 :label="i === 0 && model.label ? t(model.label) : ''"
-                :rules="model.rules"
+                :rules="
+                  model.rules?.map((e) => {
+                    if (e.notRepeat === true) {
+                      return {
+                        validator: (val, callback) => fieldNotRepeat(val, callback, i, model.filed, e.message),
+                      };
+                    }
+                    return e;
+                  })
+                "
                 asterisk-position="end"
               >
                 <a-input
@@ -70,7 +79,7 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import type { ValidatedError, FormInstance } from '@arco-design/web-vue';
-  import type { FormItemModel, FormMode, ValueType } from './types';
+  import type { FormItemModel, FormMode } from './types';
 
   const { t } = useI18n();
 
@@ -80,13 +89,9 @@
       formMode: FormMode;
       addText: string;
       maxHeight?: string;
-      valueType?: ValueType;
-      delimiter?: string; // 当valueType为 string 类型时的分隔符，默认为英文逗号,
       defaultVals?: any[]; // 当外层是编辑状态时，可传入已填充的数据
     }>(),
     {
-      valueType: 'Array',
-      delimiter: ',',
       maxHeight: '30vh',
     }
   );
@@ -116,6 +121,23 @@
 
   function getFormResult() {
     return unref<Record<string, any>[]>(form.value.list);
+  }
+
+  function fieldNotRepeat(
+    value: string | undefined,
+    callback: (error?: string) => void,
+    index: number,
+    field: string,
+    msg?: string
+  ) {
+    if (value === '' || value === undefined) return;
+    // 遍历其他同 feild 名的输入框的值，检查是否与当前输入框的值重复
+    for (let i = 0; i < form.value.list.length; i++) {
+      if (i !== index && form.value.list[i][field].trim() === value) {
+        callback(t(msg || ''));
+        return;
+      }
+    }
   }
 
   /**

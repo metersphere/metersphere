@@ -1,21 +1,40 @@
 <template>
-  <a-upload v-bind="{ ...props }" :accept="UploadAcceptEnum[props.accept]">
+  <a-upload
+    v-bind="{ ...props }"
+    v-model:file-list="fileList"
+    :accept="UploadAcceptEnum[props.accept]"
+    :multiple="props.multiple"
+    @before-upload="beforeUpload"
+  >
     <template #upload-button>
       <div class="ms-upload-area">
         <div class="ms-upload-icon-box">
-          <div class="ms-upload-icon" :class="`ms-upload-icon--${props.iconType}`"></div>
+          <MsIcon v-if="fileList.length > 0" :type="IconMap[props.accept]" class="ms-upload-icon" />
+          <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
         </div>
-        <div v-if="props.mainText" class="ms-upload-main-text">{{ t(props.mainText) }}</div>
-        <div v-if="props.subText" class="ms-upload-sub-text">{{ t(props.subText) }}</div>
+        <template v-if="fileList.length === 0">
+          <div v-if="props.mainText" class="ms-upload-main-text">{{ t(props.mainText) }}</div>
+          <div v-if="props.subText" class="ms-upload-sub-text">{{ t(props.subText) }}</div>
+        </template>
+        <template v-else>
+          <div class="ms-upload-main-text">
+            {{ fileList[0]?.name }}
+          </div>
+          <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
+        </template>
       </div>
     </template>
   </a-upload>
 </template>
 
 <script setup lang="ts">
+  import { ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { UploadAcceptEnum } from '@/enums/uploadEnum';
+  import { formatFileSize, sleep } from '@/utils';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
+  import type { FileItem } from '@arco-design/web-vue';
   import type { UploadType } from './types';
 
   const { t } = useI18n();
@@ -26,16 +45,48 @@
     subText: string;
     class: string;
     multiple: boolean;
-    limit: number;
     imagePreview: boolean;
     showFileList: boolean;
     iconType: string;
     [key: string]: any;
   }> & {
     accept: UploadType;
+    fileList: FileItem[];
   };
 
   const props = defineProps<UploadProps>();
+  const emit = defineEmits(['update:fileList']);
+
+  const fileList = ref<FileItem[]>(props.fileList);
+
+  watch(
+    () => fileList.value,
+    (val) => {
+      emit('update:fileList', val);
+    }
+  );
+
+  const IconMap = {
+    excel: 'icon-icon_file-excel_colorful1',
+    word: 'icon-icon_file-word_colorful1',
+    pdf: 'icon-icon_file-pdf_colorful1',
+    txt: 'icon-icon_file-text_colorful1',
+    vedio: 'icon-icon_file-vedio_colorful1',
+    sql: 'icon-icon_file-sql_colorful1',
+    csv: 'icon-icon_file-CSV_colorful1',
+    zip: 'icon-a-icon_file-compressed_colorful1',
+    xmind: 'icon-icon_file-xmind_colorful1',
+    image: 'icon-icon_file-image_colorful1',
+    jar: 'icon-icon_file-jar_colorful',
+  };
+
+  async function beforeUpload() {
+    if (!props.multiple && fileList.value.length > 0) {
+      // 单文件上传时，清空之前的文件
+      fileList.value = [];
+    }
+    return Promise.resolve(true);
+  }
 </script>
 
 <style lang="less" scoped>
@@ -55,44 +106,14 @@
       height: 48px;
       .ms-upload-icon {
         @apply h-full w-full bg-cover bg-no-repeat;
-
-        background-image: url('@/assets/svg/icons/uploadfile.svg');
-        &--excel {
-          background-image: url('@/assets/svg/icons/excel.svg');
-        }
-        &--word {
-          background-image: url('@/assets/svg/icons/word.svg');
-        }
-        &--pdf {
-          background-image: url('@/assets/svg/icons/pdf.svg');
-        }
-        &--txt {
-          background-image: url('@/assets/svg/icons/txt.svg');
-        }
-        &--vedio {
-          background-image: url('@/assets/svg/icons/vedio.svg');
-        }
-        &--sql {
-          background-image: url('@/assets/svg/icons/sql.svg');
-        }
-        &--csv {
-          background-image: url('@/assets/svg/icons/csv.svg');
-        }
-        &--zip {
-          background-image: url('@/assets/svg/icons/zip.svg');
-        }
-        &--xmind {
-          background-image: url('@/assets/svg/icons/xmind.svg');
-        }
-        &--image {
-          background-image: url('@/assets/svg/icons/image.svg');
-        }
-        &--jar {
-          background-image: url('@/assets/svg/icons/jar.svg');
+        &--default {
+          background-image: url('@/assets/svg/icons/uploadfile.svg');
         }
       }
     }
     .ms-upload-main-text {
+      @apply flex items-center justify-center gap-1;
+
       color: var(--color-text-1);
     }
     .ms-upload-sub-text {
