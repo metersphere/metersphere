@@ -3306,7 +3306,7 @@ public class TestCaseService {
         }
 
         for (TestCase tc : testCaseList) {
-
+            tc.setDemandId(demandId);
             if (project != null && StringUtils.equals(project.getPlatform(), IssuesManagePlatform.AzureDevops.name())) {
                 EditTestCaseRequest editTestCaseRequest = new EditTestCaseRequest();
                 BeanUtils.copyBean(editTestCaseRequest, tc);
@@ -3319,8 +3319,6 @@ public class TestCaseService {
                     LogUtil.error(e);
                 }
             }
-
-            tc.setDemandId(demandId);
             tc.setDemandName(demandName);
             mapper.updateByPrimaryKey(tc);
         }
