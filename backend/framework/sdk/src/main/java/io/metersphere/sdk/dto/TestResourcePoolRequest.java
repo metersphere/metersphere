@@ -17,7 +17,7 @@ public class TestResourcePoolRequest {
     private String id;
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{test_resource_pool.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{test_resource_pool.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
@@ -25,7 +25,7 @@ public class TestResourcePoolRequest {
     private String description;
 
     @Schema(title = "类型", requiredMode = Schema.RequiredMode.REQUIRED, allowableValues = { "Node","Kubernetes"})
-    @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Created.class})
+    @NotBlank(message = "{test_resource_pool.type.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 30, message = "{test_resource_pool.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
@@ -45,7 +45,7 @@ public class TestResourcePoolRequest {
     private String serverUrl;
 
     @Schema(title = "资源池应用类型（组织/全部）", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_resource_pool.all_org.not_blank}", groups = {Created.class})
+    @NotNull(message = "{test_resource_pool.all_org.not_blank}", groups = {Created.class, Updated.class})
     private Boolean allOrg;
 
     @Schema(title = "其余配置")
