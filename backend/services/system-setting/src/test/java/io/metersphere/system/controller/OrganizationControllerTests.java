@@ -1,6 +1,7 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
@@ -9,6 +10,7 @@ import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.request.*;
 import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -127,8 +129,12 @@ public class OrganizationControllerTests extends BaseTest {
         addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user3", "sys_default_user4"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
         // 成员有一个不存在
         addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user4"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
-        // 用户组不存在
+        // 用户组为空
         addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
+        // 用户组都不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Arrays.asList("default-org-role-id-8", "default-org-role-id-9"), status().is5xxServerError());
+        // 用户组有一个不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Arrays.asList("default-org-role-id-2", "default-org-role-id-9"), status().is5xxServerError());
         //成员和用户组都为空
         addOrUpdateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
         // 组织不存在
@@ -194,6 +200,33 @@ public class OrganizationControllerTests extends BaseTest {
 
     @Test
     @Order(7)
+    public void getOrgMemberListSuccessWidthEmpty() throws Exception {
+        OrganizationRequest organizationRequest = new OrganizationRequest();
+        organizationRequest.setCurrent(1);
+        organizationRequest.setPageSize(10);
+        organizationRequest.setKeyword("testUserOne");
+        organizationRequest.setOrganizationId("sys_default_organization_6");
+        MvcResult mvcResult = this.responsePost(organizationRequest);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), organizationRequest.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
+        //判断是否为空
+        List<OrgUserExtend> orgUserExtends = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(orgUserExtends));
+
+    }
+
+    @Test
+    @Order(8)
     public void getOrgMemberListError() throws Exception {
         // 页码有误
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -213,7 +246,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(8)
+    @Order(9)
     @Sql(scripts = {"/dml/init_sys_org_project.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void addOrgMemberToProjectSuccess() throws Exception {
         OrgMemberExtendProjectRequest organizationMemberRequest = new OrgMemberExtendProjectRequest();
@@ -222,11 +255,11 @@ public class OrganizationControllerTests extends BaseTest {
         organizationMemberRequest.setProjectIds(Arrays.asList("sys_org_projectId", "sys_org_projectId1"));
         this.requestPost(ORGANIZATION_PROJECT_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
-        listByKeyWord("testUserOne","sys_default_organization_3", false,null);
+        listByKeyWord("testUserOne","sys_default_organization_3", true, InternalUserRole.PROJECT_MEMBER.getValue());
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     public void addOrgMemberToProjectError() throws Exception {
         // 成员选择为空
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().isBadRequest());
@@ -237,13 +270,19 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     public void removeOrgMemberSuccess() throws Exception {
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_6/sys_default_user", status().isOk());
+    }
+
+    @Test
+    @Order(12)
+    public void removeOrgMemberSuccessWithNoProject() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_3/sys_default_user", status().isOk());
     }
 
     @Test
-    @Order(11)
+    @Order(13)
     public void removeOrgMemberError() throws Exception {
         // 项目不存在
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-x/admin-x", status().is5xxServerError());
