@@ -6,7 +6,7 @@
     :footer="false"
     @open="BeforeOpen"
   >
-    <template #title> {{ title }} </template>
+    <template #title> {{ t(title as string) }} </template>
     <div class="flex w-full flex-col items-center justify-center">
       <div class="mb-5"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
       <div class="font-semibold">{{ t('system.plugin.uploadSuccess') }}</div>
@@ -21,7 +21,7 @@
       </div>
       <div>
         <a-space>
-          <a-button type="primary">{{ t('system.plugin.continueUpload') }}</a-button>
+          <a-button type="primary" @click="continueAdd">{{ t('system.plugin.continueUpload') }}</a-button>
           <a-button type="outline">{{ t('system.plugin.ServiceIntegration') }}</a-button>
           <a-button type="secondary">{{ t('system.plugin.backPluginList') }}</a-button>
         </a-space>
@@ -34,14 +34,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import { useDialog } from '@/hooks/useDialog';
+  import useVisit from '@/hooks/useVisit';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
+  const visitedKey = 'doNotShowAgain';
+  const { addVisited } = useVisit(visitedKey);
   const props = defineProps<{
     visible: boolean;
     title?: string;
+    onOpen: (visible: boolean) => void;
   }>();
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
@@ -61,6 +65,18 @@
         countDown.value = 5;
       }
     }, 1000);
+  };
+  const isDoNotShowAgainChecked = () => {
+    if (isTip.value) {
+      addVisited();
+    }
+  };
+  watch(isTip, () => {
+    isDoNotShowAgainChecked();
+  });
+  const continueAdd = () => {
+    emits('close');
+    props.onOpen(true);
   };
 </script>
 

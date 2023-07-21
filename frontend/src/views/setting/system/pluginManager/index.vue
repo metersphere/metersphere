@@ -1,7 +1,7 @@
 /* stylelint-disable order/properties-order */
 <template>
   <div>
-    <a-alert type="info" :closable="true">
+    <a-alert :closable="true">
       <div>
         {{ t('system.plugin.alertDescribe') }}
         <a class="mx-1" href="javascript:;">{{ t('system.plugin.viewTable') }}</a
