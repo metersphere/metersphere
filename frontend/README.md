@@ -360,7 +360,7 @@ export default function usePermission() {
   <router-view v-slot="{ Component, route }">
     <!-- transition为页面录音切换时提供进出动画，平滑过渡页面渲染 -->
     <transition name="fade" mode="out-in" appear>
-      <component :is="Component" v-if="route.meta.ignoreCache" :key="route.fullPath" />
+      <component :is="Component" v-if="!route.meta.isCache" :key="route.fullPath" />
       <!-- keep-alive提供组件状态缓存，以便快速渲染组件内容 -->
       <keep-alive v-else>
         <component :is="Component" :key="route.fullPath" />
