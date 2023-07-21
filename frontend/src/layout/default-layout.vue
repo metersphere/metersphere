@@ -34,14 +34,15 @@
           <Menu />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
-          <MsBreadCrumb />
           <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
             <a-scrollbar
               :style="{
                 overflow: 'auto',
                 width: `calc(100vw - ${menuWidth}px)`,
+                height: 'calc(100vh - 72px)',
               }"
             >
+              <MsBreadCrumb />
               <a-layout-content>
                 <PageLayout />
               </a-layout-content>
@@ -170,7 +171,7 @@
     .arco-layout-content {
       padding: 16px 16px 16px 0;
       min-width: 1000px;
-      height: calc(100vh - 72px);
+      min-height: 500px;
     }
   }
 </style>
