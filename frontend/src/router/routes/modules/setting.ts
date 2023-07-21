@@ -8,7 +8,7 @@ const Setting: AppRouteRecordRaw = {
   meta: {
     locale: 'menu.settings',
     icon: 'icon-a-icon_system_settings',
-    order: 0,
+    order: 8,
   },
   children: [
     {

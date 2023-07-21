@@ -2,7 +2,7 @@
   <div class="login-form flex flex-col items-center">
     <div class="title">
       <div class="mt-40 flex justify-center">
-        <svg-icon :width="'290px'" :height="'60px'" :name="'login-logo'" />
+        <svg-icon width="290px" height="60px" name="login-logo" />
       </div>
       <div class="title-0 flex justify-center">
         <span class="title-welcome">{{ $t('login.form.title') }}</span>
@@ -112,7 +112,7 @@
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
         setLoginExpires();
         router.push({
-          name: (redirect as string) || 'apiTest',
+          name: (redirect as string) || 'setting',
           query: {
             ...othersQuery,
           },

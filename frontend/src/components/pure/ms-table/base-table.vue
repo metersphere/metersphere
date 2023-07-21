@@ -14,7 +14,26 @@
       @selection-change="(e) => selectionChange(e, true)"
     >
       <template #columns>
-        <a-table-column v-for="(item, idx) in columns" :key="idx">
+        <a-table-column
+          v-for="(item, idx) in columns"
+          :key="idx"
+          :width="item.width"
+          :align="item.align"
+          :fixed="item.fixed"
+          :ellipsis="item.ellipsis"
+          :sortable="item.sortable"
+          :filterable="item.filterable"
+          :cell-class="item.cellClass"
+          :header-cell-class="item.headerCellClass"
+          :body-cell-class="item.bodyCellClass"
+          :summary-cell-class="item.summaryCellClass"
+          :cell-style="item.cellStyle"
+          :header-cell-style="item.headerCellStyle"
+          :body-cell-style="item.bodyCellStyle"
+          :summary-cell-style="item.summaryCellStyle"
+          :index="item.index"
+          :tooltip="item.tooltip"
+        >
           <template #title>
             <div v-if="attrs.showSetting && idx === columns.length - 1" class="column-selector">
               <div class="title">{{ t(item.title as string) }}</div>
@@ -56,7 +75,7 @@
   } from './type';
   import BatchAction from './batchAction.vue';
 
-  import type { TableData } from '@arco-design/web-vue';
+  import type { TableColumnData, TableData } from '@arco-design/web-vue';
   import ColumnSelector from './columnSelector.vue';
 
   const batchleft = ref('10px');

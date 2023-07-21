@@ -17,7 +17,14 @@ Object.keys(_Vmodules).forEach((key) => {
 });
 export default {
   message: {
+    'menu.workplace': '工作台',
+    'menu.testPlan': '测试计划',
+    'menu.bugManagement': '缺陷管理',
+    'menu.featureTest': '功能测试',
     'menu.apiTest': '接口测试',
+    'menu.uiTest': 'UI测试',
+    'menu.performanceTest': '性能测试',
+    'menu.projectManagement': '项目管理',
     'menu.settings': '系统设置',
     'menu.settings.system': '系统',
     'menu.settings.organization': '组织',

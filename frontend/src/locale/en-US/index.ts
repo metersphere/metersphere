@@ -17,7 +17,14 @@ Object.keys(_Vmodules).forEach((key) => {
 });
 export default {
   message: {
-    'menu.apiTest': 'Api Test',
+    'menu.workplace': 'Workplace',
+    'menu.testPlan': 'Test plan',
+    'menu.bugManagement': 'Bug management',
+    'menu.featureTest': 'Feature test',
+    'menu.apiTest': 'API test',
+    'menu.uiTest': 'UI test',
+    'menu.performanceTest': 'Performance test',
+    'menu.projectManagement': 'Project management',
     'menu.settings': 'System Settings',
     'menu.settings.system': 'System',
     'menu.settings.organization': 'Organization',
