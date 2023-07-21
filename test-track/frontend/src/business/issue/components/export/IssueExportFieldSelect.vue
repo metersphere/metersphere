@@ -50,7 +50,8 @@
 
 <script>
 import IssueExportFieldSelectItem from "@/business/issue/components/export/IssueExportFieldSelectItem";
-import {getIssuePartTemplateWithProject} from "@/api/issue";
+import {enableThirdPartTemplate, getIssuePartTemplateWithProject} from "@/api/issue";
+import {getCurrentProjectID} from "@/business/utils/sdk-utils";
 
 export default {
   name: "IssueExportFieldSelect",
@@ -63,7 +64,7 @@ export default {
         {
           id: 'id',
           key: 'A',
-          name: 'ID',
+          name: this.$t("test_track.issue.id"),
           enable: true,
           disabled: true
         },
@@ -88,37 +89,37 @@ export default {
           id: 'creator',
           key: 'E',
           name: this.$t("commons.creator"),
-          enable: true
+          enable: false
         },
         {
           id: 'caseCount',
           key: 'A',
           name: this.$t("test_track.home.case_size"),
-          enable: true
+          enable: false
         },
         {
           id: 'comment',
           key: 'B',
           name: this.$t("commons.comment"),
-          enable: true
+          enable: false
         },
         {
           id: 'resource',
           key: 'C',
           name: this.$t("test_track.issue.issue_resource"),
-          enable: true
+          enable: false
         },
         {
           id: 'platform',
           key: 'D',
           name: this.$t("test_track.issue.issue_platform"),
-          enable: true
+          enable: false
         },
         {
           id: 'createTime',
           key: 'E',
           name: this.$t("commons.create_time"),
-          enable: true
+          enable: false
         },
       ]
     }
@@ -131,12 +132,35 @@ export default {
   created() {
     this.loading = true;
     getIssuePartTemplateWithProject((template) => {
+      if (template.platform && template.platform !== 'Local') {
+        this.customFields.push({
+          id: 'platformStatus',
+          key: '#',
+          name: this.$t("test_track.issue.platform_status"),
+          enable: true
+        });
+      }
+      if (template.platform && template.platform === 'Tapd') {
+        this.customFields.push({
+          id: this.$t("test_track.issue.tapd_current_owner"),
+          key: '&',
+          name: this.$t("test_track.issue.tapd_current_owner"),
+          enable: true
+        });
+      }
       template.customFields.forEach(item => {
         item.enable = true;
         this.customFields.push(item);
       });
       this.loading = false;
     });
+    enableThirdPartTemplate(getCurrentProjectID())
+      .then((res) => {
+        if (res.data) {
+          // 第三方模板
+          this.baseFields = this.baseFields.filter(item => (item.id !== 'description' && item.id !== 'title'));
+        }
+      });
   },
   methods: {
     getExportParam() {

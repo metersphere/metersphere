@@ -20,6 +20,7 @@ public enum IssueExportHeadField {
     COMMENT("comment", Translator.get("comment"), IssueExcelData::getComment),
     RESOURCE("resource", Translator.get("issue_resource"), IssueExcelData::getResourceName),
     PLATFORM("platform", Translator.get("issue_platform"), IssueExcelData::getPlatform),
+    PLATFORM_STATUS("platformStatus", Translator.get("platform_status"), IssueExcelData::getPlatformStatus),
     CREATE_TIME("createTime", Translator.get("create_time"), issueExcelData -> issueExcelData.getCreateTime() != null ? DateUtils.getTimeStr(issueExcelData.getCreateTime()) : null);
 
     private String id;

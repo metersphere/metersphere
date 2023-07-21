@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.base.Joiner;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssueCommentMapper;
@@ -54,6 +55,7 @@ import io.metersphere.service.remote.project.TrackIssueTemplateService;
 import io.metersphere.service.wapper.TrackProjectService;
 import io.metersphere.service.wapper.UserService;
 import io.metersphere.utils.DistinctKeyUtil;
+import io.metersphere.xpack.track.dto.AttachmentRequest;
 import io.metersphere.xpack.track.dto.PlatformStatusDTO;
 import io.metersphere.xpack.track.dto.PlatformUser;
 import io.metersphere.xpack.track.dto.*;
@@ -799,11 +801,6 @@ public class IssuesService {
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.RICH_TEXT.getValue(), CustomFieldType.TEXTAREA.getValue())) {
                             fieldDao.setValue(fieldDao.getTextValue());
                         }
-                        if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATE.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue()) && !StringUtils.equals(fieldDao.getValue(), "null")) {
-                            Date date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY), "yyyy-MM-dd");
-                            String format = DateUtils.format(date, "yyyy/MM/dd");
-                            fieldDao.setValue("\"" + format + "\"");
-                        }
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.DATETIME.getValue()) && StringUtils.isNotEmpty(fieldDao.getValue()) && !StringUtils.equals(fieldDao.getValue(), "null")) {
                             Date date = null;
                             if (fieldDao.getValue().contains("T") && fieldDao.getValue().length() == 18) {
@@ -815,7 +812,7 @@ public class IssuesService {
                             } else {
                                 date = DateUtils.parseDate(fieldDao.getValue().replaceAll("\"", StringUtils.EMPTY));
                             }
-                            String format = DateUtils.format(date, "yyyy/MM/dd HH:mm:ss");
+                            String format = DateUtils.format(date, "yyyy-MM-dd HH:mm:ss");
                             fieldDao.setValue("\"" + format + "\"");
                         }
                         if (StringUtils.equalsAnyIgnoreCase(customField.getType(), CustomFieldType.SELECT.getValue(),
@@ -1664,13 +1661,20 @@ public class IssuesService {
 
     public void issueImportTemplate(String projectId, HttpServletResponse response) {
         Map<String, String> userMap = baseUserService.getProjectMemberOption(projectId).stream().collect(Collectors.toMap(User::getId, User::getName));
+        // 获取第三方平台自定义字段
+        List<CustomFieldDao> pluginCustomFields = getPluginCustomFields(projectId);
         // 获取缺陷模板及自定义字段
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(projectId);
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
+        customFields.addAll(pluginCustomFields);
+        // TAPD暂时未拆分插件, 插件字段手动获取
+        if (StringUtils.equals(issueTemplate.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+            customFields.add(buildTapdUserCustomField(projectId));
+        }
         // 根据自定义字段获取表头
         List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, null);
         // 导出空模板, heads->表头, headHandler->表头处理
-        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
+        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, customFields);
         new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
                 .exportByCustomWriteHandler(response, heads, null, Translator.get("issue_import_template_name"),
                         Translator.get("issue_import_template_sheet"), headHandler);
@@ -1687,10 +1691,23 @@ public class IssuesService {
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
         customFields.addAll(pluginCustomFields);
+        // 非Local平台需要解析平台状态字段
+        List<PlatformStatusDTO> platformStatus = new ArrayList<>();
+        if (!IssuesManagePlatform.Local.equals(issueTemplate.getPlatform())) {
+            CustomFieldDao customFieldDao = buildPlatformStatusCustomField(request.getWorkspaceId(), request.getProjectId());
+            platformStatus = JSON.parseArray(customFieldDao.getOptions(), PlatformStatusDTO.class);
+        }
+        // TAPD暂时未拆分插件, 插件字段手动获取
+        List<String> tapdUsers = new ArrayList<>();
+        if (StringUtils.equals(issueTemplate.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+            CustomFieldDao tapdField = buildTapdUserCustomField(request.getProjectId());
+            List<JSONObject> jsonObjects = JSON.parseArray(tapdField.getOptions(), JSONObject.class);
+            tapdUsers = jsonObjects.stream().map(item -> item.getString("value")).collect(Collectors.toList());
+        }
         // 获取本地EXCEL数据对象
         Class clazz = new IssueExcelDataFactory().getExcelDataByLocal();
         // IssueExcelListener读取file内容
-        IssueExcelListener issueExcelListener = new IssueExcelListener(request, clazz, issueTemplate.getIsThirdTemplate(), customFields, userMap);
+        IssueExcelListener issueExcelListener = new IssueExcelListener(request, clazz, issueTemplate.getIsThirdTemplate(), customFields, userMap, platformStatus, tapdUsers);
         try {
             EasyExcelFactory.read(importFile.getInputStream(), issueExcelListener).sheet().doRead();
         } catch (IOException e) {
@@ -1718,6 +1735,17 @@ public class IssuesService {
         IssueTemplateDao issueTemplate = getIssueTemplateByProjectId(request.getProjectId());
         List<CustomFieldDao> customFields = Optional.ofNullable(issueTemplate.getCustomFields()).orElse(new ArrayList<>());
         customFields.addAll(pluginCustomFields);
+        // 非Local平台需要展示平台状态字段
+        List<PlatformStatusDTO> platformStatus = new ArrayList<>();
+        if (!IssuesManagePlatform.Local.equals(issueTemplate.getPlatform())) {
+            CustomFieldDao customFieldDao = buildPlatformStatusCustomField(request.getWorkspaceId(), request.getProjectId());
+            customFields.add(customFieldDao);
+            platformStatus = JSON.parseArray(customFieldDao.getOptions(), PlatformStatusDTO.class);
+        }
+        // TAPD暂时未拆分插件, 插件字段手动获取
+        if (StringUtils.equals(issueTemplate.getPlatform(), IssuesManagePlatform.Tapd.name())) {
+            customFields.add(buildTapdUserCustomField(request.getProjectId()));
+        }
         // 根据自定义字段获取表头内容
         List<List<String>> heads = new IssueExcelDataFactory().getIssueExcelDataLocal().getHead(issueTemplate.getIsThirdTemplate(), customFields, request);
         // 获取导出缺陷列表
@@ -1725,9 +1753,9 @@ public class IssuesService {
         // 解析issue对象数据->excel对象数据
         List<IssueExcelData> excelDataList = parseIssueDataToExcelData(exportIssues);
         // 解析excel对象数据->excel列表数据
-        List<List<Object>> data = parseExcelDataToList(heads, excelDataList);
+        List<List<Object>> data = parseExcelDataToList(heads, excelDataList, platformStatus);
         // 导出EXCEL
-        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, issueTemplate.getCustomFields());
+        IssueTemplateHeadWriteHandler headHandler = new IssueTemplateHeadWriteHandler(userMap, heads, customFields);
         // heads-> 表头内容, data -> 导出EXCEL列表数据, headHandler -> 表头处理
         new EasyExcelExporter(new IssueExcelDataFactory().getExcelDataByLocal())
                 .exportByCustomWriteHandler(response, heads, data, Translator.get("issue_list_export_excel"),
@@ -1786,6 +1814,11 @@ public class IssuesService {
                 List<String> comments = commentDTOList.stream().map(IssueCommentDTO::getDescription).collect(Collectors.toList());
                 item.setComment(StringUtils.join(comments, ";"));
             }
+
+            // TAPD平台需展示TAPD处理人
+            if (IssuesManagePlatform.Tapd.name().equals(item.getPlatform())) {
+                item.setTapdUsers(getTapdIssueCurrentOwner(item.getId()));
+            }
         });
         // 解析自定义字段
         buildCustomField(issues, isThirdTemplate, customFields);
@@ -1814,7 +1847,7 @@ public class IssuesService {
         }
     }
 
-    private List<List<Object>> parseExcelDataToList(List<List<String>> heads, List<IssueExcelData> excelDataList) {
+    private List<List<Object>> parseExcelDataToList(List<List<String>> heads, List<IssueExcelData> excelDataList, List<PlatformStatusDTO> platformStatus) {
         List<List<Object>> result = new ArrayList<>();
         IssueExportHeadField[] exportHeadFields = IssueExportHeadField.values();
         //转化excel头
@@ -1832,12 +1865,26 @@ public class IssuesService {
                 boolean isSystemField = false;
                 for (IssueExportHeadField exportHeadField : exportHeadFields) {
                     if (StringUtils.equals(head, exportHeadField.getName())) {
-                        rowData.add(exportHeadField.parseExcelDataValue(data));
+                        if (StringUtils.equals(head, IssueExportHeadField.PLATFORM_STATUS.getName())) {
+                            String platformVal = exportHeadField.parseExcelDataValue(data);
+                            Optional<PlatformStatusDTO> first = platformStatus.stream().filter(status -> StringUtils.equals(status.getValue(), platformVal)).findFirst();
+                            if (first.isPresent()) {
+                                rowData.add(first.get().getLabel());
+                            } else {
+                                rowData.add(StringUtils.EMPTY);
+                            }
+                        } else {
+                            rowData.add(exportHeadField.parseExcelDataValue(data));
+                        }
                         isSystemField = true;
                         break;
                     }
                 }
                 if (!isSystemField) {
+                    if (StringUtils.equals(head, Translator.get("tapd_user"))) {
+                        rowData.add(Joiner.on(";").join(data.getTapdUsers()));
+                        continue;
+                    }
                     // 自定义字段
                     Object value = customData.get(head);
                     if (value == null || StringUtils.equals(value.toString(), "null")) {
@@ -1925,27 +1972,36 @@ public class IssuesService {
     }
 
     private String parseOptionValue(String options, String tarVal) {
-        if (StringUtils.isEmpty(options) || StringUtils.isEmpty(tarVal)) {
+        if (StringUtils.isEmpty(options) || StringUtils.isEmpty(tarVal) || StringUtils.equalsAny(tarVal, "null", "[]")) {
             return StringUtils.EMPTY;
         }
+        List<String> tarVals = new ArrayList<>();
+        List<String> vals = JSON.parseArray(tarVal, String.class);
         List<Map> optionList = JSON.parseArray(options, Map.class);
         for (Map option : optionList) {
             String text = option.get("text").toString();
             String value = option.get("value").toString();
-            if (StringUtils.containsIgnoreCase(tarVal, value)) {
-                tarVal = tarVal.replaceAll(value, text);
-            }
+            vals.forEach(val -> {
+                if (StringUtils.equals(val, value)) {
+                    tarVals.add(text);
+                }
+            });
         }
-        return tarVal;
+        return tarVals.toString();
     }
 
     public String parseCascadingOptionValue(String cascadingOption, String tarVal) {
         List<String> values = new ArrayList<>();
-        if (StringUtils.isEmpty(cascadingOption)) {
+        if (StringUtils.isEmpty(cascadingOption) || StringUtils.isEmpty(tarVal) || StringUtils.equalsAny(tarVal, "null", "[]")) {
             return StringUtils.EMPTY;
         }
         JSONArray options = JSONArray.parseArray(cascadingOption);
-        JSONArray talVals = JSONArray.parseArray(tarVal);
+        JSONArray talVals = new JSONArray();
+        if (tarVal.contains("[") || tarVal.contains("]")) {
+            talVals = JSONArray.parseArray(tarVal);
+        } else {
+            talVals = JSONArray.parseArray("[" + tarVal + "]");
+        }
         if (options.size() == 0 || talVals.size() == 0) {
             return StringUtils.EMPTY;
         }
@@ -2084,6 +2140,43 @@ public class IssuesService {
             tapdUsers = tapdPlatform.getTapdUsers(issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getPlatformId());
         }
         return tapdUsers;
+    }
+
+    public CustomFieldDao buildPlatformStatusCustomField(String workspaceId, String projectId) {
+        PlatformIssueTypeRequest platformIssueTypeRequest = new PlatformIssueTypeRequest();
+        platformIssueTypeRequest.setWorkspaceId(workspaceId);
+        platformIssueTypeRequest.setProjectId(projectId);
+        List<PlatformStatusDTO> platformStatus = issuesService.getPlatformStatus(platformIssueTypeRequest);
+        CustomFieldDao customFieldDao = new CustomFieldDao();
+        customFieldDao.setName(Translator.get("platform_status"));
+        customFieldDao.setRequired(false);
+        customFieldDao.setType(CustomFieldType.SELECT.getValue());
+        customFieldDao.setOptions(JSON.toJSONString(platformStatus));
+        return customFieldDao;
+    }
+
+    public CustomFieldDao buildTapdUserCustomField(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        IssuesRequest request = new IssuesRequest();
+        request.setProjectId(projectId);
+        request.setWorkspaceId(project.getWorkspaceId());
+        List<Map<String, String>> tapdUsers = new ArrayList<>();
+        List<PlatformUser> tapdProjectUsers = getTapdProjectUsers(request);
+        if (CollectionUtils.isNotEmpty(tapdProjectUsers)) {
+            tapdProjectUsers.forEach(tapdUser -> {
+                Map<String, String> user = new HashMap<>();
+                user.put("text", tapdUser.getUser());
+                user.put("value", tapdUser.getUser());
+                tapdUsers.add(user);
+            });
+        }
+        CustomFieldDao customFieldDao = new CustomFieldDao();
+        customFieldDao.setId(Translator.get("tapd_user"));
+        customFieldDao.setName(Translator.get("tapd_user"));
+        customFieldDao.setRequired(false);
+        customFieldDao.setType(CustomFieldType.MULTIPLE_SELECT.getValue());
+        customFieldDao.setOptions(JSON.toJSONString(tapdUsers));
+        return customFieldDao;
     }
 
     @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE, type = OperLogConstants.ASSOCIATE_ISSUE, content = "#msClass.getIssueLogDetails(#caseId, #refId, #issuesId)", msClass = TestCaseIssueService.class)
