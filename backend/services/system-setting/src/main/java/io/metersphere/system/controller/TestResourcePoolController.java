@@ -16,6 +16,8 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.consul.CacheNode;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -37,7 +39,7 @@ public class TestResourcePoolController {
     @Operation(summary = "添加资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = TestResourcePoolService.class)
-    public TestResourcePool addTestResourcePool(@Validated @RequestBody TestResourcePoolRequest request) {
+    public TestResourcePool addTestResourcePool(@Validated({Created.class}) @RequestBody TestResourcePoolRequest request) {
         String userId = SessionUtils.getUserId();
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         BeanUtils.copyBean(testResourcePool, request);
@@ -60,7 +62,7 @@ public class TestResourcePoolController {
     @Operation(summary = "更新资源池")
     @RequiresPermissions(PermissionConstants.SYSTEM_TEST_RESOURCE_POOL_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = TestResourcePoolService.class)
-    public void updateTestResourcePool(@Validated @RequestBody TestResourcePoolRequest request) {
+    public void updateTestResourcePool(@Validated({Updated.class}) @RequestBody TestResourcePoolRequest request) {
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         BeanUtils.copyBean(testResourcePool, request);
         testResourcePool.setCreateUser(null);
