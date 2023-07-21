@@ -74,6 +74,7 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -455,10 +456,22 @@ public class ElementUtil {
                 }
             });
 
-            sourceList = sourceList.stream().collect(Collectors
-                    .collectingAndThen(
-                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(MsTestElement::getId))),
-                            ArrayList::new));
+
+            //对sourceList根据id去重并且保持原有顺序
+            sourceList = sourceList.stream()
+                    .collect(Collectors.toMap(MsTestElement::getId, Function.identity(), (oldValue, newValue) -> oldValue, LinkedHashMap::new))
+                    .values()
+                    .stream()
+                    .collect(Collectors.toList());
+
+            //删除不需要的元素
+            for (int i = 0; i < sourceList.size(); i++) {
+                MsTestElement item = sourceList.get(i);
+                if (!StringUtils.equals(item.getLabel(), SCENARIO_REF)
+                        && targetHashTree.stream().noneMatch(target -> StringUtils.equals(target.getId(), item.getId()))) {
+                    sourceList.remove(i);
+                }
+            }
 
             element.getHashTree().clear();
             element.getHashTree().addAll(sourceList);
@@ -506,13 +519,6 @@ public class ElementUtil {
                         sources.set(i, targets.get(i));
                     }
                 }
-            }
-
-            // 添加少的步骤
-            if (MapUtils.isNotEmpty(updateMap)) {
-                updateMap.forEach((k, v) -> {
-                    sources.add(v);
-                });
             }
 
             // 删除多余的步骤
