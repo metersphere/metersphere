@@ -3,11 +3,15 @@ import { FieldRule } from '@arco-design/web-vue';
 export type FormItemType = 'input' | 'select' | 'inputNumber';
 export type FormMode = 'create' | 'edit';
 export type ValueType = 'Array' | 'string';
+// 自定义检验器，为了传入动态渲染的表单项下标
+export interface CustomValidator {
+  notRepeat?: boolean;
+}
 
 export interface FormItemModel {
   filed: string;
   type: FormItemType;
-  rules?: FieldRule[];
+  rules?: (FieldRule & CustomValidator)[];
   label?: string;
   placeholder?: string;
   min?: number;
@@ -21,8 +25,6 @@ declare const _default: import('vue').DefineComponent<
     formMode: FormMode;
     addText: string;
     maxHeight?: string;
-    valueType?: ValueType;
-    delimiter?: string; // 当valueType为 string 类型时的分隔符，默认为英文逗号,
     defaultVals?: Record<string, string[] | string>; // 当外层是编辑状态时，可传入已填充的数据
   },
   unknown,

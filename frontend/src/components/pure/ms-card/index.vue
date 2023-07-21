@@ -1,14 +1,16 @@
 <template>
-  <a-spin style="display: block" :loading="props.loading">
-    <div class="relative h-full">
+  <a-spin class="block h-full" :loading="props.loading" :size="28">
+    <div class="relative h-full pr-[10px]">
       <div v-if="!simple" class="card-header">
         <div class="back-btn" @click="back"><icon-arrow-left /></div>
         <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
       </div>
-      <a-divider v-if="!simple" class="my-[16px]" />
-      <a-scrollbar class="mt-[16px]" style="overflow-y: auto; height: calc(100vh - 256px)">
-        <slot></slot>
-      </a-scrollbar>
+      <a-divider v-if="!simple" class="mb-[16px]" />
+      <div class="mr-[-10px]">
+        <a-scrollbar class="pr-[10px]" style="overflow-y: auto; height: calc(100vh - 256px)">
+          <slot></slot>
+        </a-scrollbar>
+      </div>
       <div
         v-if="!hideFooter && !simple"
         class="relative z-10 m-[0_-24px_-24px] flex justify-end gap-[16px] p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
@@ -21,7 +23,9 @@
           <a-button v-if="!props.hideContinue" type="secondary" @click="emit('saveAndContinue')">
             {{ t('mscard.defaultSaveAndContinueText') }}
           </a-button>
-          <a-button type="primary" @click="emit('save')">{{ t('mscard.defaultConfirm') }}</a-button>
+          <a-button type="primary" @click="emit('save')">
+            {{ t(idEdit ? 'mscard.defaultConfirm' : 'mscard.defaultUpdate') }}
+          </a-button>
         </slot>
       </div>
     </div>
@@ -40,11 +44,13 @@
       handleBack?: () => void;
       hideFooter?: boolean;
       loading?: boolean;
+      idEdit?: boolean;
     }>(),
     {
       simple: false,
       hideContinue: false,
       hideFooter: false,
+      idEdit: false,
     }
   );
 
