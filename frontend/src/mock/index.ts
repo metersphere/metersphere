@@ -7,6 +7,5 @@ import './system/user';
 import './system/project';
 import './system/resourcePool';
 import './system/member';
-import './system/pluginManger';
 
 MOCK.onAny().passThrough();

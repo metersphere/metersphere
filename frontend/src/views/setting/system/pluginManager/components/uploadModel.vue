@@ -1,26 +1,97 @@
 <template>
-  <a-modal
-    v-model:visible="pluginVisible"
-    class="ms-modal-form ms-modal-small"
-    title-align="start"
-    width="480px"
-    @ok="handleOk"
-    @cancel="handleCancel"
-  >
+  <a-modal v-model:visible="pluginVisible" class="ms-modal-form ms-modal-small" title-align="start">
     <template #title> {{ t('system.plugin.uploadPlugin') }} </template>
-    <div>
-      <StepProgress :step-list="stepList" :current="currentStep" small :set-current="setCurrent" changeable />
-      <SceneList v-show="currentStep === 1" :set-current="setCurrent" />
-      <uploadPlugin v-show="currentStep === 2" />
+    <div class="form grid grid-cols-1">
+      <a-row class="grid-demo">
+        <a-form ref="pluginFormRef" :model="form" size="small" :style="{ width: '600px' }" layout="vertical">
+          <div class="relative">
+            <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
+              <a-input
+                v-model="form.name"
+                size="small"
+                :placeholder="t('system.plugin.defaultJarNameTip')"
+                allow-clear
+              />
+              <span class="absolute right-0 top-1 flex items-center">
+                <span class="float-left">{{ t('system.plugin.getPlugin') }}</span>
+                <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
+                  <a class="float-left mx-2" href="javascript:;">
+                    <svg-icon width="16px" height="16px" :name="'infotip'"
+                  /></a>
+                </a-tooltip>
+              </span>
+            </a-form-item>
+          </div>
+          <a-form-item
+            field="global"
+            :label="t('system.plugin.appOrganize')"
+            asterisk-position="end"
+            :rules="[{ required: true, message: 'must select one' }]"
+          >
+            <a-radio-group v-model="form.global" size="small">
+              <a-radio :value="true">{{ t('system.plugin.allOrganize') }}</a-radio>
+              <a-radio :value="false">{{ t('system.plugin.theOrganize') }}</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item
+            v-if="!form.global"
+            field="organizationIds"
+            :label="t('system.plugin.selectOrganization')"
+            asterisk-position="end"
+            :rules="[{ required: true, message: t('system.plugin.selectOriginize') }]"
+          >
+            <a-select
+              v-model="form.organizationIds"
+              multiple
+              :placeholder="t('system.plugin.selectOriginize')"
+              allow-clear
+            >
+              <a-option v-for="item of originizeList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
+            <a-textarea
+              v-model="form.description"
+              size="small"
+              :placeholder="t('system.plugin.pluginDescription')"
+              allow-clear
+            />
+          </a-form-item>
+        </a-form>
+      </a-row>
+      <MsUpload
+        accept="jar"
+        :on-before-upload="beforeUpload"
+        main-text="system.user.importModalDragtext"
+        :sub-text="t('system.plugin.supportFormat')"
+        :show-file-list="true"
+        :file-list="fileList"
+        :on-before-remove="removeHandler"
+      ></MsUpload>
     </div>
     <template #footer>
-      <div v-show="currentStep === 2" class="float-right">
-        <a-space>
-          <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button type="secondary" @click="preStep">{{ t('system.plugin.pluginPreStep') }}</a-button>
-          <a-button type="secondary" @click="saveAndAddPlugin">{{ t('system.plugin.saveAndAdd') }}</a-button>
-          <a-button type="primary" @click="saveConfirm('confirm')">{{ t('system.plugin.pluginConfirm') }}</a-button>
-        </a-space>
+      <div class="flex justify-between">
+        <div class="flex flex-row items-center justify-center">
+          <a-switch v-model="form.enable" size="small" />
+          <a-tooltip>
+            <template #content>
+              <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>
+              <div class="text-sm">{{ t('system.plugin.statusDisableTip') }}</div>
+            </template>
+            <a class="mx-2" href="javascript:;"> <svg-icon width="16px" height="16px" :name="'infotip'" /></a>
+          </a-tooltip>
+        </div>
+        <div>
+          <a-space>
+            <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
+            <a-button type="secondary" :loading="saveLoading" @click="saveAndAddPlugin">{{
+              t('system.plugin.saveAndAdd')
+            }}</a-button>
+            <a-button type="primary" :loading="confirmLoading" @click="saveConfirm">{{
+              t('system.plugin.pluginConfirm')
+            }}</a-button>
+          </a-space>
+        </div>
       </div>
     </template>
   </a-modal>
@@ -28,63 +99,125 @@
 
 <script setup lang="ts">
   import { ref, watchEffect } from 'vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { addPlugin } from '@/api/modules/setting/pluginManger';
+  import { Message } from '@arco-design/web-vue';
+  import { formatFileSize } from '@/utils';
   import { useI18n } from '@/hooks/useI18n';
-  import type { StepList } from '@/models/setting/plugin';
-  import StepProgress from './stepProgress.vue';
-  import SceneList from './SceneList.vue';
-  import uploadPlugin from './uploadPlugin.vue';
 
   const { t } = useI18n();
-  const currentStep = ref<number>(1);
 
-  const stepList = ref<StepList>([
-    {
-      name: '选择应用场景',
-      title: 'system.plugin.SelectApplicationScene',
-      status: true,
-    },
-    {
-      name: '上传插件',
-      title: 'system.plugin.uploadPlugin',
-      status: true,
-    },
-  ]);
-  const pluginVisible = ref(false);
   const emits = defineEmits<{
     (e: 'cancel'): void;
-    (e: 'upload'): void;
     (e: 'success'): void;
+    (e: 'brash'): void;
   }>();
   const props = defineProps<{
     visible: boolean;
   }>();
+  const pluginVisible = ref(false);
+  const fileName = ref<string>('');
+  const fileList = ref<File[]>([]);
+  const saveLoading = ref<boolean>(false);
+  const confirmLoading = ref<boolean>(false);
+  const pluginFormRef = ref<FormInstance | null>(null);
+  const initForm = {
+    name: '',
+    description: '',
+    organizationIds: [],
+    enable: true,
+    global: true,
+  };
+  const form = ref({ ...initForm });
+  const originizeList = ref([
+    {
+      label: '组织一',
+      value: '1',
+    },
+    {
+      label: '组织二',
+      value: '2',
+    },
+  ]);
   watchEffect(() => {
     pluginVisible.value = props.visible;
   });
-  const handleCancel = () => {
-    emits('cancel');
-  };
 
-  const handleOk = () => {
-    handleCancel();
-  };
-  const setCurrent = (step: number) => {
-    currentStep.value = step;
-  };
-  const preStep = () => {
-    currentStep.value = currentStep.value === 2 ? 1 : 2;
-  };
-  const saveConfirm = (flag: string) => {
-    if (flag === 'confirm') {
-      handleCancel();
-      emits('success');
+  const beforeUpload = (file: File) => {
+    const size = formatFileSize(file.size);
+    if (size.includes('MB') && Number(size.replace('MB', '')) > 50) {
+      Message.warning(t('system.plugin.sizeExceedTip'));
+    } else {
+      fileName.value = file.name;
+      fileList.value = [...fileList.value, file];
+      fileList.value = fileList.value.slice(-1);
     }
   };
+  const removeHandler = () => {
+    fileList.value = [];
+  };
+  const handleCancel = () => {
+    pluginFormRef.value?.resetFields();
+    emits('cancel');
+  };
+  const resetForm = () => {
+    form.value = { ...initForm };
+    fileList.value = [];
+  };
+  const confirmHandler = async (flag: string) => {
+    try {
+      if (fileList.value.length < 1) {
+        Message.warning(t('system.plugin.uploadFileTip'));
+        return;
+      }
+      const params: any = {
+        request: {
+          ...form.value,
+          name: form.value.name || fileName.value,
+        },
+        fileList: fileList.value,
+      };
+      await addPlugin(params);
+      Message.success(t('system.plugin.uploadSuccessTip'));
+      if (flag === 'Confirm') {
+        emits('success');
+        handleCancel();
+      }
+      resetForm();
+      emits('brash');
+    } catch (error) {
+      console.log(error);
+      return false;
+    } finally {
+      confirmLoading.value = false;
+      saveLoading.value = false;
+    }
+  };
+  const saveConfirm = () => {
+    pluginFormRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        confirmLoading.value = true;
+        confirmHandler('Confirm');
+      } else {
+        return false;
+      }
+    });
+  };
   const saveAndAddPlugin = () => {
-    saveConfirm('saveAndAdd');
-    preStep();
+    pluginFormRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        saveLoading.value = true;
+        confirmHandler('Continue');
+      } else {
+        return false;
+      }
+    });
   };
 </script>
 
-<style scoped lang="less"></style>
-@/models/setting/plugin
+<style scoped lang="less">
+  :deep(.arco-upload) {
+    width: 100%;
+  }
+</style>

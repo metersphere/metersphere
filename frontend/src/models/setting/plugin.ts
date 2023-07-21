@@ -14,41 +14,82 @@ export interface organizationItem {
 }
 export type organizationList = organizationItem[];
 
-export interface PluginItem {
+// 上传文件
+export type UploadFile = {
+  fileList?: FormData[]; // 上传文件
+  [key: string]: any; // 表单收集字段字符串
+};
+
+export interface PluginForms {
   id: string;
   name: string;
-  describe: string;
-  enable: boolean;
+}
+export interface OrganizationsItem {
+  id: string;
+  num: number;
+  name: string;
+}
+export type OrganizationsItemList = OrganizationsItem[];
+// 插件管理列表项
+export type PluginItem = Partial<{
+  id: string;
+  name: string;
+  pluginId: string;
+  fileName: string; // 文件名称
   createTime: number;
   updateTime: number;
-  jarPackage: string;
-  version: string;
-  applicationScene: string;
   createUser: string;
-  updateUser: string;
-  organizationList: organizationList;
-  steps?: string[];
-}
-export type PluginList = PluginItem[];
-
-export interface StepItem {
-  name: string;
-  title: string;
-  status: boolean;
-}
-export type StepList = StepItem[];
-
-export interface SceneItem {
-  name: string;
+  enable: boolean;
+  global: boolean;
+  xpack: boolean; // 授权类型
   description: string;
-  isSelected: boolean;
-  svg: string;
+  scenario: string; // 应用场景
+  organizations: OrganizationsItemList; // 组织列表
+  pluginForms: PluginForms[]; // 插件步骤
+  expand?: any;
+}>;
+// 插件管理列表
+export type PluginList = PluginItem[];
+// 更新插件参数定义
+export interface UpdatePluginModel {
+  id?: string;
+  name?: string;
+  global?: boolean | string; // 是否选择全部组织
+  description?: string;
+  enable?: boolean;
+  organizationIds?: Array<string | number>; // 指定组织
+  [key: string]: any;
 }
-export type SceneList = SceneItem[];
 
-export type PluginForm = {
-  pluginName: string;
-  organize: string | number;
-  describe: string;
-  organizeGroup: Array<string | number>;
+// 添加返回的接口
+export interface AddReqData {
+  id?: string;
+  name: string;
+  pluginId: string; // 插件id
+  fileName: string;
+  createTime: number;
+  updateTime: number;
+  createUser: string;
+  enable: boolean;
+  global: boolean;
+  xpack: boolean; // 授权类型
+  description: string;
+  scenario: string;
+}
+export type Options = {
+  title: string;
+  visible: boolean;
+  onClose?: () => void;
 };
+// 抽屉配置
+export interface DrawerConfig {
+  title: string;
+  pluginId: string; // 插件id
+}
+export interface DrawerReqParams {
+  pluginId: string; // 插件id
+  scriptId: string; // 脚本id
+}
+export interface PluginState {
+  doNotShowAgain: boolean;
+}
