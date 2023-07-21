@@ -1,26 +1,25 @@
 import { DEFAULT_LAYOUT } from '../base';
 import { AppRouteRecordRaw } from '../types';
+import menuEnum from '@/enums/menuEnum';
 
 const ApiTest: AppRouteRecordRaw = {
   path: '/api-test',
-  name: 'apiTest',
-  redirect: '/api-test/list',
+  name: menuEnum.APITEST,
+  redirect: '/api-test/index',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.apiTest',
-    icon: 'icon-dashboard',
-    order: 0,
+    icon: 'icon_api-test-filled',
+    order: 4,
     hideChildrenInMenu: true,
   },
   children: [
     {
-      path: 'list',
-      name: 'apiTestList',
+      path: 'index',
+      name: 'ApiTestIndex',
       component: () => import('@/views/api-test/index.vue'),
       meta: {
-        locale: 'menu.apiTest',
         roles: ['*'],
-        icon: 'icon-computer',
       },
     },
   ],
