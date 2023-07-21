@@ -3,20 +3,24 @@ package io.metersphere.commons.config;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaProperties;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections.MapUtils;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
 
-import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,12 +49,29 @@ public class KafkaConfig {
                 .build();
     }
 
+    private static ProducerFactory<String, String> producerFactory;
+
+    @Autowired
+    public KafkaConfig(org.springframework.boot.autoconfigure.kafka.KafkaProperties kafkaProperties) {
+        producerFactory = new DefaultKafkaProducerFactory<>(kafkaProperties.buildProducerProperties());
+    }
+
+    public static void addDefaultConfig(Map<String, Object> producerProps) {
+        Map<String, Object> defaultMap = producerFactory.getConfigurationProperties();
+        if (MapUtils.isNotEmpty(defaultMap)) {
+            defaultMap.forEach((k, v) -> producerProps.putIfAbsent(k, v));
+        }
+    }
+
     public static Map<String, Object> getKafka() {
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSize());
         producerProps.put(DEBUG_TOPICS_KEY, KafkaTopicConstants.DEBUG_TOPICS);
+
+        // 加入默认配置
+        addDefaultConfig(producerProps);
         return producerProps;
     }
 
@@ -58,6 +79,8 @@ public class KafkaConfig {
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());
         producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, kafkaProperties.getMaxRequestSize());
+        // 加入默认配置
+        addDefaultConfig(producerProps);
         // 批量一次最大拉取数据量
         producerProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
 
