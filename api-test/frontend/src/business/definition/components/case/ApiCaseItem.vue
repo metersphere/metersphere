@@ -268,7 +268,12 @@ import { relationGet, updateRuleRelation } from '@/api/xpack';
 import { getUUID } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
 import { hasLicense, hasPermissions } from 'metersphere-frontend/src/utils/permission';
-import { _getBodyUploadFiles, mergeRequestDocumentData } from '@/business/definition/api-definition';
+import {
+  _getBodyUploadFiles,
+  hisDataProcessing,
+  mergeRequestDocumentData,
+  stepCompute
+} from '@/business/definition/api-definition';
 import { API_METHOD_COLOUR, API_STATUS, PRIORITY } from '../../model/JsonData';
 import MsTag from 'metersphere-frontend/src/components/MsTag';
 import MsTipButton from 'metersphere-frontend/src/components/MsTipButton';
@@ -288,6 +293,7 @@ import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
 import ApiCaseHeader from './ApiCaseHeader';
 import { deepClone } from 'metersphere-frontend/src/utils/tableUtils';
 import { useApiStore } from '@/store';
+import {Body, KeyValue} from "@/business/definition/model/ApiTestModel";
 
 const store = useApiStore();
 export default {
@@ -397,6 +403,7 @@ export default {
     this.$EventBus.$off('showXpackCaseSet');
   },
   created() {
+    this.init();
     window.addEventListener('resize', this.resizeTable, false);
     store.scenarioEnvMap = undefined;
     if (this.apiCase.request && this.apiCase.request.hashTree && this.apiCase.request.hashTree.length > 0) {
@@ -953,6 +960,42 @@ export default {
           this.citedScenarioCount = response.data;
         }
       });
+    },
+    initStepSize(array) {
+      stepCompute(array, this.apiCase.request);
+    },
+    historicalDataProcessing(array) {
+      hisDataProcessing(array, this.apiCase.request);
+    },
+    init() {
+      if (
+        Object.prototype.toString
+          .call(this.apiCase.request)
+          .match(/\[object (\w+)\]/)[1]
+          .toLowerCase() !== 'object'
+      ) {
+        this.apiCase.request = JSON.parse(this.apiCase.request);
+      }
+      if (!this.apiCase.request.body) {
+        this.apiCase.request.body = new Body();
+      }
+      if (!this.apiCase.request.body.kvs) {
+        this.apiCase.request.body.kvs = [];
+      }
+      if (!this.apiCase.request.rest) {
+        this.apiCase.request.rest = [];
+      }
+      if (!this.apiCase.request.arguments) {
+        this.apiCase.request.arguments = [];
+      }
+      if (!this.apiCase.request.headers) {
+        this.apiCase.request.headers = [];
+        this.apiCase.request.headers.push(new KeyValue({ enable: true, name: '', value: '' }));
+      }
+      if (this.apiCase.request.hashTree) {
+        this.initStepSize(this.apiCase.request.hashTree);
+        this.historicalDataProcessing(this.apiCase.request.hashTree);
+      }
     },
   },
 };
