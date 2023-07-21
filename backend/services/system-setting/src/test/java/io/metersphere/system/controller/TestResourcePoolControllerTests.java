@@ -225,23 +225,7 @@ class TestResourcePoolControllerTests extends BaseTest {
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)*/
     void listResourcePoolsWidthSearch() throws Exception {
-        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
-        request.setCurrent(1);
-        request.setPageSize(5);
-        request.setKeyword("test_pool_1");
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/page")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(request))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
-        Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
-        // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
-        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
-        Assertions.assertTrue(StringUtils.equals(testResourcePoolDTO.getName(), "test_pool_1"));
+        listByKeyWord("test_pool_1");
     }
 
     @Test
@@ -314,8 +298,12 @@ class TestResourcePoolControllerTests extends BaseTest {
     @Test
     @Order(15)
     void updateTestResourcePool() throws Exception {
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
+        TestResourcePoolRequest testResourcePoolRequest1 = getResult(testPoolBlob);
+        String id = testResourcePoolRequest1.getId();
         TestResourcePoolRequest testResourcePoolRequest = new TestResourcePoolRequest();
-        testResourcePoolRequest.setName("test_pool");
+        testResourcePoolRequest.setId(id);
+        testResourcePoolRequest.setName("test_pool_update");
         testResourcePoolRequest.setType(ResourcePoolTypeEnum.NODE.name());
         setResources(testResourcePoolRequest,false);
         testResourcePoolRequest.setApiTest(true);
@@ -329,6 +317,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        listByKeyWord("test_pool_update");
     }
 
     private static void setResources(TestResourcePoolRequest testResourcePoolDTO, boolean isPart) {
@@ -443,6 +432,27 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(ERROR_REQUEST_MATCHER)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
+    }
+
+
+    void listByKeyWord(String keyWord) throws Exception {
+        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
+        request.setCurrent(1);
+        request.setPageSize(5);
+        request.setKeyword(keyWord);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/page")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
+        // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
+        TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.equals(testResourcePoolDTO.getName(), keyWord));
     }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
