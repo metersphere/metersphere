@@ -3,9 +3,9 @@ import { AppRouteRecordRaw } from '../types';
 import menuEnum from '@/enums/menuEnum';
 
 const PerformanceTest: AppRouteRecordRaw = {
-  path: '/performtest-test',
+  path: '/performance-test',
   name: menuEnum.PERFORMANCETEST,
-  redirect: '/performtest-test/index',
+  redirect: '/performance-test/index',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.performanceTest',
@@ -16,7 +16,7 @@ const PerformanceTest: AppRouteRecordRaw = {
   children: [
     {
       path: 'index',
-      name: 'apiTestList',
+      name: 'performanceTestIndex',
       component: () => import('@/views/performance-test/index.vue'),
       meta: {
         roles: ['*'],
