@@ -10,7 +10,7 @@
       </template>
       <!-- workspace table start -->
       <el-table border class="adjust-table ws-table" :data="workspaces" :height="screenHeight">
-        <el-table-column prop="name" :label="$t('commons.name')"/>
+        <el-table-column show-overflow-tooltip prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
