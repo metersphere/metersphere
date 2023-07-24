@@ -1063,6 +1063,7 @@ const message = {
     input_phone: "Please enter phone number",
     special_characters_are_not_supported:
       "Special characters are not supported",
+    chinese_characters_are_not_supported: "Chinese characters are not supported",
     mobile_number_format_is_incorrect: "Phone number format is incorrect",
     email_format_is_incorrect: "Email format is incorrect",
     delete_confirm: "Are you sure you want to delete this User?",
