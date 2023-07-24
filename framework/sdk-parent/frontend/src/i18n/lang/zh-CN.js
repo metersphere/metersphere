@@ -732,6 +732,7 @@ const message = {
       lack_necessary_environment: "此环境组缺少必要的项目环境！",
       available_group: "可用环境组",
       not_available_group: "不可用环境组(缺少项目环境)",
+      please_select_project_env: "请选择项目和环境",
     },
   },
   organization: {

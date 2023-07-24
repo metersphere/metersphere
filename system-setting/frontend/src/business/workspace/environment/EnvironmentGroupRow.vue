@@ -379,6 +379,7 @@ export default {
           }
           // 没有空行，需要创建空行
           isNeedCreate = false;
+          this.$warning(this.$t('workspace.env_group.please_select_project_env'));
         }
       });
       if (isNeedCreate) {
