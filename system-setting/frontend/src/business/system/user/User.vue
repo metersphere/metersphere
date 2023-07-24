@@ -197,9 +197,9 @@ export default {
       checkPasswordForm: {},
       ruleForm: {},
       buttons: [
-        {name: this.$t('user.add_project_batch'), handleClick: this.addToProjectBatch},
-        {name: this.$t('user.add_user_group_batch'), handleClick: this.addUserGroupBatch},
-        {name: this.$t('user.add_workspace_batch'), handleClick: this.addToWorkspaceBatch}
+        {name: this.$t('user.add_project_batch'), handleClick: this.addToProjectBatch, permissions: ['SYSTEM_USER:READ+EDIT']},
+        {name: this.$t('user.add_user_group_batch'), handleClick: this.addUserGroupBatch, permissions: ['SYSTEM_USER:READ+EDIT']},
+        {name: this.$t('user.add_workspace_batch'), handleClick: this.addToWorkspaceBatch, permissions: ['SYSTEM_USER:READ+EDIT']}
       ],
       rule: {
         id: [
