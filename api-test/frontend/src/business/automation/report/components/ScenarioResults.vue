@@ -8,33 +8,41 @@
         <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion" />
       </el-tooltip>
     </div>
-    <el-tree
-      :data="treeData"
-      :expand-on-click-node="false"
-      :default-expand-all="defaultExpand"
-      :filter-node-method="filterNode"
-      highlight-current
-      class="ms-tree ms-report-tree"
-      ref="resultsTree">
-      <span slot-scope="{ node, data }" style="width: 99%" @click="nodeClick(node)">
-        <ms-scenario-result
-          :node="data"
-          :console="console"
-          v-on:requestResult="requestResult"
-          :isActive="isActive"
-          :is-share="isShare"
-          :share-id="shareId" />
-      </span>
-    </el-tree>
+    <div style="height: calc(100vh - 400px)">
+      <vue-easy-tree
+        :data="treeData"
+        node-key="resourceId"
+        :sizeDependencies="['expanded']"
+        height="calc(100vh - 400px)"
+        :minItemSize="48"
+        :buffer="300"
+        :expand-on-click-node="false"
+        :default-expand-all="defaultExpand"
+        :filter-node-method="filterNode"
+        highlight-current
+        isDynamic
+        class="ms-tree ms-report-tree"
+        ref="resultsTree">
+        <span slot-scope="{ node, data }" style="width: 99%">
+          <ms-scenario-result
+            :node="data"
+            :expanded.sync="node.expanded"
+            :console="console"
+            v-on:requestResult="requestResult"
+            :isActive="isActive"
+            :is-share="isShare"
+            :share-id="shareId" />
+        </span>
+      </vue-easy-tree>
+    </div>
   </el-card>
 </template>
 <script>
 import MsScenarioResult from './ScenarioResult';
-import InfiniteScrollTree from '@/business/automation/report/components/tree/InfiniteScrollTree.vue';
 
 export default {
   name: 'MsScenarioResults',
-  components: { MsScenarioResult, InfiniteScrollTree },
+  components: { MsScenarioResult },
   props: {
     scenarios: Array,
     treeData: Array,
