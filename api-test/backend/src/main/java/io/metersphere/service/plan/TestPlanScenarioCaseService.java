@@ -248,6 +248,7 @@ public class TestPlanScenarioCaseService {
             testPlanApiScenario.setTestPlanId(request.getPlanId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+            newEnvMap.remove(null);
             String environmentJson = JSON.toJSONString(newEnvMap);
             if (StringUtils.equals(envType, EnvironmentType.JSON.name())) {
                 testPlanApiScenario.setEnvironment(environmentJson);
