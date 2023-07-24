@@ -223,6 +223,7 @@ export default {
       }
       let testCase = {
         id: data.id,
+        caseId: data.caseId
       };
       if (data.resource.length > 1) {
         if (data.resource.indexOf(this.$t('test_track.plan_view.failure')) > -1) {
