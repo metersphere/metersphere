@@ -6,6 +6,12 @@ export interface NodesListItem {
   concurrentNumber: number;
 }
 
+// 应用组织id和name映射对象
+export interface OrgIdNameMap {
+  id: string;
+  name: string;
+}
+
 // 资源池配置信息对象
 export interface TestResourceDTO {
   loadTestImage: string; // 镜像
@@ -22,6 +28,7 @@ export interface TestResourceDTO {
   uiGrid: string; // ui测试selenium-grid
   girdConcurrentNumber: number; // ui测试selenium-grid最大并发数
   orgIds: string[]; // 应用范围选择指定组织时的id集合
+  orgIdNameMap: OrgIdNameMap[]; // 应用范围选择指定组织时的id和name映射
 }
 
 // 资源池信息对象
@@ -43,7 +50,18 @@ export interface ResourcePoolItem extends ResourcePoolInfo {
   id: string;
 }
 
+export type ResourcePoolDetail = Omit<ResourcePoolInfo, 'testResourceDTO'> & {
+  id: string;
+  testResourceReturnDTO: TestResourceDTO;
+};
+
 // 添加资源池参数对象
 export type AddResourcePoolParams = Omit<ResourcePoolInfo, 'testResourceDTO'> & {
+  testResourceDTO?: Partial<TestResourceDTO>;
+};
+
+// 更新资源池参数对象
+export type UpdateResourcePoolParams = Omit<ResourcePoolInfo, 'testResourceDTO'> & {
+  id: string;
   testResourceDTO?: Partial<TestResourceDTO>;
 };

@@ -1,5 +1,12 @@
 <template>
-  <MsCard :loading="loading" :title="title" @save="beforeSave" @save-and-continue="beforeSave(true)">
+  <MsCard
+    :loading="loading"
+    :title="title"
+    :is-edit="isEdit"
+    :special-height="34"
+    @save="beforeSave"
+    @save-and-continue="beforeSave(true)"
+  >
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item
         :label="t('system.resourcePool.name')"
@@ -318,15 +325,15 @@
       </template>
     </a-form>
     <template #footerLeft>
-      <a-button v-if="isCheckedPerformance" type="text" @click="showJobDrawer = true">
+      <MsButton v-if="isCheckedPerformance && isShowK8SResources" @click="showJobDrawer = true">
         {{ t('system.resourcePool.customJobTemplate') }}
         <a-tooltip :content="t('system.resourcePool.jobTemplateTip')" position="tl" mini>
           <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
         </a-tooltip>
-      </a-button>
+      </MsButton>
     </template>
   </MsCard>
-  <JobTemplateDrawer v-model:visible="showJobDrawer" :value="form.testResourceDTO.jobDefinition" />
+  <JobTemplateDrawer v-model:visible="showJobDrawer" v-model:value="form.testResourceDTO.jobDefinition" />
 </template>
 
 <script setup lang="ts">
@@ -336,16 +343,17 @@
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBatchForm from '@/components/bussiness/ms-batch-form/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
   import { getYaml, YamlType, job } from './template';
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
-  import { addPool, getPoolInfo } from '@/api/modules/setting/resourcePool';
+  import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
 
   import type { MsBatchFormInstance, FormItemModel } from '@/components/bussiness/ms-batch-form/types';
-  import type { AddResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
+  import type { UpdateResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
 
   const route = useRoute();
   const router = useRouter();
@@ -402,18 +410,19 @@
     try {
       loading.value = true;
       const res = await getPoolInfo(route.query.id);
-      const { testResourceDTO } = res;
-      const { girdConcurrentNumber, podThreads, concurrentNumber } = testResourceDTO;
+      const { testResourceReturnDTO } = res;
+      const { girdConcurrentNumber, podThreads, concurrentNumber, orgIdNameMap } = testResourceReturnDTO;
       form.value = {
         ...res,
         addType: 'single',
         orgType: res.allOrg ? 'allOrg' : 'set',
         use: [res.loadTest ? 'performance' : '', res.apiTest ? 'API' : '', res.uiTest ? 'UI' : ''].filter((e) => e),
         testResourceDTO: {
-          ...testResourceDTO,
+          ...testResourceReturnDTO,
           girdConcurrentNumber: girdConcurrentNumber || 1,
           podThreads: podThreads || 1,
           concurrentNumber: concurrentNumber || 1,
+          orgIds: orgIdNameMap?.map((e) => e.id) || [],
         },
       };
     } catch (error) {
@@ -558,10 +567,9 @@
    * 解析代码编辑器内容
    */
   function analyzeCode() {
-    const arr = editorContent.value.split('\r'); // 以回车符分割
+    const arr = editorContent.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
     // 将代码编辑器内写的内容抽取出来
     arr.forEach((e, i) => {
-      e = e.replaceAll('\n', ''); // 去除换行符
       if (e.trim() !== '') {
         // 排除空串
         const line = e.split(',');
@@ -648,7 +656,7 @@
   /**
    * 拼接添加资源池参数
    */
-  function makeResourcePoolParams(): AddResourcePoolParams {
+  function makeResourcePoolParams(): UpdateResourcePoolParams {
     const { type, testResourceDTO } = form.value;
     const {
       ip,
@@ -678,7 +686,6 @@
             nameSpaces,
             concurrentNumber,
             podThreads,
-            jobDefinition,
             apiTestImage,
             deployName,
           }
@@ -706,14 +713,16 @@
           girdConcurrentNumber,
         }
       : {};
+
+    const jobDTO = isCheckedPerformance.value && isShowK8SResources ? { jobDefinition } : {};
     return {
       ...form.value,
-      type: isShowTypeItem.value ? form.value.type : '',
+      type: isShowTypeItem.value ? form.value.type : 'Node', // 默认给 Node，后台需要
       allOrg: form.value.orgType === 'allOrg',
       apiTest: form.value.use.includes('API'), // 是否支持api测试
       loadTest: form.value.use.includes('performance'), // 是否支持性能测试
       uiTest: form.value.use.includes('UI'), // 是否支持ui测试
-      testResourceDTO: { ...performanceDTO, ...apiDTO, ...uiDTO, orgIds: form.value.testResourceDTO.orgIds },
+      testResourceDTO: { ...performanceDTO, ...apiDTO, ...uiDTO, ...jobDTO, orgIds: form.value.testResourceDTO.orgIds },
     };
   }
 
@@ -721,8 +730,13 @@
     try {
       loading.value = true;
       const params = makeResourcePoolParams();
-      await addPool(params);
-      Message.success(t('system.resourcePool.addSuccess'));
+      if (isEdit.value) {
+        await updatePoolInfo(params);
+        Message.success(t('system.resourcePool.updateSuccess'));
+      } else {
+        await addPool(params);
+        Message.success(t('system.resourcePool.addSuccess'));
+      }
       if (isContinueAdd.value) {
         resetForm();
       } else {
@@ -795,4 +809,3 @@
     }
   }
 </style>
-@/models/setting/resourcePool @/api/modules/setting/resourcePool

@@ -1,54 +1,65 @@
 <template>
-  <div class="mb-4 flex items-center justify-between">
-    <a-button type="primary" @click="addPool">
-      {{ t('system.resourcePool.createPool') }}
-    </a-button>
-    <a-input-search
-      :placeholder="t('system.resourcePool.searchPool')"
-      class="w-[230px]"
-      @search="searchPool"
-    ></a-input-search>
+  <div>
+    <MsCard :loading="loading" simple>
+      <div class="mb-4 flex items-center justify-between">
+        <a-button type="primary" @click="addPool">
+          {{ t('system.resourcePool.createPool') }}
+        </a-button>
+        <a-input-search
+          v-model:model-value="keyword"
+          :placeholder="t('system.resourcePool.searchPool')"
+          class="w-[230px]"
+          allow-clear
+          @search="searchPool"
+          @press-enter="searchPool"
+        ></a-input-search>
+      </div>
+      <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+        <template #name="{ record }">
+          <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
+        </template>
+        <template #enable="{ record }">
+          <div v-if="record.enable" class="flex items-center">
+            <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+            {{ t('system.resourcePool.tableEnable') }}
+          </div>
+          <div v-else class="flex items-center text-[var(--color-text-4)]">
+            <icon-stop class="mr-[2px]" />
+            {{ t('system.resourcePool.tableDisable') }}
+          </div>
+        </template>
+        <template #action="{ record }">
+          <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
+          <MsButton v-if="record.enable" @click="disabledPool(record)">{{
+            t('system.resourcePool.tableDisable')
+          }}</MsButton>
+          <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
+          <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+        </template>
+      </ms-base-table>
+    </MsCard>
+    <MsDrawer
+      v-model:visible="showDetailDrawer"
+      width="480px"
+      :title="activePool?.name"
+      :title-tag="activePool?.enable ? t('system.resourcePool.tableEnable') : t('system.resourcePool.tableDisable')"
+      :title-tag-color="activePool?.enable ? 'green' : 'gray'"
+      :descriptions="activePoolDesc"
+      :footer="false"
+      :mask="false"
+    >
+      <template #tbutton>
+        <a-button type="outline" size="mini" @click="editPool(activePool)">
+          {{ t('system.resourcePool.editPool') }}
+        </a-button>
+      </template>
+    </MsDrawer>
+    <JobTemplateDrawer
+      v-model:visible="showJobDrawer"
+      :default-val="activePool?.testResourceDTO.jobDefinition || ''"
+      read-only
+    />
   </div>
-  <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-    <template #name="{ record }">
-      <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
-    </template>
-    <template #enable="{ record }">
-      <div v-if="record.enable" class="flex items-center">
-        <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-        {{ t('system.resourcePool.tableEnable') }}
-      </div>
-      <div v-else class="flex items-center text-[var(--color-text-4)]">
-        <icon-stop class="mr-[2px]" />
-        {{ t('system.resourcePool.tableDisable') }}
-      </div>
-    </template>
-    <template #action="{ record }">
-      <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
-      <MsButton v-if="record.enable" @click="disabledPool(record)">{{
-        t('system.resourcePool.tableDisable')
-      }}</MsButton>
-      <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
-      <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
-    </template>
-  </ms-base-table>
-  <MsDrawer
-    v-model:visible="showDetailDrawer"
-    width="480px"
-    :title="activePool?.name"
-    :title-tag="activePool?.enable ? t('system.resourcePool.tableEnable') : t('system.resourcePool.tableDisable')"
-    :title-tag-color="activePool?.enable ? 'green' : 'gray'"
-    :descriptions="activePoolDesc"
-    :footer="false"
-    :mask="false"
-  >
-    <template #tbutton>
-      <a-button type="outline" size="mini" @click="editPool(activePool)">
-        {{ t('system.resourcePool.editPool') }}
-      </a-button>
-    </template>
-  </MsDrawer>
-  <JobTemplateDrawer v-model:visible="showJobDrawer" :value="activePool?.testResourceDTO.jobDefinition || ''" />
 </template>
 
 <script setup lang="ts">
@@ -56,14 +67,17 @@
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { getPoolList } from '@/api/modules/setting/resourcePool';
+  import { getPoolList, delPoolInfo, togglePoolStatus } from '@/api/modules/setting/resourcePool';
   import useModal from '@/hooks/useModal';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { useTableStore } from '@/store';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -79,37 +93,46 @@
       slotName: 'name',
       dataIndex: 'name',
       width: 200,
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmStatus',
       slotName: 'enable',
       dataIndex: 'enable',
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmDescription',
       dataIndex: 'description',
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmType',
       dataIndex: 'type',
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmCreateTime',
       dataIndex: 'createTime',
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmUpdateTime',
       dataIndex: 'updateTime',
+      showInTable: true,
     },
     {
       title: 'system.resourcePool.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
       width: 120,
+      showInTable: true,
     },
   ];
-
+  const tableStore = useTableStore();
+  tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCEPOOL, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(getPoolList, {
+    tableKey: TableKeyEnum.SYSTEM_RESOURCEPOOL,
     columns,
     scroll: { y: 'auto' },
     selectable: false,
@@ -138,19 +161,25 @@
     },
   ];
 
+  const loading = ref(false);
+
   /**
    * 启用资源池
    */
-  function enablePool(record: any) {
+  async function enablePool(record: any) {
     try {
+      loading.value = true;
+      await togglePoolStatus(record.id);
       Message.success(t('system.resourcePool.enablePoolSuccess'));
-      return true;
+      loadList();
     } catch (error) {
       console.log(error);
-      return false;
+    } finally {
+      loading.value = false;
     }
   }
 
+  const disableLoading = ref(false);
   /**
    * 禁用资源池
    */
@@ -164,19 +193,30 @@
       okButtonProps: {
         status: 'danger',
       },
+      cancelButtonProps: {
+        disabled: disableLoading.value,
+      },
+      okLoading: disableLoading.value,
+      maskClosable: false,
       onBeforeOk: async () => {
         try {
+          disableLoading.value = true;
+          await togglePoolStatus(record.id);
           Message.success(t('system.resourcePool.disablePoolSuccess'));
+          loadList();
           return true;
         } catch (error) {
           console.log(error);
           return false;
+        } finally {
+          disableLoading.value = false;
         }
       },
       hideCancel: false,
     });
   }
 
+  const delLoading = ref(false);
   /**
    * 删除资源池
    */
@@ -190,13 +230,23 @@
       okButtonProps: {
         status: 'danger',
       },
+      cancelButtonProps: {
+        disabled: delLoading.value,
+      },
+      maskClosable: false,
+      okLoading: delLoading.value,
       onBeforeOk: async () => {
         try {
+          delLoading.value = true;
+          await delPoolInfo(record.id);
           Message.success(t('system.resourcePool.deletePoolSuccess'));
+          loadList();
           return true;
         } catch (error) {
           console.log(error);
           return false;
+        } finally {
+          delLoading.value = false;
         }
       },
       hideCancel: false,
@@ -242,6 +292,7 @@
         podThreads, // k8s 单pod最大线程数
         apiTestImage, // k8s api测试镜像
         deployName, // k8s api测试部署名称
+        girdConcurrentNumber,
         nodesList,
         loadTestImage,
         loadTestHeap,
@@ -290,6 +341,11 @@
                 label: t('system.resourcePool.testResourceDTO.podThreads'),
                 value: podThreads,
               },
+            ]
+          : [];
+      const jobTemplate =
+        loadTest && type === 'Kubernetes'
+          ? [
               {
                 label: t('system.resourcePool.jobTemplate'),
                 value: t('system.resourcePool.customJobTemplate'),
@@ -324,10 +380,20 @@
             },
             {
               label: t('system.resourcePool.concurrentNumber'),
-              value: concurrentNumber,
+              value: girdConcurrentNumber,
             },
           ]
         : [];
+
+      const detailType =
+        apiTest || loadTest
+          ? [
+              {
+                label: t('system.resourcePool.detailType'),
+                value: activePool.value.type,
+              },
+            ]
+          : [];
       activePoolDesc.value = [
         {
           label: t('system.resourcePool.detailDesc'),
@@ -341,7 +407,7 @@
           label: t('system.resourcePool.detailRange'),
           value: activePool.value.allOrg
             ? [t('system.resourcePool.orgAll')]
-            : activePool.value.testResourceDTO.orgIds.join(','),
+            : activePool.value.testResourceDTO.orgIdNameMap.map((e) => e.name),
           isTag: true,
         },
         {
@@ -351,11 +417,9 @@
         },
         ...performanceDesc,
         ...uiDesc,
-        {
-          label: t('system.resourcePool.detailType'),
-          value: activePool.value.type,
-        },
+        ...detailType,
         ...resourceDesc,
+        ...jobTemplate,
       ];
     }
 
@@ -379,7 +443,7 @@
    * 添加资源池
    * @param record
    */
-  function addPool(record: any) {
+  function addPool() {
     router.push({
       name: 'settingSystemResourcePoolDetail',
     });
@@ -387,4 +451,3 @@
 </script>
 
 <style lang="less" scoped></style>
-@/models/setting/resourcePool @/api/modules/setting/resourcePool

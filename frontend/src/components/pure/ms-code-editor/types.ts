@@ -58,6 +58,10 @@ export const editorProps = {
     },
     default: 'vs-dark',
   },
+  readOnly: {
+    type: Boolean as PropType<boolean>,
+    default: false,
+  },
   options: {
     type: Object as PropType<Options>,
     default() {
