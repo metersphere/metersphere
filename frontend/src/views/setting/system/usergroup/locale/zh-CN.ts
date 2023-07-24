@@ -52,6 +52,7 @@ export default {
       operation: '操作',
       phone: '手机',
       remove: '移除',
+      quickAddUser: '快速添加用户',
     },
   },
   permission: {

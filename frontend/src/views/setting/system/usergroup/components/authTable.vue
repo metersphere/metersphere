@@ -1,5 +1,5 @@
 <template>
-  <div class="relative">
+  <div class="usergroup-auth-table">
     <a-table
       :span-method="dataSpanMethod"
       :scroll="{ y: '860px', x: '800px' }"
@@ -284,15 +284,23 @@
 </script>
 
 <style scoped lang="less">
-  .action {
-    position: absolute;
-    right: 24px;
-    bottom: 0;
-    left: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: calc(100% - 24px);
+  .usergroup-auth-table {
+    position: relative;
+    height: 100vh;
+    :deep(.arco-table-container) {
+      border-top: 1px solid var(--color-text-n8) !important;
+      border-right: 1px solid var(--color-text-n8) !important;
+      border-left: 1px solid var(--color-text-n8) !important;
+    }
+    .action {
+      position: absolute;
+      right: 24px;
+      bottom: 0;
+      left: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: calc(100% - 24px);
+    }
   }
 </style>
-@/models/setting/usergroup @/api/modules/setting/usergroup

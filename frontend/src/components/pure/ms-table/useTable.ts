@@ -51,6 +51,7 @@ export default function useTableProps(
     enableDrag: false,
     showSelectAll: true,
     showSetting: true,
+    columnResizable: true,
     ...props,
   };
 
