@@ -39,7 +39,7 @@ public class AuthSourceLogService {
 
         dto.setPath(PRE_URI + "/add");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setModifiedValue(JSON.toJSONBytes(request));
         return dto;
     }
 

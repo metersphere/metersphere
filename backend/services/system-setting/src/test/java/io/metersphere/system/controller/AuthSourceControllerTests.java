@@ -55,7 +55,7 @@ public class AuthSourceControllerTests extends BaseTest {
         this.requestPost(AUTH_SOURCE_ADD, authSource);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_CREAT, AUTH_SOURCE_ADD, authSource);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_CREAT, AUTH_SOURCE_ADD, authSource);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class AuthSourceControllerTests extends BaseTest {
         basePageRequest.setPageSize(10);
         this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
 
-        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ, AUTH_SOURCE_LIST, basePageRequest);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ, AUTH_SOURCE_LIST, basePageRequest);
     }
 
 
@@ -81,7 +81,7 @@ public class AuthSourceControllerTests extends BaseTest {
         authSource.setType("CAS");
         this.requestPost(AUTH_SOURCE_UPDATE, authSource);
 
-        requestPostPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_UPDATE, AUTH_SOURCE_UPDATE, authSource);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, AUTH_SOURCE_UPDATE, authSource);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class AuthSourceControllerTests extends BaseTest {
         String url = AUTH_SOURCE_UPDATE + "/" + authSourceList.get(0).getId() + "/status/false";
         this.requestGet(url);
 
-        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_UPDATE, url);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, url);
     }
 
 
@@ -102,7 +102,7 @@ public class AuthSourceControllerTests extends BaseTest {
         String url = AUTH_SOURCE_GET + authSourceList.get(0).getId();
         this.requestGet(url);
 
-        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ, url);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ, url);
     }
 
 
@@ -113,7 +113,7 @@ public class AuthSourceControllerTests extends BaseTest {
         String url = AUTH_SOURCE_DELETE + authSourceList.get(0).getId();
         this.requestGet(url);
 
-        requestGetPermissionTest(PermissionConstants.SYSTEM_SETTING_READ_DELETE, url);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_DELETE, url);
     }
 
 

@@ -93,6 +93,44 @@
         "id": "SYSTEM_PLUGIN:READ+DELETE",
         "name": "permission.system_plugin.delete",
         "resourceId": "SYSTEM_PLUGIN"
+      },
+      {
+        "id": "SYSTEM_PARAMETER_SETTING",
+        "name": "permission.system_parameter_setting.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_BASE:READ",
+            "name": "permission.system_parameter_setting_base.read"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE",
+            "name": "permission.system_parameter_setting_base.update"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_DISPLAY:READ",
+            "name": "permission.system_parameter_setting_display.read"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE",
+            "name": "permission.system_parameter_setting_display.update"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ",
+            "name": "permission.system_parameter_setting_auth.read"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+CREAT",
+            "name": "permission.system_parameter_setting_auth.creat"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE",
+            "name": "permission.system_parameter_setting_auth.update"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE",
+            "name": "permission.system_parameter_setting_auth.delete"
+          }
+        ]
       }
     ]
   },

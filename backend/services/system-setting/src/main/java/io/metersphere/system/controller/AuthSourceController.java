@@ -31,7 +31,7 @@ public class AuthSourceController {
 
     @PostMapping("/list")
     @Operation(summary = "认证设置列表查询")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ)
     public Pager<List<AuthSource>> list(@Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -40,7 +40,7 @@ public class AuthSourceController {
 
     @PostMapping("/add")
     @Operation(summary = "新增认证设置")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_CREAT)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_CREAT)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#authSource)", msClass = AuthSourceLogService.class)
     public void add(@Validated @RequestBody AuthSourceRequest authSource) {
         authSourceService.addAuthSource(authSource);
@@ -48,7 +48,7 @@ public class AuthSourceController {
 
     @PostMapping("/update")
     @Operation(summary = "更新认证设置")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authSource)", msClass = AuthSourceLogService.class)
     public void update(@Validated @RequestBody AuthSourceRequest authSource) {
         authSourceService.updateAuthSource(authSource);
@@ -56,14 +56,14 @@ public class AuthSourceController {
 
     @GetMapping("/get/{id}")
     @Operation(summary = "获取认证设置详细信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ)
     public AuthSource get(@PathVariable(value = "id") String id) {
         return authSourceService.getAuthSource(id);
     }
 
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除认证设置")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = AuthSourceLogService.class)
     public void delete(@PathVariable(value = "id") String id) {
         authSourceService.deleteAuthSource(id);
@@ -72,7 +72,7 @@ public class AuthSourceController {
 
     @GetMapping("/update/{authId}/status/{status}")
     @Operation(summary = "更新状态")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authId)", msClass = AuthSourceLogService.class)
     public void updateStatus(@PathVariable(value = "authId") String authId, @PathVariable("status") String status) {
         authSourceService.updateStatus(authId, status);
