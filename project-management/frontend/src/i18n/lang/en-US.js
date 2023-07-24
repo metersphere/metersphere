@@ -7,7 +7,7 @@ const message = {
     environment_import_repeat_tip:
       "(Environment configuration with the same name filtered {0})",
     check_third_project_success: "inspection passed",
-    api_run_pool_title: "Interface execution resource pool",
+    api_run_pool_title: "Interface resource pool",
     api_script_review: "Interface script review",
     api_script_review_tips: "User review must be specified when interface use cases include script steps",
     reviewers: "Reviewers",
