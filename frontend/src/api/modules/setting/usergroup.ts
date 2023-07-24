@@ -8,6 +8,8 @@ import {
   editGlobalUSettingUrl,
   postUserByUserGroupUrl,
   deleteUserFromUserGroupUrl,
+  getUserListUrl,
+  addUserToUserGroupUrl,
 } from '@/api/requrls/setting/usergroup';
 import { TableQueryParams, CommonList } from '@/models/common';
 import { UserGroupItem, UserGroupAuthSeting, SaveGlobalUSettingData, UserTableItem } from '@/models/setting/usergroup';
@@ -52,4 +54,12 @@ export function postUserByUserGroup(data: TableQueryParams) {
 
 export function deleteUserFromUserGroup(id: string) {
   return MSR.get<string>({ url: `${deleteUserFromUserGroupUrl}${id}` });
+}
+
+export function getUserList() {
+  return MSR.get<UserTableItem[]>({ url: getUserListUrl });
+}
+
+export function addUserToUserGroup(data: { roleId: string; userIds: string[] }) {
+  return MSR.post<string>({ url: addUserToUserGroupUrl, data });
 }

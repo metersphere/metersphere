@@ -152,7 +152,7 @@
     }
     switch (attrs.size) {
       case 'small':
-        return '10px';
+        return '15px';
       case 'mini':
         return '10px';
       default:

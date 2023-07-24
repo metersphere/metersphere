@@ -53,6 +53,7 @@ export default {
       operation: 'Operation',
       phone: 'Phone',
       remove: 'Remove',
+      quickAddUser: 'Quick add user',
     },
   },
   permission: {

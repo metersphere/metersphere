@@ -3,12 +3,14 @@
     v-model:visible="currentVisible"
     width="680px"
     :ok-text="t('system.userGroup.add')"
-    @ok="handelOk"
+    unmount-on-close
+    :ok-loading="loading"
+    :on-before-ok="handleBeforeOk"
     @cancel="handleCancel"
   >
     <template #title> {{ t('system.userGroup.addUser') }} </template>
     <div class="form">
-      <a-form :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
+      <a-form ref="formRef" :model="form" size="large" :style="{ width: '600px' }" layout="vertical">
         <a-form-item
           field="name"
           :label="t('system.userGroup.user')"
@@ -39,12 +41,22 @@
 
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
-  import { reactive, ref, watchEffect, onUnmounted } from 'vue';
-  import { UserOption } from '@/models/setting/usergroup';
+  import { reactive, ref, watchEffect, onUnmounted, onMounted } from 'vue';
+  import { UserTableItem } from '@/models/setting/usergroup';
+  import { useUserGroupStore } from '@/store';
+  import { getUserList, addUserToUserGroup } from '@/api/modules/setting/usergroup';
+  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+  }>();
+
+  const store = useUserGroupStore();
+
+  const emit = defineEmits<{
+    (e: 'cancel'): void;
+    (e: 'submit', value: string[]): void;
   }>();
 
   const fieldNames = { value: 'id', label: 'name' };
@@ -58,38 +70,38 @@
 
   const labelCache = new Map();
 
-  const allOption: UserOption[] = [
-    { id: 1, name: 'llb', email: 'name@163.com' },
-    {
-      id: 2,
-      name: 'rubyliu',
-      email: 'rubyliu@163.com',
-    },
-    {
-      id: 3,
-      name: 'jack',
-      email: 'jack@163.com',
-    },
-  ];
+  const allOption = ref<UserTableItem[]>([]);
 
-  const userOptions = ref<UserOption[]>(allOption);
+  const userOptions = ref<UserTableItem[]>([]);
+
+  const formRef = ref<FormInstance>();
+
+  const initUserList = async () => {
+    const res = await getUserList();
+    allOption.value = res;
+    userOptions.value = res;
+  };
 
   watchEffect(() => {
     currentVisible.value = props.visible;
   });
-  const emit = defineEmits<{
-    (e: 'cancel'): void;
-  }>();
 
   const handleCancel = () => {
     emit('cancel');
   };
 
-  const handelOk = () => {
-    // eslint-disable-next-line no-console
-    console.log('ok');
-    handleCancel();
+  const handleBeforeOk = () => {
+    loading.value = true;
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (errors) {
+        loading.value = false;
+        return false;
+      }
+      await addUserToUserGroup({ roleId: store.currentId, userIds: form.name });
+      return true;
+    });
   };
+
   const handleSearch = (value: string) => {
     if (value) {
       loading.value = true;
@@ -98,11 +110,18 @@
         loading.value = false;
       }, 60);
     } else {
-      userOptions.value = allOption;
+      userOptions.value = allOption.value;
     }
   };
+
+  onMounted(() => {
+    initUserList();
+  });
+
   onUnmounted(() => {
     labelCache.clear();
+    form.name = [];
+    loading.value = false;
   });
 </script>
 
@@ -114,4 +133,3 @@
     color: var(--color-text-4);
   }
 </style>
-@/models/setting/usergroup
