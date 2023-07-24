@@ -1241,6 +1241,7 @@ const message = {
     delete_file:
       "The file already exists, please delete the file with the same name first!",
     thread_num: "VUs:",
+    file_type_limit: "Only files in image format can be uploaded",
     input_thread_num: "Please enter the number of threads",
     duration: "Duration time",
     granularity: "Aggregation time (seconds)",
