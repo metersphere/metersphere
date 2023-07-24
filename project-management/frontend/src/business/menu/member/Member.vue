@@ -55,7 +55,7 @@
             </el-form-item>
             <el-form-item :label="$t('commons.group')" prop="groupIds"
                           :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
-              <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')"
+              <el-select v-model="form.groupIds" multiple filterable :placeholder="$t('group.please_select_group')"
                          class="select-width">
                 <el-option
                   v-for="item in form.allgroups"

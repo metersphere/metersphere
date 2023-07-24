@@ -27,7 +27,7 @@
       </el-form-item>
 
       <el-form-item :label="showLabel" v-if="show" prop="scopeId">
-        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" :disabled="dialogType === 'edit'" clearable style="width: 83%">
+        <el-select v-model="form.scopeId" :placeholder="$t('project.please_choose_workspace')" :disabled="dialogType === 'edit'" filterable clearable style="width: 83%">
           <el-option v-for="item in workspaces" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>

@@ -24,7 +24,7 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('commons.group')" prop="groupIds">
-        <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="group_select">
+        <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" filterable class="group_select">
           <el-option
             v-for="item in form.groups"
             :key="item.id"
