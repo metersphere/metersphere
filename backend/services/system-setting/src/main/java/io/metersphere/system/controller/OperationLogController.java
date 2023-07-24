@@ -48,7 +48,7 @@ public class OperationLogController {
         //获取全部组织
         List<OrganizationProjectOptionsDto> organizationList = organizationService.getOrganizationOptions();
         //获取全部项目
-        List<OrganizationProjectOptionsDto> projectList = systemProjectService.getprojectOptions();
+        List<OrganizationProjectOptionsDto> projectList = systemProjectService.getProjectOptions();
 
         OrganizationProjectOptionsResponse optionsResponse = new OrganizationProjectOptionsResponse();
         optionsResponse.setOrganizationList(organizationList);

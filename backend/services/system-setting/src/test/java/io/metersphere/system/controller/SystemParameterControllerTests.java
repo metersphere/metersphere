@@ -1,15 +1,17 @@
 package io.metersphere.system.controller;
 
-import com.jayway.jsonpath.JsonPath;
+import base.BaseTest;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.SystemParameter;
-import jakarta.annotation.Resource;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -25,13 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemParameterControllerTests {
+public class SystemParameterControllerTests extends BaseTest {
 
-    @Resource
-    private MockMvc mockMvc;
-
-    private static String sessionId;
-    private static String csrfToken;
 
     public static final String BASE_INFO_SAVE_URL = "/system/parameter/save/base-info";
 
@@ -46,17 +43,6 @@ public class SystemParameterControllerTests {
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
-    @BeforeEach
-    public void login() throws Exception {
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                        .content("{\"username\":\"admin\",\"password\":\"metersphere\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
-        sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
-        csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
-    }
 
     @Test
     @Order(1)
@@ -76,7 +62,7 @@ public class SystemParameterControllerTests {
         }};
 
         this.requestPost(BASE_INFO_SAVE_URL, systemParameters);
-
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE, BASE_INFO_SAVE_URL, systemParameters);
     }
 
 
@@ -84,12 +70,14 @@ public class SystemParameterControllerTests {
     @Order(2)
     public void testGetBaseInfo() throws Exception {
         this.requestGet(BASE_INFO_URL);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ, BASE_INFO_URL);
     }
 
     @Test
     @Order(3)
     public void testGetEmailInfo() throws Exception {
         this.requestGet(EMAIL_INFO_URL);
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ, EMAIL_INFO_URL);
     }
 
 
@@ -120,6 +108,7 @@ public class SystemParameterControllerTests {
             }});
         }};
         this.requestPost(EMAIL_INFO_SAVE_URL, systemParameters);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE, EMAIL_INFO_SAVE_URL, systemParameters);
     }
 
     @Test
@@ -154,7 +143,7 @@ public class SystemParameterControllerTests {
             }});
         }};
         this.requestPost(BASE_INFO_SAVE_URL, systemParameters);
-
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE, BASE_INFO_SAVE_URL, systemParameters);
     }
 
 

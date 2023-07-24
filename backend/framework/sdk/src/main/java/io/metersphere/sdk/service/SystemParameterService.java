@@ -26,6 +26,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -211,10 +212,11 @@ public class SystemParameterService {
 
     /**
      * 添加接口日志
-
+     *
      * @return
      */
-    public LogDTO addLog(List<SystemParameter> systemParameter) {
+    public LogDTO updateBaseLog(List<SystemParameter> systemParameter) {
+        List<SystemParameter> originalValue = getOriginalValue(systemParameter);
         LogDTO dto = new LogDTO(
                 "system",
                 "",
@@ -222,15 +224,16 @@ public class SystemParameterService {
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.SYSTEM_PARAMETER_SETTING,
-                "系统参数");
+                "基础设置");
 
         dto.setPath("/system/parameter/save/base-info");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(systemParameter));
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
         return dto;
     }
 
     public LogDTO updateLog(List<SystemParameter> systemParameter) {
+        List<SystemParameter> originalValue = getOriginalValue(systemParameter);
         LogDTO dto = new LogDTO(
                 "system",
                 "",
@@ -238,11 +241,24 @@ public class SystemParameterService {
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.SYSTEM_PARAMETER_SETTING,
-                "编辑邮件信息");
+                "基础设置");
 
         dto.setPath("/system/parameter/edit/email-info");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(systemParameter));
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
         return dto;
+    }
+
+    private List<SystemParameter> getOriginalValue(List<SystemParameter> systemParameter) {
+        SystemParameterExample example = new SystemParameterExample();
+        List<SystemParameter> originalValue = new ArrayList<>();
+        systemParameter.forEach(param -> {
+            String paramKey = param.getParamKey();
+            example.createCriteria().andParamKeyEqualTo(paramKey);
+            List<SystemParameter> baseUrlParameterList = systemParameterMapper.selectByExample(example);
+            originalValue.addAll(baseUrlParameterList);
+            example.clear();
+        });
+        return originalValue;
     }
 }
