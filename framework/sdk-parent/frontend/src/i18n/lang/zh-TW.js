@@ -663,7 +663,7 @@ const message = {
     option_value_check: "請填寫完整選項值",
     sync_issue_tips: "注：系統在每天00:00:00會自動同步一次",
     case_priority_option_check_error: "用例等級需按照順序添加選項值, 例: P",
-    remote_search_tip: "輸入用戶名，系統會提供更多匹配的用戶列表供您選擇"
+    remote_search_tip: "輸入用戶名，系統會提供更多匹配的用戶列表供您選擇",
   },
   workspace: {
     id: "工作空間ID",
@@ -1199,6 +1199,7 @@ const message = {
     unrelated_file_confirm: "確認取消關聯: ",
     file_size_limit: "文件個數超出限製！",
     file_size_out_of_bounds: "文件大小超出範圍, 文件名称: ",
+    file_type_limit: "只能上傳图片格式的文件! ",
     delete_file: "文件已存在，請先刪除同名文件！",
     thread_num: "並發用戶數",
     input_thread_num: "請輸入線程數",
@@ -3538,7 +3539,7 @@ const message = {
   },
   jar_config: {
     upload_limit_size: "上传文件大小不能超过 50MB!",
-  }
+  },
 };
 
 export default {
