@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.EnvironmentGroupDTO;
 import io.metersphere.environment.dto.EnvironmentGroupRequest;
 import io.metersphere.i18n.Translator;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +23,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -184,6 +184,10 @@ public class EnvironmentGroupService {
         copy.setId(copyId);
 
         String copyNameId = copyId.substring(0, 3);
+        //名字长度大于50 则截取前四十个字符
+        if (environmentGroup.getName().length() + 9 > 50) {
+            environmentGroup.setName(environmentGroup.getName().substring(0, 41));
+        }
         String copyName = environmentGroup.getName() + "_" + copyNameId + "_COPY";
         copy.setName(copyName);
         copy.setWorkspaceId(environmentGroup.getWorkspaceId());
