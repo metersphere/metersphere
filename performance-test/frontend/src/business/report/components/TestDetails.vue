@@ -396,9 +396,9 @@ export default {
   methods: {
     resetDefault() {
 
-      this.checkList['ActiveThreadsChart'] = ['ALL'];
-      this.checkList['TransactionsChart'] = ['ALL'];
-      this.checkList['ResponseTimeChart'] = ['ALL'];
+      this.checkList['ActiveThreadsChart'] = ['Total'];
+      this.checkList['TransactionsChart'] = ['Total'];
+      this.checkList['ResponseTimeChart'] = ['Total'];
       //
       this.checkList['ResponseTimePercentilesChart'] = [];
       this.checkList['ErrorsChart'] = [];
@@ -474,7 +474,7 @@ export default {
       }
       let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
       yAxisIndex0List = this._unique(yAxisIndex0List);
-      this.checkOptions[reportKey] = ['ALL'].concat(yAxisIndex0List);
+      this.checkOptions[reportKey] = yAxisIndex0List;
     },
     getTotalChart() {
       this.totalOption = {};
@@ -553,38 +553,12 @@ export default {
       }
     },
     handleGetChart(data, reportKey, checkList) {
-      let allData = [];
-      let checkAllOption = checkList.indexOf('ALL') > -1;
-      if (checkAllOption) {
-        let avgOpt = [
-          'ResponseTimeChart',
-          'ResponseTimePercentilesChart',
-          'LatencyChart',
-        ];
-        let result = groupBy(data, 'xAxis');
-        for (const xAxis in result) {
-          let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0);
-          if (avgOpt.indexOf(reportKey) > -1) {
-            yAxis = yAxis / result[xAxis].length;
-          }
-          allData.push({
-            groupName: 'ALL',
-            xAxis: xAxis,
-            yAxis: yAxis
-          });
-        }
-      }
-
       //
       data = data.filter(item => {
         if (checkList.indexOf(item.groupName) > -1) {
           return true;
         }
       });
-
-      // 选中了all
-      data = data.concat(allData);
-
 
       // prefix
       data.forEach(item => {
