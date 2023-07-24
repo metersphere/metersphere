@@ -78,21 +78,18 @@
 </template>
 
 <script>
-import {baseSocket} from '@/api/base-network';
-import MsRequestResult from './components/RequestResult';
-import MsRequestResultTail from './components/RequestResultTail';
-import MsScenarioResult from './components/ScenarioResult';
+import { baseSocket } from '@/api/base-network';
 import MsMetricChart from './components/MetricChart';
 import MsScenarioResults from './components/ScenarioResults';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsApiReportExport from './ApiReportExport';
 import MsApiReportViewHeader from './ApiReportViewHeader';
-import {RequestFactory} from '../../definition/model/ApiTestModel';
-import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
-import {windowPrint} from 'metersphere-frontend/src/utils';
-import {STEP} from '../scenario/Setting';
-import {getScenarioReport, updateReport} from '@/api/scenario-report';
+import { RequestFactory } from '../../definition/model/ApiTestModel';
+import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import { windowPrint } from 'metersphere-frontend/src/utils';
+import { STEP } from '../scenario/Setting';
+import { getScenarioReport, updateReport } from '@/api/scenario-report';
 
 export default {
   name: 'SyncApiReportDetail',
@@ -102,10 +99,7 @@ export default {
     MsMainContainer,
     MsContainer,
     MsScenarioResults,
-    MsRequestResultTail,
     MsMetricChart,
-    MsScenarioResult,
-    MsRequestResult,
   },
   data() {
     return {
