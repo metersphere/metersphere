@@ -746,6 +746,7 @@ const message = {
         "This environment group lacks the necessary project environment！",
       available_group: "available",
       not_available_group: "unavailable",
+      please_select_project_env: "Please select project and environment",
     },
   },
   organization: {
