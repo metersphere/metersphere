@@ -1,11 +1,18 @@
 <template>
-  <MsDrawer v-model:visible="showJobDrawer" width="680px" :title="t('system.resourcePool.customJobTemplate')">
+  <MsDrawer
+    v-model:visible="showJobDrawer"
+    width="680px"
+    :title="t('system.resourcePool.customJobTemplate')"
+    :footer="false"
+    @close="handleClose"
+  >
     <MsCodeEditor
       v-model:model-value="jobDefinition"
       title="YAML"
       width="100%"
       height="calc(100vh - 205px)"
       theme="MS-text"
+      :read-only="props.readOnly"
     />
   </MsDrawer>
 </template>
@@ -18,14 +25,16 @@
 
   const props = defineProps<{
     visible: boolean;
-    value: string | null;
+    value?: string | null;
+    defaultVal?: string | null;
+    readOnly?: boolean;
   }>();
 
   const emit = defineEmits(['update:value', 'update:visible']);
 
   const { t } = useI18n();
   const showJobDrawer = ref(props.visible);
-  const jobDefinition = ref(props.value || '');
+  const jobDefinition = ref(props.defaultVal || props.value || '');
 
   watch(
     () => props.visible,
@@ -35,11 +44,33 @@
   );
 
   watch(
+    () => props.defaultVal,
+    (val) => {
+      if (val) {
+        jobDefinition.value = val;
+      }
+    }
+  );
+
+  watch(
+    () => props.value,
+    (val) => {
+      if (val) {
+        jobDefinition.value = val;
+      }
+    }
+  );
+
+  watch(
     () => showJobDrawer.value,
     (val) => {
       emit('update:visible', val);
     }
   );
+
+  function handleClose() {
+    emit('update:value', jobDefinition.value);
+  }
 </script>
 
 <style lang="less" scoped></style>

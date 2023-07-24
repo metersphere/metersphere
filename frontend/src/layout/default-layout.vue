@@ -39,7 +39,7 @@
               :style="{
                 overflow: 'auto',
                 width: `calc(100vw - ${menuWidth}px)`,
-                height: 'calc(100vh - 72px)',
+                height: 'calc(100vh - 64px)',
               }"
             >
               <MsBreadCrumb />

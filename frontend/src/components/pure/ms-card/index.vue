@@ -7,7 +7,13 @@
       </div>
       <a-divider v-if="!simple" class="mb-[16px]" />
       <div class="mr-[-10px]">
-        <a-scrollbar class="pr-[10px]" style="overflow-y: auto; height: calc(100vh - 256px)">
+        <a-scrollbar
+          class="pr-[10px]"
+          :style="{
+            overflowY: 'auto',
+            height: `calc(100vh - ${256 + specialHeight}px)`,
+          }"
+        >
           <slot></slot>
         </a-scrollbar>
       </div>
@@ -20,11 +26,11 @@
         </div>
         <slot name="footerRight">
           <a-button type="secondary" @click="back">{{ t('mscard.defaultCancelText') }}</a-button>
-          <a-button v-if="!props.hideContinue" type="secondary" @click="emit('saveAndContinue')">
+          <a-button v-if="!props.hideContinue && !props.isEdit" type="secondary" @click="emit('saveAndContinue')">
             {{ t('mscard.defaultSaveAndContinueText') }}
           </a-button>
           <a-button type="primary" @click="emit('save')">
-            {{ t(idEdit ? 'mscard.defaultConfirm' : 'mscard.defaultUpdate') }}
+            {{ t(props.isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
           </a-button>
         </slot>
       </div>
@@ -37,20 +43,24 @@
   import { useRouter } from 'vue-router';
 
   const props = withDefaults(
-    defineProps<{
-      simple?: boolean;
-      title?: string;
-      hideContinue?: boolean;
-      handleBack?: () => void;
-      hideFooter?: boolean;
-      loading?: boolean;
-      idEdit?: boolean;
-    }>(),
+    defineProps<
+      Partial<{
+        simple: boolean;
+        title: string;
+        hideContinue: boolean;
+        hideFooter: boolean;
+        loading: boolean;
+        isEdit: boolean;
+        specialHeight: number; // 特殊高度，例如某些页面有面包屑
+        handleBack: () => void;
+      }>
+    >(),
     {
       simple: false,
       hideContinue: false,
       hideFooter: false,
-      idEdit: false,
+      isEdit: false,
+      specialHeight: 0,
     }
   );
 

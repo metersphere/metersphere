@@ -9,4 +9,6 @@ export enum TableModuleEnum {
 export enum TableKeyEnum {
   API_TEST = 'apiTest',
   USERGROUPUSER = 'userGroupUser',
+  SYSTEM_USER = 'systemUser',
+  SYSTEM_RESOURCEPOOL = 'systemResourcePool',
 }

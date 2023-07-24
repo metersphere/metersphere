@@ -13,8 +13,17 @@
           <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
         </div>
         <template v-if="fileList.length === 0">
-          <div v-if="props.mainText" class="ms-upload-main-text">{{ t(props.mainText) }}</div>
-          <div v-if="props.subText" class="ms-upload-sub-text">{{ t(props.subText) }}</div>
+          <div class="ms-upload-main-text">
+            {{ t(props.mainText || 'ms.upload.importModalDragtext') }}
+          </div>
+          <div class="ms-upload-sub-text">
+            {{
+              t(props.subText || 'ms.upload.importModalFileTip', {
+                type: UploadAcceptEnum[props.accept],
+                size: props.maxSize || defaultMaxSize,
+              })
+            }}
+          </div>
         </template>
         <template v-else>
           <div class="ms-upload-main-text">
@@ -31,23 +40,24 @@
   import { ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { UploadAcceptEnum } from '@/enums/uploadEnum';
-  import { formatFileSize, sleep } from '@/utils';
+  import { formatFileSize } from '@/utils';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
-  import type { FileItem } from '@arco-design/web-vue';
+  import { FileItem, Message } from '@arco-design/web-vue';
   import type { UploadType } from './types';
 
   const { t } = useI18n();
 
   // 上传 组件 props
   type UploadProps = Partial<{
-    mainText: string;
-    subText: string;
+    mainText: string; // 主要文案
+    subText: string; // 次要文案
     class: string;
     multiple: boolean;
     imagePreview: boolean;
     showFileList: boolean;
     iconType: string;
+    maxSize: number; // 文件大小限制，单位 MB
     [key: string]: any;
   }> & {
     accept: UploadType;
@@ -56,6 +66,8 @@
 
   const props = defineProps<UploadProps>();
   const emit = defineEmits(['update:fileList']);
+
+  const defaultMaxSize = 50;
 
   const fileList = ref<FileItem[]>(props.fileList);
 
@@ -80,10 +92,15 @@
     jar: 'icon-icon_file-jar_colorful',
   };
 
-  async function beforeUpload() {
+  async function beforeUpload(file: File) {
     if (!props.multiple && fileList.value.length > 0) {
       // 单文件上传时，清空之前的文件
       fileList.value = [];
+    }
+    const maxSize = props.maxSize || defaultMaxSize;
+    if (file.size > maxSize * 1024 * 1024) {
+      Message.warning(t('ms.upload.overSize'));
+      return Promise.resolve(false);
     }
     return Promise.resolve(true);
   }
