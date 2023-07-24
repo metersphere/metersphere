@@ -941,7 +941,8 @@
         atc.step_total,
         atc. STATUS,
         atc.tags,
-        atc.version_id
+        atc.version_id,
+        atc.custom_num
         FROM
         api_scenario atc
         LEFT JOIN test_case_test tct ON atc.id = tct.test_id
