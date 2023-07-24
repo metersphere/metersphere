@@ -259,6 +259,7 @@ export default {
       const allDataIndex = this.allData.findIndex((d) => d.name === index.name);
       this.allData.splice(allDataIndex, 1);
       this.sortParameters();
+      this.currentPage = Math.ceil(this.allData.length / this.pageSize);
       this.queryPage();
     },
     queryPage() {
@@ -301,14 +302,13 @@ export default {
       }
       if (isNeedCreate) {
         this.items.push(new KeyValue({ enable: true, id: getUUID(), type: 'CONSTANT', scope: 'api' }));
+        this.currentPage = Math.ceil(this.allData.length / this.pageSize);
       }
       // 需过滤数据
       this.allData = [];
       this._filter();
-      this.currentPage = Math.ceil(this.allData.length / this.pageSize);
       this.queryPage();
       this.$emit('change', this.items);
-      // TODO 检查key重复
     },
     changeType(data) {
       data.value = '';
