@@ -41,6 +41,8 @@ public class TestResourcePoolService {
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
 
     public TestResourcePool addTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -254,11 +256,10 @@ public class TestResourcePoolService {
         TestResourceReturnDTO testResourceReturnDTO = new TestResourceReturnDTO();
         BeanUtils.copyBean(testResourceReturnDTO, testResourceDTO);
         List<String> orgIds = testResourceDTO.getOrgIds();
-       List<OrgIdNameDTO>orgIdNameMap = new ArrayList<>();
+        List<OrgIdNameDTO> orgIdNameMap = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(orgIds)) {
             for (String orgId : orgIds) {
                 OrgIdNameDTO orgIdNameDTO = new OrgIdNameDTO();
-                OrganizationMapper organizationMapper = CommonBeanFactory.getBean(OrganizationMapper.class);
                 Organization organization = organizationMapper.selectByPrimaryKey(orgId);
                 orgIdNameDTO.setId(orgId);
                 if (organization != null) {
@@ -266,6 +267,7 @@ public class TestResourcePoolService {
                 } else {
                     orgIdNameDTO.setName(Translator.get("organization_not_exists"));
                 }
+                orgIdNameMap.add(orgIdNameDTO);
             }
         }
         testResourceReturnDTO.setOrgIdNameMap(orgIdNameMap);
