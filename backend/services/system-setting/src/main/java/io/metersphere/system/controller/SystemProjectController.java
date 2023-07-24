@@ -3,6 +3,7 @@ package io.metersphere.system.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
@@ -13,6 +14,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
@@ -105,7 +107,8 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Operation(summary = "添加项目成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
-        systemProjectService.addProjectMember(request, SessionUtils.getUserId(), false);
+        systemProjectService.addProjectMember(request, SessionUtils.getUserId(), false, "/system/project/add-member",
+                OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"));
     }
 
     @GetMapping("/remove-member/{projectId}/{userId}")

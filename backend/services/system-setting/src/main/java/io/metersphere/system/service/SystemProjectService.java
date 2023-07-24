@@ -1,20 +1,26 @@
 package io.metersphere.system.service;
 
+import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.AddProjectRequest;
+import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.invoker.ProjectServiceInvoker;
+import io.metersphere.sdk.log.constants.OperationLogModule;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.log.service.OperationLogService;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
-import io.metersphere.sdk.invoker.ProjectServiceInvoker;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -30,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -46,8 +53,15 @@ public class SystemProjectService {
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtSystemProjectMapper extSystemProjectMapper;
+    @Resource
+    private OperationLogService operationLogService;
 
     private final ProjectServiceInvoker serviceInvoker;
+
+    private final static String prefix = "/system/project";
+    private final static String addProject = prefix + "/add";
+    private final static String updateProject = prefix + "/update";
+    private final static String removeProjectMember = prefix + "/remove-member/";
 
     @Autowired
     public SystemProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -82,7 +96,7 @@ public class SystemProjectService {
         ProjectAddMemberRequest memberRequest = new ProjectAddMemberRequest();
         memberRequest.setProjectId(project.getId());
         memberRequest.setUserIds(addProjectDTO.getUserIds());
-        this.addProjectMember(memberRequest, createUser, true);
+        this.addProjectMember(memberRequest, createUser, true, addProject, OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"));
         return project;
     }
 
@@ -143,7 +157,8 @@ public class SystemProjectService {
             ProjectAddMemberRequest memberRequest = new ProjectAddMemberRequest();
             memberRequest.setProjectId(project.getId());
             memberRequest.setUserIds(insertIds);
-            this.addProjectMember(memberRequest, updateUser, true);
+            this.addProjectMember(memberRequest, updateUser, true, updateProject, OperationLogType.UPDATE.name(),
+                    HttpMethodConstants.POST.name(), Translator.get("update"));
         }
 
         projectMapper.updateByPrimaryKeySelective(project);
@@ -165,7 +180,9 @@ public class SystemProjectService {
         return projectMemberList;
     }
 
-    public void addProjectMember(ProjectAddMemberRequest request, String createUser, boolean isAdmin) {
+    public void addProjectMember(ProjectAddMemberRequest request, String createUser, boolean isAdmin, String path, String type,
+                                 String method, String content) {
+        List<LogDTO> logDTOList = new ArrayList<>();
         //TODO  添加项目成员需要检查配额  这个需要等后续定下来补全逻辑
         request.getUserIds().forEach(userId -> {
             User user = userMapper.selectByPrimaryKey(userId);
@@ -181,6 +198,7 @@ public class SystemProjectService {
                         System.currentTimeMillis(),
                         createUser);
                 userRoleRelationMapper.insertSelective(adminRole);
+                setLog(request.getProjectId(), path, content + Translator.get("project_admin") +": "+ user.getName(), createUser, "", type, method, logDTOList);
             }
             UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
             userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
@@ -194,8 +212,10 @@ public class SystemProjectService {
                         System.currentTimeMillis(),
                         createUser);
                 userRoleRelationMapper.insertSelective(memberRole);
+                setLog(request.getProjectId(), path, content + Translator.get("project_member")+": "+ user.getName(), createUser, "", type, method, logDTOList);
             }
         });
+        operationLogService.batchAdd(logDTOList);
 
     }
 
@@ -208,7 +228,11 @@ public class SystemProjectService {
             user.setLastProjectId(StringUtils.EMPTY);
             userMapper.updateByPrimaryKeySelective(user);
         }
-        //写入操作日志
+        List<LogDTO> logDTOList = new ArrayList<>();
+        setLog(projectId, removeProjectMember + "/" + projectId + "/" +userId,
+                Translator.get("delete") + Translator.get("project_member") +": "+ user.getName(),
+                userId, "", OperationLogType.DELETE.name() , HttpMethodConstants.GET.name(), logDTOList);
+        operationLogService.batchAdd(logDTOList);
         return userRoleRelationMapper.deleteByExample(userRoleRelationExample);
     }
 
@@ -223,6 +247,7 @@ public class SystemProjectService {
 
     public void deleteProject(List<Project> projects) {
         // 删除项目
+        List<LogDTO> logDTOList = new ArrayList<>();
         projects.forEach(project -> {
             serviceInvoker.invokeServices(project.getId());
             LoggerUtil.info("send delete_project message, project id: " + project.getId());
@@ -230,7 +255,10 @@ public class SystemProjectService {
             deleteProjectUserGroup(project.getId());
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
+            setLog(project.getId(), "null", Translator.get("delete") + Translator.get("project") + ": " + project.getName(),
+                    "system", "", OperationLogType.DELETE.name(), "", logDTOList);
         });
+        operationLogService.batchAdd(logDTOList);
     }
 
     private void deleteProjectUserGroup(String projectId) {
@@ -241,5 +269,21 @@ public class SystemProjectService {
 
     public List<OrganizationProjectOptionsDto> getProjectOptions() {
         return extSystemProjectMapper.selectProjectOptions();
+    }
+
+    private static void setLog( String projectId, String path, String content, String userId, Object originalValue,
+                               String type, String method, List<LogDTO> logDTOList) {
+        LogDTO dto = new LogDTO(
+                "system",
+                "system",
+                projectId,
+                userId,
+                type,
+                OperationLogModule.SYSTEM_PROJECT,
+                content);
+        dto.setPath(path);
+        dto.setMethod(method);
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
+        logDTOList.add(dto);
     }
 }
