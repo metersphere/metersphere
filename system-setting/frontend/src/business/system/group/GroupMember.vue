@@ -4,7 +4,7 @@
                :destroy-on-close="true" @close="close" v-loading="loading" z-index="1000"
                class="group-member">
       <template v-slot:title>
-        <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search"
+        <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search" :create-permission="['SYSTEM_GROUP:READ+EDIT']"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <el-table :border="true" class="adjust-table" :data="memberData" style="width: 100%;margin-top:5px;">
@@ -41,6 +41,8 @@
             <div>
               <ms-table-operator :tip2="$t('commons.remove')"
                                  :show-edit="showTypeLabel"
+                                 :edit-permission="['SYSTEM_GROUP:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_GROUP:READ+EDIT']"
                                  @editClick="editMemberBtn(scope.row)"
                                  @deleteClick="removeMember(scope.row)"/>
             </div>
@@ -121,6 +123,7 @@ import {
 import {getUserListByResourceUrl} from "../../../api/user";
 import {getGroupResource} from "../../../api/workspace";
 import {operationConfirm} from "metersphere-frontend/src/utils";
+import {hasPermissions} from "metersphere-frontend/src/utils/permission";
 
 export default {
   name: "GroupMember",
@@ -183,6 +186,9 @@ export default {
     }
   },
   methods: {
+    hasPermissions(permission) {
+      return hasPermissions(permission[0]);
+    },
     init() {
       this.condition.userGroupId = this.group.id;
       this.loading = getUserGroupByResourceUrlAndPage(this.initUserGroupUrl, this.currentPage, this.pageSize, this.condition)

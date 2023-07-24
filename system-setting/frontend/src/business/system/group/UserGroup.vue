@@ -136,7 +136,7 @@ export default {
       return USER_GROUP_SCOPE;
     },
     disabledEditGroupMember() {
-      return !hasPermission('SYSTEM_GROUP:READ+EDIT');
+      return !hasPermission('SYSTEM_GROUP:READ');
     }
   },
   methods: {
