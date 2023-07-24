@@ -1,66 +1,58 @@
 <template>
   <div class="text-container">
-    <el-collapse-transition>
-      <el-tabs v-model="activeName" v-show="isActive">
-        <el-tab-pane
-          :class="'body-pane'"
-          :label="$t('api_test.definition.request.response_body')"
-          name="body"
-          class="pane">
-          <ms-sql-result-table v-if="isSqlType" :body="response.body" />
-          <ms-code-edit
-            v-if="!isSqlType"
-            :mode="mode"
-            :read-only="true"
-            :data="response.body"
-            :modes="modes"
-            ref="codeEdit" />
-        </el-tab-pane>
+    <el-tabs v-model="activeName">
+      <el-tab-pane
+        :class="'body-pane'"
+        :label="$t('api_test.definition.request.response_body')"
+        name="body"
+        class="pane">
+        <ms-sql-result-table v-if="isSqlType" :body="response.body" />
+        <ms-code-edit v-else :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit" />
+      </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-          <pre>{{ response.headers }}</pre>
-        </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
+        <pre>{{ response.headers }}</pre>
+      </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
-          <ms-assertion-results :assertions="response.assertions" />
-        </el-tab-pane>
+      <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
+        <ms-assertion-results :assertions="response.assertions" />
+      </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-          <pre>{{ response.vars }}</pre>
-        </el-tab-pane>
+      <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
+        <pre>{{ response.vars }}</pre>
+      </el-tab-pane>
 
-        <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-          <div class="ms-div" v-if="request.url && request.url !== ''">
-            {{ $t('api_test.request.address') }} :
-            <pre>{{ request.url }}</pre>
-          </div>
-          <!--这里判断url而不是判断cookies是因为通过url来判断是否是http请求，http请求展示以下信息-->
-          <div class="ms-div" v-if="request.url && request.url !== ''">
-            {{ $t('api_test.scenario.headers') }} :
-            <pre>{{ request.headers }}</pre>
-          </div>
-          <div class="ms-div" v-if="request.url && request.url !== ''">
-            Cookie:
-            <pre>{{ request.cookies }}</pre>
-          </div>
-          <div class="ms-div">
-            Body :
-            <pre>{{ request.body }}</pre>
-          </div>
-        </el-tab-pane>
+      <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
+        <div class="ms-div" v-if="request.url && request.url !== ''">
+          {{ $t('api_test.request.address') }} :
+          <pre>{{ request.url }}</pre>
+        </div>
+        <!--这里判断url而不是判断cookies是因为通过url来判断是否是http请求，http请求展示以下信息-->
+        <div class="ms-div" v-if="request.url && request.url !== ''">
+          {{ $t('api_test.scenario.headers') }} :
+          <pre>{{ request.headers }}</pre>
+        </div>
+        <div class="ms-div" v-if="request.url && request.url !== ''">
+          Cookie:
+          <pre>{{ request.cookies }}</pre>
+        </div>
+        <div class="ms-div">
+          Body :
+          <pre>{{ request.body }}</pre>
+        </div>
+      </el-tab-pane>
 
-        <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
-          <template v-slot:label>
-            <ms-dropdown
-              v-if="request.method === 'SQL'"
-              :commands="sqlModes"
-              :default-command="mode"
-              @command="sqlModeChange" />
-            <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown" />
-          </template>
-        </el-tab-pane>
-      </el-tabs>
-    </el-collapse-transition>
+      <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
+        <template v-slot:label>
+          <ms-dropdown
+            v-if="request.method === 'SQL'"
+            :commands="sqlModes"
+            :default-command="mode"
+            @command="sqlModeChange" />
+          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown" />
+        </template>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
@@ -90,7 +82,6 @@ export default {
 
   data() {
     return {
-      isActive: true,
       activeName: 'body',
       modes: ['text', 'json', 'xml', 'html'],
       sqlModes: ['text', 'table'],
@@ -99,9 +90,6 @@ export default {
   },
 
   methods: {
-    active() {
-      this.isActive = !this.isActive;
-    },
     modeChange(mode) {
       this.mode = mode;
     },

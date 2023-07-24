@@ -27,7 +27,7 @@
           <ms-scenario-result
             :key="data.resourceId"
             :node="data"
-            :expanded="node.expanded"
+            :expanded.sync="node.expanded"
             :console="console"
             v-on:requestResult="requestResult"
             :is-share="isShare"
@@ -99,6 +99,7 @@ export default {
       this.$emit('requestResult', requestResult);
     },
     nodeClick(data, node) {
+      console.log('nodeClick', e);
       node.expanded = !node.expanded;
     },
     // 改变节点的状态

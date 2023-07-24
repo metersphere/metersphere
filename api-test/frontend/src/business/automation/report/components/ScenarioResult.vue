@@ -1,5 +1,5 @@
 <template>
-  <div class="scenario-result">
+  <div class="scenario-result" @click.stop="handleClick">
     <div
       v-if="
         (node.children && node.children.length > 0) ||
@@ -23,8 +23,14 @@
           </el-col>
           <el-col :span="2">
             <div style="float: right">
-              <ms-api-report-status :status="node.totalStatus" v-if="node.type !=='ConstantTimer' && node.type !=='Assertion'
-                                     && node.children && node.children.length > 0"/>
+              <ms-api-report-status
+                :status="node.totalStatus"
+                v-if="
+                  node.type !== 'ConstantTimer' &&
+                  node.type !== 'Assertion' &&
+                  node.children &&
+                  node.children.length > 0
+                " />
             </div>
           </el-col>
         </el-row>
@@ -40,7 +46,7 @@
         :scenarioName="node.label"
         :resourceId="node.resourceId"
         :total-status="node.totalStatus"
-        :expanded="expanded"
+        :expanded.sync="innerExpanded"
         :console="console"
         :is-share="isShare"
         :share-id="shareId"
@@ -58,7 +64,8 @@ import MsApiReportStatus from '../ApiReportStatus';
 export default {
   name: 'MsScenarioResult',
   components: {
-    MsRequestResult, MsApiReportStatus
+    MsRequestResult,
+    MsApiReportStatus,
   },
   props: {
     scenario: Object,
@@ -71,7 +78,16 @@ export default {
   data() {
     return {
       stepFilter: new STEP(),
+      innerExpanded: false,
     };
+  },
+  watch: {
+    expanded(val) {
+      this.innerExpanded = val;
+    },
+    innerExpanded(val) {
+      this.$emit('update:expanded', val);
+    },
   },
   methods: {
     getLabel(label) {
@@ -113,6 +129,9 @@ export default {
     },
     requestResult(requestResult) {
       this.$emit('requestResult', requestResult);
+    },
+    handleClick() {
+      this.innerExpanded = !this.innerExpanded;
     },
   },
 
