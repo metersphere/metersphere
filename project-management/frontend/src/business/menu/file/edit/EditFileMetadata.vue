@@ -8,7 +8,10 @@
     ref="editFile"
   >
     <span slot="title" class="dialog-footer">
-      <span>{{ data.name }}</span>
+      <el-tooltip :content="data.name" v-if="data.name && data.name.length > 80">
+        <span>{{ data.name | split }}</span>
+      </el-tooltip>
+      <span v-else>{{ data.name | split }}</span>
       <i
         class="el-icon-download ms-header-menu"
         @click="download"
@@ -329,6 +332,15 @@ export default {
         return {};
       },
     },
+  },
+  filters: {
+    split: (value) => {
+      if (value && value.length > 80) {
+        return value.substring(0, 80) + "...";
+      } else {
+        return value;
+      }
+    }
   },
   methods: {
     getCommitId() {
