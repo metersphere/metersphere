@@ -13,7 +13,7 @@ public class TestResourcePoolRequest {
 
     @Schema(title = "资源池ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_resource_pool.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{test_resource_pool.id.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{test_resource_pool.id.length_range}", groups = {Updated.class})
     private String id;
 
     @Schema(title = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
