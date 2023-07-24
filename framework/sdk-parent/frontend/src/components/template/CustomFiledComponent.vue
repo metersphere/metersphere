@@ -330,7 +330,10 @@ export default {
     handleClear() {
       if (this.originOptions && this.data.inputSearch) {
         // 置空搜索时，恢复回原始选项
-        this.data.options = this.originOptions;
+        // 不设置timeout会再设置选项值之前就清空了
+        setTimeout(() => {
+          this.data.options = this.originOptions;
+        }, 200);
       }
     },
     stopLoading() {
