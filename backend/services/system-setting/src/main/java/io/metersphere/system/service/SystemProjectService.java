@@ -239,7 +239,7 @@ public class SystemProjectService {
         userRoleRelationMapper.deleteByExample(userGroupExample);
     }
 
-    public List<OrganizationProjectOptionsDto> getprojectOptions() {
+    public List<OrganizationProjectOptionsDto> getProjectOptions() {
         return extSystemProjectMapper.selectProjectOptions();
     }
 }

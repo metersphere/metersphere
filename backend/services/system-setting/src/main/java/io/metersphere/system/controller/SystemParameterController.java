@@ -11,7 +11,6 @@ import io.metersphere.system.domain.SystemParameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +29,8 @@ public class SystemParameterController {
 
     @PostMapping("/save/base-info")
     @Operation(summary = "保存基本信息")
-    @RequiresPermissions(value= {PermissionConstants.SYSTEM_SETTING_READ_UPDATE, PermissionConstants.SYSTEM_SETTING_READ_CREAT}, logical = Logical.OR)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#systemParameter)", msClass = SystemParameterService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBaseLog(#systemParameter)", msClass = SystemParameterService.class)
     public void saveBaseParameter(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.saveBaseInfo(systemParameter);
     }
@@ -39,7 +38,7 @@ public class SystemParameterController {
 
     @GetMapping("/get/base-info")
     @Operation(summary = "获取基本信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public BaseSystemConfigDTO getBaseInfo() {
         return systemParameterService.getBaseInfo();
     }
@@ -47,7 +46,7 @@ public class SystemParameterController {
 
     @GetMapping("/get/email-info")
     @Operation(summary = "获取邮件信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public EMailInfoDto getEmailInfo() {
         return systemParameterService.getEmailInfo();
     }
@@ -55,7 +54,7 @@ public class SystemParameterController {
 
     @PostMapping("/edit/email-info")
     @Operation(summary = "保存邮件信息")
-    @RequiresPermissions(value= {PermissionConstants.SYSTEM_SETTING_READ_UPDATE, PermissionConstants.SYSTEM_SETTING_READ_CREAT}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#systemParameter)", msClass = SystemParameterService.class)
     public void editEMailInfo(@Validated @RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editEMailInfo(systemParameter);
@@ -64,7 +63,7 @@ public class SystemParameterController {
 
     @PostMapping("/test/email")
     @Operation(summary = "测试连接")
-    @RequiresPermissions(PermissionConstants.SYSTEM_SETTING_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
     public void testEmailConnection(@RequestBody HashMap<String, String> hashMap) {
         systemParameterService.testEmailConnection(hashMap);
     }
