@@ -138,7 +138,7 @@ export default {
           {
             required: true,
             pattern: '^[^\u4e00-\u9fa5]+$',
-            message: this.$t('user.special_characters_are_not_supported'),
+            message: this.$t('user.chinese_characters_are_not_supported'),
             trigger: 'blur'
           }
         ],
