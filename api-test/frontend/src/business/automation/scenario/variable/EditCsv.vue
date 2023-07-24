@@ -13,7 +13,7 @@
         :placeholder="$t('commons.input_content')"
         :autosize="{ minRows: 2, maxRows: 10 }"
         :rows="2"
-        size="small" />
+        size="small"/>
     </el-form-item>
     <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
       <el-tab-pane :label="$t('variables.config')" name="config">
@@ -22,7 +22,7 @@
             <span>{{ $t('variables.add_file') }}</span>
           </el-col>
           <el-col :span="19">
-            <ms-csv-file-upload :parameter="editData"  :disabled="disabled"/>
+            <ms-csv-file-upload :parameter="editData" :disabled="disabled"/>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -44,7 +44,7 @@
             <span>{{ $t('variables.delimiter') }}</span>
           </el-col>
           <el-col :span="19">
-            <el-input v-model="editData.delimiter" size="small" :disabled="disabled" />
+            <el-input v-model="editData.delimiter" size="small" :disabled="disabled"/>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -53,15 +53,16 @@
           </el-col>
           <el-col :span="19">
             <el-select v-model="editData.quotedData" size="small" :disabled="disabled">
-              <el-option label="true" :value="true" />
-              <el-option label="false" :value="false" />
+              <el-option label="true" :value="true"/>
+              <el-option label="false" :value="false"/>
             </el-select>
           </el-col>
         </el-row>
       </el-tab-pane>
       <el-tab-pane :label="$t('schema.preview')" name="preview">
         <div v-if="showMessage">{{ $t('variables.csv_message') }}</div>
-        <el-table :data="previewData" style="width: 100%" height="200px" v-loading="loading">
+        <el-table :data="previewData" style="width: 100%" height="200px" v-loading="loading"
+                  :key="editData.id">
           <!-- 自定义列的遍历-->
           <el-table-column
             v-for="(item, index) in columns"
@@ -202,11 +203,11 @@ export default {
 
     querySearch(queryString, cb) {
       let restaurants = [
-        { value: 'UTF-8' },
-        { value: 'UTF-16' },
-        { value: 'GB2312' },
-        { value: 'ISO-8859-15' },
-        { value: 'US-ASCll' },
+        {value: 'UTF-8'},
+        {value: 'UTF-16'},
+        {value: 'GB2312'},
+        {value: 'ISO-8859-15'},
+        {value: 'US-ASCll'},
       ];
       let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
       // 调用 callback 返回建议列表的数据
