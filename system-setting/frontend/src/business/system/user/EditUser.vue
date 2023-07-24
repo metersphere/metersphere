@@ -108,9 +108,9 @@
 <script>
 import {EMAIL_REGEX, PHONE_REGEX} from "metersphere-frontend/src/utils/regex";
 import {GROUP_TYPE} from "metersphere-frontend/src/utils/constants";
-import {getAllUserGroupByType, getUserAllGroups} from "../../../api/user-group";
-import {specialCreateUser, specialModifyUser} from "../../../api/user";
-import {getGroupResource} from "../../../api/workspace";
+import {getAllUserGroupByType, getUserAllGroups} from "@/api/user-group";
+import {specialCreateUser, specialModifyUser} from "@/api/user";
+import {getGroupResource} from "@/api/workspace";
 
 export default {
   name: "EditUser",
@@ -543,4 +543,15 @@ export default {
   width: 80%;
 }
 
+:deep(.el-select__tags-text) {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:deep(.el-tag.el-tag--info .el-tag__close) {
+  top: -5px;
+}
 </style>
