@@ -59,6 +59,16 @@ public class BaseProjectApplicationService {
         return projectApplications.get(0);
     }
 
+    public List<ProjectApplication> getProjectApplicationByIds(List<String> projectIds, String type) {
+        ProjectApplicationExample projectApplicationExample = new ProjectApplicationExample();
+        projectApplicationExample.createCriteria().andProjectIdIn(projectIds).andTypeEqualTo(type);
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(projectApplicationExample);
+        if (CollectionUtils.isEmpty(projectApplications)) {
+            return new ArrayList<>();
+        }
+        return projectApplications;
+    }
+
     public HashMap<String, String> getProjectConfigMap(String projectId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
@@ -151,6 +161,17 @@ public class BaseProjectApplicationService {
             return config;
         }
         return config;
+    }
+
+    /**
+     * 返回多个项目下某配置的值
+     *
+     * @param projectIds 项目ID集合
+     * @param type      ProjectApplicationType中某项目配置
+     * @return ProjectConfigGroupDTOs 项目ID和配置集合
+     */
+    public List<ProjectApplication> getProjectApplicationTypeVals(List<String> projectIds, String type) {
+        return this.getProjectApplicationByIds(projectIds, type);
     }
 
     private Object valueOf(Class<?> type, String value) {

@@ -2804,6 +2804,7 @@ public class TestCaseService {
 
         Set<String> serviceIdSet = DiscoveryUtil.getServiceIdSet();
 
+        List<String> scenarioProjectIds = new ArrayList<>();
         List<String> projectIds = new ArrayList<>();
         List<String> versionIds = new ArrayList<>();
         List<ApiTestCase> apiCases = new ArrayList<>();
@@ -2817,7 +2818,8 @@ public class TestCaseService {
             apiScenarios = relevanceApiCaseService.getScenarioCaseByIds(
                     getTestIds(testCaseTests, TestCaseTestType.automation.name()));
             projectIds.addAll(apiCases.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
-            projectIds.addAll(apiScenarios.stream().map(s -> s.getProjectId()).collect(Collectors.toList()));
+            scenarioProjectIds = apiScenarios.stream().map(s -> s.getProjectId()).distinct().collect(Collectors.toList());
+            projectIds.addAll(scenarioProjectIds);
             versionIds.addAll(apiCases.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
             versionIds.addAll(apiScenarios.stream().map(s -> s.getVersionId()).collect(Collectors.toList()));
         }
@@ -2858,13 +2860,22 @@ public class TestCaseService {
 
         Map<String, String> versionNameMap = projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
+        // 获取项目下自定义场景ID配置
+        List<ProjectApplication> projectApplicationTypeVals = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(scenarioProjectIds)) {
+            projectApplicationTypeVals = baseProjectApplicationService.getProjectApplicationTypeVals(scenarioProjectIds, ProjectApplicationType.SCENARIO_CUSTOM_NUM.name());
+        }
+        Map<String, String> customTypeMap = projectApplicationTypeVals.stream().collect(Collectors.toMap(ProjectApplication::getProjectId, ProjectApplication::getTypeValue));
+
         List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
         apiCases.forEach(item -> {
             getTestCaseTestDaoList(TestCaseTestType.testcase.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiScenarios.forEach(item -> {
-            getTestCaseTestDaoList(TestCaseTestType.automation.name(), item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
+            // 所属项目是否开启自定义场景ID
+            String customType = customTypeMap.get(item.getProjectId());
+            getTestCaseTestDaoList(TestCaseTestType.automation.name(), StringUtils.equals(customType, "true") ? item.getCustomNum() : item.getNum(), item.getName(), item.getId(), projectNameMap.get(item.getProjectId()), versionNameMap.get(item.getVersionId()),
                     testCaseTestList, testCaseTestsMap);
         });
         apiLoadTests.forEach(item -> {
