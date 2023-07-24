@@ -83,13 +83,16 @@
           <el-row>
             <el-col>
               <el-form-item label="CAS URL" :rules="requiredRules" prop="configuration.casUrl">
-                <el-input v-model="form.configuration.casUrl" placeholder="eg: http://<casurl>"/>
+                <el-input v-model="form.configuration.casUrl" placeholder="eg: http://<casurl>" show-word-limit
+                          maxlength="200"/>
               </el-form-item>
               <el-form-item label="Login URL" :rules="requiredRules" prop="configuration.loginUrl">
-                <el-input v-model="form.configuration.loginUrl" placeholder="eg: http://<casurl>/login"/>
+                <el-input v-model="form.configuration.loginUrl" placeholder="eg: http://<casurl>/login" show-word-limit
+                          maxlength="200"/>
               </el-form-item>
               <el-form-item label="Validate URL" :rules="requiredRules" prop="configuration.validateUrl">
-                <el-input v-model="form.configuration.validateUrl" placeholder="eg: http://<casurl>/serviceValidate"/>
+                <el-input v-model="form.configuration.validateUrl" placeholder="eg: http://<casurl>/serviceValidate"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
               <el-form-item :rules="requiredRules" prop="configuration.redirectUrl">
                 <template v-slot:label>
@@ -101,7 +104,8 @@
                   </el-tooltip>
                 </template>
                 <el-input v-model="form.configuration.redirectUrl"
-                          placeholder="eg: http://<metersphere-endpoint>/sso/callback/cas/${authId}"/>
+                          placeholder="eg: http://<metersphere-endpoint>/sso/callback/cas/${authId}" show-word-limit
+                          maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -112,7 +116,8 @@
               <el-form-item label="Auth Endpoint"
                             :rules="requiredRules" prop="configuration.authUrl">
                 <el-input v-model="form.configuration.authUrl"
-                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/auth"/>
+                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/auth"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -121,7 +126,8 @@
               <el-form-item label="Token Endpoint"
                             :rules="requiredRules" prop="configuration.tokenUrl">
                 <el-input v-model="form.configuration.tokenUrl"
-                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/token"/>
+                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/token"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -130,7 +136,8 @@
               <el-form-item label="Userinfo Endpoint"
                             :rules="requiredRules" prop="configuration.userInfoUrl">
                 <el-input v-model="form.configuration.userInfoUrl"
-                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/userinfo"/>
+                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/userinfo"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -146,7 +153,8 @@
                   </el-tooltip>
                 </template>
                 <el-input v-model="form.configuration.logoutUrl"
-                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/logout"/>
+                          placeholder="eg: http://<keycloak>/auth/realms/<metersphere>/protocol/openid-connect/logout"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -154,7 +162,8 @@
             <el-col>
               <el-form-item label="Client ID" prop="configuration.clientId"
                             :rules="requiredRules">
-                <el-input v-model="form.configuration.clientId" placeholder="eg: metersphere"/>
+                <el-input v-model="form.configuration.clientId" placeholder="eg: metersphere"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -163,7 +172,8 @@
               <el-form-item label="Redirect URL" prop="configuration.redirectUrl"
                             :rules="requiredRules">
                 <el-input v-model="form.configuration.redirectUrl"
-                          placeholder="eg: http://<metersphere-endpoint>/sso/callback or http://<metersphere-endpoint>/sso/callback/${authId}"/>
+                          placeholder="eg: http://<metersphere-endpoint>/sso/callback or http://<metersphere-endpoint>/sso/callback/${authId}"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -178,7 +188,7 @@
                     <i class="el-icon-info"></i>
                   </el-tooltip>
                 </template>
-                <el-input v-model="form.configuration.loginUrl"/>
+                <el-input v-model="form.configuration.loginUrl" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -187,7 +197,7 @@
               <el-form-item label="Secret"
                             :rules="requiredRules" prop="configuration.secret">
                 <el-input type="password" v-model="form.configuration.secret" show-password autocomplete="new-password"
-                          placeholder="OIDC client secret"/>
+                          placeholder="OIDC client secret" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -198,7 +208,7 @@
               <el-form-item label="Auth Endpoint" prop="configuration.authUrl"
                             :rules="requiredRules">
                 <el-input v-model="form.configuration.authUrl"
-                          placeholder="eg: http://example.com/login/oauth/authorize"/>
+                          placeholder="eg: http://example.com/login/oauth/authorize" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -207,7 +217,8 @@
               <el-form-item label="Token Endpoint"
                             :rules="requiredRules" prop="configuration.tokenUrl">
                 <el-input v-model="form.configuration.tokenUrl"
-                          placeholder="eg: https://example.com/login/oauth/access_token"/>
+                          placeholder="eg: https://example.com/login/oauth/access_token"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -216,7 +227,8 @@
               <el-form-item label="Userinfo Endpoint"
                             :rules="requiredRules" prop="configuration.userInfoUrl">
                 <el-input v-model="form.configuration.userInfoUrl"
-                          placeholder="eg: https://example.com/user"/>
+                          placeholder="eg: https://example.com/user"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -225,7 +237,8 @@
               <el-form-item label="Redirect URL"
                             :rules="requiredRules" prop="configuration.redirectUrl">
                 <el-input v-model="form.configuration.redirectUrl"
-                          placeholder="eg: http://<metersphere-endpoint>/sso/callback/oauth2"/>
+                          placeholder="eg: http://<metersphere-endpoint>/sso/callback/oauth2"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -233,7 +246,8 @@
             <el-col>
               <el-form-item label="Client ID" prop="configuration.clientId"
                             :rules="requiredRules">
-                <el-input v-model="form.configuration.clientId" placeholder="eg: metersphere"/>
+                <el-input v-model="form.configuration.clientId" placeholder="eg: metersphere"
+                          show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -242,14 +256,14 @@
               <el-form-item label="Secret" prop="configuration.secret"
                             :rules="requiredRules">
                 <el-input type="password" v-model="form.configuration.secret" show-password autocomplete="new-password"
-                          placeholder="oauth2 client secret"/>
+                          placeholder="oauth2 client secret" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col>
               <el-form-item label="Scope" prop="configuration.scope">
-                <el-input v-model="form.configuration.scope"/>
+                <el-input v-model="form.configuration.scope" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -257,14 +271,14 @@
             <el-col>
               <el-form-item label="Property Mapping" :rules="requiredRules" prop="configuration.mapping">
                 <el-input v-model="form.configuration.mapping"
-                          :placeholder="mappingTip"/>
+                          :placeholder="mappingTip" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
           <el-row>
             <el-col>
               <el-form-item label="Logout Endpoint">
-                <el-input v-model="form.configuration.logoutUrl"/>
+                <el-input v-model="form.configuration.logoutUrl" show-word-limit maxlength="200"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -292,7 +306,7 @@ import MsTableOperator from "metersphere-frontend/src/components/MsTableOperator
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import {hasPermission} from "metersphere-frontend/src/utils/permission";
-import {addAuth, changeStatus, delAuth, getAuth, searchAuths, updateAuth, getAllEnable} from "../../../api/auth";
+import {addAuth, changeStatus, delAuth, getAllEnable, getAuth, searchAuths, updateAuth} from "../../../api/auth";
 
 export default {
   name: "MxAuth",
@@ -312,7 +326,7 @@ export default {
       pageSize: 10,
       total: 0,
       form: {configuration: {}},
-      requiredRules: [  {required: true, message: this.$t('test_resource_pool.fill_the_data'),  trigger: ['blur']}],
+      requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: ['blur']}],
       rule: {
         name: [
           {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
