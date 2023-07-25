@@ -473,6 +473,8 @@ public class TestCaseReviewService {
             return;
         }
 
+        ServiceUtils.buildCombineTagsToSupportMultiple(request.getRequest());
+
         // 如果是关联全部指令则根据条件查询未关联的案例
         if (testCaseIds.get(0).equals("all")) {
             List<TestCaseDTO> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
