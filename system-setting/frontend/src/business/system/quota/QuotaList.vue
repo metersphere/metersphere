@@ -230,7 +230,7 @@ export default {
           exec: this.edit,
           permissions: this.quotaType === QUOTA_TYPE.WORKSPACE ? ['SYSTEM_QUOTA:READ+EDIT'] : ['WORKSPACE_QUOTA:READ+EDIT']
         }, {
-          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+          tip: this.$t('commons.adv_search.reset'), icon: "el-icon-refresh-left", type: "danger",
           exec: this.delete,
           permissions: this.quotaType === QUOTA_TYPE.WORKSPACE ? ['SYSTEM_QUOTA:READ+EDIT'] : ['WORKSPACE_QUOTA:READ+EDIT']
         }
@@ -278,11 +278,11 @@ export default {
     },
     delete(row) {
       if (!row || !row.id) {
-        this.$success(this.$t("commons.delete_success"));
+        this.$success(this.$t("organization.integration.successful_operation"));
         return;
       }
       deleteQuota(row).then(() => {
-        this.$success(this.$t("commons.delete_success"));
+        this.$success(this.$t("organization.integration.successful_operation"));
         this.search();
       });
     },
