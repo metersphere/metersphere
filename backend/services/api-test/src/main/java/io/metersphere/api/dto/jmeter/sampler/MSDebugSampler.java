@@ -1,19 +1,13 @@
 package io.metersphere.api.dto.jmeter.sampler;
 
 import io.metersphere.plugin.annotation.PluginSubType;
-import io.metersphere.plugin.api.dto.BaseConfigDTO;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.sampler.DebugSampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jorphan.collections.HashTree;
-
-import java.util.List;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @PluginSubType("MSDebugSampler")

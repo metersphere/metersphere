@@ -1,4 +1,4 @@
-package io.metersphere.dto;
+package io.metersphere.sdk.dto;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -13,7 +13,6 @@ import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -67,7 +66,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_LIST + "/" + organizationId);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
@@ -87,7 +86,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_LIST + "/" + organizationId);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
@@ -143,7 +142,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_LIST + "/" + organizationId);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否包含修改后的数据
@@ -174,7 +173,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_PERMISSION_SETTING + "/default-org-role-id-3");
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
@@ -274,7 +273,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         MvcResult mvcResult = this.responsePost(ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);

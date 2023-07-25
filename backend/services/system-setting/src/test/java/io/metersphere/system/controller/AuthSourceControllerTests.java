@@ -9,7 +9,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
-import io.metersphere.utils.JsonUtils;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -151,7 +150,7 @@ public class AuthSourceControllerTests extends BaseTest {
         basePageRequest.setPageSize(10);
         MvcResult mvcResult = this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Pager<?> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         List<AuthSourceRequest> authSourceRequests = JSON.parseArray(JSON.toJSONString(returnPager.getList()), AuthSourceRequest.class);
         return authSourceRequests;

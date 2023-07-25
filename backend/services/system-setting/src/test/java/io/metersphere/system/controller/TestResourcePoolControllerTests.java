@@ -1,7 +1,6 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
-
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
@@ -12,7 +11,6 @@ import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.domain.TestResourcePoolOrganization;
 import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +22,6 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -215,7 +212,7 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     private static TestResourcePool getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePool.class);
     }
 
@@ -254,7 +251,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);
@@ -292,7 +289,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
         if (testResourcePoolRequest1.getUiTest()) {
@@ -332,7 +329,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
         if (testResourcePoolRequest1.getUiTest()) {
@@ -378,7 +375,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
 
@@ -563,7 +560,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);

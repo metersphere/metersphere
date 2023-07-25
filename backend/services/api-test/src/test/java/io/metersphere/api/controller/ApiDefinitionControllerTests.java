@@ -5,7 +5,6 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -77,7 +76,7 @@ public class ApiDefinitionControllerTests {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JsonUtils.toJSONString(request)))
+                        .content(JSON.toJSONString(request)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.data.id").value("test-api-id"));

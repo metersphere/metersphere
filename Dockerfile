@@ -13,9 +13,7 @@ COPY ${DEPENDENCY}/BOOT-INF/classes /app
 COPY backend/app/src/main/resources/static /app/static
 
 
-RUN mv /app/lib/metersphere-jmeter-core-*.jar /app/lib/metersphere-jmeter-core.jar
-
-ENV JAVA_CLASSPATH=/app:/app/lib/metersphere-jmeter-core.jar:/opt/jmeter/lib/ext/*:/app/lib/*
+ENV JAVA_CLASSPATH=/app:/opt/jmeter/lib/ext/*:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
 ENV AB_OFF=true
 ENV MS_VERSION=${MS_VERSION}

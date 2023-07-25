@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;

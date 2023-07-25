@@ -19,26 +19,6 @@
             <artifactId>metersphere-domain</artifactId>
             <version>${revision}</version>
         </dependency>
-        <!-- jmeter -->
-        <dependency>
-            <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-jmeter-core</artifactId>
-            <version>${revision}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>netty</artifactId>
-                    <groupId>io.netty</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mail</artifactId>
-                    <groupId>javax.mail</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>javax.activation</artifactId>
-                    <groupId>com.sun.activation</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-jmeter-functions</artifactId>
@@ -60,6 +40,15 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
         <!-- start spring 相关 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

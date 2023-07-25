@@ -1,9 +1,9 @@
 package io.metersphere.system.service;
 
-import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
@@ -15,6 +15,7 @@ import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.log.service.OperationLogService;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -27,7 +28,6 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -250,7 +250,7 @@ public class SystemProjectService {
         List<LogDTO> logDTOList = new ArrayList<>();
         projects.forEach(project -> {
             serviceInvoker.invokeServices(project.getId());
-            LoggerUtil.info("send delete_project message, project id: " + project.getId());
+            LogUtils.info("send delete_project message, project id: " + project.getId());
             //删除项目关联的自定义组织
             deleteProjectUserGroup(project.getId());
             // delete project

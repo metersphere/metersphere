@@ -21,7 +21,6 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -105,7 +104,7 @@ public class SystemProjectControllerTests extends BaseTest {
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
             String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+            ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
             //返回请求正常
             Assertions.assertNotNull(resultHolder);
             return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
@@ -230,7 +229,7 @@ public class SystemProjectControllerTests extends BaseTest {
         //项目不存在
         MvcResult mvcResult = this.responseGet(getProject + "111111");
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNull(resultHolder.getData());
     }
 
@@ -341,7 +340,7 @@ public class SystemProjectControllerTests extends BaseTest {
         project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(updateProject, project);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNull(resultHolder.getData());
 
     }

@@ -13,7 +13,6 @@ import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.service.GlobalUserRoleService;
-import io.metersphere.utils.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +40,7 @@ public class UserTestUtils {
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
             String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+            ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
             //返回请求正常
             Assertions.assertNotNull(resultHolder);
             return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
