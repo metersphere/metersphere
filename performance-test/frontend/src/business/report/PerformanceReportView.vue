@@ -46,15 +46,10 @@
                   {{ $t('test_track.plan_view.share_report') }}
                 </el-button>
               </el-popover>
-              <el-button :disabled="report.status !== 'Completed'" type="default" plain
+              <el-button :disabled="report.status !== 'Completed'" type="warning" plain
                          size="mini" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
                          @click="compareReports()">
                 {{ $t('report.compare') }}
-              </el-button>
-              <el-button type="warning" plain size="mini"
-                         :disabled="isReadOnly || report.status !== 'Completed' || testDeleted"
-                         @click="downloadJtl()">
-                {{ $t('report.downloadJtl') }}
               </el-button>
               <el-button type="default" :disabled="testDeleted" plain size="mini" @click="downloadZipFile()">
                 {{ $t('report.downloadZipFile') }}
@@ -157,13 +152,12 @@ import {hasPermission} from "metersphere-frontend/src/utils/permission";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
-import {Message} from "element-ui";
 import SameTestReports from "./components/SameTestReports";
 import MonitorCard from "./components/MonitorCard";
 import MsTestConfiguration from "./components/TestConfiguration";
 import {generateShareInfoWithExpired, getShareRedirectUrl} from "@/api/share";
 import ProjectEnvironmentDialog from "./components/ProjectEnvironmentDialog";
-import {downloadJtl, downloadZip, getProjectApplication, getReport, getReportTime, getTestProInfo, initReportSocket, stopTest} from "@/api/report";
+import {downloadZip, getProjectApplication, getReport, getReportTime, getTestProInfo, initReportSocket, stopTest} from "@/api/report";
 import {getTest, runTest} from "@/api/performance";
 
 
@@ -419,30 +413,6 @@ export default {
     exportReportReset() {
       this.reportExportVisible = false;
       this.loading = false;
-    },
-    downloadJtl() {
-      downloadJtl(this.reportId)
-        .then(response => {
-          const content = response.data;
-          const blob = new Blob([content], {type: "application/octet-stream"});
-          if ("download" in document.createElement("a")) {
-            // 非IE下载
-            //  chrome/firefox
-            let aTag = document.createElement('a');
-            aTag.download = this.reportName + ".zip";
-            aTag.href = URL.createObjectURL(blob);
-            aTag.click();
-            URL.revokeObjectURL(aTag.href);
-          } else {
-            // IE10+下载
-            navigator.msSaveBlob(blob, this.filename);
-          }
-        }).catch(e => {
-        let text = e.response.data.text();
-        text.then((data) => {
-          Message.error({message: JSON.parse(data).message || e.message, showClose: true});
-        });
-      });
     },
     downloadZipFile() {
       downloadZip(this.report)

@@ -53,16 +53,6 @@ export function downloadLogFile(id, resourceId, isShare) {
   return request(config)
 }
 
-export function downloadJtl(reportId) {
-  let config = {
-    url: "/performance/report/jtl/download/" + reportId,
-    method: 'get',
-    responseType: 'blob'
-  };
-
-  return request(config);
-}
-
 export function downloadZip(report) {
   let testId = report.testId;
   let reportId = report.id;
