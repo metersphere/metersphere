@@ -22,7 +22,7 @@
         <java.version>17</java.version>
         <dubbo.version>2.7.22</dubbo.version>
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
-        <shiro.version>1.11.0</shiro.version>
+        <shiro.version>1.12.0</shiro.version>
         <java-websocket.version>1.5.3</java-websocket.version>
         <easyexcel.version>3.1.1</easyexcel.version>
         <dom4j.version>2.1.3</dom4j.version>
