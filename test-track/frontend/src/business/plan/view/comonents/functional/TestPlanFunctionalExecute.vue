@@ -14,7 +14,7 @@
       class="save-btn"
       @command="handleCommand"
       @click="saveCase"
-      size="medium">
+      size="mini">
       {{ save }}
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item :command="command">{{ saveAndNext }}</el-dropdown-item>

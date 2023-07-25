@@ -465,7 +465,7 @@ public class AttachmentService {
         fileAttachmentMetadata.setSize(file.getSize());
         fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
         fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
-        fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+        fileAttachmentMetadata.setCreator(SessionUtils.getUser() == null ? "admin" : SessionUtils.getUser().getName());
         fileAttachmentMetadata.setFilePath(uploadPath);
         fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
         return fileAttachmentMetadata;
@@ -494,7 +494,7 @@ public class AttachmentService {
             fileAttachmentMetadata.setSize(Integer.valueOf(total).longValue());
             fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
             fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
-            fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+            fileAttachmentMetadata.setCreator(SessionUtils.getUser() == null ? "admin" : SessionUtils.getUser().getName());
             fileAttachmentMetadata.setFilePath(uploadPath);
             fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
             return fileAttachmentMetadata;
@@ -527,7 +527,7 @@ public class AttachmentService {
             fileAttachmentMetadata.setId(UUID.randomUUID().toString());
             fileAttachmentMetadata.setCreateTime(System.currentTimeMillis());
             fileAttachmentMetadata.setUpdateTime(System.currentTimeMillis());
-            fileAttachmentMetadata.setCreator(SessionUtils.getUser().getName());
+            fileAttachmentMetadata.setCreator(SessionUtils.getUser() == null ? "admin" : SessionUtils.getUser().getName());
             fileAttachmentMetadata.setFilePath(copyPath);
             fileAttachmentMetadataMapper.insert(fileAttachmentMetadata);
         }

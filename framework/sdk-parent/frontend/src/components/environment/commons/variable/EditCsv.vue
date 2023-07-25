@@ -102,7 +102,7 @@ export default {
       showMessage: false,
       rules: {
         name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {required: true, message: this.$t('test_track.variable_name'), trigger: 'blur'},
         ],
       },
     }

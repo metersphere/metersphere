@@ -530,6 +530,7 @@ const message = {
     page_guidance: "Page guidance",
     novice_journey: "Novice Journey",
     minder_operation: "Minder Operation",
+    upload_limit_size: "The size of the uploaded file cannot exceed 50M!",
   },
   login: {
     normal_Login: "Normal Login",
@@ -1243,6 +1244,7 @@ const message = {
     delete_file:
       "The file already exists, please delete the file with the same name first!",
     thread_num: "VUs:",
+    file_type_limit: "Only files in image format can be uploaded",
     input_thread_num: "Please enter the number of threads",
     duration: "Duration time",
     granularity: "Aggregation time (seconds)",

@@ -164,7 +164,12 @@ export default {
     this.query();
   },
   methods: {
-    beforeUpload() {
+    beforeUpload(file) {
+      //判断文件是不是以图片格式结尾的 .jpg,.jpeg,.png png，tif，gif，pcx，tga，exif，fpx，svg，psd，cdr，pcd，dxf，ufo，eps，ai，raw，WMF，webp，avif，apng
+      if (!/\.(jpg|jpeg|png|JPG|PNG|tif|gif|pcx|tga|exif|fpx|svg|psd|cdr|pcd|dxf|ufo|eps|ai|raw|WMF|webp|avif|apng)$/.test(file.name)) {
+        this.$error(this.$t('load_test.file_type_limit'));
+        return false;
+      }
       return true;
     },
     handleUploadLogo(uploadResources) {

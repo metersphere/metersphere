@@ -92,7 +92,6 @@ public class FileMetadataService {
                 QueryProjectFileRequest request = new QueryProjectFileRequest();
                 request.setName(file.getOriginalFilename());
                 result.add(this.saveFile(file, fileMetadata));
-
             }
         }
         return result;
@@ -330,6 +329,10 @@ public class FileMetadataService {
             if (fileMetadataMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("project_file_already_exists"));
             }
+        }
+        // 文件名不得超过250个字符
+        if (fileMetadata.getName().length() > 250) {
+            MSException.throwException(Translator.get("project_file_name_too_long"));
         }
     }
 

@@ -81,7 +81,7 @@ export default {
         name: [
           {
             required: true,
-            message: this.$t("test_track.case.input_name"),
+            message: this.$t("test_track.variable_name"),
             trigger: "blur",
           },
         ],

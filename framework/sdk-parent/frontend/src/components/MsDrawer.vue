@@ -57,6 +57,10 @@ export default {
     };
   },
   props: {
+    appendToBody: {
+      type: Boolean,
+      default: false,
+    },
     direction: {
       type: String,
       default() {
@@ -97,6 +101,11 @@ export default {
         this.fullScreen();
       } else {
         this.unFullScreen();
+      }
+    },
+    visible(val) {
+      if (val && this.appendToBody) {
+        document.body.appendChild(this.$el);
       }
     },
   },
@@ -244,6 +253,8 @@ export default {
 }
 
 .ms-drawer-body {
+  margin-top: 10px;
+  height: calc(100vh - 40px);
   overflow: scroll;
 }
 

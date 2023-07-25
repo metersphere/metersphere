@@ -522,6 +522,7 @@ const message = {
     page_guidance: "页面指引",
     novice_journey: "新手旅程",
     minder_operation: "脑图操作",
+    upload_limit_size: "上传文件大小不能超过 50M!",
   },
   login: {
     normal_Login: "普通登录",
@@ -664,7 +665,7 @@ const message = {
     option_value_check: "请填写完整选项值",
     sync_issue_tips: "注: 系统在每天00:00:00会自动同步一次",
     case_priority_option_check_error: "用例等级需按照顺序添加选项值, 例: P",
-    remote_search_tip: "输入用户名，系统会提供更多匹配的用户列表供您选择"
+    remote_search_tip: "输入用户名，系统会提供更多匹配的用户列表供您选择",
   },
   workspace: {
     id: "工作空间ID",
@@ -1199,6 +1200,7 @@ const message = {
     delete_file_confirm: "确认删除文件: ",
     unrelated_file_confirm: "确认取消关联: ",
     file_size_limit: "文件个数超出限制！",
+    file_type_limit: "只能上传图片格式的文件！",
     file_size_out_of_bounds: "文件大小超出范围, 文件名称: ",
     delete_file: "文件已存在，请先删除同名文件！",
     thread_num: "并发用户数",
@@ -3541,7 +3543,7 @@ const message = {
   },
   jar_config: {
     upload_limit_size: "上传文件大小不能超过 50MB!",
-  }
+  },
 };
 
 export default {

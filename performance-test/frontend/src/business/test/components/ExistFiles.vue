@@ -159,8 +159,12 @@ export default {
     handleSelectAll(selection) {
       if (selection.length > 0) {
         this.existFiles.forEach(item => {
-          this.selectIds.add(item.id);
-          this.selectFiles.push(item);
+          if (!this.selectIds.has(item.id)) {
+            this.selectIds.add(item.id);
+          }
+          if (this.selectFiles.filter(f => f.id === item.id).length === 0) {
+            this.selectFiles.push(item);
+          }
         });
       } else {
         this.existFiles.forEach(item => {
@@ -184,8 +188,12 @@ export default {
           }
         }
       } else {
-        this.selectIds.add(row.id);
-        this.selectFiles.push(row);
+        if (!this.selectIds.has(row.id)) {
+          this.selectIds.add(row.id);
+        }
+        if (this.selectFiles.filter(f => f.id === row.id).length === 0) {
+          this.selectFiles.push(row);
+        }
       }
     },
     getProjectFiles() {
@@ -202,8 +210,12 @@ export default {
     },
     handleImport(file) {
       if (file) { // 接口测试创建的性能测试
-        this.selectIds.add(file.id);
-        this.selectFiles.push(file)
+        if (!this.selectIds.has(file.id)) {
+          this.selectIds.add(file.id);
+        }
+        if (this.selectFiles.filter(f => f.id === file.id).length === 0) {
+          this.selectFiles.push(file)
+        }
         this.getJmxContents();
         return;
       }
@@ -239,6 +251,7 @@ export default {
       }
 
       this.getJmxContents(jmxIds);
+      this.selectFiles = [];
     },
     getJmxContents(jmxIds) {
       getJmxContents(jmxIds)

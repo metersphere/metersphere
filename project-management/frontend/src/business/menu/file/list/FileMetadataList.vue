@@ -485,17 +485,20 @@ export default {
         });
         return;
       }
-      operationConfirm(
-        this,
-        this.$t("project.file_delete_tip", [row.name]),
-        () => {
+      let tips = this.$t("project.file_delete_tip", [row.name]);
+      this.$confirm('<p style="word-break: break-word">' + tips + '</p>',
+        "", {
+          dangerouslyUseHTMLString: true,
+          confirmButtonText: this.$t("commons.confirm"),
+          cancelButtonText: this.$t("commons.cancel"),
+          type: "warning"
+        }).then(() => {
           deleteFileMetaById(row.id).then(() => {
             this.$success(this.$t("commons.delete_success"));
             this.getProjectFiles();
             this.refreshModule();
           });
-        }
-      );
+        });
     },
     getTypes() {
       this.typeFilters = [];

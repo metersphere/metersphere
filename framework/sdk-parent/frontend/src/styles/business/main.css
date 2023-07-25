@@ -343,6 +343,7 @@ textarea {
 .el-message-box {
   margin-bottom: 20%;
 }
+
 .el-message-box__message p {
   word-wrap: break-word;
 }

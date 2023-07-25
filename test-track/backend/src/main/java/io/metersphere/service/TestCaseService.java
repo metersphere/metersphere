@@ -1127,6 +1127,7 @@ public class TestCaseService {
         try {
             request.setTestCaseNames(testCaseNames);
             request.setUseCustomId(useCunstomId);
+            request.setCustomFields(getProjectCustomFields(projectId));
             XmindCaseParser xmindParser = new XmindCaseParser(request);
             errList = xmindParser.parse(multipartFile);
             List<TestCaseWithBLOBs> testCase = xmindParser.getTestCase();
@@ -1234,17 +1235,9 @@ public class TestCaseService {
         try {
             //根据本地语言环境选择用哪种数据对象进行存放读取的数据
             Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-            TrackTestCaseTemplateService trackTestCaseTemplateService = CommonBeanFactory.getBean(TrackTestCaseTemplateService.class);
-            TestCaseTemplateDao testCaseTemplate = trackTestCaseTemplateService.getTemplate(projectId);
-            List<CustomFieldDao> customFields = null;
-            if (testCaseTemplate == null) {
-                customFields = new ArrayList<>();
-            } else {
-                customFields = testCaseTemplate.getCustomFields();
-            }
             request.setUserIds(userIds);
             request.setTestCaseNames(testCaseNames);
-            request.setCustomFields(customFields);
+            request.setCustomFields(getProjectCustomFields(projectId));
             request.setSavedCustomIds(savedIds);
             request.setUseCustomId(useCustomId);
             Set<ExcelMergeInfo> mergeInfoSet = new TreeSet<>();
@@ -1267,6 +1260,18 @@ public class TestCaseService {
             MSException.throwException(e.getMessage());
         }
         return getImportResponse(errList, isUpdated);
+    }
+
+    private static List<CustomFieldDao> getProjectCustomFields(String projectId) {
+        TrackTestCaseTemplateService trackTestCaseTemplateService = CommonBeanFactory.getBean(TrackTestCaseTemplateService.class);
+        TestCaseTemplateDao testCaseTemplate = trackTestCaseTemplateService.getTemplate(projectId);
+        List<CustomFieldDao> customFields = null;
+        if (testCaseTemplate == null) {
+            customFields = new ArrayList<>();
+        } else {
+            customFields = testCaseTemplate.getCustomFields();
+        }
+        return customFields;
     }
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
