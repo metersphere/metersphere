@@ -106,7 +106,7 @@ import BatchAddParameter from '../basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_field';
 import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
-import { jsonParse, trimAll } from '@/business/commons/json-schema/convert/jsonParse';
+import { jsonParse } from '@/business/commons/json-schema/convert/jsonParse'
 
 export default {
   name: 'MsApiBody',
@@ -282,8 +282,11 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-            const tmpObj = jsonParse(this.body.raw);
-            this.body.jsonSchema = MsConvert.format(tmpObj);
+            const isJson = JSON.parse(this.body.raw);
+            if(isJson) {
+              const jsonObj = jsonParse(this.body.raw)
+              this.body.jsonSchema = MsConvert.format(jsonObj);
+            }
           } catch (e) {
             this.body.format = 'JSON';
             this.$message.error(this.$t('api_definition.body.json_format_error'));
