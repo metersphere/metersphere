@@ -1,10 +1,10 @@
 package io.metersphere.system.job;
 
 import com.fit2cloud.quartz.anno.QuartzScheduled;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.OrganizationExample;
 import io.metersphere.system.mapper.OrganizationMapper;
-import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -24,15 +24,15 @@ public class CleanOrganizationJob {
      */
     @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanOrganization() {
-        LoggerUtil.info("clean up organization start.");
+        LogUtils.info("clean up organization start.");
         try {
             LocalDate date = LocalDate.now().minusMonths(1);
             long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
             this.doCleanupOrganization(timestamp);
         } catch (Exception e) {
-            LoggerUtil.error("clean up organization error.", e);
+            LogUtils.error("clean up organization error.", e);
         }
-        LoggerUtil.info("clean up organization end.");
+        LogUtils.info("clean up organization end.");
     }
 
     private void doCleanupOrganization(long timestamp) {

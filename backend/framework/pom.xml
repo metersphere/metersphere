@@ -16,7 +16,6 @@
     <modules>
         <module>plugin</module>
         <module>domain</module>
-        <module>jmeter</module>
         <module>sdk</module>
     </modules>
 

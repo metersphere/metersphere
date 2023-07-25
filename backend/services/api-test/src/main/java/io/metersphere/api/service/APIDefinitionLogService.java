@@ -4,7 +4,7 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;

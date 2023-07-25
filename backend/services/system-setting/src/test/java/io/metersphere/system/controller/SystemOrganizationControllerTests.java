@@ -11,7 +11,6 @@ import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationMemberRequest;
 import io.metersphere.system.request.OrganizationRequest;
 import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -62,7 +61,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST, organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -83,7 +82,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         organizationRequest.setSort(sort);
         MvcResult sortResult = this.responsePost(ORGANIZATION_LIST, organizationRequest);
         String sortData = sortResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-organization-6
         OrganizationDTO organizationDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), OrganizationDTO.class).get(0);
@@ -100,7 +99,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST, organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -133,7 +132,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_ALL, null);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回值不为空
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否大于0
@@ -157,7 +156,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -179,7 +178,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         organizationRequest.setSort(sort);
         MvcResult sortResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
         String sortData = sortResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         UserExtend userExtend1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtend.class).get(0);
@@ -222,7 +221,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -255,7 +254,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_MEMBER, organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -320,7 +319,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_PROJECT, projectRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -337,7 +336,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         projectRequest.setSort(sort);
         MvcResult sortResult = this.responsePost(ORGANIZATION_LIST_PROJECT, projectRequest);
         String sortData = sortResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-project
         ProjectDTO projectDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectDTO.class).get(0);
@@ -367,7 +366,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_DEFAULT);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         OrganizationDTO defaultOrg = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), OrganizationDTO.class);

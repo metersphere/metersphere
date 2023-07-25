@@ -25,7 +25,6 @@ import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.UserTestUtils;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,7 +80,7 @@ public class UserControllerTests extends BaseTest {
     //记录查询到的组织信息
     private void setDefaultUserRoleList(MvcResult mvcResult) throws Exception {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         //返回请求正常
         Assertions.assertNotNull(resultHolder);
         List<UserRoleOption> userRoleList = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserRoleOption.class);
@@ -354,7 +353,7 @@ public class UserControllerTests extends BaseTest {
         MvcResult mvcResult = this.responseGet(url);
 
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         //返回请求正常
         Assertions.assertNotNull(resultHolder);
         //返回值为空
@@ -368,7 +367,7 @@ public class UserControllerTests extends BaseTest {
         BasePageRequest basePageRequest = UserTestUtils.getDefaultPageRequest();
         MvcResult mvcResult = this.responsePost(UserTestUtils.URL_USER_PAGE, basePageRequest);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         //返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -386,7 +385,7 @@ public class UserControllerTests extends BaseTest {
         }});
         mvcResult = this.responsePost(UserTestUtils.URL_USER_PAGE, basePageRequest);
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         returnPager = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
         //第一个数据的createTime是最大的
         List<UserTableResponse> userInfoList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);

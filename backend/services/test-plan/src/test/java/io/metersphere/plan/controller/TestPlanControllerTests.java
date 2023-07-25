@@ -6,7 +6,6 @@ import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -62,7 +61,7 @@ public class TestPlanControllerTests {
     private void addTestPlanToSavedList(MockHttpServletResponse mockResponse) throws Exception {
 
         String returnData = mockResponse.getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
 
         //返回请求正常
         Assertions.assertNotNull(resultHolder);
