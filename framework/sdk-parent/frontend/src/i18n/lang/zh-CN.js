@@ -522,6 +522,7 @@ const message = {
     page_guidance: "页面指引",
     novice_journey: "新手旅程",
     minder_operation: "脑图操作",
+    upload_limit_size: "上传文件大小不能超过 50M!",
   },
   login: {
     normal_Login: "普通登录",

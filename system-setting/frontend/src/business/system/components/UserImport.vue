@@ -79,8 +79,8 @@ export default {
         this.$warning(this.$t('test_track.case.import.upload_limit_format'));
         return false;
       }
-      if (file.size / 1024 / 1024 > 20) {
-        this.$warning(this.$t('test_track.case.import.upload_limit_size'));
+      if (file.size / 1024 / 1024 > 50) {
+        this.$warning(this.$t('commons.upload_limit_size'));
         return false;
       }
       this.isLoading = true;

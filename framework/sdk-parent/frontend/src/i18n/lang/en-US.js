@@ -530,6 +530,7 @@ const message = {
     page_guidance: "Page guidance",
     novice_journey: "Novice Journey",
     minder_operation: "Minder Operation",
+    upload_limit_size: "The size of the uploaded file cannot exceed 50M!",
   },
   login: {
     normal_Login: "Normal Login",
