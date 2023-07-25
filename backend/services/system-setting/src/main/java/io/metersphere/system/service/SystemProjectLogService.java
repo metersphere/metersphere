@@ -1,8 +1,8 @@
 package io.metersphere.system.service;
 
-import io.metersphere.constants.HttpMethodConstants;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;

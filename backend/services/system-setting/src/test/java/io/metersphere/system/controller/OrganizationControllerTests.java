@@ -7,8 +7,9 @@ import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.dto.OrgUserExtend;
-import io.metersphere.system.request.*;
-import io.metersphere.utils.JsonUtils;
+import io.metersphere.system.request.OrgMemberExtendProjectRequest;
+import io.metersphere.system.request.OrganizationMemberExtendRequest;
+import io.metersphere.system.request.OrganizationRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +67,7 @@ public class OrganizationControllerTests extends BaseTest {
         MvcResult mvcResult = this.responsePost(organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -209,7 +210,7 @@ public class OrganizationControllerTests extends BaseTest {
         MvcResult mvcResult = this.responsePost(organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
@@ -297,7 +298,7 @@ public class OrganizationControllerTests extends BaseTest {
         MvcResult mvcResult = this.responsePost(organizationRequest);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JsonUtils.parseObject(returnData, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);

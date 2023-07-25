@@ -1,7 +1,6 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
-
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
@@ -11,7 +10,6 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.TestResourcePoolOrganization;
 import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
 import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
-import io.metersphere.utils.JsonUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -203,7 +201,7 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     private static TestResourcePoolRequest getResult(MvcResult mvcResult) throws UnsupportedEncodingException {
         String contentAsString = mvcResult.getResponse().getContentAsString();
-        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolRequest.class);
     }
 
@@ -452,7 +450,7 @@ class TestResourcePoolControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder sortHolder = JsonUtils.parseObject(sortData, ResultHolder.class);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         TestResourcePoolDTO testResourcePoolDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), TestResourcePoolDTO.class).get(0);

@@ -1,4 +1,4 @@
-package io.metersphere.constants;
+package io.metersphere.sdk.constants;
 
 import java.util.HashMap;
 import java.util.Map;

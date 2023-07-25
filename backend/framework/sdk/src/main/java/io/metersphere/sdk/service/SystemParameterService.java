@@ -1,8 +1,8 @@
 package io.metersphere.sdk.service;
 
-import io.metersphere.constants.HttpMethodConstants;
-import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ParamConstants;
+import io.metersphere.sdk.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.dto.EMailInfoDto;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.exception.MSException;

@@ -1,8 +1,8 @@
 package io.metersphere.system.controller;
 
 
-import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.dto.EMailInfoDto;
 import io.metersphere.sdk.log.annotation.Log;
 import io.metersphere.sdk.log.constants.OperationLogType;

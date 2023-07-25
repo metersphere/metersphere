@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRoleRelation;
@@ -21,7 +22,6 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -225,7 +225,7 @@ public class SystemProjectService {
         // 删除项目
         projects.forEach(project -> {
             serviceInvoker.invokeServices(project.getId());
-            LoggerUtil.info("send delete_project message, project id: " + project.getId());
+            LogUtils.info("send delete_project message, project id: " + project.getId());
             //删除项目关联的自定义组织
             deleteProjectUserGroup(project.getId());
             // delete project

@@ -1,7 +1,7 @@
 package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
-import io.metersphere.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.LogDTO;

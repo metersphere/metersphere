@@ -5,8 +5,8 @@ import com.fit2cloud.quartz.anno.QuartzScheduled;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.SystemProjectService;
-import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.shiro.util.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -28,15 +28,15 @@ public class CleanProjectJob {
      */
     @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanupProject() {
-        LoggerUtil.info("clean up project start.");
+        LogUtils.info("clean up project start.");
         try {
             LocalDate date = LocalDate.now().minusMonths(1);
             long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
             this.doCleanupProject(timestamp);
         } catch (Exception e) {
-            LoggerUtil.error("clean up project error.", e);
+            LogUtils.error("clean up project error.", e);
         }
-        LoggerUtil.info("clean up project end.");
+        LogUtils.info("clean up project end.");
     }
 
     private void doCleanupProject(long timestamp) {
