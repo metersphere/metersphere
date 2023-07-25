@@ -27,7 +27,9 @@
     </el-radio-group>
     <div v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'" class="ms-el-link">
-        <el-link style="margin-right: 5px" @click="batchAdd" :disabled="isReadOnly"> {{ $t('commons.batch_add') }}</el-link>
+        <el-link style="margin-right: 5px" @click="batchAdd" :disabled="isReadOnly">
+          {{ $t('commons.batch_add') }}</el-link
+        >
         <api-params-config
           v-if="apiParamsConfigFields"
           @refresh="refreshApiParamsField"
@@ -104,7 +106,7 @@ import BatchAddParameter from '../basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_field';
 import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
-import {jsonParse, trimAll} from '@/business/commons/json-schema/convert/jsonParse'
+import { jsonParse, trimAll } from '@/business/commons/json-schema/convert/jsonParse';
 
 export default {
   name: 'MsApiBody',
@@ -166,6 +168,29 @@ export default {
   watch: {
     'body.typeChange'() {
       this.reloadCodeEdit();
+    },
+    'body.type': {
+      handler() {
+        setTimeout(() => {
+          // 展开动画大概是 300ms 左右，使视觉效果更流畅
+          if (this.body.format === 'JSON-SCHEMA') {
+            this.$refs.jsonCodeEdit?.$el.querySelector('.ace_text-input')?.focus();
+            this.$refs.jsonCodeEdit?.$parent?.$parent?.$parent?.$parent?.$parent.$el.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'center',
+            });
+          } else if (this.codeEditActive) {
+            this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
+            this.$refs.codeEdit?.$parent?.$parent?.$parent?.$parent?.$parent?.$el.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start',
+              inline: 'center',
+            });
+          }
+        }, 300);
+      },
+      immediate: true,
     },
   },
   methods: {
@@ -257,7 +282,7 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-            const tmpObj = jsonParse(this.body.raw)
+            const tmpObj = jsonParse(this.body.raw);
             this.body.jsonSchema = MsConvert.format(tmpObj);
           } catch (e) {
             this.body.format = 'JSON';
@@ -266,15 +291,15 @@ export default {
         }
       } else {
         if (this.body.jsonSchema) {
-            MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
-              if (result === 'Error') {
-                this.body.format = 'JSON-SCHEMA';
-                this.$message.error(this.$t('api_definition.body.json_format_error_tips'));
-              } else {
-                this.$set(this.body, 'raw', result);
-                this.reloadCodeEdit();
-              }
-            })
+          MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
+            if (result === 'Error') {
+              this.body.format = 'JSON-SCHEMA';
+              this.$message.error(this.$t('api_definition.body.json_format_error_tips'));
+            } else {
+              this.$set(this.body, 'raw', result);
+              this.reloadCodeEdit();
+            }
+          });
         }
       }
     },
@@ -354,7 +379,7 @@ export default {
         params.forEach((item) => {
           if (item) {
             let line = item.split(/：|:/);
-            let values = item.substr(line[0].length +1).trim();
+            let values = item.substr(line[0].length + 1).trim();
             let required = false;
             keyValues.push(
               new KeyValue({

@@ -18,6 +18,7 @@
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.headers"
+          ref="codeEdit"
           v-if="activeName === 'headers'" />
       </el-tab-pane>
 
@@ -26,6 +27,7 @@
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.console"
+          ref="codeEdit"
           v-if="activeName === 'console'"
           height="calc(100vh - 300px)" />
       </el-tab-pane>
@@ -35,6 +37,7 @@
           :mode="'text'"
           :read-only="true"
           :data.sync="responseResult.console"
+          ref="codeEdit"
           v-if="activeName === 'console'" />
       </el-tab-pane>
 
@@ -43,11 +46,21 @@
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="responseResult.vars" v-if="activeName === 'label'" />
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="responseResult.vars"
+          v-if="activeName === 'label'"
+          ref="codeEdit" />
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-        <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages" v-if="activeName === 'request_body'" />
+        <ms-code-edit
+          :mode="'text'"
+          :read-only="true"
+          :data.sync="reqMessages"
+          v-if="activeName === 'request_body'"
+          ref="codeEdit" />
       </el-tab-pane>
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
@@ -107,6 +120,20 @@ export default {
     response() {
       this.setBodyType();
       this.setReqMessage();
+    },
+    activeName: {
+      handler() {
+        setTimeout(() => {
+          // 展开动画大概是 300ms 左右，使视觉效果更流畅
+          this.$refs.codeEdit?.$el.querySelector('.ace_text-input')?.focus();
+          this.$refs.codeEdit?.$parent?.$parent?.$parent?.$parent?.$parent?.$el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          });
+        }, 300);
+      },
+      immediate: true,
     },
   },
   methods: {
@@ -183,11 +210,11 @@ export default {
   computed: {
     isSqlType() {
       return (
-        this.currentProtocol === 'SQL'
-        && this.response
-        && this.response.responseResult
-        && this.response.responseResult.responseCode === '200'
-        && this.mode === 'table'
+        this.currentProtocol === 'SQL' &&
+        this.response &&
+        this.response.responseResult &&
+        this.response.responseResult.responseCode === '200' &&
+        this.mode === 'table'
       );
     },
     responseResult() {
