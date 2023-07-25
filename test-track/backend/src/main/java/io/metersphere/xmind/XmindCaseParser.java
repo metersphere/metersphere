@@ -5,6 +5,8 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelImportType;
@@ -344,6 +346,8 @@ public class XmindCaseParser {
         testCase.setMaintainer(request.getUserId());
         testCase.setPriority(priorityList.get(0));
 
+        setDefaultCustomFieldVal(testCase);
+
         String tc = title.replace("：", ":");
         String[] tcArrs = tc.split(":");
         if (tcArrs.length < 1) {
@@ -406,6 +410,29 @@ public class XmindCaseParser {
         // 校验合规性
         if (validate(testCase)) {
             testCases.add(testCase);
+        }
+    }
+
+    private void setDefaultCustomFieldVal(TestCaseWithBLOBs testCase) {
+        try {
+            for (CustomFieldDao customField : request.getCustomFields()) {
+                if (StringUtils.isBlank(customField.getDefaultValue())) {
+                    continue;
+                }
+                String defaultVal = JSON.parseObject(customField.getDefaultValue()).toString();
+                if (StringUtils.isBlank(defaultVal)) {
+                    continue;
+                }
+                if (StringUtils.equals(customField.getName(), "用例等级")) {
+                    testCase.setPriority(defaultVal);
+                } else if (StringUtils.equals(customField.getName(), "用例状态")) {
+                    testCase.setStatus(defaultVal);
+                }  else if (StringUtils.equals(customField.getName(), "责任人")) {
+                    testCase.setMaintainer(defaultVal);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 
