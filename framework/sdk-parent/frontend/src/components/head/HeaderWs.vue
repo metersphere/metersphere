@@ -90,6 +90,10 @@ export default {
             this.currentWorkspaceName = workspace[0].name;
             this.workspaceList = response.data.filter(r => r.id !== this.workspaceId);
             this.workspaceList.unshift(workspace[0]);
+          } else {
+            // 工作空间不存在, 切换到查询的第一个
+            this.currentWorkspaceName = response.data[0].name;
+            this._changeWs(response.data[0].id);
           }
         });
     },
