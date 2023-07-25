@@ -64,13 +64,14 @@ class TestResourcePoolControllerTests extends BaseTest {
             "   }],\n" +
             "\"ip\":\"172.2.130.1\",\n" +
             "\"token\":\"dsdfssdsvgsd\",\n" +
-            "\"namespaces\":\"测试\",\n" +
+            "\"nameSpaces\":\"测试\",\n" +
             "\"concurrentNumber\":3,\n" +
             "\"podThreads\":2,\n" +
             "\"jobDefinition\":\"jsfsjs\",\n" +
             "\"apiTestImage\":\"ddgd\",\n" +
             "\"deployName\":\"hello\",\n" +
-            "\"uiGrid\":\"localhost:4444\"\n" +
+            "\"uiGrid\":\"localhost:4444\",\n" +
+            "\"girdConcurrentNumber\":2\n" +
             "}";
 
     private static final String configuration = "{\n" +
@@ -87,13 +88,14 @@ class TestResourcePoolControllerTests extends BaseTest {
             "  \"orgIds\": [\"sys_default_organization_2\",\"sys_default_organization_3\"],\n" +
             "  \"ip\": \"172.2.130.1\",\n" +
             "  \"token\": \"dsdfssdsvgsd\",\n" +
-            "  \"namespaces\": \"测试\",\n" +
+            "  \"nameSpaces\": \"测试\",\n" +
             "  \"concurrentNumber\": 3,\n" +
             "  \"podThreads\": 2,\n" +
             "  \"jobDefinition\": \"jsfsjs\",\n" +
             "  \"apiTestImage\": \"ddgd\",\n" +
             "  \"deployName\": \"hello\",\n" +
-            "  \"uiGrid\": \"localhost:4444\"\n" +
+            "  \"uiGrid\": \"localhost:4444\",\n" +
+            "\"girdConcurrentNumber\":2\n" +
             "}";
 
 
@@ -125,6 +127,9 @@ class TestResourcePoolControllerTests extends BaseTest {
         if (!allOrg) {
             Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolOrganizations) && testResourcePoolOrganizations.size() == 2));
         }
+
+
+
         return mvcResult;
     }
 
@@ -276,17 +281,13 @@ class TestResourcePoolControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    void getResourcePoolsDetailWidthBlob() throws Exception {
-        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
+    void getResourcePoolsDetailWidthBlobK8s() throws Exception {
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_k8s", false, true, true, true, true, ResourcePoolTypeEnum.K8S.name());
         TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
         String id = testResourcePoolRequest1.getId();
-        QueryResourcePoolRequest request = new QueryResourcePoolRequest();
-        request.setCurrent(1);
-        request.setPageSize(5);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .content(JSON.toJSONString(request))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
@@ -294,10 +295,74 @@ class TestResourcePoolControllerTests extends BaseTest {
         ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
         Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
+        if (testResourcePoolRequest1.getUiTest()) {
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getUiGrid());
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getGirdConcurrentNumber() > 0);
+        }
+
+        if (testResourcePoolRequest1.getApiTest()) {
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNameSpaces());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getDeployName());
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
+        }
+
+        if (testResourcePoolRequest1.getLoadTest()) {
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getIp());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getToken());
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNameSpaces());
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getConcurrentNumber() > 0);
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getPodThreads() > 0);
+        }
+
     }
 
     @Test
     @Order(14)
+    void getResourcePoolsDetailWidthBlobNode() throws Exception {
+        MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_node", false, true, true, true, true, ResourcePoolTypeEnum.NODE.name());
+        TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
+        String id = testResourcePoolRequest1.getId();
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/detail/" + id)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+        ResultHolder resultHolder = JsonUtils.parseObject(contentAsString, ResultHolder.class);
+        TestResourcePoolReturnDTO testResourcePoolReturnDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestResourcePoolReturnDTO.class);
+        Assertions.assertTrue((CollectionUtils.isNotEmpty(testResourcePoolReturnDTO.getTestResourceReturnDTO().getOrgIdNameMap())));
+        if (testResourcePoolRequest1.getUiTest()) {
+            Assertions.assertNotNull(testResourcePoolReturnDTO.getTestResourceReturnDTO().getUiGrid());
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getGirdConcurrentNumber() > 0);
+        }
+
+        if (testResourcePoolRequest1.getApiTest()) {
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size()>0);
+            for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
+                Assertions.assertNotNull(testResourceNodeDTO.getIp());
+                Assertions.assertNotNull(testResourceNodeDTO.getPort());
+                Assertions.assertNotNull(testResourceNodeDTO.getConcurrentNumber());
+            }
+        }
+
+        if (testResourcePoolRequest1.getLoadTest()) {
+            Assertions.assertTrue(testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList().size()>0);
+            for (TestResourceNodeDTO testResourceNodeDTO : testResourcePoolReturnDTO.getTestResourceReturnDTO().getNodesList()) {
+                Assertions.assertNotNull(testResourceNodeDTO.getIp());
+                Assertions.assertNotNull(testResourceNodeDTO.getPort());
+                Assertions.assertNotNull(testResourceNodeDTO.getConcurrentNumber());
+                Assertions.assertNotNull(testResourceNodeDTO.getMonitor());
+            }
+        }
+
+    }
+
+    @Test
+    @Order(15)
     void getResourcePoolsDetailWidthBlobNoOtgIds() throws Exception {
         MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob_no_org_id", true, false, true, false, false, ResourcePoolTypeEnum.K8S.name());
         TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
@@ -321,7 +386,7 @@ class TestResourcePoolControllerTests extends BaseTest {
 
 
     @Test
-    @Order(15)
+    @Order(16)
     void getResourcePoolsDetailFiled() throws Exception {
         QueryResourcePoolRequest request = new QueryResourcePoolRequest();
         request.setCurrent(1);
@@ -336,7 +401,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(16)
+    @Order(17)
     void updateTestResourcePool() throws Exception {
         MvcResult testPoolBlob = this.addTestResourcePoolSuccess("test_pool_blob2", false, true, true, false, false, ResourcePoolTypeEnum.K8S.name());
         TestResourcePool testResourcePoolRequest1 = getResult(testPoolBlob);
@@ -371,7 +436,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(17)
+    @Order(18)
     void updateUiTestResourcePoolFiled() throws Exception {
         this.dealTestResourcePoolFiled("UPDATE");
     }
@@ -441,7 +506,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     /*@Sql(scripts = {"/dml/init_test_resource_pool.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)*/
-    @Order(18)
+    @Order(19)
     void deleteTestResourcePool() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/103")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -452,7 +517,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(19)
+    @Order(20)
     void deleteTestResourcePoolFiled() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/test/resource/pool/delete/105")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -463,7 +528,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(20)
+    @Order(21)
     void unableTestResourcePoolSuccess() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/104")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -474,7 +539,7 @@ class TestResourcePoolControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(21)
+    @Order(22)
     void unableTestResourcePoolFiled() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/test/resource/pool/set/enable/105")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
