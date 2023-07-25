@@ -35,6 +35,7 @@ export default {
   report_statistics: "Report Statistics",
   sort: "Sort",
   other_test_name: "Other Test Name",
+  variable_name: "Please enter a variable name",
   demand: {
     id: "Demand ID",
     name: "Demand Name",

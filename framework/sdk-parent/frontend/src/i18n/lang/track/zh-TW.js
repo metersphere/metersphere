@@ -36,6 +36,7 @@ export default {
   sort: "種類",
   automatic_status_update: "自動狀態更新",
   other_test_name: "其他用例名稱",
+  variable_name: "請輸入變量名稱",
   case: {
     list: "列錶",
     minder: "腦圖",
