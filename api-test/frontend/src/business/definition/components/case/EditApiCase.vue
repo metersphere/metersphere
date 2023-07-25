@@ -303,7 +303,7 @@ export default {
     apiCaseClose() {
       if (this.apiCaseList && this.apiCaseList.length > 0) {
         let message = '';
-        if (store.apiCaseMap.has(this.apiCaseList[0].id) && store.apiCaseMap.get(this.apiCaseList[0].id) > 1) {
+        if (store.apiCaseMap.has(this.apiCaseList[0].id) && store.apiCaseMap.get(this.apiCaseList[0].id) > 0) {
           message += this.apiCaseList[0].name + '，';
         }
         if (this.apiCaseList[0].type === 'AddCase') {
