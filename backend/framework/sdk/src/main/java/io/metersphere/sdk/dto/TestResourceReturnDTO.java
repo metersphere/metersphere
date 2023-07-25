@@ -81,7 +81,7 @@ public class TestResourceReturnDTO {
     private String uiGrid;
 
     @Schema(title = "grid最大线程数")
-    private String girdConcurrentNumber;
+    private Integer girdConcurrentNumber;
 
     /**
      * 关联的组织id集合

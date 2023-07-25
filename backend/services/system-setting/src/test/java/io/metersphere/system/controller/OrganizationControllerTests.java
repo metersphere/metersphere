@@ -89,8 +89,16 @@ public class OrganizationControllerTests extends BaseTest {
         //组织ID正确
         // 成员选择为空
         addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().isBadRequest());
-        // 用户组不存在
+        // 成员都不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user3", "sys_default_user4"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
+        // 成员有一个不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user4"), Arrays.asList("default-org-role-id-2", "default-org-role-id-3"), status().is5xxServerError());
+        // 用户组为空
         addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
+        // 用户组都不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Arrays.asList("default-org-role-id-8", "default-org-role-id-9"), status().is5xxServerError());
+        // 用户组有一个不存在
+        addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Arrays.asList("default-org-role-id-2", "default-org-role-id-9"), status().is5xxServerError());
         //成员和用户组都为空
         addOrUpdateOrganizationMemberError(ORGANIZATION_LIST_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
         // 组织不存在
