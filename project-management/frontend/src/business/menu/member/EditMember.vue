@@ -30,7 +30,7 @@ export default {
       },
       userList: [],
       loading: false,
-      userResourceUrl: 'user/ws/current/member/list'
+      userResourceUrl: 'user/add/project/member/option/' + getCurrentProjectID()
     };
   },
   computed: {

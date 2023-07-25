@@ -166,7 +166,7 @@
       :group-scope-id="workspaceId"
       ref="addMember"
       :project-id="rowProjectId"
-      :user-resource-url="'user/ws/current/member/list'"
+      :user-resource-url="'user/add/project/member/option/' + rowProjectId"
       @submit="submitForm"/>
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
