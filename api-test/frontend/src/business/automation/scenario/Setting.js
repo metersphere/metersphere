@@ -55,7 +55,6 @@ export function STEP() {
     [
       'AllSamplerProxy',
       [
-        'GenericController',
         'HTTPSamplerProxy',
         'DubboSampler',
         'JDBCSampler',
