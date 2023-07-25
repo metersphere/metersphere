@@ -349,7 +349,6 @@ export default {
       beforeUpdateRequest: {},
       compare: [],
       isSave: false,
-      tagCount: 0,
       requestCount: 0,
       readonly: false,
       noShowSyncRuleRelation: false,
@@ -463,20 +462,20 @@ export default {
       },
     },
     'apiCase.tags': {
-      handler(v) {
-        this.tagCount++;
-        if (this.tagCount > 2) {
+      handler(v, v1) {
+        if (v1) {
           this.saveStatus();
         }
-      },
+      }
     },
     'apiCase.request': {
       handler(v) {
         this.requestCount++;
-        if (this.requestCount > 1) {
+        if (this.requestCount > 2) {
           this.saveStatus();
         }
       },
+      deep: true
     },
     'caseSyncRuleRelation.showUpdateRule': {
       handler(v) {
@@ -747,7 +746,6 @@ export default {
           row.updateUser = getCurrentUser().name;
           row.type = null;
           this.$success(this.$t('commons.save_success'));
-          this.tagCount = 0;
           this.requestCount = 0;
           this.reload();
           this.isSave = false;
