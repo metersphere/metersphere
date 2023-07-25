@@ -1,5 +1,13 @@
 <template>
-  <a-descriptions :data="(props.descriptions as unknown as DescData[])" size="large" :column="1">
+  <a-skeleton v-if="props.showSkeleton" :loading="props.showSkeleton" :animation="true">
+    <a-space direction="vertical" class="w-[28%]" size="large">
+      <a-skeleton-line :rows="props.skeletonLine" :line-height="24" />
+    </a-space>
+    <a-space direction="vertical" class="ml-[4%] w-[68%]" size="large">
+      <a-skeleton-line :rows="props.skeletonLine" :line-height="24" />
+    </a-space>
+  </a-skeleton>
+  <a-descriptions v-else :data="(props.descriptions as unknown as DescData[])" size="large" :column="1">
     <a-descriptions-item v-for="item of props.descriptions" :key="item.label" :label="item.label">
       <template v-if="item.isTag">
         <a-tag
@@ -30,7 +38,11 @@
     onClick?: () => void;
   }
 
-  const props = defineProps<{ descriptions: Description[] }>();
+  const props = defineProps<{
+    showSkeleton?: boolean;
+    skeletonLine?: number;
+    descriptions: Description[];
+  }>();
 
   function handleItemClick(item: Description) {
     if (typeof item.onClick === 'function') {
