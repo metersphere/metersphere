@@ -147,12 +147,6 @@ public class PerformanceReportController {
         performanceReportService.deleteReportBatch(reportRequest);
     }
 
-    @GetMapping("/jtl/download/{reportId}")
-    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
-    public void downloadJtlZip(@PathVariable String reportId, HttpServletResponse response) {
-        performanceReportService.downloadJtlZip(reportId, response);
-    }
-
     @GetMapping("get-jmx-content/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ)
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String reportId) {

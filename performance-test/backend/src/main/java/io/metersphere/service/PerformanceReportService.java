@@ -477,46 +477,6 @@ public class PerformanceReportService {
         return JSON.parseArray(content, ChartsData.class);
     }
 
-    /**
-     * 流下载 jtl zip
-     */
-    public void downloadJtlZip(String reportId, HttpServletResponse response) {
-        LoadTestReportWithBLOBs report = getReport(reportId);
-        if (StringUtils.isBlank(report.getFileId())) {
-            MSException.throwException(Translator.get("load_test_report_file_not_exist"));
-        }
-        response.setHeader("Content-Disposition", "attachment;fileName=" + reportId + ".zip");
-
-        FileMetadata metadata = fileMetadataService.getFileMetadataById(report.getFileId());
-        if (StringUtils.isEmpty(metadata.getStorage())) {
-            try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
-                ExtFileContentMapper mapper = sqlSession.getMapper(ExtFileContentMapper.class);
-                try (InputStream inputStream = mapper.selectZipBytes(report.getFileId())) {
-                    ServletOutputStream outputStream = response.getOutputStream();
-                    byte[] buffer = new byte[1024 * 4];
-                    int read;
-                    while ((read = inputStream.read(buffer)) > -1) {
-                        outputStream.write(buffer, 0, read);
-                    }
-                } catch (Exception e) {
-                    LogUtil.error(e);
-                    MSException.throwException(e);
-                }
-            }
-        } else {
-            try (InputStream inputStream = fileMetadataService.getFileAsStream(report.getFileId())) {
-                ServletOutputStream outputStream = response.getOutputStream();
-                byte[] buffer = new byte[1024 * 4];
-                int read;
-                while ((read = inputStream.read(buffer)) > -1) {
-                    outputStream.write(buffer, 0, read);
-                }
-            } catch (Exception e) {
-                LogUtil.error(e);
-                MSException.throwException(e);
-            }
-        }
-    }
 
     public String getPoolTypeByReportId(String reportId) {
         LoadTestReportWithBLOBs report = getReport(reportId);
