@@ -5,7 +5,8 @@
     :size="30"
     @close="close"
     direction="right"
-    v-clickoutside="close">
+    v-clickoutside="close"
+    appendToBody>
     <template v-slot:header>
       <ms-instructions-icon :content="tip" />
       {{ tip }}
@@ -15,7 +16,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import Vue from 'vue';
 import JsonPathPicker from 'vue-jsonpath-picker';
 import MsDrawer from 'metersphere-frontend/src/components/MsDrawer';
 import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
@@ -48,7 +49,7 @@ const clickoutside = {
     delete el.__vueClickOutside__;
   },
 };
-Vue.use(JsonPathPicker)
+Vue.use(JsonPathPicker);
 export default {
   name: 'MsApiJsonpathSuggest',
   components: { MsInstructionsIcon, MsDrawer },
