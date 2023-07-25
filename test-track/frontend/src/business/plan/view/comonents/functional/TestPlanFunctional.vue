@@ -140,7 +140,7 @@ export default {
     refresh() {
       this.clearSelectNode();
       this.$refs.testCaseRelevance.search();
-      this.getNodeTreeByPlanId();
+      this.refreshTreeByCaseFilter();
     },
     refreshTree() {
       this.getNodeTreeByPlanId();
