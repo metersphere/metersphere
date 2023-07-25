@@ -691,6 +691,7 @@ p {
 
 .test-case-name {
   padding: 0;
+  line-height: 20px;
   text-decoration: underline solid #783887;
 }
 
