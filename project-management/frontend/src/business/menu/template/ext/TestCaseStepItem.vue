@@ -22,7 +22,8 @@
             :disabled="readOnly"
             :rows="defaultRows"
             :placeholder="$t('commons.input_content')"
-            @input="resizeTextarea(scope)"/>
+            @input="resizeTextarea(scope)"
+            maxlength="1000" show-word-limit/>
         </template>
       </el-table-column>
       <el-table-column
@@ -39,7 +40,8 @@
             :rows="defaultRows"
             :disabled="readOnly"
             :placeholder="$t('commons.input_content')"
-            @input="resizeTextarea(scope)"/>
+            @input="resizeTextarea(scope)"
+            maxlength="1000" show-word-limit/>
         </template>
       </el-table-column>
       <el-table-column :label="$t('commons.operating')" min-width="30%">
