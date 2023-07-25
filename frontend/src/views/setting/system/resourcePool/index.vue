@@ -47,16 +47,18 @@
       :descriptions="activePoolDesc"
       :footer="false"
       :mask="false"
+      :show-skeleton="drawerLoading"
+      show-description
     >
       <template #tbutton>
-        <a-button type="outline" size="mini" @click="editPool(activePool)">
+        <a-button type="outline" size="mini" :disabled="drawerLoading" @click="editPool(activePool)">
           {{ t('system.resourcePool.editPool') }}
         </a-button>
       </template>
     </MsDrawer>
     <JobTemplateDrawer
       v-model:visible="showJobDrawer"
-      :default-val="activePool?.testResourceDTO.jobDefinition || ''"
+      :default-val="activePool?.testResourceReturnDTO.jobDefinition || ''"
       read-only
     />
   </div>
@@ -67,7 +69,7 @@
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
-  import { getPoolList, delPoolInfo, togglePoolStatus } from '@/api/modules/setting/resourcePool';
+  import { getPoolList, delPoolInfo, togglePoolStatus, getPoolInfo } from '@/api/modules/setting/resourcePool';
   import useModal from '@/hooks/useModal';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -82,7 +84,8 @@
   import type { Description } from '@/components/pure/ms-description/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { ResourcePoolItem } from '@/models/setting/resourcePool';
+  import type { ResourcePoolDetail } from '@/models/setting/resourcePool';
+  import { sleep } from '@/utils';
 
   const { t } = useI18n();
   const router = useRouter();
@@ -269,161 +272,172 @@
 
   const showDetailDrawer = ref(false);
   const activePoolDesc: Ref<Description[]> = ref([]);
-  const activePool: Ref<ResourcePoolItem | null> = ref(null);
+  const activePool: Ref<ResourcePoolDetail | null> = ref(null);
   const showJobDrawer = ref(false);
+  const drawerLoading = ref(false);
   /**
    * 查看资源池详情
    * @param record
    */
-  function showPoolDetail(record: any) {
-    activePool.value = { ...record };
-    if (activePool.value) {
-      const poolUses = [
-        activePool.value.loadTest ? t('system.resourcePool.usePerformance') : '',
-        activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
-        activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
-      ];
-      const { type, testResourceDTO, loadTest, apiTest, uiTest } = activePool.value;
-      const {
-        ip,
-        token, // k8s token
-        nameSpaces, // k8s 命名空间
-        concurrentNumber, // k8s 最大并发数
-        podThreads, // k8s 单pod最大线程数
-        apiTestImage, // k8s api测试镜像
-        deployName, // k8s api测试部署名称
-        girdConcurrentNumber,
-        nodesList,
-        loadTestImage,
-        loadTestHeap,
-        uiGrid,
-      } = testResourceDTO;
-      // Node
-      const nodeResourceDesc =
-        type === 'Node'
-          ? [
-              {
-                label: t('system.resourcePool.detailResources'),
-                value: nodesList?.map((e) => `${e.ip},${e.port},${e.monitor},${e.concurrentNumber}`),
-                isTag: true,
-              },
-            ]
-          : [];
-      // K8S
-      const k8sResourceDesc =
-        type === 'Kubernetes'
-          ? [
-              {
-                label: t('system.resourcePool.testResourceDTO.ip'),
-                value: ip,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.token'),
-                value: token,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.nameSpaces'),
-                value: nameSpaces,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.deployName'),
-                value: deployName,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.apiTestImage'),
-                value: apiTestImage,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.concurrentNumber'),
-                value: concurrentNumber,
-              },
-              {
-                label: t('system.resourcePool.testResourceDTO.podThreads'),
-                value: podThreads,
-              },
-            ]
-          : [];
-      const jobTemplate =
-        loadTest && type === 'Kubernetes'
-          ? [
-              {
-                label: t('system.resourcePool.jobTemplate'),
-                value: t('system.resourcePool.customJobTemplate'),
-                isButton: true,
-                onClick: () => {
-                  showJobDrawer.value = true;
-                },
-              },
-            ]
-          : [];
-      // 性能测试
-      const performanceDesc = loadTest
-        ? [
-            {
-              label: t('system.resourcePool.mirror'),
-              value: loadTestImage,
-            },
-            {
-              label: t('system.resourcePool.testHeap'),
-              value: loadTestHeap,
-            },
-          ]
-        : [];
-      // 接口测试/性能测试
-      const resourceDesc = apiTest || loadTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
-      // ui 测试资源
-      const uiDesc = uiTest
-        ? [
-            {
-              label: t('system.resourcePool.uiGrid'),
-              value: uiGrid,
-            },
-            {
-              label: t('system.resourcePool.concurrentNumber'),
-              value: girdConcurrentNumber,
-            },
-          ]
-        : [];
-
-      const detailType =
-        apiTest || loadTest
-          ? [
-              {
-                label: t('system.resourcePool.detailType'),
-                value: activePool.value.type,
-              },
-            ]
-          : [];
-      activePoolDesc.value = [
-        {
-          label: t('system.resourcePool.detailDesc'),
-          value: activePool.value.description,
-        },
-        {
-          label: t('system.resourcePool.detailUrl'),
-          value: activePool.value.serverUrl,
-        },
-        {
-          label: t('system.resourcePool.detailRange'),
-          value: activePool.value.allOrg
-            ? [t('system.resourcePool.orgAll')]
-            : activePool.value.testResourceDTO.orgIdNameMap.map((e) => e.name),
-          isTag: true,
-        },
-        {
-          label: t('system.resourcePool.detailUse'),
-          value: poolUses.filter((e) => e !== ''),
-          isTag: true,
-        },
-        ...performanceDesc,
-        ...uiDesc,
-        ...detailType,
-        ...resourceDesc,
-        ...jobTemplate,
-      ];
+  async function showPoolDetail(record: any) {
+    if (activePool.value?.id === record.id && showDetailDrawer.value) {
+      return;
     }
-
+    drawerLoading.value = true;
     showDetailDrawer.value = true;
+    try {
+      const res = await getPoolInfo(record.id);
+      if (res) {
+        activePool.value = res;
+        const poolUses = [
+          activePool.value.loadTest ? t('system.resourcePool.usePerformance') : '',
+          activePool.value.apiTest ? t('system.resourcePool.useAPI') : '',
+          activePool.value.uiTest ? t('system.resourcePool.useUI') : '',
+        ];
+        const { type, testResourceReturnDTO, loadTest, apiTest, uiTest } = activePool.value;
+        const {
+          ip,
+          token, // k8s token
+          nameSpaces, // k8s 命名空间
+          concurrentNumber, // k8s 最大并发数
+          podThreads, // k8s 单pod最大线程数
+          apiTestImage, // k8s api测试镜像
+          deployName, // k8s api测试部署名称
+          girdConcurrentNumber,
+          nodesList,
+          loadTestImage,
+          loadTestHeap,
+          uiGrid,
+        } = testResourceReturnDTO;
+        // Node
+        const nodeResourceDesc =
+          type === 'Node'
+            ? [
+                {
+                  label: t('system.resourcePool.detailResources'),
+                  value: nodesList?.map((e) => `${e.ip},${e.port},${e.monitor},${e.concurrentNumber}`),
+                  isTag: true,
+                },
+              ]
+            : [];
+        // K8S
+        const k8sResourceDesc =
+          type === 'Kubernetes'
+            ? [
+                {
+                  label: t('system.resourcePool.testResourceDTO.ip'),
+                  value: ip,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.token'),
+                  value: token,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.nameSpaces'),
+                  value: nameSpaces,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.deployName'),
+                  value: deployName,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.apiTestImage'),
+                  value: apiTestImage,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.concurrentNumber'),
+                  value: concurrentNumber,
+                },
+                {
+                  label: t('system.resourcePool.testResourceDTO.podThreads'),
+                  value: podThreads,
+                },
+              ]
+            : [];
+        const jobTemplate =
+          loadTest && type === 'Kubernetes'
+            ? [
+                {
+                  label: t('system.resourcePool.jobTemplate'),
+                  value: t('system.resourcePool.customJobTemplate'),
+                  isButton: true,
+                  onClick: () => {
+                    showJobDrawer.value = true;
+                  },
+                },
+              ]
+            : [];
+        // 性能测试
+        const performanceDesc = loadTest
+          ? [
+              {
+                label: t('system.resourcePool.mirror'),
+                value: loadTestImage,
+              },
+              {
+                label: t('system.resourcePool.testHeap'),
+                value: loadTestHeap,
+              },
+            ]
+          : [];
+        // 接口测试/性能测试
+        const resourceDesc = apiTest || loadTest ? [...nodeResourceDesc, ...k8sResourceDesc] : [];
+        // ui 测试资源
+        const uiDesc = uiTest
+          ? [
+              {
+                label: t('system.resourcePool.uiGrid'),
+                value: uiGrid,
+              },
+              {
+                label: t('system.resourcePool.concurrentNumber'),
+                value: girdConcurrentNumber,
+              },
+            ]
+          : [];
+
+        const detailType =
+          apiTest || loadTest
+            ? [
+                {
+                  label: t('system.resourcePool.detailType'),
+                  value: activePool.value.type,
+                },
+              ]
+            : [];
+        activePoolDesc.value = [
+          {
+            label: t('system.resourcePool.detailDesc'),
+            value: activePool.value.description,
+          },
+          {
+            label: t('system.resourcePool.detailUrl'),
+            value: activePool.value.serverUrl,
+          },
+          {
+            label: t('system.resourcePool.detailRange'),
+            value: activePool.value.allOrg
+              ? [t('system.resourcePool.orgAll')]
+              : activePool.value.testResourceReturnDTO.orgIdNameMap.map((e) => e.name),
+            isTag: true,
+          },
+          {
+            label: t('system.resourcePool.detailUse'),
+            value: poolUses.filter((e) => e !== ''),
+            isTag: true,
+          },
+          ...performanceDesc,
+          ...uiDesc,
+          ...detailType,
+          ...resourceDesc,
+          ...jobTemplate,
+        ];
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
   }
 
   /**

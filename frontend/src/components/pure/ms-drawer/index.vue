@@ -19,7 +19,12 @@
       </slot>
     </template>
     <slot>
-      <MsDescription v-if="props.descriptions?.length > 0" :descriptions="props.descriptions"></MsDescription>
+      <MsDescription
+        v-if="props.descriptions?.length > 0 || showDescription"
+        :descriptions="props.descriptions"
+        :show-skeleton="props.showSkeleton"
+        :skeleton-line="10"
+      ></MsDescription>
     </slot>
   </a-drawer>
 </template>
@@ -39,12 +44,15 @@
     descriptions?: Description[];
     footer?: boolean;
     mask?: boolean;
+    showDescription?: boolean;
+    showSkeleton?: boolean;
     [key: string]: any;
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
     footer: true,
     mask: true,
+    showSkeleton: false,
   });
   const emit = defineEmits(['update:visible']);
 

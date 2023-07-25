@@ -60,7 +60,7 @@
           multiple
           allow-clear
         >
-          <a-option v-for="org of orgOptons" :key="org.id" :value="org.value">{{ org.label }}</a-option>
+          <a-option v-for="org of orgOptons" :key="org.id" :value="org.id">{{ org.name }}</a-option>
         </a-select>
       </a-form-item>
       <a-form-item
@@ -337,7 +337,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, Ref, ref, watchEffect } from 'vue';
+  import { computed, onBeforeMount, Ref, ref, watchEffect, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message, FormInstance, SelectOptionData } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
@@ -351,6 +351,7 @@
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
+  import { getAllOrgList } from '@/api/modules/setting/orgnization';
 
   import type { MsBatchFormInstance, FormItemModel } from '@/components/bussiness/ms-batch-form/types';
   import type { UpdateResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
@@ -405,6 +406,10 @@
     },
   ];
   const defaultGrid = 'http://selenium-hub:4444';
+
+  onBeforeMount(async () => {
+    orgOptons.value = await getAllOrgList();
+  });
 
   async function initPoolInfo() {
     try {
@@ -485,6 +490,16 @@
   // 是否填写了命名空间及Deploy Name
   const isFillNameSpacesAndDeployName = computed(
     () => isFillNameSpaces.value && form.value.testResourceDTO.deployName?.trim() !== ''
+  );
+
+  watch(
+    () => isShowK8SResources.value,
+    (val) => {
+      if (val && !form.value.testResourceDTO.jobDefinition) {
+        // 在编辑场景下，如果资源池非 k8s 的话，jobDefinition 会是 null，选中 k8s 资源的时候需要赋默认值
+        form.value.testResourceDTO.jobDefinition = job;
+      }
+    }
   );
 
   const batchFormRef = ref<MsBatchFormInstance | null>(null);
