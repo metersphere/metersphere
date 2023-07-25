@@ -74,11 +74,9 @@ import java.io.File;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ElementUtil {
     private static final String PRE = "PRE";
@@ -443,51 +441,126 @@ public class ElementUtil {
                 element.setHashTree(targetHashTree);
                 return;
             }
-            // 合并步骤
-            List<MsTestElement> sourceList = Stream.of(element.getHashTree(), targetHashTree)
-                    .flatMap(Collection::stream)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            // 历史数据补充id
-            sourceList.forEach(item -> {
-                if (StringUtils.isBlank(item.getId())) {
-                    item.setId(UUID.randomUUID().toString());
-                }
-            });
-
-
-            //对sourceList根据id去重并且保持原有顺序
-            sourceList = sourceList.stream()
-                    .collect(Collectors.toMap(MsTestElement::getId, Function.identity(), (oldValue, newValue) -> oldValue, LinkedHashMap::new))
-                    .values()
-                    .stream()
-                    .collect(Collectors.toList());
-
-            //删除不需要的元素
-            for (int i = 0; i < sourceList.size(); i++) {
-                MsTestElement item = sourceList.get(i);
-                if (!StringUtils.equals(item.getLabel(), SCENARIO_REF)
-                        && targetHashTree.stream().noneMatch(target -> StringUtils.equals(target.getId(), item.getId()))) {
-                    sourceList.remove(i);
-                }
+            Map<String, LinkedList<MsTestElement>> source = groupCase(element.getHashTree());
+            Map<String, LinkedList<MsTestElement>> target = groupCase(targetHashTree);
+            List<MsTestElement> pre = ElementUtil.mergeCaseHashTree(source.get(PRE), target.get(PRE));
+            List<MsTestElement> post = ElementUtil.mergeCaseHashTree(source.get(POST), target.get(POST));
+            List<MsTestElement> rules = mergeCaseHashTree(source.get(ASSERTIONS), target.get(ASSERTIONS));
+            List<MsTestElement> step = new LinkedList<>();
+            if (CollectionUtils.isNotEmpty(pre)) {
+                step.addAll(pre);
+            }
+            if (CollectionUtils.isNotEmpty(post)) {
+                step.addAll(post);
+            }
+            if (CollectionUtils.isNotEmpty(rules)) {
+                step.addAll(rules);
             }
 
             element.getHashTree().clear();
-            element.getHashTree().addAll(sourceList);
+            element.getHashTree().addAll(step);
         } catch (Exception e) {
             element.setHashTree(targetHashTree);
         }
     }
 
-    public static List<JSONObject> mergeHashTree(List<JSONObject> sources, List<JSONObject> targets) {
+    public static Map<String, LinkedList<MsTestElement>> groupCase(List<MsTestElement> elements) {
+        Map<String, LinkedList<MsTestElement>> groupMap = new LinkedHashMap<>();
+        if (elements != null) {
+            for (int i = 0; i < elements.size(); i++) {
+                MsTestElement item = elements.get(i);
+                if (ElementConstants.ASSERTIONS.equals(item.getType())) {
+                    if (groupMap.containsKey(ASSERTIONS)) {
+                        groupMap.get(ASSERTIONS).add(item);
+                    } else {
+                        groupMap.put(ASSERTIONS, new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (preOperates.contains(item.getType())) {
+                    if (groupMap.containsKey(PRE)) {
+                        groupMap.get(PRE).add(item);
+                    } else {
+                        groupMap.put(PRE, new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                } else if (postOperates.contains(item.getType())) {
+                    if (groupMap.containsKey(POST)) {
+                        groupMap.get(POST).add(item);
+                    } else {
+                        groupMap.put(POST, new LinkedList<MsTestElement>() {{
+                            this.add(item);
+                        }});
+                    }
+                }
+            }
+        }
+        return groupMap;
+    }
+
+
+    public static List<MsTestElement> mergeCaseHashTree(List<MsTestElement> targets, List<MsTestElement> sources) {
+        try {
+            List<String> sourceIds = new ArrayList<>();
+            List<String> delIds = new ArrayList<>();
+            Map<String, MsTestElement> updateMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(sources)) {
+                for (int i = 0; i < sources.size(); i++) {
+                    MsTestElement msTestElement = sources.get(i);
+                    if (StringUtils.isNotEmpty(msTestElement.getId())) {
+                        updateMap.put(msTestElement.getId(), msTestElement);
+                    }
+                }
+            }
+            // 找出待更新内容和源已经被删除的内容
+            if (CollectionUtils.isNotEmpty(targets)) {
+                for (int i = 0; i < targets.size(); i++) {
+                    MsTestElement msTestElement = targets.get(i);
+                    if (msTestElement == null) {
+                        continue;
+                    }
+                    sourceIds.add(msTestElement.getId());
+                    if (!StringUtils.equals(msTestElement.getLabel(), SCENARIO_REF)
+                            && StringUtils.isNotEmpty(msTestElement.getId())) {
+                        if (updateMap.containsKey(msTestElement.getId())) {
+                            targets.set(i, updateMap.get(msTestElement.getId()));
+                            updateMap.remove(msTestElement.getId());
+                        } else {
+                            delIds.add(msTestElement.getId());
+                        }
+                    }
+                }
+            }
+
+            // 删除多余的步骤 delIds中包含的全都干掉
+            targets.removeIf(msTestElement -> delIds.contains(msTestElement.getId()));
+
+            // 补充新增的源引用步骤
+            if (CollectionUtils.isNotEmpty(sources)) {
+                for (int i = 0; i < sources.size(); i++) {
+                    MsTestElement msTestElement = sources.get(i);
+                    if (!sourceIds.contains(msTestElement.getId())) {
+                        targets.add(msTestElement);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            return sources;
+        }
+        //根据index排序
+        targets.sort(Comparator.comparing(MsTestElement::getIndex));
+        return targets;
+    }
+
+    public static List<JSONObject> mergeHashTree(List<JSONObject> targets, List<JSONObject> sources) {
         try {
             List<String> sourceIds = new ArrayList<>();
             List<String> delIds = new ArrayList<>();
             Map<String, JSONObject> updateMap = new HashMap<>();
-            if (CollectionUtils.isNotEmpty(targets)) {
-                for (int i = 0; i < targets.size(); i++) {
-                    JSONObject item = targets.get(i);
+            if (CollectionUtils.isNotEmpty(sources)) {
+                for (int i = 0; i < sources.size(); i++) {
+                    JSONObject item = sources.get(i);
                     item.put(MsHashTreeConstants.DISABLED, true);
                     item.put(ElementConstants.REF_ENABLE, true);
                     if (StringUtils.isNotEmpty(item.optString(ElementConstants.ID))) {
@@ -496,9 +569,9 @@ public class ElementUtil {
                 }
             }
             // 找出待更新内容和源已经被删除的内容
-            if (CollectionUtils.isNotEmpty(sources)) {
-                for (int i = 0; i < sources.size(); i++) {
-                    JSONObject object = sources.get(i);
+            if (CollectionUtils.isNotEmpty(targets)) {
+                for (int i = 0; i < targets.size(); i++) {
+                    JSONObject object = targets.get(i);
                     if (object == null) {
                         continue;
                     }
@@ -506,7 +579,7 @@ public class ElementUtil {
                     if (!StringUtils.equals(object.optString("label"), SCENARIO_REF)
                             && StringUtils.isNotEmpty(object.optString(ElementConstants.ID))) {
                         if (updateMap.containsKey(object.optString(ElementConstants.ID))) {
-                            sources.set(i, updateMap.get(object.optString(ElementConstants.ID)));
+                            targets.set(i, updateMap.get(object.optString(ElementConstants.ID)));
                             updateMap.remove(object.optString(ElementConstants.ID));
                         } else {
                             delIds.add(object.optString(ElementConstants.ID));
@@ -515,32 +588,28 @@ public class ElementUtil {
                     // 历史数据兼容
                     if (!object.has(ElementConstants.ID)
                             && !StringUtils.equals(object.optString("label"), SCENARIO_REF)
-                            && i < targets.size()) {
-                        sources.set(i, targets.get(i));
+                            && i < sources.size()) {
+                        targets.set(i, sources.get(i));
                     }
                 }
             }
 
             // 删除多余的步骤
-            for (int i = 0; i < sources.size(); i++) {
-                JSONObject source = sources.get(i);
-                if (delIds.contains(source.optString(ElementConstants.ID))) {
-                    sources.remove(i);
-                }
-            }
+            targets.removeIf(msTestElement -> delIds.contains(msTestElement.optString(ElementConstants.ID)));
+
             // 补充新增的源引用步骤
-            if (CollectionUtils.isNotEmpty(targets)) {
-                for (int i = 0; i < targets.size(); i++) {
+            if (CollectionUtils.isNotEmpty(sources)) {
+                for (int i = 0; i < sources.size(); i++) {
                     JSONObject item = sources.get(i);
                     if (!sourceIds.contains(item.optString(ElementConstants.ID))) {
-                        sources.add(item);
+                        targets.add(item);
                     }
                 }
             }
         } catch (Exception e) {
-            return targets;
+            return sources;
         }
-        return sources;
+        return targets;
     }
 
     public static String getResourceId(String resourceId, ParameterConfig config, MsTestElement parent, String indexPath) {
@@ -748,7 +817,7 @@ public class ElementUtil {
                     .filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                             arguments.addArgument(keyValue.getName(),
                                     StringUtils.isNotBlank(keyValue.getValue())
-                                            ? keyValue.getValue().replaceAll("[\r\n]","") : keyValue.getValue(), "="));
+                                            ? keyValue.getValue().replaceAll("[\r\n]", "") : keyValue.getValue(), "="));
             List<ScenarioVariable> variableList = variables.stream()
                     .filter(ScenarioVariable::isListValid).collect(Collectors.toList());
             variableList.forEach(item -> {
@@ -772,7 +841,7 @@ public class ElementUtil {
                             keyValue.getValue() != null && keyValue.getValue().startsWith("@")
                                     ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())
                                     : (StringUtils.isNotBlank(keyValue.getValue())
-                                    ? keyValue.getValue().replaceAll("[\r\n]","")
+                                    ? keyValue.getValue().replaceAll("[\r\n]", "")
                                     : keyValue.getValue()), "="));
             // List类型的变量
             List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
@@ -1183,13 +1252,14 @@ public class ElementUtil {
         }
         return false;
     }
+
     @NotNull
     public static List<String> getProjectIds(String scenarioDefinition) {
         Pattern pattern = Pattern.compile("\"projectId\"\\s*:\\s*\"?([^\"]*)\"?,");
         Matcher matcher = pattern.matcher(scenarioDefinition);
         List<String> projectIdLists = new ArrayList<>();
         while (matcher.find()) {
-            if (!projectIdLists.contains(matcher.group(1))){
+            if (!projectIdLists.contains(matcher.group(1))) {
                 projectIdLists.add(matcher.group(1));
             }
         }
