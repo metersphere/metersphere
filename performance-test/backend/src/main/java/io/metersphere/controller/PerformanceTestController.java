@@ -345,7 +345,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/getLoadCaseByIds")
-    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_PERFORMANCE_TEST_READ, PermissionConstants.PROJECT_TRACK_CASE_READ}, logical = Logical.OR)
     public List<LoadTest> getLoadCaseByIds(@RequestBody List<String> ids) {
         return performanceTestService.getLoadCaseByIds(ids);
     }
