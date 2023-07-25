@@ -141,7 +141,7 @@ public class OrganizationService {
             String roleId = userRoleRelationsByUser.getRoleId();
             String userId = userRoleRelationsByUser.getUserId();
             Map<String, String> pIdNameMap = userIdprojectIdMap.get(userId);
-            if (pIdNameMap == null || MapUtils.isEmpty(pIdNameMap)) {
+            if (MapUtils.isEmpty(pIdNameMap)) {
                 pIdNameMap = new HashMap<>();
             }
             String projectName = projectIdNameMap.get(projectId);
@@ -151,7 +151,7 @@ public class OrganizationService {
             userIdprojectIdMap.put(userId, pIdNameMap);
 
             Set<String> roleIds = userIdRoleIdMap.get(userId);
-            if (roleIds == null || CollectionUtils.isEmpty(roleIds)) {
+            if (CollectionUtils.isEmpty(roleIds)) {
                 roleIds = new HashSet<>();
             }
             roleIds.add(roleId);
@@ -164,13 +164,11 @@ public class OrganizationService {
                 orgUserExtend.setProjectIdNameMap(projectIdNameMap);
             }
             Set<String> userRoleIds = userIdRoleIdMap.get(orgUserExtend.getId());
-            if (CollectionUtils.isNotEmpty(userRoleIds)) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andIdIn(new ArrayList<>(userRoleIds));
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                Map<String, String> userRoleIdNameMap = userRoles.stream().collect(Collectors.toMap(UserRole::getId, UserRole::getName));
-                orgUserExtend.setUserRoleIdNameMap(userRoleIdNameMap);
-            }
+            UserRoleExample userRoleExample = new UserRoleExample();
+            userRoleExample.createCriteria().andIdIn(new ArrayList<>(userRoleIds));
+            List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+            Map<String, String> userRoleIdNameMap = userRoles.stream().collect(Collectors.toMap(UserRole::getId, UserRole::getName));
+            orgUserExtend.setUserRoleIdNameMap(userRoleIdNameMap);
         }
         return orgUserExtends;
     }
@@ -422,9 +420,7 @@ public class OrganizationService {
     public void updateMember(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
         List<String> memberIds = organizationMemberExtendRequest.getMemberIds();
-        if(CollectionUtils.isEmpty(memberIds)) {
-            throw new MSException(Translator.get("user.not.exist"));
-        }
+
         //校验组织是否存在
         checkOrgExist(organizationId);
         //校验成员是否是当前组织的成员
