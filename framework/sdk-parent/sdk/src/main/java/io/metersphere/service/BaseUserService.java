@@ -718,6 +718,19 @@ public class BaseUserService {
         return baseUserGroupMapper.getMemberList(request);
     }
 
+    public List<User> getAddProjectMemberOption(String projectId) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        QueryMemberRequest request = new QueryMemberRequest();
+        request.setWorkspaceId(project.getWorkspaceId());
+        List<User> memberList = getMemberList(request);
+        request.setProjectId(projectId);
+        Set<String> projectUserIds = getProjectMemberList(request)
+                .stream().map(i -> i.getId())
+                .collect(Collectors.toSet());
+        return memberList.stream().filter(i -> !projectUserIds.contains(i.getId()))
+                .collect(Collectors.toList());
+    }
+
     public void createOssUser(User user) {
         user.setCreateTime(System.currentTimeMillis());
         user.setUpdateTime(System.currentTimeMillis());

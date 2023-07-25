@@ -4,6 +4,7 @@ import io.metersphere.base.domain.User;
 import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
@@ -15,6 +16,7 @@ import io.metersphere.request.member.EditSeleniumServerRequest;
 import io.metersphere.request.member.QueryMemberRequest;
 import io.metersphere.service.BaseUserService;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -39,6 +41,11 @@ public class BaseUserController {
         return baseUserService.getMemberList(request);
     }
 
+    @GetMapping("/add/project/member/option/{projectId}")
+    @RequiresPermissions(PermissionConstants.PROJECT_USER_READ)
+    public List<User> getAddProjectMemberOption(@PathVariable(value = "projectId") String projectId) {
+        return baseUserService.getAddProjectMemberOption(projectId);
+    }
 
     @GetMapping("/switch/source/ws/{sourceId}")
     public UserDTO switchWorkspace(@PathVariable(value = "sourceId") String sourceId) {
