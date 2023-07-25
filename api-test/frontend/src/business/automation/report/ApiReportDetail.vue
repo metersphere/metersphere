@@ -244,9 +244,9 @@ export default {
     filterNodes(node, status) {
       if (status === 'ERROR' || status === 'FAKE_ERROR' || status === 'UN_EXECUTE') {
         let data = { ...node };
-        if (!data.value && (!data.children || data.children.length === 0)) {
+        /*if (!data.value && (!data.children || data.children.length === 0)) {
           return null;
-        }
+        }*/
         if (data.children.length > 0) {
           let filteredChildren = [];
           for (let i = 0; i < data.children.length; i++) {
@@ -269,6 +269,9 @@ export default {
               return data;
             }
             if (data.type === 'IfController' && data.totalStatus === 'PENDING') {
+              return data;
+            }
+            if (data.type === 'GenericController' && data.totalStatus === 'PENDING') {
               return data;
             }
           } else if (status === 'ERROR') {

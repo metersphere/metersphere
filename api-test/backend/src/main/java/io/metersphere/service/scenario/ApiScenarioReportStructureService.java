@@ -663,6 +663,9 @@ public class ApiScenarioReportStructureService {
                     allUnExecute.set(allUnExecute.longValue() + 1);
                 }
             }
+            if (step.getValue() == null && StringUtils.equals(step.getType(), "GenericController") && StringUtils.equalsIgnoreCase(step.getTotalStatus(), ApiReportStatus.PENDING.name())) {
+                allUnExecute.set(allUnExecute.longValue() + 1);
+            }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
                 this.countAllUnexpected(step.getChildren(), allUnExecute);
             }

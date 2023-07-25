@@ -164,9 +164,9 @@ export default {
     request: {
       deep: true,
       handler(n) {
-        if (this.request.errorCode) {
+        if (this.request && this.request.errorCode) {
           this.baseErrorCode = this.request.errorCode;
-        } else if (this.request.attachInfoMap && this.request.attachInfoMap.FAKE_ERROR) {
+        } else if (this.request && this.request.attachInfoMap && this.request.attachInfoMap.FAKE_ERROR) {
           if (this.request.attachInfoMap.FAKE_ERROR !== '') {
             this.baseErrorCode = this.request.attachInfoMap.FAKE_ERROR;
           }
@@ -207,7 +207,7 @@ export default {
       element.parentNode.removeChild(element);
     },
     loadRequestInfoExpand() {
-      if (
+      if ( this.request &&
         !this.request.responseResult ||
         this.request.responseResult.body === null ||
         this.request.responseResult.body === undefined
