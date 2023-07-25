@@ -278,13 +278,15 @@ export default {
     },
     search(data) {
       this.pageRefresh = data === "page";
-      this.projectEnvMap.clear();
-      this.projectIds.clear();
+      if (!this.pageRefresh) {
+        this.projectEnvMap.clear();
+        this.projectIds.clear();
+        this.selectRows = new Set();
+      }
       if (!this.projectId) {
         return;
       }
       this.getProject(this.projectId);
-      this.selectRows = new Set();
       this.loading = true;
       if (this.condition.filters) {
         this.condition.filters.status = ["Prepare", "Underway", "Completed"];
@@ -316,7 +318,9 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
         });
-        this.clear();
+        if (!this.pageRefresh) {
+          this.clear();
+        }
       });
     },
     clear() {
