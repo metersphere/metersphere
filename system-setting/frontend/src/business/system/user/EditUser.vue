@@ -554,4 +554,16 @@ export default {
 :deep(.el-tag.el-tag--info .el-tag__close) {
   top: -5px;
 }
+
+:deep(.el-select-dropdown) {
+    position: absolute !important;
+    z-index: 1001;
+    border: 1px solid #E4E7ED;
+    border-radius: 4px;
+    background-color: #FFF;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    margin: 10px -5px;
+    top: auto !important;
+}
 </style>
