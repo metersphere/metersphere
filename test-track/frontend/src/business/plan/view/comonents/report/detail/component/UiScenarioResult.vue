@@ -45,7 +45,7 @@
               prop="lastResult"
             >
               <template v-slot:default="{ row }">
-                <ms-test-plan-api-status :status="row.lastResult" />
+                <ms-test-plan-api-status :status="row.lastResult === 'UnExecute' ? 'PENDING' : row.lastResult" />
               </template>
             </ms-table-column>
           </ms-table>
