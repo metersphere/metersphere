@@ -857,7 +857,7 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 MsWhileController countController = new MsWhileController();
                 countController.setValue(whileController.getCondition());
                 ((MsLoopController) elementNode).setWhileController(countController);
-                elementNode.setClazzName(MsWhileController.class.getCanonicalName());
+                elementNode.setClazzName(MsLoopController.class.getCanonicalName());
             }
             // Foreach 循环控制器
             else if (key instanceof ForeachController) {
@@ -870,7 +870,7 @@ public class JMeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 countController.setInputVal(foreachController.getInputValString());
                 countController.setReturnVal(foreachController.getReturnValString());
                 ((MsLoopController) elementNode).setForEachController(countController);
-                elementNode.setClazzName(ForeachController.class.getCanonicalName());
+                elementNode.setClazzName(MsLoopController.class.getCanonicalName());
             } else if (key instanceof TransactionController) {
                 TransactionController transactionController = (TransactionController) key;
                 elementNode = new MsTransactionController();

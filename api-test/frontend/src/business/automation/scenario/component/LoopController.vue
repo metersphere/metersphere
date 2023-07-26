@@ -547,7 +547,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 60px;
+  width: 65px;
 }
 
 .ms-conn {
