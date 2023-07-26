@@ -28,8 +28,7 @@
                 v-if="
                   node.type !== 'ConstantTimer' &&
                   node.type !== 'Assertion' &&
-                  node.children &&
-                  node.children.length > 0
+                  node.children
                 " />
             </div>
           </el-col>

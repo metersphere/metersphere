@@ -73,9 +73,6 @@ export default {
   },
   methods: {
     filterNode(value, data) {
-      if (!data.value && (!data.children || data.children.length === 0)) {
-        return false;
-      }
       if (!value) return true;
       if (data.value) {
         if (value === 'FAKE_ERROR') {
@@ -88,6 +85,11 @@ export default {
           }
         } else {
           return data.totalStatus !== 'FAKE_ERROR' && data.value.error > 0;
+        }
+      }
+      if (!data.value) {
+        if (value === 'PENDING' && data.totalStatus === 'PENDING') {
+          return true;
         }
       }
       return false;
