@@ -115,10 +115,6 @@ public class XmindCaseParser {
     public void validate() {
         nodePaths.forEach(nodePath -> {
             String[] nodes = nodePath.split("/");
-            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                process.add(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"), nodePath);
-            }
             String path = StringUtils.EMPTY;
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
@@ -161,14 +157,6 @@ public class XmindCaseParser {
 
         if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
-            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                validatePass = false;
-                process.add(Translator.get("test_case_node_level_tip") +
-                        TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"), nodePath);
-                if (!errorPath.contains(nodePath)) {
-                    errorPath.add(nodePath);
-                }
-            }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {
                     validatePass = false;

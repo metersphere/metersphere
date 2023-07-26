@@ -100,10 +100,6 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     private void validateNode(TestCaseNode node) {
-        if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
-            MSException.throwException(Translator.get("test_case_node_level_tip")
-                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
-        }
         this.checkTestCaseNodeExist(node);
     }
 

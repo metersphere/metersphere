@@ -246,10 +246,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     private void validateNode(ApiModule node) {
-        if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
-            MSException.throwException(Translator.get("test_case_node_level_tip")
-                    + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
-        }
         checkApiModuleExist(node);
     }
 
