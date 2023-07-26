@@ -663,7 +663,8 @@ public class ApiScenarioReportStructureService {
                     allUnExecute.set(allUnExecute.longValue() + 1);
                 }
             }
-            if (step.getValue() == null && StringUtils.equals(step.getType(), "GenericController") && StringUtils.equalsIgnoreCase(step.getTotalStatus(), ApiReportStatus.PENDING.name())) {
+            if (step.getValue() == null && StringUtils.containsAnyIgnoreCase(step.getType(), "GenericController", "IfController", "LoopController", "TransactionController")
+                    && StringUtils.equalsIgnoreCase(step.getTotalStatus(), ApiReportStatus.PENDING.name())) {
                 allUnExecute.set(allUnExecute.longValue() + 1);
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {

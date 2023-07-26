@@ -17,11 +17,11 @@
               :pool-name="poolName"
               :is-share="isShare"
               @reportExport="handleExport"
-              @reportSave="handleSave" />
+              @reportSave="handleSave"/>
             <!-- content -->
             <main v-if="isNotRunning">
               <!-- content header chart -->
-              <ms-metric-chart :content="content" :totalTime="totalTime" :report="report" />
+              <ms-metric-chart :content="content" :totalTime="totalTime" :report="report"/>
 
               <el-tabs v-model="activeName" @tab-click="handleClick" style="min-width: 1200px">
                 <!-- all step-->
@@ -33,7 +33,7 @@
                     :is-share="isShare"
                     :share-id="shareId"
                     v-on:requestResult="requestResult"
-                    ref="resultsTree" />
+                    ref="resultsTree"/>
                 </el-tab-pane>
                 <!-- fail step -->
                 <el-tab-pane name="fail">
@@ -46,7 +46,7 @@
                     :share-id="shareId"
                     :treeData="errorTreeNodes"
                     ref="failsTree"
-                    :errorReport="content.error" />
+                    :errorReport="content.error"/>
                 </el-tab-pane>
                 <!--error step -->
                 <el-tab-pane name="errorReport" v-if="content.errorCode > 0">
@@ -60,7 +60,7 @@
                     :share-id="shareId"
                     :console="content.console"
                     :treeData="fakeErrorTreeNodes"
-                    ref="errorReportTree" />
+                    ref="errorReportTree"/>
                 </el-tab-pane>
                 <!-- Not performed step -->
                 <el-tab-pane name="unExecute" v-if="content.unExecute > 0">
@@ -74,7 +74,7 @@
                     :share-id="shareId"
                     :console="content.console"
                     :treeData="unExecuteTreeNodes"
-                    ref="unExecuteTree" />
+                    ref="unExecuteTree"/>
                 </el-tab-pane>
                 <!-- console -->
                 <el-tab-pane name="console">
@@ -85,7 +85,7 @@
                     :mode="'text'"
                     :read-only="true"
                     :data.sync="content.console"
-                    height="calc(100vh - 500px)" />
+                    height="calc(100vh - 500px)"/>
                 </el-tab-pane>
               </el-tabs>
             </main>
@@ -104,7 +104,7 @@
       :mode="mode"
       :pool-name="poolName"
       :report="report"
-      :total-time="totalTime" />
+      :total-time="totalTime"/>
   </div>
 </template>
 
@@ -119,9 +119,9 @@ import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer
 import MsApiReportExport from './ApiReportExport';
 import MsApiReportViewHeader from './ApiReportViewHeader';
 import MsInfiniteScrollScenarioResults from '@/business/automation/report/components/InfiniteScrollScenarioResults.vue';
-import { RequestFactory } from '../../definition/model/ApiTestModel';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { getUUID } from 'metersphere-frontend/src/utils';
+import {RequestFactory} from '../../definition/model/ApiTestModel';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
+import {getUUID} from 'metersphere-frontend/src/utils';
 import {
   getScenarioReport,
   getScenarioReportDetail,
@@ -129,7 +129,7 @@ import {
   getShareScenarioReport,
   reportReName,
 } from '../../../api/scenario-report';
-import { STEP } from '../../automation/scenario/Setting';
+import {STEP} from '../../automation/scenario/Setting';
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import print from 'print-js';
 
@@ -243,10 +243,7 @@ export default {
     },
     filterNodes(node, status) {
       if (status === 'ERROR' || status === 'FAKE_ERROR' || status === 'UN_EXECUTE') {
-        let data = { ...node };
-        /*if (!data.value && (!data.children || data.children.length === 0)) {
-          return null;
-        }*/
+        let data = {...node};
         if (data.children.length > 0) {
           let filteredChildren = [];
           for (let i = 0; i < data.children.length; i++) {
@@ -268,10 +265,8 @@ export default {
             if (data.value && data.value.status === 'PENDING' && data.type !== 'IfController') {
               return data;
             }
-            if (data.type === 'IfController' && data.totalStatus === 'PENDING') {
-              return data;
-            }
-            if (data.type === 'GenericController' && data.totalStatus === 'PENDING') {
+            if ((data.type === 'IfController' || data.type === 'GenericController' || data.type === 'LoopController' || data.type === 'TransactionController')
+              && data.totalStatus === 'PENDING') {
               return data;
             }
           } else if (status === 'ERROR') {
@@ -666,7 +661,7 @@ export default {
         if (this.isNotRunning) {
           this.content = JSON.parse(this.report.content);
           if (!this.content) {
-            this.content = { scenarios: [] };
+            this.content = {scenarios: []};
           }
           this.formatResult(this.content);
           this.getFails();
@@ -765,14 +760,14 @@ export default {
         // 多次点击导出报告, 场景步骤未清空#771;
         this.content.scenarios = [];
         if (this.report.reportType === 'API_INTEGRATED' || this.report.reportType === 'UI_INTEGRATED') {
-          let scenario = { name: '', requestResults: [] };
+          let scenario = {name: '', requestResults: []};
           this.content.scenarios = [scenario];
           this.formatExportApi(this.fullTreeNodes, scenario);
         } else {
           if (this.fullTreeNodes) {
             this.fullTreeNodes.forEach((item) => {
               if (item.type === 'scenario') {
-                let scenario = { name: item.label, requestResults: [] };
+                let scenario = {name: item.label, requestResults: []};
                 if (this.content.scenarios && this.content.scenarios.length > 0) {
                   this.content.scenarios.push(scenario);
                 } else {
@@ -785,7 +780,7 @@ export default {
         }
       }
       if (this.content.scenarios && this.content.scenarios[0].requestResults) {
-        this.content.scenarios[0].requestResults.push({ responseResult: {} });
+        this.content.scenarios[0].requestResults.push({responseResult: {}});
       }
       this.reportExportVisible = true;
       let reset = this.exportReportReset;

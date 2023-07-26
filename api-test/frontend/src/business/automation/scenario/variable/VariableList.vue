@@ -518,6 +518,7 @@ export default {
     },
     close() {
       let saveVariables = [];
+      let isContinue = true;
       this.variables.forEach((item) => {
         item.hidden = undefined;
         if (item.name && item.name != '') {
@@ -526,10 +527,14 @@ export default {
         }
         if (item.type === 'CSV' && item.files.length === 0) {
           this.$warning(this.$t('api_test.variable') + item.name + ' ' + this.$t('api_test.automation.csv_warning'));
-          this.visible = true;
+          isContinue = false;
           return;
         }
       });
+      if (!isContinue) {
+        this.visible = true;
+        return;
+      }
       this.selectVariable = '';
       this.searchType = '';
       this.selectType = 'CONSTANT';

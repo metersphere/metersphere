@@ -194,7 +194,9 @@ export function hisDataProcessing(array, request) {
     const rmIndex = request.hashTree.findIndex((d) => d.id === item.id && d.resourceId === item.resourceId);
     request.hashTree.splice(rmIndex, 1);
   });
-
+  if (request.type && request.type === 'GenericController') {
+    return;
+  }
   request.hashTree.push(assertions);
 }
 
