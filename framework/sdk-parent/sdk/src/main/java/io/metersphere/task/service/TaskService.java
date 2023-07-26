@@ -173,7 +173,7 @@ public class TaskService {
         }
     }
 
-    private boolean checkUiPermission() {
+    public boolean checkUiPermission() {
         try {
             String uiScenarioReport = baseInformationSchemaTableMapper.checkExist(UI_SCENARIO_REPORT);
             if (StringUtils.isNotEmpty(uiScenarioReport)) {

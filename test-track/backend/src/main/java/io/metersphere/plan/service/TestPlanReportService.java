@@ -33,6 +33,7 @@ import io.metersphere.service.BaseProjectService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.IssuesService;
 import io.metersphere.service.ServiceUtils;
+import io.metersphere.task.service.TaskService;
 import io.metersphere.utils.BatchProcessingUtil;
 import io.metersphere.utils.DiscoveryUtil;
 import io.metersphere.utils.LoggerUtil;
@@ -85,7 +86,7 @@ public class TestPlanReportService {
     @Resource
     private TestPlanPrincipalMapper testPlanPrincipalMapper;
     @Resource
-    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    private TaskService taskService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
@@ -926,6 +927,10 @@ public class TestPlanReportService {
     //删除执行测试计划产生的UI报告
     private void deleteUiReportByTestPlanExecute(List<String> testPlanReportIdList) {
         if (CollectionUtils.isNotEmpty(testPlanReportIdList)) {
+            // 如果 UI 的表没有初始化，则不删除
+            if (!taskService.checkUiPermission()) {
+                return;
+            }
             List<String> scenarioReportIds = extTestPlanReportContentMapper.selectUiReportByTestPlanReportIds(testPlanReportIdList);
             if (CollectionUtils.isNotEmpty(scenarioReportIds)) {
                 try {
