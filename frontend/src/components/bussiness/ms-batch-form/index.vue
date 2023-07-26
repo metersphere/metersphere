@@ -1,6 +1,6 @@
 <template>
   <a-form ref="formRef" :model="form" layout="vertical">
-    <div class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
+    <div class="mb-[16px] min-w-[732px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
       <a-scrollbar class="overflow-y-auto" :style="{ 'max-height': props.maxHeight }">
         <div class="flex flex-wrap items-start justify-between gap-[8px]">
           <template v-for="(item, i) of form.list" :key="`form-item-${i}`">
