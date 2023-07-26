@@ -22,7 +22,7 @@ export function updateInfo(id, data) {
 }
 
 export function specialDeleteUserById(id) {
-  return get(`/user/special/delete/${id}`);
+  return get(`/user/special/delete?userId=` + id);
 }
 
 export function specialCreateUser(user) {
