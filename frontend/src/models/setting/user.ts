@@ -1,16 +1,16 @@
+// 用户所属用户组模型
 export interface UserRoleListItem {
   id: string;
   name: string;
   description: string;
-  internal: boolean;
-  type: string;
+  internal: boolean; // 是否内置用户组
+  type: string; // 所属类型 SYSTEM ORGANIZATION PROJECT
   createTime: number;
   updateTime: number;
   createUser: string;
-  scopeId: string;
-  pos: number;
+  scopeId: string; // 应用范围
 }
-
+// 用户所属组织模型
 export interface OrganizationListItem {
   id: string;
   num: number;
@@ -20,12 +20,13 @@ export interface OrganizationListItem {
   updateTime: number;
   createUser: string;
   updateUser: string;
-  deleted: boolean;
+  deleted: boolean; // 是否删除
   deleteUser: string;
   deleteTime: number;
-  enable: boolean;
+  enable: boolean; // 是否启用
 }
 
+// 用户模型
 export interface UserListItem {
   id: string;
   name: string;
@@ -34,15 +35,15 @@ export interface UserListItem {
   enable: boolean;
   createTime: number;
   updateTime: number;
-  language: string;
-  lastOrganizationId: string;
+  language: string; // 语言
+  lastOrganizationId: string; // 当前组织ID
   phone: string;
-  source: string;
-  lastProjectId: string;
+  source: string; // 来源：LOCAL OIDC CAS OAUTH2
+  lastProjectId: string; // 当前项目ID
   createUser: string;
   updateUser: string;
-  organizationList: OrganizationListItem[];
-  userRoleList: UserRoleListItem[];
+  organizationList: OrganizationListItem[]; // 用户所属组织
+  userRoleList: UserRoleListItem[]; // 用户所属用户组
 }
 
 export interface Filter {
@@ -54,13 +55,44 @@ export interface Sort {
 }
 
 // 创建用户模型
-export interface CreateUserInfo {
+export interface SimpleUserInfo {
+  id?: string;
   name: string;
   email: string;
   phone?: string;
 }
 
-export interface CreateUserParams {
-  userInfoList: CreateUserInfo[];
+export interface UpdateUserInfoParams extends SimpleUserInfo {
+  id: string;
   userRoleIdList: string[];
+}
+
+export interface CreateUserParams {
+  userInfoList: SimpleUserInfo[];
+  userRoleIdList: string[];
+}
+export interface UpdateUserStausParams {
+  userIdList: string[];
+  enable: boolean;
+}
+
+export interface ImportUserParams {
+  fileList: (File | undefined)[];
+}
+
+export interface DeleteUserParams {
+  userIdList: string[];
+}
+
+export interface SystemRole {
+  id: string;
+  name: string;
+  selected: boolean;
+  closeable: boolean;
+}
+
+export interface ImportResult {
+  importCount: number;
+  successCount: number;
+  errorMessages: Record<string, any>;
 }

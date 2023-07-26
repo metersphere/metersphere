@@ -4,6 +4,7 @@
     v-model:file-list="fileList"
     :accept="UploadAcceptEnum[props.accept]"
     :multiple="props.multiple"
+    :disabled="props.disabled"
     @before-upload="beforeUpload"
   >
     <template #upload-button>
@@ -56,6 +57,7 @@
     multiple: boolean;
     imagePreview: boolean;
     showFileList: boolean;
+    disabled: boolean;
     iconType: string;
     maxSize: number; // 文件大小限制，单位 MB
     [key: string]: any;
@@ -70,6 +72,13 @@
   const defaultMaxSize = 50;
 
   const fileList = ref<FileItem[]>(props.fileList);
+
+  watch(
+    () => props.fileList,
+    (val) => {
+      fileList.value = val;
+    }
+  );
 
   watch(
     () => fileList.value,

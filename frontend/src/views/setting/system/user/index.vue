@@ -2,18 +2,20 @@
   <div>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="showUserModal('create')">{{
-          t('system.user.createUser')
-        }}</a-button>
-        <a-button class="mr-3" type="outline" @click="showEmailInviteModal">{{
-          t('system.user.emailInvite')
-        }}</a-button>
+        <a-button class="mr-3" type="primary" @click="showUserModal('create')">
+          {{ t('system.user.createUser') }}
+        </a-button>
+        <a-button class="mr-3" type="outline" @click="showEmailInviteModal">
+          {{ t('system.user.emailInvite') }}
+        </a-button>
         <a-button class="mr-3" type="outline" @click="showImportModal">{{ t('system.user.importUser') }}</a-button>
       </div>
       <a-input-search
+        v-model:model-value="keyword"
         :placeholder="t('system.user.searchUser')"
         class="w-[230px]"
         @search="searchUser"
+        @press-enter="searchUser"
       ></a-input-search>
     </div>
     <ms-base-table
@@ -24,34 +26,42 @@
       @batch-action="handelTableBatch"
     >
       <template #organization="{ record }">
-        <a-tag
-          v-for="org of record.organizationList.slice(0, 2)"
-          :key="org.id"
-          class="mr-[4px] bg-transparent"
-          bordered
-        >
-          {{ org.name }}
-        </a-tag>
-        <a-tag v-show="record.organizationList.length > 2" class="mr-[4px] bg-transparent" bordered>
-          +{{ record.organizationList.length - 2 }}
-        </a-tag>
+        <a-tooltip :content="record.organizationList.filter((e: any) => e).map((e: any) => e.name).join(',')">
+          <div>
+            <a-tag
+              v-for="org of record.organizationList.filter((e: any) => e).slice(0, 2)"
+              :key="org.id"
+              class="mr-[4px] bg-transparent"
+              bordered
+            >
+              {{ org.name }}
+            </a-tag>
+            <a-tag v-show="record.organizationList.length > 2" class="mr-[4px] bg-transparent" bordered>
+              +{{ record.organizationList.length - 2 }}
+            </a-tag>
+          </div>
+        </a-tooltip>
       </template>
       <template #userRole="{ record }">
-        <a-tag
-          v-for="org of record.userRoleList.slice(0, 2)"
-          :key="org.id"
-          class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-          bordered
-        >
-          {{ org.name }}
-        </a-tag>
-        <a-tag
-          v-show="record.organizationList.length > 2"
-          class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-          bordered
-        >
-          +{{ record.organizationList.length - 2 }}
-        </a-tag>
+        <a-tooltip :content="record.userRoleList.map((e: any) => e.name).join(',')">
+          <div>
+            <a-tag
+              v-for="org of record.userRoleList.slice(0, 2)"
+              :key="org.id"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+            >
+              {{ org.name }}
+            </a-tag>
+            <a-tag
+              v-show="record.organizationList.length > 2"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+            >
+              +{{ record.organizationList.length - 2 }}
+            </a-tag>
+          </div>
+        </a-tooltip>
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -79,88 +89,18 @@
       :title="userFormMode === 'create' ? t('system.user.createUserModalTitle') : t('system.user.editUserModalTitle')"
       title-align="start"
       class="ms-modal-form ms-modal-medium"
-      :loading="loading"
+      :mask-closable="false"
+      @close="handleUserModalClose"
     >
       <a-form ref="userFormRef" class="rounded-[4px]" :model="userForm" layout="vertical">
-        <div class="mb-[16px] overflow-y-auto rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
-          <a-scrollbar class="max-h-[30vh] overflow-y-auto">
-            <div class="flex flex-wrap items-start justify-between gap-[8px]">
-              <template v-for="(item, i) of userForm.list" :key="`user-item-${item}`">
-                <div class="flex w-full items-start justify-between gap-[8px]">
-                  <a-form-item
-                    :field="`username${item}`"
-                    :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                    :rules="[
-                      { required: true, message: t('system.user.createUserNameNotNull') },
-                      { validator: checkUerName },
-                    ]"
-                    :label="i === 0 ? t('system.user.createUserName') : ''"
-                  >
-                    <a-input
-                      v-model="userForm[`username${item}`]"
-                      class="mb-[4px] flex-1"
-                      :placeholder="t('system.user.createUserNamePlaceholder')"
-                      allow-clear
-                    />
-                  </a-form-item>
-                  <a-form-item
-                    :field="`email${item}`"
-                    :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                    :rules="[
-                      { required: true, message: t('system.user.createUserEmailNotNull') },
-                      { validator: (value, callback) => checkUerEmail(value, callback, i) },
-                    ]"
-                    :label="i === 0 ? t('system.user.createUserEmail') : ''"
-                  >
-                    <a-input
-                      v-model="userForm[`email${item}`]"
-                      class="mb-[4px] flex-1"
-                      :placeholder="t('system.user.createUserEmailPlaceholder')"
-                      allow-clear
-                    />
-                  </a-form-item>
-                  <a-form-item
-                    :field="`phone${item}`"
-                    :class="i > 0 ? 'hidden-item' : 'mb-0 flex-1'"
-                    :rules="[{ validator: checkUerPhone }]"
-                    :label="i === 0 ? t('system.user.createUserPhone') : ''"
-                  >
-                    <a-input
-                      v-model="userForm[`phone${item}`]"
-                      class="mb-[4px] flex-1"
-                      :placeholder="t('system.user.createUserPhonePlaceholder')"
-                      :max-length="11"
-                      allow-clear
-                    />
-                  </a-form-item>
-                  <div
-                    v-show="userForm.list.length > 1"
-                    :class="[
-                      'flex',
-                      'h-full',
-                      'w-[32px]',
-                      'cursor-pointer',
-                      'items-center',
-                      'justify-center',
-                      i === 0 ? 'mt-[6%]' : 'mt-[5px]',
-                    ]"
-                    @click="removeUserField(item, i)"
-                  >
-                    <icon-minus-circle />
-                  </div>
-                </div>
-              </template>
-            </div>
-          </a-scrollbar>
-          <div v-if="userFormMode === 'create'" class="w-full">
-            <a-button class="px-0" type="text" @click="addUserField">
-              <template #icon>
-                <icon-plus class="text-[14px]" />
-              </template>
-              {{ t('system.user.addUser') }}
-            </a-button>
-          </div>
-        </div>
+        <MsBatchForm
+          ref="batchFormRef"
+          :models="batchFormModels"
+          :form-mode="userFormMode"
+          add-text="system.user.addUser"
+          :default-vals="userForm.list"
+          max-height="250px"
+        ></MsBatchForm>
         <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
           <a-select
             v-model="userForm.userGroup"
@@ -168,18 +108,30 @@
             :placeholder="t('system.user.createUserUserGroupPlaceholder')"
             allow-clear
           >
-            <a-option v-for="item of userGroupOptions" :key="item.value">{{ item.label }}</a-option>
+            <a-option
+              v-for="item of userGroupOptions"
+              :key="item.id"
+              :tag-props="{ closable: item.closeable }"
+              :value="item.id"
+              :disabled="item.selected"
+            >
+              {{ item.name }}
+            </a-option>
           </a-select>
         </a-form-item>
       </a-form>
       <template #footer>
-        <a-button type="secondary" @click="cancelCreate">{{ t('system.user.editUserModalCancelCreate') }}</a-button>
-        <a-button v-if="userFormMode === 'create'" type="secondary" @click="saveAndContinue">{{
-          t('system.user.editUserModalSaveAndContinue')
-        }}</a-button>
-        <a-button type="primary" @click="beforeCreateUser">{{
-          t(userFormMode === 'create' ? 'system.user.editUserModalCreateUser' : 'system.user.editUserModalEditUser')
-        }}</a-button>
+        <a-button type="secondary" :disabled="loading" @click="cancelCreate">
+          {{ t('system.user.editUserModalCancelCreate') }}
+        </a-button>
+        <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">
+          {{ t('system.user.editUserModalSaveAndContinue') }}
+        </a-button>
+        <a-button type="primary" :loading="loading" @click="beforeCreateUser">
+          {{
+            t(userFormMode === 'create' ? 'system.user.editUserModalCreateUser' : 'system.user.editUserModalEditUser')
+          }}
+        </a-button>
       </template>
     </a-modal>
     <a-modal
@@ -187,22 +139,25 @@
       :title="t('system.user.importModalTitle')"
       title-align="start"
       class="ms-modal-upload"
-      :loading="importLoading"
     >
       <a-alert class="mb-[16px]" closable>
         {{ t('system.user.importModalTip') }}
-        <a-button type="text" size="small">{{ t('system.user.importDownload') }} </a-button>
+        <a-button type="text" size="small" @click="downLoadUserTemplate">
+          {{ t('system.user.importDownload') }}
+        </a-button>
       </a-alert>
       <MsUpload
-        action="/"
+        v-model:file-list="userImportFile"
         accept="excel"
-        main-text="system.user.importModalDragtext"
-        sub-text="system.user.importModalFileTip"
         :show-file-list="false"
+        :auto-upload="false"
+        :disabled="importLoading"
       ></MsUpload>
       <template #footer>
-        <a-button type="secondary" @click="cancelImport">{{ t('system.user.importModalCancel') }}</a-button>
-        <a-button type="primary" @click="importUser">
+        <a-button type="secondary" :disabled="importLoading" @click="cancelImport">
+          {{ t('system.user.importModalCancel') }}
+        </a-button>
+        <a-button type="primary" :loading="importLoading" :disabled="userImportFile.length === 0" @click="importUser">
           {{ t('system.user.importModalConfirm') }}
         </a-button>
       </template>
@@ -221,20 +176,20 @@
       </template>
       <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
         <icon-check-circle-fill class="text-[32px] text-[rgb(var(--success-6))]" />
-        <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">{{
-          t('system.user.importSuccess')
-        }}</div>
-        <div class="sub-text">{{
-          t('system.user.importResultSuccessContent', { successNum: importSuccessCount })
-        }}</div>
+        <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">
+          {{ t('system.user.importSuccess') }}
+        </div>
+        <div class="sub-text">
+          {{ t('system.user.importResultSuccessContent', { successNum: importSuccessCount }) }}
+        </div>
       </div>
       <template v-else>
-        <div>{{
-          t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount })
-        }}</div>
-        <div
-          >{{ t('system.user.importResultContentSubStart')
-          }}<a-link
+        <div>
+          {{ t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount }) }}
+        </div>
+        <div>
+          {{ t('system.user.importResultContentSubStart') }}
+          <a-link
             class="text-[rgb(var(--primary-5))]"
             :href="importErrorFileUrl"
             :download="`${t('system.user.importErrorFile')}.pdf`"
@@ -243,9 +198,9 @@
         >
       </template>
       <template #footer>
-        <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">{{
-          t('system.user.importResultReturn')
-        }}</a-button>
+        <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">
+          {{ t('system.user.importResultReturn') }}
+        </a-button>
         <a-button type="text" @click="continueImport">
           {{ t('system.user.importResultContinue') }}
         </a-button>
@@ -262,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { onBeforeMount, Ref, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
   import useModal from '@/hooks/useModal';
@@ -271,16 +226,28 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { getUserList, batchCreateUser } from '@/api/modules/setting/user';
+  import MsBatchForm from '@/components/bussiness/ms-batch-form/index.vue';
+  import {
+    getUserList,
+    batchCreateUser,
+    updateUserInfo,
+    toggleUserStatus,
+    deleteUserInfo,
+    importUserInfo,
+    getSystemRoles,
+  } from '@/api/modules/setting/user';
   import { validateEmail, validatePhone } from '@/utils/validate';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import { TableKeyEnum } from '@/enums/tableEnum';
+  import { useTableStore } from '@/store';
 
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { FormInstance, ValidatedError, FileItem } from '@arco-design/web-vue';
+  import type { MsTableColumn, BatchActionParams } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { UserListItem } from '@/models/setting/user';
+  import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
+  import type { FormItemModel, MsBatchFormInstance } from '@/components/bussiness/ms-batch-form/types';
 
   const { t } = useI18n();
 
@@ -289,39 +256,48 @@
       title: 'system.user.tableColunmEmail',
       dataIndex: 'email',
       width: 200,
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmName',
       dataIndex: 'name',
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmPhone',
       dataIndex: 'phone',
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmOrg',
       slotName: 'organization',
       dataIndex: 'organizationList',
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmUsergroup',
       slotName: 'userRole',
       dataIndex: 'userRoleList',
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmStatus',
       slotName: 'enable',
       dataIndex: 'enable',
+      showInTable: true,
     },
     {
       title: 'system.user.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
       width: 90,
+      showInTable: true,
     },
   ];
-
+  const tableStore = useTableStore();
+  tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(getUserList, {
+    tableKey: TableKeyEnum.SYSTEM_USER,
     columns,
     scroll: { y: 'auto' },
     selectable: true,
@@ -329,14 +305,180 @@
 
   const keyword = ref('');
 
-  onMounted(async () => {
-    setKeyword(keyword.value);
-    await loadList();
-  });
-
   async function searchUser() {
     setKeyword(keyword.value);
     await loadList();
+  }
+
+  const tableSelected = ref<(string | number)[]>([]);
+
+  /**
+   * 处理表格选中
+   */
+  function handleTableSelect(arr: (string | number)[]) {
+    tableSelected.value = arr;
+  }
+  const { openModal } = useModal();
+
+  /**
+   * 重置密码
+   */
+  function resetPassword(record: any, isbatch?: boolean) {
+    let title = t('system.user.resetPswTip', { name: record?.name });
+    let userIdList = [record?.id];
+    if (isbatch) {
+      title = t('system.user.batchResetPswTip', { count: tableSelected.value.length });
+      userIdList = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'warning',
+      title,
+      content: t('system.user.resetPswContent'),
+      okText: t('system.user.resetPswConfirm'),
+      cancelText: t('system.user.resetPswCancel'),
+      onBeforeOk: async () => {
+        try {
+          Message.success(t('system.user.resetPswSuccess'));
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  const modalLoading = ref(false);
+  /**
+   * 禁用用户
+   */
+  function disabledUser(record: any, isbatch?: boolean) {
+    let title = t('system.user.disableUserTip', { name: record?.name });
+    let userIdList = [record?.id];
+    if (isbatch) {
+      title = t('system.user.batchDisableUserTip', { count: tableSelected.value.length });
+      userIdList = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'warning',
+      title,
+      content: t('system.user.disableUserContent'),
+      okText: t('system.user.disableUserConfirm'),
+      cancelText: t('system.user.disableUserCancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      cancelButtonProps: {
+        disabled: modalLoading.value,
+      },
+      okLoading: modalLoading.value,
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          modalLoading.value = true;
+          await toggleUserStatus({
+            userIdList,
+            enable: false,
+          });
+          Message.success(t('system.user.disableUserSuccess'));
+          loadList();
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        } finally {
+          modalLoading.value = false;
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 启用用户
+   */
+  function enableUser(record: any, isbatch?: boolean) {
+    let title = t('system.user.enableUserTip', { name: record?.name });
+    let userIdList = [record?.id];
+    if (isbatch) {
+      title = t('system.user.batchEnableUserTip', { count: tableSelected.value.length });
+      userIdList = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'info',
+      title,
+      content: t('system.user.enableUserContent'),
+      okText: t('system.user.enableUserConfirm'),
+      cancelText: t('system.user.enableUserCancel'),
+      cancelButtonProps: {
+        disabled: modalLoading.value,
+      },
+      okLoading: modalLoading.value,
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          modalLoading.value = true;
+          await toggleUserStatus({
+            userIdList,
+            enable: true,
+          });
+          Message.success(t('system.user.enableUserSuccess'));
+          loadList();
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        } finally {
+          modalLoading.value = false;
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
+   * 删除用户
+   */
+  function deleteUser(record: any, isbatch?: boolean) {
+    let title = t('system.user.deleteUserTip', { name: record?.name });
+    let userIdList = [record?.id];
+    if (isbatch) {
+      title = t('system.user.batchDeleteUserTip', { count: tableSelected.value.length });
+      userIdList = tableSelected.value as string[];
+    }
+    openModal({
+      type: 'warning',
+      title,
+      content: t('system.user.deleteUserContent'),
+      okText: t('system.user.deleteUserConfirm'),
+      cancelText: t('system.user.deleteUserCancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      cancelButtonProps: {
+        disabled: modalLoading.value,
+      },
+      okLoading: modalLoading.value,
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          modalLoading.value = true;
+          await deleteUserInfo({
+            userIdList,
+          });
+          Message.success(t('system.user.deleteUserSuccess'));
+          loadList();
+          return true;
+        } catch (error) {
+          console.log(error);
+          return false;
+        } finally {
+          modalLoading.value = false;
+        }
+      },
+      hideCancel: false,
+    });
   }
 
   const tableActions: ActionsItem[] = [
@@ -394,7 +536,7 @@
   };
 
   const showBatchModal = ref(false);
-  const batchAction = ref('');
+  const batchAction = ref(''); // 表格选中批量操作动作
   const treeData = ref([
     {
       title: 'Trunk 0-3',
@@ -430,117 +572,30 @@
     },
   ]);
 
-  function handelTableBatch() {
-    batchAction.value = 'batchAddProject';
-    showBatchModal.value = true;
-  }
-
-  const tableSelected = ref<(string | number)[]>([]);
-
   /**
-   * 处理表格选中
+   * 处理表格选中后批量操作
+   * @param event 批量操作事件对象
    */
-  function handleTableSelect(arr: (string | number)[]) {
-    tableSelected.value = arr;
-  }
-  const { openModal } = useModal();
-
-  /**
-   * 重置密码
-   */
-  function resetPassword(record: any) {
-    openModal({
-      type: 'warning',
-      title: t('system.user.resetPswTip', { name: record.name }),
-      content: t('system.user.resetPswContent'),
-      okText: t('system.user.resetPswConfirm'),
-      cancelText: t('system.user.resetPswCancel'),
-      onBeforeOk: async () => {
-        try {
-          Message.success(t('system.user.resetPswSuccess'));
-          return true;
-        } catch (error) {
-          console.log(error);
-          return false;
-        }
-      },
-      hideCancel: false,
-    });
-  }
-
-  /**
-   * 禁用用户
-   */
-  function disabledUser(record: any) {
-    openModal({
-      type: 'warning',
-      title: t('system.user.disableUserTip', { name: record.name }),
-      content: t('system.user.disableUserContent'),
-      okText: t('system.user.disableUserConfirm'),
-      cancelText: t('system.user.disableUserCancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          Message.success(t('system.user.disableUserSuccess'));
-          return true;
-        } catch (error) {
-          console.log(error);
-          return false;
-        }
-      },
-      hideCancel: false,
-    });
-  }
-
-  /**
-   * 启用用户
-   */
-  function enableUser(record: any) {
-    openModal({
-      type: 'info',
-      title: t('system.user.enableUserTip', { name: record.name }),
-      content: t('system.user.enableUserContent'),
-      okText: t('system.user.enableUserConfirm'),
-      cancelText: t('system.user.enableUserCancel'),
-      onBeforeOk: async () => {
-        try {
-          Message.success(t('system.user.enableUserSuccess'));
-          return true;
-        } catch (error) {
-          console.log(error);
-          return false;
-        }
-      },
-      hideCancel: false,
-    });
-  }
-
-  /**
-   * 删除用户
-   */
-  function deleteUser(record: any) {
-    openModal({
-      type: 'warning',
-      title: t('system.user.deleteUserTip', { name: record.name }),
-      content: t('system.user.deleteUserContent'),
-      okText: t('system.user.deleteUserConfirm'),
-      cancelText: t('system.user.deleteUserCancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
-      onBeforeOk: async () => {
-        try {
-          Message.success(t('system.user.deleteUserSuccess'));
-          return true;
-        } catch (error) {
-          console.log(error);
-          return false;
-        }
-      },
-      hideCancel: false,
-    });
+  function handelTableBatch(event: BatchActionParams) {
+    switch (event.eventTag) {
+      case 'batchAddProject':
+      case 'batchAddUsergroup':
+      case 'batchAddOrgnization':
+        batchAction.value = event.eventTag;
+        showBatchModal.value = true;
+        break;
+      case 'disabled':
+        disabledUser(null, true);
+        break;
+      case 'enable':
+        enableUser(null, true);
+        break;
+      case 'delete':
+        deleteUser(null, true);
+        break;
+      default:
+        break;
+    }
   }
 
   /**
@@ -564,84 +619,80 @@
   }
 
   type UserModalMode = 'create' | 'edit';
+
+  interface UserForm {
+    list: SimpleUserInfo[];
+    userGroup: string[];
+  }
+
   const visible = ref(false);
   const loading = ref(false);
   const userFormMode = ref<UserModalMode>('create');
   const userFormRef = ref<FormInstance | null>(null);
   const defaulUserForm = {
-    email0: '',
-    phone0: '',
-    username0: '',
-    list: [0],
+    list: [
+      {
+        name: '',
+        email: '',
+        phone: '',
+      },
+    ],
     userGroup: [],
   };
-  const userGroupOptions = ref([
-    {
-      label: 'Beijing',
-      value: 'Beijing',
-    },
-    {
-      label: 'Shanghai',
-      value: 'Shanghai',
-    },
-    {
-      label: 'Guangzhou',
-      value: 'Guangzhou',
-    },
-  ]);
-
-  interface UserForm {
-    list: number[];
-    userGroup: string[];
-    [key: string]: any;
-  }
-
   const userForm = ref<UserForm>(cloneDeep(defaulUserForm));
+  const userGroupOptions = ref();
+
+  async function init() {
+    try {
+      userGroupOptions.value = await getSystemRoles();
+      if (userGroupOptions.value.length) {
+        userForm.value.userGroup = userGroupOptions.value
+          .filter((e: SystemRole) => e.selected === true)
+          .map((e: SystemRole) => e.id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onBeforeMount(async () => {
+    setKeyword(keyword.value);
+    init();
+    loadList();
+  });
 
   /**
-   * 触发创建用户表单校验
-   * @param cb 校验通过后执行回调
+   * 重置用户表单
    */
-  function userFormValidate(cb: () => Promise<any>) {
-    userFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
-      if (errors) {
-        return;
-      }
-      try {
-        loading.value = true;
-        await cb();
-      } catch (error) {
-        console.log(error);
-      } finally {
-        loading.value = false;
-      }
-    });
+  function resetUserForm() {
+    userForm.value.list = [];
+    userFormRef.value?.resetFields();
+    userForm.value.userGroup = userGroupOptions.value
+      .filter((e: SystemRole) => e.selected === true)
+      .map((e: SystemRole) => e.id);
   }
 
   /**
-   * 添加用户表单项
+   * 显示用户表单弹窗
+   * @param mode 模式，编辑或创建
+   * @param record 编辑时传入的用户信息
    */
-  function addUserField() {
-    userFormValidate(async () => {
-      const lastIndex = userForm.value.list.length - 1;
-      const lastOrder = userForm.value.list[lastIndex] + 1;
-      userForm.value.list.push(lastOrder); // 序号自增，不会因为删除而重复
-      userForm.value[`username${lastOrder}`] = '';
-      userForm.value[`email${lastOrder}`] = '';
-      userForm.value[`phone${lastOrder}`] = '';
-    });
+  function showUserModal(mode: UserModalMode, record?: UserListItem) {
+    visible.value = true;
+    userFormMode.value = mode;
+    if (mode === 'edit' && record) {
+      userForm.value.list = [{ id: record.id, name: record.name, email: record.email, phone: record.phone }];
+      userForm.value.userGroup = record.userRoleList.map((e) => e.id);
+    }
   }
 
   /**
-   * 移除用户表单项
-   * @param index 表单项的序号
-   * @param i 表单项对应 list 的下标
+   * 处理用户表单弹窗关闭
    */
-  function removeUserField(index: number, i: number) {
-    delete userForm.value[`username${index}`];
-    delete userForm.value[`email${index}`];
-    delete userForm.value[`phone${index}`];
-    userForm.value.list.splice(i, 1);
+  function handleUserModalClose() {
+    if (userFormMode.value === 'edit') {
+      resetUserForm();
+    }
   }
 
   /**
@@ -663,21 +714,11 @@
    * @param callback 失败回调，入参是提示信息
    * @param index 当前输入的表单项对应 list 的下标，用于校验重复输入的时候排除自身
    */
-  function checkUerEmail(value: string | undefined, callback: (error?: string) => void, index: number) {
+  function checkUerEmail(value: string | undefined, callback: (error?: string) => void) {
     if (value === '' || value === undefined) {
       callback(t('system.user.createUserEmailNotNull'));
     } else if (!validateEmail(value)) {
       callback(t('system.user.createUserEmailErr'));
-    } else {
-      const hasEmails: string[] = userForm.value.list.map((item: any, i: number) => {
-        if (i !== index) {
-          return userForm.value[`email${item}`];
-        }
-        return null;
-      });
-      if (hasEmails.includes(value)) {
-        callback(t('createUserEmailNoRepeat'));
-      }
     }
   }
 
@@ -692,41 +733,96 @@
     }
   }
 
+  const batchFormRef = ref<MsBatchFormInstance | null>(null);
+  const batchFormModels: Ref<FormItemModel[]> = ref([
+    {
+      filed: 'name',
+      type: 'input',
+      label: 'system.user.createUserName',
+      rules: [{ required: true, message: t('system.user.createUserNameNotNull') }, { validator: checkUerName }],
+      placeholder: 'system.user.createUserNamePlaceholder',
+    },
+    {
+      filed: 'email',
+      type: 'input',
+      label: 'system.user.createUserEmail',
+      rules: [
+        { required: true, message: t('system.user.createUserEmailNotNull') },
+        { validator: checkUerEmail },
+        { notRepeat: true, message: 'system.user.createUserEmailNoRepeat' },
+      ],
+      placeholder: 'system.user.createUserEmailPlaceholder',
+    },
+    {
+      filed: 'phone',
+      type: 'input',
+      label: 'system.user.createUserPhone',
+      rules: [{ validator: checkUerPhone }],
+      placeholder: 'system.user.createUserPhonePlaceholder',
+    },
+  ]);
+
   /**
    * 取消创建，重置用户表单
    */
   function cancelCreate() {
     visible.value = false;
-    userFormRef.value?.resetFields();
-    userForm.value = cloneDeep(defaulUserForm);
+    resetUserForm();
   }
 
+  /**
+   * 更新用户
+   */
   async function updateUser() {
-    // const params = {
-    //   userInfoList: [
-    //     {
-    //       name: userForm.value.username0,
-    //       email: userForm.value.email0,
-    //       phone: userForm.value.phone0,
-    //     },
-    //   ],
-    //   userRoleIdList: userForm.value.userGroup,
-    // };
-    // await updateUserInfo(params);
+    const activeUser = userForm.value.list[0];
+    const params = {
+      id: activeUser.id as string,
+      name: activeUser.name,
+      email: activeUser.email,
+      phone: activeUser.phone,
+      userRoleIdList: userForm.value.userGroup,
+    };
+    await updateUserInfo(params);
+    Message.success(t('system.user.updateUserSuccess'));
+    visible.value = false;
+    loadList();
   }
 
+  /**
+   * 创建用户
+   */
   async function createUser() {
     const params = {
-      userInfoList: userForm.value.list.map((item: number) => {
-        return {
-          name: userForm.value[`username${item}`],
-          email: userForm.value[`email${item}`],
-          phone: userForm.value[`phone${item}`],
-        };
-      }),
-      userRoleIdList: [],
+      userInfoList: userForm.value.list,
+      userRoleIdList: userForm.value.userGroup,
     };
     await batchCreateUser(params);
+    Message.success(t('system.user.addUserSuccess'));
+    visible.value = false;
+    loadList();
+  }
+
+  /**
+   * 触发创建用户表单校验
+   * @param cb 校验通过后执行回调
+   */
+  function userFormValidate(cb: () => Promise<any>) {
+    userFormRef.value?.validate((errors: undefined | Record<string, ValidatedError>) => {
+      if (errors) {
+        return;
+      }
+      batchFormRef.value?.formValidate(async (list: any) => {
+        try {
+          loading.value = true;
+          userForm.value.list = [...list];
+          await cb();
+        } catch (error) {
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
+      });
+    });
   }
 
   /**
@@ -746,25 +842,8 @@
   function saveAndContinue() {
     userFormValidate(async () => {
       await createUser();
-      userFormRef.value?.resetFields();
-      userForm.value = cloneDeep(defaulUserForm);
+      resetUserForm();
     });
-  }
-
-  /**
-   * 显示用户表单弹窗
-   * @param mode 模式，编辑或创建
-   * @param record 编辑时传入的用户信息
-   */
-  function showUserModal(mode: UserModalMode, record?: UserListItem) {
-    visible.value = true;
-    userFormMode.value = mode;
-    if (mode === 'edit' && record) {
-      userForm.value.username0 = record.name;
-      userForm.value.email0 = record.email;
-      userForm.value.phone0 = record.phone;
-      userForm.value.userGroup = record.userRoleList.map((e) => e.name);
-    }
   }
 
   const inviteVisible = ref(false);
@@ -774,6 +853,7 @@
 
   const importVisible = ref(false);
   const importLoading = ref(false);
+  const userImportFile = ref<FileItem[]>([]);
   const importResultVisible = ref(false);
   const importSuccessCount = ref(0);
   const importFailCount = ref(0);
@@ -783,18 +863,24 @@
 
   function showImportModal() {
     importVisible.value = true;
+    importFailCount.value = 0;
+    importSuccessCount.value = 0;
+    importResult.value = 'success';
   }
 
   function cancelImport() {
     importVisible.value = false;
     importResultVisible.value = false;
+    userImportFile.value = [];
+    if (importResult.value === 'success' || (importResult.value === 'fail' && importSuccessCount.value > 0)) {
+      loadList();
+    }
   }
 
   /**
    * 根据导入结果展示结果弹窗
    */
   function showImportResult() {
-    importLoading.value = false;
     importVisible.value = false;
     switch (importResult.value) {
       case 'success':
@@ -814,16 +900,37 @@
 
   function continueImport() {
     importResultVisible.value = false;
+    userImportFile.value = [];
     importVisible.value = true;
   }
 
-  function importUser() {
-    importResult.value = 'fail';
-    importSuccessCount.value = 100;
-    importFailCount.value = 20;
-    showImportResult();
+  async function importUser() {
+    try {
+      importLoading.value = true;
+      const res = await importUserInfo({
+        fileList: [userImportFile.value[0].file],
+      });
+      const failCount = res.importCount - res.successCount;
+      if (failCount === res.importCount) {
+        importResult.value = 'allFail';
+      } else if (failCount > 0) {
+        importResult.value = 'fail';
+      } else {
+        importResult.value = 'success';
+      }
+      importSuccessCount.value = res.successCount;
+      importFailCount.value = failCount;
+      showImportResult();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      importLoading.value = false;
+    }
+  }
+
+  function downLoadUserTemplate() {
+    window.open('/templates/user_import.xlsx', '_blank');
   }
 </script>
 
 <style lang="less" scoped></style>
-@/models/setting/user @/api/modules/setting/user
