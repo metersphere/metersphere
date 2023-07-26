@@ -583,7 +583,7 @@ export default {
     },
     updatePoolStatus(row) {
       modifyResourcePoolStatus(row.id, row.status).then(() => {
-        this.$success(this.$t('test_resource_pool.status_change_success'));
+        this.$success(row.status === 'VALID' ? this.$t('commons.enable_success') : this.$t('commons.disable_success'));
       }).catch(() => {
         this.$error(this.$t('test_resource_pool.status_change_failed'));
         row.status = 'INVALID';
