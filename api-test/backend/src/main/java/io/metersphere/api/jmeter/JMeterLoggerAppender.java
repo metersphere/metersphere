@@ -15,7 +15,7 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
     public void append(ILoggingEvent event) {
         try {
             if (!event.getLevel().levelStr.equals(LogUtil.DEBUG) && StringUtils.isNotEmpty(event.getThreadName())) {
-                StringBuffer message = new StringBuffer();
+                StringBuilder message = new StringBuilder();
                 String threadName = StringUtils.substringBeforeLast(event.getThreadName(), THREAD_SPLIT);
                 message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(StringUtils.SPACE)
                         .append(event.getLevel()).append(StringUtils.SPACE)
@@ -31,8 +31,7 @@ public class JMeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
                         }
                     }
                 }
-                if (message != null && !message.toString().contains("java.net.UnknownHostException")
-                        && FixedCapacityUtil.containsKey(threadName)) {
+                if (!message.toString().contains("java.net.UnknownHostException") && FixedCapacityUtil.containsKey(threadName)) {
                     FixedCapacityUtil.get(threadName).append(message);
                 }
             }

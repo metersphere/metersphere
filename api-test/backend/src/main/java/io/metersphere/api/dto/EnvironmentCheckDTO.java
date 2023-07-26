@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class ScenarioEnv {
+public class EnvironmentCheckDTO {
 
     private Set<String> projectIds = new HashSet<>();
     private Boolean fullUrl = true;

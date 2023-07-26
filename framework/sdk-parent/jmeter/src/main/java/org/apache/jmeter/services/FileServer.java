@@ -18,11 +18,11 @@
 package org.apache.jmeter.services;
 
 import io.metersphere.utils.LoggerUtil;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.gui.JMeterFileFilter;
 import org.apache.jmeter.save.CSVSaveService;
+import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.util.JOrphanUtils;
 import org.slf4j.Logger;
@@ -30,7 +30,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -121,7 +124,7 @@ public class FileServer {
      * from its parent.
      *
      * @param scriptPath the path of the script file; must be not be {@code null}
-     * @throws IllegalStateException if files are still open
+     * @throws IllegalStateException    if files are still open
      * @throws IllegalArgumentException if scriptPath parameter is null
      */
     public synchronized void setBaseForScript(File scriptPath) {
@@ -137,7 +140,7 @@ public class FileServer {
      * Sets the current base directory for relative file names.
      *
      * @param jmxBase the path of the script file base directory, cannot be null
-     * @throws IllegalStateException if files are still open
+     * @throws IllegalStateException    if files are still open
      * @throws IllegalArgumentException if {@code basepath} is null
      */
     public synchronized void setBase(File jmxBase) {
@@ -207,14 +210,14 @@ public class FileServer {
      * @param filename - relative (to base) or absolute file name (must not be null)
      */
     public void reserveFile(String filename) {
-        reserveFile(filename,null);
+        reserveFile(filename, null);
     }
 
     /**
      * Creates an association between a filename and a File inputOutputObject,
      * and stores it for later use - unless it is already stored.
      *
-     * @param filename - relative (to base) or absolute file name (must not be null)
+     * @param filename    - relative (to base) or absolute file name (must not be null)
      * @param charsetName - the character set encoding to use for the file (may be null)
      */
     public void reserveFile(String filename, String charsetName) {
@@ -225,9 +228,9 @@ public class FileServer {
      * Creates an association between a filename and a File inputOutputObject,
      * and stores it for later use - unless it is already stored.
      *
-     * @param filename - relative (to base) or absolute file name (must not be null)
+     * @param filename    - relative (to base) or absolute file name (must not be null)
      * @param charsetName - the character set encoding to use for the file (may be null)
-     * @param alias - the name to be used to access the object (must not be null)
+     * @param alias       - the name to be used to access the object (must not be null)
      */
     public void reserveFile(String filename, String charsetName, String alias) {
         reserveFile(filename, charsetName, alias, false);
@@ -237,10 +240,10 @@ public class FileServer {
      * Creates an association between a filename and a File inputOutputObject,
      * and stores it for later use - unless it is already stored.
      *
-     * @param filename - relative (to base) or absolute file name (must not be null or empty)
+     * @param filename    - relative (to base) or absolute file name (must not be null or empty)
      * @param charsetName - the character set encoding to use for the file (may be null)
-     * @param alias - the name to be used to access the object (must not be null)
-     * @param hasHeader true if the file has a header line describing the contents
+     * @param alias       - the name to be used to access the object (must not be null)
+     * @param hasHeader   true if the file has a header line describing the contents
      * @return the header line; may be null
      * @throws IllegalArgumentException if header could not be read or filename is null or empty
      */
@@ -250,6 +253,16 @@ public class FileServer {
         }
         if (alias == null) {
             throw new IllegalArgumentException("Alias must not be null");
+        }
+        // todo 这里更改了原始代码
+        if(!new File(filename).exists()){
+            log.error("file does not exist [ "+ filename+" ]");
+            return "";
+        }
+
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(alias, threadName)) {
+            alias = StringUtils.join(threadName, alias);
         }
         FileEntry fileEntry = files.get(alias);
         if (fileEntry == null) {
@@ -282,6 +295,7 @@ public class FileServer {
      * Resolves file name into {@link File} instance.
      * When filename is not absolute and not found from current working dir,
      * it tries to find it under current base directory
+     *
      * @param filename original file name
      * @return {@link File} instance
      */
@@ -309,7 +323,7 @@ public class FileServer {
      * Get the next line of the named file, first line is name to false
      *
      * @param filename the filename or alias that was used to reserve the file
-     * @param recycle - should file be restarted at EOF?
+     * @param recycle  - should file be restarted at EOF?
      * @return String containing the next line in the file (null if EOF reached and not recycle)
      * @throws IOException when reading of the file fails, or the file was not reserved properly
      */
@@ -320,14 +334,19 @@ public class FileServer {
     /**
      * Get the next line of the named file
      *
-     * @param filename the filename or alias that was used to reserve the file
-     * @param recycle - should file be restarted at EOF?
+     * @param filename        the filename or alias that was used to reserve the file
+     * @param recycle         - should file be restarted at EOF?
      * @param ignoreFirstLine - Ignore first line
      * @return String containing the next line in the file (null if EOF reached and not recycle)
      * @throws IOException when reading of the file fails, or the file was not reserved properly
      */
     public synchronized String readLine(String filename, boolean recycle,
                                         boolean ignoreFirstLine) throws IOException {
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(filename, threadName)) {
+            filename = StringUtils.join(threadName, filename);
+        }
+
         FileEntry fileEntry = files.get(filename);
         if (fileEntry != null) {
             if (fileEntry.inputOutputObject == null) {
@@ -350,15 +369,17 @@ public class FileServer {
             log.debug("Read:{}", line);
             return line;
         }
-        throw new IOException("File never reserved: "+filename);
+        // todo 这里更改了原始代码
+        //throw new IOException("File never reserved: " + filename);
+        log.error("File never reserved: " + filename);
+        return "";
     }
 
     /**
-     *
-     * @param alias the file name or alias
-     * @param recycle whether the file should be re-started on EOF
+     * @param alias           the file name or alias
+     * @param recycle         whether the file should be re-started on EOF
      * @param ignoreFirstLine whether the file contains a file header which will be ignored
-     * @param delim the delimiter to use for parsing
+     * @param delim           the delimiter to use for parsing
      * @return the parsed line, will be empty if the file is at EOF
      * @throws IOException when reading of the aliased file fails, or the file was not reserved properly
      */
@@ -377,6 +398,11 @@ public class FileServer {
      * @return {@link BufferedReader}
      */
     private BufferedReader getReader(String alias, boolean recycle, boolean ignoreFirstLine) throws IOException {
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(alias, threadName)) {
+            alias = StringUtils.join(threadName, alias);
+        }
+
         FileEntry fileEntry = files.get(alias);
         if (fileEntry != null) {
             BufferedReader reader;
@@ -409,7 +435,7 @@ public class FileServer {
             }
             return reader;
         } else {
-            throw new IOException("File never reserved: "+alias);
+            throw new IOException("File never reserved: " + alias);
         }
     }
 
@@ -433,6 +459,10 @@ public class FileServer {
     }
 
     public synchronized void write(String filename, String value) throws IOException {
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(filename, threadName)) {
+            filename = StringUtils.join(threadName, filename);
+        }
         FileEntry fileEntry = files.get(filename);
         if (fileEntry != null) {
             if (fileEntry.inputOutputObject == null) {
@@ -444,7 +474,7 @@ public class FileServer {
             log.debug("Write:{}", value);
             writer.write(value);
         } else {
-            throw new IOException("File never reserved: "+filename);
+            throw new IOException("File never reserved: " + filename);
         }
     }
 
@@ -464,42 +494,24 @@ public class FileServer {
 
     public synchronized void closeFiles() throws IOException {
         for (Map.Entry<String, FileEntry> me : files.entrySet()) {
-            closeFile(me.getKey(), me.getValue() );
+            closeFile(me.getKey(), me.getValue());
         }
         files.clear();
     }
 
-    /**
-     * 根据线程名字清理掉当前线程缓存的csv
-     *
-     * @param name 线程组名称
-     */
-    public synchronized void closeCsv(String name) {
+    public synchronized void closeFiles(String threadName) {
         try {
-            if (StringUtils.isNotEmpty(name)) {
-                List<String> list = new ArrayList<>();
-                for (Iterator<String> iterator = files.keySet().iterator(); iterator.hasNext(); ) {
-                    String key = iterator.next();
-                    if (key.contains(name)) {
-                        FileEntry fileEntry = files.get(key);
-                        closeFile(name, fileEntry);
-                        list.add(key);
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(list)) {
-                    for (String key : list) {
-                        files.remove(key);
-                    }
+            for (Iterator<Map.Entry<String, FileEntry>> it = files.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, FileEntry> entry = it.next();
+                if (entry.getKey().startsWith(threadName)) {
+                    closeFile(entry.getKey(), entry.getValue());
+                    it.remove();
                 }
             }
-            LoggerUtil.info("在处理中的CSV数量：" + files.size());
+            LoggerUtil.info("清除当前线程组占用文件后剩余文件数：" + files.size() + " 个", threadName);
         } catch (Exception e) {
-            LoggerUtil.error("关闭CSV异常：" + name, e);
+            log.error("close files exception", e);
         }
-    }
-
-    public int fileSize() {
-        return files.size();
     }
 
     /**
@@ -507,6 +519,11 @@ public class FileServer {
      * @throws IOException when closing of the aliased file fails
      */
     public synchronized void closeFile(String name) throws IOException {
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(name, threadName)) {
+            name = StringUtils.join(threadName, name);
+        }
+
         FileEntry fileEntry = files.get(name);
         closeFile(name, fileEntry);
     }
@@ -582,9 +599,8 @@ public class FileServer {
      * "jmeter.save.saveservice.base_prefix" - default "~/" - then the name is
      * assumed to be relative to the basename.
      *
-     * @param relativeName
-     *            filename that should be checked for
-     *            <code>jmeter.save.saveservice.base_prefix</code>
+     * @param relativeName filename that should be checked for
+     *                     <code>jmeter.save.saveservice.base_prefix</code>
      * @return the updated filename
      */
     public static String resolveBaseRelativeName(String relativeName) {

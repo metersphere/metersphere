@@ -91,7 +91,7 @@ public class MsTCPSampler extends MsTestElement {
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
-        
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
@@ -122,16 +122,16 @@ public class MsTCPSampler extends MsTestElement {
                     break;
             }
         }
-        if (config.getConfig() == null) {
+        if (MapUtils.isEmpty(config.getConfig()) && config.isApi()) {
             // 单独接口执行
-            if (StringUtils.isNotEmpty(config.getProjectId())) {
-                this.setProjectId(config.getProjectId());
+            if (StringUtils.isNotEmpty(config.getCurrentProjectId())) {
+                this.setProjectId(config.getCurrentProjectId());
             }
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(this.getEnvironmentId()) ? this.getEnvironmentId() : useEnvironment, this.getProjectId()));
         }
         EnvironmentConfig envConfig = null;
         if (config.getConfig() != null) {
-            envConfig = config.getConfig().get(this.projectId);
+            envConfig = config.get(this.projectId);
             parseEnvironment(envConfig);
         }
         // 添加环境中的公共变量
@@ -303,17 +303,17 @@ public class MsTCPSampler extends MsTestElement {
         List<StringProperty> threadValues = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(this.parameters)) {
             this.parameters.forEach(item -> {
-                names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
+                names.add(new StringProperty(String.valueOf(new Random().nextInt(1000000)), item.getName()));
                 String value = item.getValue();
                 if (StringUtils.isNotEmpty(value)) {
                     value = this.formatMockValue(value);
-                    threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), value));
+                    threadValues.add(new StringProperty(String.valueOf(new Random().nextInt(1000000)), value));
                 }
             });
         }
         userParameters.setNames(new CollectionProperty(UserParameters.NAMES, names));
         List<CollectionProperty> collectionPropertyList = new ArrayList<>();
-        collectionPropertyList.add(new CollectionProperty(new Integer(new Random().nextInt(1000000)).toString(), threadValues));
+        collectionPropertyList.add(new CollectionProperty(String.valueOf(new Random().nextInt(1000000)), threadValues));
         userParameters.setThreadLists(new CollectionProperty(UserParameters.THREAD_VALUES, collectionPropertyList));
         tree.add(userParameters);
     }

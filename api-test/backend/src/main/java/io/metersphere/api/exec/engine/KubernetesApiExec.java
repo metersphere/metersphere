@@ -3,7 +3,6 @@ package io.metersphere.api.exec.engine;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.JSON;
@@ -32,9 +31,9 @@ public class KubernetesApiExec {
         return nodePods.get(new Random().nextInt(nodePods.size()));
     }
 
-    public static ExecWatch newExecWatch(KubernetesClient client, String namespace, String podName, String command, JmeterRunRequestDTO runRequest) {
+    public static void newExecWatch(KubernetesClient client, String namespace, String podName, String command, JmeterRunRequestDTO runRequest) {
         LoggerUtil.info("CURL 命令：【 " + command + " 】");
-        return client.pods().inNamespace(namespace).withName(podName)
+        client.pods().inNamespace(namespace).withName(podName)
                 .readingInput(System.in)
                 .writingOutput(System.out)
                 .writingError(System.err)
@@ -43,35 +42,30 @@ public class KubernetesApiExec {
                 .exec("sh", "-c", command);
     }
 
-    private static class SimpleListener implements ExecListener {
-        private JmeterRunRequestDTO runRequest;
-
-        SimpleListener(JmeterRunRequestDTO runRequest) {
-            this.runRequest = runRequest;
-        }
+    private record SimpleListener(JmeterRunRequestDTO runRequest) implements ExecListener {
 
         @Override
-        public void onOpen() {
-            LoggerUtil.info("K8s命令执行监听 onOpen ", runRequest.getReportId());
-        }
-
-        @Override
-        public void onFailure(Throwable t, Response response) {
-            LoggerUtil.info("进入K8s onFailure处理");
-            if (runRequest != null) {
-                LoggerUtil.info("请求参数：", JSON.toJSONString(runRequest));
-                RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
-                apiScenarioReportService.testEnded(runRequest, StringUtils.join("K8s执行异常：", t.getMessage()));
-            } else {
-                MSException.throwException("K8S 节点执行错误：" + t.getMessage());
+            public void onOpen() {
+                LoggerUtil.info("K8s命令执行监听 onOpen ", runRequest.getReportId());
             }
-            LoggerUtil.error("K8S 节点执行错误：", t.getMessage());
-        }
 
-        @Override
-        public void onClose(int code, String reason) {
-            LoggerUtil.info(code + "_" + reason, runRequest.getReportId());
-            LoggerUtil.info("K8s命令执行监听 onClose ", runRequest.getReportId());
+            @Override
+            public void onFailure(Throwable t, Response response) {
+                LoggerUtil.info("进入K8s onFailure处理");
+                if (runRequest != null) {
+                    LoggerUtil.info("请求参数：", JSON.toJSONString(runRequest));
+                    RemakeReportService apiScenarioReportService = CommonBeanFactory.getBean(RemakeReportService.class);
+                    apiScenarioReportService.testEnded(runRequest, StringUtils.join("K8s执行异常：", t.getMessage()));
+                } else {
+                    MSException.throwException("K8S 节点执行错误：" + t.getMessage());
+                }
+                LoggerUtil.error("K8S 节点执行错误：", t.getMessage());
+            }
+
+            @Override
+            public void onClose(int code, String reason) {
+                LoggerUtil.info(code + "_" + reason, runRequest.getReportId());
+                LoggerUtil.info("K8s命令执行监听 onClose ", runRequest.getReportId());
+            }
         }
-    }
 }

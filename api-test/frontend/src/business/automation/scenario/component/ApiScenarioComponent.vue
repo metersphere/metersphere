@@ -112,7 +112,7 @@ import { getCurrentProjectID, getCurrentWorkspaceId } from 'metersphere-frontend
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { STEP } from '@/business/automation/scenario/Setting';
 import { getOwnerProjectIds, getProject } from '@/api/project';
-import { checkScenarioEnv, getScenarioById, setScenarioDomain } from '@/api/scenario';
+import { getScenarioById, setScenarioDomain } from '@/api/scenario';
 
 export default {
   name: 'ApiScenarioComponent',
@@ -228,14 +228,7 @@ export default {
       this.reload();
     },
     checkEnv(val) {
-      checkScenarioEnv(this.scenario.id).then((res) => {
-        if (this.scenario.environmentEnable && !res.data) {
-          this.scenario.environmentEnable = false;
-          this.$warning(this.$t('commons.scenario_warning'));
-          return;
-        }
-        this.setDomain(val);
-      });
+      this.setDomain(val);
     },
     setDomain(val) {
       let param = {

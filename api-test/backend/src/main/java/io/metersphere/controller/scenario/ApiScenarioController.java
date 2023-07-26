@@ -196,13 +196,13 @@ public class ApiScenarioController {
         return apiAutomationService.getNewApiScenario(id);
     }
 
-    @PostMapping("/scenario-env")
-    public ScenarioEnv getScenarioDefinition(@RequestBody byte[] request) {
-        return apiAutomationService.getApiScenarioEnv(request);
+    @PostMapping("/project-valid")
+    public EnvironmentCheckDTO getScenarioDefinition(@RequestBody List<String> projectIds) {
+        return apiAutomationService.getApiScenarioEnv(projectIds);
     }
 
     @GetMapping("/env-project-ids/{id}")
-    public ScenarioEnv getApiScenarioProjectId(@PathVariable String id) {
+    public EnvironmentCheckDTO getApiScenarioProjectId(@PathVariable String id) {
         return apiAutomationService.getApiScenarioProjectId(id);
     }
 

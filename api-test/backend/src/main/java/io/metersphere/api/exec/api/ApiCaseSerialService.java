@@ -136,7 +136,7 @@ public class ApiCaseSerialService {
                 parse(element, testId, envId, caseWithBLOBs.getProjectId());
                 group.getHashTree().add(JSONUtil.parseObject(element.toString(), MsTestElement.class));
                 testPlan.getHashTree().add(group);
-                ParameterConfig config = new ParameterConfig();
+                ParameterConfig config = new ParameterConfig(projectId, true);
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     config.setRetryNum(runRequest.getRetryNum());
                 }

@@ -131,9 +131,12 @@ const message = {
     scenario_step_ref_message: '當前操作可能導致頁面加載異常，是否繼續',
     case_message: '請選擇案例',
     scenario_message: '請選擇場景',
-    scenario_plugin_debug_warning:'場景包含挿件步驟，對應場景已經刪除不能調試! ',
+    scenario_plugin_debug_warning: '場景包含挿件步驟，對應場景已經刪除不能調試! ',
     scenario_plugin_save_warning: '場景包含挿件步驟，對應場景已經刪除不能編輯! ',
-    scenario_plugin_run_warning: '場景包含挿件步驟，對應場景已經刪除不能運行! '
+    scenario_plugin_run_warning: '場景包含挿件步驟，對應場景已經刪除不能運行! ',
+    project_env_info: '更多項目環境',
+    project_env_info_tips:
+      '1.當前場景涉及到跨項目的步驟可以指定其所屬項目的環境執行，不指定則默認使用當前項目環境執行。 \n 2.如跨項目的步驟在場景設置中配置了使用原場景環境，則默認使用原場景環境執行。 ',
   },
 };
 

@@ -370,6 +370,16 @@ public class BaseEnvironmentService extends NodeTreeService<ApiModuleDTO> {
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
+    public List<ApiTestEnvironment> selectList(List<String> projectIds) {
+        if(CollectionUtils.isEmpty(projectIds)){
+            return new ArrayList<>();
+        }
+        ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+        example.createCriteria().andProjectIdIn(projectIds);
+        return apiTestEnvironmentMapper.selectByExample(example);
+    }
+
+
     public ApiTestEnvironmentWithBLOBs get(String id) {
         return apiTestEnvironmentMapper.selectByPrimaryKey(id);
     }

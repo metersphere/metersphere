@@ -424,9 +424,6 @@
             :is-across-space="true"
             ref="scenarioRelevance" />
 
-          <!-- 环境 -->
-          <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
-
           <!--执行组件-->
           <ms-run
             :debug="true"
@@ -564,7 +561,6 @@ import {
 } from '@/api/scenario';
 import { API_STATUS, PRIORITY } from '../../definition/model/JsonData';
 import { buttons, setComponent } from './menu/Menu';
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import { ELEMENT_TYPE, STEP, TYPE_TO_C } from './Setting';
 import { KeyValue } from '@/business/definition/model/ApiTestModel';
 import { getCurrentProjectID, getCurrentUser } from 'metersphere-frontend/src/utils/token';
@@ -581,7 +577,6 @@ import {
 import MsComponentConfig from './component/ComponentConfig';
 import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
 import { mergeRequestDocumentData } from '@/business/definition/api-definition';
-import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 import { useApiStore } from '@/store';
 import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
 
@@ -722,7 +717,6 @@ export default {
       projectEnvMap: new Map(),
       projectList: [],
       drawer: false,
-      isFullUrl: true,
       expandedStatus: false,
       stepEnable: true,
       envResult: {
@@ -809,7 +803,6 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
-    this.getEnvironments();
     this.buttonData = buttons(this);
     this.getPlugins().then(() => {
       this.initPlugins();
@@ -1329,13 +1322,6 @@ export default {
           this.debugLoading = true;
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
-          await this.getEnv(JSON.stringify(definition));
-          await this.$refs.envPopover.initEnv();
-          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
-          if (!sign) {
-            this.debugLoading = false;
-            return;
-          }
           this.initParameter();
           this.debugData = {
             id: this.currentScenario.id,
@@ -1799,15 +1785,6 @@ export default {
       /*触发执行操作*/
       this.$refs.currentScenario.validate(async (valid) => {
         if (valid) {
-          let definition = JSON.parse(JSON.stringify(this.currentScenario));
-          definition.hashTree = this.scenarioDefinition;
-          await this.getEnv(JSON.stringify(definition));
-          await this.$refs.envPopover.initEnv();
-          const sign = await this.$refs.envPopover.checkEnv(this.isFullUrl);
-          if (!sign) {
-            this.debugLoading = false;
-            return;
-          }
           let scenario = undefined;
           if (runScenario && runScenario.type === 'scenario') {
             scenario = runScenario;
@@ -1847,16 +1824,6 @@ export default {
         }
       });
     },
-    getEnvironments() {
-      if (this.projectId) {
-        getEnvironmentByProjectId(this.projectId).then((response) => {
-          this.environments = response.data;
-          this.environments.forEach((environment) => {
-            parseEnvironment(environment);
-          });
-        });
-      }
-    },
     checkDataIsCopy() {
       //  如果是复制按钮创建的场景，直接进行保存
       if (this.currentScenario.copy) {
@@ -1864,16 +1831,6 @@ export default {
       }
     },
 
-    openEnvironmentConfig() {
-      if (!this.projectId) {
-        this.$error(this.$t('api_test.select_project'));
-        return;
-      }
-      this.$refs.environmentConfig.open(this.projectId);
-    },
-    environmentConfigClose() {
-      this.getEnvironments();
-    },
     allowDrag(node) {
       if (node.data && node.data.disabled && node.parent.data && node.parent.data.disabled) {
         return false;
@@ -1999,16 +1956,21 @@ export default {
     },
     getEnv(definition) {
       return new Promise((resolve) => {
-        const encoder = new TextEncoder();
-        const bytes = encoder.encode(definition, 'utf-8');
-        getApiScenarioEnv(bytes).then((res) => {
-          if (res.data && res.data.data) {
-            this.projectIds = new Set(res.data.data.projectIds);
-            this.projectIds.add(this.projectId);
-            this.isFullUrl = res.data.data.fullUrl;
-          }
+        this.projectIds = new Set();
+        const regex = /"projectId"\s*:\s*"([^"]+)"/g;
+        let match;
+        while ((match = regex.exec(definition)) !== null) {
+          this.projectIds.add(match[1]);
+        }
+        this.projectIds.add(this.projectId);
+        if (this.projectIds.size > 1) {
+          getApiScenarioEnv(Array.from(this.projectIds)).then((res) => {
+            this.projectIds = new Set(res.data.projectIds);
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
       });
     },
     getApiScenario(isRefresh) {

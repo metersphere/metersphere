@@ -196,18 +196,17 @@ public class ApiExecuteService {
             this.add(request.getProjectId());
         }}, new BooleanPool()).keySet().stream().toList());
         threadGroup.getHashTree().add(request);
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(request.getProjectId());
+        ParameterConfig config = new ParameterConfig(request.getProjectId(), true);
+        config.setCurrentProjectId(request.getProjectId());
         return testPlan.generateHashTree(config);
     }
 
     private JmeterRunRequestDTO initRunRequest(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(request.getProjectId());
+        ParameterConfig config = new ParameterConfig(request.getProjectId(), true);
         config.setApi(true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
-        if (map != null && map.size() > 0) {
+        if (MapUtils.isNotEmpty(map)) {
             for (String key : map.keySet()) {
                 ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(map.get(key));
                 if (environment != null) {
@@ -317,8 +316,7 @@ public class ApiExecuteService {
 
         BaseEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(request.getEnvironmentId());
-        ParameterConfig parameterConfig = new ParameterConfig();
-        parameterConfig.setApi(true);
+        ParameterConfig parameterConfig = new ParameterConfig(projectId, true);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         if (environment != null && environment.getConfig() != null) {
             EnvironmentConfig environmentConfig = JSONUtil.parseObject(environment.getConfig(), EnvironmentConfig.class);

@@ -4,7 +4,6 @@ package io.metersphere.api.jmeter;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.exec.engine.EngineFactory;
-import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.api.jmeter.utils.ServerConfig;
 import io.metersphere.api.jmeter.utils.SmoothWeighted;
@@ -28,6 +27,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.util.JMeterUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -52,8 +52,6 @@ public class JMeterService {
     private RedisTemplateService redisTemplateService;
     @Resource
     private RemakeReportService remakeReportService;
-    @Resource
-    private ExecThreadPoolExecutor execThreadPoolExecutor;
     @Resource
     private ApiPoolDebugService apiPoolDebugService;
     @Resource
@@ -163,7 +161,7 @@ public class JMeterService {
             request.setEnable(config.isEnable());
             LoggerUtil.info("开始发送请求【 " + request.getTestId() + " 】到 " + config.getUrl() + " 节点执行", request.getReportId());
             ResponseEntity<String> result = restTemplate.postForEntity(config.getUrl(), request, String.class);
-            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+            if (!StringUtils.equals("SUCCESS", result.getBody())) {
                 LoggerUtil.error("发送请求[ " + request.getTestId() + " ] 到" + config.getUrl() + " 节点执行失败", request.getReportId());
             }
         } catch (Exception e) {
@@ -182,7 +180,6 @@ public class JMeterService {
             ElementUtil.coverArguments(request.getHashTree());
             //解析hashTree，是否含有文件库文件
             HashTreeUtil.initRepositoryFiles(request);
-            execThreadPoolExecutor.addTask(request);
         }
     }
 
@@ -200,7 +197,7 @@ public class JMeterService {
                 Integer port = node.getPort();
                 String uri = String.format(BASE_URL + "/jmeter/get/running/queue/" + reportId, nodeIp, port);
                 ResponseEntity<Boolean> result = restTemplate.getForEntity(uri, Boolean.class);
-                if (result != null && result.getBody()) {
+                if (BooleanUtils.isTrue(result.getBody())) {
                     isRunning = true;
                     break;
                 }

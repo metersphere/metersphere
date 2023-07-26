@@ -32,6 +32,7 @@ import org.apache.jmeter.gui.GuiPackage;
 import org.apache.jmeter.processor.PostProcessor;
 import org.apache.jmeter.processor.PreProcessor;
 import org.apache.jmeter.samplers.*;
+import org.apache.jmeter.services.FileServer;
 import org.apache.jmeter.testbeans.TestBeanHelper;
 import org.apache.jmeter.testelement.*;
 import org.apache.jmeter.threads.JMeterContext.TestLogicalAction;
@@ -334,6 +335,7 @@ public class JMeterThread implements Runnable, Interruptible {
                 threadFinished(iterationListener);
                 monitor.threadFinished(this); // Tell the monitor we are done
                 JMeterContextService.removeContext(); // Remove the ThreadLocal entry
+                FileServer.getFileServer().closeFiles(threadName);
             } finally {
                 interruptLock.unlock(); // Allow any pending interrupt to complete (OK because currentSampler == null)
             }

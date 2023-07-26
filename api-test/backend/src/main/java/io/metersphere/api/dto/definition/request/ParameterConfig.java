@@ -22,6 +22,7 @@ import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.plan.TestPlanApiCaseService;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 
@@ -30,15 +31,19 @@ import java.util.stream.Collectors;
 
 @Data
 public class ParameterConfig extends MsParameter {
+
+    public ParameterConfig(String currentProjectId, boolean isApi) {
+        this.currentProjectId = currentProjectId;
+        this.setApi(isApi);
+        if (MapUtils.isEmpty(this.config)) {
+            this.config = new HashMap<>();
+        }
+    }
+
     /**
      * 环境配置
      */
     private Map<String, EnvironmentConfig> config;
-
-    /**
-     * UI 指令全局配置
-     */
-    private Object commandConfig;
     /**
      * 缓存同一批请求的认证信息
      */
@@ -61,10 +66,6 @@ public class ParameterConfig extends MsParameter {
      * 公共Cookie
      */
     private boolean enableCookieShare;
-    /**
-     * 是否停止继续
-     */
-    private Boolean onSampleError;
 
     /**
      * 是否是导入/导出操作
@@ -74,13 +75,12 @@ public class ParameterConfig extends MsParameter {
      * 导入/导出操作时取样器的testName值
      */
     private String operatingSampleTestName;
-    /**
-     * 项目ID，支持单接口执行
-     */
-    private String projectId;
 
     private String scenarioId;
-
+    /**
+     * 当前项目id
+     */
+    private String currentProjectId;
     /**
      * 报告 ID
      */
@@ -90,7 +90,6 @@ public class ParameterConfig extends MsParameter {
 
     private boolean runLocal;
 
-    private String browserLanguage;
     private boolean isApi;
     /**
      * 失败重试次数
@@ -104,7 +103,8 @@ public class ParameterConfig extends MsParameter {
     private List<String> csvFilePaths = new ArrayList<>();
 
     public boolean isEffective(String projectId) {
-        if (this.config != null && this.config.get(projectId) != null) {
+        if ((StringUtils.isNotBlank(projectId) && this.config != null && this.config.get(projectId) != null)
+                || (StringUtils.isNotBlank(this.currentProjectId) && this.config != null && this.config.get(currentProjectId) != null)) {
             return true;
         }
         return false;
@@ -119,8 +119,7 @@ public class ParameterConfig extends MsParameter {
     }
 
 
-    public HttpConfig matchConfig(MsHTTPSamplerProxy samplerProxy) {
-        HttpConfig httpConfig = this.getConfig().get(samplerProxy.getProjectId()).getHttpConfig();
+    public HttpConfig matchConfig(MsHTTPSamplerProxy samplerProxy, HttpConfig httpConfig) {
         boolean isNext = true;
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {
@@ -253,5 +252,18 @@ public class ParameterConfig extends MsParameter {
                 }
             });
         }
+    }
+
+    /**
+     * 获取项目环境配置，如果没有则返回当前项目环境配置
+     *
+     * @param projectId 项目ID
+     */
+    public EnvironmentConfig get(String projectId) {
+        EnvironmentConfig envConfig = this.getConfig().get(projectId);
+        if (envConfig == null && StringUtils.isNotEmpty(this.getCurrentProjectId())) {
+            return this.config.get(this.getCurrentProjectId());
+        }
+        return envConfig;
     }
 }

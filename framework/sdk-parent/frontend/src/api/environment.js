@@ -1,6 +1,6 @@
-import {get, post, request} from "../plugins/request"
+import { get, post, request } from '../plugins/request';
 // 获取使用当前js模块的package.json，不要修改引入路径
-import packageInfo from '@/../package.json'
+import packageInfo from '@/../package.json';
 const currentModuleName = packageInfo.name;
 
 export function getEnvironmentMapByGroupId(id) {
@@ -9,6 +9,10 @@ export function getEnvironmentMapByGroupId(id) {
 
 export function getEnvironmentByProjectId(projectId) {
   return get('/environment/list/' + projectId);
+}
+// 不含环境的blob数据
+export function getEnvironmentByProjectIds(projectIds) {
+  return post('/environment/project-env', projectIds);
 }
 
 export function getEnvironmentById(environmentId) {
@@ -84,23 +88,26 @@ export function databaseValidate(params) {
 
 export function getUploadConfig(url, formData) {
   return {
-    method: 'POST', url: url, data: formData, headers: {
-      'Content-Type': undefined
-    }
+    method: 'POST',
+    url: url,
+    data: formData,
+    headers: {
+      'Content-Type': undefined,
+    },
   };
 }
 
 export function fileUpload(url, file, files, param) {
   let formData = new FormData();
   if (file) {
-    formData.append("file", file);
+    formData.append('file', file);
   }
   if (files) {
-    files.forEach(f => {
-      formData.append("files", f);
+    files.forEach((f) => {
+      formData.append('files', f);
     });
   }
-  formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
+  formData.append('request', new Blob([JSON.stringify(param)], { type: 'application/json' }));
   let config = getUploadConfig(url, formData);
   return request(config);
 }
@@ -150,7 +157,7 @@ export function getModuleByUrl(url) {
 }
 
 export function getCaseRelateModuleByCondition(url, params) {
-  return post('/environment/relate' + url, params)
+  return post('/environment/relate' + url, params);
 }
 
 export function getCodeSnippetPages(goPage, pageSize, params) {

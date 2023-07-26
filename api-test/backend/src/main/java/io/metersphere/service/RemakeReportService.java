@@ -1,6 +1,5 @@
 package io.metersphere.service;
 
-import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.ApiLocalRunner;
 import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
 import io.metersphere.base.domain.ApiExecutionQueueDetail;
@@ -47,8 +46,6 @@ public class RemakeReportService {
             dto.setTestId(request.getTestId());
             dto.setErrorEnded(true);
             LoggerUtil.info("进入异常结果处理：" + dto.getRunMode() + " 整体处理完成", dto.getReportId());
-            // 全局并发队列
-            PoolExecBlockingQueueUtil.offer(dto.getReportId());
             LoggerUtil.error("执行异常处理：" + errorMsg, request.getReportId());
             if (StringUtils.isNotEmpty(dto.getQueueId())) {
                 queueService.queueNext(dto);

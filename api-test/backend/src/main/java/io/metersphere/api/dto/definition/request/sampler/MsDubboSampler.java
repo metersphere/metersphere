@@ -90,7 +90,7 @@ public class MsDubboSampler extends MsTestElement {
         //添加全局前后置脚本
         EnvironmentConfig envConfig = null;
         if (config.getConfig() != null) {
-            envConfig = config.getConfig().get(this.getProjectId());
+            envConfig = config.get(this.getProjectId());
         }
         //处理全局前后置脚本(步骤内)
         String environmentId = this.getEnvironmentId();

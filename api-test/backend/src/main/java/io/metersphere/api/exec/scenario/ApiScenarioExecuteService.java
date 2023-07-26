@@ -122,9 +122,6 @@ public class ApiScenarioExecuteService {
         }
         // 检查执行内容合规性
         PerformInspectionUtil.scenarioInspection(apiScenarios);
-        // 环境检查
-        LoggerUtil.info("Scenario run-执行脚本装载-开始针对所有执行场景进行环境检查");
-        apiScenarioEnvService.checkEnv(request, apiScenarios);
         // 集合报告设置
         if (!request.isRerun() && GenerateHashTreeUtil.isSetReport(request.getConfig())) {
             if (isSerial(request)) {
@@ -412,7 +409,7 @@ public class ApiScenarioExecuteService {
         if (StringUtils.equals(request.getEnvironmentType(), EnvironmentType.GROUP.toString())) {
             request.setEnvironmentMap(environmentGroupProjectService.getEnvMap(request.getEnvironmentGroupId()));
         }
-        ParameterConfig config = new ParameterConfig();
+        ParameterConfig config = new ParameterConfig(request.getProjectId(), false);
         config.setScenarioId(request.getScenarioId());
         if (MapUtils.isNotEmpty(request.getEnvironmentMap())) {
             apiScenarioEnvService.setEnvConfig(request.getEnvironmentMap(), config);
@@ -445,7 +442,7 @@ public class ApiScenarioExecuteService {
                     if (testElement != null) {
                         apiScenario.setName(testElement.getName());
                         apiScenario.setScenarioDefinition(JSON.toJSONString(testElement));
-                        List<String> projectIdLists =ElementUtil. getProjectIds(apiScenario.getScenarioDefinition());
+                        List<String> projectIdLists = ElementUtil.getProjectIds(apiScenario.getScenarioDefinition());
                         Map<String, String> envMap = ElementUtil.getProjectEnvMap(projectIdLists, request.getEnvironmentMap());
                         request.getConfig().setEnvMap(envMap);
                         report.setEnvConfig(JSON.toJSONString(request.getConfig()));

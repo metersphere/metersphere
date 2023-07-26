@@ -402,7 +402,6 @@ import {
   batchEditScenario,
   batchGenPerformanceTestJmx,
   checkBeforeDelete,
-  checkScenarioEnv,
   delByScenarioId,
   delByScenarioIdAndRefId,
   deleteBatchByCondition,
@@ -1370,16 +1369,9 @@ export default {
           }
           this.environmentType = this.currentScenario.environmentType;
           this.envGroupId = this.currentScenario.environmentGroupId;
-          checkScenarioEnv(this.currentScenario.id).then((res) => {
-            let data = res.data;
-            if (!data) {
-              this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
-              return false;
-            }
-            this.reportId = getUUID().substring(0, 8);
-            this.runVisible = true;
-            this.$set(row, 'isStop', true);
-          });
+          this.reportId = getUUID().substring(0, 8);
+          this.runVisible = true;
+          this.$set(row, 'isStop', true);
         }
       });
     },
