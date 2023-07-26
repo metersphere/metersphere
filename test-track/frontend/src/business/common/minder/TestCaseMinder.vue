@@ -5,7 +5,7 @@
     </div>
 
     <div class="case-main-layout-right" style="float: right; display: flex">
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
+      <version-select v-xpack :default-version="defaultVersion" :project-id="projectId" @changeVersion="changeVersion" />
     </div>
 
     <ms-module-minder
@@ -122,7 +122,8 @@ export default {
     },
     condition: Object,
     projectId: String,
-    activeName: String
+    activeName: String,
+    defaultVersion: String
   },
   computed: {
     ...mapState(useStore, {
@@ -167,6 +168,7 @@ export default {
     }
   },
   mounted() {
+    this.currentVersion = this.defaultVersion || null;
     this.setIsChange(false);
     let moduleNum = 0;
     this.treeNodes.forEach(node => {
@@ -183,6 +185,7 @@ export default {
   methods: {
     changeVersion(currentVersion) {
       this.currentVersion = currentVersion || null;
+      this.$emit('versionChange', currentVersion);
     },
     handleNodeUpdateForMinder() {
       if (this.noRefreshMinder) {
