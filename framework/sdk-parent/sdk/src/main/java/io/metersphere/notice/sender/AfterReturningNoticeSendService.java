@@ -3,6 +3,7 @@ package io.metersphere.notice.sender;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
@@ -35,6 +36,8 @@ public class AfterReturningNoticeSendService {
             paramMap.putIfAbsent("projectId", currentProjectId);
             // 占位符
             handleDefaultValues(paramMap);
+            // 处理resource中特殊值
+            handleSpecialValues(paramMap);
 
             String context = getContext(sendNotice, paramMap);
 
@@ -56,6 +59,14 @@ public class AfterReturningNoticeSendService {
      */
     private void handleDefaultValues(Map paramMap) {
         paramMap.put("planShareUrl", StringUtils.EMPTY); // 占位符
+    }
+
+    private void handleSpecialValues(Map paramMap) {
+        // 翻译${stage}占位符
+        String key = "stage";
+        if (paramMap.containsKey(key) && paramMap.get(key) != null) {
+            paramMap.put(key, StatusReference.statusMap.get(paramMap.get("stage").toString()));
+        }
     }
 
     private String getContext(SendNotice sendNotice, Map<String, Object> paramMap) {
