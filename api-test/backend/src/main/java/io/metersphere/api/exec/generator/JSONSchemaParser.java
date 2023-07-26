@@ -44,7 +44,7 @@ public class JSONSchemaParser {
                 }
                 formatObject(allOfElementObj, rootObj, processMap);
             }
-        } else if (object.has(PropertyConstant.PROPERTIES)) {
+        } else if (object.has(PropertyConstant.PROPERTIES) && !object.get(PropertyConstant.PROPERTIES).getAsJsonObject().isEmpty()) {
             formatObject(object, rootObj, processMap);
         } else if (object.has(PropertyConstant.ADDITIONAL_PROPERTIES)) {
             analyzeProperty(rootObj, PropertyConstant.ADDITIONAL_PROPERTIES,
@@ -205,7 +205,7 @@ public class JSONSchemaParser {
                     } else {
                         array.put(0);
                     }
-                } else if (jsonObject.has(PropertyConstant.PROPERTIES)) {
+                } else if (jsonObject.has(PropertyConstant.PROPERTIES) && !jsonObject.get(PropertyConstant.PROPERTIES).getAsJsonObject().isEmpty()) {
                     JSONObject propertyConcept = JSONUtil.createJsonObject(true);
                     formatObject(jsonObject, propertyConcept, processMap);
                     array.put(propertyConcept);
