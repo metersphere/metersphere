@@ -201,7 +201,6 @@ export let CUSTOM_TABLE_HEADER = {
 
   // 测试报告列表
   PERFORMANCE_REPORT_TABLE: [
-    { id: "testName", key: "a", label: "report.test_name" },
     { id: "name", key: "b", label: "commons.name" },
     { id: "versionId", key: "c", label: "project.version.name" },
     { id: "userName", key: "d", label: "report.user_name" },

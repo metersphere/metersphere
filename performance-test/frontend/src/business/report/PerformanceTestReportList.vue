@@ -26,13 +26,6 @@
           ref="table">
           <span v-for="(item, index) in fields" :key="index">
             <ms-table-column
-              :field="item"
-              :fields-width="fieldsWidth"
-              prop="testName"
-              :label="$t('report.test_name')"
-              show-overflow-tooltip>
-            </ms-table-column>
-            <ms-table-column
               prop="name"
               sortable
               :label="$t('commons.name')"
