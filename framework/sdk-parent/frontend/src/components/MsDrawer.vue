@@ -215,6 +215,11 @@ export default {
       }
     },
   },
+  beforeDestroy() {
+    if (this.$el?.style) {
+      document.body.removeChild(this.$el);
+    }
+  },
 };
 </script>
 
