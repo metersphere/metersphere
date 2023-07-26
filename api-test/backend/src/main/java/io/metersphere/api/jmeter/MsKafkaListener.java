@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class MsKafkaListener {
     public static final String CONSUME_ID = "ms-api-exec-consume";
     public static final String DEBUG_CONSUME_ID = "ms-api-debug-consume";
+    private static final String PRE_RESULT = "result_";
     @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
     @Resource
@@ -52,7 +53,7 @@ public class MsKafkaListener {
             MAX_POOL_SIZE,
             KEEP_ALIVE_TIME,
             TimeUnit.SECONDS,
-            new ArrayBlockingQueue(WORK_QUEUE_SIZE),
+            new ArrayBlockingQueue<>(WORK_QUEUE_SIZE),
             new NamedThreadFactory("MS-KAFKA-LISTENER-TASK"));
 
     @KafkaListener(id = CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TOPIC, groupId = "${spring.kafka.consumer.group-id}", containerFactory = "batchFactory")
@@ -80,15 +81,18 @@ public class MsKafkaListener {
             LoggerUtil.info("接收到执行结果：", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtil.has(record.key().toString())) {
                 MsgDTO dto = JSONUtil.parseObject(record.value(), MsgDTO.class);
-                if (StringUtils.isNotBlank(dto.getContent()) && dto.getContent().startsWith("result_")) {
+                if (StringUtils.isNotBlank(dto.getContent()) && dto.getContent().startsWith(PRE_RESULT)) {
                     String content = dto.getContent().substring(7);
                     if (StringUtils.isNotBlank(content)) {
                         RequestResult baseResult = JSONUtil.parseObject(content, RequestResult.class);
                         if (ObjectUtils.isNotEmpty(baseResult)) {
                             //解析是否含有误报库信息
                             RequestResultExpandDTO expandDTO = ResponseUtil.parseByRequestResult(baseResult);
-                            dto.setContent(StringUtils.join("result_", JSON.toJSONString(expandDTO)));
-                            if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(), ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name()) && dto.getContent().startsWith("result_")) {
+                            dto.setContent(StringUtils.join(PRE_RESULT, JSON.toJSONString(expandDTO)));
+                            if (StringUtils.equalsAnyIgnoreCase(dto.getRunMode(),
+                                    ApiRunMode.DEFINITION.name(),
+                                    ApiRunMode.API_PLAN.name())
+                                    && dto.getContent().startsWith(PRE_RESULT)) {
                                 apiDefinitionEnvService.setEnvAndPoolName(dto);
                             }
                         }

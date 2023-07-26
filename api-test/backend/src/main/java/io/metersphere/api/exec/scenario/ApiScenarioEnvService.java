@@ -1,8 +1,8 @@
 package io.metersphere.api.exec.scenario;
 
+import io.metersphere.api.dto.EnvironmentCheckDTO;
 import io.metersphere.api.dto.EnvironmentType;
 import io.metersphere.api.dto.RunModeConfigWithEnvironmentDTO;
-import io.metersphere.api.dto.ScenarioEnv;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.definition.request.ElementUtil;
@@ -35,6 +35,7 @@ import io.metersphere.service.definition.ApiDefinitionService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -61,36 +62,32 @@ public class ApiScenarioEnvService {
     @Resource
     private BaseEnvironmentService apiTestEnvironmentService;
 
-    public ScenarioEnv getApiScenarioEnv(String definition) {
-        ScenarioEnv env = new ScenarioEnv();
+    public EnvironmentCheckDTO getApiScenarioEnv(String definition) {
+        EnvironmentCheckDTO env = new EnvironmentCheckDTO();
         if (StringUtils.isEmpty(definition)) {
             return env;
         }
         List<MsTestElement> hashTree = GenerateHashTreeUtil.getScenarioHashTree(definition);
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            // 过滤掉禁用的步骤
-            hashTree = hashTree.stream().filter(item -> item.isEnable()).collect(Collectors.toList());
-        }
-        List<Boolean> hasFullUrlList = new ArrayList<>();
-        for (MsTestElement testElement : hashTree) {
-            this.formatElement(testElement, env, hasFullUrlList);
-            if (CollectionUtils.isNotEmpty(testElement.getHashTree())) {
-                getHashTree(testElement.getHashTree(), env, hasFullUrlList);
-            }
-        }
-        env.setFullUrl(!hasFullUrlList.contains(false));
+        List<Boolean> fullUrls = new ArrayList<>();
+        getHashTree(hashTree, env, fullUrls);
+        env.setFullUrl(!fullUrls.contains(false));
         return env;
     }
 
 
-    private void getHashTree(List<MsTestElement> tree, ScenarioEnv env, List<Boolean> hasFullUrlList) {
+    private void getHashTree(List<MsTestElement> tree, EnvironmentCheckDTO env, List<Boolean> fullUrls) {
         try {
             // 过滤掉禁用的步骤
-            tree = tree.stream().filter(item -> item.isEnable()).collect(Collectors.toList());
+            tree = tree.stream().filter(MsTestElement::isEnable).collect(Collectors.toList());
             for (MsTestElement element : tree) {
-                this.formatElement(element, env, hasFullUrlList);
+                if (element instanceof MsScenario
+                        && BooleanUtils.isTrue(((MsScenario) element).isEnvironmentEnable())) {
+                    fullUrls.add(true);
+                    continue;
+                }
+                this.formatElement(element, env, fullUrls);
                 if (CollectionUtils.isNotEmpty(element.getHashTree())) {
-                    getHashTree(element.getHashTree(), env, hasFullUrlList);
+                    getHashTree(element.getHashTree(), env, fullUrls);
                 }
             }
         } catch (Exception e) {
@@ -98,7 +95,7 @@ public class ApiScenarioEnvService {
         }
     }
 
-    private void formatElement(MsTestElement testElement, ScenarioEnv env, List<Boolean> hasFullUrlList) {
+    private void formatElement(MsTestElement testElement, EnvironmentCheckDTO env, List<Boolean> fullUrls) {
         if (StringUtils.equals(MsTestElementConstants.REF.name(), testElement.getReferenced())) {
             if (StringUtils.equals(testElement.getType(), ElementConstants.HTTP_SAMPLER)) {
                 MsHTTPSamplerProxy http = (MsHTTPSamplerProxy) testElement;
@@ -109,7 +106,7 @@ public class ApiScenarioEnvService {
                 if (!StringUtils.equalsIgnoreCase(http.getReferenced(), ElementConstants.STEP_CREATED)
                         || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
                     env.getProjectIds().add(http.getProjectId());
-                    hasFullUrlList.add(false);
+                    fullUrls.add(false);
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)
                     || StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
@@ -118,18 +115,18 @@ public class ApiScenarioEnvService {
                         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(testElement.getId());
                         if (testCase != null) {
                             env.getProjectIds().add(testCase.getProjectId());
-                            hasFullUrlList.add(false);
+                            fullUrls.add(false);
                         }
                     } else {
                         ApiDefinition apiDefinition = apiDefinitionService.get(testElement.getId());
                         if (apiDefinition != null) {
                             env.getProjectIds().add(apiDefinition.getProjectId());
-                            hasFullUrlList.add(false);
+                            fullUrls.add(false);
                         }
                     }
                 } else {
                     env.getProjectIds().add(testElement.getProjectId());
-                    hasFullUrlList.add(false);
+                    fullUrls.add(false);
                 }
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO) && StringUtils.isEmpty(testElement.getProjectId())) {
                 ApiScenarioWithBLOBs apiScenario = apiScenarioMapper.selectByPrimaryKey(testElement.getId());
@@ -145,14 +142,14 @@ public class ApiScenarioEnvService {
             if (StringUtils.equals(testElement.getType(), ElementConstants.HTTP_SAMPLER)) {
                 // 校验是否是全路径
                 MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) testElement;
-                checkCustomEnv(env, httpSamplerProxy.isCustomizeReq(), httpSamplerProxy.getProjectId(), httpSamplerProxy.getIsRefEnvironment(), httpSamplerProxy.getReferenced(), hasFullUrlList);
+                checkCustomEnv(env, httpSamplerProxy.isCustomizeReq(), httpSamplerProxy.getProjectId(), httpSamplerProxy.getIsRefEnvironment(), httpSamplerProxy.getReferenced(), fullUrls);
 
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.TCP_SAMPLER)) {
                 MsTCPSampler tcpSampler = (MsTCPSampler) testElement;
-                checkCustomEnv(env, tcpSampler.isCustomizeReq(), tcpSampler.getProjectId(), tcpSampler.getIsRefEnvironment(), tcpSampler.getReferenced(), hasFullUrlList);
+                checkCustomEnv(env, tcpSampler.isCustomizeReq(), tcpSampler.getProjectId(), tcpSampler.getIsRefEnvironment(), tcpSampler.getReferenced(), fullUrls);
             } else if (StringUtils.equals(testElement.getType(), ElementConstants.JDBC_SAMPLER)) {
                 MsJDBCSampler jdbcSampler = (MsJDBCSampler) testElement;
-                checkCustomEnv(env, jdbcSampler.isCustomizeReq(), jdbcSampler.getProjectId(), jdbcSampler.getIsRefEnvironment(), jdbcSampler.getReferenced(), hasFullUrlList);
+                checkCustomEnv(env, jdbcSampler.isCustomizeReq(), jdbcSampler.getProjectId(), jdbcSampler.getIsRefEnvironment(), jdbcSampler.getReferenced(), fullUrls);
             }
         }
         if (StringUtils.equals(testElement.getType(), ElementConstants.SCENARIO)
@@ -161,10 +158,10 @@ public class ApiScenarioEnvService {
         }
     }
 
-    private void checkCustomEnv(ScenarioEnv env, boolean customizeReq, String projectId, Boolean isRefEnvironment, String referenced, List<Boolean> hasFullUrlList) {
+    private void checkCustomEnv(EnvironmentCheckDTO env, boolean customizeReq, String projectId, Boolean isRefEnvironment, String referenced, List<Boolean> hasFullUrlList) {
         if (customizeReq) {
             env.getProjectIds().add(projectId);
-            hasFullUrlList.add(isRefEnvironment == null ? true : !isRefEnvironment);
+            hasFullUrlList.add(isRefEnvironment == null || !isRefEnvironment);
         } else if (!StringUtils.equalsIgnoreCase(referenced, ElementConstants.STEP_CREATED)
                 || (isRefEnvironment != null && isRefEnvironment)) {
             env.getProjectIds().add(projectId);
@@ -174,8 +171,6 @@ public class ApiScenarioEnvService {
 
     /**
      * 设置场景的运行环境 环境组/环境JSON
-     *
-     * @param apiScenarioWithBLOBs
      */
     public void setScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, RunScenarioRequest request) {
         if (apiScenarioWithBLOBs == null) {
@@ -210,60 +205,22 @@ public class ApiScenarioEnvService {
             String definition = apiScenarioWithBLOBs.getScenarioDefinition();
             MsScenarioEnv scenario = JSON.parseObject(definition, MsScenarioEnv.class);
             Map<String, String> envMap = scenario.getEnvironmentMap();
-            return this.check(definition, envMap, scenario.getEnvironmentId(), apiScenarioWithBLOBs.getProjectId());
+            return this.check(definition, envMap, apiScenarioWithBLOBs.getProjectId());
         }
         return true;
     }
 
-    private boolean check(String definition, Map<String, String> envMap, String envId, String projectId) {
-        boolean isEnv = true;
-        ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
-        // 所有请求非全路径检查环境
+    private boolean check(String definition, Map<String, String> envMap, String projectId) {
+        EnvironmentCheckDTO apiScenarioEnv = getApiScenarioEnv(definition);
+        // 当前项目是否选择了环境
+        if (MapUtils.isNotEmpty(envMap) && envMap.containsKey(projectId)) {
+            return true;
+        }
+        // 所有请求是否都是自定义请求且没有引用环境
         if (!apiScenarioEnv.getFullUrl()) {
-            try {
-                if (envMap == null || envMap.isEmpty()) {
-                    isEnv = false;
-                } else {
-                    Set<String> projectIds = apiScenarioEnv.getProjectIds();
-                    projectIds.remove(null);
-                    if (CollectionUtils.isNotEmpty(envMap.keySet())) {
-                        for (String id : projectIds) {
-                            Project project = projectMapper.selectByPrimaryKey(id);
-                            String s = envMap.get(id);
-                            if (project == null) {
-                                s = envMap.get(projectId);
-                            }
-                            if (StringUtils.isBlank(s)) {
-                                isEnv = false;
-                                break;
-                            } else {
-                                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
-                                if (env == null) {
-                                    isEnv = false;
-                                    break;
-                                }
-                            }
-                        }
-                    } else {
-                        isEnv = false;
-                    }
-                }
-            } catch (Exception e) {
-                isEnv = false;
-                LogUtil.error(e.getMessage(), e);
-            }
+            return false;
         }
-
-        // 1.8 之前环境是 environmentId
-        if (!isEnv) {
-            if (StringUtils.isNotBlank(envId)) {
-                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
-                if (env != null) {
-                    isEnv = true;
-                }
-            }
-        }
-        return isEnv;
+        return true;
     }
 
     public boolean verifyPlanScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenarioInfoDTO testPlanApiScenarios) {
@@ -283,20 +240,15 @@ public class ApiScenarioEnvService {
                     envMap = new HashMap<>();
                 }
             }
-            return this.check(definition, envMap, scenario.getEnvironmentId(), apiScenarioWithBLOBs.getProjectId());
+            return this.check(definition, envMap, apiScenarioWithBLOBs.getProjectId());
         }
         return true;
     }
 
     /**
      * 检查是否存在运行环境。若不存在则报错，存在的话返回所存在的运行环境
-     *
-     * @param request
-     * @param apiScenarios
-     * @return <projectId,envIds>
      */
-    public Map<String, List<String>> checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
-        Map<String, List<String>> projectEnvMap = new HashMap<>();
+    public void checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
         if (StringUtils.equals(request.getRequestOriginator(), CommonConstants.TEST_PLAN)) {
             this.checkPlanScenarioEnv(request);
         } else if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
@@ -312,7 +264,7 @@ public class ApiScenarioEnvService {
                     MSException.throwException("场景：" + apiScenarioWithBLOBs.getName() + "，步骤解析错误，检查是否包含插件步骤!");
                 }
             }
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 MSException.throwException("场景：" + builder + "运行环境未配置，请检查!");
             }
         } else if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
@@ -324,10 +276,11 @@ public class ApiScenarioEnvService {
                 }
             }
         }
-        return projectEnvMap;
     }
 
-    //检查测试计划场景的环境，没有环境的场景从执行队列中移除
+    /**
+     * 检查测试计划场景的环境，没有环境的场景从执行队列中移除
+     */
     public void checkPlanScenarioEnv(RunScenarioRequest request) {
         if (request.getProcessVO() != null &&
                 MapUtils.isNotEmpty(request.getProcessVO().getTestPlanScenarioMap())
@@ -354,12 +307,12 @@ public class ApiScenarioEnvService {
 
     public Map<String, List<String>> selectApiScenarioEnv(List<? extends ApiScenarioWithBLOBs> list) {
         Map<String, List<String>> projectEnvMap = new LinkedHashMap<>();
-        for (int i = 0; i < list.size(); i++) {
+        for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : list) {
             try {
                 Map<String, String> map = new HashMap<>();
-                String environmentType = list.get(i).getEnvironmentType();
-                String environmentGroupId = list.get(i).getEnvironmentGroupId();
-                String env = list.get(i).getEnvironmentJson();
+                String environmentType = apiScenarioWithBLOBs.getEnvironmentType();
+                String environmentGroupId = apiScenarioWithBLOBs.getEnvironmentGroupId();
+                String env = apiScenarioWithBLOBs.getEnvironmentJson();
                 if (StringUtils.equals(environmentType, EnvironmentType.JSON.name())) {
                     // 环境属性为空 跳过
                     if (StringUtils.isBlank(env)) {
@@ -394,7 +347,7 @@ public class ApiScenarioEnvService {
                     }
                 }
             } catch (Exception e) {
-                LogUtil.error("api scenario environment map incorrect parsing. api scenario id:" + list.get(i).getId());
+                LogUtil.error("api scenario environment map incorrect parsing. api scenario id:" + apiScenarioWithBLOBs.getId());
             }
         }
         return projectEnvMap;
@@ -594,9 +547,9 @@ public class ApiScenarioEnvService {
 
     private boolean isProjectEnvMapNotContainsEnv(LinkedHashMap<String, List<String>> returnMap, String projectName, String envName) {
         if (MapUtils.isNotEmpty(returnMap)) {
-            if (returnMap.containsKey(projectName) && CollectionUtils.isNotEmpty(returnMap.get(projectName)) && returnMap.get(projectName).contains(envName)) {
-                return false;
-            }
+            return !returnMap.containsKey(projectName)
+                    || !CollectionUtils.isNotEmpty(returnMap.get(projectName))
+                    || !returnMap.get(projectName).contains(envName);
         }
         return true;
     }

@@ -49,10 +49,10 @@ public class GenerateHashTreeUtil {
             JSONObject element = JSONUtil.parseObject(scenarioDefinition);
             ElementUtil.dataFormatting(element);
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-            if (element != null && element.has(ElementConstants.HASH_TREE)) {
+            if (element.has(ElementConstants.HASH_TREE)) {
                 scenario.setHashTree(JSONUtil.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString()));
             }
-            if (element != null && StringUtils.isNotEmpty(element.optString("variables"))) {
+            if (StringUtils.isNotEmpty(element.optString("variables"))) {
                 scenario.setVariables(JSONUtil.parseArray(element.optString("variables"), ScenarioVariable.class));
             }
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class GenerateHashTreeUtil {
 
     public static LinkedList<MsTestElement> getScenarioHashTree(String definition) {
         JSONObject element = JSONUtil.parseObject(definition);
-        if (element != null && element.has(ElementConstants.HASH_TREE)) {
+        if (element.has(ElementConstants.HASH_TREE)) {
             ElementUtil.dataFormatting(element);
             return JSONUtil.readValue(element.optJSONArray(ElementConstants.HASH_TREE).toString());
         }
@@ -153,7 +153,7 @@ public class GenerateHashTreeUtil {
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);
 
-            ParameterConfig config = new ParameterConfig();
+            ParameterConfig config = new ParameterConfig(item.getProjectId(), false);
             config.setScenarioId(item.getId());
             config.setReportType(runRequest.getReportType());
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {

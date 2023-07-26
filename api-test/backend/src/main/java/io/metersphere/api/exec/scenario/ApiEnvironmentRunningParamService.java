@@ -88,7 +88,7 @@ public class ApiEnvironmentRunningParamService {
                     itemObj.put(NAME, entry.getKey());
                     itemObj.put(VALUE, entry.getValue());
                     itemObj.put(ENABLE, true);
-                    if (variables.length() > 0 && StringUtils.isEmpty(variables.optJSONObject(variables.length() - 1).optString(NAME))) {
+                    if (!variables.isEmpty() && StringUtils.isEmpty(variables.optJSONObject(variables.length() - 1).optString(NAME))) {
                         variables.put(variables.length() - 1, itemObj);
                     } else {
                         variables.put(itemObj);

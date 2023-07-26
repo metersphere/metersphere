@@ -14,6 +14,7 @@ public class RunModeConfigDTO {
     private String testId;
     private String amassReport;
     private boolean onSampleError;
+    private Boolean defaultEnv;
     // 失败重试
     private boolean retryEnable;
     // 失败重试次数

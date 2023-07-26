@@ -6,7 +6,6 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.commons.constants.ElementConstants;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.vo.JDBCProcessorVO;
@@ -16,6 +15,7 @@ import io.metersphere.utils.LoggerUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.jdbc.processor.JDBCPostProcessor;
 import org.apache.jorphan.collections.HashTree;
@@ -57,22 +57,20 @@ public class MsJDBCPostProcessor extends MsTestElement {
         if (StringUtils.isBlank(this.getProjectId()) && this.getParent() != null) {
             this.setProjectId(this.getParent().getProjectId());
         }
-        if (config.getConfig() == null) {
+        if (MapUtils.isEmpty(config.getConfig()) && config.isApi()) {
             // 单独接口执行
-            this.setProjectId(config.getProjectId());
+            this.setProjectId(config.getCurrentProjectId());
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId()));
         }
 
-        this.dataSource = ElementUtil.selectDataSourceFromJDBCProcessor(this.getName(), this.environmentId, this.dataSourceId, this.getProjectId(), config);
+        this.dataSource = ElementUtil.getDataSource(this.getName(), this.environmentId, this.dataSourceId, this.getProjectId(), config);
         if (this.dataSource == null) {
             // 用自身的数据
             if (StringUtils.isNotEmpty(dataSourceId)) {
                 this.dataSource = ElementUtil.initDataSource(this.environmentId, this.dataSourceId);
             }
             if (this.dataSource == null) {
-                LoggerUtil.info(this.getName() + "：  当前项目id", this.getProjectId() + "  当前环境配置信息", JSONUtil.toJSONString(config));
-                String message = "数据源为空请选择数据源";
-                MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
+                LoggerUtil.error(this.getName() + "，未找到数据源", JSONUtil.toJSONString(config));
             }
         }
         JDBCPostProcessor jdbcPostProcessor = jdbcPostProcessor(config);

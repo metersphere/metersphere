@@ -8,7 +8,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class ApiScenarioEnvRequest {
-
+    private String projectId;
     private String definition;
     private String environmentType;
     private String environmentGroupId;

@@ -1,9 +1,6 @@
 package io.metersphere.service.ext;
 
-import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
-import io.metersphere.api.exec.queue.PoolExecBlockingQueueUtil;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -59,8 +56,6 @@ public class ExtApiTaskService extends TaskService {
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
-    private ExecThreadPoolExecutor execThreadPoolExecutor;
-    @Resource
     private ApiExecutionQueueService apiExecutionQueueService;
 
     public List<TaskCenterDTO> getCases(String id) {
@@ -98,7 +93,7 @@ public class ExtApiTaskService extends TaskService {
         }
     }
 
-    public String apiStop(List<TaskRequestDTO> taskRequests) {
+    public void apiStop(List<TaskRequestDTO> taskRequests) {
         if (CollectionUtils.isNotEmpty(taskRequests)) {
             List<TaskRequestDTO> stopTasks = taskRequests.stream().filter(s -> StringUtils.isNotEmpty(s.getReportId())).collect(Collectors.toList());
             // 聚类，同一批资源池的一批发送
@@ -107,9 +102,7 @@ public class ExtApiTaskService extends TaskService {
             if (CollectionUtils.isNotEmpty(stopTasks) && stopTasks.size() == 1) {
                 // 从队列移除
                 TaskRequestDTO request = stopTasks.get(0);
-                execThreadPoolExecutor.removeQueue(request.getReportId());
                 apiExecutionQueueService.stop(request.getReportId());
-                PoolExecBlockingQueueUtil.offer(request.getReportId());
                 if (StringUtils.equals(request.getType(), "API")) {
                     ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(request.getReportId());
                     if (result != null) {
@@ -137,7 +130,6 @@ public class ExtApiTaskService extends TaskService {
                 thread.start();
             }
         }
-        return "SUCCESS";
     }
 
     private void batchStop(List<TaskRequestDTO> taskRequests) {
@@ -152,19 +144,12 @@ public class ExtApiTaskService extends TaskService {
 
         // 结束掉未分发完成的任务
         LoggerUtil.info("结束正在进行中的计划任务队列");
-        JMeterThreadUtils.stop("PLAN-CASE");
-        JMeterThreadUtils.stop("API-CASE-RUN");
-        JMeterThreadUtils.stop("SCENARIO-PARALLEL-THREAD");
-
         if (taskRequestMap.containsKey("API")) {
             List<TaskResultVO> results = extApiDefinitionExecResultMapper.findByProjectIds(taskCenterRequest);
             LoggerUtil.info("查询API进行中的报告：" + results.size());
             if (CollectionUtils.isNotEmpty(results)) {
                 for (TaskResultVO item : results) {
                     extracted(poolMap, item.getId(), item.getActuator());
-                    // 从队列移除
-                    execThreadPoolExecutor.removeQueue(item.getId());
-                    PoolExecBlockingQueueUtil.offer(item.getId());
                 }
                 LoggerUtil.info("结束API进行中的报告");
                 baseTaskMapper.stopApi(taskCenterRequest);
@@ -181,9 +166,6 @@ public class ExtApiTaskService extends TaskService {
                 for (TaskResultVO report : reports) {
 
                     extracted(poolMap, report.getId(), report.getActuator());
-                    // 从队列移除
-                    execThreadPoolExecutor.removeQueue(report.getId());
-                    PoolExecBlockingQueueUtil.offer(report.getId());
                 }
 
                 // 清理队列并停止测试计划报告
@@ -213,8 +195,6 @@ public class ExtApiTaskService extends TaskService {
                     this.add(reportId);
                 }});
             }
-        } else {
-            JMeterThreadUtils.stop(reportId);
         }
     }
 
@@ -223,7 +203,7 @@ public class ExtApiTaskService extends TaskService {
         example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andIdEqualTo(poolId);
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(pools)) {
-            List<String> poolIds = pools.stream().map(pool -> pool.getId()).collect(Collectors.toList());
+            List<String> poolIds = pools.stream().map(TestResourcePool::getId).collect(Collectors.toList());
             TestResourceExample resourceExample = new TestResourceExample();
             resourceExample.createCriteria().andTestResourcePoolIdIn(poolIds);
             resourceExample.setOrderByClause("create_time");

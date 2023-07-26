@@ -5,7 +5,6 @@ import io.metersphere.api.exec.api.ApiCaseSerialService;
 import io.metersphere.api.exec.queue.DBTestQueue;
 import io.metersphere.api.exec.scenario.ApiScenarioSerialService;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
@@ -33,7 +32,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.services.FileServer;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -388,10 +386,6 @@ public class ApiExecutionQueueService {
             if (StringUtils.isNotEmpty(queue.getPoolId()) && jMeterService.getRunningQueue(queue.getPoolId(), item.getReportId())) {
                 continue;
             }
-            // 检查执行报告是否还在等待队列中或执行线程中
-            if (JMeterThreadUtils.isRunning(item.getReportId(), item.getTestId())) {
-                continue;
-            }
             // 检查是否已经超时
             ResultDTO dto = new ResultDTO();
             dto.setQueueId(item.getQueueId());
@@ -446,9 +440,6 @@ public class ApiExecutionQueueService {
                         TestPlanReportStatus.RUNNING.name(), ApiReportStatus.PENDING.name()) && (report.getUpdateTime() < timeout)) {
                     report.setStatus(ApiReportStatus.ERROR.name());
                     apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-                    if (FileServer.getFileServer() != null) {
-                        FileServer.getFileServer().closeCsv(item.getReportId());
-                    }
                 }
             });
         }
@@ -474,9 +465,6 @@ public class ApiExecutionQueueService {
     }
 
     public void stop(String reportId) {
-        if (FileServer.getFileServer() != null) {
-            FileServer.getFileServer().closeCsv(reportId);
-        }
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andReportIdEqualTo(reportId);
         List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);
@@ -500,12 +488,6 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isEmpty(reportIds)) {
             return;
         }
-        // 清理CSV
-        reportIds.forEach(item -> {
-            if (FileServer.getFileServer() != null) {
-                FileServer.getFileServer().closeCsv(item);
-            }
-        });
         ApiExecutionQueueDetailExample example = new ApiExecutionQueueDetailExample();
         example.createCriteria().andReportIdIn(reportIds);
         List<ApiExecutionQueueDetail> details = executionQueueDetailMapper.selectByExample(example);

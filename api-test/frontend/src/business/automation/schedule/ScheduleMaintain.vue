@@ -52,6 +52,10 @@
             <span>{{ $t('load_test.runtime_config') }}</span>
             <div style="padding-top: 10px">
               <span class="ms-mode-span">{{ $t('commons.environment') }}：</span>
+              <el-radio-group v-model="runConfig.defaultEnv" style="margin-right: 20px">
+                <el-radio :label="true">{{ $t('automation.default_environment') }}</el-radio>
+                <el-radio :label="false">{{ $t('automation.select_new_environment') }}</el-radio>
+              </el-radio-group>
               <env-popover
                 :project-ids="projectIds"
                 :placement="'bottom-start'"
@@ -64,15 +68,13 @@
                 @setProjectEnvMap="setProjectEnvMap"
                 @showPopover="showPopover"
                 ref="envPopover"
-                class="env-popover" />
+                class="env-popover"
+                v-show="this.runConfig.defaultEnv === false" />
             </div>
             <div class="ms-mode-div">
               <span class="ms-mode-span">{{ $t('run_mode.other_config') }}：</span>
               <span>{{ $t('run_mode.run_with_resource_pool') }}:</span>
-              <el-select
-                style="margin-left: 10px"
-                v-model="runConfig.resourcePoolId"
-                size="mini">
+              <el-select style="margin-left: 10px" v-model="runConfig.resourcePoolId" size="mini">
                 <el-option
                   v-for="item in resourcePools"
                   :key="item.id"
@@ -87,9 +89,8 @@
               <crontab @hide="showCron = false" @fill="crontabFill" :expression="schedule.value" ref="crontab" />
             </el-dialog>
           </el-tab-pane>
-          <el-tab-pane :label="$t('schedule.task_notification')" name="second"
-                       v-permission="['PROJECT_MESSAGE:READ']">
-            <ms-schedule-notification :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions"/>
+          <el-tab-pane :label="$t('schedule.task_notification')" name="second" v-permission="['PROJECT_MESSAGE:READ']">
+            <ms-schedule-notification :test-id="testId" :schedule-receiver-options="scheduleReceiverOptions" />
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -188,6 +189,7 @@ export default {
         envMap: {},
         environmentGroupId: '',
         environmentType: ENV_TYPE.JSON,
+        defaultEnv: true,
       },
       projectList: [],
       projectIds: new Set(),
@@ -195,9 +197,9 @@ export default {
     };
   },
   methods: {
-    async checkPool(){
+    async checkPool() {
       let hasPool = false;
-      this.resourcePools.forEach(item => {
+      this.resourcePools.forEach((item) => {
         if (item.id === this.runConfig.resourcePoolId) {
           hasPool = true;
         }
@@ -208,7 +210,7 @@ export default {
       let hasPool = await this.checkPool();
       if (!hasPool) {
         this.runConfig.resourcePoolId = null;
-        getProjectConfig(getCurrentProjectID(), "").then(async (res) => {
+        getProjectConfig(getCurrentProjectID(), '').then(async (res) => {
           if (res.data && res.data.poolEnable && res.data.resourcePoolId) {
             this.runConfig.resourcePoolId = res.data.resourcePoolId;
           }
@@ -218,9 +220,6 @@ export default {
           }
         });
       }
-    },
-    currentUser: () => {
-      return getCurrentUser();
     },
     intervalValidate() {
       if (this.getIntervalTime() < 1 * 60 * 1000) {
@@ -322,6 +321,10 @@ export default {
           this.schedule = response.data;
           if (response.data.config) {
             this.runConfig = JSON.parse(response.data.config);
+            // 兼容历史数据
+            if (this.runConfig.defaultEnv === null) {
+              this.runConfig.defaultEnv = false;
+            }
             if (this.runConfig.envMap) {
               this.projectEnvListMap = objToStrMap(this.runConfig.envMap);
             } else {
@@ -384,16 +387,15 @@ export default {
       }
       if (this.schedule.enable) {
         if (
-          (this.runConfig.environmentType === 'JSON' && Object.keys(this.runConfig.envMap).length === 0) ||
+          (!this.runConfig.defaultEnv &&
+            this.runConfig.environmentType === 'JSON' &&
+            Object.keys(this.runConfig.envMap).length === 0) ||
           (this.runConfig.environmentType === 'GROUP' && !this.runConfig.environmentGroupId)
-        ) {
-          this.$warning(this.$t('workspace.env_group.please_select_env_for_current_scenario'));
-          return;
-        }
-        if (this.runConfig.resourcePoolId == null) {
-          this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
-          return;
-        }
+        )
+          if (this.runConfig.resourcePoolId == null) {
+            this.$warning(this.$t('workspace.env_group.please_select_run_within_resource_pool'));
+            return;
+          }
       }
       param.config = JSON.stringify(this.runConfig);
       param.scheduleFrom = 'scenario';

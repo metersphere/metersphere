@@ -178,8 +178,7 @@ public class DataFormattingUtil {
 
     public static JmxInfoDTO getJmxInfoDTO(RunDefinitionRequest runRequest, List<MultipartFile> bodyFiles) {
         BaseEnvironmentService fileMetadataService = CommonBeanFactory.getBean(BaseEnvironmentService.class);
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(runRequest.getProjectId());
+        ParameterConfig config = new ParameterConfig(runRequest.getProjectId(), true);
         config.setOperating(true);
         config.setOperatingSampleTestName(runRequest.getName());
 

@@ -2,6 +2,7 @@ package io.metersphere.environment.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.ApiTestEnvironment;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.EnvironmentGroup;
 import io.metersphere.commons.constants.OperLogConstants;
@@ -43,6 +44,11 @@ public class TestEnvironmentController {
     @GetMapping("/list/{projectId}")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
         return baseEnvironmentService.list(projectId);
+    }
+
+    @PostMapping("/project-env")
+    public List<ApiTestEnvironment> projectEnv(@RequestBody List<String> projectIds) {
+        return baseEnvironmentService.selectList(projectIds);
     }
 
     /**

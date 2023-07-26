@@ -132,13 +132,19 @@ const message = {
   automation: {
     project_no_permission: 'The current person does not have the operation permission for this step',
     document_validity_msg: 'The file has been modified, please re-upload',
-    scenario_step_ref_message:
-      'The current may cause page loading exceptions, whether to continue?',
+    scenario_step_ref_message: 'The current may cause page loading exceptions, whether to continue?',
     case_message: 'Please select a case',
     scenario_message: 'Please select a scene',
-    scenario_plugin_debug_warning: 'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be debugged！ ',
-    scenario_plugin_save_warning: 'The scene contains plugin steps, and the corresponding scene has been deleted and cannot be edited！ ',
-    scenario_plugin_run_warning: 'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be executed！',
+    scenario_plugin_debug_warning:
+      'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be debugged！ ',
+    scenario_plugin_save_warning:
+      'The scene contains plugin steps, and the corresponding scene has been deleted and cannot be edited！ ',
+    scenario_plugin_run_warning:
+      'The scenario contains plugin steps, and the corresponding scenario has been deleted and cannot be executed！',
+    project_env_info: 'More project environment',
+    project_env_info_tips:
+      '1. Steps involving cross-projects in the current scenario can be executed in the environment of the project to which they belong. If not specified, the current project environment will be used by default.\n' +
+      ' 2. If the cross-project steps are configured to use the original scene environment in the scene settings, the original scene environment will be used by default to execute.',
   },
 };
 export default {

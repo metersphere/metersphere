@@ -46,7 +46,9 @@
           </div>
         </el-col>
         <el-col :span="12">
-          <el-checkbox v-model="cookieShare" @change="setCookieShare">{{ $t('api_test.scenario.share_cookie') }}</el-checkbox>
+          <el-checkbox v-model="cookieShare" @change="setCookieShare">{{
+            $t('api_test.scenario.share_cookie')
+          }}</el-checkbox>
           <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">
             {{ $t('commons.failure_continues') }}
           </el-checkbox>
@@ -89,7 +91,12 @@
 
     <!-- 场景步骤-->
     <ms-container :class="{ 'maximize-container': !asideHidden }">
-      <ms-aside-container :draggable="false" @setAsideHidden="setAsideHidden" style="padding: 0px; overflow: hidden" width="50%" @click.native="handleMainClick">
+      <ms-aside-container
+        :draggable="false"
+        @setAsideHidden="setAsideHidden"
+        style="padding: 0px; overflow: hidden"
+        width="35%"
+        @click.native="handleMainClick">
         <div class="ms-debug-result" v-if="reqTotal > 0">
           <span style="float: right">
             <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
@@ -116,8 +123,7 @@
             @node-drag-end="allowDrag"
             @node-click="nodeClick"
             class="ms-max-tree"
-            ref="maxStepTree"
-          >
+            ref="maxStepTree">
             <el-row
               class="custom-tree-node"
               :gutter="18"
@@ -224,8 +230,7 @@
             @openScenario="openScenario"
             @runScenario="runScenario"
             @stopScenario="stopScenario"
-            v-if="selectedTreeNode && selectedNode"
-          />
+            v-if="selectedTreeNode && selectedNode" />
           <!-- 请求下还有的子步骤-->
           <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
             <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
@@ -274,9 +279,6 @@
     <!--场景导入 -->
     <scenario-relevance v-if="type !== 'detail'" @save="addScenario" ref="scenarioRelevance" />
 
-    <!-- 环境 -->
-    <api-environment-config v-if="type !== 'detail'" ref="environmentConfig" @close="environmentConfigClose" />
-
     <!--执行组件-->
     <ms-run
       :debug="true"
@@ -318,21 +320,16 @@
 <script>
 import { getApiScenarioEnv } from '@/api/scenario';
 import { API_STATUS, PRIORITY } from '../../../definition/model/JsonData';
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 import { STEP } from '../Setting';
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { hasLicense } from 'metersphere-frontend/src/utils/permission';
 import OutsideClick from '../common/outside-click';
 import { copyScenarioRow, saveScenario, scenarioSort, handleCtrlSEvent } from '@/business/automation/api-automation';
 import { buttons, setComponent } from '../menu/Menu';
 import MsContainer from 'metersphere-frontend/src/components/MsContainer';
 import MsMainContainer from 'metersphere-frontend/src/components/MsMainContainer';
 import MsAsideContainer from 'metersphere-frontend/src/components/MsAsideContainer';
-// import html2canvas from 'html2canvas';
-import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
 import { useApiStore } from '@/store';
-import { getPluginList } from '@/api/plugin';
 
 const store = useApiStore();
 let jsonPath = require('jsonpath');
@@ -535,19 +532,19 @@ export default {
     },
   },
   methods: {
-    handleHeaderClick(e){
-      if(e.target.tagName === 'DIV'){
-        this.outsideClick(e)
+    handleHeaderClick(e) {
+      if (e.target.tagName === 'DIV') {
+        this.outsideClick(e);
       }
     },
     handleMainClick(e) {
-      this.outsideClick(e)
+      this.outsideClick(e);
     },
     handleComponentClick(e) {
       e.stopPropagation();
     },
     initPlugins() {
-      if(this.pluginList && this.pluginList.length > 0){
+      if (this.pluginList && this.pluginList.length > 0) {
         this.pluginList.forEach((item) => {
           let plugin = {
             title: item.name,
@@ -813,55 +810,11 @@ export default {
       });
     },
     debugScenario() {
-      if(this.scenarioDefinition.length < 1){
+      if (this.scenarioDefinition.length < 1) {
         return;
       }
       this.debugLoading = true;
       this.$emit('runDebug');
-    },
-    runDebug() {
-      /*触发执行操作*/
-      let sign = this.$refs.envPopover.checkEnv();
-      if (!sign) {
-        this.errorRefresh();
-        return;
-      }
-      if (this.$refs['currentScenario']) {
-        this.$refs['currentScenario'].validate((valid) => {
-          if (valid) {
-            Promise.all([this.editScenario()]).then((val) => {
-              if (val) {
-                this.debugData = {
-                  id: this.currentScenario.id,
-                  name: this.currentScenario.name,
-                  type: 'scenario',
-                  variables: this.currentScenario.variables,
-                  referenced: 'Created',
-                  enableCookieShare: this.enableCookieShare,
-                  headers: this.currentScenario.headers,
-                  environmentMap: this.projectEnvMap,
-                  hashTree: this.scenarioDefinition,
-                };
-                this.reportId = getUUID().substring(0, 8);
-              }
-            });
-          } else {
-            this.errorRefresh();
-          }
-        });
-      }
-    },
-    getEnvironments() {
-      if (this.projectId) {
-        getEnvironmentByProjectId(this.projectId).then((response) => {
-          this.environments = response.data;
-          this.environments.forEach((environment) => {
-            parseEnvironment(environment);
-          });
-          //检查场景是否需要先进行保存
-          this.checkDataIsCopy();
-        });
-      }
     },
 
     checkDataIsCopy() {
@@ -871,16 +824,6 @@ export default {
       }
     },
 
-    openEnvironmentConfig() {
-      if (!this.projectId) {
-        this.$error(this.$t('api_test.select_project'));
-        return;
-      }
-      this.$refs.environmentConfig.open(this.projectId);
-    },
-    environmentConfigClose() {
-      this.getEnvironments();
-    },
     allowDrop(draggingNode, dropNode, dropType) {
       if (draggingNode.data.type === 'Assertions' || dropNode.data.type === 'Assertions') {
         return false;
@@ -1324,16 +1267,21 @@ export default {
     },
     getEnv(definition) {
       return new Promise((resolve) => {
-        const encoder = new TextEncoder();
-        const bytes = encoder.encode(definition, 'utf-8');
-        getApiScenarioEnv(bytes).then((res) => {
-          if (res.data && res.data.data) {
-            res.data.data.projectIds.push(this.projectId);
-            this.$emit('update:projectIds', new Set(res.data.data.projectIds));
-            this.$emit('update:isFullUrl', res.data.data.fullUrl);
-          }
+        this.projectIds = new Set();
+        const regex = /"projectId"\s*:\s*"([^"]+)"/g;
+        let match;
+        while ((match = regex.exec(definition)) !== null) {
+          this.projectIds.add(match[1]);
+        }
+        this.projectIds.add(this.projectId);
+        if (this.projectIds.size > 1) {
+          getApiScenarioEnv(Array.from(this.projectIds)).then((res) => {
+            this.$emit('update:projectIds', new Set(res.data.projectIds));
+            resolve();
+          });
+        } else {
           resolve();
-        });
+        }
       });
     },
   },
@@ -1516,5 +1464,4 @@ export default {
   white-space: nowrap;
   width: 120px;
 }
-
 </style>

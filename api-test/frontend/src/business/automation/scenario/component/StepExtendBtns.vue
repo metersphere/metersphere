@@ -70,7 +70,7 @@ import MsAddBasisApi from '../api/AddBasisApi';
 import MsAddApiCase from '../api/AddApiCase';
 import { getUUID, strMapToObj } from 'metersphere-frontend/src/utils';
 import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
-import { checkScenarioEnv, getScenarioWithBLOBsById, setScenarioDomain } from '@/api/scenario';
+import { getScenarioWithBLOBsById, setScenarioDomain } from '@/api/scenario';
 import { hasPermission } from 'metersphere-frontend/src/utils/permission';
 
 export default {
@@ -176,14 +176,7 @@ export default {
       });
     },
     checkEnv(val) {
-      checkScenarioEnv(this.data.id).then((res) => {
-        if (this.data.environmentEnable && !res.data) {
-          this.data.environmentEnable = false;
-          this.$warning(this.$t('commons.scenario_warning'));
-          return;
-        }
-        this.setDomain(val);
-      });
+      this.setDomain(val);
     },
     setDomain(val) {
       let param = {

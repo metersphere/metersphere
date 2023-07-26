@@ -65,13 +65,9 @@ public class KafkaListenerTask implements Runnable {
                     (MapUtils.isNotEmpty(dto.getArbitraryData()) &&
                             dto.getArbitraryData().containsKey(ENV))) {
                 String key = RUN_MODE_MAP.get(dto.getRunMode());
-                if (assortMap.containsKey(key)) {
-                    assortMap.get(key).add(dto);
-                } else {
-                    assortMap.put(key, new LinkedList<>() {{
-                        this.add(dto);
-                    }});
-                }
+                assortMap.put(key, new LinkedList<>() {{
+                    this.add(dto);
+                }});
             }
             if (MapUtils.isNotEmpty(assortMap)) {
                 testResultService.batchSaveResults(assortMap);

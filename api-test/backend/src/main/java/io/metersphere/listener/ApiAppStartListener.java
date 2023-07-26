@@ -1,17 +1,14 @@
 package io.metersphere.listener;
 
-import com.mchange.lang.IntegerUtils;
 import io.metersphere.api.dto.shell.filter.ScriptFilter;
-import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.jmeter.ProjectClassLoader;
 import io.metersphere.service.*;
 import io.metersphere.service.definition.ApiModuleService;
 import io.metersphere.service.scenario.ApiScenarioModuleService;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -19,8 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-
-import jakarta.annotation.Resource;
 
 @Component
 public class ApiAppStartListener implements ApplicationRunner {
@@ -73,12 +68,6 @@ public class ApiAppStartListener implements ApplicationRunner {
 
         LogUtil.info("初始化默认项目场景模块");
         apiScenarioModuleService.initDefaultModule();
-
-        BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
-        LogUtil.info("设置并发队列核心数", dto.getConcurrency());
-        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
-            CommonBeanFactory.getBean(ExecThreadPoolExecutor.class).setCorePoolSize(IntegerUtils.parseInt(dto.getConcurrency(), 10));
-        }
 
         LogUtil.info("导入内置python包处理");
         initPythonEnv();

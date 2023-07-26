@@ -1,7 +1,6 @@
 package io.metersphere.controller;
 
 import io.metersphere.api.dto.BodyFileRequest;
-import io.metersphere.api.jmeter.JMeterThreadUtils;
 import io.metersphere.api.jmeter.utils.JmxFileUtil;
 import io.metersphere.dto.ProjectJarConfig;
 import io.metersphere.service.ApiJMeterFileService;
@@ -28,7 +27,7 @@ public class ApiJMeterFileController {
 
     @GetMapping("stop/{name}")
     public String stop(@PathVariable String name) {
-        return JMeterThreadUtils.stop(name);
+        return name;
     }
 
     @PostMapping("download/jar")

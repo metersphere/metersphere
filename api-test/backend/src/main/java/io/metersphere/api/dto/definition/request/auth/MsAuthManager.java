@@ -52,7 +52,7 @@ public class MsAuthManager extends MsTestElement {
             } else {
                 if (config != null && config.isEffective(this.getProjectId())) {
                     if (config.isEffective(this.getProjectId())) {
-                        String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                        String url = config.get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.get(this.getProjectId()).getHttpConfig().getSocket();
                         auth.setURL(url);
                     }
                 }

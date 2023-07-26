@@ -11,9 +11,7 @@ import io.metersphere.api.dto.definition.request.assertions.document.DocumentEle
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
-import io.metersphere.api.exec.api.ApiExecuteService;
 import io.metersphere.api.exec.generator.JSONSchemaParser;
-import io.metersphere.api.exec.queue.ExecThreadPoolExecutor;
 import io.metersphere.api.parse.api.ApiDefinitionImport;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -52,10 +50,6 @@ public class ApiDefinitionController {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private BaseEnvironmentService apiTestEnvironmentService;
-    @Resource
-    private ExecThreadPoolExecutor execThreadPoolExecutor;
-    @Resource
-    private ApiExecuteService apiExecuteService;
     @Resource
     private FunctionRunService functionRunService;
 
@@ -374,11 +368,6 @@ public class ApiDefinitionController {
     @MsRequestLog(module = OperLogModule.API_DEFINITION)
     public void deleteFollows(@RequestBody List<String> definitionIds) {
         apiDefinitionService.deleteFollows(definitionIds);
-    }
-
-    @GetMapping("/getWorkerQueue")
-    public String getWorkerQueue() {
-        return execThreadPoolExecutor.getWorkerQueue();
     }
 
     @GetMapping("versions/{definitionId}")

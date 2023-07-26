@@ -168,6 +168,8 @@ public class ApiScenarioService {
     private ApiAutomationRelationshipEdgeService apiAutomationRelationshipEdgeService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private BaseProjectService baseProjectService;
 
     private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
 
@@ -492,7 +494,7 @@ public class ApiScenarioService {
                             .flatMap(nv -> Optional.ofNullable(nv.getFiles()).orElse(List.of()).stream())
                             .map(BodyFile::getId)
                             .toList();
-                    oldVariables.forEach(item ->{
+                    oldVariables.forEach(item -> {
                         if (CollectionUtils.isNotEmpty(item.getFiles()) &&
                                 StringUtils.isNotBlank(item.getFiles().get(0).getId()) &&
                                 !ids.contains(item.getFiles().get(0).getId())) {
@@ -501,7 +503,7 @@ public class ApiScenarioService {
                     });
                 }
                 if (CollectionUtils.isEmpty(newVariables) && CollectionUtils.isNotEmpty(oldVariables)) {
-                    oldVariables.forEach(item ->{
+                    oldVariables.forEach(item -> {
                         if (CollectionUtils.isNotEmpty(item.getFiles()) &&
                                 StringUtils.isNotBlank(item.getFiles().get(0).getId())) {
                             ApiFileUtil.deleteBodyFiles(item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
@@ -840,8 +842,8 @@ public class ApiScenarioService {
 
     public ParameterConfig getConfig(ApiScenarioDTO scenario) {
         try {
-            ParameterConfig config = new ParameterConfig();
-            Map<String, String> environmentMap = new HashMap<>();
+            ParameterConfig config = new ParameterConfig(scenario.getProjectId(), false);
+            Map<String, String> environmentMap;
             String environmentType = scenario.getEnvironmentType();
             String environmentGroupId = scenario.getEnvironmentGroupId();
             String environmentJson = scenario.getEnvironmentJson();
@@ -881,12 +883,12 @@ public class ApiScenarioService {
                 String scenarioId = request.getId();
                 ApiScenarioDTO scenario = getNewApiScenario(scenarioId);
                 if (scenario != null) {
-                    String referenced = element.optString("referenced");
-                    if (StringUtils.equalsIgnoreCase("REF", referenced)) {
+                    String referenced = element.optString(MsHashTreeConstants.REFERENCED);
+                    if (StringUtils.equalsIgnoreCase(MsHashTreeConstants.REF, referenced)) {
                         JSONObject source = JSONUtil.parseObject(scenario.getScenarioDefinition());
                         element = jsonMerge(source, element);
                     }
-                    element.put("referenced", referenced);
+                    element.put(MsHashTreeConstants.REFERENCED, referenced);
                     String environmentType = scenario.getEnvironmentType();
                     String environmentGroupId = scenario.getEnvironmentGroupId();
                     String environmentJson = scenario.getEnvironmentJson();
@@ -897,8 +899,11 @@ public class ApiScenarioService {
                     }
                 }
             }
+            String projectId = StringUtils.isNotBlank(request.getProjectId())
+                    ? request.getProjectId()
+                    : element.optString(PropertyConstant.PROJECT_ID);
 
-            ParameterConfig config = new ParameterConfig();
+            ParameterConfig config = new ParameterConfig(projectId, false);
             apiScenarioEnvService.setEnvConfig(environmentMap, config);
             if (config.getConfig() != null && !config.getConfig().isEmpty()) {
                 ElementUtil.dataSetDomain(element.optJSONArray(ElementConstants.HASH_TREE), config);
@@ -933,6 +938,7 @@ public class ApiScenarioService {
                 }
                 if (StringUtils.isNotBlank(dto.getEnvironmentJson())) {
                     ApiScenarioEnvRequest request = new ApiScenarioEnvRequest();
+                    request.setProjectId(dto.getProjectId());
                     request.setEnvironmentEnable(false);
                     request.setDefinition(dto.getScenarioDefinition());
                     request.setEnvironmentMap(JSON.parseObject(dto.getEnvironmentJson(), Map.class));
@@ -975,7 +981,7 @@ public class ApiScenarioService {
         projectIds.add(projectId);
         testPlan.setName(apiScenario.getName());
         testPlan.setHashTree(new LinkedList<>());
-        ParameterConfig config = new ParameterConfig();
+        ParameterConfig config = new ParameterConfig(apiScenario.getProjectId(), false);
         config.setOperating(true);
         config.getExcludeScenarioIds().add(apiScenario.getId());
         config.setScenarioId(apiScenario.getId());
@@ -1735,7 +1741,7 @@ public class ApiScenarioService {
     public byte[] exportZip(ApiScenarioBatchRequest request) {
         List<ApiScenarioWithBLOBs> scenarios = getExportResult(request);
         //环境检查
-        checkExportEnv(scenarios);
+        // checkExportEnv(scenarios);
         // 生成jmx
         Map<String, byte[]> files = new LinkedHashMap<>();
         scenarios.forEach(item -> {
@@ -1901,9 +1907,9 @@ public class ApiScenarioService {
         return apiIdList;
     }
 
-    public ScenarioEnv getApiScenarioProjectId(String id) {
+    public EnvironmentCheckDTO getApiScenarioProjectId(String id) {
         ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
-        ScenarioEnv scenarioEnv = new ScenarioEnv();
+        EnvironmentCheckDTO scenarioEnv = new EnvironmentCheckDTO();
         if (scenario == null) {
             return scenarioEnv;
         }
@@ -1931,7 +1937,7 @@ public class ApiScenarioService {
             example.createCriteria().andIdIn(request.getIds());
             List<ApiScenarioWithBLOBs> scenarioList = apiScenarioMapper.selectByExampleWithBLOBs(example);
             for (ApiScenarioWithBLOBs scenario : scenarioList) {
-                ScenarioEnv scenarioEnv = new ScenarioEnv();
+                EnvironmentCheckDTO scenarioEnv = new EnvironmentCheckDTO();
                 if (scenario == null) {
                     continue;
                 }
@@ -2141,9 +2147,11 @@ public class ApiScenarioService {
     }
 
     public boolean verifyScenarioEnv(String scenarioId) {
-        ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        return true;
+        // 暂时去除环境校验
+        /*ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(scenarioId);
         apiScenarioEnvService.setScenarioEnv(apiScenarioWithBLOBs, null);
-        return apiScenarioEnvService.verifyScenarioEnv(apiScenarioWithBLOBs);
+        return apiScenarioEnvService.verifyScenarioEnv(apiScenarioWithBLOBs);*/
     }
 
     public List<String> getFollows(String scenarioId) {
@@ -2157,9 +2165,12 @@ public class ApiScenarioService {
         return follows.stream().map(ApiScenarioFollow::getFollowId).distinct().collect(Collectors.toList());
     }
 
-    public ScenarioEnv getApiScenarioEnv(byte[] request) {
-        String definition = new String(request, StandardCharsets.UTF_8);
-        return apiScenarioEnvService.getApiScenarioEnv(definition);
+    public EnvironmentCheckDTO getApiScenarioEnv(List<String> projectIds) {
+        List<Project> projects = baseProjectService.getProjectByIds(projectIds);
+        projectIds.removeIf(id -> !projects.stream().map(Project::getId).collect(Collectors.toSet()).contains(id));
+        EnvironmentCheckDTO checkDTO = new EnvironmentCheckDTO();
+        checkDTO.setProjectIds(new HashSet<>(projectIds));
+        return checkDTO;
     }
 
     public List<MsExecResponseDTO> run(RunScenarioRequest request) {
@@ -2208,7 +2219,7 @@ public class ApiScenarioService {
         List<String> strings = new LinkedList<>();
         apiScenarios.forEach(item -> {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
-                ScenarioEnv env = apiScenarioEnvService.getApiScenarioEnv(item.getScenarioDefinition());
+                EnvironmentCheckDTO env = apiScenarioEnvService.getApiScenarioEnv(item.getScenarioDefinition());
                 if (!strings.contains(item.getProjectId())) {
                     strings.add(item.getProjectId());
                 }
@@ -2436,7 +2447,7 @@ public class ApiScenarioService {
             example.createCriteria().andIdIn(scenarioIdList);
             List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = apiScenarioMapper.selectByExampleWithBLOBs(example);
             for (ApiScenarioWithBLOBs scenario : scenarioWithBLOBsList) {
-                ScenarioEnv scenarioEnv = apiScenarioEnvService.getApiScenarioEnv(scenario.getScenarioDefinition());
+                EnvironmentCheckDTO scenarioEnv = apiScenarioEnvService.getApiScenarioEnv(scenario.getScenarioDefinition());
                 if (CollectionUtils.isNotEmpty(scenarioEnv.getProjectIds())) {
                     scenarioEnv.getProjectIds().forEach(projectId -> {
                         if (!returnDTO.getProjectIdList().contains(projectId)) {

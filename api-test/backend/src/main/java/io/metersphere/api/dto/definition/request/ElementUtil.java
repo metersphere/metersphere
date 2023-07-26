@@ -49,6 +49,7 @@ import io.metersphere.utils.LoggerUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
@@ -85,7 +86,7 @@ public class ElementUtil {
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
     private static final String TEST_BEAN_GUI = "TestBeanGUI";
     private final static String SCENARIO_REF = "SCENARIO-REF-STEP";
-
+    private final static String MS_DEFAULT = "ms-default-data-source";
     public final static List<String> scriptList = new ArrayList<String>() {{
         this.add(ElementConstants.JSR223);
         this.add(ElementConstants.JSR223_PRE);
@@ -349,7 +350,7 @@ public class ElementUtil {
         }
     }
 
-    public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
+    public static void dataSetDomain(JSONArray hashTree, ParameterConfig msParameter) {
         try {
             ApiScenarioMapper apiScenarioMapper = CommonBeanFactory.getBean(ApiScenarioMapper.class);
             BaseEnvGroupProjectService environmentGroupProjectService = CommonBeanFactory.getBean(BaseEnvGroupProjectService.class);
@@ -358,7 +359,7 @@ public class ElementUtil {
             for (int i = 0; i < hashTree.length(); i++) {
                 JSONObject element = hashTree.optJSONObject(i);
                 boolean isScenarioEnv = false;
-                ParameterConfig config = new ParameterConfig();
+                ParameterConfig config = new ParameterConfig(msParameter.getCurrentProjectId(), false);
                 if (element != null && element.get(PropertyConstant.TYPE).toString().equals(ElementConstants.SCENARIO)) {
                     MsScenario scenario = JSON.parseObject(element.toString(), MsScenario.class);
                     if (scenario.isEnvironmentEnable()) {
@@ -829,10 +830,10 @@ public class ElementUtil {
         }
         // 环境通用变量
         if (config.isEffective(projectId)
-                && config.getConfig().get(projectId).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
+                && config.get(projectId).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.get(projectId).getCommonConfig().getVariables())) {
             //常量
-            List<ScenarioVariable> constants = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
+            List<ScenarioVariable> constants = config.get(projectId).getCommonConfig().getVariables().stream()
                     .filter(ScenarioVariable::isConstantValid)
                     .filter(ScenarioVariable::isEnable)
                     .collect(Collectors.toList());
@@ -844,7 +845,7 @@ public class ElementUtil {
                                     ? keyValue.getValue().replaceAll("[\r\n]", "")
                                     : keyValue.getValue()), "="));
             // List类型的变量
-            List<ScenarioVariable> variableList = config.getConfig().get(projectId).getCommonConfig().getVariables().stream()
+            List<ScenarioVariable> variableList = config.get(projectId).getCommonConfig().getVariables().stream()
                     .filter(ScenarioVariable::isListValid)
                     .filter(ScenarioVariable::isEnable)
                     .collect(Collectors.toList());
@@ -855,8 +856,8 @@ public class ElementUtil {
                 }
             });
             // 清空变量，防止重复添加
-            config.getConfig().get(projectId).getCommonConfig().getVariables().removeAll(constants);
-            config.getConfig().get(projectId).getCommonConfig().getVariables().removeAll(variableList);
+            config.get(projectId).getCommonConfig().getVariables().removeAll(constants);
+            config.get(projectId).getCommonConfig().getVariables().removeAll(variableList);
         }
 
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
@@ -866,14 +867,14 @@ public class ElementUtil {
     }
 
     public static void addApiVariables(ParameterConfig config, HashTree httpSamplerTree, String projectId) {
-        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
+        if (config.isEffective(projectId) && config.get(projectId).getCommonConfig() != null && CollectionUtils.isNotEmpty(config.get(projectId).getCommonConfig().getVariables())) {
             ElementUtil.addApiCsvDataSet(httpSamplerTree,
-                    config.getConfig().get(projectId).getCommonConfig().getVariables(),
+                    config.get(projectId).getCommonConfig().getVariables(),
                     config, "shareMode.group");
             ElementUtil.addCounter(httpSamplerTree,
-                    config.getConfig().get(projectId).getCommonConfig().getVariables());
+                    config.get(projectId).getCommonConfig().getVariables());
             ElementUtil.addRandom(httpSamplerTree,
-                    config.getConfig().get(projectId).getCommonConfig().getVariables());
+                    config.get(projectId).getCommonConfig().getVariables());
         }
     }
 
@@ -968,7 +969,7 @@ public class ElementUtil {
         if (StringUtils.isEmpty(environmentId)) {
             if (config.getConfig() != null) {
                 if (StringUtils.isNotBlank(projectId) && config.getConfig().containsKey(projectId)) {
-                    return config.getConfig().get(projectId).getEnvironmentId();
+                    return config.get(projectId).getEnvironmentId();
                 } else {
                     if (CollectionUtils.isNotEmpty(config.getConfig().values())) {
                         Optional<EnvironmentConfig> values = config.getConfig().entrySet().stream().findFirst().map(Map.Entry::getValue);
@@ -1004,7 +1005,9 @@ public class ElementUtil {
         jdbcProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(TEST_BEAN_GUI));
 
         ElementUtil.setBaseParams(jdbcProcessor, vo.getParent(), config, vo.getId(), vo.getIndex());
-        jdbcProcessor.setDataSource(ElementUtil.getDataSourceName(vo.getDataSource().getName()));
+        if (ObjectUtils.isNotEmpty(vo.getDataSource())) {
+            jdbcProcessor.setDataSource(ElementUtil.getDataSourceName(vo.getDataSource().getName()));
+        }
         jdbcProcessor.setProperty("dataSource", jdbcProcessor.getDataSource());
         jdbcProcessor.setProperty("query", vo.getQuery());
         jdbcProcessor.setProperty("queryTimeout", String.valueOf(vo.getQueryTimeout()));
@@ -1015,6 +1018,9 @@ public class ElementUtil {
     }
 
     public static DataSourceElement jdbcDataSource(String sourceName, DatabaseConfig dataSource) {
+        if (dataSource == null) {
+            dataSource = new DatabaseConfig(MS_DEFAULT, MS_DEFAULT, 1, 1L, MS_DEFAULT, MS_DEFAULT, MS_DEFAULT, MS_DEFAULT);
+        }
         DataSourceElement dataSourceElement = new DataSourceElement();
         dataSourceElement.setEnabled(true);
         dataSourceElement.setName(sourceName + " JDBCDataSource");
@@ -1023,7 +1029,7 @@ public class ElementUtil {
         dataSourceElement.setProperty("autocommit", true);
         dataSourceElement.setProperty("keepAlive", true);
         dataSourceElement.setProperty("preinit", false);
-        dataSourceElement.setProperty("dataSource", sourceName);
+        dataSourceElement.setProperty("dataSource", StringUtils.defaultIfBlank(sourceName, MS_DEFAULT));
         dataSourceElement.setProperty("dbUrl", dataSource.getDbUrl());
         dataSourceElement.setProperty("driver", dataSource.getDriver());
         dataSourceElement.setProperty("username", dataSource.getUsername());
@@ -1152,15 +1158,15 @@ public class ElementUtil {
         return false;
     }
 
-    public static DatabaseConfig selectDataSourceFromJDBCProcessor(String processorName, String environmentId, String dataSourceId, String projectId, ParameterConfig config) {
+    public static DatabaseConfig getDataSource(String processorName, String environmentId, String dataSourceId, String projectId, ParameterConfig config) {
         if (config == null) {
             return null;
         }
         DatabaseConfig dataSource = null;
         // 自选了数据源
-        if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getDatabaseConfigs())
-                && isDataSource(dataSourceId, config.getConfig().get(projectId).getDatabaseConfigs())) {
-            EnvironmentConfig environmentConfig = config.getConfig().get(projectId);
+        if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.get(projectId).getDatabaseConfigs())
+                && isDataSource(dataSourceId, config.get(projectId).getDatabaseConfigs())) {
+            EnvironmentConfig environmentConfig = config.get(projectId);
             if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getEnvironmentId())) {
                 environmentId = environmentConfig.getEnvironmentId();
             }
@@ -1170,14 +1176,14 @@ public class ElementUtil {
             }
         } else {
             // 取当前环境下默认的一个数据源
-            if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getDatabaseConfigs())) {
+            if (config.isEffective(projectId) && CollectionUtils.isNotEmpty(config.get(projectId).getDatabaseConfigs())) {
                 LoggerUtil.info(processorName + "：开始获取当前环境下默认数据源");
-                DatabaseConfig dataSourceOrg = ElementUtil.dataSource(projectId, dataSourceId, config.getConfig().get(projectId));
+                DatabaseConfig dataSourceOrg = ElementUtil.dataSource(projectId, dataSourceId, config.get(projectId));
                 if (dataSourceOrg != null) {
                     dataSource = dataSourceOrg;
                 } else {
                     LoggerUtil.info(processorName + "：获取当前环境下默认数据源结束！未查找到默认数据源");
-                    dataSource = config.getConfig().get(projectId).getDatabaseConfigs().get(0);
+                    dataSource = config.get(projectId).getDatabaseConfigs().get(0);
                 }
             }
         }

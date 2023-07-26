@@ -75,8 +75,6 @@ public class ApiCaseExecuteService {
     /**
      * 测试计划case执行
      *
-     * @param request
-     * @return
      */
     public List<MsExecResponseDTO> run(BatchRunDefinitionRequest request) {
         List<MsExecResponseDTO> responseDTOS = new LinkedList<>();

@@ -15,7 +15,6 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.CommonConstants;
 import io.metersphere.commons.constants.ElementConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.commons.vo.JDBCProcessorVO;
 import io.metersphere.environment.service.BaseEnvironmentService;
@@ -67,7 +66,7 @@ public class MsJDBCSampler extends MsTestElement {
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
-        
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
@@ -76,9 +75,9 @@ public class MsJDBCSampler extends MsTestElement {
             }
             hashTree = this.getHashTree();
         }
-        if (config != null && config.getConfig() == null) {
+        if (MapUtils.isEmpty(config.getConfig()) && config.isApi()) {
             // 单独接口执行
-            this.setProjectId(config.getProjectId());
+            this.setProjectId(config.getCurrentProjectId());
             config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId()));
         }
 
@@ -88,9 +87,9 @@ public class MsJDBCSampler extends MsTestElement {
             this.dataSource = null;
             envConfig = this.initDataSource();
         } else {
-            if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())
-                    && isDataSource(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
-                EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
+            if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.get(this.getProjectId()).getDatabaseConfigs())
+                    && isDataSource(config.get(this.getProjectId()).getDatabaseConfigs())) {
+                EnvironmentConfig environmentConfig = config.get(this.getProjectId());
                 if (environmentConfig.getDatabaseConfigs() != null && StringUtils.isNotEmpty(environmentConfig.getEnvironmentId())) {
                     this.environmentId = environmentConfig.getEnvironmentId();
                 }
@@ -102,8 +101,8 @@ public class MsJDBCSampler extends MsTestElement {
             } else {
                 // 取当前环境下默认的一个数据源
                 if (config.isEffective(this.getProjectId())) {
-                    if (config.getConfig().get(this.getProjectId()) != null) {
-                        envConfig = config.getConfig().get(this.getProjectId());
+                    if (config.get(this.getProjectId()) != null) {
+                        envConfig = config.get(this.getProjectId());
                         if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
                             LoggerUtil.info(this.getName() + "：开始获取当前环境下默认数据源");
                             DatabaseConfig dataSourceOrg = ElementUtil.dataSource(getProjectId(), dataSourceId, envConfig);
@@ -119,9 +118,7 @@ public class MsJDBCSampler extends MsTestElement {
             }
         }
         if (this.dataSource == null) {
-            LoggerUtil.info(this.getName() + "  当前项目id", this.getProjectId() + "  当前环境配置信息", JSONUtil.toJSONString(config));
-            String message = "数据源为空请选择数据源";
-            MSException.throwException(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "：" + message : message);
+            LoggerUtil.error(this.getName() + "，未找到数据源", JSONUtil.toJSONString(config));
         }
         JDBCSampler jdbcSampler = jdbcSampler(config);
         // 失败重试
