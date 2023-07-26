@@ -1247,6 +1247,29 @@ export default {
         });
       }
     },
+    nodeTesting(arr, resultData) {
+      arr.forEach((item) => {
+        if (item.data && item.data.id + '_' + item.data.parentIndex === resultData) {
+          item.data.testing = true;
+          this.runningEditParent(item.parent);
+        }
+        if (item.childNodes && item.childNodes.length > 0) {
+          this.nodeTesting(item.childNodes, resultData);
+        }
+      });
+    },
+    testing(resultData) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root) {
+        this.$refs.stepTree.root.childNodes.forEach((item) => {
+          if (item.data && item.data.id + '_' + item.data.parentIndex === resultData) {
+            item.data.testing = true;
+          }
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.nodeTesting(item.childNodes, resultData);
+          }
+        });
+      }
+    },
     onDebugMessage(e) {
       // 确认连接建立成功，开始执行
       if (e && e.data === 'CONN_SUCCEEDED') {
@@ -1257,6 +1280,7 @@ export default {
         this.messageWebSocket.close();
         this.errorRefresh();
       }
+      this.testing(e.data);
       if (e.data && e.data.startsWith('result_')) {
         let data = JSON.parse(e.data.substring(7));
         this.reqTotal += 1;
