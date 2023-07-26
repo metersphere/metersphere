@@ -38,7 +38,6 @@
             <a-scrollbar
               :style="{
                 overflow: 'auto',
-                width: `calc(100vw - ${menuWidth}px)`,
                 height: 'calc(100vh - 64px)',
               }"
             >
@@ -170,7 +169,6 @@
     transition: padding 0.2s cubic-bezier(0.34, 0.69, 0.1, 1);
     .arco-layout-content {
       padding: 16px 16px 16px 0;
-      min-width: 1000px;
       min-height: 500px;
     }
   }

@@ -1,6 +1,6 @@
 <template>
   <a-spin class="block h-full" :loading="props.loading" :size="28">
-    <div class="relative h-full pr-[10px]">
+    <div class="ms-card relative h-full pr-[10px]">
       <div v-if="!simple" class="card-header">
         <div class="back-btn" @click="back"><icon-arrow-left /></div>
         <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
@@ -11,6 +11,7 @@
           class="pr-[10px]"
           :style="{
             overflowY: 'auto',
+            minWidth: 1000,
             height: `calc(100vh - ${256 + specialHeight}px)`,
           }"
         >
@@ -39,8 +40,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useI18n } from '@/hooks/useI18n';
   import { useRouter } from 'vue-router';
+  import { useI18n } from '@/hooks/useI18n';
 
   const props = withDefaults(
     defineProps<
@@ -78,20 +79,25 @@
 </script>
 
 <style lang="less" scoped>
-  .card-header {
-    @apply flex items-center;
-    .back-btn {
-      @apply flex cursor-pointer items-center rounded-full;
+  .ms-card {
+    .card-header {
+      @apply flex items-center;
+      .back-btn {
+        @apply flex cursor-pointer items-center rounded-full;
 
-      margin-right: 8px;
-      width: 20px;
-      height: 20px;
-      border: 1px solid #ffffff;
-      background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
-      box-shadow: 0 0 7px rgb(15 0 78 / 9%);
-      .arco-icon {
-        color: rgb(var(--primary-5));
+        margin-right: 8px;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #ffffff;
+        background: linear-gradient(90deg, rgb(var(--primary-9)) 3.36%, #ffffff 100%);
+        box-shadow: 0 0 7px rgb(15 0 78 / 9%);
+        .arco-icon {
+          color: rgb(var(--primary-5));
+        }
       }
+    }
+    :deep(.arco-scrollbar-track-direction-vertical) {
+      right: -10px;
     }
   }
 </style>
