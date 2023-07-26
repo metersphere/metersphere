@@ -4,6 +4,6 @@
     <select id="checkExist" resultType="java.lang.String">
         select TABLE_NAME
         from information_schema.TABLES
-        where TABLE_NAME = #{tableName}
+        where TABLE_NAME = #{tableName} limit 1
     </select>
 </mapper>
