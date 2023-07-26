@@ -280,6 +280,9 @@
                                 <copy todir="src/main/resources/static/assets">
                                     <fileset dir="../sdk-parent/frontend/src/assets"/>
                                 </copy>
+                                <copy todir="src/main/resources/static/assets">
+                                    <fileset dir="../sdk-parent/frontend/public" includes="favicon.ico"/>
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
