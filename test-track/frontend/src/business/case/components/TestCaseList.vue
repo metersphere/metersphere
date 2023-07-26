@@ -12,7 +12,7 @@
       <ms-new-ui-search :condition.sync="condition" @search="search" style="float: left" />
 
       <!-- 版本切换组件 -->
-      <version-select v-xpack :project-id="projectId" @changeVersion="changeVersion" />
+      <version-select v-xpack :project-id="projectId" :default-version="defaultVersion" @changeVersion="changeVersion" />
 
       <!-- 高级搜索框  -->
       <ms-table-adv-search :condition.sync="condition" @search="search" ref="advanceSearch"/>
@@ -512,7 +512,8 @@ export default {
     versionEnable: {
       type: Boolean,
       default: false
-    }
+    },
+    defaultVersion: String
   },
   computed: {
     routeProjectId() {
@@ -541,6 +542,7 @@ export default {
     }
   },
   created: function () {
+    this.currentVersion = this.defaultVersion || null;
     this.checkCurrentProject();
 
     getProjectMemberUserFilter((data) => {

@@ -93,7 +93,7 @@
             :tree-nodes="treeNodes"
             :trash-enable="false"
             :public-enable="false"
-            :current-version="currentVersion"
+            :default-version="currentVersion"
             :version-enable.sync="versionEnable"
             @refreshTable="refresh"
             @getTrashList="getTrashList"
@@ -107,11 +107,12 @@
           </test-case-list>
           <test-case-minder
             v-if="isMinderMode"
-            :current-version="currentVersion"
+            :default-version="currentVersion"
             :tree-nodes="treeNodes"
             :project-id="projectId"
             :condition="condition"
             :active-name="activeName"
+            @versionChange="changeVersion"
             @refresh="minderSaveRefresh"
             @toggleMinderFullScreen="toggleMinderFullScreen"
             ref="minder"/>
@@ -239,6 +240,7 @@ export default {
     }
   },
   mounted() {
+    this.currentVersion = this.defaultVersion || null;
     this.getProject();
     this.checkVersionEnable();
   },
@@ -454,6 +456,7 @@ export default {
     },
     refreshTreeByCaseFilter(currentVersion) {
       this.condition.versionId = currentVersion || null;
+      this.currentVersion = this.condition.versionId;
       if (this.publicEnable) {
         this.$refs.publicNodeTree.list();
       } else if (this.trashEnable) {
