@@ -109,7 +109,7 @@ export default {
   props: {
     title: String,
     size: {
-      type: Number,
+      type: [Number, String],
       default: 1100,
     },
     enablePagination: {

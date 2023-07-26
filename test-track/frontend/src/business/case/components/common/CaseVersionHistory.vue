@@ -14,9 +14,8 @@
       width="392"
       trigger="click"
       popper-class="version-popover"
-      v-loading="loading"
     >
-      <div class="version-history-wrap">
+      <div class="version-history-wrap" v-loading="loading">
         <div class="label-row">
           <div class="label">{{ $t("project.version.name") }}</div>
         </div>
@@ -47,7 +46,7 @@
               <div
                 class="updated opt-row"
                 @click.stop="setLatest(item)"
-                v-if="showSetNew(item)"
+                v-if="caseVersionMap.has(item.id) && showSetNew(item)"
               >
                 {{ $t("case.set_new") }}
               </div>
@@ -82,7 +81,7 @@
       </div>
 
       <!-- origin -->
-      <span slot="reference">
+      <span slot="reference" v-loading="loading">
         <slot
           name="versionLabel"
           v-if="versionEnable && currentVersion.id"
@@ -173,10 +172,6 @@ export default {
     testUsers: Array,
     useExternalUsers: Boolean,
     isTestCaseVersion: {
-      type: Boolean,
-      default: false,
-    },
-    isRead: {
       type: Boolean,
       default: false,
     },
@@ -328,7 +323,6 @@ export default {
       let isNotDataLatestVersionCase = item.id === this.dataLatestId;
       return hasVersionCase // 有当前版本的用例
           && latestVersionCondition  // 有最新版本的用例，则非最新版本的其他版本不显示置新
-          && !this.isRead // 不是只读
           && this.hasEditPermission
           && !isNotDataLatestVersionCase // 已经是最新版本，不显示置新
     },
