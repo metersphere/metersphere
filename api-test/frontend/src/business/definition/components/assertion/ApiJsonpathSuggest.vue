@@ -10,6 +10,9 @@
     <template v-slot:header>
       <ms-instructions-icon :content="tip" />
       {{ tip }}
+      <div class="jsonpath-tip">
+        {{ $t('api_test.request.extract.json_path_tip') }}
+      </div>
     </template>
     <jsonpath-picker :code="data" v-on:path="pathChangeHandler" ref="jsonpathPicker" />
   </ms-drawer>
@@ -20,6 +23,7 @@ import Vue from 'vue';
 import JsonPathPicker from 'vue-jsonpath-picker';
 import MsDrawer from 'metersphere-frontend/src/components/MsDrawer';
 import MsInstructionsIcon from 'metersphere-frontend/src/components/MsInstructionsIcon';
+import { parse, isSafeNumber } from 'lossless-json';
 
 let dotReplace = '#DOT_MASK#';
 
@@ -73,17 +77,27 @@ export default {
     close() {
       this.visible = false;
     },
+    parseAndValidateNumber(value) {
+      if (!isSafeNumber(value) || Number(value).toString().length < value.length) {
+        // 大数、超长小数、科学计数法、小数位全为 0 等情况下，JS 精度丢失，所以需要用字符串存储
+        return `Number(${value.toString()})`;
+      }
+      return Number(value);
+    },
+    removeNumberFunctionFromString(string) {
+      const regex = /"?Number\(([\d.e+-]+)\)"?/g;
+      return string.replace(regex, '$1');
+    },
     open(objStr) {
       this.data = {};
       try {
-        let stringedJSON = objStr.replace(/(?<=[:\[,])\s*(-?\d+(\.\d+)?)(?=\s*([,\]}]))/g, '"$1"');
         let param;
         let JSONBig = require('json-bigint')({ storeAsString: true });
         // 解决精度丢失问题
         try {
-          param = JSON.parse(JSON.stringify(JSONBig.parse(stringedJSON)));
+          param = parse(objStr, undefined, this.parseAndValidateNumber);
         } catch (e) {
-          param = JSON.parse(JSON.stringify(JSONBig.parse(objStr)));
+          param = JSONBig.parse(objStr);
         }
         if (param instanceof Array) {
           this.$warning('不支持解析JSON数组');
@@ -158,6 +172,7 @@ export default {
         } else {
           childObj = childObj + '';
         }
+        childObj = this.removeNumberFunctionFromString(childObj);
         return {
           key: param,
           value: childObj,
@@ -178,6 +193,12 @@ export default {
 .json-path-picker :deep(.json-tree) {
   margin-top: 0px;
   margin-left: 6px;
+}
+
+.jsonpath-tip {
+  font-size: 12px;
+  padding: 5px;
+  color: grey;
 }
 
 :deep(.el-icon-close:hover) {

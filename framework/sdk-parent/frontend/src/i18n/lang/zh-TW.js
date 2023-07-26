@@ -1893,6 +1893,8 @@ const message = {
         suggest_tip: "點擊便簽添加JSONPath提取",
         json_path_suggest: "推薦JSONPath提取",
         json_path_clear: "清空JSONPath提取",
+        json_path_tip:
+          "注：當數字超長、小數位全為 0或其他在 JavaScript 內會丟失精度的情況下，會加上 Number()以解決數字精度問題，JSONPath 提取後會轉換為數字",
       },
       processor: {
         pre_exec_script: "預執行腳本",

@@ -1894,6 +1894,8 @@ const message = {
         suggest_tip: "点击便签添加JSONPath提取",
         json_path_suggest: "推荐JSONPath提取",
         json_path_clear: "清空JSONPath提取",
+        json_path_tip:
+          "注：当数字超长、小数位全为 0或其他在 JavaScript 内会丢失精度的情况下，会加上 Number()以解决数字精度问题，JSONPath 提取后会转换为数字",
       },
       processor: {
         pre_exec_script: "预执行脚本",
