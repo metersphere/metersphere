@@ -205,6 +205,7 @@ public class QuotaManagementService {
         qt.setProjectId(quota.getProjectId());
         qt.setUseDefault(false);
         qt.setUpdateTime(System.currentTimeMillis());
+        qt.setUseDefault(true);
         quotaMapper.insert(qt);
         quotaMapper.deleteByPrimaryKey(id);
     }
