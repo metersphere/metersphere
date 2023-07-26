@@ -679,7 +679,7 @@ const message = {
       "Note: The system will automatically synchronize at 00:00:00 every day",
     case_priority_option_check_error:
       "Use case levels need to add option values in order, for example: P",
-    remote_search_tip: "Enter a user name to search users for you"
+    remote_search_tip: "Enter a user name to search users for you",
   },
   workspace: {
     id: "Workspace ID",
@@ -1065,7 +1065,8 @@ const message = {
     input_phone: "Please enter phone number",
     special_characters_are_not_supported:
       "Special characters are not supported",
-    chinese_characters_are_not_supported: "Chinese characters are not supported",
+    chinese_characters_are_not_supported:
+      "Chinese characters are not supported",
     mobile_number_format_is_incorrect: "Phone number format is incorrect",
     email_format_is_incorrect: "Email format is incorrect",
     delete_confirm: "Are you sure you want to delete this User?",
@@ -1928,7 +1929,8 @@ const message = {
           'Special characters "$ () * +. [] \\ ^ {} |" need to be escaped as "\\ "+"special characters", such as "\\$"',
         xpath_info:
           "Select the extraction method according to the content format of the request response",
-        assert_info: "According to the content format of the request response, select the assertion method",
+        assert_info:
+          "According to the content format of the request response, select the assertion method",
         regular_match: "Regular match",
         none: "Do not verify []",
         value_eq: "Value-equal to [value=]",
@@ -1961,6 +1963,8 @@ const message = {
         suggest_tip: "Click the note to add the JSONPath extraction",
         json_path_suggest: "JSONPath Extraction Suggest",
         json_path_clear: "Clear JSONPath Extraction",
+        json_path_tip:
+          "Note: When the number is too long, the decimal places are all 0, or other situations where precision will be lost in JavaScript, Number() will be added to solve the problem of digital precision, and JSONPath will convert it to a number after extraction",
       },
       processor: {
         pre_exec_script: "PreProcessor",
@@ -3670,7 +3674,7 @@ const message = {
   },
   jar_config: {
     upload_limit_size: "Upload file size cannot exceed 50MB!",
-  }
+  },
 };
 
 export default {
