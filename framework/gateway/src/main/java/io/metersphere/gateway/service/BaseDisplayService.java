@@ -57,8 +57,8 @@ public class BaseDisplayService {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(getClass().getClassLoader());
             switch (imageName) {
                 case "logo":
-                    bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/logo-light-MeterSphere.svg").getInputStream());
-                    contentType = MediaType.valueOf("image/svg+xml");
+                    bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/favicon.ico").getInputStream());
+                    contentType = MediaType.valueOf("image/vnd.microsoft.icon");
                     break;
                 case "loginImage":
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/info.png").getInputStream());
