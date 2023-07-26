@@ -29,7 +29,6 @@
                 v-show="versionEnable"
                 ref="versionHistory"
                 :current-id="currentTestCaseInfo.id"
-                :is-read="versionReadOnly"
                 :is-public-show="isPublicShow"
                 :current-version-id="form.versionId"
                 @confirmOtherInfo="confirmOtherInfo"
@@ -1554,7 +1553,7 @@ export default {
     checkoutByVersionId(versionId) {
       getTestCaseByVersionId(this.form.refId, versionId)
         .then((response) => {
-          this.routerToEdit(response.data.id);
+          this.freshTestCase(response.data.id);
         });
     },
     checkout(testCase) {
