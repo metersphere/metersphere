@@ -10,9 +10,9 @@
       </template>
       <!-- workspace table start -->
       <el-table border class="adjust-table ws-table" :data="workspaces" :height="screenHeight">
-        <el-table-column show-overflow-tooltip prop="name" :label="$t('commons.name')"/>
-        <el-table-column prop="description" :label="$t('commons.description')"/>
-        <el-table-column :label="$t('commons.member')">
+        <el-table-column show-overflow-tooltip prop="name" :label="$t('commons.name')" min-width="100"/>
+        <el-table-column show-overflow-tooltip prop="description" :label="$t('commons.description')" min-width="100"/>
+        <el-table-column :label="$t('commons.member')" width="150">
           <template v-slot:default="scope">
             <el-link
               type="primary"
@@ -22,8 +22,8 @@
               {{ scope.row.memberSize }}
             </el-link>
           </template>
-        </el-table-column>
-        <el-table-column :label="$t('commons.operating')">
+        </el-table-column >
+        <el-table-column :label="$t('commons.operating')" min-width="100">
           <template v-slot:default="scope">
             <div>
               <ms-table-operator
