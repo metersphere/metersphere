@@ -81,7 +81,7 @@ export class MSAxios {
   /**
    * @description:  文件上传
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams) {
+  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams): Promise<T> {
     const formData = new window.FormData();
     const fileName = params.fileList.length === 1 ? 'file' : 'files';
 
@@ -92,15 +92,44 @@ export class MSAxios {
       const requestData = JSON.stringify(params.request);
       formData.append('request', requestData);
     }
-    return this.axiosInstance.request<T>({
-      ...config,
-      method: 'POST',
-      data: formData,
-      headers: {
-        'Content-type': ContentTypeEnum.FORM_DATA,
-        // @ts-ignore
-        'ignoreCancelToken': true, // 文件上传请求不需要添加到pending中
-      },
+    return new Promise((resolve, reject) => {
+      this.axiosInstance
+        .request<any, AxiosResponse<Result>>({
+          ...config,
+          method: 'POST',
+          data: formData,
+          headers: {
+            'Content-type': ContentTypeEnum.FORM_DATA,
+            // @ts-ignore
+            'ignoreCancelToken': true, // 文件上传请求不需要添加到pending中
+          },
+        })
+        .then((res: AxiosResponse<Result>) => {
+          const transform = this.getTransform();
+          const { requestOptions } = this.options;
+          const opt = { ...requestOptions };
+
+          const { transformRequestHook } = transform || {};
+          // 请求成功后的处理
+          if (transformRequestHook && isFunction(transformRequestHook)) {
+            try {
+              const ret = transformRequestHook(res, opt);
+              resolve(ret);
+            } catch (err) {
+              reject(err || new Error('request error!'));
+            }
+            return;
+          }
+          resolve(res as unknown as Promise<T>);
+        })
+        .catch((e: Error | AxiosError) => {
+          if (axios.isAxiosError(e)) {
+            // 在这可重写axios错误消息
+            // eslint-disable-next-line no-console
+            console.log(e);
+          }
+          reject(e);
+        });
     });
   }
 
