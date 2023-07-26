@@ -62,10 +62,10 @@ public class UserController {
         return userService.getUserGroup(userId);
     }
 
-    @GetMapping("/special/delete/{userId}")
+    @GetMapping("/special/delete")
     @MsAuditLog(module = OperLogModule.SYSTEM_USER, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
-    public void deleteUser(@PathVariable(value = "userId") String userId) {
+    public void deleteUser(@RequestParam(name = "userId") String userId) {
         userService.deleteUser(userId);
         // 剔除在线用户
         SessionUtils.kickOutUser(userId);
