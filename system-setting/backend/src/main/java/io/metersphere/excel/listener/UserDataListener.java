@@ -88,6 +88,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
             stringBuilder.append(Translator.get("user_import_id_too_long") + ";");
         }
 
+        if (savedUserId.contains(data.getId())) {
+            stringBuilder.append(Translator.get("user_import_id_exist") + ";");
+        }
+
         if (data.getName().length() > 50 || data.getName().length() < 2) {
             stringBuilder.append(Translator.get("user_import_name_length_limit") + ";");
         }
