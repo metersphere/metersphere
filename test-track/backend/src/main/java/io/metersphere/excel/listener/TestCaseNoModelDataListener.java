@@ -460,13 +460,6 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         //校验”所属模块"
         if (nodePath != null) {
             String[] nodes = nodePath.split("/");
-            //校验模块深度
-            if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
-                stringBuilder.append(Translator.get("test_case_node_level_tip"))
-                        .append(TestCaseConstants.MAX_NODE_DEPTH)
-                        .append(Translator.get("test_case_node_level"))
-                        .append("; ");
-            }
             //模块名不能为空
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), StringUtils.EMPTY)) {

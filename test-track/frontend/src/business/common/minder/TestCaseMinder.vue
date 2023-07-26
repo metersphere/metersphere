@@ -506,9 +506,6 @@ export default {
 
       this.saveModuleNodeMap.set(module.id, node);
 
-      if (module.level > 8) {
-        this.throwError(this.$t('commons.module_deep_limit'));
-      }
       if (module.name.trim().length > 100) {
         this.throwError( this.$t('test_track.module.name') + this.$t('test_track.length_less_than') + 100);
       }
