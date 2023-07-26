@@ -1138,6 +1138,8 @@ export default {
       apiTestCaseCount({ id: this.httpForm.id }).then((response) => {
         if (response.data > 0) {
           this.httpForm.caseTotal = response.data;
+        } else {
+          this.httpForm.caseTotal = 0;
         }
       });
     },
