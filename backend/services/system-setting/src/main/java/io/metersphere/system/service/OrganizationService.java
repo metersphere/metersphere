@@ -300,35 +300,19 @@ public class OrganizationService {
     }
 
     public void addMemberToProject(OrgMemberExtendProjectRequest orgMemberExtendProjectRequest, String userId) {
+        String requestOrganizationId = orgMemberExtendProjectRequest.getOrganizationId();
+        checkOrgExist(requestOrganizationId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
-        //检查项目ID是否都是当前组织的项目，不是过滤
         List<String> projectIds = orgMemberExtendProjectRequest.getProjectIds();
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andIdIn(projectIds);
-        List<Project> projects = projectMapper.selectByExample(projectExample);
-        Map<String, String> projectIdOrgIdMap = projects.stream().collect(Collectors.toMap(Project::getId, Project::getOrganizationId));
         //用户不在当前组织内过掉
         Map<String, User> userMap = checkUserExist(orgMemberExtendProjectRequest.getMemberIds());
-        String requestOrganizationId = orgMemberExtendProjectRequest.getOrganizationId();
         orgMemberExtendProjectRequest.getMemberIds().forEach(memberId -> {
             if (userMap.get(memberId) == null) {
                 return;
             }
-            UserRoleRelationExample orgExample = new UserRoleRelationExample();
-            orgExample.createCriteria().andSourceIdEqualTo(requestOrganizationId).andUserIdEqualTo(memberId);
-            List<UserRoleRelation> userOrgRoleRelations = userRoleRelationMapper.selectByExample(orgExample);
-            if (CollectionUtils.isEmpty(userOrgRoleRelations)) {
-                return;
-            }
             projectIds.forEach(projectId -> {
-                String organizationId = projectIdOrgIdMap.get(projectId);
-                if (StringUtils.isBlank(organizationId)) {
-                    return;
-                } else if (!StringUtils.equals(organizationId, requestOrganizationId)) {
-                    return;
-                }
                 //过滤已存在的关系
                 UserRoleRelationExample example = new UserRoleRelationExample();
                 example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(memberId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
@@ -438,9 +422,6 @@ public class OrganizationService {
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
         userIds.forEach(userId -> {
-            if (userMap.get(userId) == null) {
-                throw new MSException("id:" + userId + Translator.get("user.not.exist"));
-            }
             organizationMemberExtendRequest.getUserRoleIds().forEach(userRoleId -> {
                 if (userRoleMap.get(userRoleId) == null) {
                     return;
