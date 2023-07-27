@@ -4,13 +4,14 @@
             :style="{
               'margin-left': !asideHidden ? 0 : '-' + width,
               'min-width': minWidth + 'px',
+              'max-width': maxWidth + 'px',
               'height': calHeight,
              }">
     <div v-if="enableAsideHidden" class="hiddenBottom" :style="{'top': hiddenBottomTop ? hiddenBottomTop : 0}" @click="asideHidden = !asideHidden">
       <i v-if="!asideHidden" class="el-icon-arrow-left"/>
       <i v-if="asideHidden" class="el-icon-arrow-right"/>
     </div>
-    <div style="overflow: scroll" class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
+    <div class="ms-aside-node-tree" :style="{'height': containerCalHeight }">
       <slot></slot>
     </div>
     <ms-horizontal-drag-bar v-if="draggable"/>
@@ -35,6 +36,10 @@ export default {
       default: true
     },
     minWidth: {
+      type: String,
+      default: null
+    },
+    maxWidth: {
       type: String,
       default: null
     },

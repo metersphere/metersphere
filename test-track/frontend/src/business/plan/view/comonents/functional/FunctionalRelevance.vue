@@ -12,7 +12,7 @@
 
     <template v-slot:aside>
       <node-tree class="node-tree"
-                 :scroll="true"
+                 :scroll="false"
                  v-loading="nodeResult.loading"
                  local-suffix="test_case"
                  default-label="未规划用例"
@@ -370,5 +370,10 @@ export default {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.node-tree {
+  max-height: calc(75vh - 120px);
+  overflow-y: auto;
 }
 </style>

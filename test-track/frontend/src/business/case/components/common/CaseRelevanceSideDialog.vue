@@ -47,35 +47,41 @@
 
       <div class="content-box">
         <div class="body-wrap">
-          <div class="aside-wrap">
-            <span v-if="isAcrossSpace" class="menu-title"
-              >{{ $t("commons.space") }}:</span
-            >
-            <el-select
-              v-if="isAcrossSpace"
-              filterable
-              slot="prepend"
-              v-model="workspaceId"
-              @change="changeWorkspace"
-              class="ms-header-workspace"
-              size="small"
-            >
-              <el-option
-                v-for="(item, index) in workspaceList"
-                :key="index"
-                :label="item.name"
-                :value="item.id"
+          <ms-aside-container
+            :min-width="'350'"
+            :max-width="'800'"
+            :enable-aside-hidden="false"
+            :default-hidden-bottom-top="200"
+            :enable-auto-height="true"
+          >
+            <div class="aside-wrap">
+              <span v-if="isAcrossSpace" class="menu-title">{{ $t("commons.space") }}:</span>
+              <el-select
+                v-if="isAcrossSpace"
+                filterable
+                slot="prepend"
+                v-model="workspaceId"
+                @change="changeWorkspace"
+                class="ms-header-workspace"
+                size="small"
+              >
+                <el-option
+                  v-for="(item, index) in workspaceList"
+                  :key="index"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </el-select>
+              <select-menu
+                :data="projects"
+                v-if="multipleProject"
+                :current-data="currentProject"
+                :title="$t('case.project') + ':'"
+                @dataChange="changeProject"
               />
-            </el-select>
-            <select-menu
-              :data="projects"
-              v-if="multipleProject"
-              :current-data="currentProject"
-              :title="$t('case.project') + ':'"
-              @dataChange="changeProject"
-            />
-            <slot name="aside"> </slot>
-          </div>
+              <slot name="aside"> </slot>
+            </div>
+          </ms-aside-container>
 
           <div class="content-wrap">
             <slot></slot>
@@ -115,6 +121,7 @@
 </template>
 
 <script>
+import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import MsDialogHeader from "metersphere-frontend/src/components/MsDialogHeader";
 import SelectMenu from "./SelectMenu";
 import {
@@ -132,6 +139,7 @@ export default {
     SelectMenu,
     MsDialogHeader,
     TableSelectCountBar,
+    MsAsideContainer
   },
   data() {
     return {
@@ -305,8 +313,6 @@ export default {
   /* min-height: px2rem(763); */
   flex: 9;
   .aside-wrap {
-    width: px2rem(268);
-    border-right: 1px solid rgba(31, 35, 41, 0.15);
     padding: px2rem(24) px2rem(24) 0 px2rem(24);
   }
   .content-wrap {
