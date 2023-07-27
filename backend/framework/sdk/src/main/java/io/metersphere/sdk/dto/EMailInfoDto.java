@@ -10,7 +10,7 @@ public class EMailInfoDto {
     private String from;
     private String password;
     private String ssl;
-    private String tls;
+    private String tsl;
     private String recipient;
 
 }
