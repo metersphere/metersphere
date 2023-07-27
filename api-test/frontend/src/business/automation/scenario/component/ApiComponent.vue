@@ -399,9 +399,6 @@ export default {
         this.request.requestResult.forEach((item) => {
           if (!item.success) {
             this.reqSuccess = item.success;
-            if (this.node && this.node.parent && this.node.parent.data) {
-              this.node.parent.data.code = 'ERROR';
-            }
           }
         });
       }

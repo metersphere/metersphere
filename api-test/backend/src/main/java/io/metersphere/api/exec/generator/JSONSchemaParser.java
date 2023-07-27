@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +109,7 @@ public class JSONSchemaParser {
             // 设置mock值
             if (FormatterUtil.isMockValue(object)) {
                 if (FormatterUtil.isNumber(FormatterUtil.getStrValue(object))) {
-                    int value = FormatterUtil.getElementValue(object).getAsInt();
+                    long value = FormatterUtil.getElementValue(object).getAsLong();
                     concept.put(propertyName, value);
                 } else {
                     String value = FormatterUtil.getStrValue(object);
@@ -125,7 +126,7 @@ public class JSONSchemaParser {
                 if (FormatterUtil.isNumber(FormatterUtil.getStrValue(object))) {
                     String value = FormatterUtil.getElementValue(object).getAsString();
                     if (value.indexOf(".") == -1) {
-                        concept.put(propertyName, Long.valueOf(value));
+                        concept.put(propertyName, new BigInteger(value));
                     } else {
                         concept.put(propertyName, new BigDecimal(value));
                     }
