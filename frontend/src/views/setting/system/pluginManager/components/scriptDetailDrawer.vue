@@ -3,13 +3,14 @@
     v-model:visible="showScriptDrawer"
     width="680px"
     :mask="false"
+    :footer="false"
     :title="t('system.plugin.showScriptTitle', { name: props.config.title })"
   >
     <MsCodeEditor
       v-model:model-value="jobDefinition"
       title="YAML"
       width="100%"
-      height="calc(100vh - 205px)"
+      height="calc(100vh - 155px)"
       theme="MS-text"
     />
   </MsDrawer>
