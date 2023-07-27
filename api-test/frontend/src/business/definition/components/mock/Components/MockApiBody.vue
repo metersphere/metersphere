@@ -196,8 +196,15 @@ export default {
       const MsConvert = new Convert();
 
       if (this.body.format === 'JSON-SCHEMA') {
-        if (this.body.raw && !this.body.jsonSchema) {
-          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+        if (this.body.raw) {
+          try {
+              let JSONBig = require('json-bigint')({ storeAsString: true });
+              const jsonObj = JSONBig.parse(this.body.raw)
+              this.body.jsonSchema = MsConvert.format(jsonObj);
+          } catch (e) {
+            this.body.format = 'JSON';
+            this.$message.error(this.$t('api_definition.body.json_format_error'));
+          }
         }
       } else {
         if (this.body.jsonSchema) {
