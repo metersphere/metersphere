@@ -123,7 +123,7 @@ public class SystemParameterService {
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.SSL.getValue())) {
                     mailInfo.setSsl(param.getParamValue());
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.TLS.getValue())) {
-                    mailInfo.setTls(param.getParamValue());
+                    mailInfo.setTsl(param.getParamValue());
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.RECIPIENTS.getValue())) {
                     mailInfo.setRecipient(param.getParamValue());
                 }
