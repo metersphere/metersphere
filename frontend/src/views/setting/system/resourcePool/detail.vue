@@ -3,7 +3,7 @@
     :loading="loading"
     :title="title"
     :is-edit="isEdit"
-    :special-height="34"
+    has-breadcrumb
     @save="beforeSave"
     @save-and-continue="beforeSave(true)"
   >

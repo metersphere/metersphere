@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MsCard :loading="loading" simple>
+    <MsCard :loading="loading" has-breadcrumb simple>
       <div class="mb-4 flex items-center justify-between">
         <a-button type="primary" @click="addPool">
           {{ t('system.resourcePool.createPool') }}

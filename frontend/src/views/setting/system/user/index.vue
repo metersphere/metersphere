@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button class="mr-3" type="primary" @click="showUserModal('create')">
@@ -84,136 +84,134 @@
         </template>
       </template>
     </ms-base-table>
-    <a-modal
-      v-model:visible="visible"
-      :title="userFormMode === 'create' ? t('system.user.createUserModalTitle') : t('system.user.editUserModalTitle')"
-      title-align="start"
-      class="ms-modal-form ms-modal-medium"
-      :mask-closable="false"
-      @close="handleUserModalClose"
-    >
-      <a-form ref="userFormRef" class="rounded-[4px]" :model="userForm" layout="vertical">
-        <MsBatchForm
-          ref="batchFormRef"
-          :models="batchFormModels"
-          :form-mode="userFormMode"
-          add-text="system.user.addUser"
-          :default-vals="userForm.list"
-          max-height="250px"
-        ></MsBatchForm>
-        <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
-          <a-select
-            v-model="userForm.userGroup"
-            multiple
-            :placeholder="t('system.user.createUserUserGroupPlaceholder')"
-            allow-clear
-          >
-            <a-option
-              v-for="item of userGroupOptions"
-              :key="item.id"
-              :tag-props="{ closable: item.closeable }"
-              :value="item.id"
-              :disabled="item.selected"
-            >
-              {{ item.name }}
-            </a-option>
-          </a-select>
-        </a-form-item>
-      </a-form>
-      <template #footer>
-        <a-button type="secondary" :disabled="loading" @click="cancelCreate">
-          {{ t('system.user.editUserModalCancelCreate') }}
-        </a-button>
-        <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">
-          {{ t('system.user.editUserModalSaveAndContinue') }}
-        </a-button>
-        <a-button type="primary" :loading="loading" @click="beforeCreateUser">
-          {{
-            t(userFormMode === 'create' ? 'system.user.editUserModalCreateUser' : 'system.user.editUserModalEditUser')
-          }}
-        </a-button>
-      </template>
-    </a-modal>
-    <a-modal
-      v-model:visible="importVisible"
-      :title="t('system.user.importModalTitle')"
-      title-align="start"
-      class="ms-modal-upload"
-    >
-      <a-alert class="mb-[16px]" closable>
-        {{ t('system.user.importModalTip') }}
-        <a-button type="text" size="small" @click="downLoadUserTemplate">
-          {{ t('system.user.importDownload') }}
-        </a-button>
-      </a-alert>
-      <MsUpload
-        v-model:file-list="userImportFile"
-        accept="excel"
-        :show-file-list="false"
-        :auto-upload="false"
-        :disabled="importLoading"
-      ></MsUpload>
-      <template #footer>
-        <a-button type="secondary" :disabled="importLoading" @click="cancelImport">
-          {{ t('system.user.importModalCancel') }}
-        </a-button>
-        <a-button type="primary" :loading="importLoading" :disabled="userImportFile.length === 0" @click="importUser">
-          {{ t('system.user.importModalConfirm') }}
-        </a-button>
-      </template>
-    </a-modal>
-    <a-modal v-model:visible="importResultVisible" title-align="start" class="ms-modal-upload">
-      <template #title>
-        <icon-exclamation-circle-fill
-          v-if="importResult === 'fail'"
-          class="mr-[8px] text-[20px] text-[rgb(var(--warning-6))]"
-        />
-        <icon-close-circle-fill
-          v-if="importResult === 'allFail'"
-          class="mr-[8px] text-[20px] text-[rgb(var(--danger-6))]"
-        />
-        {{ importResultTitle }}
-      </template>
-      <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
-        <icon-check-circle-fill class="text-[32px] text-[rgb(var(--success-6))]" />
-        <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">
-          {{ t('system.user.importSuccess') }}
-        </div>
-        <div class="sub-text">
-          {{ t('system.user.importResultSuccessContent', { successNum: importSuccessCount }) }}
-        </div>
-      </div>
-      <template v-else>
-        <div>
-          {{ t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount }) }}
-        </div>
-        <div>
-          {{ t('system.user.importResultContentSubStart') }}
-          <a-link
-            class="text-[rgb(var(--primary-5))]"
-            :href="importErrorFileUrl"
-            :download="`${t('system.user.importErrorFile')}.pdf`"
-            >{{ t('system.user.importResultContentDownload') }}</a-link
-          >{{ t('system.user.importResultContentSubEnd') }}</div
+  </MsCard>
+  <a-modal
+    v-model:visible="visible"
+    :title="userFormMode === 'create' ? t('system.user.createUserModalTitle') : t('system.user.editUserModalTitle')"
+    title-align="start"
+    class="ms-modal-form ms-modal-medium"
+    :mask-closable="false"
+    @close="handleUserModalClose"
+  >
+    <a-form ref="userFormRef" class="rounded-[4px]" :model="userForm" layout="vertical">
+      <MsBatchForm
+        ref="batchFormRef"
+        :models="batchFormModels"
+        :form-mode="userFormMode"
+        add-text="system.user.addUser"
+        :default-vals="userForm.list"
+        max-height="250px"
+      ></MsBatchForm>
+      <a-form-item class="mb-0" field="userGroup" :label="t('system.user.createUserUserGroup')">
+        <a-select
+          v-model="userForm.userGroup"
+          multiple
+          :placeholder="t('system.user.createUserUserGroupPlaceholder')"
+          allow-clear
         >
-      </template>
-      <template #footer>
-        <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">
-          {{ t('system.user.importResultReturn') }}
-        </a-button>
-        <a-button type="text" @click="continueImport">
-          {{ t('system.user.importResultContinue') }}
-        </a-button>
-      </template>
-    </a-modal>
-    <inviteModal v-model:visible="inviteVisible"></inviteModal>
-    <batchModal
-      v-model:visible="showBatchModal"
-      :table-selected="tableSelected"
-      :action="batchAction"
-      :tree-data="treeData"
-    ></batchModal>
-  </div>
+          <a-option
+            v-for="item of userGroupOptions"
+            :key="item.id"
+            :tag-props="{ closable: item.closeable }"
+            :value="item.id"
+            :disabled="item.selected"
+          >
+            {{ item.name }}
+          </a-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+    <template #footer>
+      <a-button type="secondary" :disabled="loading" @click="cancelCreate">
+        {{ t('system.user.editUserModalCancelCreate') }}
+      </a-button>
+      <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">
+        {{ t('system.user.editUserModalSaveAndContinue') }}
+      </a-button>
+      <a-button type="primary" :loading="loading" @click="beforeCreateUser">
+        {{ t(userFormMode === 'create' ? 'system.user.editUserModalCreateUser' : 'system.user.editUserModalEditUser') }}
+      </a-button>
+    </template>
+  </a-modal>
+  <a-modal
+    v-model:visible="importVisible"
+    :title="t('system.user.importModalTitle')"
+    title-align="start"
+    class="ms-modal-upload"
+  >
+    <a-alert class="mb-[16px]" closable>
+      {{ t('system.user.importModalTip') }}
+      <a-button type="text" size="small" @click="downLoadUserTemplate">
+        {{ t('system.user.importDownload') }}
+      </a-button>
+    </a-alert>
+    <MsUpload
+      v-model:file-list="userImportFile"
+      accept="excel"
+      :show-file-list="false"
+      :auto-upload="false"
+      :disabled="importLoading"
+    ></MsUpload>
+    <template #footer>
+      <a-button type="secondary" :disabled="importLoading" @click="cancelImport">
+        {{ t('system.user.importModalCancel') }}
+      </a-button>
+      <a-button type="primary" :loading="importLoading" :disabled="userImportFile.length === 0" @click="importUser">
+        {{ t('system.user.importModalConfirm') }}
+      </a-button>
+    </template>
+  </a-modal>
+  <a-modal v-model:visible="importResultVisible" title-align="start" class="ms-modal-upload">
+    <template #title>
+      <icon-exclamation-circle-fill
+        v-if="importResult === 'fail'"
+        class="mr-[8px] text-[20px] text-[rgb(var(--warning-6))]"
+      />
+      <icon-close-circle-fill
+        v-if="importResult === 'allFail'"
+        class="mr-[8px] text-[20px] text-[rgb(var(--danger-6))]"
+      />
+      {{ importResultTitle }}
+    </template>
+    <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
+      <icon-check-circle-fill class="text-[32px] text-[rgb(var(--success-6))]" />
+      <div class="mb-[8px] mt-[16px] text-[16px] font-medium text-[var(--color-text-000)]">
+        {{ t('system.user.importSuccess') }}
+      </div>
+      <div class="sub-text">
+        {{ t('system.user.importResultSuccessContent', { successNum: importSuccessCount }) }}
+      </div>
+    </div>
+    <template v-else>
+      <div>
+        {{ t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount }) }}
+      </div>
+      <div>
+        {{ t('system.user.importResultContentSubStart') }}
+        <a-link
+          class="text-[rgb(var(--primary-5))]"
+          :href="importErrorFileUrl"
+          :download="`${t('system.user.importErrorFile')}.pdf`"
+          >{{ t('system.user.importResultContentDownload') }}</a-link
+        >{{ t('system.user.importResultContentSubEnd') }}</div
+      >
+    </template>
+    <template #footer>
+      <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">
+        {{ t('system.user.importResultReturn') }}
+      </a-button>
+      <a-button type="text" @click="continueImport">
+        {{ t('system.user.importResultContinue') }}
+      </a-button>
+    </template>
+  </a-modal>
+  <inviteModal v-model:visible="inviteVisible"></inviteModal>
+  <batchModal
+    v-model:visible="showBatchModal"
+    :table-selected="tableSelected"
+    :action="batchAction"
+    :tree-data="treeData"
+  ></batchModal>
 </template>
 
 <script setup lang="ts">
@@ -248,6 +246,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/bussiness/ms-batch-form/types';
+  import MsCard from '@/components/pure/ms-card/index.vue';
 
   const { t } = useI18n();
 

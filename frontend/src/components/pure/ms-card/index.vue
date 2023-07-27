@@ -1,18 +1,26 @@
 <template>
   <a-spin class="block h-full" :loading="props.loading" :size="28">
-    <div class="ms-card relative h-full pr-[10px]">
+    <div
+      :class="[
+        'ms-card',
+        'relative',
+        'h-full',
+        props.autoHeight ? '' : 'min-h-[500px]',
+        props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
+      ]"
+    >
       <div v-if="!props.simple" class="card-header">
         <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
         <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
       </div>
       <a-divider v-if="!props.simple" class="mb-[16px]" />
-      <div class="mr-[-10px]">
+      <div class="ms-card-container">
         <a-scrollbar
-          class="pr-[10px]"
+          class="pr-[5px]"
           :style="{
             overflowY: 'auto',
             minWidth: 1000,
-            height: `calc(100vh - ${cardOverHeight}px)`,
+            height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
           }"
         >
           <slot></slot>
@@ -49,15 +57,18 @@
   const props = withDefaults(
     defineProps<
       Partial<{
-        simple: boolean;
-        title: string;
-        hideContinue: boolean;
-        hideFooter: boolean;
-        loading: boolean;
-        isEdit: boolean;
+        simple: boolean; // 简单模式，没有标题和底部栏
+        title: string; // 卡片标题
+        hideContinue: boolean; // 隐藏保存并继续创建按钮
+        hideFooter: boolean; // 隐藏底部栏
+        loading: boolean; // 卡片 loading 状态
+        isEdit: boolean; // 是否编辑状态
         specialHeight: number; // 特殊高度，例如某些页面有面包屑
-        hideBack: boolean;
-        handleBack: () => void;
+        hideBack: boolean; // 隐藏返回按钮
+        autoHeight: boolean; // 内容区域高度是否自适应
+        hasBreadcrumb: boolean; // 是否有面包屑，如果有面包屑，高度需要减去面包屑的高度
+        noContentPadding: boolean; // 内容区域是否有padding
+        handleBack: () => void; // 自定义返回按钮触发事件
       }>
     >(),
     {
@@ -67,6 +78,9 @@
       isEdit: false,
       specialHeight: 0,
       hideBack: false,
+      autoHeight: false,
+      hasBreadcrumb: false,
+      noContentPadding: false,
     }
   );
 
@@ -75,16 +89,18 @@
   const router = useRouter();
   const { t } = useI18n();
 
+  const _spcialHeight = props.hasBreadcrumb ? 31 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度31
+
   const cardOverHeight = computed(() => {
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return 163;
+      return 136 + _spcialHeight;
     }
     if (props.hideFooter) {
       // 隐藏底部
       return 192;
     }
-    return 256 + props.specialHeight;
+    return 246 + _spcialHeight;
   });
 
   function back() {
@@ -98,6 +114,22 @@
 
 <style lang="less" scoped>
   .ms-card {
+    @apply overflow-hidden bg-white;
+
+    border-radius: var(--border-radius-large);
+    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
+    &--noContentPadding {
+      border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+      .card-header {
+        padding: 24px 24px 0;
+      }
+      .arco-divider {
+        @apply mb-0;
+      }
+      .ms-card-container {
+        padding: 0;
+      }
+    }
     .card-header {
       @apply flex items-center;
       .back-btn {

@@ -14,12 +14,4 @@
 
 <script lang="ts" setup></script>
 
-<style lang="less" scoped>
-  .page-content {
-    @apply overflow-hidden bg-white;
-
-    padding: 24px 14px 24px 24px;
-    border-radius: var(--border-radius-large);
-    box-shadow: 0 0 10px rgb(120 56 135 / 5%);
-  }
-</style>
+<style lang="less" scoped></style>
