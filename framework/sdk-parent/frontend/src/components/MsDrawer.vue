@@ -216,7 +216,7 @@ export default {
     },
   },
   beforeDestroy() {
-    if (this.$el?.style) {
+    if (this.$el?.style && this.appendToBody) {
       document.body.removeChild(this.$el);
     }
   },
