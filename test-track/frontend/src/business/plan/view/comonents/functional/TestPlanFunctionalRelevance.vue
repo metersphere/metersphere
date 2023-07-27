@@ -65,6 +65,7 @@ export default {
             this.$success(this.$t("plan.relevance_case_success"));
             vueObj.setSelectCounts(0);
             this.$emit('refresh');
+            this.$refs.functionalRelevance.getProjectNodeForce();
           }).catch((error) => {
           vueObj.isSaving = false;
         });
