@@ -276,6 +276,8 @@ public class OrganizationControllerTests extends BaseTest {
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Arrays.asList("sys_default_user", "sys_default_user2"), Collections.emptyList(), status().isBadRequest());
         //成员和项目集合都为空
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Collections.emptyList(), status().isBadRequest());
+        // 成员选择为空
+        addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_X", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().isBadRequest());
     }
 
     @Test
