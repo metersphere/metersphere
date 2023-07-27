@@ -5,9 +5,8 @@ const isNull = require('lodash.isnull');
 const isNumber = require('lodash.isnumber');
 const isObject = require('lodash.isobject');
 const isString = require('lodash.isstring');
-const { post } = require('@/api/base-network');
 const { schemaToJson, apiPreview } = require('@/api/definition');
-const { default: CustomNum } = require('./customNum');
+const { isLosslessNumber } = require('lossless-json');
 const isArray = Array.isArray;
 
 class Convert {
@@ -114,7 +113,7 @@ class Convert {
         if (!result['properties']) {
           continue;
         }
-        if (isObject(element) && !(element instanceof CustomNum)) {
+        if (isObject(element) && !(isLosslessNumber(element))) {
           // 创建当前属性的基本信息
           result['properties'][key] = this._value2object(element, $id, key);
           if (isArray(element)) {
@@ -236,10 +235,10 @@ class Convert {
     } else if (isArray(value)) {
       objectTemplate.type = 'array';
       objectTemplate['mock'] = undefined;
-    } else if (value instanceof CustomNum) {
+    } else if (isLosslessNumber(value)) {
       // 解决丢失精度问题
       objectTemplate.type = 'number';
-      objectTemplate['mock'].mock = value.get();
+      objectTemplate['mock'].mock = value.value.toString();
     }
     else if (isObject(value)) {
       objectTemplate.type = 'object';

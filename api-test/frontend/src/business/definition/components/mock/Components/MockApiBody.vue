@@ -71,6 +71,7 @@ import MsApiFromUrlVariable from '@/business/definition/components/body/ApiFromU
 import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import MockCombinationCondition from '@/business/definition/components/mock/Components/MockCombinationCondition';
+import { parse } from 'lossless-json';
 
 export default {
   name: 'MockApiBody',
@@ -198,7 +199,7 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-              const jsonObj = JSON.parse(this.body.raw)
+              const jsonObj = parse(this.body.raw)
               this.body.jsonSchema = MsConvert.format(jsonObj);
           } catch (e) {
             this.body.format = 'JSON';
