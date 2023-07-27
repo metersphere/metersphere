@@ -315,7 +315,7 @@ export default {
       }
       this.getProjectNodeForce(projectId, condition);
     },
-    getProjectNodeForce(projectId, condition) {
+    getProjectNodeForce(projectId = this.projectId, condition = this.page.condition) {
       const index = this.projects.findIndex(project => project.id === projectId);
       if (index !== -1) {
         this.projectName = this.projects[index].name;
