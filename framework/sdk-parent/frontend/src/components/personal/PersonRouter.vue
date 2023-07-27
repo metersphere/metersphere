@@ -196,7 +196,7 @@ export default {
         })
     },
     getWsAndPj() {
-      getWsAndPj(encodeURIComponent(this.currentUser().id))
+      getWsAndPj()
         .then(response => {
           let data = response.data;
           this.workspaceList = data.workspace;

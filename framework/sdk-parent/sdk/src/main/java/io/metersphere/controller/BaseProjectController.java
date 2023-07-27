@@ -5,6 +5,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.OperLogModule;
 import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.request.ProjectRequest;
@@ -30,6 +31,8 @@ public class BaseProjectController {
      */
     @PostMapping("/list/related")
     public List<Project> getUserProject(@RequestBody ProjectRequest request) {
+        // 仅支持查询当前用户的项目
+        request.setUserId(SessionUtils.getUserId());
         return baseProjectService.getUserProject(request);
     }
 

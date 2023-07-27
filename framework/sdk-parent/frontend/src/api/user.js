@@ -77,8 +77,8 @@ export function getUserInfo() {
   return get(`/user/info`);
 }
 
-export function getWsAndPj(userId) {
-  return get(`/user/get/ws-pj/${userId}`);
+export function getWsAndPj() {
+  return get(`/user/get/ws-pj`);
 }
 
 export function getUserKeys() {
