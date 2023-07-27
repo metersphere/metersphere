@@ -18,10 +18,11 @@
         >
           {{ tag }}
         </a-tag>
+        <span v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
       </template>
       <a-button v-else-if="item.isButton" type="text" @click="handleItemClick(item)">{{ item.value }}</a-button>
       <div v-else>
-        {{ item.value }}
+        {{ item.value?.toString() === '' ? '-' : item.value }}
       </div>
     </a-descriptions-item>
   </a-descriptions>
