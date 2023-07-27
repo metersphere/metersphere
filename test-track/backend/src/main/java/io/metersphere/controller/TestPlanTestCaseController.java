@@ -123,7 +123,7 @@ public class TestPlanTestCaseController {
 
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_RUN)
-    @MsAuditLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanTestCase.id)", content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
+    @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanTestCase.id)", content = "#msClass.getLogDetails(#testPlanTestCase.id)", msClass = TestPlanTestCaseService.class)
     public void editTestCase(@RequestBody TestPlanFuncCaseEditRequest testPlanTestCase) {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }

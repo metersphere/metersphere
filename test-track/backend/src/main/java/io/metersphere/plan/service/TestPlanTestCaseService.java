@@ -481,7 +481,6 @@ public class TestPlanTestCaseService {
         TestPlanTestCaseWithBLOBs planTestCaseWithBLOBs = testPlanTestCaseMapper.selectByPrimaryKey(id);
         if (planTestCaseWithBLOBs != null) {
             TestCase testCase = testCaseMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getCaseId());
-            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getPlanId());
             List<DetailColumn> columns = new LinkedList<>();
             DetailColumn executeStatusColumn = new DetailColumn("状态", "lastExecuteResult", StatusReference.statusMap.get(testCase.getLastExecuteResult()), null);
             columns.add(executeStatusColumn);
