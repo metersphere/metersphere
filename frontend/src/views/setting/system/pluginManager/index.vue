@@ -1,6 +1,6 @@
 /* stylelint-disable order/properties-order */
 <template>
-  <div>
+  <MsCard simple>
     <a-alert :closable="true">
       <div>
         {{ t('system.plugin.alertDescribe') }}
@@ -12,11 +12,12 @@
     <div class="mt-4">
       <pluginTable />
     </div>
-  </div>
+  </MsCard>
 </template>
 
 <script setup lang="ts">
   import pluginTable from './components/pluginTable.vue';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();

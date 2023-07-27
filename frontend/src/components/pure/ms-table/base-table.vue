@@ -165,7 +165,7 @@
   };
 
   function getRowClass(record: TableData) {
-    if (!record.raw.enable && !props.noDisable) {
+    if (!record.enable && !props.noDisable) {
       return 'ms-table-row-disabled';
     }
   }

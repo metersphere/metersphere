@@ -46,7 +46,7 @@
               :placeholder="t('system.plugin.selectOriginize')"
               allow-clear
             >
-              <a-option v-for="item of originizeList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
+              <a-option v-for="item of originizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
             </a-select>
           </a-form-item>
           <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
@@ -60,13 +60,13 @@
         </a-form>
       </a-row>
       <MsUpload
+        v-model:file-list="fileList"
         accept="jar"
-        :on-before-upload="beforeUpload"
         main-text="system.user.importModalDragtext"
         :sub-text="t('system.plugin.supportFormat')"
-        :show-file-list="true"
-        :file-list="fileList"
-        :on-before-remove="removeHandler"
+        :show-file-list="false"
+        :auto-upload="false"
+        :disabled="confirmLoading"
       ></MsUpload>
     </div>
     <template #footer>
@@ -98,12 +98,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect } from 'vue';
+  import { ref, watchEffect, onMounted } from 'vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import type { FormInstance, ValidatedError, SelectOptionData, FileItem } from '@arco-design/web-vue';
   import { addPlugin } from '@/api/modules/setting/pluginManger';
   import { Message } from '@arco-design/web-vue';
-  import { formatFileSize } from '@/utils';
+  import { getAllOrgList } from '@/api/modules/setting/orgnization';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
@@ -118,7 +118,7 @@
   }>();
   const pluginVisible = ref(false);
   const fileName = ref<string>('');
-  const fileList = ref<File[]>([]);
+  const fileList = ref<FileItem[]>([]);
   const saveLoading = ref<boolean>(false);
   const confirmLoading = ref<boolean>(false);
   const pluginFormRef = ref<FormInstance | null>(null);
@@ -130,40 +130,18 @@
     global: true,
   };
   const form = ref({ ...initForm });
-  const originizeList = ref([
-    {
-      label: '组织一',
-      value: '1',
-    },
-    {
-      label: '组织二',
-      value: '2',
-    },
-  ]);
+  const originizeList = ref<SelectOptionData>([]);
   watchEffect(() => {
     pluginVisible.value = props.visible;
   });
-
-  const beforeUpload = (file: File) => {
-    const size = formatFileSize(file.size);
-    if (size.includes('MB') && Number(size.replace('MB', '')) > 50) {
-      Message.warning(t('system.plugin.sizeExceedTip'));
-    } else {
-      fileName.value = file.name;
-      fileList.value = [...fileList.value, file];
-      fileList.value = fileList.value.slice(-1);
-    }
-  };
-  const removeHandler = () => {
+  const resetForm = () => {
+    form.value = { ...initForm };
     fileList.value = [];
   };
   const handleCancel = () => {
     pluginFormRef.value?.resetFields();
+    resetForm();
     emits('cancel');
-  };
-  const resetForm = () => {
-    form.value = { ...initForm };
-    fileList.value = [];
   };
   const confirmHandler = async (flag: string) => {
     try {
@@ -176,7 +154,7 @@
           ...form.value,
           name: form.value.name || fileName.value,
         },
-        fileList: fileList.value,
+        fileList: [fileList.value[0].file],
       };
       await addPlugin(params);
       Message.success(t('system.plugin.uploadSuccessTip'));
@@ -214,6 +192,12 @@
       }
     });
   };
+  watchEffect(() => {
+    fileName.value = fileList.value[0]?.name as string;
+  });
+  onMounted(async () => {
+    originizeList.value = await getAllOrgList();
+  });
 </script>
 
 <style scoped lang="less">
