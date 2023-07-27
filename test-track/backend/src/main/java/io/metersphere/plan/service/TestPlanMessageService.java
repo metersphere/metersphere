@@ -11,6 +11,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.HttpHeaderUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.*;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
@@ -123,6 +124,7 @@ public class TestPlanMessageService {
         String testPlanShareUrl = getTestPlanShareUrl(testPlanReport.getId(), creator);
         // 分享经过网关需要带上前缀
         paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/track/share-plan-report" + testPlanShareUrl);
+        handleSpecialValues(paramMap);
 
         /**
          * 测试计划的消息通知配置包括 完成、成功、失败
@@ -169,6 +171,19 @@ public class TestPlanMessageService {
         shareRequest.setCreateUserId(userId);
         ShareInfo shareInfo = baseShareInfoService.generateShareInfo(shareRequest);
         return baseShareInfoService.conversionShareInfoToDTO(shareInfo).getShareUrl();
+    }
+
+    private void handleSpecialValues(Map paramMap) {
+        // 翻译${stage}占位符
+        String stageKey = "stage";
+        if (paramMap.containsKey(stageKey) && paramMap.get(stageKey) != null) {
+            paramMap.put(stageKey, StatusReference.statusMap.get(paramMap.get(stageKey).toString()));
+        }
+        // 翻译${status}占位符
+        String statusKey = "status";
+        if (paramMap.containsKey(statusKey) && paramMap.get(statusKey) != null) {
+            paramMap.put(statusKey, StatusReference.statusMap.get(paramMap.get(statusKey).toString()));
+        }
     }
 
     private Map<String, Long> calculateCaseCount(TestPlanReportDataStruct report) {

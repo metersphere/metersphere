@@ -20,6 +20,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.TestPlanDTO;
@@ -213,6 +214,15 @@ public class TestPlanService {
 
     public TestPlanWithBLOBs get(String testPlanId) {
         return testPlanMapper.selectByPrimaryKey(testPlanId);
+    }
+
+    public TestPlanWithBLOBs getTransferPlan(String testPlanId) {
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(testPlanId);
+        if (testPlan != null) {
+            testPlan.setStage(StatusReference.statusMap.containsKey(testPlan.getStage()) ? StatusReference.statusMap.get(testPlan.getStage()) : testPlan.getStage());
+            testPlan.setStatus(StatusReference.statusMap.containsKey(testPlan.getStatus()) ? StatusReference.statusMap.get(testPlan.getStatus()) : testPlan.getStatus());
+        }
+        return testPlan;
     }
 
     public TestPlan editTestPlanWithRequest(AddTestPlanRequest request) {
