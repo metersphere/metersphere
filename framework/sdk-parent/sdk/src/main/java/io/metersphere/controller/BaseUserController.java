@@ -110,9 +110,9 @@ public class BaseUserController {
     /**
      * 根据userId 获取 user 所属工作空间和所属工作项目
      */
-    @GetMapping("/get/ws-pj/{userId}")
-    public Map<Object, Object> getWSAndProjectByUserId(@PathVariable String userId) {
-        return baseUserService.getWSAndProjectByUserId(userId);
+    @GetMapping("/get/ws-pj")
+    public Map<Object, Object> getWSAndProjectByUserId() {
+        return baseUserService.getWSAndProjectByUserId(SessionUtils.getUserId());
     }
 
 
