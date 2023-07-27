@@ -9,6 +9,7 @@
   >
     <template v-slot:aside>
       <ui-scenario-module
+        class="node-tree"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
@@ -229,5 +230,12 @@ export default {
   top: -13px !important;
   left: -30px;
   width: 30px;
+}
+
+.node-tree {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  max-height: calc(75vh - 120px);
+  overflow-y: auto;
 }
 </style>

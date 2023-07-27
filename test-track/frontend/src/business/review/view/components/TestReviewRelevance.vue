@@ -20,7 +20,13 @@
       </template>
 
       <el-container class="main-content">
-        <el-aside class="tree-aside" width="270px">
+        <ms-aside-container
+          :min-width="'350'"
+          :max-width="'600'"
+          :enable-aside-hidden="false"
+          :default-hidden-bottom-top="200"
+          :enable-auto-height="true"
+        >
           <select-menu
             :data="projects"
             width="173px"
@@ -35,7 +41,7 @@
                      @nodeSelectEvent="nodeChange"
                      :tree-nodes="treeNodes"
                      ref="nodeTree"/>
-        </el-aside>
+        </ms-aside-container>
 
         <el-container>
           <el-main class="case-content">
@@ -138,6 +144,7 @@
 
 <script>
 
+import MsAsideContainer from "metersphere-frontend/src/components/MsAsideContainer";
 import NodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
 import MsDialogFooter from "metersphere-frontend/src/components/MsDialogFooter";
 import PriorityTableItem from "@/business/common/tableItems/planview/PriorityTableItem";
@@ -171,6 +178,7 @@ import {getProjectApplicationConfig} from "@/api/project-application";
 export default {
   name: "TestReviewRelevance",
   components: {
+    MsAsideContainer,
     TableSelectCountBar,
     SelectMenu,
     NodeTree,

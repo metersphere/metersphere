@@ -204,11 +204,6 @@ export default {
 </script>
 
 <style scoped>
-.node-tree {
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
 .ms-el-input {
   height: 25px;
   line-height: 25px;

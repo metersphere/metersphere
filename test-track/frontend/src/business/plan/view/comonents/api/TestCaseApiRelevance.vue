@@ -9,6 +9,7 @@
   >
     <template v-slot:aside>
       <ms-api-module
+        class="node-tree"
         :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
@@ -298,5 +299,10 @@ export default {
 :deep(.environment-select) {
   float: right;
   margin-right: 10px;
+}
+
+.node-tree {
+  max-height: calc(75vh - 120px);
+  overflow-y: auto;
 }
 </style>

@@ -14,11 +14,11 @@ export default {
   height: 100%;
   width: 1px;
   position: absolute;
-  right: 0px;
+  right: 0;
   top: 0;
   cursor: w-resize;
   background-color: #E6E6E6;
-  border: 0px;
+  border: 0;
 }
 
 .drag-bar:hover {
