@@ -170,4 +170,6 @@ public interface ExtTestCaseMapper {
     void clearLatestVersion(@Param("refId") String refId);
 
     List<TestCaseTest> getTestCaseRelateList(@Param("testCaseId") String testCaseId);
+
+    List<TestCase> getTestCaseForLastResultLog(@Param("ids") List<String> ids);
 }

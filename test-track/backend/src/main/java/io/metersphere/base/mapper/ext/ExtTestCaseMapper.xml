@@ -1469,7 +1469,14 @@
         SET latest = 0
         where ref_id = #{refId}
     </update>
-
+    <select id="getTestCaseForLastResultLog" resultType="io.metersphere.base.domain.TestCase">
+        select tc.id, tc.name, tc.last_execute_result
+        from test_case tc where tc.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        and (tc.status is null or tc.status != 'Trash')
+    </select>
     <select id="getTestCaseRelateList" resultType="io.metersphere.base.domain.TestCaseTest" parameterType="java.lang.String">
         SELECT
             test_case_test.test_case_id as testCaseId,

@@ -27,9 +27,11 @@ import io.metersphere.excel.listener.TestCasePretreatmentListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.excel.utils.ExcelImportType;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.service.OperatingLogService;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestCaseService;
@@ -190,6 +192,8 @@ public class TestCaseService {
     private ExtTestAnalysisMapper extTestAnalysisMapper;
     @Resource
     private PlatformPluginService platformPluginService;
+    @Resource
+    private OperatingLogService operatingLogService;
 
     private ThreadLocal<Integer> importCreateNum = new ThreadLocal<>();
 
@@ -268,6 +272,7 @@ public class TestCaseService {
 
     /**
      * 用例变更时，调用插件的需求变更的方法
+     *
      * @param request
      * @param type
      * @param project
@@ -469,7 +474,7 @@ public class TestCaseService {
     }
 
     public TestCaseWithBLOBs editTestCase(EditTestCaseRequest testCase) {
-       return editTestCase(testCase, true);
+        return editTestCase(testCase, true);
     }
 
     /**
@@ -1138,7 +1143,7 @@ public class TestCaseService {
             errList = xmindParser.parse(multipartFile);
             List<TestCaseWithBLOBs> testCase = xmindParser.getTestCase();
             testCase.forEach(testCaseWithBLOBs -> {
-                testCaseWithBLOBs.setSteps(testCaseWithBLOBs.getSteps().replace("&amp;","&"));
+                testCaseWithBLOBs.setSteps(testCaseWithBLOBs.getSteps().replace("&amp;", "&"));
             });
             if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
                     && CollectionUtils.isEmpty(xmindParser.getTestCase())
@@ -1282,7 +1287,7 @@ public class TestCaseService {
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
                                Map<String, List<CustomFieldResourceDTO>> testCaseCustomFieldMap) {
-        saveImportData( testCases, request, testCaseCustomFieldMap, null);
+        saveImportData(testCases, request, testCaseCustomFieldMap, null);
     }
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, TestCaseImportRequest request,
@@ -1966,7 +1971,7 @@ public class TestCaseService {
                 }
                 if (StringUtils.isNotBlank(field.getValue())) {
                     Object value = JSON.parseObject(field.getValue());
-                    if (value ==  null) {
+                    if (value == null) {
                         continue;
                     }
                     Map<String, String> optionMap = customSelectValueMap.get(id);
@@ -3001,12 +3006,49 @@ public class TestCaseService {
 
     public void updateLastExecuteStatus(List<String> ids, String status) {
         if (CollectionUtils.isNotEmpty(ids) && StringUtils.isNotBlank(status)) {
+            addBatchLastExecuteResultChangeLog(ids, status);
             TestCaseExample example = new TestCaseExample();
             example.createCriteria().andIdIn(ids);
             TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
             testCase.setLastExecuteResult(status);
             testCaseMapper.updateByExampleSelective(testCase, example);
         }
+    }
+
+    /**
+     * 测试计划功能用例页面和脑图页面批量修改执行结果时记录下操作日志，用例的变更日志需要查看
+     * @param ids
+     * @param status
+     */
+    public void addBatchLastExecuteResultChangeLog(List<String> ids, String status) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andIdIn(ids);
+        List<TestCase> testCases = extTestCaseMapper.getTestCaseForLastResultLog(ids);
+        testCases.forEach(testCase -> {
+            try {
+                OperatingLogWithBLOBs log = new OperatingLogWithBLOBs();
+                log.setOperTitle(testCase.getName());
+                log.setOperContent(testCase.getName());
+                log.setId(UUID.randomUUID().toString());
+                log.setOperType(OperLogConstants.UPDATE.name());
+                log.setOperModule(OperLogModule.TRACK_TEST_PLAN);
+                log.setProjectId(SessionUtils.getCurrentProjectId());
+                List<DetailColumn> columns = new LinkedList<>();
+                DetailColumn executeStatusColumn = new DetailColumn("状态", "lastExecuteResult",
+                        StatusReference.statusMap.get(testCase.getLastExecuteResult()), StatusReference.statusMap.get(status));
+                columns.add(executeStatusColumn);
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCase.getId()), testCase.getProjectId(), testCase.getName(),
+                        SessionUtils.getUserId(), columns);
+                log.setOperContent(JSON.toJSONString(details));
+                log.setOperTime(System.currentTimeMillis());
+                log.setCreateUser(SessionUtils.getUserId());
+                log.setOperUser(SessionUtils.getUserId());
+                log.setSourceId(testCase.getId());
+                operatingLogService.create(log, log.getSourceId());
+            } catch (Exception e) {
+                LogUtil.error(e);
+            }
+        });
     }
 
     public void updateLastExecuteStatus(String id, String status) {
