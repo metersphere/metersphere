@@ -1520,4 +1520,8 @@ export default {
 .api-case-simple-list :deep(.el-table) {
   height: calc(100vh - 185px) !important;
 }
+
+.api-case-simple-list :deep(.el-loading-mask) {
+  z-index: 999;
+}
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row :gutter="32">
+    <el-row :gutter="8">
       <el-col :span="8">
         <el-select class="protocol-select" size="small" v-model="condition.protocol">
           <el-option
@@ -12,7 +12,7 @@
           </el-option>
         </el-select>
       </el-col>
-      <el-col :span="15">
+      <el-col :span="16">
         <ms-search-bar :show-operator="showOperator && !isTrashData" :condition="condition" :commands="operators" />
       </el-col>
     </el-row>
