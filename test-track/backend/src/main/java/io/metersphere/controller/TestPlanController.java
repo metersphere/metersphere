@@ -12,6 +12,7 @@ import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.dto.TestPlanRerunParametersDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
@@ -133,7 +134,10 @@ public class TestPlanController {
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, subject = "测试计划通知")
     public TestPlan addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
-        return testPlanService.addTestPlan(testPlan);
+        TestPlan result = testPlanService.addTestPlan(testPlan);
+        result.setStage(StatusReference.statusMap.containsKey(result.getStage()) ? StatusReference.statusMap.get(result.getStage()) : result.getStage());
+        result.setStatus(StatusReference.statusMap.containsKey(result.getStatus()) ? StatusReference.statusMap.get(result.getStatus()) : result.getStatus());
+        return result;
     }
 
     @PostMapping("/edit")
@@ -141,7 +145,10 @@ public class TestPlanController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.UPDATE, subject = "测试计划通知")
     public TestPlan editTestPlan(@RequestBody AddTestPlanRequest testPlanDTO) {
-        return testPlanService.editTestPlanWithRequest(testPlanDTO);
+        TestPlan testPlan = testPlanService.editTestPlanWithRequest(testPlanDTO);
+        testPlan.setStage(StatusReference.statusMap.containsKey(testPlan.getStage()) ? StatusReference.statusMap.get(testPlan.getStage()) : testPlan.getStage());
+        testPlan.setStatus(StatusReference.statusMap.containsKey(testPlan.getStatus()) ? StatusReference.statusMap.get(testPlan.getStatus()) : testPlan.getStatus());
+        return testPlan;
     }
 
     @PostMapping("/fresh/{planId}")
@@ -179,7 +186,7 @@ public class TestPlanController {
     @PostMapping("/delete/{testPlanId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_DELETE)
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, target = "#targetClass.get(#testPlanId)", targetClass = TestPlanService.class,
+    @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, target = "#targetClass.getTransferPlan(#testPlanId)", targetClass = TestPlanService.class,
             event = NoticeConstants.Event.DELETE, subject = "测试计划通知")
     public int deleteTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
@@ -228,7 +235,10 @@ public class TestPlanController {
     @MsAuditLog(module = OperLogModule.TRACK_TEST_PLAN, type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#id)", msClass = TestPlanService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.TEST_PLAN_TASK, event = NoticeConstants.Event.CREATE, subject = "测试计划通知")
     public TestPlan copy(@PathVariable String id) {
-        return testPlanService.copy(id);
+        TestPlan result = testPlanService.copy(id);
+        result.setStage(StatusReference.statusMap.containsKey(result.getStage()) ? StatusReference.statusMap.get(result.getStage()) : result.getStage());
+        result.setStatus(StatusReference.statusMap.containsKey(result.getStatus()) ? StatusReference.statusMap.get(result.getStatus()) : result.getStatus());
+        return result;
     }
 
     @PostMapping("/api/case/env")
