@@ -8,6 +8,7 @@ import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.base.mapper.TestCaseMapper;
 import io.metersphere.commons.constants.*;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -290,7 +291,16 @@ public class TestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_IMPORT)
     public ExcelResponse testCaseImport(@RequestPart("request") TestCaseImportRequest request, @RequestPart("file") MultipartFile file, HttpServletRequest httpRequest) {
         baseCheckPermissionService.checkProjectOwner(request.getProjectId());
-        return testCaseService.testCaseImport(file, request, httpRequest);
+        try {
+            return testCaseService.testCaseImport(file, request, httpRequest);
+        } catch (MSException e) {
+            Object detail = e.getDetail();
+            // 如果异常信息里带了 ExcelResponse，则返回提示信息
+            if (detail instanceof ExcelResponse) {
+                return (ExcelResponse) detail;
+            }
+            throw e;
+        }
     }
 
     @GetMapping("/check/permission/{projectId}")

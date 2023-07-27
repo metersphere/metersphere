@@ -1087,11 +1087,17 @@ public class TestCaseService {
             int nextNum = getNextNum(request.getProjectId());
             importCreateNum.set(nextNum);
         }
+        ExcelResponse excelResponse;
         if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
-            return testCaseXmindImport(multipartFile, request, httpRequest);
+            excelResponse = testCaseXmindImport(multipartFile, request, httpRequest);
         } else {
-            return testCaseExcelImport(multipartFile, request, httpRequest);
+            excelResponse = testCaseExcelImport(multipartFile, request, httpRequest);
         }
+        if (BooleanUtils.isFalse(excelResponse.getSuccess())) {
+            // 如果导入失败，创建的模块需要回滚，则抛出异常
+            MSException.throwException("import error", excelResponse);
+        }
+        return excelResponse;
     }
 
     private List<TestCase> getTestCaseForImport(String projectId) {
