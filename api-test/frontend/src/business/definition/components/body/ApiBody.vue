@@ -106,6 +106,8 @@ import BatchAddParameter from '../basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import { getApiParamsConfigFields } from 'metersphere-frontend/src/utils/custom_field';
 import ApiParamsConfig from '@/business/definition/components/request/components/ApiParamsConfig';
+import { parse } from 'lossless-json'
+import CustomNum from '../../../commons/json-schema/convert/customNum';
 
 export default {
   name: 'MsApiBody',
@@ -281,8 +283,7 @@ export default {
       if (this.body.format === 'JSON-SCHEMA') {
         if (this.body.raw) {
           try {
-              let JSONBig = require('json-bigint')({ storeAsString: true });
-              const jsonObj = JSONBig.parse(this.body.raw)
+              const jsonObj = parse(this.body.raw)
               this.body.jsonSchema = MsConvert.format(jsonObj);
           } catch (e) {
             this.body.format = 'JSON';

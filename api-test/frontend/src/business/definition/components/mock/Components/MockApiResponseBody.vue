@@ -82,6 +82,7 @@ import MsApiVariable from '@/business/definition/components/ApiVariable';
 import MsApiFromUrlVariable from '@/business/definition/components/body/ApiFromUrlVariable';
 import BatchAddParameter from '@/business/definition/components/basis/BatchAddParameter';
 import Convert from '@/business/commons/json-schema/convert/convert';
+import { parse } from 'lossless-json';
 
 export default {
   name: 'MockApiResponseBody',
@@ -226,8 +227,14 @@ export default {
       const MsConvert = new Convert();
 
       if (this.body.format === 'JSON-SCHEMA') {
-        if (this.body.raw && !this.body.jsonSchema) {
-          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+        if (this.body.raw) {
+          try {
+              const jsonObj = parse(this.body.raw)
+              this.body.jsonSchema = MsConvert.format(jsonObj);
+          } catch (e) {
+            this.body.format = 'JSON';
+            this.$message.error(this.$t('api_definition.body.json_format_error'));
+          }
         }
       } else {
         if (this.body.jsonSchema) {

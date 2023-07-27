@@ -20,6 +20,7 @@
 import MsCodeEdit from 'metersphere-frontend/src/components/MsCodeEdit';
 import Convert from '@/business/commons/json-schema/convert/convert';
 import MsJsonCodeEdit from '@/business/commons/json-schema/JsonSchemaEditor';
+import { parse } from 'lossless-json';
 
 export default {
   name: 'MsApiVariableJson',
@@ -75,8 +76,14 @@ export default {
     formatChange() {
       const MsConvert = new Convert();
       if (this.item.jsonType === 'JSON-SCHEMA') {
-        if (this.item.value && !this.item.jsonSchema) {
-          this.item.jsonSchema = MsConvert.format(JSON.parse(this.item.value));
+        if (this.item.value) {
+          try {
+              const jsonObj = parse(this.item.value)
+              this.item.jsonSchema = MsConvert.format(jsonObj);
+          } catch (e) {
+            this.body.format = 'JSON';
+            this.$message.error(this.$t('api_definition.body.json_format_error'));
+          }
         }
       } else {
         if (this.item.jsonSchema) {
