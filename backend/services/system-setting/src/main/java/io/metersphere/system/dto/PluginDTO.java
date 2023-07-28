@@ -4,11 +4,13 @@ import io.metersphere.sdk.dto.OrganizationOptionDTO;
 import io.metersphere.system.domain.Plugin;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class PluginDTO extends Plugin implements Serializable {
     private static final long serialVersionUID = 1L;
 
