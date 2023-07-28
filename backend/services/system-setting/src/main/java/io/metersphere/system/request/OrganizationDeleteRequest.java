@@ -1,6 +1,7 @@
 package io.metersphere.system.request;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -8,6 +9,7 @@ import java.io.Serializable;
  * @author song-cc-rock
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OrganizationDeleteRequest implements Serializable {
 
     /**

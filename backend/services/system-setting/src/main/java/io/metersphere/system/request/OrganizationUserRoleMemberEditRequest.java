@@ -2,12 +2,16 @@ package io.metersphere.system.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OrganizationUserRoleMemberEditRequest implements Serializable {
 
     @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -20,8 +24,7 @@ public class OrganizationUserRoleMemberEditRequest implements Serializable {
     @Size(min = 1, max = 50, message = "{organization.id.length_range}")
     private String organizationId;
 
-    @Schema(title = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.id.not_blank}")
-    @Size(min = 1, max = 50, message = "{user.id.length_range}")
-    private String userId;
+    @Schema(title = "成员ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "{user.id.not_blank}")
+    private List<String> userIds;
 }

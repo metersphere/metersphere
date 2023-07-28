@@ -19,6 +19,8 @@ import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
 import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -40,6 +42,7 @@ public class OrganizationUserRoleController {
 
     @GetMapping("/list/{organizationId}")
     @Operation(summary = "获取组织用户组列表")
+    @Parameter(name = "organizationId", description = "当前组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
     public List<UserRole> list(@PathVariable String organizationId) {
         return organizationUserRoleService.list(organizationId);
@@ -69,6 +72,7 @@ public class OrganizationUserRoleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "删除组织用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE)
+    @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationUserRoleLogService.class)
     public void delete(@PathVariable String id) {
         organizationUserRoleService.delete(id);
@@ -76,6 +80,7 @@ public class OrganizationUserRoleController {
 
     @GetMapping("/permission/setting/{id}")
     @Operation(summary = "获取组织用户组对应的权限配置")
+    @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ)
     public List<PermissionDefinitionItem> getPermissionSetting(@PathVariable String id) {
         return organizationUserRoleService.getPermissionSetting(id);

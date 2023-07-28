@@ -8,7 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 public class OrganizationUserRoleMemberRequest extends BasePageRequest {
 
     @Schema(title = "组ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -21,6 +21,6 @@ public class OrganizationUserRoleMemberRequest extends BasePageRequest {
     @Size(min = 1, max = 50, message = "{organization.id.length_range}")
     private String organizationId;
 
-    @Schema(title = "用户名")
-    private String userName;
+    @Schema(title = "搜索关键字")
+    private String userKeyWord;
 }

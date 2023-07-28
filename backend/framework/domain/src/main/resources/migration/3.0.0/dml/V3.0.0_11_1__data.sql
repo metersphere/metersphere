@@ -65,6 +65,11 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_TEMPLATE:READ+CUSTOM');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER:READ+ADD');
+-- 初始化组织-用户组菜单权限(默认)
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+DELETE');
 -- 组织成员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_PROJECT_MANAGER:READ+UPLOAD_JAR');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_member', 'ORGANIZATION_MESSAGE:READ');
