@@ -25,13 +25,17 @@ import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.request.ProjectAddMemberRequest;
+import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +61,8 @@ public class SystemProjectService {
     private OperationLogService operationLogService;
 
     private final ProjectServiceInvoker serviceInvoker;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     private final static String prefix = "/system/project";
     private final static String addProject = prefix + "/add";
@@ -73,19 +79,16 @@ public class SystemProjectService {
     }
 
     /**
-     *
-     * @param addProjectDTO
-     * 添加项目的时候  默认给用户组添加管理员和成员的权限
+     * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员和成员的权限
      * @return
      */
-    public Project add(AddProjectRequest addProjectDTO , String createUser) {
-        //TODO  添加项目需要检查配额  这个需要等后续定下来补全逻辑
+    public Project add(AddProjectRequest addProjectDTO, String createUser) {
 
         Project project = new Project();
         project.setId(UUID.randomUUID().toString());
         project.setName(addProjectDTO.getName());
         project.setOrganizationId(addProjectDTO.getOrganizationId());
-        checkProjectExist(project);
+        checkProjectExistByName(project);
         project.setCreateTime(System.currentTimeMillis());
         project.setUpdateTime(System.currentTimeMillis());
         project.setUpdateUser(createUser);
@@ -93,18 +96,29 @@ public class SystemProjectService {
         project.setEnable(addProjectDTO.getEnable());
         project.setDescription(addProjectDTO.getDescription());
         projectMapper.insertSelective(project);
-        ProjectAddMemberRequest memberRequest = new ProjectAddMemberRequest();
-        memberRequest.setProjectId(project.getId());
+        ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
+        memberRequest.setProjectIds(List.of(project.getId()));
         memberRequest.setUserIds(addProjectDTO.getUserIds());
         this.addProjectMember(memberRequest, createUser, true, addProject, OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"));
         return project;
     }
 
-    private void checkProjectExist(Project project) {
+    private void checkProjectExistByName(Project project) {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId());
         if (projectMapper.selectByExample(example).size() > 0) {
             throw new MSException(Translator.get("project_name_already_exists"));
+        }
+    }
+
+    /**
+     * 检查项目是否存在
+     *
+     * @param id
+     */
+    private void checkProjectNotExist(String id) {
+        if (projectMapper.selectByPrimaryKey(id) == null) {
+            throw new MSException(Translator.get("project_is_not_exist"));
         }
     }
 
@@ -132,10 +146,8 @@ public class SystemProjectService {
         project.setCreateUser(null);
         project.setCreateTime(null);
         project.setUpdateTime(System.currentTimeMillis());
-        checkProjectExist(project);
-        if (ObjectUtils.isEmpty(projectMapper.selectByPrimaryKey(project.getId()))) {
-            return null;
-        }
+        checkProjectExistByName(project);
+        checkProjectNotExist(project.getId());
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(project.getId()).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
@@ -154,8 +166,8 @@ public class SystemProjectService {
             userRoleRelationMapper.deleteByExample(deleteExample);
         }
         if (CollectionUtils.isNotEmpty(insertIds)) {
-            ProjectAddMemberRequest memberRequest = new ProjectAddMemberRequest();
-            memberRequest.setProjectId(project.getId());
+            ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
+            memberRequest.setProjectIds(List.of(project.getId()));
             memberRequest.setUserIds(insertIds);
             this.addProjectMember(memberRequest, updateUser, true, updateProject, OperationLogType.UPDATE.name(),
                     HttpMethodConstants.POST.name(), Translator.get("update"));
@@ -167,6 +179,7 @@ public class SystemProjectService {
 
     public int delete(String id, String deleteUser) {
         //TODO  删除项目删除全部资源 这里的删除只是假删除
+        checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
         project.setDeleteUser(deleteUser);
@@ -180,41 +193,62 @@ public class SystemProjectService {
         return projectMemberList;
     }
 
-    public void addProjectMember(ProjectAddMemberRequest request, String createUser, boolean isAdmin, String path, String type,
+    /***
+     * 添加项目成员
+     * @param request
+     * @param createUser
+     * @param isAdmin 是否需要创建管理员
+     * @param path 请求路径
+     * @param type 操作类型
+     * @param method 请求方法
+     * @param content 操作内容
+     */
+    public void addProjectMember(ProjectAddMemberBatchRequest request, String createUser, boolean isAdmin, String path, String type,
                                  String method, String content) {
 
         List<LogDTO> logDTOList = new ArrayList<>();
-        //TODO  添加项目成员需要检查配额  这个需要等后续定下来补全逻辑
-        request.getUserIds().forEach(userId -> {
-            User user = userMapper.selectByPrimaryKey(userId);
-            if (ObjectUtils.isEmpty(user)) {
-                throw new MSException(Translator.get("user_not_exist"));
-            }
-            if (isAdmin) {
-                UserRoleRelation adminRole = new UserRoleRelation(
-                        UUID.randomUUID().toString(),
-                        userId,
-                        InternalUserRole.PROJECT_ADMIN.getValue(),
-                        request.getProjectId(),
-                        System.currentTimeMillis(),
-                        createUser);
-                userRoleRelationMapper.insertSelective(adminRole);
-                setLog(request.getProjectId(), path, content + Translator.get("project_admin") +": "+ user.getName(), createUser, "", type, method, logDTOList);
-            }
-            UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-            userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
-                    .andSourceIdEqualTo(request.getProjectId()).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
-            if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
-                UserRoleRelation memberRole = new UserRoleRelation(
-                        UUID.randomUUID().toString(),
-                        userId,
-                        InternalUserRole.PROJECT_MEMBER.getValue(),
-                        request.getProjectId(),
-                        System.currentTimeMillis(),
-                        createUser);
-                userRoleRelationMapper.insertSelective(memberRole);
-                setLog(request.getProjectId(), path, content + Translator.get("project_member")+": "+ user.getName(), createUser, "", type, method, logDTOList);
-            }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        UserRoleRelationMapper batchMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
+        request.getProjectIds().forEach(projectId -> {
+            checkProjectNotExist(projectId);
+            request.getUserIds().forEach(userId -> {
+                User user = userMapper.selectByPrimaryKey(userId);
+                if (ObjectUtils.isEmpty(user)) {
+                    throw new MSException(Translator.get("user_not_exist"));
+                }
+                if (isAdmin) {
+                    UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+                    userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
+                            .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+                    if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
+                        UserRoleRelation adminRole = new UserRoleRelation(
+                                UUID.randomUUID().toString(),
+                                userId,
+                                InternalUserRole.PROJECT_ADMIN.getValue(),
+                                projectId,
+                                System.currentTimeMillis(),
+                                createUser);
+                        batchMapper.insert(adminRole);
+                        setLog(projectId, path, content + Translator.get("project_admin") + ": " + user.getName(), createUser, "", type, method, logDTOList);
+                    }
+                }
+                UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+                userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
+                        .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+                if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
+                    UserRoleRelation memberRole = new UserRoleRelation(
+                            UUID.randomUUID().toString(),
+                            userId,
+                            InternalUserRole.PROJECT_MEMBER.getValue(),
+                            projectId,
+                            System.currentTimeMillis(),
+                            createUser);
+                    batchMapper.insert(memberRole);
+                    setLog(projectId, path, content + Translator.get("project_member") + ": " + user.getName(), createUser, "", type, method, logDTOList);
+                }
+            });
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         });
         operationLogService.batchAdd(logDTOList);
     }
@@ -229,14 +263,15 @@ public class SystemProjectService {
             userMapper.updateByPrimaryKeySelective(user);
         }
         List<LogDTO> logDTOList = new ArrayList<>();
-        setLog(projectId, removeProjectMember + "/" + projectId + "/" +userId,
-                Translator.get("delete") + Translator.get("project_member") +": "+ user.getName(),
-                userId, "", OperationLogType.DELETE.name() , HttpMethodConstants.GET.name(), logDTOList);
+        setLog(projectId, removeProjectMember + "/" + projectId + "/" + userId,
+                Translator.get("delete") + Translator.get("project_member") + ": " + user.getName(),
+                userId, "", OperationLogType.DELETE.name(), HttpMethodConstants.GET.name(), logDTOList);
         operationLogService.batchAdd(logDTOList);
         return userRoleRelationMapper.deleteByExample(userRoleRelationExample);
     }
 
     public int revoke(String id) {
+        checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
         project.setDeleted(false);
@@ -271,7 +306,7 @@ public class SystemProjectService {
         return extSystemProjectMapper.selectProjectOptions();
     }
 
-    private static void setLog( String projectId, String path, String content, String userId, Object originalValue,
+    private static void setLog(String projectId, String path, String content, String userId, Object originalValue,
                                String type, String method, List<LogDTO> logDTOList) {
         LogDTO dto = new LogDTO(
                 "system",

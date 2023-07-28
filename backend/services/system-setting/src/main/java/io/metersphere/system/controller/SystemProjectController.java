@@ -16,6 +16,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -107,7 +108,10 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Operation(summary = "添加项目成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
-        systemProjectService.addProjectMember(request, SessionUtils.getUserId(), false, "/system/project/add-member",
+        ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
+        batchRequest.setProjectIds(List.of(request.getProjectId()));
+        batchRequest.setUserIds(request.getUserIds());
+        systemProjectService.addProjectMember(batchRequest, SessionUtils.getUserId(), false, "/system/project/add-member",
                 OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"));
     }
 
