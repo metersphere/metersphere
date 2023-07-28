@@ -26,4 +26,6 @@ public interface BaseUserMapper {
     List<String> selectUnDeletedUserIdByIdList(@Param("idList") List<String> userIdList);
 
     List<User> selectUserByIdList(List<String> userIds);
+
+    long deleteUser(String id);
 }

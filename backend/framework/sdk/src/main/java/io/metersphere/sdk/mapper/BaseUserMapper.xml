@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.sdk.mapper.BaseUserMapper">
+    <update id="deleteUser">
+        UPDATE `user` SET `deleted` = 1, `email` = id WHERE `id` = #{id}
+    </update>
     <select id="selectById" resultType="io.metersphere.sdk.dto.UserDTO">
         SELECT *
         FROM user
@@ -21,13 +24,13 @@
     </select>
 
     <insert id="batchSave">
-        INSERT INTO user(id, name, email, password, status, create_time, update_time, language, last_organization_id,
+        INSERT INTO user(id, name, email, password, status, create_time, update_time,update_user, language, last_organization_id,
                          phone,
                          source, last_project_id, create_user,deleted)
         VALUES
         <foreach collection="users" item="user" separator=",">
             (#{user.id}, #{user.name}, #{user.email}, #{user.password}, #{user.status}, #{user.createTime},
-             #{user.updateTime}, #{user.language},
+             #{user.updateTime},#{user.updateUser}, #{user.language},
              #{user.lastOrganizationId}, #{user.phone}, #{user.source}, #{user.lastProjectId}, #{user.createUser}, #{user.deleted})
         </foreach>
     </insert>

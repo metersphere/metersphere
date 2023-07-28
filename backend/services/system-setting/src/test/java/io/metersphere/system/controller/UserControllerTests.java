@@ -105,13 +105,6 @@ public class UserControllerTests extends BaseTest {
         }
     }
 
-    private void checkUserDeleted() throws Exception {
-        if (CollectionUtils.isEmpty(DELETED_USER_ID_LIST)) {
-            //测试数据初始化入库
-            this.testUserDeleteSuccess();
-        }
-    }
-
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -134,20 +127,19 @@ public class UserControllerTests extends BaseTest {
     }
 
 
-    private MvcResult responseByString(String url, String param,ResultMatcher resultMatcher) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.post(url)
+    private void requestResetPassword(String param, ResultMatcher resultMatcher) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post(UserTestUtils.URL_USER_RESET_PASSWORD)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(param)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(resultMatcher).andDo(print())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andReturn();
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
 
-    private MvcResult responseFile(String url, MockMultipartFile file) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.multipart(url)
+    private MvcResult responseFile(MockMultipartFile file) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.multipart(UserTestUtils.URL_USER_IMPORT)
                         .file(file)
                         .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -194,6 +186,23 @@ public class UserControllerTests extends BaseTest {
                 }}
         );
         MvcResult mvcResult = this.responsePost(UserTestUtils.URL_USER_CREATE, userMaintainRequest);
+        this.addUser2List(mvcResult);
+
+
+        //批量添加一百多个用户
+        List<UserCreateInfo> userCreateInfoList = new ArrayList<>();
+        for (int i = 0; i < 123; i++) {
+            int finalI = i;
+            userCreateInfoList.add(new UserCreateInfo() {{
+                setName("tianyang.no.batch" + finalI);
+                setEmail("tianyang.no.batch" + finalI + "@126.com");
+            }});
+        }
+        userMaintainRequest = UserTestUtils.getUserCreateDTO(
+                defaultUserRoleList,
+                userCreateInfoList
+        );
+        mvcResult = this.responsePost(UserTestUtils.URL_USER_CREATE, userMaintainRequest);
         this.addUser2List(mvcResult);
 
         //含有重复的用户名称
@@ -568,10 +577,10 @@ public class UserControllerTests extends BaseTest {
         int[] errorDataIndex = {};//出错数据的行数
         UserImportResponse response;//导入返回值
         //导入正常文件
-        String filePath = this.getClass().getClassLoader().getResource("file/user_import_success.xlsx").getPath();
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_success.xlsx")).getPath();
         MockMultipartFile file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
         List<UserDTO> userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
         for (UserDTO item : userDTOList){
@@ -579,25 +588,25 @@ public class UserControllerTests extends BaseTest {
         }
 
         //导入空文件. 应当导入成功的数据为0
-        filePath = this.getClass().getClassLoader().getResource("file/user_import_success_empty.xlsx").getPath();
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_success_empty.xlsx")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         importSuccessData = 0;
         errorDataIndex = new int[]{};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
         //文件内没有一条合格数据  应当导入成功的数据为0
-        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_all.xlsx").getPath();
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_error_all.xlsx")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         errorDataIndex = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
         //邮箱和数据库里的重复  应当导入成功的数据为8
-        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_db.xlsx").getPath();
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_db.xlsx")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         importSuccessData = 8;
         errorDataIndex = new int[]{1, 7};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
@@ -607,10 +616,10 @@ public class UserControllerTests extends BaseTest {
         }
 
         //文件内邮箱重复  应当导入成功的数据为8
-        filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_in_file.xlsx").getPath();
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_in_file.xlsx")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         errorDataIndex = new int[]{9, 10};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
         userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
@@ -621,7 +630,7 @@ public class UserControllerTests extends BaseTest {
         //文件不符合规范 应当导入成功的数据为0
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/abcde.gif")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         importSuccessData = 0;
         errorDataIndex = new int[]{};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
@@ -630,7 +639,7 @@ public class UserControllerTests extends BaseTest {
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_success_03.xls")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
-        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(file), UserImportResponse.class);
         importSuccessData = 10;//应该导入成功的数据数量
         errorDataIndex = new int[]{};//出错数据的行数
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
@@ -662,7 +671,7 @@ public class UserControllerTests extends BaseTest {
         Assertions.assertEquals(1, userMapper.updateByPrimaryKeySelective(user));
 
         //调用重置密码的接口
-        this.responseByString(UserTestUtils.URL_USER_RESET_PASSWORD, userId,status().isOk());
+        this.requestResetPassword(userId,status().isOk());
         //检查数据库
         UserExample example = new UserExample();
         example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(userEmail));
@@ -674,7 +683,7 @@ public class UserControllerTests extends BaseTest {
     @Order(8)
     public void testUserResetPasswordError() throws Exception {
         //用户不存在
-        this.responseByString(UserTestUtils.URL_USER_RESET_PASSWORD, "none user",ERROR_REQUEST_MATCHER);
+        this.requestResetPassword("none user",ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -696,14 +705,16 @@ public class UserControllerTests extends BaseTest {
         }
         //记录已经删除了的用户，用于反例
         DELETED_USER_ID_LIST.clear();
+        USER_LIST.clear();
         DELETED_USER_ID_LIST.addAll(request.getUserIdList());
+        //检查删除了的用户，可以用其邮箱继续注册
+        this.testAddSuccess();
     }
 
     //删除失败的方法要放在删除成功方法后面执行
     @Test
     @Order(10)
     public void testUserDeleteError() throws Exception {
-        this.checkUserDeleted();
         //参数为空
         UserBatchProcessRequest request = new UserBatchProcessRequest();
         this.requestPost(UserTestUtils.URL_USER_DELETE, request, BAD_REQUEST_MATCHER);
@@ -711,6 +722,9 @@ public class UserControllerTests extends BaseTest {
         request.getUserIdList().add("123456789012345678901234");
         this.requestPost(UserTestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
         //用户已经被删除
+        if(CollectionUtils.isEmpty(DELETED_USER_ID_LIST)){
+            this.testUserDeleteSuccess();
+        }
         request.setUserIdList(DELETED_USER_ID_LIST);
         this.requestPost(UserTestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
     }

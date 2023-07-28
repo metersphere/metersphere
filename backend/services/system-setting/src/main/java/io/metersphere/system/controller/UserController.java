@@ -44,24 +44,28 @@ public class UserController {
     private GlobalUserRoleService globalUserRoleService;
 
     @GetMapping("/get/{email}")
+    @Operation(summary = "通过email查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_READ)
     public UserDTO getUser(@PathVariable String email) {
         return userService.getUserDTOByEmail(email);
     }
 
     @GetMapping("/get/global/system/role")
+    @Operation(summary = "查找系统级用户权限")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public List<UserRoleOption> getGlobalSystemRole() {
         return globalUserRoleService.getGlobalSystemRoleList();
     }
 
     @PostMapping("/add")
+    @Operation(summary = "添加用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_ADD)
     public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
         return userService.addUser(userCreateDTO, UserSourceEnum.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
+    @Operation(summary = "修改用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = UserService.class)
     public UserEditRequest updateUser(@Validated({Updated.class}) @RequestBody UserEditRequest request) {
@@ -69,6 +73,7 @@ public class UserController {
     }
 
     @PostMapping("/page")
+    @Operation(summary = "分页查找用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ)
     public Pager<List<UserTableResponse>> list(@Validated @RequestBody BasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -77,18 +82,21 @@ public class UserController {
     }
 
     @PostMapping("/update/enable")
+    @Operation(summary = "启用/禁用用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     public UserBatchProcessResponse updateUserEnable(@Validated @RequestBody UserChangeEnableRequest request) {
         return userService.updateUserEnable(request, SessionUtils.getSessionId());
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @Operation(summary = "导入用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
         return userService.importByExcel(excelFile, UserSourceEnum.LOCAL.name(), SessionUtils.getSessionId());
     }
 
     @PostMapping("/delete")
+    @Operation(summary = "删除用户")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#userBatchProcessRequest)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
     public UserBatchProcessResponse deleteUser(@Validated @RequestBody UserChangeEnableRequest userBatchProcessRequest) {
