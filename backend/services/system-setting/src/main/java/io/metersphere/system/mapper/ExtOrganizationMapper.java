@@ -3,7 +3,7 @@ package io.metersphere.system.mapper;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.system.dto.OrganizationProjectOptionsDto;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.OrganizationDeleteRequest;
 import io.metersphere.system.request.OrganizationRequest;
@@ -74,5 +74,5 @@ public interface ExtOrganizationMapper {
      * 获取组织列表(下拉框)
      * @return 组织列表数据
      */
-    List<OrganizationProjectOptionsDto> selectOrganizationOptions();
+    List<OrganizationProjectOptionsDTO> selectOrganizationOptions();
 }

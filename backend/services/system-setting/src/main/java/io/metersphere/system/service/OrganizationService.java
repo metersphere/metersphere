@@ -16,7 +16,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
-import io.metersphere.system.dto.OrganizationProjectOptionsDto;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.*;
@@ -207,7 +207,7 @@ public class OrganizationService {
         return organizationDTOS;
     }
 
-    public List<OrganizationProjectOptionsDto> getOrganizationOptions() {
+    public List<OrganizationProjectOptionsDTO> getOrganizationOptions() {
         return extOrganizationMapper.selectOrganizationOptions();
     }
 
