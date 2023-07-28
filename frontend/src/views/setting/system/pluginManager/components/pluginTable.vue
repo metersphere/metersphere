@@ -108,15 +108,6 @@
           <span v-else-if="record.pluginForms.length && expanded" class="expand"
             ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
           /></span>
-          <span v-else class="empty-button"></span>
-        </template>
-        <template #expand-row="{ record }">
-          <div v-for="(item, index) in record.pluginForms" :key="item.id" class="ms-self"
-            ><span class="circle"> {{ index + 1 }} </span
-            ><span class="cursor-pointer text-[rgb(var(--primary-6))]" @click="detailScript(record, item)">{{
-              item.name
-            }}</span></div
-          >
         </template>
       </a-table>
     </div>
@@ -131,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, reactive } from 'vue';
+  import { ref, onMounted, reactive, h } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -142,17 +133,18 @@
   import uploadSuccessModal from './uploadSuccessModal.vue';
   import scriptDetailDrawer from './scriptDetailDrawer.vue';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
-  import useButtonStyle from '@/hooks/useHiddenButton';
+  import useExpandStyle from '@/hooks/useExpandStyle';
   import useModal from '@/hooks/useModal';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, TableData } from '@arco-design/web-vue';
   import useVisit from '@/hooks/useVisit';
   import type { PluginForms, PluginList, PluginItem, Options, DrawerConfig } from '@/models/setting/plugin';
   import dayjs from 'dayjs';
+  import TableExpand from './tableExpand.vue';
 
   const { t } = useI18n();
   const visitedKey = 'doNotShowAgain';
   const { getIsVisited } = useVisit(visitedKey);
-  const { hiddenButton, expandOrcollapseStyle, countHeight, cssHeight } = useButtonStyle('.ms-card', [
+  const { expandOrcollapseStyle, cssHeight } = useExpandStyle('.ms-card', [
     '.arco-alert',
     '.arco-row',
     '.ms-footerNum',
@@ -160,10 +152,6 @@
 
   const data = ref<PluginList>([]);
   const loading = ref<boolean>(false);
-  const expandable = reactive({
-    title: '',
-    width: 54,
-  });
   const expandedRowKeys = reactive([]);
 
   const config = ref<DrawerConfig>({
@@ -320,6 +308,15 @@
       console.log(error);
     }
   };
+  const expandable = reactive({
+    title: '',
+    width: 54,
+    expandedRowRender: (record: TableData) => {
+      if (record.pluginForms && record.pluginForms.length > 0) {
+        return h(TableExpand, { record, onMessageEvent: (recordItem, item) => detailScript(recordItem, item) });
+      }
+    },
+  });
   const handleExpand = (rowKey: string | number) => {
     Object.assign(expandedRowKeys, [rowKey]);
     expandOrcollapseStyle();
@@ -347,6 +344,22 @@
           {
             id: '222',
             name: '步骤二',
+          },
+          {
+            id: '333',
+            name: '步骤三',
+          },
+          {
+            id: '444',
+            name: '步骤四',
+          },
+          {
+            id: '555',
+            name: '步骤五',
+          },
+          {
+            id: '666',
+            name: '步骤六',
           },
         ],
         organizations: [
@@ -459,20 +472,60 @@
           },
         ],
       },
+      {
+        id: 'string6',
+        name: '插件5',
+        pluginId: 'string',
+        fileName: 'string',
+        createTime: 0,
+        updateTime: 3084234,
+        createUser: '创建人',
+        enable: true,
+        global: true,
+        xpack: true,
+        description: 'string',
+        scenario: 'PLATFORM',
+        pluginForms: [
+          {
+            id: '111',
+            name: '步骤一',
+          },
+          {
+            id: '222',
+            name: '步骤二',
+          },
+          {
+            id: '333',
+            name: '步骤三',
+          },
+          {
+            id: '444',
+            name: '步骤四',
+          },
+          {
+            id: '555',
+            name: '步骤五',
+          },
+          {
+            id: '666',
+            name: '步骤六',
+          },
+        ],
+        organizations: [
+          {
+            id: 'string',
+            num: 0,
+            name: 'string',
+          },
+        ],
+      },
     ];
     loadData();
     filterData.value = [...data.value];
-    hiddenButton();
-    cssHeight.height = countHeight();
   });
 </script>
 
 <style scoped lang="less">
-  .circle {
-    color: var(--color-text-3);
-    background: var(--color-fill-3);
-    @apply ml-6 mr-10 inline-block h-4 w-4 text-center text-xs leading-4;
-  }
   :deep(.arco-table-tr-expand .arco-table-td) {
     background: none;
   }
@@ -480,14 +533,10 @@
     padding: 0 !important;
   }
   :deep(.arco-table) {
-    overflow: hidden !important;
+    margin-right: -10px;
+    padding-right: 10px;
+    max-width: 100%;
     height: v-bind('cssHeight.height') !important;
-  }
-  .ms-self {
-    height: 40px;
-    line-height: 40px;
-    border-bottom: 1px solid var(--color-text-n8);
-    @apply flex items-center align-middle leading-6;
   }
   .ms-footerNum {
     @apply mt-4 text-sm text-slate-500;
