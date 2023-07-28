@@ -10,6 +10,7 @@ import io.metersphere.sdk.util.SessionUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -47,20 +48,20 @@ public class OperationLogAspect {
     private final StandardReflectionParameterNameDiscoverer
             discoverer = new StandardReflectionParameterNameDiscoverer();
 
-    private final String ID = "id";
+    private final static String ID = "id";
     @Resource
     private ApplicationContext applicationContext;
 
     @Resource
     private OperationLogService operationLogService;
     // 批量变更前后内容
-    private ThreadLocal<List<LogDTO>> beforeValues = new ThreadLocal<>();
+    private final ThreadLocal<List<LogDTO>> beforeValues = new ThreadLocal<>();
 
-    private ThreadLocal<String> localUser = new ThreadLocal<>();
+    private final ThreadLocal<String> localUser = new ThreadLocal<>();
 
-    private ThreadLocal<String> localOrganizationId = new ThreadLocal<>();
+    private final ThreadLocal<String> localOrganizationId = new ThreadLocal<>();
 
-    private ThreadLocal<String> localProjectId = new ThreadLocal<>();
+    private final ThreadLocal<String> localProjectId = new ThreadLocal<>();
 
     // 此方法随时补充类型，需要在内容变更前执行的类型都可以加入
     private final OperationLogType[] beforeMethodNames = new OperationLogType[]{OperationLogType.UPDATE, OperationLogType.DELETE};
@@ -103,11 +104,11 @@ public class OperationLogAspect {
                 //将参数纳入Spring管理
                 EvaluationContext context = new StandardEvaluationContext();
 
-                for (int len = 0; len < params.length; len++) {
+                for (int len = 0; len < Objects.requireNonNull(params).length; len++) {
                     context.setVariable(params[len], args[len]);
                 }
                 boolean isNext = false;
-                for (Class clazz : msLog.msClass()) {
+                for (Class<?> clazz : msLog.msClass()) {
                     context.setVariable("msClass", applicationContext.getBean(clazz));
                     isNext = true;
                 }
@@ -179,8 +180,7 @@ public class OperationLogAspect {
 
             if (obj instanceof List<?>) {
                 mergeLists(beforeValues.get(), (List<LogDTO>) obj);
-            } else if (obj instanceof LogDTO) {
-                LogDTO log = (LogDTO) obj;
+            } else if (obj instanceof LogDTO log) {
                 if (CollectionUtils.isNotEmpty(beforeValues.get())) {
                     beforeValues.get().get(0).setModifiedValue(log.getOriginalValue());
                 } else {
@@ -201,7 +201,7 @@ public class OperationLogAspect {
             if (result != null) {
                 String resultStr = JSON.toJSONString(result);
                 Map object = JSON.parseMap(resultStr);
-                if (object != null && object.containsKey(ID)) {
+                if (MapUtils.isNotEmpty(object) && object.containsKey(ID)) {
                     Object nameValue = object.get(ID);
                     if (ObjectUtils.isNotEmpty(nameValue)) {
                         return nameValue.toString();
@@ -209,7 +209,7 @@ public class OperationLogAspect {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error("未获取到响应Id");
+            LogUtils.error("未获取到响应资源Id");
         }
         return null;
     }
@@ -255,10 +255,10 @@ public class OperationLogAspect {
                 String[] params = discoverer.getParameterNames(method);
                 //将参数纳入Spring管理
                 EvaluationContext context = new StandardEvaluationContext();
-                for (int len = 0; len < params.length; len++) {
+                for (int len = 0; len < Objects.requireNonNull(params).length; len++) {
                     context.setVariable(params[len], args[len]);
                 }
-                for (Class clazz : msLog.msClass()) {
+                for (Class<?> clazz : msLog.msClass()) {
                     context.setVariable("msClass", applicationContext.getBean(clazz));
                 }
                 // 需要后置再次执行的方法
@@ -279,7 +279,7 @@ public class OperationLogAspect {
 
     protected String getPath() {
         HttpServletRequest httpRequest = getHttpRequest();
-        String path =  httpRequest == null ? StringUtils.EMPTY : httpRequest.getRequestURI();
+        String path = httpRequest == null ? StringUtils.EMPTY : httpRequest.getRequestURI();
         return path.length() > 255 ? path.substring(0, 255) : path;
     }
 
