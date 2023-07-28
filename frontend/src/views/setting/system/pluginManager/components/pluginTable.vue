@@ -18,99 +18,95 @@
         ></a-input-search>
       </a-col>
     </a-row>
-    <div class="mb-6" style="overflow: auto">
-      <a-table
-        :data="filterData"
-        :pagination="false"
-        :scroll="{ y: 'auto', x: 2400 }"
-        :expandable="expandable"
-        :loading="loading"
-        row-key="id"
-        :expanded-row-keys="expandedRowKeys"
-        @expand="handleExpand"
-      >
-        <template #columns>
-          <a-table-column fixed="left" :title="t('system.plugin.tableColunmName')">
-            <template #cell="{ record }">
-              {{ record.name }} <span class="text-[--color-text-4]">({{ record.pluginForms.length }})</span>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="description" />
-          <a-table-column :title="t('system.plugin.tableColunmStatus')">
-            <template #cell="{ record }">
-              <div v-if="record.enable" class="flex items-center">
-                <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-                {{ t('system.user.tableEnable') }}
-              </div>
-              <div v-else class="flex items-center text-[var(--color-text-4)]">
-                <icon-stop class="mr-[2px]" />
-                {{ t('system.user.tableDisable') }}
-              </div>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColunmApplicationScene')" data-index="scenario">
-            <template #cell="{ record }">{{
-              record.scenario === 'API' ? t('system.plugin.secneApi') : t('system.plugin.secneProManger')
-            }}</template>
-          </a-table-column>
-          <a-table-column :title="t('system.user.tableColunmOrg')">
-            <template #cell="{ record }">
-              <a-tag
-                v-for="org of record.organizations"
-                :key="org.id"
-                class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                bordered
-              >
-                {{ org.name }}
-              </a-tag>
-              <a-tag
-                v-show="record.organizations.length > 2"
-                class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-                bordered
-              >
-                +{{ record.organizations.length - 2 }}
-              </a-tag>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="fileName" />
-          <a-table-column :title="t('system.plugin.tableColunmVersion')" data-index="pluginId" />
-          <a-table-column :title="t('system.plugin.tableColunmAuthorization')">
-            <template #cell="{ record }">
-              <span>{{
-                record.xpack ? t('system.plugin.uploadOpenSource') : t('system.plugin.uploadCompSource')
-              }}</span>
-            </template>
-          </a-table-column>
-          <a-table-column :title="t('system.plugin.tableColunmCreatedBy')" data-index="createUser" />
-          <a-table-column :title="t('system.plugin.tableColunmUpdateTime')">
-            <template #cell="{ record }">
-              <span>{{ getTime(record.updateTime) }}</span>
-            </template>
-          </a-table-column>
-          <a-table-column :width="200" fixed="right" align="center" :bordered="false">
-            <template #title>
-              {{ t('system.plugin.tableColunmActions') }}
-            </template>
-            <template #cell="{ record }">
-              <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
-              <MsButton v-if="record.enable" @click="disableHandler(record)">{{
-                t('system.plugin.tableDisable')
-              }}</MsButton>
-              <MsButton v-else>{{ t('system.plugin.tableEnable') }}</MsButton>
-              <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
-            </template>
-          </a-table-column>
-        </template>
-        <template #expand-icon="{ record, expanded }">
-          <span v-if="record.pluginForms.length && !expanded" class="collapsebtn"
-            ><icon-plus :style="{ 'font-size': '12px' }"
-          /></span>
-          <span v-else-if="record.pluginForms.length && expanded" class="expand"
-            ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
-          /></span>
-        </template>
-      </a-table>
-    </div>
+    <a-table
+      :data="filterData"
+      :pagination="false"
+      :scroll="{ y: 386, x: 2400 }"
+      :expandable="expandable"
+      :loading="loading"
+      row-key="id"
+      :expanded-row-keys="expandedRowKeys"
+      @expand="handleExpand"
+    >
+      <template #columns>
+        <a-table-column fixed="left" :title="t('system.plugin.tableColunmName')">
+          <template #cell="{ record }">
+            {{ record.name }} <span class="text-[--color-text-4]">({{ record.pluginForms.length }})</span>
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="description" />
+        <a-table-column :title="t('system.plugin.tableColunmStatus')">
+          <template #cell="{ record }">
+            <div v-if="record.enable" class="flex items-center">
+              <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+              {{ t('system.user.tableEnable') }}
+            </div>
+            <div v-else class="flex items-center text-[var(--color-text-4)]">
+              <icon-stop class="mr-[2px]" />
+              {{ t('system.user.tableDisable') }}
+            </div>
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColunmApplicationScene')" data-index="scenario">
+          <template #cell="{ record }">{{
+            record.scenario === 'API' ? t('system.plugin.secneApi') : t('system.plugin.secneProManger')
+          }}</template>
+        </a-table-column>
+        <a-table-column :title="t('system.user.tableColunmOrg')">
+          <template #cell="{ record }">
+            <a-tag
+              v-for="org of record.organizations"
+              :key="org.id"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+            >
+              {{ org.name }}
+            </a-tag>
+            <a-tag
+              v-show="record.organizations.length > 2"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+            >
+              +{{ record.organizations.length - 2 }}
+            </a-tag>
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColunmDescription')" data-index="fileName" />
+        <a-table-column :title="t('system.plugin.tableColunmVersion')" data-index="pluginId" />
+        <a-table-column :title="t('system.plugin.tableColunmAuthorization')">
+          <template #cell="{ record }">
+            <span>{{ record.xpack ? t('system.plugin.uploadOpenSource') : t('system.plugin.uploadCompSource') }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column :title="t('system.plugin.tableColunmCreatedBy')" data-index="createUser" />
+        <a-table-column :title="t('system.plugin.tableColunmUpdateTime')">
+          <template #cell="{ record }">
+            <span>{{ getTime(record.updateTime) }}</span>
+          </template>
+        </a-table-column>
+        <a-table-column :width="200" fixed="right" align="center" :bordered="false">
+          <template #title>
+            {{ t('system.plugin.tableColunmActions') }}
+          </template>
+          <template #cell="{ record }">
+            <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
+            <MsButton v-if="record.enable" @click="disableHandler(record)">{{
+              t('system.plugin.tableDisable')
+            }}</MsButton>
+            <MsButton v-else>{{ t('system.plugin.tableEnable') }}</MsButton>
+            <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+          </template>
+        </a-table-column>
+      </template>
+      <template #expand-icon="{ record, expanded }">
+        <span v-if="record.pluginForms.length && !expanded" class="collapsebtn"
+          ><icon-plus :style="{ 'font-size': '12px' }"
+        /></span>
+        <span v-else-if="record.pluginForms.length && expanded" class="expand"
+          ><icon-minus class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }"
+        /></span>
+      </template>
+    </a-table>
     <div class="ms-footerNum"
       >{{ t('system.plugin.totalNum') }}<span class="mx-2">{{ totalNum }}</span
       >{{ t('system.plugin.dataList') }}</div
@@ -133,7 +129,6 @@
   import uploadSuccessModal from './uploadSuccessModal.vue';
   import scriptDetailDrawer from './scriptDetailDrawer.vue';
   import { useCommandComponent } from '@/hooks/useCommandComponent';
-  import useExpandStyle from '@/hooks/useExpandStyle';
   import useModal from '@/hooks/useModal';
   import { Message, TableData } from '@arco-design/web-vue';
   import useVisit from '@/hooks/useVisit';
@@ -144,11 +139,6 @@
   const { t } = useI18n();
   const visitedKey = 'doNotShowAgain';
   const { getIsVisited } = useVisit(visitedKey);
-  const { expandOrcollapseStyle, cssHeight } = useExpandStyle('.ms-card', [
-    '.arco-alert',
-    '.arco-row',
-    '.ms-footerNum',
-  ]);
 
   const data = ref<PluginList>([]);
   const loading = ref<boolean>(false);
@@ -319,7 +309,6 @@
   });
   const handleExpand = (rowKey: string | number) => {
     Object.assign(expandedRowKeys, [rowKey]);
-    expandOrcollapseStyle();
   };
   onMounted(() => {
     data.value = [
@@ -472,53 +461,6 @@
           },
         ],
       },
-      {
-        id: 'string6',
-        name: '插件5',
-        pluginId: 'string',
-        fileName: 'string',
-        createTime: 0,
-        updateTime: 3084234,
-        createUser: '创建人',
-        enable: true,
-        global: true,
-        xpack: true,
-        description: 'string',
-        scenario: 'PLATFORM',
-        pluginForms: [
-          {
-            id: '111',
-            name: '步骤一',
-          },
-          {
-            id: '222',
-            name: '步骤二',
-          },
-          {
-            id: '333',
-            name: '步骤三',
-          },
-          {
-            id: '444',
-            name: '步骤四',
-          },
-          {
-            id: '555',
-            name: '步骤五',
-          },
-          {
-            id: '666',
-            name: '步骤六',
-          },
-        ],
-        organizations: [
-          {
-            id: 'string',
-            num: 0,
-            name: 'string',
-          },
-        ],
-      },
     ];
     loadData();
     filterData.value = [...data.value];
@@ -536,9 +478,21 @@
     margin-right: -10px;
     padding-right: 10px;
     max-width: 100%;
-    height: v-bind('cssHeight.height') !important;
+  }
+  :deep(.collapsebtn) {
+    padding: 0 1px;
+    border: 1px solid var(--color-text-4);
+    @apply bg-white;
+  }
+  :deep(.expand) {
+    padding: 0 1px;
+    border: 1px solid rgb(var(--primary-5));
+    @apply bg-white;
+  }
+  :deep(.arco-table-expand-btn) {
+    @apply bg-white;
   }
   .ms-footerNum {
-    @apply mt-4 text-sm text-slate-500;
+    @apply absolute bottom-0 mt-4 text-sm text-slate-500;
   }
 </style>
