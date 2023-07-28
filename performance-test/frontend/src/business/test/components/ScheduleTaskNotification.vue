@@ -27,6 +27,7 @@ import {hasLicense} from "metersphere-frontend/src/utils/permission";
 import MsCodeEdit from "metersphere-frontend/src/components/MsCodeEdit";
 import MsTipButton from "metersphere-frontend/src/components/MsTipButton";
 import NotificationTable from "metersphere-frontend/src/components/notification/NotificationTable";
+import MxNoticeTemplate from 'metersphere-frontend/src/components/MxNoticeTemplate';
 import {getNoticeTasks} from "@/api/performance";
 
 export default {
@@ -35,6 +36,7 @@ export default {
     NotificationTable,
     MsTipButton,
     MsCodeEdit,
+    MxNoticeTemplate,
   },
   props: {
     testId: String,
