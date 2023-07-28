@@ -88,7 +88,6 @@ public class UserController {
         return userService.importByExcel(excelFile, UserSourceEnum.LOCAL.name(), SessionUtils.getSessionId());
     }
 
-
     @PostMapping("/delete")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#userBatchProcessRequest)", msClass = UserService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_DELETE)
@@ -102,4 +101,13 @@ public class UserController {
     public List<User> getUserList() {
         return userService.getUserList();
     }
+
+    @PostMapping("/reset/password")
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#userId)", msClass = UserService.class)
+    public boolean resetPassword(@RequestBody String userId) {
+        return userService.resetPassword(userId,SessionUtils.getUserId());
+    }
+
+
 }
