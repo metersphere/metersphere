@@ -3,10 +3,12 @@ package io.metersphere.sdk.dto;
 import io.metersphere.sdk.domain.OperationLog;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class LogDTO extends OperationLog {
     @Schema(title = "变更前内容")
     private byte[] originalValue;
