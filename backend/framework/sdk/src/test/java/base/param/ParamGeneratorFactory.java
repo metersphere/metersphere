@@ -24,6 +24,7 @@ public class ParamGeneratorFactory {
     private static final Map<String, ParamGenerator> paramGeneratorMap = new HashMap<>() {{
         put(Size.class.getName(), new SizeParamGenerator());
         put(NotBlank.class.getName(), new NotBlankParamGenerator());
+        put(NotEmpty.class.getName(), new NotEmptyParamGenerator());
         put(NotNull.class.getName(), new NotNullParamGenerator());
         put(EnumValue.class.getName(), new EnumValueParamGenerator());
         put(Min.class.getName(), new MinParamGenerator());

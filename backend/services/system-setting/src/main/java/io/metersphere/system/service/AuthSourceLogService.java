@@ -1,6 +1,7 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.HttpMethodConstants;
+
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -18,8 +19,6 @@ public class AuthSourceLogService {
     @Resource
     private AuthSourceMapper authSourceMapper;
 
-    private static final String PRE_URI = "/system/authsource";
-
     /**
      * 添加接口日志
      *
@@ -28,16 +27,14 @@ public class AuthSourceLogService {
      */
     public LogDTO addLog(AuthSourceRequest request) {
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.SYSTEM_PARAMETER_SETTING,
                 request.getName());
 
-        dto.setPath(PRE_URI + "/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
         dto.setModifiedValue(JSON.toJSONBytes(request));
         return dto;
     }
@@ -50,42 +47,38 @@ public class AuthSourceLogService {
      */
     public LogDTO updateLog(AuthSourceRequest request) {
         AuthSource authSource = authSourceMapper.selectByPrimaryKey(request.getId());
+        LogDTO dto = null;
         if (authSource != null) {
-            LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_PARAMETER_SETTING,
                     request.getName());
 
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(authSource));
-            return dto;
         }
-        return null;
+        return dto;
     }
 
     public LogDTO updateLog(String id) {
         AuthSource authSource = authSourceMapper.selectByPrimaryKey(id);
+        LogDTO dto = null;
         if (authSource != null) {
-            LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     id,
                     null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_PARAMETER_SETTING,
                     authSource.getName());
 
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(authSource));
-            return dto;
         }
-        return null;
+        return dto;
     }
 
     /**
@@ -100,16 +93,13 @@ public class AuthSourceLogService {
             return null;
         }
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 authSource.getId(),
                 null,
                 OperationLogType.DELETE.name(),
                 OperationLogModule.SYSTEM_PARAMETER_SETTING,
                 authSource.getName());
-
-        dto.setPath("/delete");
-        dto.setMethod(HttpMethodConstants.POST.name());
 
         dto.setOriginalValue(JSON.toJSONBytes(authSource));
         return dto;

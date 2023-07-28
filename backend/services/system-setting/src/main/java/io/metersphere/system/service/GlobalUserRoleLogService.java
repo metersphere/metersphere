@@ -1,6 +1,6 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
@@ -21,11 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class GlobalUserRoleLogService extends BaseUserRoleService {
+public class GlobalUserRoleLogService {
     @Resource
     private BaseUserRoleService baseUserRoleService;
-
-    private static final String PRE_URI = "/user/role/global";
 
     /**
      * 添加接口日志
@@ -35,16 +33,14 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
      */
     public LogDTO addLog(UserRoleUpdateRequest request) {
         LogDTO dto = new LogDTO(
-                "system",
-                "",
-                request.getId(),
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                null,
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.SYSTEM_PROJECT,
                 request.getName());
 
-        dto.setPath(PRE_URI + "/permission/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
@@ -55,42 +51,38 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
      */
     public LogDTO updateLog(UserRoleUpdateRequest request) {
         UserRole userRole = baseUserRoleService.get(request.getId());
+        LogDTO dto = null;
         if (userRole != null) {
-            LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     userRole.getId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_PROJECT,
                     userRole.getName());
 
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(userRole));
-            return dto;
         }
-        return null;
+        return dto;
     }
 
     public LogDTO updateLog(PermissionSettingUpdateRequest request) {
-        UserRole userRole = get(request.getUserRoleId());
+        UserRole userRole = baseUserRoleService.get(request.getUserRoleId());
+        LogDTO dto = null;
         if (userRole != null) {
-            LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+            dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     request.getUserRoleId(),
                     userRole.getCreateUser(),
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SYSTEM_PROJECT,
                     userRole.getName());
 
-            dto.setPath("/update");
-            dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(request));
-            return dto;
         }
-        return null;
+        return dto;
     }
 
 
@@ -106,16 +98,13 @@ public class GlobalUserRoleLogService extends BaseUserRoleService {
             return null;
         }
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 userRole.getId(),
                 null,
                 OperationLogType.DELETE.name(),
                 OperationLogModule.SYSTEM_PROJECT,
                 userRole.getName());
-
-        dto.setPath("/delete");
-        dto.setMethod(HttpMethodConstants.POST.name());
 
         dto.setOriginalValue(JSON.toJSONBytes(userRole));
         return dto;

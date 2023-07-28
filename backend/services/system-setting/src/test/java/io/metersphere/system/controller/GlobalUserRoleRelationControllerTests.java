@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -98,32 +99,32 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
 
         // @@请求成功
         GlobalUserRoleRelationUpdateRequest request = new GlobalUserRoleRelationUpdateRequest();
-        request.setUserId(ADMIN.getValue());
+        request.setUserIds(Arrays.asList(ADMIN.getValue()));
         request.setRoleId(nonInternalUserRole.getId());
         this.requestPostWithOk(DEFAULT_ADD, request);
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria()
                 .andRoleIdEqualTo(request.getRoleId())
-                .andUserIdEqualTo(request.getUserId());
+                .andUserIdEqualTo(ADMIN.getValue());
         Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleRelationMapper.selectByExample(example)));
         addUserRoleRelation = userRoleRelationMapper.selectByExample(example).get(0);
 
         // @@校验日志
-        checkLog(addUserRoleRelation.getId(), OperationLogType.ADD);
+        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.ADD);
 
         // @@重复添加校验
-        request.setUserId(ADMIN.getValue());
+        request.setUserIds(Arrays.asList(ADMIN.getValue()));
         request.setRoleId(ADMIN.getValue());
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), USER_ROLE_RELATION_EXIST);
 
         // @@操作非系统用户组异常
-        request.setUserId(ADMIN.getValue());
+        request.setUserIds(Arrays.asList(ADMIN.getValue()));
         request.setRoleId(ORG_ADMIN.getValue());
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), GLOBAL_USER_ROLE_RELATION_SYSTEM_PERMISSION);
 
         // @@操作非全局用户组异常
         UserRole nonGlobalUserRole = getNonGlobalUserRole();
-        request.setUserId(ADMIN.getValue());
+        request.setUserIds(Arrays.asList(ADMIN.getValue()));
         request.setRoleId(nonGlobalUserRole.getId());
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), GLOBAL_USER_ROLE_PERMISSION);
 
@@ -143,7 +144,7 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         Assertions.assertNull(userRoleRelation);
 
         // @@校验日志
-        checkLog(addUserRoleRelation.getId(), OperationLogType.DELETE);
+        checkLog(addUserRoleRelation.getRoleId(), OperationLogType.DELETE);
 
         // @@操作非系统级别用户组异常
         assertErrorCode(this.requestGet(DEFAULT_DELETE, getNonSystemUserRoleRelation().getId()),
