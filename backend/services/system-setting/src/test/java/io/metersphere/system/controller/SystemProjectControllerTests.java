@@ -100,6 +100,14 @@ public class SystemProjectControllerTests extends BaseTest {
                 .andExpect(status().isOk()).andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+    private void responseGet(String url, ResultMatcher resultMatcher) throws Exception {
+         mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -338,10 +346,7 @@ public class SystemProjectControllerTests extends BaseTest {
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
         project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
-        MvcResult mvcResult = this.responsePost(updateProject, project);
-        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        Assertions.assertNull(resultHolder.getData());
+        this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
     }
 
@@ -363,9 +368,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(10)
     public void testDeleteProjectError() throws Exception {
         String id = "1111";
-        MvcResult mvcResult = this.responseGet(deleteProject + id);
-        int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Assertions.assertTrue(count == 0);
+        this.responseGet(deleteProject + id, ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -386,9 +389,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(12)
     public void testRevokeProjectError() throws Exception {
         String id = "1111";
-        MvcResult mvcResult = this.responseGet(revokeProject + id);
-        int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Assertions.assertTrue(count == 0);
+        this.responseGet(revokeProject + id, ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -404,6 +405,7 @@ public class SystemProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds), true);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds));
+        this.requestPost(addProjectMember, projectAddMemberRequest, status().isOk());
     }
 
     @Test
