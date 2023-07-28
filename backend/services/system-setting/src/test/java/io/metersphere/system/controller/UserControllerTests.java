@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CodingUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
@@ -41,10 +42,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -90,15 +88,11 @@ public class UserControllerTests extends BaseTest {
     }
 
     //成功入库的用户保存内存中，其他用例会使用到
-    private void addUser2List(MvcResult mvcResult){
+    private void addUser2List(MvcResult mvcResult) throws Exception {
         UserBatchCreateDTO userMaintainRequest = UserTestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateDTO.class);
-        userMaintainRequest.getUserInfoList().forEach(item ->{
-            try {
-                checkLog(item.getId(), OperationLogType.ADD);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
+        for(UserCreateInfo item : userMaintainRequest.getUserInfoList()){
+            checkLog(item.getId(), OperationLogType.ADD);
+        }
         //返回值不为空
         Assertions.assertNotNull(userMaintainRequest);
         USER_LIST.addAll(userMaintainRequest.getUserInfoList());
@@ -138,6 +132,19 @@ public class UserControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
     }
+
+
+    private MvcResult responseByString(String url, String param,ResultMatcher resultMatcher) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(param)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher).andDo(print())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+    }
+
 
     private MvcResult responseFile(String url, MockMultipartFile file) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.multipart(url)
@@ -433,18 +440,21 @@ public class UserControllerTests extends BaseTest {
         user.setName("TEST-UPDATE");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkLog(response.getId(), OperationLogType.UPDATE);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改邮箱
         user.setEmail("songtianyang-test-email@12138.com");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkLog(response.getId(), OperationLogType.UPDATE);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改手机号
         user.setPhone("18511112222");
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkLog(response.getId(), OperationLogType.UPDATE);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改用户组(这里只改成用户成员权限)
@@ -453,10 +463,12 @@ public class UserControllerTests extends BaseTest {
         );
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
+        checkLog(response.getId(), OperationLogType.UPDATE);
         UserTestUtils.compareUserDTO(response, checkDTO);
         //更改用户组(把上面的情况添加别的权限)
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkLog(response.getId(), OperationLogType.UPDATE);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
         //用户信息复原
@@ -464,6 +476,7 @@ public class UserControllerTests extends BaseTest {
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserTestUtils.getUserUpdateDTO(user, defaultUserRoleList);
         response = UserTestUtils.parseObjectFromMvcResult(this.responsePost(UserTestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
+        checkLog(response.getId(), OperationLogType.UPDATE);
         checkDTO = this.getUserByEmail(user.getEmail());
         UserTestUtils.compareUserDTO(response, checkDTO);
     }
@@ -522,6 +535,10 @@ public class UserControllerTests extends BaseTest {
         }});
         userChangeEnableRequest.setEnable(false);
         this.requestPost(UserTestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
+        for(String item : userChangeEnableRequest.getUserIdList()){
+            checkLog(item, OperationLogType.UPDATE);
+        }
+
         UserDTO userDTO = this.getUserByEmail(userInfo.getEmail());
         Assertions.assertEquals(userDTO.getEnable(), userChangeEnableRequest.isEnable());
     }
@@ -556,10 +573,12 @@ public class UserControllerTests extends BaseTest {
         ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
-        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        List<UserDTO> userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        for (UserDTO item : userDTOList){
+            checkLog(item.getId(), OperationLogType.ADD);
+        }
 
-
-        //导入空文件
+        //导入空文件. 应当导入成功的数据为0
         filePath = this.getClass().getClassLoader().getResource("file/user_import_success_empty.xlsx").getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
@@ -567,15 +586,14 @@ public class UserControllerTests extends BaseTest {
         errorDataIndex = new int[]{};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
-        //文件内没有一条合格数据
+        //文件内没有一条合格数据  应当导入成功的数据为0
         filePath = this.getClass().getClassLoader().getResource("file/user_import_error_all.xlsx").getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
-        importSuccessData = 0;
         errorDataIndex = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
-        //邮箱和数据库里的重复
+        //邮箱和数据库里的重复  应当导入成功的数据为8
         filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_db.xlsx").getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
@@ -583,39 +601,84 @@ public class UserControllerTests extends BaseTest {
         importSuccessData = 8;
         errorDataIndex = new int[]{1, 7};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
-        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        for (UserDTO item : userDTOList){
+            checkLog(item.getId(), OperationLogType.ADD);
+        }
 
-        //文件内邮箱重复
+        //文件内邮箱重复  应当导入成功的数据为8
         filePath = this.getClass().getClassLoader().getResource("file/user_import_error_email_repeat_in_file.xlsx").getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
-        importSuccessData = 8;
         errorDataIndex = new int[]{9, 10};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
-        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        for (UserDTO item : userDTOList){
+            checkLog(item.getId(), OperationLogType.ADD);
+        }
 
-        //文件不符合规范
-        filePath = this.getClass().getClassLoader().getResource("file/abcde.gif").getPath();
+        //文件不符合规范 应当导入成功的数据为0
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/abcde.gif")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
         importSuccessData = 0;
         errorDataIndex = new int[]{};
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
-        //测试03版excel正常导入
-        filePath = this.getClass().getClassLoader().getResource("file/user_import_success_03.xls").getPath();
+        //测试03版excel正常导入 应当导入成功的数据为10
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_success_03.xls")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserTestUtils.getFileBytes(filePath));
         userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
         response = UserTestUtils.parseObjectFromMvcResult(this.responseFile(UserTestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
         importSuccessData = 10;//应该导入成功的数据数量
         errorDataIndex = new int[]{};//出错数据的行数
         UserTestUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
-        this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        for (UserDTO item : userDTOList){
+            checkLog(item.getId(), OperationLogType.ADD);
+        }
+    }
+
+
+    @Test
+    @Order(8)
+    public void testUserResetPasswordSuccess() throws Exception {
+        this.checkUserList();
+        String userId = USER_LIST.get(0).getId();
+        String userEmail = USER_LIST.get(0).getEmail();
+        //重置普通用户密码
+        this.resetPasswordAndCheck(userId,userEmail);
+        this.checkLog(userId, OperationLogType.UPDATE);
+        //重置admin的密码
+        this.resetPasswordAndCheck("admin","metersphere");
+        this.checkLog(userId, OperationLogType.UPDATE);
+    }
+
+    private void resetPasswordAndCheck(String userId,String userEmail) throws  Exception{
+        User user = new User();
+        user.setId(userId);
+        user.setPassword("I can't say any dirty words");
+        Assertions.assertEquals(1, userMapper.updateByPrimaryKeySelective(user));
+
+        //调用重置密码的接口
+        this.responseByString(UserTestUtils.URL_USER_RESET_PASSWORD, userId,status().isOk());
+        //检查数据库
+        UserExample example = new UserExample();
+        example.createCriteria().andIdEqualTo(userId).andPasswordEqualTo(CodingUtil.md5(userEmail));
+        Assertions.assertEquals(1, userMapper.countByExample(example));
+        checkLog(userId, OperationLogType.UPDATE);
     }
 
     @Test
     @Order(8)
+    public void testUserResetPasswordError() throws Exception {
+        //用户不存在
+        this.responseByString(UserTestUtils.URL_USER_RESET_PASSWORD, "none user",ERROR_REQUEST_MATCHER);
+    }
+
+    @Test
+    @Order(9)
     public void testUserDeleteSuccess() throws Exception {
         this.checkUserList();
         //删除已存的所有用户
@@ -636,8 +699,9 @@ public class UserControllerTests extends BaseTest {
         DELETED_USER_ID_LIST.addAll(request.getUserIdList());
     }
 
+    //删除失败的方法要放在删除成功方法后面执行
     @Test
-    @Order(9)
+    @Order(10)
     public void testUserDeleteError() throws Exception {
         this.checkUserDeleted();
         //参数为空
@@ -651,9 +715,15 @@ public class UserControllerTests extends BaseTest {
         this.requestPost(UserTestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
     }
 
-    public void checkImportUserInDb(ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile) throws Exception {
+
+    public List<UserDTO> checkImportUserInDb(ExcelParseDTO<UserExcelRowDTO> userImportReportDTOByFile) throws Exception {
+        List<UserDTO> returnList = new ArrayList<>();
         for (UserExcelRowDTO item : userImportReportDTOByFile.getDataList()) {
-            Assertions.assertNotNull(this.getUserByEmail(item.getEmail()));
+            UserDTO userDTO = this.getUserByEmail(item.getEmail());
+            Assertions.assertNotNull(userDTO);
+            returnList.add(userDTO);
         }
+        return returnList;
     }
+
 }

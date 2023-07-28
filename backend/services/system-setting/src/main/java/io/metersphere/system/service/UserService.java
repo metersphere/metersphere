@@ -31,6 +31,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -306,6 +307,25 @@ public class UserService {
         return null;
     }
 
+    public LogDTO resetPasswordLog(String userId){
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user != null) {
+            LogDTO dto = new LogDTO(
+                    "system",
+                    "",
+                    userId,
+                    null,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.SYSTEM_USER,
+                    user.getName());
+            dto.setPath("/reset/password");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(user));
+            return dto;
+        }
+        return null;
+    }
+
     public List<LogDTO> deleteLog(UserChangeEnableRequest request) {
         List<LogDTO> logDTOList = new ArrayList<>();
         request.getUserIdList().forEach(item -> {
@@ -334,5 +354,22 @@ public class UserService {
         UserExample example = new UserExample();
         example.setOrderByClause("update_time desc");
         return userMapper.selectByExample(example);
+    }
+
+    public boolean resetPassword(String userId,String operator) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        if(user == null){
+            throw new MSException(Translator.get("user.not.exist"));
+        }
+        User updateModel = new User();
+        updateModel.setId(userId);
+        if(StringUtils.equalsIgnoreCase("admin",user.getId())){
+            updateModel.setPassword(CodingUtil.md5("metersphere"));
+        }else {
+            updateModel.setPassword(CodingUtil.md5(user.getEmail()));
+        }
+        updateModel.setUpdateTime(System.currentTimeMillis());
+        updateModel.setUpdateUser(operator);
+        return userMapper.updateByPrimaryKeySelective(updateModel) > 0;
     }
 }

@@ -35,18 +35,20 @@ public class UserTestUtils {
     public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
     public static final String URL_USER_IMPORT = "/system/user/import";
     public static final String URL_USER_DELETE = "/system/user/delete";
+    public static final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
 
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
+        String returnData = "";
         try {
-            String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-            ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-            //返回请求正常
-            Assertions.assertNotNull(resultHolder);
-            return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
+            returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+
         } catch (Exception ignore) {
         }
-        return null;
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        //返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
     }
 
     public static UserBatchCreateDTO getUserCreateDTO(

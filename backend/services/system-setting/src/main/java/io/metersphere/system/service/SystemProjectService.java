@@ -182,6 +182,7 @@ public class SystemProjectService {
 
     public void addProjectMember(ProjectAddMemberRequest request, String createUser, boolean isAdmin, String path, String type,
                                  String method, String content) {
+
         List<LogDTO> logDTOList = new ArrayList<>();
         //TODO  添加项目成员需要检查配额  这个需要等后续定下来补全逻辑
         request.getUserIds().forEach(userId -> {
@@ -216,7 +217,6 @@ public class SystemProjectService {
             }
         });
         operationLogService.batchAdd(logDTOList);
-
     }
 
     public int removeProjectMember(String projectId, String userId) {
