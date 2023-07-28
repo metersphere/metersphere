@@ -1,5 +1,6 @@
 package io.metersphere.sdk.mapper;
 
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.system.domain.User;
 import org.apache.ibatis.annotations.Param;
@@ -25,7 +26,6 @@ public interface BaseUserMapper {
 
     List<String> selectUnDeletedUserIdByIdList(@Param("idList") List<String> userIdList);
 
-    List<User> selectUserByIdList(List<String> userIds);
-
     long deleteUser(String id);
+    List<OptionDTO> selectUserOptionByIds(List<String> userIds);
 }

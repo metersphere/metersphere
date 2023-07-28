@@ -1,28 +1,36 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
-import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author jianxing
  * @date : 2023-6-12
  */
 @Service
-public class GlobalUserRoleRelationLogService extends BaseUserRoleRelationService {
+public class GlobalUserRoleRelationLogService {
 
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
-
-    private static final String PRE_URI = "/user/role/relation/global";
+    @Resource
+    private BaseUserMapper baseUserMapper;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     /**
      * 添加接口日志
@@ -31,18 +39,19 @@ public class GlobalUserRoleRelationLogService extends BaseUserRoleRelationServic
      * @return
      */
     public LogDTO addLog(GlobalUserRoleRelationUpdateRequest request) {
+        UserRole userRole = userRoleMapper.selectByPrimaryKey(request.getRoleId());
+        List<String> userIds = request.getUserIds();
+        List<OptionDTO> users = baseUserMapper.selectUserOptionByIds(userIds);
         LogDTO dto = new LogDTO(
-                "system",
-                "",
-                null,
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                userRole.getId(),
                 null,
                 OperationLogType.ADD.name(),
                 OperationLogModule.SYSTEM_USER_ROLE_RELATION,
-                request.getUserId());
+                userRole.getName());
 
-        dto.setPath(PRE_URI + "/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(request));
+        dto.setOriginalValue(JSON.toJSONBytes(users));
         return dto;
     }
 
@@ -54,22 +63,22 @@ public class GlobalUserRoleRelationLogService extends BaseUserRoleRelationServic
      */
     public LogDTO deleteLog(String id) {
         UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
-        if (userRoleRelation != null) {
-            LogDTO dto = new LogDTO(
-                    "system",
-                    "",
-                    id,
-                    userRoleRelation.getCreateUser(),
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.SYSTEM_USER_ROLE_RELATION,
-                    userRoleRelation.getUserId());
+        UserRole userRole = userRoleMapper.selectByPrimaryKey(userRoleRelation.getRoleId());
+        LogDTO dto = new LogDTO(
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                userRole.getId(),
+                null,
+                OperationLogType.DELETE.name(),
+                OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                userRole.getName());
 
-            dto.setPath("/delete");
-            dto.setMethod(HttpMethodConstants.POST.name());
-
-            dto.setOriginalValue(JSON.toJSONBytes(userRoleRelation));
-            return dto;
-        }
-        return null;
+        UserDTO userDTO = baseUserMapper.selectById(userRoleRelation.getUserId());
+        OptionDTO optionDTO = new OptionDTO();
+        optionDTO.setId(userDTO.getId());
+        optionDTO.setName(userDTO.getName());
+        // 记录用户id和name
+        dto.setOriginalValue(JSON.toJSONBytes(optionDTO));
+        return dto;
     }
 }

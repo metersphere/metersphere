@@ -1,12 +1,13 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
+import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.dto.request.GlobalUserRoleRelationQueryRequest;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
-import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +19,6 @@ import java.util.List;
  */
 @Service
 public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
-
-    @Resource
-    private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtUserRoleRelationMapper extUserRoleRelationMapper;
     @Resource
@@ -33,13 +31,17 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
         return extUserRoleRelationMapper.listGlobal(request);
     }
 
-    @Override
-    public UserRoleRelation add(UserRoleRelation userRoleRelation) {
-        UserRole userRole = globalUserRoleService.get(userRoleRelation.getRoleId());
+    public void add(GlobalUserRoleRelationUpdateRequest request) {
+        UserRole userRole = globalUserRoleService.get(request.getRoleId());
         globalUserRoleService.checkSystemUserGroup(userRole);
         globalUserRoleService.checkGlobalUserRole(userRole);
-        userRoleRelation.setSourceId(GlobalUserRoleService.SYSTEM_TYPE);
-        return super.add(userRoleRelation);
+        request.getUserIds().forEach(userId -> {
+            UserRoleRelation userRoleRelation = new UserRoleRelation();
+            BeanUtils.copyBean(userRoleRelation, request);
+            userRoleRelation.setUserId(userId);
+            userRoleRelation.setSourceId(GlobalUserRoleService.SYSTEM_TYPE);
+            super.add(userRoleRelation);
+        });
     }
 
     @Override

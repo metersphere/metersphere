@@ -71,7 +71,7 @@
         </foreach>
     </select>
 
-    <select id="selectUserByIdList" resultType="io.metersphere.system.domain.User">
+    <select id="selectUserOptionByIds" resultType="io.metersphere.sdk.dto.OptionDTO">
         SELECT id, name
         FROM user
         WHERE id IN

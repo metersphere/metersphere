@@ -1,6 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
@@ -21,8 +20,6 @@ public class OrganizationUserRoleLogService {
     @Resource
     private UserRoleMapper userRoleMapper;
 
-    private static final String PRE_URI = "/user/role/organization";
-
     /**
      * 新增组织-用户组
      * @param request 接口请求参数
@@ -37,8 +34,7 @@ public class OrganizationUserRoleLogService {
                 OperationLogType.ADD.name(),
                 OperationLogModule.ORGANIZATION_USER_ROLE,
                 request.getName());
-        dto.setPath(PRE_URI + "/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
+
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
@@ -57,8 +53,7 @@ public class OrganizationUserRoleLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.ORGANIZATION_USER_ROLE,
                 request.getName());
-        dto.setPath(PRE_URI + "/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
+
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
@@ -78,8 +73,7 @@ public class OrganizationUserRoleLogService {
                 OperationLogType.DELETE.name(),
                 OperationLogModule.ORGANIZATION_USER_ROLE,
                 userRole.getName());
-        dto.setPath(PRE_URI + "/delete");
-        dto.setMethod(HttpMethodConstants.GET.name());
+
         dto.setOriginalValue(JSON.toJSONBytes(userRole));
         return dto;
     }
@@ -92,8 +86,6 @@ public class OrganizationUserRoleLogService {
     public LogDTO updatePermissionSettingLog(PermissionSettingUpdateRequest request) {
         LogDTO dto = getLog(request.getUserRoleId());
         dto.setType(OperationLogType.UPDATE.name());
-        dto.setPath(PRE_URI + "/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }
@@ -106,8 +98,6 @@ public class OrganizationUserRoleLogService {
     public LogDTO editMemberLog(OrganizationUserRoleMemberEditRequest request) {
         LogDTO dto = getLog(request.getUserRoleId());
         dto.setType(OperationLogType.UPDATE.name());
-        dto.setPath(PRE_URI + "/update");
-        dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
     }

@@ -8,6 +8,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SessionUtils;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,12 +23,12 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -223,6 +224,8 @@ public class OperationLogAspect {
             logDTO.setCreateUser(StringUtils.defaultIfBlank(logDTO.getCreateUser(), localUser.get()));
             logDTO.setOrganizationId(StringUtils.defaultIfBlank(logDTO.getOrganizationId(), localOrganizationId.get()));
             logDTO.setProjectId(StringUtils.defaultIfBlank(logDTO.getProjectId(), localProjectId.get()));
+            logDTO.setMethod(getMethod());
+            logDTO.setPath(getPath());
         });
 
         // 单条存储
@@ -273,4 +276,23 @@ public class OperationLogAspect {
         }
     }
 
+
+    protected String getPath() {
+        HttpServletRequest httpRequest = getHttpRequest();
+        String path =  httpRequest == null ? StringUtils.EMPTY : httpRequest.getRequestURI();
+        return path.length() > 255 ? path.substring(0, 255) : path;
+    }
+
+    protected String getMethod() {
+        HttpServletRequest httpRequest = getHttpRequest();
+        return httpRequest == null ? StringUtils.EMPTY : httpRequest.getMethod();
+    }
+
+    private HttpServletRequest getHttpRequest() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes == null) {
+            return null;
+        }
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    }
 }
