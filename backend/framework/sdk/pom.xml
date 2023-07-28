@@ -27,18 +27,19 @@
         <!-- 基础包 -->
         <dependency>
             <groupId>io.metersphere</groupId>
-            <artifactId>metersphere-plugin-sdk</artifactId>
+            <artifactId>metersphere-api-plugin-sdk</artifactId>
             <version>${revision}</version>
             <exclusions>
-                <exclusion>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                    <groupId>org.apache.logging.log4j</groupId>
-                </exclusion>
                 <exclusion>
                     <artifactId>ApacheJMeter_core</artifactId>
                     <groupId>org.apache.jmeter</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-platform-plugin-sdk</artifactId>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.core5</groupId>

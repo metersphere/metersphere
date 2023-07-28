@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.jmeter.processors;
 
-import io.metersphere.plugin.annotation.PluginSubType;
+import io.metersphere.plugin.api.annotation.PluginSubType;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -6,36 +6,26 @@
 
     <parent>
         <groupId>io.metersphere</groupId>
-        <artifactId>framework</artifactId>
+        <artifactId>plugin</artifactId>
         <version>${revision}</version>
-
     </parent>
 
     <groupId>io.metersphere</groupId>
-    <artifactId>plugin</artifactId>
+    <artifactId>metersphere-plugin-sdk</artifactId>
     <version>${revision}</version>
-    <packaging>pom</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <modules>
-        <module>metersphere-plugin-sdk</module>
-        <module>metersphere-api-plugin-sdk</module>
-        <module>metersphere-platform-plugin-sdk</module>
-    </modules>
-
     <dependencies>
         <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_core</artifactId>
-            <version>${jmeter.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>jorphan</artifactId>
-            <version>${jmeter.version}</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -44,6 +34,11 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

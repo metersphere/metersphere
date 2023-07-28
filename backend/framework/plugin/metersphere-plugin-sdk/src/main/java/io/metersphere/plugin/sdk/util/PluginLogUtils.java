@@ -1,4 +1,4 @@
-package io.metersphere.plugin.util;
+package io.metersphere.plugin.sdk.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,7 +2,7 @@ package io.metersphere.plugin.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.metersphere.plugin.util.PluginLogUtils;
+import io.metersphere.plugin.sdk.util.PluginLogUtils;
 import lombok.Data;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.ListedHashTree;
