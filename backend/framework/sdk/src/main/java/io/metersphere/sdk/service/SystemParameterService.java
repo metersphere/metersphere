@@ -8,6 +8,7 @@ import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.mapper.BaseSystemParameterMapper;
 import io.metersphere.sdk.notice.sender.impl.MailNoticeSender;
 import io.metersphere.sdk.util.EncryptUtils;
 import io.metersphere.sdk.util.JSON;
@@ -39,6 +40,9 @@ public class SystemParameterService {
     SystemParameterMapper systemParameterMapper;
     @Resource
     MailNoticeSender mailNoticeSender;
+
+    @Resource
+    BaseSystemParameterMapper baseSystemParameterMapper;
 
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
@@ -260,5 +264,9 @@ public class SystemParameterService {
             example.clear();
         });
         return originalValue;
+    }
+
+    public void saveBaseUrl(String baseUrl) {
+        baseSystemParameterMapper.saveBaseUrl(baseUrl);
     }
 }

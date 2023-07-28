@@ -12,6 +12,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -41,11 +43,21 @@ public class SystemParameterControllerTests extends BaseTest {
 
     public static final String EMAIL_INFO_TEST_CONNECT_URL = "/system/parameter/test/email";
 
+    public static final String SAVE_BASE_URL = "/system/parameter/save/base-url";
+    public static final String BASE_URL = "http://www.baidu.com";
+
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
 
     @Test
     @Order(1)
+    public void testSaveBaseUrl() throws Exception {
+        this.requestGet(SAVE_BASE_URL + "?baseUrl=" + BASE_URL);
+    }
+
+
+    @Test
+    @Order(2)
     public void testSaveBaseInfo() throws Exception {
 
         List<SystemParameter> systemParameters = new ArrayList<>() {{
