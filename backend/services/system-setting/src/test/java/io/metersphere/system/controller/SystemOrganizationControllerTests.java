@@ -25,10 +25,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -210,7 +207,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testAddOrganizationMemberSuccess() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "default-admin"));
+        organizationMemberRequest.setMemberIds(List.of("admin", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -243,7 +240,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testAddOrganizationMemberSuccessWithRepeatUser() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
-        organizationMemberRequest.setMemberIds(Arrays.asList("admin", "admin","default-admin"));
+        organizationMemberRequest.setMemberIds(List.of("admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();

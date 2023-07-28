@@ -8,10 +8,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OrganizationUserRoleEditRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;

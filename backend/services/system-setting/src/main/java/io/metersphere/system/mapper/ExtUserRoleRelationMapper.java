@@ -13,4 +13,6 @@ public interface ExtUserRoleRelationMapper {
     List<UserRoleRelation> selectGlobalRoleByUserId(String userId);
 
     List<UserRoleRelationUserDTO> listGlobal(@Param("request")  GlobalUserRoleRelationQueryRequest request);
+
+    void batchInsert(@Param("list") List<UserRoleRelation> list);
 }

@@ -16,6 +16,6 @@
         select u.* from user_role_relation urr left join user u on urr.user_id = u.id
         where urr.source_id = #{request.organizationId}
           and urr.role_id = #{request.userRoleId}
-          and u.name like concat('%',#{request.userName},'%')
+          and u.name like concat('%',#{request.userKeyWord},'%')
     </select>
 </mapper>

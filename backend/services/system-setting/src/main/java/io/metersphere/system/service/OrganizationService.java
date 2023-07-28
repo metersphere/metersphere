@@ -19,10 +19,7 @@ import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.OrganizationProjectOptionsDto;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.*;
-import io.metersphere.system.request.OrgMemberExtendProjectRequest;
-import io.metersphere.system.request.OrganizationMemberExtendRequest;
-import io.metersphere.system.request.OrganizationMemberRequest;
-import io.metersphere.system.request.OrganizationRequest;
+import io.metersphere.system.request.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -47,13 +44,15 @@ import java.util.stream.Collectors;
 public class OrganizationService {
 
     @Resource
-    OrganizationMapper organizationMapper;
+    private OrganizationMapper organizationMapper;
     @Resource
-    ExtOrganizationMapper extOrganizationMapper;
+    private ExtOrganizationMapper extOrganizationMapper;
     @Resource
-    UserRoleRelationMapper userRoleRelationMapper;
+    private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
-    UserMapper userMapper;
+    private ExtUserRoleRelationMapper extUserRoleRelationMapper;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -86,30 +85,40 @@ public class OrganizationService {
         return extOrganizationMapper.listMember(request);
     }
 
-
     public void addMemberBySystem(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
-        String organizationId = organizationMemberRequest.getOrganizationId();
-        checkOrgExist(organizationId);
-        Map<String, User> userMap = checkUserExist(organizationMemberRequest.getMemberIds());
-        for (String userId : organizationMemberRequest.getMemberIds()) {
-            if (userMap.get(userId) == null) {
-                throw new MSException("id:" + userId + Translator.get("user.not.exist"));
+        OrganizationMemberBatchRequest batchRequest = new OrganizationMemberBatchRequest();
+        batchRequest.setOrganizationIds(List.of(organizationMemberRequest.getOrganizationId()));
+        batchRequest.setMemberIds(organizationMemberRequest.getMemberIds());
+        addMemberBySystem(batchRequest, createUserId);
+    }
+
+    public void addMemberBySystem(OrganizationMemberBatchRequest batchRequest, String createUserId) {
+        checkOrgExist(batchRequest.getOrganizationIds());
+        Map<String, User> userMap = checkUserExist(batchRequest.getMemberIds());
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
+        batchRequest.getOrganizationIds().forEach(organizationId -> {
+            for (String userId : batchRequest.getMemberIds()) {
+                if (userMap.get(userId) == null) {
+                    throw new MSException("id:" + userId + Translator.get("user.not.exist"));
+                }
+                //组织用户成员关系已存在, 不再重复添加
+                UserRoleRelationExample example = new UserRoleRelationExample();
+                example.createCriteria().andSourceIdEqualTo(organizationId).andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+                if (userRoleRelationMapper.countByExample(example) > 0) {
+                    continue;
+                }
+                UserRoleRelation userRoleRelation = new UserRoleRelation();
+                userRoleRelation.setId(UUID.randomUUID().toString());
+                userRoleRelation.setUserId(userId);
+                userRoleRelation.setSourceId(organizationId);
+                userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
+                userRoleRelation.setCreateTime(System.currentTimeMillis());
+                userRoleRelation.setCreateUser(createUserId);
+                userRoleRelations.add(userRoleRelation);
             }
-            //过滤已存在的关系
-            UserRoleRelationExample example = new UserRoleRelationExample();
-            example.createCriteria().andSourceIdEqualTo(organizationId).andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
-            List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(userRoleRelations)) {
-                continue;
-            }
-            UserRoleRelation userRoleRelation = new UserRoleRelation();
-            userRoleRelation.setId(UUID.randomUUID().toString());
-            userRoleRelation.setUserId(userId);
-            userRoleRelation.setSourceId(organizationId);
-            userRoleRelation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
-            userRoleRelation.setCreateTime(System.currentTimeMillis());
-            userRoleRelation.setCreateUser(createUserId);
-            userRoleRelationMapper.insert(userRoleRelation);
+        });
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            extUserRoleRelationMapper.batchInsert(userRoleRelations);
         }
     }
 
@@ -173,7 +182,7 @@ public class OrganizationService {
     }
 
     public void removeMember(String organizationId, String userId) {
-        checkOrgExist(organizationId);
+        checkOrgExist(List.of(organizationId));
         //删除组织下项目与成员的关系
         List<String> projectIds = getProjectIds(organizationId);
         if (CollectionUtils.isNotEmpty(projectIds)) {
@@ -203,31 +212,10 @@ public class OrganizationService {
     }
 
     public void addMemberByOrg(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId) {
-        checkOrgExist(organizationMemberExtendRequest.getOrganizationId());
+        checkOrgExist(List.of(organizationMemberExtendRequest.getOrganizationId()));
         Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds());
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, createUserId, userMap, userRoleMap, true);
-    }
-
-    private Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds) {
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andIdIn(userRoleIds).andTypeEqualTo("ORGANIZATION");
-        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-        if (CollectionUtils.isEmpty(userRoles)) {
-            throw new MSException(Translator.get("user_role_not_exist"));
-        }
-        return userRoles.stream().collect(Collectors.toMap(UserRole::getId, user -> user));
-
-    }
-
-    private Map<String, User> checkUserExist(List<String> memberIds) {
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andIdIn(memberIds);
-        List<User> users = userMapper.selectByExample(userExample);
-        if (CollectionUtils.isEmpty(users)) {
-            throw new MSException(Translator.get("user.not.exist"));
-        }
-        return users.stream().collect(Collectors.toMap(User::getId, user -> user));
     }
 
     private void setRelationByMemberAndGroupIds(OrganizationMemberExtendRequest organizationMemberExtendRequest, String createUserId, Map<String, User> userMap, Map<String, UserRole> userRoleMap, boolean add) {
@@ -285,23 +273,16 @@ public class OrganizationService {
 
     public void updateMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
-        checkOrgExist(organizationId);
+        checkOrgExist(List.of(organizationId));
         Map<String, User> userMap = checkUserExist(organizationMemberExtendRequest.getMemberIds());
         Map<String, UserRole> userRoleMap = checkUseRoleExist(organizationMemberExtendRequest.getUserRoleIds());
         //在新增组织成员与用户组和组织的关系
         setRelationByMemberAndGroupIds(organizationMemberExtendRequest, userId, userMap, userRoleMap, false);
     }
 
-    private void checkOrgExist(String organizationId) {
-        Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
-        if (organization == null) {
-            throw new MSException(Translator.get("organization_not_exist"));
-        }
-    }
-
     public void addMemberToProject(OrgMemberExtendProjectRequest orgMemberExtendProjectRequest, String userId) {
         String requestOrganizationId = orgMemberExtendProjectRequest.getOrganizationId();
-        checkOrgExist(requestOrganizationId);
+        checkOrgExist(List.of(requestOrganizationId));
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         UserRoleRelationMapper userRoleRelationMapper = sqlSession.getMapper(UserRoleRelationMapper.class);
         List<LogDTO> logDTOList = new ArrayList<>();
@@ -340,8 +321,7 @@ public class OrganizationService {
 
     /**
      * 删除组织用户日志
-     *
-     * @return
+     * @return 日志内容
      */
     public List<LogDTO> batchDelLog(String organizationId, String userId) {
         List<String> projectIds = getProjectIds(organizationId);
@@ -405,7 +385,7 @@ public class OrganizationService {
         List<String> memberIds = organizationMemberExtendRequest.getMemberIds();
 
         //校验组织是否存在
-        checkOrgExist(organizationId);
+        checkOrgExist(List.of(organizationId));
         //校验成员是否是当前组织的成员
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdIn(memberIds).andSourceIdEqualTo(organizationId);
@@ -443,5 +423,34 @@ public class OrganizationService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         //写入操作日志
         operationLogService.batchAdd(logDTOList);
+    }
+
+    private void checkOrgExist(List<String> organizationIds) {
+        OrganizationExample example = new OrganizationExample();
+        example.createCriteria().andIdIn(organizationIds);
+        if (organizationMapper.countByExample(example) < organizationIds.size()) {
+            throw new MSException(Translator.get("organization_not_exist"));
+        }
+    }
+
+    private Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds) {
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andIdIn(userRoleIds).andTypeEqualTo("ORGANIZATION");
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        if (CollectionUtils.isEmpty(userRoles)) {
+            throw new MSException(Translator.get("user_role_not_exist"));
+        }
+        return userRoles.stream().collect(Collectors.toMap(UserRole::getId, user -> user));
+
+    }
+
+    private Map<String, User> checkUserExist(List<String> memberIds) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andIdIn(memberIds);
+        List<User> users = userMapper.selectByExample(userExample);
+        if (CollectionUtils.isEmpty(users)) {
+            throw new MSException(Translator.get("user.not.exist"));
+        }
+        return users.stream().collect(Collectors.toMap(User::getId, user -> user));
     }
 }

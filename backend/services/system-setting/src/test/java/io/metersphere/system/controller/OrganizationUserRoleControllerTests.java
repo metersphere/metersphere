@@ -267,7 +267,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberRequest request = new OrganizationUserRoleMemberRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setUserName("admin");
+        request.setKeyword("admin");
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.responsePost(ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
@@ -287,8 +287,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         List<User> userList = JSON.parseArray(JSON.toJSONString(pageData.getList()), User.class);
         if(CollectionUtils.isNotEmpty(userList)) {
             User user = userList.get(0);
-            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getUserName())
-                    || StringUtils.contains(user.getId(), request.getUserName()));
+            Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
+                    || StringUtils.contains(user.getId(), request.getKeyword()));
         }
     }
 
@@ -317,7 +317,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setUserId("admin");
+        request.setUserIds(List.of("admin"));
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
     }
 
@@ -326,13 +326,13 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public void testOrganizationUserRoleAddMemberError() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
-        request.setUserId("admin-x");
+        request.setUserIds(List.of("admin-x"));
         request.setUserRoleId("default-org-role-id-3");
         // 用户不存在
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().is5xxServerError());
         request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
-        request.setUserId("admin");
+        request.setUserIds(List.of("admin"));
         request.setUserRoleId("default-org-role-id-x");
         // 用户组不存在
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().is5xxServerError());
@@ -344,7 +344,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
         request.setUserRoleId("default-org-role-id-3");
-        request.setUserId("admin");
+        request.setUserIds(List.of("admin"));
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
     }
 
@@ -353,13 +353,13 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public void testOrganizationUserRoleRemoveMemberError() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
-        request.setUserId("admin-x");
+        request.setUserIds(List.of("admin-x"));
         request.setUserRoleId("default-org-role-id-3");
         // 用户不存在
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
         request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
-        request.setUserId("admin");
+        request.setUserIds(List.of("admin"));
         request.setUserRoleId("default-org-role-id-x");
         // 用户组不存在
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());

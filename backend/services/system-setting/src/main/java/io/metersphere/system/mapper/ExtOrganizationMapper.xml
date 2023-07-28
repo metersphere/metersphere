@@ -38,9 +38,7 @@
                     urr.source_id = #{request.organizationId}
                 </if>
                 <if test="request.keyword != null">
-                    and (u.name like CONCAT('%', #{request.keyword},'%')
-                    or u.email like CONCAT('%', #{request.keyword},'%')
-                    or u.phone like CONCAT('%', #{request.keyword},'%'))
+                    and u.name like concat('%', #{request.keyword},'%')
                 </if>
             </where>
             order by u.update_time desc

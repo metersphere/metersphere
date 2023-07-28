@@ -85,21 +85,24 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     }
 
     public void addMember(OrganizationUserRoleMemberEditRequest request, String createUserId) {
-        checkMemberParam(request.getUserId(), request.getUserRoleId());
-        UserRoleRelation relation = new UserRoleRelation();
-        relation.setId(UUID.randomUUID().toString());
-        relation.setUserId(request.getUserId());
-        relation.setRoleId(request.getUserRoleId());
-        relation.setSourceId(request.getOrganizationId());
-        relation.setCreateTime(System.currentTimeMillis());
-        relation.setCreateUser(createUserId);
-        userRoleRelationMapper.insert(relation);
+        request.getUserIds().forEach(userId -> {
+            checkMemberParam(userId, request.getUserRoleId());
+            UserRoleRelation relation = new UserRoleRelation();
+            relation.setId(UUID.randomUUID().toString());
+            relation.setUserId(userId);
+            relation.setRoleId(request.getUserRoleId());
+            relation.setSourceId(request.getOrganizationId());
+            relation.setCreateTime(System.currentTimeMillis());
+            relation.setCreateUser(createUserId);
+            userRoleRelationMapper.insert(relation);
+        });
     }
 
     public void removeMember(OrganizationUserRoleMemberEditRequest request) {
-        checkMemberParam(request.getUserId(), request.getUserRoleId());
+        String removeUserId = request.getUserIds().get(0);
+        checkMemberParam(removeUserId, request.getUserRoleId());
         UserRoleRelationExample example = new UserRoleRelationExample();
-        example.createCriteria().andUserIdEqualTo(request.getUserId())
+        example.createCriteria().andUserIdEqualTo(removeUserId)
                 .andRoleIdEqualTo(request.getUserRoleId())
                 .andSourceIdEqualTo(request.getOrganizationId());
         userRoleRelationMapper.deleteByExample(example);
