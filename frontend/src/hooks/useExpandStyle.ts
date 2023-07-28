@@ -1,18 +1,9 @@
-import { nextTick, reactive } from 'vue';
-// 自定义展开行:如果当前行下边无内容，隐藏表格折叠按钮
-const useButtonStyle = (wrapperName?: string, className?: string[]) => {
+import { nextTick, reactive, onMounted, onUnmounted } from 'vue';
+// 自定义展开行:表格的高度计算和展开折叠图标颜色控制
+const useExpandStyle = (wrapperName?: string, className?: string[]) => {
   const cssHeight = reactive({
     height: '460px',
   });
-  // 隐藏按钮以及图标
-  const hiddenButton = () => {
-    nextTick(() => {
-      const emptyBtns = document.querySelectorAll('.empty-button');
-      emptyBtns.forEach((node) => {
-        (node.parentNode as HTMLElement).style.display = 'none';
-      });
-    });
-  };
   // 设置折叠展开后图标的颜色
   const expandOrcollapseStyle = () => {
     nextTick(() => {
@@ -31,7 +22,6 @@ const useButtonStyle = (wrapperName?: string, className?: string[]) => {
     const pageContent = document.querySelector(boxElement);
     return pageContent ? pageContent.getBoundingClientRect().height : 0;
   };
-
   // 计算每一个元素的高度
   const getDomHeightWithMargin = (selector: string) => {
     const dom = document.querySelector(selector) as HTMLElement;
@@ -40,7 +30,6 @@ const useButtonStyle = (wrapperName?: string, className?: string[]) => {
     const marginBottom = parseFloat(computedStyle.marginBottom);
     return dom ? dom.getBoundingClientRect().height + marginTop + marginBottom : 460;
   };
-
   // 计算最后的高度
   const countHeight = () => {
     const contentHeight = getPageContentHeight(wrapperName as string);
@@ -50,16 +39,21 @@ const useButtonStyle = (wrapperName?: string, className?: string[]) => {
       }, 0) || 0;
     return `${contentHeight - excludeTotalHeight - 70}px`;
   };
-  window.onresize = () => {
+  const onResize = () => {
     cssHeight.height = countHeight();
   };
+  window.addEventListener('resize', onResize);
+  onMounted(() => {
+    onResize();
+  });
+  onUnmounted(() => {
+    window.removeEventListener('resize', onResize);
+  });
 
   return {
-    hiddenButton,
     expandOrcollapseStyle,
-    countHeight,
     cssHeight,
   };
 };
 
-export default useButtonStyle;
+export default useExpandStyle;
