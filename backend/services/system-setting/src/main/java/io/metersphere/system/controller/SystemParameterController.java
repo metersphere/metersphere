@@ -68,4 +68,10 @@ public class SystemParameterController {
         systemParameterService.testEmailConnection(hashMap);
     }
 
+
+    @GetMapping("/save/base-url")
+    public void saveBaseurl(@RequestParam("baseUrl") String baseUrl) {
+        systemParameterService.saveBaseUrl(baseUrl);
+    }
+
 }

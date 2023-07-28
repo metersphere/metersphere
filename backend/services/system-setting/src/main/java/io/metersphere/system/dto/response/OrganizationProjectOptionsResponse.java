@@ -1,6 +1,6 @@
 package io.metersphere.system.dto.response;
 
-import io.metersphere.system.dto.OrganizationProjectOptionsDto;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -8,6 +8,6 @@ import java.util.List;
 @Data
 public class OrganizationProjectOptionsResponse {
 
-    List<OrganizationProjectOptionsDto> organizationList;
-    List<OrganizationProjectOptionsDto> projectList;
+    List<OrganizationProjectOptionsDTO> organizationList;
+    List<OrganizationProjectOptionsDTO> projectList;
 }

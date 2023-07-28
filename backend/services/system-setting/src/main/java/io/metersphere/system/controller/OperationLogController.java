@@ -10,7 +10,7 @@ import io.metersphere.sdk.log.vo.OperationLogRequest;
 import io.metersphere.sdk.log.vo.OperationLogResponse;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
-import io.metersphere.system.dto.OrganizationProjectOptionsDto;
+import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.response.OrganizationProjectOptionsResponse;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
@@ -46,9 +46,9 @@ public class OperationLogController {
     public OrganizationProjectOptionsResponse getOptions() {
 
         //获取全部组织
-        List<OrganizationProjectOptionsDto> organizationList = organizationService.getOrganizationOptions();
+        List<OrganizationProjectOptionsDTO> organizationList = organizationService.getOrganizationOptions();
         //获取全部项目
-        List<OrganizationProjectOptionsDto> projectList = systemProjectService.getProjectOptions();
+        List<OrganizationProjectOptionsDTO> projectList = systemProjectService.getProjectOptions();
 
         OrganizationProjectOptionsResponse optionsResponse = new OrganizationProjectOptionsResponse();
         optionsResponse.setOrganizationList(organizationList);

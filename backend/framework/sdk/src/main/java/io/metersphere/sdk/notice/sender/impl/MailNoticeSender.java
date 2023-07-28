@@ -29,8 +29,8 @@ public class MailNoticeSender extends AbstractNoticeSender {
             javaMailSender.setProtocol("smtps");
             props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         }
-        if (BooleanUtils.toBoolean(paramMap.get(ParamConstants.MAIL.TLS.getValue()))) {
-            String result = BooleanUtils.toString(BooleanUtils.toBoolean(paramMap.get(ParamConstants.MAIL.TLS.getValue())), "true", "false");
+        if (BooleanUtils.toBoolean(paramMap.get(ParamConstants.MAIL.TSL.getValue()))) {
+            String result = BooleanUtils.toString(BooleanUtils.toBoolean(paramMap.get(ParamConstants.MAIL.TSL.getValue())), "true", "false");
             props.put("mail.smtp.starttls.enable", result);
             props.put("mail.smtp.starttls.required", result);
         }

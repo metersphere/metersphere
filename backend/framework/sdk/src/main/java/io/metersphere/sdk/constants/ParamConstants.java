@@ -50,7 +50,7 @@ public interface ParamConstants {
         FROM("smtp.from"),
         PASSWORD("smtp.password"),
         SSL("smtp.ssl"),
-        TLS("smtp.tls"),
+        TSL("smtp.tsl"),
         RECIPIENTS("smtp.recipient");
 
         private String value;
