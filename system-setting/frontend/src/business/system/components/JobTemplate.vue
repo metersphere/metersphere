@@ -67,8 +67,6 @@ spec:
               value: \${BOOTSTRAP_SERVERS}
             - name: RATIO
               value: "\${RATIO}"
-            - name: REPORT_FINAL
-              value: "\${REPORT_FINAL}"
             - name: TEST_ID
               value: \${TEST_ID}
             - name: THREAD_NUM
@@ -77,8 +75,6 @@ spec:
               value: \${HEAP}
             - name: REPORT_ID
               value: \${REPORT_ID}
-            - name: REPORT_REALTIME
-              value: "\${REPORT_REALTIME}"
             - name: RESOURCE_INDEX
               value: "\${RESOURCE_INDEX}"
             - name: LOG_TOPIC
@@ -91,53 +87,6 @@ spec:
           ports:
             - containerPort: 60000
               protocol: TCP
-          volumeMounts:
-            - mountPath: /test
-              name: test-files
-            - mountPath: /jmeter-log
-              name: log-files
-        - command:
-            - sh
-            - -c
-            - /generate-report.sh
-          env:
-            - name: START_TIME
-              value: "\${START_TIME}"
-            - name: GRANULARITY
-              value: "\${GRANULARITY}"
-            - name: JMETER_REPORTS_TOPIC
-              value: \${JMETER_REPORTS_TOPIC}
-            - name: METERSPHERE_URL
-              value: \${METERSPHERE_URL}
-            - name: RESOURCE_ID
-              value: \${RESOURCE_ID}
-            - name: BACKEND_LISTENER
-              value: "\${BACKEND_LISTENER}"
-            - name: BOOTSTRAP_SERVERS
-              value: \${BOOTSTRAP_SERVERS}
-            - name: RATIO
-              value: "\${RATIO}"
-            - name: REPORT_FINAL
-              value: "\${REPORT_FINAL}"
-            - name: TEST_ID
-              value: \${TEST_ID}
-            - name: THREAD_NUM
-              value: "\${THREAD_NUM}"
-            - name: HEAP
-              value: \${HEAP}
-            - name: REPORT_ID
-              value: \${REPORT_ID}
-            - name: REPORT_REALTIME
-              value: "\${REPORT_REALTIME}"
-            - name: RESOURCE_INDEX
-              value: "\${RESOURCE_INDEX}"
-            - name: LOG_TOPIC
-              value: \${LOG_TOPIC}
-            - name: GC_ALGO
-              value: \${GC_ALGO}
-          image: \${JMETER_IMAGE}
-          imagePullPolicy: IfNotPresent
-          name: report
           volumeMounts:
             - mountPath: /test
               name: test-files
