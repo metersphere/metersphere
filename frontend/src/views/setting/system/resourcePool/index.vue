@@ -1,67 +1,65 @@
 <template>
-  <div>
-    <MsCard :loading="loading" has-breadcrumb simple>
-      <div class="mb-4 flex items-center justify-between">
-        <a-button type="primary" @click="addPool">
-          {{ t('system.resourcePool.createPool') }}
-        </a-button>
-        <a-input-search
-          v-model:model-value="keyword"
-          :placeholder="t('system.resourcePool.searchPool')"
-          class="w-[230px]"
-          allow-clear
-          @search="searchPool"
-          @press-enter="searchPool"
-        ></a-input-search>
-      </div>
-      <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
-        <template #name="{ record }">
-          <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
-        </template>
-        <template #enable="{ record }">
-          <div v-if="record.enable" class="flex items-center">
-            <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
-            {{ t('system.resourcePool.tableEnable') }}
-          </div>
-          <div v-else class="flex items-center text-[var(--color-text-4)]">
-            <icon-stop class="mr-[2px]" />
-            {{ t('system.resourcePool.tableDisable') }}
-          </div>
-        </template>
-        <template #action="{ record }">
-          <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
-          <MsButton v-if="record.enable" @click="disabledPool(record)">{{
-            t('system.resourcePool.tableDisable')
-          }}</MsButton>
-          <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
-          <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
-        </template>
-      </ms-base-table>
-    </MsCard>
-    <MsDrawer
-      v-model:visible="showDetailDrawer"
-      width="480px"
-      :title="activePool?.name"
-      :title-tag="activePool?.enable ? t('system.resourcePool.tableEnable') : t('system.resourcePool.tableDisable')"
-      :title-tag-color="activePool?.enable ? 'green' : 'gray'"
-      :descriptions="activePoolDesc"
-      :footer="false"
-      :mask="false"
-      :show-skeleton="drawerLoading"
-      show-description
-    >
-      <template #tbutton>
-        <a-button type="outline" size="mini" :disabled="drawerLoading" @click="editPool(activePool)">
-          {{ t('system.resourcePool.editPool') }}
-        </a-button>
+  <MsCard :loading="loading" has-breadcrumb simple>
+    <div class="mb-4 flex items-center justify-between">
+      <a-button type="primary" @click="addPool">
+        {{ t('system.resourcePool.createPool') }}
+      </a-button>
+      <a-input-search
+        v-model:model-value="keyword"
+        :placeholder="t('system.resourcePool.searchPool')"
+        class="w-[230px]"
+        allow-clear
+        @search="searchPool"
+        @press-enter="searchPool"
+      ></a-input-search>
+    </div>
+    <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+      <template #name="{ record }">
+        <a-button type="text" @click="showPoolDetail(record)">{{ record.name }}</a-button>
       </template>
-    </MsDrawer>
-    <JobTemplateDrawer
-      v-model:visible="showJobDrawer"
-      :default-val="activePool?.testResourceReturnDTO.jobDefinition || ''"
-      read-only
-    />
-  </div>
+      <template #enable="{ record }">
+        <div v-if="record.enable" class="flex items-center">
+          <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+          {{ t('system.resourcePool.tableEnable') }}
+        </div>
+        <div v-else class="flex items-center text-[var(--color-text-4)]">
+          <icon-stop class="mr-[2px]" />
+          {{ t('system.resourcePool.tableDisable') }}
+        </div>
+      </template>
+      <template #action="{ record }">
+        <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
+        <MsButton v-if="record.enable" @click="disabledPool(record)">{{
+          t('system.resourcePool.tableDisable')
+        }}</MsButton>
+        <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
+        <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+      </template>
+    </ms-base-table>
+  </MsCard>
+  <MsDrawer
+    v-model:visible="showDetailDrawer"
+    :width="480"
+    :title="activePool?.name"
+    :title-tag="activePool?.enable ? t('system.resourcePool.tableEnable') : t('system.resourcePool.tableDisable')"
+    :title-tag-color="activePool?.enable ? 'green' : 'gray'"
+    :descriptions="activePoolDesc"
+    :footer="false"
+    :mask="false"
+    :show-skeleton="drawerLoading"
+    show-description
+  >
+    <template #tbutton>
+      <a-button type="outline" size="mini" :disabled="drawerLoading" @click="editPool(activePool)">
+        {{ t('system.resourcePool.editPool') }}
+      </a-button>
+    </template>
+  </MsDrawer>
+  <JobTemplateDrawer
+    v-model:visible="showJobDrawer"
+    :default-val="activePool?.testResourceReturnDTO.jobDefinition || ''"
+    read-only
+  />
 </template>
 
 <script setup lang="ts">
@@ -85,7 +83,6 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { ResourcePoolDetail } from '@/models/setting/resourcePool';
-  import { sleep } from '@/utils';
 
   const { t } = useI18n();
   const router = useRouter();
