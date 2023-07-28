@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="showJobDrawer"
-    width="680px"
+    :width="680"
     :title="t('system.resourcePool.customJobTemplate')"
     :footer="false"
     @close="handleClose"

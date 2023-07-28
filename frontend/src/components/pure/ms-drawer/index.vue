@@ -4,10 +4,9 @@
     :width="props.width"
     :footer="props.footer"
     :mask="props.mask"
-    :class="props.mask ? '' : 'ms-drawer-no-mask'"
-    @ok="handleOk"
+    :class="['ms-drawer', props.mask ? '' : 'ms-drawer-no-mask']"
     @cancel="handleCancel"
-    @close="handleCancel"
+    @close="handleClose"
   >
     <template #title>
       <slot name="title">
@@ -18,19 +17,38 @@
         </div>
       </slot>
     </template>
-    <slot>
-      <MsDescription
-        v-if="props.descriptions?.length > 0 || showDescription"
-        :descriptions="props.descriptions"
-        :show-skeleton="props.showSkeleton"
-        :skeleton-line="10"
-      ></MsDescription>
-    </slot>
+    <a-scrollbar
+      :style="{
+        overflowY: 'auto',
+        height: 'calc(100vh - 146px)',
+      }"
+    >
+      <slot>
+        <MsDescription
+          v-if="props.descriptions && props.descriptions.length > 0"
+          :descriptions="props.descriptions"
+          :show-skeleton="props.showSkeleton"
+          :skeleton-line="10"
+        ></MsDescription>
+      </slot>
+    </a-scrollbar>
+    <template #footer>
+      <slot name="footer">
+        <a-button :disabled="props.okLoading" @click="handleCancel">
+          {{ t(props.cancelText || 'ms.drawer.cancel') }}
+        </a-button>
+        <a-button type="primary" :loading="props.okLoading" @click="handleOk">
+          {{ t(props.okText || 'ms.drawer.ok') }}
+        </a-button>
+      </slot>
+    </template>
   </a-drawer>
 </template>
 
 <script setup lang="ts">
   import { ref, watch, defineAsyncComponent } from 'vue';
+  import { useI18n } from '@/hooks/useI18n';
+
   import type { Description } from '@/components/pure/ms-description/index.vue';
 
   // 懒加载描述组件
@@ -44,9 +62,11 @@
     descriptions?: Description[];
     footer?: boolean;
     mask?: boolean;
-    showDescription?: boolean;
     showSkeleton?: boolean;
-    [key: string]: any;
+    okLoading?: boolean;
+    okText?: string;
+    cancelText?: string;
+    width: number;
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -54,7 +74,9 @@
     mask: true,
     showSkeleton: false,
   });
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'confirm', 'cancel']);
+
+  const { t } = useI18n();
 
   const visible = ref(props.visible);
 
@@ -66,9 +88,16 @@
   );
 
   const handleOk = () => {
-    visible.value = false;
+    emit('confirm');
   };
+
   const handleCancel = () => {
+    visible.value = false;
+    emit('update:visible', false);
+    emit('cancel');
+  };
+
+  const handleClose = () => {
     visible.value = false;
     emit('update:visible', false);
   };
@@ -90,6 +119,11 @@
     }
     .arco-drawer-footer {
       border-bottom: 1px solid var(--color-text-n8);
+    }
+  }
+  .ms-drawer {
+    .arco-scrollbar-track-direction-vertical {
+      right: -12px;
     }
   }
   .ms-drawer-no-mask {

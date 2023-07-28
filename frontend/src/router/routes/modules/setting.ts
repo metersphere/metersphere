@@ -89,6 +89,16 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
+        {
+          path: 'parameter',
+          name: 'settingSystemParameter',
+          component: () => import('@/views/setting/system/config/index.vue'),
+          meta: {
+            locale: 'menu.settings.system.parameter',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
       ],
     },
     {

@@ -1,7 +1,7 @@
 <template>
   <MsDrawer
     v-model:visible="showScriptDrawer"
-    width="680px"
+    :width="680"
     :mask="false"
     :footer="false"
     :title="t('system.plugin.showScriptTitle', { name: props.config.title })"

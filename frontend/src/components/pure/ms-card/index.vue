@@ -18,12 +18,14 @@
         <a-scrollbar
           class="pr-[5px]"
           :style="{
-            overflowY: 'auto',
-            minWidth: 1000,
+            overflow: 'auto',
+            width: `calc(100vw - ${menuWidth}px - 48px)`,
             height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight}px)`,
           }"
         >
-          <slot></slot>
+          <div class="min-w-[1000px]">
+            <slot></slot>
+          </div>
         </a-scrollbar>
       </div>
       <div
@@ -50,9 +52,10 @@
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { useI18n } from '@/hooks/useI18n';
-  import { computed } from 'vue';
+  import useAppStore from '@/store/modules/app';
 
   const props = withDefaults(
     defineProps<
@@ -89,6 +92,12 @@
   const router = useRouter();
   const { t } = useI18n();
 
+  const appStore = useAppStore();
+  const collapsedWidth = 86;
+  const menuWidth = computed(() => {
+    return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
+  });
+
   const _spcialHeight = props.hasBreadcrumb ? 31 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度31
 
   const cardOverHeight = computed(() => {
@@ -100,7 +109,7 @@
       // 隐藏底部
       return 192;
     }
-    return 246 + _spcialHeight;
+    return 256 + _spcialHeight;
   });
 
   function back() {
@@ -148,6 +157,9 @@
     }
     :deep(.arco-scrollbar-track-direction-vertical) {
       right: -10px;
+    }
+    :deep(.arco-scrollbar-track-direction-horizontal) {
+      bottom: -10px;
     }
   }
 </style>

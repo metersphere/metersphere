@@ -120,3 +120,16 @@ export function formatFileSize(fileSize: number): string {
 
   return `${formattedSize} ${unit}`;
 }
+
+/**
+ * 字符串脱敏
+ * @param str 需要脱敏的字符串
+ * @returns 脱敏后的字符串
+ */
+export function desensitize(str: string): string {
+  if (!str || typeof str !== 'string') {
+    return '';
+  }
+
+  return str.replace(/./g, '*');
+}
