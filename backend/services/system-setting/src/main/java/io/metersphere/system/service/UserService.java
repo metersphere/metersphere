@@ -32,6 +32,10 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +61,8 @@ public class UserService {
     private GlobalUserRoleService globalUserRoleService;
     @Resource
     private UserRoleService userRoleService;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     //批量添加用户记录日志
     public List<LogDTO> getBatchAddLogs(@Valid List<User> userList) {
@@ -273,18 +279,33 @@ public class UserService {
 
     public UserBatchProcessResponse deleteUser(@Valid @NotEmpty List<String> userIdList) {
         this.checkUserInDb(userIdList);
+
         UserBatchProcessResponse response = new UserBatchProcessResponse();
         response.setTotalCount(userIdList.size());
 
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIdList);
         //更新删除标志位
-        response.setSuccessCount(userMapper.updateByExampleSelective(new User() {{
-            setDeleted(true);
-        }}, userExample));
+        response.setSuccessCount(this.deleteUserByList(userIdList));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
         return response;
+    }
+
+    private int deleteUserByList(List<String> updateUserList){
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        BaseUserMapper batchDeleteMapper = sqlSession.getMapper(BaseUserMapper.class);
+        int insertIndex = 0;
+        for (String userId : updateUserList) {
+            batchDeleteMapper.deleteUser(userId);
+            insertIndex++;
+            if (insertIndex % 50 == 0) {
+                sqlSession.flushStatements();
+            }
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        return insertIndex;
     }
 
     public LogDTO updateLog(UserEditRequest request) {
