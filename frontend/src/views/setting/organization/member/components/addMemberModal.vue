@@ -3,103 +3,172 @@
     v-model:visible="dialogVisible"
     title-align="start"
     class="ms-modal-form ms-modal-medium"
-    :ok-text="t('organization.member.Save')"
-    @ok="handleOK"
-    @cancel="handleCancel"
+    :ok-text="t('organization.member.Confirm')"
+    :cancel-text="t('organization.member.Cancel')"
   >
-    <template #title> {{ t('organization.member.addMember') }} </template>
+    <template #title>
+      {{ type === 'add' ? t('organization.member.addMember') : t('organization.member.updateMember') }}
+    </template>
     <div class="form">
-      <a-form :model="form" size="large" layout="vertical">
+      <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
         <a-form-item
-          v-model="form.members"
-          field="members"
-          :label="t('organization.member.member')"
+          v-if="type === 'edit'"
+          field="projectIds"
+          :label="t('organization.member.proejct')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('organization.member.pleaseSelectMember') }]"
+          :rules="[{ required: true, message: t('organization.member.selectProjectEmptyTip') }]"
         >
           <a-select
-            v-model="form.members"
+            v-model="form.projectIds"
+            multiple
+            :placeholder="t('organization.member.selectProjectScope')"
+            allow-clear
+          >
+            <a-option v-for="item of props.projectList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+          </a-select>
+        </a-form-item>
+        <a-form-item
+          v-else
+          field="memberIds"
+          :label="t('organization.member.member')"
+          asterisk-position="end"
+          :rules="[{ required: true, message: t('organization.member.selectMemberEmptyTip') }]"
+        >
+          <a-select
+            v-model="form.memberIds"
             multiple
             :placeholder="t('organization.member.selectMemberScope')"
             allow-clear
           >
-            <a-option v-for="item of memberList" :key="item.value">{{ item.label }}</a-option>
+            <a-option v-for="item of props.memberList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item
-          v-model="form.userGroups"
-          field="userGroups"
+          field="userRoleIds"
           :label="t('organization.member.tableColunmUsergroup')"
           asterisk-position="end"
-          :rules="[{ required: true }]"
+          :rules="[{ required: true, message: t('organization.member.selectUserEmptyTip') }]"
         >
-          <a-select v-model="form.userGroups">
-            <a-option v-for="item of userGroupOptions" :key="item.value">{{ item.label }}</a-option>
+          <a-select
+            v-model="form.userRoleIds"
+            multiple
+            allow-clear
+            :placeholder="t('organization.member.selectUserScope')"
+          >
+            <a-option v-for="item of props.userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
       </a-form>
     </div>
+    <template #footer>
+      <a-space>
+        <a-button type="secondary" @click="handleCancel">{{ t('organization.member.Cancel') }}</a-button>
+        <a-button type="primary" :loading="confirmLoading" @click="handleOK">
+          {{ t('organization.member.Confirm') }}
+        </a-button>
+      </a-space>
+    </template>
   </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue';
+  import { ref, watchEffect, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
-  import type { AddMemberForm } from '@/models/setting/member';
-  import { useDialog } from '@/hooks/useDialog';
+  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { addOrUpdate } from '@/api/modules/setting/member';
+  import { useUserStore } from '@/store';
+  import type { AddorUpdateMemberModel, MemberItem, LinkList } from '@/models/setting/member';
 
   const { t } = useI18n();
+  const userStore = useUserStore();
   const props = defineProps<{
     visible: boolean;
-    title?: string;
+    memberList: LinkList;
+    userGroupOptions: LinkList;
+    projectList: LinkList;
   }>();
+  const dialogVisible = ref<boolean>(false);
+  const title = ref<string>('');
+  const type = ref<string>('');
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
-    (event: 'close'): void;
+    (event: 'success'): void;
   }>();
-  const { dialogVisible } = useDialog(props, emits);
-  const userGroupOptions = ref([
-    {
-      label: 'Beijing',
-      value: 'Beijing',
-    },
-    {
-      label: 'Shanghai',
-      value: 'Shanghai',
-    },
-    {
-      label: 'Guangzhou',
-      value: 'Guangzhou',
-    },
-  ]);
 
-  const memberList = ref([
-    {
-      label: 'Beijing',
-      value: 'Beijing',
-    },
-    {
-      label: 'Shanghai',
-      value: 'Shanghai',
-    },
-    {
-      label: 'Guangzhou',
-      value: 'Guangzhou',
-    },
-  ]);
-
-  const form = reactive<AddMemberForm>({
-    userGroups: '',
-    members: [],
-  });
+  const confirmLoading = ref<boolean>(false);
+  const memberFormRef = ref<FormInstance | null>(null);
+  const initFormValue = {
+    organizationId: userStore.$state?.lastOrganizationId,
+    userRoleIds: [],
+    memberIds: [],
+    projectIds: [],
+  };
+  const form = ref<AddorUpdateMemberModel>({ ...initFormValue });
   const handleCancel = () => {
-    emits('close');
+    memberFormRef.value?.resetFields();
+    form.value = { ...initFormValue };
+    dialogVisible.value = false;
+  };
+  const edit = (record: MemberItem) => {
+    const { userRoleIdNameMap } = record;
+    form.value.memberIds = [record.id as string];
+    // form.value.userRoleIds = userRoleIdNameMap.map((item) => item.id);
+    form.value.userRoleIds = Object.keys(userRoleIdNameMap);
   };
 
   const handleOK = () => {
-    handleCancel();
+    memberFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        try {
+          confirmLoading.value = true;
+          let params = {};
+          const { organizationId, memberIds, userRoleIds, projectIds } = form.value;
+          params = Object.assign(params, {
+            organizationId,
+            userRoleIds,
+          });
+          params =
+            type.value === 'add'
+              ? {
+                  ...params,
+                  memberIds,
+                }
+              : {
+                  ...params,
+                  projectIds,
+                };
+          await addOrUpdate(params, type.value);
+          Message.success(
+            type.value === 'add'
+              ? t('organization.member.batchModalSuccess')
+              : t('organization.member.batchUpdateSuccess')
+          );
+          handleCancel();
+          emits('success');
+        } catch (error) {
+          console.log(error);
+        } finally {
+          confirmLoading.value = false;
+        }
+      } else {
+        return false;
+      }
+    });
   };
+  watchEffect(() => {
+    dialogVisible.value = props.visible;
+  });
+  watch(
+    () => dialogVisible.value,
+    (val) => {
+      emits('update:visible', val);
+    }
+  );
+  defineExpose({
+    title,
+    type,
+    edit,
+  });
 </script>
 
 <style lang="less" scoped></style>
-@/models/setting/member
