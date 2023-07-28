@@ -64,12 +64,11 @@
       visible: false,
     }
   );
-
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'addProject'): void;
-    (e: 'addUserGroup'): void;
-    (e: 'addOrgnization'): void;
+    (e: 'addProject', targetValue: string[]): void;
+    (e: 'addUserGroup', targetValue: string[]): void;
+    (e: 'addOrgnization', targetValue: string[]): void;
   }>();
 
   const showBatchModal = ref(false);
@@ -150,7 +149,6 @@
 
     return travel(props.treeData);
   };
-
   const transferData = getTransferData(props.treeData, []);
 
   function cancelBatch() {
@@ -158,18 +156,21 @@
     target.value = [];
   }
 
-  async function confirmBatch() {
+  const confirmBatch = () => {
     batchLoading.value = true;
     try {
+      if (target.value.length < 1) {
+        return;
+      }
       switch (props.action) {
         case 'batchAddProject':
-          emit('addProject');
+          emit('addProject', target.value);
           break;
         case 'batchAddUsergroup':
-          emit('addUserGroup');
+          emit('addUserGroup', target.value);
           break;
         case 'batchAddOrgnization':
-          emit('addOrgnization');
+          emit('addOrgnization', target.value);
           break;
         default:
           break;
@@ -180,7 +181,7 @@
     } finally {
       batchLoading.value = false;
     }
-  }
+  };
 </script>
 
 <style lang="less" scoped></style>

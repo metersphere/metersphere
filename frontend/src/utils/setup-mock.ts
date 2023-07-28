@@ -28,7 +28,7 @@ export const successTableResponseWrap = (data: unknown) => {
     data: { list: data },
     status: 'ok',
     message: '请求成功',
-    code: 0,
+    code: 100200,
   };
 };
 
