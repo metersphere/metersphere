@@ -257,6 +257,12 @@ export default {
       if (localStorage.getItem('scenarioModule')) {
         this.formData.moduleId = localStorage.getItem('scenarioModule');
       }
+      if (module) {
+        this.formData.moduleId = module.id;
+      }
+      if (!module && !localStorage.getItem('scenarioModule')) {
+        this.formData.moduleId = this.moduleOptions[0].id;
+      }
       this.visible = true;
       listenGoBack(this.close);
     },
