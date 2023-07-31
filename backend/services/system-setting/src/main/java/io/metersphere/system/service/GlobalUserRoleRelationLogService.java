@@ -4,18 +4,21 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.UserDTO;
+import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.mapper.BaseUserMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,6 +56,31 @@ public class GlobalUserRoleRelationLogService {
 
         dto.setOriginalValue(JSON.toJSONBytes(users));
         return dto;
+    }
+
+    public List<LogDTO> batchAddLog(GlobalUserRoleRelationBatchRequest request) {
+        UserRoleExample example = new UserRoleExample();
+        example.createCriteria().andIdIn(request.getRoleIds());
+        List<UserRole> userRoles = userRoleMapper.selectByExample(example);
+        List<String> userIds = request.getUserIds();
+        List<OptionDTO> users = baseUserMapper.selectUserOptionByIds(userIds);
+
+        List<LogDTO> returnList = new ArrayList<>();
+        for (UserRole userRole : userRoles) {
+            LogDTO dto = new LogDTO(
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
+                    userRole.getId(),
+                    null,
+                    OperationLogType.ADD.name(),
+                    OperationLogModule.SYSTEM_USER_ROLE_RELATION,
+                    userRole.getName());
+
+            dto.setOriginalValue(JSON.toJSONBytes(users));
+            returnList.add(dto);
+
+        }
+        return returnList;
     }
 
     /**

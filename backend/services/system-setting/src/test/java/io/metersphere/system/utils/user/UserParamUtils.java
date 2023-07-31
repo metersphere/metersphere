@@ -1,4 +1,4 @@
-package io.metersphere.system.utils;
+package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.BasePageRequest;
@@ -24,32 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class UserTestUtils {
-
-    //用户管理URL
-    public static final String URL_USER_CREATE = "/system/user/add";
-    public static final String URL_USER_UPDATE = "/system/user/update";
-    public static final String URL_USER_GET = "/system/user/get/%s";
-    public static final String URL_USER_PAGE = "/system/user/page";
-    public static final String URL_GET_GLOBAL_SYSTEM = "/system/user/get/global/system/role";
-    public static final String URL_USER_UPDATE_ENABLE = "/system/user/update/enable";
-    public static final String URL_USER_IMPORT = "/system/user/import";
-    public static final String URL_USER_DELETE = "/system/user/delete";
-    public static final String URL_USER_RESET_PASSWORD = "/system/user/reset/password";
-
-
-    public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
-        String returnData = "";
-        try {
-            returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-
-        } catch (Exception ignore) {
-        }
-        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        //返回请求正常
-        Assertions.assertNotNull(resultHolder);
-        return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
-    }
+public class UserParamUtils {
 
     public static UserBatchCreateDTO getUserCreateDTO(
             List<UserRoleOption> userRoleList,
@@ -107,6 +82,8 @@ public class UserTestUtils {
         return buffer;
     }
 
+
+    //用户信息对比
     public static void compareUserDTO(UserEditRequest editRequest, UserDTO selectUserDTO) {
         Assertions.assertNotNull(editRequest);
         Assertions.assertNotNull(selectUserDTO);
@@ -129,13 +106,14 @@ public class UserTestUtils {
                         && selectUserSystemRoleId.containsAll(editRequest.getUserRoleIdList()));
     }
 
+    //导入结果判断
     public static void checkImportResponse(UserImportResponse responsePost, int successCount, int[] errorDataIndex) {
         //导入总数据是否一致
-        Assertions.assertTrue(responsePost.getImportCount() == successCount + errorDataIndex.length);
+        Assertions.assertEquals(responsePost.getImportCount(), successCount + errorDataIndex.length);
         //导入成功数据是否一致
-        Assertions.assertTrue(responsePost.getSuccessCount() == successCount);
+        Assertions.assertEquals(responsePost.getSuccessCount(), successCount);
         //报错数据数量是否一致
-        Assertions.assertTrue(responsePost.getErrorMessages().size() == errorDataIndex.length);
+        Assertions.assertEquals(responsePost.getErrorMessages().size(), errorDataIndex.length);
         //报错数据行编码是否一致
         for (int index : errorDataIndex) {
             Assertions.assertTrue(responsePost.getErrorMessages().containsKey(index));

@@ -111,11 +111,11 @@ public class UserController {
     }
 
     @PostMapping("/reset/password")
+    @Operation(summary = "重置用户密码")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.resetPasswordLog(#userId)", msClass = UserService.class)
     public boolean resetPassword(@RequestBody String userId) {
-        return userService.resetPassword(userId,SessionUtils.getUserId());
+        userService.resetPassword(userId, SessionUtils.getUserId());
+        return true;
     }
-
-
 }
