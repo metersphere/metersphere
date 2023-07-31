@@ -160,6 +160,7 @@ export default {
     checkout(row) {
       this.loading = true;
       this.$emit('checkout', row);
+      this.loading = false;
     },
     create(row) {
       this.loading = true;
@@ -168,10 +169,12 @@ export default {
     del(row) {
       this.loading = true;
       this.$emit('del', row);
+      this.loading = false;
     },
     setLatest(row) {
       this.loading = true;
       this.$emit('setLatest', row);
+      this.loading = false;
     },
     handleVersionOptions() {
       let versionData = this.versionData;
