@@ -6,6 +6,7 @@ import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.PermissionCache;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -14,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -130,6 +132,16 @@ public class BaseUserRoleService {
 
     public UserRole get(String id) {
         return userRoleMapper.selectByPrimaryKey(id);
+    }
+
+    public List<UserRole> getList(List<String> idList) {
+        if(CollectionUtils.isEmpty(idList)){
+            return new ArrayList<>();
+        }else {
+            UserRoleExample example = new UserRoleExample();
+            example.createCriteria().andIdIn(idList);
+            return userRoleMapper.selectByExample(example);
+        }
     }
 
     public String getLogDetails(String id) {

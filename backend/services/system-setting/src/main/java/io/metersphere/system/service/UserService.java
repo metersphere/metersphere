@@ -292,7 +292,7 @@ public class UserService {
         return response;
     }
 
-    private int deleteUserByList(List<String> updateUserList){
+    private int deleteUserByList(List<String> updateUserList) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         BaseUserMapper batchDeleteMapper = sqlSession.getMapper(BaseUserMapper.class);
         int insertIndex = 0;
@@ -328,7 +328,7 @@ public class UserService {
         return null;
     }
 
-    public LogDTO resetPasswordLog(String userId){
+    public LogDTO resetPasswordLog(String userId) {
         User user = userMapper.selectByPrimaryKey(userId);
         if (user != null) {
             LogDTO dto = new LogDTO(
@@ -377,20 +377,28 @@ public class UserService {
         return userMapper.selectByExample(example);
     }
 
-    public boolean resetPassword(String userId,String operator) {
+    public void resetPassword(String userId, String operator) {
         User user = userMapper.selectByPrimaryKey(userId);
-        if(user == null){
+        if (user == null) {
             throw new MSException(Translator.get("user.not.exist"));
         }
         User updateModel = new User();
         updateModel.setId(userId);
-        if(StringUtils.equalsIgnoreCase("admin",user.getId())){
+        if (StringUtils.equalsIgnoreCase("admin", user.getId())) {
             updateModel.setPassword(CodingUtil.md5("metersphere"));
-        }else {
+        } else {
             updateModel.setPassword(CodingUtil.md5(user.getEmail()));
         }
         updateModel.setUpdateTime(System.currentTimeMillis());
         updateModel.setUpdateUser(operator);
-        return userMapper.updateByPrimaryKeySelective(updateModel) > 0;
+        userMapper.updateByPrimaryKeySelective(updateModel);
+    }
+
+    public void checkUserLegality(List<String> userIds) {
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(userIds);
+        if (userMapper.countByExample(example) != userIds.size()) {
+            throw new MSException(Translator.get("user.id.not.exist"));
+        }
     }
 }

@@ -10,12 +10,15 @@
         <if test="isSystem ">
             AND type = 'SYSTEM'
         </if>
+        AND scope_id = 'GLOBAL'
     </select>
 
     <select id="listOrganizationRoleMember" resultType="io.metersphere.system.domain.User">
-        select u.* from user_role_relation urr left join user u on urr.user_id = u.id
+        select u.*
+        from user_role_relation urr
+                 left join user u on urr.user_id = u.id
         where urr.source_id = #{request.organizationId}
           and urr.role_id = #{request.userRoleId}
-          and u.name like concat('%',#{request.userKeyWord},'%')
+          and u.name like concat('%', #{request.userKeyWord}, '%')
     </select>
 </mapper>
