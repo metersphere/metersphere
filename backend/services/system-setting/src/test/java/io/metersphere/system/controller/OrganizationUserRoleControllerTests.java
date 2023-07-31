@@ -70,14 +70,14 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
-        Assertions.assertEquals(4, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
+        Assertions.assertEquals(5, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
     }
 
     @Test
     @Order(1)
     public void testOrganizationUserRoleAddSuccess() throws Exception {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
-        request.setName("default-org-role-4");
+        request.setName("default-org-role-5");
         request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_ADD, request, status().isOk());
@@ -90,7 +90,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
-        Assertions.assertEquals(5, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
+        Assertions.assertEquals(6, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
     }
 
     @Test
@@ -343,8 +343,14 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public void testOrganizationUserRoleRemoveMemberSuccess() throws Exception {
         OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
         request.setOrganizationId("default-organization-2");
-        request.setUserRoleId("default-org-role-id-3");
+        request.setUserRoleId("default-org-role-id-4");
         request.setUserIds(List.of("admin"));
+        this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
+        request = new OrganizationUserRoleMemberEditRequest();
+        request.setOrganizationId("default-organization-2");
+        request.setUserRoleId("default-org-role-id-4");
+        request.setUserIds(List.of("admin"));
+        // 成员组织用户组存在多个, 移除成功
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
     }
 
@@ -363,6 +369,19 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request.setUserRoleId("default-org-role-id-x");
         // 用户组不存在
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+        request = new OrganizationUserRoleMemberEditRequest();
+        request.setOrganizationId("default-organization-2");
+        request.setUserRoleId("default-org-role-id-3");
+        request.setUserIds(List.of("admin"));
+        // 成员用户组只有一个, 移除失败
+        this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().is5xxServerError());
+    }
+
+    @Test
+    @Order(17)
+    public void testOrganizationUserRoleDeleteOnlyMemberSuccess() throws Exception {
+        // 移除用户组, 且存在成员仅有该用户组
+        this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-3", status().isOk());
     }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {

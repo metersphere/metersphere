@@ -3,6 +3,7 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
@@ -49,10 +50,10 @@ public class SystemOrganizationController {
         return PageUtils.setPageInfo(page, organizationService.list(request));
     }
 
-    @PostMapping("/list-all")
-    @Operation(summary = "获取系统所有组织")
+    @PostMapping("/option/all")
+    @Operation(summary = "获取系统所有组织下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<OrganizationDTO> listAll() {
+    public List<OptionDTO> listAll() {
         return organizationService.listAll();
     }
 

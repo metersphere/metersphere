@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -14,9 +15,8 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
 
@@ -41,6 +41,8 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     UserRolePermissionMapper userRolePermissionMapper;
+    @Resource
+    ExtUserRoleRelationMapper extUserRoleRelationMapper;
 
     public List<UserRole> list(String organizationId) {
         UserRoleExample example = new UserRoleExample();
@@ -66,14 +68,40 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         return super.update(userRole);
     }
 
-    public void delete(String roleId) {
+    public void delete(String roleId, String currentUserId) {
         UserRole oldRole = get(roleId);
         // 非组织用户组不允许删除, 内置用户组不允许删除
         checkOrgUserRole(oldRole);
         checkInternalUserRole(oldRole);
+        // 删除用户组
         userRoleMapper.deleteByPrimaryKey(roleId);
         UserRoleRelationExample relationExample = new UserRoleRelationExample();
-        relationExample.createCriteria().andRoleIdEqualTo(roleId);
+        relationExample.createCriteria().andRoleIdEqualTo(roleId).andSourceIdEqualTo(oldRole.getScopeId());
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(relationExample);
+        List<UserRoleRelation> orgMemberRelations = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(userRoleRelations)) {
+            // 如果删除的组织用户组内成员只有当前一个用户组，则给该成员赋予组织成员用户组
+            List<String> userIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
+            UserRoleRelationExample userRelationExample = new UserRoleRelationExample();
+            userRelationExample.createCriteria().andUserIdIn(userIds).andSourceIdEqualTo(oldRole.getScopeId());
+            List<UserRoleRelation> allUserRelations = userRoleRelationMapper.selectByExample(userRelationExample);
+            Map<String, List<UserRoleRelation>> userRoleRelationMap = allUserRelations.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId));
+            userRoleRelationMap.forEach((userId, relations) -> {
+                if (relations.size() == 1) {
+                    UserRoleRelation relation = new UserRoleRelation();
+                    relation.setId(UUID.randomUUID().toString());
+                    relation.setUserId(userId);
+                    relation.setSourceId(oldRole.getScopeId());
+                    relation.setRoleId(InternalUserRole.ORG_MEMBER.getValue());
+                    relation.setCreateTime(System.currentTimeMillis());
+                    relation.setCreateUser(currentUserId);
+                    orgMemberRelations.add(relation);
+                }
+            });
+        }
+        if (CollectionUtils.isNotEmpty(orgMemberRelations)) {
+            extUserRoleRelationMapper.batchInsert(orgMemberRelations);
+        }
         userRoleRelationMapper.deleteByExample(relationExample);
         UserRolePermissionExample permissionExample = new UserRolePermissionExample();
         permissionExample.createCriteria().andRoleIdEqualTo(roleId);
@@ -101,7 +129,15 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
     public void removeMember(OrganizationUserRoleMemberEditRequest request) {
         String removeUserId = request.getUserIds().get(0);
         checkMemberParam(removeUserId, request.getUserRoleId());
+        // 移除组织-用户组的成员, 若成员只存在该组织下唯一用户组, 则提示不能移除
         UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdEqualTo(removeUserId)
+                .andRoleIdNotEqualTo(request.getUserRoleId())
+                .andSourceIdEqualTo(request.getOrganizationId());
+        if (userRoleRelationMapper.countByExample(example) == 0) {
+            throw new MSException(Translator.get("at_least_one_user_role_require"));
+        }
+        example.clear();
         example.createCriteria().andUserIdEqualTo(removeUserId)
                 .andRoleIdEqualTo(request.getUserRoleId())
                 .andSourceIdEqualTo(request.getOrganizationId());
