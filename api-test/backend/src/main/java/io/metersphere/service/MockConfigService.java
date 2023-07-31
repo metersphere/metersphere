@@ -95,7 +95,7 @@ public class MockConfigService {
 
     public List<MockConfigImportDTO> selectMockExpectConfigByApiIdIn(List<String> apiIds) {
         if (CollectionUtils.isNotEmpty(apiIds)) {
-           return extMockExpectConfigMapper.selectByApiIdIn(apiIds);
+            return extMockExpectConfigMapper.selectByApiIdIn(apiIds);
         } else {
             return new ArrayList<>();
         }
@@ -848,7 +848,7 @@ public class MockConfigService {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             LogUtil.info("Mock urlSuffix:{}", urlSuffix);
             LogUtil.info("Mock requestHeaderMap:{}", requestHeaderMap);
-            LogUtil.info("Mock requestMockParams:{}", requestMockParams);
+            LogUtil.info("Mock requestMockParams:{}", JSON.toJSONString(requestMockParams));
             List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             for (ApiDefinitionWithBLOBs api : qualifiedApiList) {
                 if (StringUtils.isEmpty(returnStr)) {
@@ -885,7 +885,7 @@ public class MockConfigService {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             LogUtil.info("Mock urlSuffix:{}", urlSuffix);
             LogUtil.info("Mock requestHeaderMap:{}", requestHeaderMap);
-            LogUtil.info("Mock requestMockParams:{}", requestMockParams);
+            LogUtil.info("Mock requestMockParams:{}", JSON.toJSONString(requestMockParams));
             List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             /*
               GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：

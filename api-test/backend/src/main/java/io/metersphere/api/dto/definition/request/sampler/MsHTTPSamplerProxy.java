@@ -103,7 +103,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         } else if (config.isOperating() && StringUtils.isNotEmpty(config.getOperatingSampleTestName())) {
             this.setName(config.getOperatingSampleTestName());
         }
-        
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             boolean ref = this.setRefElement();
             if (!ref) {
@@ -405,11 +405,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String envPath = "";
                 try {
                     URL urlObject = new URL(url);
-                    if (url.contains("${")){
+                    if (url.contains("${")) {
                         envPath = url;
                     } else {
                         sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
                         envPath = urlObject.getPath();
+                        sampler.setPort(urlObject.getPort());
                     }
                     sampler.setProtocol(urlObject.getProtocol());
                 } catch (Exception e) {
@@ -482,7 +483,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         try {
             URL urlObject = new URL(url);
             String envPath;
-            if (url.contains("${")){
+            if (url.contains("${")) {
                 envPath = url;
             } else {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8.name()));
