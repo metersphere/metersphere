@@ -223,4 +223,39 @@
       `result` = #{result,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into custom_function_blob
+    (id, params, script, `result`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.params,jdbcType=LONGVARBINARY}, #{item.script,jdbcType=LONGVARBINARY}, 
+        #{item.result,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into custom_function_blob (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'params'.toString() == column.value">
+          #{item.params,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'script'.toString() == column.value">
+          #{item.script,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'result'.toString() == column.value">
+          #{item.result,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

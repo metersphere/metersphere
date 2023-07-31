@@ -27,4 +27,8 @@ public interface UiScenarioModuleMapper {
     int updateByPrimaryKeySelective(UiScenarioModule record);
 
     int updateByPrimaryKey(UiScenarioModule record);
+
+    int batchInsert(@Param("list") List<UiScenarioModule> list);
+
+    int batchInsertSelective(@Param("list") List<UiScenarioModule> list, @Param("selective") UiScenarioModule.Column ... selective);
 }

@@ -27,4 +27,8 @@ public interface UserRoleRelationMapper {
     int updateByPrimaryKeySelective(UserRoleRelation record);
 
     int updateByPrimaryKey(UserRoleRelation record);
+
+    int batchInsert(@Param("list") List<UserRoleRelation> list);
+
+    int batchInsertSelective(@Param("list") List<UserRoleRelation> list, @Param("selective") UserRoleRelation.Column ... selective);
 }

@@ -21,4 +21,8 @@ public interface PluginOrganizationMapper {
     int updateByExampleSelective(@Param("record") PluginOrganization record, @Param("example") PluginOrganizationExample example);
 
     int updateByExample(@Param("record") PluginOrganization record, @Param("example") PluginOrganizationExample example);
+
+    int batchInsert(@Param("list") List<PluginOrganization> list);
+
+    int batchInsertSelective(@Param("list") List<PluginOrganization> list, @Param("selective") PluginOrganization.Column ... selective);
 }

@@ -231,4 +231,39 @@
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_scenario_report_log
+    (id, report_id, create_time, console)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.console,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_scenario_report_log (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'console'.toString() == column.value">
+          #{item.console,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -225,4 +225,46 @@
       data_type = #{dataType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_scenario_reference
+    (id, ui_scenario_id, create_time, create_user, reference_id, data_type)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.uiScenarioId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.referenceId,jdbcType=VARCHAR}, #{item.dataType,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_scenario_reference (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'ui_scenario_id'.toString() == column.value">
+          #{item.uiScenarioId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'reference_id'.toString() == column.value">
+          #{item.referenceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'data_type'.toString() == column.value">
+          #{item.dataType,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

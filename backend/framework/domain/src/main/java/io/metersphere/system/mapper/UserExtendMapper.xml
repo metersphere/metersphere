@@ -214,4 +214,36 @@
     set selenium_server = #{seleniumServer,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into user_extend
+    (id, selenium_server, platform_info)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.seleniumServer,jdbcType=VARCHAR}, #{item.platformInfo,jdbcType=LONGVARBINARY}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into user_extend (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'selenium_server'.toString() == column.value">
+          #{item.seleniumServer,jdbcType=VARCHAR}
+        </if>
+        <if test="'platform_info'.toString() == column.value">
+          #{item.platformInfo,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

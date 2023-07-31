@@ -178,4 +178,36 @@
       environment_id = #{environmentId,jdbcType=VARCHAR}
     where report_id = #{reportId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_scenario_report_environment
+    (report_id, project_id, environment_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.reportId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_scenario_report_environment (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -31,4 +31,8 @@ public interface PluginFrontScriptMapper {
     int updateByPrimaryKeySelective(PluginFrontScript record);
 
     int updateByPrimaryKeyWithBLOBs(PluginFrontScript record);
+
+    int batchInsert(@Param("list") List<PluginFrontScript> list);
+
+    int batchInsertSelective(@Param("list") List<PluginFrontScript> list, @Param("selective") PluginFrontScript.Column ... selective);
 }

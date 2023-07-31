@@ -27,4 +27,8 @@ public interface ApiTemplateMapper {
     int updateByPrimaryKeySelective(ApiTemplate record);
 
     int updateByPrimaryKey(ApiTemplate record);
+
+    int batchInsert(@Param("list") List<ApiTemplate> list);
+
+    int batchInsertSelective(@Param("list") List<ApiTemplate> list, @Param("selective") ApiTemplate.Column ... selective);
 }

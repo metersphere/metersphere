@@ -33,4 +33,8 @@ public interface UserExtendMapper {
     int updateByPrimaryKeyWithBLOBs(UserExtend record);
 
     int updateByPrimaryKey(UserExtend record);
+
+    int batchInsert(@Param("list") List<UserExtend> list);
+
+    int batchInsertSelective(@Param("list") List<UserExtend> list, @Param("selective") UserExtend.Column ... selective);
 }

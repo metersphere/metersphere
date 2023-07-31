@@ -27,4 +27,8 @@ public interface BugMapper {
     int updateByPrimaryKeySelective(Bug record);
 
     int updateByPrimaryKey(Bug record);
+
+    int batchInsert(@Param("list") List<Bug> list);
+
+    int batchInsertSelective(@Param("list") List<Bug> list, @Param("selective") Bug.Column ... selective);
 }

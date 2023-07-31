@@ -27,4 +27,8 @@ public interface SystemParameterMapper {
     int updateByPrimaryKeySelective(SystemParameter record);
 
     int updateByPrimaryKey(SystemParameter record);
+
+    int batchInsert(@Param("list") List<SystemParameter> list);
+
+    int batchInsertSelective(@Param("list") List<SystemParameter> list, @Param("selective") SystemParameter.Column ... selective);
 }

@@ -240,4 +240,49 @@
       project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into bug_template
+    (id, `name`, description, internal, create_time, create_user, project_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
+        #{item.internal,jdbcType=BIT}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into bug_template (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'internal'.toString() == column.value">
+          #{item.internal,jdbcType=BIT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

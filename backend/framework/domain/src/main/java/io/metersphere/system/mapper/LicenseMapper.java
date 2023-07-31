@@ -33,4 +33,8 @@ public interface LicenseMapper {
     int updateByPrimaryKeyWithBLOBs(License record);
 
     int updateByPrimaryKey(License record);
+
+    int batchInsert(@Param("list") List<License> list);
+
+    int batchInsertSelective(@Param("list") List<License> list, @Param("selective") License.Column ... selective);
 }

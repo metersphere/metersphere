@@ -492,4 +492,104 @@
       description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_custom_command
+    (id, project_id, tags, module_id, module_path, `name`, `level`, `status`, principal, 
+      create_time, update_time, last_result, num, deleted, custom_num, create_user, delete_time, 
+      delete_user, pos, version_id, ref_id, latest, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, 
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.modulePath,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.level,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.principal,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.lastResult,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=INTEGER}, #{item.deleted,jdbcType=BIT}, #{item.customNum,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
+        #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
+        #{item.latest,jdbcType=BIT}, #{item.description,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_custom_command (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_path'.toString() == column.value">
+          #{item.modulePath,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'level'.toString() == column.value">
+          #{item.level,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'principal'.toString() == column.value">
+          #{item.principal,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'last_result'.toString() == column.value">
+          #{item.lastResult,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'custom_num'.toString() == column.value">
+          #{item.customNum,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'delete_time'.toString() == column.value">
+          #{item.deleteTime,jdbcType=BIGINT}
+        </if>
+        <if test="'delete_user'.toString() == column.value">
+          #{item.deleteUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'latest'.toString() == column.value">
+          #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

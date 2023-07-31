@@ -27,4 +27,8 @@ public interface TestResourcePoolMapper {
     int updateByPrimaryKeySelective(TestResourcePool record);
 
     int updateByPrimaryKey(TestResourcePool record);
+
+    int batchInsert(@Param("list") List<TestResourcePool> list);
+
+    int batchInsertSelective(@Param("list") List<TestResourcePool> list, @Param("selective") TestResourcePool.Column ... selective);
 }

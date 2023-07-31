@@ -231,4 +231,39 @@
       organization_id = #{organizationId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into service_integration
+    (id, platform, organization_id, configuration)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.organizationId,jdbcType=VARCHAR}, 
+        #{item.configuration,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into service_integration (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'platform'.toString() == column.value">
+          #{item.platform,jdbcType=VARCHAR}
+        </if>
+        <if test="'organization_id'.toString() == column.value">
+          #{item.organizationId,jdbcType=VARCHAR}
+        </if>
+        <if test="'configuration'.toString() == column.value">
+          #{item.configuration,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

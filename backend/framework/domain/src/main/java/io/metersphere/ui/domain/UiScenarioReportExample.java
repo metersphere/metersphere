@@ -1113,6 +1113,76 @@ public class UiScenarioReportExample {
             addCriterion("relevance_test_plan_report_id not between", value1, value2, "relevanceTestPlanReportId");
             return (Criteria) this;
         }
+
+        public Criteria andReportSourceIsNull() {
+            addCriterion("report_source is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceIsNotNull() {
+            addCriterion("report_source is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceEqualTo(String value) {
+            addCriterion("report_source =", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceNotEqualTo(String value) {
+            addCriterion("report_source <>", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceGreaterThan(String value) {
+            addCriterion("report_source >", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceGreaterThanOrEqualTo(String value) {
+            addCriterion("report_source >=", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceLessThan(String value) {
+            addCriterion("report_source <", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceLessThanOrEqualTo(String value) {
+            addCriterion("report_source <=", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceLike(String value) {
+            addCriterion("report_source like", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceNotLike(String value) {
+            addCriterion("report_source not like", value, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceIn(List<String> values) {
+            addCriterion("report_source in", values, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceNotIn(List<String> values) {
+            addCriterion("report_source not in", values, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceBetween(String value1, String value2) {
+            addCriterion("report_source between", value1, value2, "reportSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportSourceNotBetween(String value1, String value2) {
+            addCriterion("report_source not between", value1, value2, "reportSource");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

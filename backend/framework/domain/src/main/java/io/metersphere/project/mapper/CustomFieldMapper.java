@@ -33,4 +33,8 @@ public interface CustomFieldMapper {
     int updateByPrimaryKeyWithBLOBs(CustomField record);
 
     int updateByPrimaryKey(CustomField record);
+
+    int batchInsert(@Param("list") List<CustomField> list);
+
+    int batchInsertSelective(@Param("list") List<CustomField> list, @Param("selective") CustomField.Column ... selective);
 }

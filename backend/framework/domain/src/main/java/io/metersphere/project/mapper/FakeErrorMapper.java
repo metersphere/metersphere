@@ -27,4 +27,8 @@ public interface FakeErrorMapper {
     int updateByPrimaryKeySelective(FakeError record);
 
     int updateByPrimaryKey(FakeError record);
+
+    int batchInsert(@Param("list") List<FakeError> list);
+
+    int batchInsertSelective(@Param("list") List<FakeError> list, @Param("selective") FakeError.Column ... selective);
 }

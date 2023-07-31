@@ -273,4 +273,57 @@
       `status` = #{status,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into fake_error
+    (id, project_id, create_time, update_time, create_user, update_user, error_code, 
+      match_type, `status`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
+        #{item.errorCode,jdbcType=VARCHAR}, #{item.matchType,jdbcType=VARCHAR}, #{item.status,jdbcType=BIT}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into fake_error (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'error_code'.toString() == column.value">
+          #{item.errorCode,jdbcType=VARCHAR}
+        </if>
+        <if test="'match_type'.toString() == column.value">
+          #{item.matchType,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=BIT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

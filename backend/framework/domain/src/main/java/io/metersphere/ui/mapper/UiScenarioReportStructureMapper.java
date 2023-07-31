@@ -33,4 +33,8 @@ public interface UiScenarioReportStructureMapper {
     int updateByPrimaryKeyWithBLOBs(UiScenarioReportStructure record);
 
     int updateByPrimaryKey(UiScenarioReportStructure record);
+
+    int batchInsert(@Param("list") List<UiScenarioReportStructure> list);
+
+    int batchInsertSelective(@Param("list") List<UiScenarioReportStructure> list, @Param("selective") UiScenarioReportStructure.Column ... selective);
 }

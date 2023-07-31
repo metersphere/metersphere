@@ -27,4 +27,8 @@ public interface ProjectMapper {
     int updateByPrimaryKeySelective(Project record);
 
     int updateByPrimaryKey(Project record);
+
+    int batchInsert(@Param("list") List<Project> list);
+
+    int batchInsertSelective(@Param("list") List<Project> list, @Param("selective") Project.Column ... selective);
 }

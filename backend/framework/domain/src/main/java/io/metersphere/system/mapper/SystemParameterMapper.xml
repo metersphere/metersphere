@@ -178,4 +178,36 @@
       `type` = #{type,jdbcType=VARCHAR}
     where param_key = #{paramKey,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into system_parameter
+    (param_key, param_value, `type`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.paramKey,jdbcType=VARCHAR}, #{item.paramValue,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into system_parameter (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'param_key'.toString() == column.value">
+          #{item.paramKey,jdbcType=VARCHAR}
+        </if>
+        <if test="'param_value'.toString() == column.value">
+          #{item.paramValue,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

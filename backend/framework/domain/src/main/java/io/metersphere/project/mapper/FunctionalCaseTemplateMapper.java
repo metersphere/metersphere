@@ -27,4 +27,8 @@ public interface FunctionalCaseTemplateMapper {
     int updateByPrimaryKeySelective(FunctionalCaseTemplate record);
 
     int updateByPrimaryKey(FunctionalCaseTemplate record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseTemplate> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseTemplate> list, @Param("selective") FunctionalCaseTemplate.Column ... selective);
 }

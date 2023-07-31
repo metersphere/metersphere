@@ -391,4 +391,70 @@
       third_part = #{thirdPart,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into custom_field
+    (id, `name`, scene, `type`, remark, `system`, `global`, create_time, update_time, 
+      create_user, project_id, third_part, `options`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.scene,jdbcType=VARCHAR}, 
+        #{item.type,jdbcType=VARCHAR}, #{item.remark,jdbcType=VARCHAR}, #{item.system,jdbcType=BIT}, 
+        #{item.global,jdbcType=BIT}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.thirdPart,jdbcType=BIT}, 
+        #{item.options,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into custom_field (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'scene'.toString() == column.value">
+          #{item.scene,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'remark'.toString() == column.value">
+          #{item.remark,jdbcType=VARCHAR}
+        </if>
+        <if test="'system'.toString() == column.value">
+          #{item.system,jdbcType=BIT}
+        </if>
+        <if test="'global'.toString() == column.value">
+          #{item.global,jdbcType=BIT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'third_part'.toString() == column.value">
+          #{item.thirdPart,jdbcType=BIT}
+        </if>
+        <if test="'options'.toString() == column.value">
+          #{item.options,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -21,4 +21,8 @@ public interface UiScenarioFollowerMapper {
     int updateByExampleSelective(@Param("record") UiScenarioFollower record, @Param("example") UiScenarioFollowerExample example);
 
     int updateByExample(@Param("record") UiScenarioFollower record, @Param("example") UiScenarioFollowerExample example);
+
+    int batchInsert(@Param("list") List<UiScenarioFollower> list);
+
+    int batchInsertSelective(@Param("list") List<UiScenarioFollower> list, @Param("selective") UiScenarioFollower.Column ... selective);
 }

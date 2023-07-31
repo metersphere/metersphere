@@ -33,4 +33,8 @@ public interface BugTemplateExtendMapper {
     int updateByPrimaryKeyWithBLOBs(BugTemplateExtend record);
 
     int updateByPrimaryKey(BugTemplateExtend record);
+
+    int batchInsert(@Param("list") List<BugTemplateExtend> list);
+
+    int batchInsertSelective(@Param("list") List<BugTemplateExtend> list, @Param("selective") BugTemplateExtend.Column ... selective);
 }

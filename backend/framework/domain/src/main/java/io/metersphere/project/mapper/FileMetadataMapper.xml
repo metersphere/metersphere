@@ -415,4 +415,88 @@
       ref_id = #{refId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into file_metadata
+    (id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
+      update_user, tags, description, module_id, load_jar, `path`, resource_type, latest, 
+      ref_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
+        #{item.size,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.storage,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.loadJar,jdbcType=BIT}, #{item.path,jdbcType=VARCHAR}, 
+        #{item.resourceType,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into file_metadata (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'size'.toString() == column.value">
+          #{item.size,jdbcType=BIGINT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'storage'.toString() == column.value">
+          #{item.storage,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'load_jar'.toString() == column.value">
+          #{item.loadJar,jdbcType=BIT}
+        </if>
+        <if test="'path'.toString() == column.value">
+          #{item.path,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_type'.toString() == column.value">
+          #{item.resourceType,jdbcType=VARCHAR}
+        </if>
+        <if test="'latest'.toString() == column.value">
+          #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -31,4 +31,8 @@ public interface ApiDefinitionBlobMapper {
     int updateByPrimaryKeySelective(ApiDefinitionBlob record);
 
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionBlob record);
+
+    int batchInsert(@Param("list") List<ApiDefinitionBlob> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinitionBlob> list, @Param("selective") ApiDefinitionBlob.Column ... selective);
 }

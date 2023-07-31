@@ -225,4 +225,46 @@
       `enable` = #{enable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into user_key
+    (id, create_user, access_key, secret_key, create_time, `enable`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.accessKey,jdbcType=VARCHAR}, 
+        #{item.secretKey,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into user_key (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'access_key'.toString() == column.value">
+          #{item.accessKey,jdbcType=VARCHAR}
+        </if>
+        <if test="'secret_key'.toString() == column.value">
+          #{item.secretKey,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -295,4 +295,54 @@
       step_model = #{stepModel,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into functional_case_template_extend
+    (id, case_name, step_model, prerequisite, step_description, expected_result, actual_result, 
+      steps)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseName,jdbcType=VARCHAR}, #{item.stepModel,jdbcType=VARCHAR}, 
+        #{item.prerequisite,jdbcType=LONGVARCHAR}, #{item.stepDescription,jdbcType=LONGVARCHAR}, 
+        #{item.expectedResult,jdbcType=LONGVARCHAR}, #{item.actualResult,jdbcType=LONGVARCHAR}, 
+        #{item.steps,jdbcType=LONGVARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into functional_case_template_extend (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_name'.toString() == column.value">
+          #{item.caseName,jdbcType=VARCHAR}
+        </if>
+        <if test="'step_model'.toString() == column.value">
+          #{item.stepModel,jdbcType=VARCHAR}
+        </if>
+        <if test="'prerequisite'.toString() == column.value">
+          #{item.prerequisite,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'step_description'.toString() == column.value">
+          #{item.stepDescription,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'expected_result'.toString() == column.value">
+          #{item.expectedResult,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'actual_result'.toString() == column.value">
+          #{item.actualResult,jdbcType=LONGVARCHAR}
+        </if>
+        <if test="'steps'.toString() == column.value">
+          #{item.steps,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

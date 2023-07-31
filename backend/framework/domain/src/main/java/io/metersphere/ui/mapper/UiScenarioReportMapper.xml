@@ -17,6 +17,7 @@
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
     <result column="relevance_test_plan_report_id" jdbcType="VARCHAR" property="relevanceTestPlanReportId" />
+    <result column="report_source" jdbcType="VARCHAR" property="reportSource" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,7 +79,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, create_time, update_time, `status`, trigger_mode, execute_type, 
-    scenario_name, scenario_id, create_user, pool_id, end_time, integrated, relevance_test_plan_report_id
+    scenario_name, scenario_id, create_user, pool_id, end_time, integrated, relevance_test_plan_report_id, 
+    report_source
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.ui.domain.UiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -115,14 +117,14 @@
       create_time, update_time, `status`, 
       trigger_mode, execute_type, scenario_name, 
       scenario_id, create_user, pool_id, 
-      end_time, integrated, relevance_test_plan_report_id
-      )
+      end_time, integrated, relevance_test_plan_report_id, 
+      report_source)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{triggerMode,jdbcType=VARCHAR}, #{executeType,jdbcType=VARCHAR}, #{scenarioName,jdbcType=VARCHAR}, 
       #{scenarioId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, 
-      #{endTime,jdbcType=BIGINT}, #{integrated,jdbcType=BIT}, #{relevanceTestPlanReportId,jdbcType=VARCHAR}
-      )
+      #{endTime,jdbcType=BIGINT}, #{integrated,jdbcType=BIT}, #{relevanceTestPlanReportId,jdbcType=VARCHAR}, 
+      #{reportSource,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.ui.domain.UiScenarioReport">
     insert into ui_scenario_report
@@ -172,6 +174,9 @@
       <if test="relevanceTestPlanReportId != null">
         relevance_test_plan_report_id,
       </if>
+      <if test="reportSource != null">
+        report_source,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -218,6 +223,9 @@
       </if>
       <if test="relevanceTestPlanReportId != null">
         #{relevanceTestPlanReportId,jdbcType=VARCHAR},
+      </if>
+      <if test="reportSource != null">
+        #{reportSource,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -275,6 +283,9 @@
       <if test="record.relevanceTestPlanReportId != null">
         relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.reportSource != null">
+        report_source = #{record.reportSource,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -296,7 +307,8 @@
       pool_id = #{record.poolId,jdbcType=VARCHAR},
       end_time = #{record.endTime,jdbcType=BIGINT},
       integrated = #{record.integrated,jdbcType=BIT},
-      relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR}
+      relevance_test_plan_report_id = #{record.relevanceTestPlanReportId,jdbcType=VARCHAR},
+      report_source = #{record.reportSource,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,6 +358,9 @@
       <if test="relevanceTestPlanReportId != null">
         relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR},
       </if>
+      <if test="reportSource != null">
+        report_source = #{reportSource,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -364,7 +379,85 @@
       pool_id = #{poolId,jdbcType=VARCHAR},
       end_time = #{endTime,jdbcType=BIGINT},
       integrated = #{integrated,jdbcType=BIT},
-      relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR}
+      relevance_test_plan_report_id = #{relevanceTestPlanReportId,jdbcType=VARCHAR},
+      report_source = #{reportSource,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_scenario_report
+    (id, project_id, `name`, create_time, update_time, `status`, trigger_mode, execute_type, 
+      scenario_name, scenario_id, create_user, pool_id, end_time, integrated, relevance_test_plan_report_id, 
+      report_source)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.triggerMode,jdbcType=VARCHAR}, #{item.executeType,jdbcType=VARCHAR}, #{item.scenarioName,jdbcType=VARCHAR}, 
+        #{item.scenarioId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.poolId,jdbcType=VARCHAR}, 
+        #{item.endTime,jdbcType=BIGINT}, #{item.integrated,jdbcType=BIT}, #{item.relevanceTestPlanReportId,jdbcType=VARCHAR}, 
+        #{item.reportSource,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_scenario_report (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'trigger_mode'.toString() == column.value">
+          #{item.triggerMode,jdbcType=VARCHAR}
+        </if>
+        <if test="'execute_type'.toString() == column.value">
+          #{item.executeType,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_name'.toString() == column.value">
+          #{item.scenarioName,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_id'.toString() == column.value">
+          #{item.scenarioId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'pool_id'.toString() == column.value">
+          #{item.poolId,jdbcType=VARCHAR}
+        </if>
+        <if test="'end_time'.toString() == column.value">
+          #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'integrated'.toString() == column.value">
+          #{item.integrated,jdbcType=BIT}
+        </if>
+        <if test="'relevance_test_plan_report_id'.toString() == column.value">
+          #{item.relevanceTestPlanReportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'report_source'.toString() == column.value">
+          #{item.reportSource,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

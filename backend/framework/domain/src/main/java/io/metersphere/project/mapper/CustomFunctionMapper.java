@@ -27,4 +27,8 @@ public interface CustomFunctionMapper {
     int updateByPrimaryKeySelective(CustomFunction record);
 
     int updateByPrimaryKey(CustomFunction record);
+
+    int batchInsert(@Param("list") List<CustomFunction> list);
+
+    int batchInsertSelective(@Param("list") List<CustomFunction> list, @Param("selective") CustomFunction.Column ... selective);
 }

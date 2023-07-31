@@ -225,4 +225,46 @@
       create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into user_role_relation
+    (id, user_id, role_id, source_id, create_time, create_user)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.userId,jdbcType=VARCHAR}, #{item.roleId,jdbcType=VARCHAR}, 
+        #{item.sourceId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into user_role_relation (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'user_id'.toString() == column.value">
+          #{item.userId,jdbcType=VARCHAR}
+        </if>
+        <if test="'role_id'.toString() == column.value">
+          #{item.roleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'source_id'.toString() == column.value">
+          #{item.sourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

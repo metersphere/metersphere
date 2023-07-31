@@ -248,4 +248,43 @@
       repository_token = #{repositoryToken,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into file_module_blob
+    (id, repository_path, repository_user_name, repository_token, repository_desc)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.repositoryPath,jdbcType=VARCHAR}, #{item.repositoryUserName,jdbcType=VARCHAR}, 
+        #{item.repositoryToken,jdbcType=VARCHAR}, #{item.repositoryDesc,jdbcType=LONGVARBINARY}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into file_module_blob (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'repository_path'.toString() == column.value">
+          #{item.repositoryPath,jdbcType=VARCHAR}
+        </if>
+        <if test="'repository_user_name'.toString() == column.value">
+          #{item.repositoryUserName,jdbcType=VARCHAR}
+        </if>
+        <if test="'repository_token'.toString() == column.value">
+          #{item.repositoryToken,jdbcType=VARCHAR}
+        </if>
+        <if test="'repository_desc'.toString() == column.value">
+          #{item.repositoryDesc,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

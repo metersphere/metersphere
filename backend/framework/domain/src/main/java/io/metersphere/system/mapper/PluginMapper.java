@@ -27,4 +27,8 @@ public interface PluginMapper {
     int updateByPrimaryKeySelective(Plugin record);
 
     int updateByPrimaryKey(Plugin record);
+
+    int batchInsert(@Param("list") List<Plugin> list);
+
+    int batchInsertSelective(@Param("list") List<Plugin> list, @Param("selective") Plugin.Column ... selective);
 }

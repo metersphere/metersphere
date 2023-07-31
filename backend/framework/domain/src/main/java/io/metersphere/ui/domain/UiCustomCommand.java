@@ -4,6 +4,8 @@ import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import lombok.Data;
 
 @Data
@@ -58,12 +60,10 @@ public class UiCustomCommand implements Serializable {
     @Schema(title = "最后执行结果")
     private String lastResult;
 
-    @Schema(title = "num", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{ui_custom_command.num.not_blank}", groups = {Created.class})
+    @Schema(title = "num")
     private Integer num;
 
-    @Schema(title = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{ui_custom_command.deleted.not_blank}", groups = {Created.class})
+    @Schema(title = "删除状态")
     private Boolean deleted;
 
     @Schema(title = "自定义num")
@@ -92,12 +92,104 @@ public class UiCustomCommand implements Serializable {
     @Size(min = 1, max = 50, message = "{ui_custom_command.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
-    @Schema(title = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{ui_custom_command.latest.not_blank}", groups = {Created.class})
+    @Schema(title = "是否为最新版本 0:否，1:是")
     private Boolean latest;
 
     @Schema(title = "描述")
     private String description;
 
     private static final long serialVersionUID = 1L;
+
+    public enum Column {
+        id("id", "id", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
+        tags("tags", "tags", "VARCHAR", false),
+        moduleId("module_id", "moduleId", "VARCHAR", false),
+        modulePath("module_path", "modulePath", "VARCHAR", false),
+        name("name", "name", "VARCHAR", true),
+        level("level", "level", "VARCHAR", true),
+        status("status", "status", "VARCHAR", true),
+        principal("principal", "principal", "VARCHAR", false),
+        createTime("create_time", "createTime", "BIGINT", false),
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        lastResult("last_result", "lastResult", "VARCHAR", false),
+        num("num", "num", "INTEGER", false),
+        deleted("deleted", "deleted", "BIT", false),
+        customNum("custom_num", "customNum", "VARCHAR", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        deleteTime("delete_time", "deleteTime", "BIGINT", false),
+        deleteUser("delete_user", "deleteUser", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false),
+        versionId("version_id", "versionId", "VARCHAR", false),
+        refId("ref_id", "refId", "VARCHAR", false),
+        latest("latest", "latest", "BIT", false),
+        description("description", "description", "VARCHAR", false);
+
+        private static final String BEGINNING_DELIMITER = "`";
+
+        private static final String ENDING_DELIMITER = "`";
+
+        private final String column;
+
+        private final boolean isColumnNameDelimited;
+
+        private final String javaProperty;
+
+        private final String jdbcType;
+
+        public String value() {
+            return this.column;
+        }
+
+        public String getValue() {
+            return this.column;
+        }
+
+        public String getJavaProperty() {
+            return this.javaProperty;
+        }
+
+        public String getJdbcType() {
+            return this.jdbcType;
+        }
+
+        Column(String column, String javaProperty, String jdbcType, boolean isColumnNameDelimited) {
+            this.column = column;
+            this.javaProperty = javaProperty;
+            this.jdbcType = jdbcType;
+            this.isColumnNameDelimited = isColumnNameDelimited;
+        }
+
+        public String desc() {
+            return this.getEscapedColumnName() + " DESC";
+        }
+
+        public String asc() {
+            return this.getEscapedColumnName() + " ASC";
+        }
+
+        public static Column[] excludes(Column ... excludes) {
+            ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
+            if (excludes != null && excludes.length > 0) {
+                columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));
+            }
+            return columns.toArray(new Column[]{});
+        }
+
+        public static Column[] all() {
+            return Column.values();
+        }
+
+        public String getEscapedColumnName() {
+            if (this.isColumnNameDelimited) {
+                return new StringBuilder().append(BEGINNING_DELIMITER).append(this.column).append(ENDING_DELIMITER).toString();
+            } else {
+                return this.column;
+            }
+        }
+
+        public String getAliasedEscapedColumnName() {
+            return this.getEscapedColumnName();
+        }
+    }
 }

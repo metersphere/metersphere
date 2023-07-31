@@ -318,4 +318,57 @@
       `key` = #{key,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into custom_field_template
+    (id, field_id, template_id, scene, required, pos, custom_data, `key`, default_value
+      )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, 
+        #{item.scene,jdbcType=VARCHAR}, #{item.required,jdbcType=BIT}, #{item.pos,jdbcType=INTEGER}, 
+        #{item.customData,jdbcType=VARCHAR}, #{item.key,jdbcType=VARCHAR}, #{item.defaultValue,jdbcType=LONGVARBINARY}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into custom_field_template (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'field_id'.toString() == column.value">
+          #{item.fieldId,jdbcType=VARCHAR}
+        </if>
+        <if test="'template_id'.toString() == column.value">
+          #{item.templateId,jdbcType=VARCHAR}
+        </if>
+        <if test="'scene'.toString() == column.value">
+          #{item.scene,jdbcType=VARCHAR}
+        </if>
+        <if test="'required'.toString() == column.value">
+          #{item.required,jdbcType=BIT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=INTEGER}
+        </if>
+        <if test="'custom_data'.toString() == column.value">
+          #{item.customData,jdbcType=VARCHAR}
+        </if>
+        <if test="'key'.toString() == column.value">
+          #{item.key,jdbcType=VARCHAR}
+        </if>
+        <if test="'default_value'.toString() == column.value">
+          #{item.defaultValue,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -27,4 +27,8 @@ public interface ApiDefinitionMapper {
     int updateByPrimaryKeySelective(ApiDefinition record);
 
     int updateByPrimaryKey(ApiDefinition record);
+
+    int batchInsert(@Param("list") List<ApiDefinition> list);
+
+    int batchInsertSelective(@Param("list") List<ApiDefinition> list, @Param("selective") ApiDefinition.Column ... selective);
 }

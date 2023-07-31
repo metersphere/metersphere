@@ -27,4 +27,8 @@ public interface UserRolePermissionMapper {
     int updateByPrimaryKeySelective(UserRolePermission record);
 
     int updateByPrimaryKey(UserRolePermission record);
+
+    int batchInsert(@Param("list") List<UserRolePermission> list);
+
+    int batchInsertSelective(@Param("list") List<UserRolePermission> list, @Param("selective") UserRolePermission.Column ... selective);
 }

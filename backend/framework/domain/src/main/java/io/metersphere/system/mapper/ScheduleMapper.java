@@ -27,4 +27,8 @@ public interface ScheduleMapper {
     int updateByPrimaryKeySelective(Schedule record);
 
     int updateByPrimaryKey(Schedule record);
+
+    int batchInsert(@Param("list") List<Schedule> list);
+
+    int batchInsertSelective(@Param("list") List<Schedule> list, @Param("selective") Schedule.Column ... selective);
 }

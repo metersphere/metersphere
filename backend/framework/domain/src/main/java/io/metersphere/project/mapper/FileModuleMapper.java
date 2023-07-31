@@ -27,4 +27,8 @@ public interface FileModuleMapper {
     int updateByPrimaryKeySelective(FileModule record);
 
     int updateByPrimaryKey(FileModule record);
+
+    int batchInsert(@Param("list") List<FileModule> list);
+
+    int batchInsertSelective(@Param("list") List<FileModule> list, @Param("selective") FileModule.Column ... selective);
 }

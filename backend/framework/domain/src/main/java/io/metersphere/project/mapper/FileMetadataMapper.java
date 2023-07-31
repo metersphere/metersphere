@@ -27,4 +27,8 @@ public interface FileMetadataMapper {
     int updateByPrimaryKeySelective(FileMetadata record);
 
     int updateByPrimaryKey(FileMetadata record);
+
+    int batchInsert(@Param("list") List<FileMetadata> list);
+
+    int batchInsertSelective(@Param("list") List<FileMetadata> list, @Param("selective") FileMetadata.Column ... selective);
 }

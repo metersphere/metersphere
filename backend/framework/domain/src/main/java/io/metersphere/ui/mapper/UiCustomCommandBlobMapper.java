@@ -31,4 +31,8 @@ public interface UiCustomCommandBlobMapper {
     int updateByPrimaryKeySelective(UiCustomCommandBlob record);
 
     int updateByPrimaryKeyWithBLOBs(UiCustomCommandBlob record);
+
+    int batchInsert(@Param("list") List<UiCustomCommandBlob> list);
+
+    int batchInsertSelective(@Param("list") List<UiCustomCommandBlob> list, @Param("selective") UiCustomCommandBlob.Column ... selective);
 }

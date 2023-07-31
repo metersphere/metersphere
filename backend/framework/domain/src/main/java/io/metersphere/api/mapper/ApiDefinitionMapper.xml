@@ -540,4 +540,115 @@
       description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_definition
+    (id, create_time, create_user, update_time, update_user, delete_user, delete_time, 
+      deleted, `name`, `method`, protocol, `path`, module_path, `status`, module_id, 
+      num, tags, pos, sync_enable, sync_time, project_id, environment_id, latest, version_id, 
+      ref_id, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, 
+        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.method,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, 
+        #{item.modulePath,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=INTEGER}, #{item.tags,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
+        #{item.syncEnable,jdbcType=BIT}, #{item.syncTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.environmentId,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, #{item.versionId,jdbcType=VARCHAR}, 
+        #{item.refId,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_definition (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'delete_user'.toString() == column.value">
+          #{item.deleteUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'delete_time'.toString() == column.value">
+          #{item.deleteTime,jdbcType=BIGINT}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'method'.toString() == column.value">
+          #{item.method,jdbcType=VARCHAR}
+        </if>
+        <if test="'protocol'.toString() == column.value">
+          #{item.protocol,jdbcType=VARCHAR}
+        </if>
+        <if test="'path'.toString() == column.value">
+          #{item.path,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_path'.toString() == column.value">
+          #{item.modulePath,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
+        </if>
+        <if test="'sync_enable'.toString() == column.value">
+          #{item.syncEnable,jdbcType=BIT}
+        </if>
+        <if test="'sync_time'.toString() == column.value">
+          #{item.syncTime,jdbcType=BIGINT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'latest'.toString() == column.value">
+          #{item.latest,jdbcType=BIT}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=VARCHAR}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

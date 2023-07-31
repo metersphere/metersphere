@@ -303,4 +303,63 @@
       resource_name = #{resourceName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into notification
+    (id, `type`, receiver, title, `status`, create_time, `operator`, `operation`, resource_id, 
+      resource_type, resource_name)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=BIGINT}, #{item.type,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
+        #{item.title,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.operator,jdbcType=VARCHAR}, #{item.operation,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
+        #{item.resourceType,jdbcType=VARCHAR}, #{item.resourceName,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into notification (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=BIGINT}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'receiver'.toString() == column.value">
+          #{item.receiver,jdbcType=VARCHAR}
+        </if>
+        <if test="'title'.toString() == column.value">
+          #{item.title,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'operator'.toString() == column.value">
+          #{item.operator,jdbcType=VARCHAR}
+        </if>
+        <if test="'operation'.toString() == column.value">
+          #{item.operation,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_type'.toString() == column.value">
+          #{item.resourceType,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_name'.toString() == column.value">
+          #{item.resourceName,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

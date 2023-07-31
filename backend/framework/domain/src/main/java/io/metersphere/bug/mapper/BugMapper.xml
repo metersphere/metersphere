@@ -303,4 +303,63 @@
       platform_id = #{platformId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into bug
+    (id, num, title, create_time, update_time, platform, project_id, create_user, source_id, 
+      platform_status, platform_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.title,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.platform,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
+        #{item.platformStatus,jdbcType=VARCHAR}, #{item.platformId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into bug (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=INTEGER}
+        </if>
+        <if test="'title'.toString() == column.value">
+          #{item.title,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'platform'.toString() == column.value">
+          #{item.platform,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'source_id'.toString() == column.value">
+          #{item.sourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'platform_status'.toString() == column.value">
+          #{item.platformStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="'platform_id'.toString() == column.value">
+          #{item.platformId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

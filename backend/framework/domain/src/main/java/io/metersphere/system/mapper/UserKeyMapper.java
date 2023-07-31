@@ -27,4 +27,8 @@ public interface UserKeyMapper {
     int updateByPrimaryKeySelective(UserKey record);
 
     int updateByPrimaryKey(UserKey record);
+
+    int batchInsert(@Param("list") List<UserKey> list);
+
+    int batchInsertSelective(@Param("list") List<UserKey> list, @Param("selective") UserKey.Column ... selective);
 }

@@ -17,6 +17,8 @@
         <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
         <plugin type="io.metersphere.tools.mybatis.swagger.ImportSwagger3Plugin"/>
         <plugin type="io.metersphere.tools.mybatis.validation.ImportValidatorPlugin"/>
+        <plugin type="com.itfsw.mybatis.generator.plugins.ModelColumnPlugin"/>
+        <plugin type="com.itfsw.mybatis.generator.plugins.BatchInsertPlugin"/>
 
         <!-- Lombok插件 -->
         <plugin type="com.itfsw.mybatis.generator.plugins.LombokPlugin">

@@ -27,4 +27,8 @@ public interface MessageTaskMapper {
     int updateByPrimaryKeySelective(MessageTask record);
 
     int updateByPrimaryKey(MessageTask record);
+
+    int batchInsert(@Param("list") List<MessageTask> list);
+
+    int batchInsertSelective(@Param("list") List<MessageTask> list, @Param("selective") MessageTask.Column ... selective);
 }

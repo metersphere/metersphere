@@ -27,4 +27,8 @@ public interface UiScenarioReportEnvironmentMapper {
     int updateByPrimaryKeySelective(UiScenarioReportEnvironment record);
 
     int updateByPrimaryKey(UiScenarioReportEnvironment record);
+
+    int batchInsert(@Param("list") List<UiScenarioReportEnvironment> list);
+
+    int batchInsertSelective(@Param("list") List<UiScenarioReportEnvironment> list, @Param("selective") UiScenarioReportEnvironment.Column ... selective);
 }

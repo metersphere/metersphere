@@ -27,4 +27,8 @@ public interface ProjectVersionMapper {
     int updateByPrimaryKeySelective(ProjectVersion record);
 
     int updateByPrimaryKey(ProjectVersion record);
+
+    int batchInsert(@Param("list") List<ProjectVersion> list);
+
+    int batchInsertSelective(@Param("list") List<ProjectVersion> list, @Param("selective") ProjectVersion.Column ... selective);
 }

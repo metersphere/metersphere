@@ -33,4 +33,8 @@ public interface NoviceStatisticsMapper {
     int updateByPrimaryKeyWithBLOBs(NoviceStatistics record);
 
     int updateByPrimaryKey(NoviceStatistics record);
+
+    int batchInsert(@Param("list") List<NoviceStatistics> list);
+
+    int batchInsertSelective(@Param("list") List<NoviceStatistics> list, @Param("selective") NoviceStatistics.Column ... selective);
 }
