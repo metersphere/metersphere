@@ -557,6 +557,7 @@ export default {
       this.showDelete = false;
       if (this.editData.type === 'CSV' && this.$refs.csv) {
         this.$refs.csv.cleanPreview();
+        this.reload();
       }
       this.$refs.variableTable.cancelCurrentRow();
     },
