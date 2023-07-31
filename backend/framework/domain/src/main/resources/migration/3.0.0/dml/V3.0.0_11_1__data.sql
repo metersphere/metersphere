@@ -20,11 +20,11 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES (uuid(), 'admin', 'admin', 'SYSTEM', 1684747668375, 'admin');
-INSERT INTO user_role_relation (id, user_id, role_id, source_id, create_time, create_user) VALUES (uuid(), 'admin', 'member', 'SYSTEM', 1684747668375, 'admin');
-
 
 -- 初始化用户组权限
 -- 系统管理员拥有所有的权限，不用初始化
+
+-- 系统成员的权限
 
 -- 组织管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'org_admin', 'SYSTEM_PROJECT:READ+DELETE_USER');
@@ -83,8 +83,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (uuid(), 'o
 -- 项目管理员权限
 
 -- 项目成员权限
-
--- 只读用户的权限
 
 -- 初始化当前站点配置
 INSERT into system_parameter values('base.url', 'http://127.0.0.1:8081', 'text');
