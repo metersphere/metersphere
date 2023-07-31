@@ -111,7 +111,7 @@ public class SystemProjectController {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
         batchRequest.setUserIds(request.getUserIds());
-        systemProjectService.addProjectMember(batchRequest, SessionUtils.getUserId(), false, "/system/project/add-member",
+        systemProjectService.addProjectMember(batchRequest, SessionUtils.getUserId(),"/system/project/add-member",
                 OperationLogType.ADD.name(), HttpMethodConstants.POST.name(), Translator.get("add"));
     }
 

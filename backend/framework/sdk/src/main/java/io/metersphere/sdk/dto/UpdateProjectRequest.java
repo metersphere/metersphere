@@ -3,7 +3,6 @@ package io.metersphere.sdk.dto;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -18,7 +17,6 @@ public class UpdateProjectRequest extends ProjectBaseRequest {
     @NotBlank(message = "{project.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{project.id.length_range}", groups = {Updated.class})
     private String id;
-    @Schema(title = "成员数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "{user.ids.not_blank}", groups = {Updated.class})
+    @Schema(title = "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> userIds;
 }
