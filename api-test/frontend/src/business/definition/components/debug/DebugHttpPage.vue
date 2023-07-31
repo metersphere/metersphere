@@ -278,6 +278,9 @@ export default {
         this.debugForm.path = url;
         this.debugForm.url = url;
       }
+      if (!this.debugForm.url.startsWith('http') && !this.debugForm.url.startsWith('https')) {
+        this.debugForm.url = 'http://' + this.debugForm.url;
+      }
     },
     getURL(urlStr) {
       try {
@@ -304,7 +307,7 @@ export default {
         }
         return url;
       } catch (e) {
-        if (!urlStr.startsWith("http") || !urlStr.startsWith("https")) {
+        if (!urlStr.startsWith("http") && !urlStr.startsWith("https")) {
           urlStr = "http://" + urlStr;
         }
         return urlStr;
