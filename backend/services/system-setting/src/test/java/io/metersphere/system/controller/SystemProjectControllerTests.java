@@ -184,8 +184,29 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+
+
+        //userId为空的时候
+        project = this.generatorAdd("organizationId","userIdIsNull", "description", true, new ArrayList<>());
+        mvcResult = this.responsePost(addProject, project);
+        result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(project.getOrganizationId()).andNameEqualTo(project.getName());
+        projects = projectMapper.selectByExample(projectExample);
+        projectId = result.getId();
+        // 校验日志
+        checkLog(projectId, OperationLogType.ADD);
+
+        this.compareProjectDTO(projects.get(0), result);
+        userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
 
         project.setName("testAddProjectSuccess1");
@@ -209,9 +230,6 @@ public class SystemProjectControllerTests extends BaseTest {
         this.requestPost(addProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
         project = this.generatorAdd("organizationId", null, null, true, List.of("admin"));
-        this.requestPost(addProject, project, BAD_REQUEST_MATCHER);
-        //项目成员为空
-        project = this.generatorAdd("organizationId", "name", null, true, new ArrayList<>());
         this.requestPost(addProject, project, BAD_REQUEST_MATCHER);
         //项目成员在系统中不存在
         project = this.generatorAdd("organizationId", "name", null, true, List.of("admin", "admin1", "admin2"));
@@ -318,9 +336,21 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId1").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin", "admin1")), true);
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId").andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin", "admin1")), true);
+
+        //用户id为空
+        project = this.generatorUpdate("organizationId", "projectId1", "TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
+        mvcResult = this.responsePost(updateProject, project);
+        result = this.parseObjectFromMvcResult(mvcResult, Project.class);
+        currentProject = projectMapper.selectByPrimaryKey(project.getId());
+        this.compareProjectDTO(currentProject, result);
+        userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId1").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        //断言userRoleRelations是空的
+        Assertions.assertTrue(userRoleRelations.isEmpty());
         // @@校验权限
         project.setName("TestName2");
         requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, updateProject, project);
@@ -330,7 +360,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId","TestName2", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","TestName2", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
@@ -340,9 +370,6 @@ public class SystemProjectControllerTests extends BaseTest {
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
         project = this.generatorUpdate("organizationId", "projectId",null, null, true, List.of("admin"));
-        this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
-        //用户id为空
-        project = this.generatorUpdate("organizationId", "projectId","TestName", null, true, null);
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
         project = this.generatorUpdate("organizationId", "1111","123", null, true, List.of("admin"));
@@ -405,7 +432,6 @@ public class SystemProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds), true);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds));
-        this.requestPost(addProjectMember, projectAddMemberRequest, status().isOk());
     }
 
     @Test
@@ -491,9 +517,12 @@ public class SystemProjectControllerTests extends BaseTest {
     public void testRemoveProjectMember() throws Exception{
         String projectId = "projectId1";
         String userId = "admin1";
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Assertions.assertTrue(count == 1);
+        Assertions.assertTrue(count == userRoleRelations.size());
     }
 
     @Test
