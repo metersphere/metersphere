@@ -1843,6 +1843,7 @@ export default {
             runScenario.hashTree[0].requestResult = [];
             runScenario.hashTree[0].testing = false;
           }
+          this.message = getUUID();
         }
       });
     },
