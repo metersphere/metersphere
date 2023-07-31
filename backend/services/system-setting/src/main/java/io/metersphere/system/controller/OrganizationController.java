@@ -8,6 +8,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
+import io.metersphere.system.dto.IdNameStructureDTO;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.request.*;
 import io.metersphere.system.service.OrganizationService;
@@ -24,6 +25,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 /**
  * @author song-cc-rock
  */
@@ -53,14 +55,14 @@ public class OrganizationController {
     @PostMapping("/role/update-member")
     @Operation(summary = "添加组织成员至用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
-    public void updateMemberRole(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
-        organizationService.updateMemberRole(organizationMemberExtendRequest, SessionUtils.getUserId());
+    public void addMemberRole(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
+        organizationService.addMemberRole(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @PostMapping("/update-member")
-    @Operation(summary = "更新用户组")
+    @Operation(summary = "更新用户")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
-    public void updateMember(@Validated @RequestBody OrganizationMemberExtendRequest organizationMemberExtendRequest) {
+    public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
         organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
@@ -81,6 +83,27 @@ public class OrganizationController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#organizationId, #userId)", msClass = OrganizationService.class)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
         organizationService.removeMember(organizationId, userId);
+    }
+
+    @GetMapping("/project/list/{organizationId}")
+    @Operation(summary = "获取当前组织下的所有项目")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    public List<IdNameStructureDTO> getProjectList(@PathVariable(value = "organizationId") String organizationId) {
+        return organizationService.getProjectList(organizationId);
+    }
+
+    @GetMapping("/user/role/list/{organizationId}")
+    @Operation(summary = "获取当前组织下的所有自定义用户组以及组织级别的用户组")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    public List<IdNameStructureDTO> getUserRoleList(@PathVariable(value = "organizationId") String organizationId) {
+        return organizationService.getUserRoleList(organizationId);
+    }
+
+    @GetMapping("/not-exist/user/list/{organizationId}")
+    @Operation(summary = "获取不在当前组织的所有用户")
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    public List<IdNameStructureDTO> getUserList(@PathVariable(value = "organizationId") String organizationId) {
+        return organizationService.getUserList(organizationId);
     }
 
 }
