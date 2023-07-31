@@ -75,7 +75,7 @@ public class OrganizationUserRoleController {
     @Parameter(name = "id", description = "用户组ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationUserRoleLogService.class)
     public void delete(@PathVariable String id) {
-        organizationUserRoleService.delete(id);
+        organizationUserRoleService.delete(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/permission/setting/{id}")

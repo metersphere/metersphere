@@ -8,6 +8,7 @@ import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.dto.LogDTO;
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
@@ -16,8 +17,8 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.UserExtend;
+import io.metersphere.system.dto.*;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.request.*;
 import jakarta.annotation.Resource;
@@ -61,47 +62,60 @@ public class OrganizationService {
     @Resource
     private ProjectMapper projectMapper;
 
+    private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
+    private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
+
+    /**
+     * 分页获取系统下组织列表
+     * @param organizationRequest 请求参数
+     * @return 组织集合
+     */
     public List<OrganizationDTO> list(OrganizationRequest organizationRequest) {
         List<OrganizationDTO> organizationDTOS = extOrganizationMapper.list(organizationRequest);
         return buildOrgAdminInfo(organizationDTOS);
     }
 
-    private List<OrganizationDTO> buildOrgAdminInfo(List<OrganizationDTO> organizationDTOS) {
-        if (CollectionUtils.isEmpty(organizationDTOS)) {
-            return organizationDTOS;
-        }
-        organizationDTOS.forEach(organizationDTO -> {
-            List<User> orgAdminList = extOrganizationMapper.getOrgAdminList(organizationDTO.getId());
-            organizationDTO.setOrgAdmins(orgAdminList);
-        });
-        return organizationDTOS;
+    /**
+     * 获取系统下组织下拉选项
+     * @return 组织下拉选项集合
+     */
+    public List<OptionDTO> listAll() {
+        List<OrganizationDTO> organizations = extOrganizationMapper.listAll();
+        return organizations.stream().map(o -> new OptionDTO(o.getId(), o.getName())).toList();
     }
 
-    public List<OrganizationDTO> listAll() {
-        return extOrganizationMapper.listAll();
-    }
-
-    public OrganizationDTO getDefault() {
-        OrganizationDTO organizationDTO = new OrganizationDTO();
-        OrganizationExample example = new OrganizationExample();
-        example.createCriteria().andNumEqualTo(100001L);
-        List<Organization> organizations = organizationMapper.selectByExample(example);
-        Organization organization = organizations.get(0);
-        BeanUtils.copyBean(organizationDTO, organization);
-        return organizationDTO;
-    }
-
+    /**
+     * 分页获取组织成员列表
+     * @param request 请求参数
+     * @return 组织成员集合
+     */
     public List<UserExtend> getMemberListBySystem(OrganizationRequest request) {
         return extOrganizationMapper.listMember(request);
     }
 
+    /**
+     * 系统-组织-添加成员
+     * @param organizationMemberRequest 请求参数
+     * @param createUserId 创建人ID
+     */
     public void addMemberBySystem(OrganizationMemberRequest organizationMemberRequest, String createUserId) {
+        List<LogDTO> logs = new ArrayList<>();
         OrganizationMemberBatchRequest batchRequest = new OrganizationMemberBatchRequest();
         batchRequest.setOrganizationIds(List.of(organizationMemberRequest.getOrganizationId()));
         batchRequest.setMemberIds(organizationMemberRequest.getMemberIds());
         addMemberBySystem(batchRequest, createUserId);
+        //添加日志
+        Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
+        setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.ADD.name(), organization.getName(),
+                ADD_MEMBER_PATH, null, batchRequest.getMemberIds(), logs);
+        operationLogService.batchAdd(logs);
     }
 
+    /**
+     * 组织添加成员公共方法(N个组织添加N个成员)
+     * @param batchRequest 请求参数 [organizationIds 组织集合, memberIds 成员集合]
+     * @param createUserId 创建人ID
+     */
     public void addMemberBySystem(OrganizationMemberBatchRequest batchRequest, String createUserId) {
         checkOrgExistByIds(batchRequest.getOrganizationIds());
         Map<String, User> userMap = checkUserExist(batchRequest.getMemberIds());
@@ -109,7 +123,7 @@ public class OrganizationService {
         batchRequest.getOrganizationIds().forEach(organizationId -> {
             for (String userId : batchRequest.getMemberIds()) {
                 if (userMap.get(userId) == null) {
-                    throw new MSException("id:" + userId + Translator.get("user.not.exist"));
+                    throw new MSException(Translator.get("user.not.exist") + ", id: " + userId);
                 }
                 //组织用户成员关系已存在, 不再重复添加
                 UserRoleRelationExample example = new UserRoleRelationExample();
@@ -132,12 +146,49 @@ public class OrganizationService {
         }
     }
 
+    /**
+     * 删除组织成员
+     * @param organizationId 组织ID
+     * @param userId 成员ID
+     */
+    public void removeMember(String organizationId, String userId) {
+        List<LogDTO> logs = new ArrayList<>();
+        checkOrgExistById(organizationId);
+        //删除组织下项目与成员的关系
+        List<String> projectIds = getProjectIds(organizationId);
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            UserRoleRelationExample example = new UserRoleRelationExample();
+            example.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(projectIds);
+            userRoleRelationMapper.deleteByExample(example);
+        }
+        //删除组织与成员的关系
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
+        userRoleRelationMapper.deleteByExample(example);
+        // 操作记录
+        Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
+        setLog(organizationId, userId, OperationLogType.DELETE.name(), organization.getName(), REMOVE_MEMBER_PATH, userId, null, logs);
+        operationLogService.batchAdd(logs);
+    }
+
+    /**
+     * 获取系统默认组织
+     * @return 组织信息
+     */
+    public OrganizationDTO getDefault() {
+        OrganizationDTO organizationDTO = new OrganizationDTO();
+        OrganizationExample example = new OrganizationExample();
+        example.createCriteria().andNumEqualTo(100001L);
+        List<Organization> organizations = organizationMapper.selectByExample(example);
+        Organization organization = organizations.get(0);
+        BeanUtils.copyBean(organizationDTO, organization);
+        return organizationDTO;
+    }
 
     /**
      * 组织级别获取组织成员
-     *
-     * @param organizationRequest
-     * @return
+     * @param organizationRequest 请求参数
+     * @return 组织成员集合
      */
     public List<OrgUserExtend> getMemberListByOrg(OrganizationRequest organizationRequest) {
         //根据组织ID获取所有组织用户关系表
@@ -201,27 +252,6 @@ public class OrganizationService {
         return orgUserExtends;
     }
 
-    /**
-     * 删除组织成员
-     *
-     * @param organizationId
-     * @param userId
-     */
-    public void removeMember(String organizationId, String userId) {
-        checkOrgExistById(organizationId);
-        //删除组织下项目与成员的关系
-        List<String> projectIds = getProjectIds(organizationId);
-        if (CollectionUtils.isNotEmpty(projectIds)) {
-            UserRoleRelationExample example = new UserRoleRelationExample();
-            example.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(projectIds);
-            userRoleRelationMapper.deleteByExample(example);
-        }
-        //删除组织与成员的关系
-        UserRoleRelationExample example = new UserRoleRelationExample();
-        example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
-        userRoleRelationMapper.deleteByExample(example);
-    }
-
     public List<OrganizationProjectOptionsDTO> getOrganizationOptions() {
         return extOrganizationMapper.selectOrganizationOptions();
     }
@@ -283,8 +313,8 @@ public class OrganizationService {
 
     /**
      * 添加组织成员至用户组
-     * @param organizationMemberExtendRequest
-     * @param userId
+     * @param organizationMemberExtendRequest 请求参数
+     * @param userId 创建人ID
      */
     public void addMemberRole(OrganizationMemberExtendRequest organizationMemberExtendRequest, String userId) {
         String organizationId = organizationMemberExtendRequest.getOrganizationId();
@@ -389,9 +419,8 @@ public class OrganizationService {
 
     /**
      * 更新用户
-     *
-     * @param organizationMemberUpdateRequest
-     * @param createUserId
+     * @param organizationMemberUpdateRequest 请求参数
+     * @param createUserId 创建人ID
      */
     public void updateMember(OrganizationMemberUpdateRequest organizationMemberUpdateRequest, String createUserId) {
         String organizationId = organizationMemberUpdateRequest.getOrganizationId();
@@ -474,9 +503,8 @@ public class OrganizationService {
 
     /**
      * 获取当前组织下的所有项目
-     *
-     * @param organizationId
-     * @return
+     * @param organizationId 组织ID
+     * @return 项目列表
      */
     public List<IdNameStructureDTO> getProjectList(String organizationId) {
         //校验组织是否存在
@@ -496,9 +524,8 @@ public class OrganizationService {
 
     /**
      * 获取当前组织下的所有自定义用户组以及组织级别的用户组
-     *
-     * @param organizationId
-     * @return
+     * @param organizationId 组织ID
+     * @return 用户组列表
      */
     public List<IdNameStructureDTO> getUserRoleList(String organizationId) {
         //校验组织是否存在
@@ -523,9 +550,8 @@ public class OrganizationService {
 
     /**
      * 获取不在当前组织的所有用户
-     *
-     * @param organizationId
-     * @return
+     * @param organizationId 组织ID
+     * @return 用户列表
      */
     public List<IdNameStructureDTO> getUserList(String organizationId) {
         //校验组织是否存在
@@ -549,6 +575,10 @@ public class OrganizationService {
         return userList;
     }
 
+    /**
+     * 检查组织是否存在
+     * @param organizationIds 组织ID集合
+     */
     private void checkOrgExistByIds(List<String> organizationIds) {
         OrganizationExample example = new OrganizationExample();
         example.createCriteria().andIdIn(organizationIds);
@@ -557,6 +587,10 @@ public class OrganizationService {
         }
     }
 
+    /**
+     * 检查组织是否存在
+     * @param organizationId 组织ID
+     */
     private void checkOrgExistById(String organizationId) {
         Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
         if (organization == null) {
@@ -566,9 +600,9 @@ public class OrganizationService {
 
     /**
      * 检查组织级别的用户组是否存在
-     * @param userRoleIds
-     * @param organizationId
-     * @return
+     * @param userRoleIds 用户组ID集合
+     * @param organizationId 组织ID
+     * @return 用户组集合
      */
     private Map<String, UserRole> checkUseRoleExist(List<String> userRoleIds, String organizationId) {
         UserRoleExample userRoleExample = new UserRoleExample();
@@ -582,6 +616,11 @@ public class OrganizationService {
 
     }
 
+    /**
+     * 检查用户是否存在
+     * @param memberIds 成员ID集合
+     * @return 用户集合
+     */
     private Map<String, User> checkUserExist(List<String> memberIds) {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(memberIds);
@@ -592,6 +631,12 @@ public class OrganizationService {
         return users.stream().collect(Collectors.toMap(User::getId, user -> user));
     }
 
+    /**
+     * 检查项目是否存在
+     * @param projectIds 项目ID集合
+     * @param organizationId 组织ID
+     * @return 项目集合
+     */
     private Map<String, Project> checkProjectExist(List<String> projectIds, String organizationId) {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andIdIn(projectIds).andOrganizationIdEqualTo(organizationId);
@@ -600,5 +645,48 @@ public class OrganizationService {
             throw new MSException(Translator.get("project_not_exist"));
         }
         return projects.stream().collect(Collectors.toMap(Project::getId, project -> project));
+    }
+
+    /**
+     * 处理组织管理员信息
+     * @param organizationDTOS 组织集合
+     * @return 组织列表
+     */
+    private List<OrganizationDTO> buildOrgAdminInfo(List<OrganizationDTO> organizationDTOS) {
+        if (CollectionUtils.isEmpty(organizationDTOS)) {
+            return organizationDTOS;
+        }
+        organizationDTOS.forEach(organizationDTO -> {
+            List<User> orgAdminList = extOrganizationMapper.getOrgAdminList(organizationDTO.getId());
+            organizationDTO.setOrgAdmins(orgAdminList);
+        });
+        return organizationDTOS;
+    }
+
+    /**
+     * 设置操作日志
+     * @param organizationId 组织ID
+     * @param createUser 创建人
+     * @param type 操作类型
+     * @param content 操作内容
+     * @param path 请求路径
+     * @param originalValue 原始值
+     * @param modifiedValue 修改值
+     * @param logs 日志集合
+     */
+    private void setLog(String organizationId, String createUser, String type, String content, String path, Object originalValue, Object modifiedValue, List<LogDTO> logs) {
+        LogDTO dto = new LogDTO(
+                "system",
+                "system",
+                organizationId,
+                createUser,
+                type,
+                OperationLogModule.SYSTEM_ORGANIZATION,
+                content);
+        dto.setPath(path);
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
+        dto.setModifiedValue(JSON.toJSONBytes(modifiedValue));
+        logs.add(dto);
     }
 }

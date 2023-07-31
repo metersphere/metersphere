@@ -40,7 +40,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     private MockMvc mockMvc;
 
     public static final String ORGANIZATION_LIST = "/system/organization/list";
-    public static final String ORGANIZATION_LIST_ALL = "/system/organization/list-all";
+    public static final String ORGANIZATION_LIST_OPTION_ALL = "/system/organization/option/all";
     public static final String ORGANIZATION_DEFAULT = "/system/organization/default";
     public static final String ORGANIZATION_LIST_MEMBER = "/system/organization/list-member";
     public static final String ORGANIZATION_ADD_MEMBER = "/system/organization/add-member";
@@ -126,7 +126,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     @Test
     @Order(3)
     public void testListAllOrganizationSuccess() throws Exception {
-        MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_ALL, null);
+        MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_OPTION_ALL, null);
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -139,7 +139,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     @Test
     @Order(4)
     public void testListAllOrganizationError() throws Exception {
-        this.requestGet(ORGANIZATION_LIST_ALL, status().isMethodNotAllowed());
+        this.requestGet(ORGANIZATION_LIST_OPTION_ALL, status().isMethodNotAllowed());
     }
 
     @Test
