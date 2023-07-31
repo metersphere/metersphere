@@ -75,7 +75,7 @@
   } from './type';
   import BatchAction from './batchAction.vue';
 
-  import type { TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { TableData } from '@arco-design/web-vue';
   import ColumnSelector from './columnSelector.vue';
 
   const batchleft = ref('10px');
