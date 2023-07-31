@@ -173,17 +173,11 @@ export default {
   },
   methods: {
     handleImport() {
-      if (this.projectId) {
-        this.result = getModuleByProjectId(this.projectId).then((response) => {
-          if (response.data != undefined && response.data != null) {
-            this.data = response.data;
-            this.data.forEach((node) => {
-              buildTree(node, { path: '' });
-            });
-          }
-        });
-        this.$refs.apiImport.open(this.currentModule);
+      if (!this.projectId) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
       }
+      this.$refs.apiImport.open(this.currentModule);
     },
     filter() {
       this.$refs.nodeTree.filter(this.condition.filterText);
