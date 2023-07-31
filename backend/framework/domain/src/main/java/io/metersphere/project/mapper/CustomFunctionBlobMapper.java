@@ -31,4 +31,8 @@ public interface CustomFunctionBlobMapper {
     int updateByPrimaryKeySelective(CustomFunctionBlob record);
 
     int updateByPrimaryKeyWithBLOBs(CustomFunctionBlob record);
+
+    int batchInsert(@Param("list") List<CustomFunctionBlob> list);
+
+    int batchInsertSelective(@Param("list") List<CustomFunctionBlob> list, @Param("selective") CustomFunctionBlob.Column ... selective);
 }

@@ -178,4 +178,36 @@
     where project_id = #{projectId,jdbcType=VARCHAR}
       and `type` = #{type,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into project_application
+    (project_id, `type`, type_value)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.projectId,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.typeValue,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into project_application (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'type_value'.toString() == column.value">
+          #{item.typeValue,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

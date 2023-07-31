@@ -31,4 +31,8 @@ public interface MessageTaskBlobMapper {
     int updateByPrimaryKeySelective(MessageTaskBlob record);
 
     int updateByPrimaryKeyWithBLOBs(MessageTaskBlob record);
+
+    int batchInsert(@Param("list") List<MessageTaskBlob> list);
+
+    int batchInsertSelective(@Param("list") List<MessageTaskBlob> list, @Param("selective") MessageTaskBlob.Column ... selective);
 }

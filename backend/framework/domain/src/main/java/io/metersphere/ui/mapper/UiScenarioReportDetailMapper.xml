@@ -336,4 +336,61 @@
       pass_assertions = #{passAssertions,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_scenario_report_detail
+    (id, resource_id, report_id, create_time, `status`, request_time, total_assertions, 
+      pass_assertions, content, base_info)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.requestTime,jdbcType=BIGINT}, 
+        #{item.totalAssertions,jdbcType=BIGINT}, #{item.passAssertions,jdbcType=BIGINT}, 
+        #{item.content,jdbcType=LONGVARBINARY}, #{item.baseInfo,jdbcType=LONGVARBINARY}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_scenario_report_detail (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=VARCHAR}
+        </if>
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_time'.toString() == column.value">
+          #{item.requestTime,jdbcType=BIGINT}
+        </if>
+        <if test="'total_assertions'.toString() == column.value">
+          #{item.totalAssertions,jdbcType=BIGINT}
+        </if>
+        <if test="'pass_assertions'.toString() == column.value">
+          #{item.passAssertions,jdbcType=BIGINT}
+        </if>
+        <if test="'content'.toString() == column.value">
+          #{item.content,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'base_info'.toString() == column.value">
+          #{item.baseInfo,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

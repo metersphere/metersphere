@@ -33,4 +33,8 @@ public interface AuthSourceMapper {
     int updateByPrimaryKeyWithBLOBs(AuthSource record);
 
     int updateByPrimaryKey(AuthSource record);
+
+    int batchInsert(@Param("list") List<AuthSource> list);
+
+    int batchInsertSelective(@Param("list") List<AuthSource> list, @Param("selective") AuthSource.Column ... selective);
 }

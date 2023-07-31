@@ -367,4 +367,77 @@
       deleted = #{deleted,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into user
+    (id, `name`, email, `password`, `enable`, create_time, update_time, `language`, last_organization_id, 
+      phone, `source`, last_project_id, create_user, update_user, deleted)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.email,jdbcType=VARCHAR}, 
+        #{item.password,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.language,jdbcType=VARCHAR}, #{item.lastOrganizationId,jdbcType=VARCHAR}, 
+        #{item.phone,jdbcType=VARCHAR}, #{item.source,jdbcType=VARCHAR}, #{item.lastProjectId,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into user (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'email'.toString() == column.value">
+          #{item.email,jdbcType=VARCHAR}
+        </if>
+        <if test="'password'.toString() == column.value">
+          #{item.password,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'language'.toString() == column.value">
+          #{item.language,jdbcType=VARCHAR}
+        </if>
+        <if test="'last_organization_id'.toString() == column.value">
+          #{item.lastOrganizationId,jdbcType=VARCHAR}
+        </if>
+        <if test="'phone'.toString() == column.value">
+          #{item.phone,jdbcType=VARCHAR}
+        </if>
+        <if test="'source'.toString() == column.value">
+          #{item.source,jdbcType=VARCHAR}
+        </if>
+        <if test="'last_project_id'.toString() == column.value">
+          #{item.lastProjectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

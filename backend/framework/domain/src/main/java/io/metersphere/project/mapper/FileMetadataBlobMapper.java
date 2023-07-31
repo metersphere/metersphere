@@ -31,4 +31,8 @@ public interface FileMetadataBlobMapper {
     int updateByPrimaryKeySelective(FileMetadataBlob record);
 
     int updateByPrimaryKeyWithBLOBs(FileMetadataBlob record);
+
+    int batchInsert(@Param("list") List<FileMetadataBlob> list);
+
+    int batchInsertSelective(@Param("list") List<FileMetadataBlob> list, @Param("selective") FileMetadataBlob.Column ... selective);
 }

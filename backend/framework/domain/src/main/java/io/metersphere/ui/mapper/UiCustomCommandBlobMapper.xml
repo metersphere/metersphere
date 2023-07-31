@@ -208,4 +208,36 @@
       command_view_struct = #{commandViewStruct,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_custom_command_blob
+    (id, scenario_definition, command_view_struct)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.scenarioDefinition,jdbcType=LONGVARBINARY}, 
+        #{item.commandViewStruct,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_custom_command_blob (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_definition'.toString() == column.value">
+          #{item.scenarioDefinition,jdbcType=LONGVARBINARY}
+        </if>
+        <if test="'command_view_struct'.toString() == column.value">
+          #{item.commandViewStruct,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

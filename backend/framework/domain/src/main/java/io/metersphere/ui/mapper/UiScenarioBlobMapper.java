@@ -31,4 +31,8 @@ public interface UiScenarioBlobMapper {
     int updateByPrimaryKeySelective(UiScenarioBlob record);
 
     int updateByPrimaryKeyWithBLOBs(UiScenarioBlob record);
+
+    int batchInsert(@Param("list") List<UiScenarioBlob> list);
+
+    int batchInsertSelective(@Param("list") List<UiScenarioBlob> list, @Param("selective") UiScenarioBlob.Column ... selective);
 }

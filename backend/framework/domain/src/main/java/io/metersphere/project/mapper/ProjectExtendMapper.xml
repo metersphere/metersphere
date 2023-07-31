@@ -320,4 +320,67 @@
       api_template_id = #{apiTemplateId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into project_extend
+    (id, tapd_id, jira_key, zentao_id, azure_devops_id, case_template_id, azure_filter_id, 
+      platform, third_part_template, version_enable, issue_config, api_template_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.tapdId,jdbcType=VARCHAR}, #{item.jiraKey,jdbcType=VARCHAR}, 
+        #{item.zentaoId,jdbcType=VARCHAR}, #{item.azureDevopsId,jdbcType=VARCHAR}, #{item.caseTemplateId,jdbcType=VARCHAR}, 
+        #{item.azureFilterId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, #{item.thirdPartTemplate,jdbcType=BIT}, 
+        #{item.versionEnable,jdbcType=BIT}, #{item.issueConfig,jdbcType=VARCHAR}, #{item.apiTemplateId,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into project_extend (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'tapd_id'.toString() == column.value">
+          #{item.tapdId,jdbcType=VARCHAR}
+        </if>
+        <if test="'jira_key'.toString() == column.value">
+          #{item.jiraKey,jdbcType=VARCHAR}
+        </if>
+        <if test="'zentao_id'.toString() == column.value">
+          #{item.zentaoId,jdbcType=VARCHAR}
+        </if>
+        <if test="'azure_devops_id'.toString() == column.value">
+          #{item.azureDevopsId,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_template_id'.toString() == column.value">
+          #{item.caseTemplateId,jdbcType=VARCHAR}
+        </if>
+        <if test="'azure_filter_id'.toString() == column.value">
+          #{item.azureFilterId,jdbcType=VARCHAR}
+        </if>
+        <if test="'platform'.toString() == column.value">
+          #{item.platform,jdbcType=VARCHAR}
+        </if>
+        <if test="'third_part_template'.toString() == column.value">
+          #{item.thirdPartTemplate,jdbcType=BIT}
+        </if>
+        <if test="'version_enable'.toString() == column.value">
+          #{item.versionEnable,jdbcType=BIT}
+        </if>
+        <if test="'issue_config'.toString() == column.value">
+          #{item.issueConfig,jdbcType=VARCHAR}
+        </if>
+        <if test="'api_template_id'.toString() == column.value">
+          #{item.apiTemplateId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

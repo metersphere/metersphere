@@ -27,4 +27,8 @@ public interface OrganizationMapper {
     int updateByPrimaryKeySelective(Organization record);
 
     int updateByPrimaryKey(Organization record);
+
+    int batchInsert(@Param("list") List<Organization> list);
+
+    int batchInsertSelective(@Param("list") List<Organization> list, @Param("selective") Organization.Column ... selective);
 }

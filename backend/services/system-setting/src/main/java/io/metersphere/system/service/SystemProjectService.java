@@ -221,13 +221,13 @@ public class SystemProjectService {
                     userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
                             .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
                     if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
-                        UserRoleRelation adminRole = new UserRoleRelation(
-                                UUID.randomUUID().toString(),
-                                userId,
-                                InternalUserRole.PROJECT_ADMIN.getValue(),
-                                projectId,
-                                System.currentTimeMillis(),
-                                createUser);
+                        UserRoleRelation adminRole = new UserRoleRelation();
+                        adminRole.setId(UUID.randomUUID().toString());
+                        adminRole.setUserId(userId);
+                        adminRole.setRoleId(InternalUserRole.PROJECT_ADMIN.getValue());
+                        adminRole.setSourceId(projectId);
+                        adminRole.setCreateTime(System.currentTimeMillis());
+                        adminRole.setCreateUser(createUser);
                         batchMapper.insert(adminRole);
                         setLog(projectId, path, content + Translator.get("project_admin") + ": " + user.getName(), createUser, "", type, method, logDTOList);
                     }
@@ -236,13 +236,13 @@ public class SystemProjectService {
                 userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
                         .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
                 if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
-                    UserRoleRelation memberRole = new UserRoleRelation(
-                            UUID.randomUUID().toString(),
-                            userId,
-                            InternalUserRole.PROJECT_MEMBER.getValue(),
-                            projectId,
-                            System.currentTimeMillis(),
-                            createUser);
+                    UserRoleRelation memberRole = new UserRoleRelation();
+                    memberRole.setId(UUID.randomUUID().toString());
+                    memberRole.setUserId(userId);
+                    memberRole.setRoleId(InternalUserRole.PROJECT_MEMBER.getValue());
+                    memberRole.setSourceId(projectId);
+                    memberRole.setCreateTime(System.currentTimeMillis());
+                    memberRole.setCreateUser(createUser);
                     batchMapper.insert(memberRole);
                     setLog(projectId, path, content + Translator.get("project_member") + ": " + user.getName(), createUser, "", type, method, logDTOList);
                 }

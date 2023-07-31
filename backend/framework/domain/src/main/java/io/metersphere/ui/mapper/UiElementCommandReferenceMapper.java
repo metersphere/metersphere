@@ -27,4 +27,8 @@ public interface UiElementCommandReferenceMapper {
     int updateByPrimaryKeySelective(UiElementCommandReference record);
 
     int updateByPrimaryKey(UiElementCommandReference record);
+
+    int batchInsert(@Param("list") List<UiElementCommandReference> list);
+
+    int batchInsertSelective(@Param("list") List<UiElementCommandReference> list, @Param("selective") UiElementCommandReference.Column ... selective);
 }

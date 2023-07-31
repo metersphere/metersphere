@@ -27,4 +27,8 @@ public interface UiElementModuleMapper {
     int updateByPrimaryKeySelective(UiElementModule record);
 
     int updateByPrimaryKey(UiElementModule record);
+
+    int batchInsert(@Param("list") List<UiElementModule> list);
+
+    int batchInsertSelective(@Param("list") List<UiElementModule> list, @Param("selective") UiElementModule.Column ... selective);
 }

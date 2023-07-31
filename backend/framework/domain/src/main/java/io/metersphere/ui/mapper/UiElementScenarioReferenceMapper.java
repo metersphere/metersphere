@@ -27,4 +27,8 @@ public interface UiElementScenarioReferenceMapper {
     int updateByPrimaryKeySelective(UiElementScenarioReference record);
 
     int updateByPrimaryKey(UiElementScenarioReference record);
+
+    int batchInsert(@Param("list") List<UiElementScenarioReference> list);
+
+    int batchInsertSelective(@Param("list") List<UiElementScenarioReference> list, @Param("selective") UiElementScenarioReference.Column ... selective);
 }

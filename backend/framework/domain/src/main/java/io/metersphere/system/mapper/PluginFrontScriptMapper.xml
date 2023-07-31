@@ -209,4 +209,36 @@
     where plugin_id = #{pluginId,jdbcType=VARCHAR}
       and script_id = #{scriptId,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into plugin_front_script
+    (plugin_id, script_id, script)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.pluginId,jdbcType=VARCHAR}, #{item.scriptId,jdbcType=VARCHAR}, #{item.script,jdbcType=LONGVARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into plugin_front_script (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'plugin_id'.toString() == column.value">
+          #{item.pluginId,jdbcType=VARCHAR}
+        </if>
+        <if test="'script_id'.toString() == column.value">
+          #{item.scriptId,jdbcType=VARCHAR}
+        </if>
+        <if test="'script'.toString() == column.value">
+          #{item.script,jdbcType=LONGVARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

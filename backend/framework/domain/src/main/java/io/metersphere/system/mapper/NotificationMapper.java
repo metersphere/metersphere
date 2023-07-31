@@ -27,4 +27,8 @@ public interface NotificationMapper {
     int updateByPrimaryKeySelective(Notification record);
 
     int updateByPrimaryKey(Notification record);
+
+    int batchInsert(@Param("list") List<Notification> list);
+
+    int batchInsertSelective(@Param("list") List<Notification> list, @Param("selective") Notification.Column ... selective);
 }

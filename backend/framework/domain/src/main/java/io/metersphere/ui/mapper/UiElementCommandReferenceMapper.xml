@@ -208,4 +208,42 @@
       project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into ui_element_command_reference
+    (id, element_id, element_module_id, command_id, project_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.elementId,jdbcType=VARCHAR}, #{item.elementModuleId,jdbcType=VARCHAR}, 
+        #{item.commandId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into ui_element_command_reference (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'element_id'.toString() == column.value">
+          #{item.elementId,jdbcType=VARCHAR}
+        </if>
+        <if test="'element_module_id'.toString() == column.value">
+          #{item.elementModuleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'command_id'.toString() == column.value">
+          #{item.commandId,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

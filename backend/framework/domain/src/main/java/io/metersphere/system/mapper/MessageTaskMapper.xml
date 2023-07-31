@@ -272,4 +272,57 @@
       project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into message_task
+    (id, `type`, event, receiver, task_type, webhook, test_id, create_time, project_id
+      )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, 
+        #{item.receiver,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.webhook,jdbcType=VARCHAR}, 
+        #{item.testId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into message_task (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'event'.toString() == column.value">
+          #{item.event,jdbcType=VARCHAR}
+        </if>
+        <if test="'receiver'.toString() == column.value">
+          #{item.receiver,jdbcType=VARCHAR}
+        </if>
+        <if test="'task_type'.toString() == column.value">
+          #{item.taskType,jdbcType=VARCHAR}
+        </if>
+        <if test="'webhook'.toString() == column.value">
+          #{item.webhook,jdbcType=VARCHAR}
+        </if>
+        <if test="'test_id'.toString() == column.value">
+          #{item.testId,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

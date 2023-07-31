@@ -33,4 +33,8 @@ public interface CaseReviewMapper {
     int updateByPrimaryKeyWithBLOBs(CaseReview record);
 
     int updateByPrimaryKey(CaseReview record);
+
+    int batchInsert(@Param("list") List<CaseReview> list);
+
+    int batchInsertSelective(@Param("list") List<CaseReview> list, @Param("selective") CaseReview.Column ... selective);
 }

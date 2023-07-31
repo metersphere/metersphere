@@ -27,4 +27,8 @@ public interface ProjectExtendMapper {
     int updateByPrimaryKeySelective(ProjectExtend record);
 
     int updateByPrimaryKey(ProjectExtend record);
+
+    int batchInsert(@Param("list") List<ProjectExtend> list);
+
+    int batchInsertSelective(@Param("list") List<ProjectExtend> list, @Param("selective") ProjectExtend.Column ... selective);
 }

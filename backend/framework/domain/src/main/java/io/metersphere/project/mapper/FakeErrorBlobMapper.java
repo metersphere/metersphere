@@ -31,4 +31,8 @@ public interface FakeErrorBlobMapper {
     int updateByPrimaryKeySelective(FakeErrorBlob record);
 
     int updateByPrimaryKeyWithBLOBs(FakeErrorBlob record);
+
+    int batchInsert(@Param("list") List<FakeErrorBlob> list);
+
+    int batchInsertSelective(@Param("list") List<FakeErrorBlob> list, @Param("selective") FakeErrorBlob.Column ... selective);
 }

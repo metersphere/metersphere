@@ -33,4 +33,8 @@ public interface ServiceIntegrationMapper {
     int updateByPrimaryKeyWithBLOBs(ServiceIntegration record);
 
     int updateByPrimaryKey(ServiceIntegration record);
+
+    int batchInsert(@Param("list") List<ServiceIntegration> list);
+
+    int batchInsertSelective(@Param("list") List<ServiceIntegration> list, @Param("selective") ServiceIntegration.Column ... selective);
 }

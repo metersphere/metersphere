@@ -33,4 +33,8 @@ public interface FileModuleBlobMapper {
     int updateByPrimaryKeyWithBLOBs(FileModuleBlob record);
 
     int updateByPrimaryKey(FileModuleBlob record);
+
+    int batchInsert(@Param("list") List<FileModuleBlob> list);
+
+    int batchInsertSelective(@Param("list") List<FileModuleBlob> list, @Param("selective") FileModuleBlob.Column ... selective);
 }

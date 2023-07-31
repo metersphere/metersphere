@@ -32,7 +32,6 @@ CREATE TABLE IF NOT EXISTS user_role
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人(操作人）',
     `scope_id`    VARCHAR(50)  NOT NULL COMMENT '应用范围',
-    `pos`         BIGINT NOT NULL  DEFAULT 0 COMMENT '自定义排序，间隔5000' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

@@ -27,4 +27,8 @@ public interface UiCustomCommandModuleMapper {
     int updateByPrimaryKeySelective(UiCustomCommandModule record);
 
     int updateByPrimaryKey(UiCustomCommandModule record);
+
+    int batchInsert(@Param("list") List<UiCustomCommandModule> list);
+
+    int batchInsertSelective(@Param("list") List<UiCustomCommandModule> list, @Param("selective") UiCustomCommandModule.Column ... selective);
 }

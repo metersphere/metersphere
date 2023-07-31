@@ -320,4 +320,67 @@
       scenario = #{scenario,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into plugin
+    (id, `name`, plugin_id, file_name, create_time, update_time, create_user, `enable`, 
+      `global`, xpack, description, scenario)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.pluginId,jdbcType=VARCHAR}, 
+        #{item.fileName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.global,jdbcType=BIT}, 
+        #{item.xpack,jdbcType=BIT}, #{item.description,jdbcType=VARCHAR}, #{item.scenario,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into plugin (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'plugin_id'.toString() == column.value">
+          #{item.pluginId,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_name'.toString() == column.value">
+          #{item.fileName,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'global'.toString() == column.value">
+          #{item.global,jdbcType=BIT}
+        </if>
+        <if test="'xpack'.toString() == column.value">
+          #{item.xpack,jdbcType=BIT}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario'.toString() == column.value">
+          #{item.scenario,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

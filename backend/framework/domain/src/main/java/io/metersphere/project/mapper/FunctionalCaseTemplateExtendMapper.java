@@ -33,4 +33,8 @@ public interface FunctionalCaseTemplateExtendMapper {
     int updateByPrimaryKeyWithBLOBs(FunctionalCaseTemplateExtend record);
 
     int updateByPrimaryKey(FunctionalCaseTemplateExtend record);
+
+    int batchInsert(@Param("list") List<FunctionalCaseTemplateExtend> list);
+
+    int batchInsertSelective(@Param("list") List<FunctionalCaseTemplateExtend> list, @Param("selective") FunctionalCaseTemplateExtend.Column ... selective);
 }
