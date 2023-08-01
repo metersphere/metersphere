@@ -6,10 +6,9 @@ export const BatchAddProjectUrl = '/organization/project/add-member';
 // 添加至用户组
 export const BatchAddUserGroupUrl = '/organization/role/update-member';
 export const DeleteMemberUrl = '/organization/remove-member';
-// 暂用
-// 用户组下拉
-export const getUserGroupList = '/user/role/global/list';
-// 用户下拉
-export const getUserList = '/system/user/list';
+// 获取组织下边的用户组列表
+export const getUserGroupList = '/organization/user/role/list';
+// 获取当前组织内不存在成员
+export const getUserList = '/organization/not-exist/user/list';
 // 获取弹窗里边的穿梭项目列表
-export const getProjectListUrl = '/system/project/page';
+export const getProjectListUrl = '/organization/project/list';

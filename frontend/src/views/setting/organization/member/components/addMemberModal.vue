@@ -11,13 +11,7 @@
     </template>
     <div class="form">
       <a-form ref="memberFormRef" :model="form" size="large" layout="vertical">
-        <a-form-item
-          v-if="type === 'edit'"
-          field="projectIds"
-          :label="t('organization.member.proejct')"
-          asterisk-position="end"
-          :rules="[{ required: true, message: t('organization.member.selectProjectEmptyTip') }]"
-        >
+        <a-form-item v-if="type === 'edit'" :label="t('organization.member.proejct')" asterisk-position="end">
           <a-select
             v-model="form.projectIds"
             multiple
@@ -40,7 +34,7 @@
             :placeholder="t('organization.member.selectMemberScope')"
             allow-clear
           >
-            <a-option v-for="item of props.memberList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+            <a-option v-for="item of memberList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item
@@ -75,19 +69,20 @@
   import { ref, watchEffect, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
-  import { addOrUpdate } from '@/api/modules/setting/member';
+  import { addOrUpdate, getUser } from '@/api/modules/setting/member';
   import { useUserStore } from '@/store';
   import type { AddorUpdateMemberModel, MemberItem, LinkList } from '@/models/setting/member';
 
   const { t } = useI18n();
   const userStore = useUserStore();
+  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
   const props = defineProps<{
     visible: boolean;
-    memberList: LinkList;
     userGroupOptions: LinkList;
     projectList: LinkList;
   }>();
   const dialogVisible = ref<boolean>(false);
+  const memberList = ref<LinkList>([]);
   const title = ref<string>('');
   const type = ref<string>('');
   const emits = defineEmits<{
@@ -110,12 +105,11 @@
     dialogVisible.value = false;
   };
   const edit = (record: MemberItem) => {
-    const { userRoleIdNameMap } = record;
+    const { userRoleIdNameMap, projectIdNameMap } = record;
     form.value.memberIds = [record.id as string];
-    // form.value.userRoleIds = userRoleIdNameMap.map((item) => item.id);
-    form.value.userRoleIds = Object.keys(userRoleIdNameMap);
+    form.value.userRoleIds = (userRoleIdNameMap || []).map((item) => item.id);
+    form.value.projectIds = (projectIdNameMap || []).map((item) => item.id);
   };
-
   const handleOK = () => {
     memberFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
@@ -136,6 +130,7 @@
               : {
                   ...params,
                   projectIds,
+                  memberId: memberIds?.join(),
                 };
           await addOrUpdate(params, type.value);
           Message.success(
@@ -155,8 +150,12 @@
       }
     });
   };
+  const getUserOptions = async () => {
+    memberList.value = await getUser(lastOrganizationId);
+  };
   watchEffect(() => {
     dialogVisible.value = props.visible;
+    if (props.visible) getUserOptions();
   });
   watch(
     () => dialogVisible.value,

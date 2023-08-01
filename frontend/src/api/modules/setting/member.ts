@@ -10,7 +10,7 @@ import {
   getUserList,
   getProjectListUrl,
 } from '@/api/requrls/setting/member';
-import type { MemberList, AddorUpdateMemberModel, BatchAddProjectModel } from '@/models/setting/member';
+import type { MemberList, AddorUpdateMemberModel, BatchAddProjectModel, LinkItem } from '@/models/setting/member';
 import type { TableQueryParams } from '@/models/common';
 // 获取成员列表
 export function getMemberList(data: TableQueryParams) {
@@ -27,23 +27,23 @@ export function addOrUpdate(data: AddorUpdateMemberModel, type: string) {
 export function batchAddProject(data: BatchAddProjectModel) {
   return MSR.post({ url: BatchAddProjectUrl, data });
 }
-// 添加到用户
-export function batchAddUserGroup(data: AddorUpdateMemberModel) {
+// 添加到用户组
+export function batchAddUserGroup(data: BatchAddProjectModel) {
   return MSR.post({ url: BatchAddUserGroupUrl, data });
 }
 // 移除成员
 export function deleteMemberReq(organizationId: string, userId: string) {
   return MSR.get({ url: DeleteMemberUrl, params: `/${organizationId}/${userId}` });
 }
-// 获取全局用户组下拉
-export function getGlobalUserGroup() {
-  return MSR.get({ url: getUserGroupList });
+// 获取用户组下拉
+export function getGlobalUserGroup(organizationId: string) {
+  return MSR.get({ url: getUserGroupList, params: `/${organizationId}` });
 }
-// 获取用户下拉
-export function getUser() {
-  return MSR.get({ url: getUserList });
+// 获取系统用户下拉
+export function getUser(organizationId: string) {
+  return MSR.get<LinkItem[]>({ url: getUserList, params: `/${organizationId}` });
 }
-// 【暂用】获取组织下边的项目
-export function getProjectList(data: any) {
-  return MSR.post({ url: getProjectListUrl, data });
+// 获取组织下边的项目
+export function getProjectList(organizationId: string) {
+  return MSR.get<LinkItem[]>({ url: getProjectListUrl, params: `/${organizationId}` });
 }
