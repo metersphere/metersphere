@@ -58,6 +58,10 @@ public class OrganizationService {
     private OperationLogService operationLogService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private SystemProjectService systemProjectService;
+    @Resource
+    private UserRolePermissionMapper userRolePermissionMapper;
 
     private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
@@ -88,6 +92,39 @@ public class OrganizationService {
      */
     public List<UserExtend> getMemberListBySystem(OrganizationRequest request) {
         return extOrganizationMapper.listMember(request);
+    }
+
+    public void deleteOrganization(String organizationId) {
+        List<LogDTO> logs = new ArrayList<>();
+        Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
+        // 删除项目
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andOrganizationIdEqualTo(organization.getId());
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+        if (CollectionUtils.isNotEmpty(projects)) {
+            systemProjectService.deleteProject(projects);
+        }
+        // 删除用户组, 用户组关系, 用户组权限
+        UserRoleExample userRoleExample = new UserRoleExample();
+        userRoleExample.createCriteria().andScopeIdEqualTo(organization.getId());
+        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        userRoleMapper.deleteByExample(userRoleExample);
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(organization.getId());
+        userRoleRelationMapper.deleteByExample(userRoleRelationExample);
+        if (CollectionUtils.isNotEmpty(userRoles)) {
+            List<String> roleIds = userRoles.stream().map(UserRole::getId).toList();
+            UserRolePermissionExample userRolePermissionExample = new UserRolePermissionExample();
+            userRolePermissionExample.createCriteria().andRoleIdIn(roleIds);
+            userRolePermissionMapper.deleteByExample(userRolePermissionExample);
+        }
+
+        // TODO: 删除环境组, 删除定时任务
+        // 删除组织
+        organizationMapper.deleteByPrimaryKey(organizationId);
+        // 操作记录
+        setLog(organizationId, "system", OperationLogType.DELETE.name(), organization.getName(), null, projects, null, logs);
+        operationLogService.batchAdd(logs);
     }
 
     /**

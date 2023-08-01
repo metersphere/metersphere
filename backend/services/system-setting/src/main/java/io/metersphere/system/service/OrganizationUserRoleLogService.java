@@ -49,7 +49,7 @@ public class OrganizationUserRoleLogService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 request.getScopeId(),
-                null,
+                request.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.ORGANIZATION_USER_ROLE,
@@ -69,7 +69,7 @@ public class OrganizationUserRoleLogService {
         LogDTO dto = new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
-                null,
+                id,
                 null,
                 OperationLogType.DELETE.name(),
                 OperationLogModule.ORGANIZATION_USER_ROLE,
@@ -108,7 +108,7 @@ public class OrganizationUserRoleLogService {
         return new LogDTO(
                 OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
-                null,
+                roleId,
                 null,
                 null,
                 OperationLogModule.ORGANIZATION_USER_ROLE,

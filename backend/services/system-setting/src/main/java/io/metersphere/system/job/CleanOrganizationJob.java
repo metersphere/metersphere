@@ -5,6 +5,7 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.OrganizationExample;
 import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -17,8 +18,9 @@ import java.util.List;
 public class CleanOrganizationJob {
 
     @Resource
-    OrganizationMapper organizationMapper;
-
+    private OrganizationMapper organizationMapper;
+    @Resource
+    private OrganizationService organizationService;
     /**
      * 凌晨3点清理删除的组织
      */
@@ -44,14 +46,7 @@ public class CleanOrganizationJob {
         }
 
         organizations.forEach(organization -> {
-            // TODO 清理组织下的资源
-            // 删除项目
-            // 删除用户组, 用户组关系
-            // 删除环境组
-            // 删除定时任务
-            // 操作记录{项目, 组织}
+            organizationService.deleteOrganization(organization.getId());
         });
-        // 删除组织
-        organizationMapper.deleteByExample(example);
     }
 }

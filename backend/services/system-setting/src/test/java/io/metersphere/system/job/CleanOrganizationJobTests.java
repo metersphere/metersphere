@@ -16,20 +16,12 @@ import org.springframework.test.context.jdbc.SqlConfig;
 public class CleanOrganizationJobTests {
 
     @Resource
-    CleanOrganizationJob cleanOrganizationJob;
+    private CleanOrganizationJob cleanOrganizationJob;
 
     @Test
     @Order(0)
     @Sql(scripts = {"/dml/init_clean_organization.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED), executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void cleanupProjectSuccess(){
-        //TODO
-        cleanOrganizationJob.cleanOrganization();
-    }
-
-    @Test
-    @Order(1)
-    public void cleanupProjectError(){
-        //TODO
+    public void cleanupOrganizationSuccess(){
         cleanOrganizationJob.cleanOrganization();
     }
 }
