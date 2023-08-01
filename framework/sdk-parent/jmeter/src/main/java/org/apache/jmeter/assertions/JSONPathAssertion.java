@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * This is main class for JSONPath Assertion which verifies assertion on
@@ -64,7 +63,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     private static final boolean USE_JAVA_REGEX = !JMeterUtils.getPropDefault(
             "jmeter.regex.engine", "oro").equalsIgnoreCase("oro");
 
-    private static ThreadLocal<DecimalFormat> decimalFormatter =
+    private static final ThreadLocal<DecimalFormat> decimalFormatter =
             ThreadLocal.withInitial(JSONPathAssertion::createDecimalFormat);
 
     private static DecimalFormat createDecimalFormat() {
@@ -133,8 +132,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     private void doAssert(String jsonString) {
         Object value = JsonPath.read(jsonString, getJsonPath());
         if (!isJsonValidationBool()) {
-            if (value instanceof JSONArray) {
-                JSONArray arrayValue = (JSONArray) value;
+            if (value instanceof JSONArray arrayValue) {
                 if (arrayValue.isEmpty() && !JsonPath.isPathDefinite(getJsonPath())) {
                     throw new IllegalStateException("JSONPath is indefinite and the extracted Value is an empty Array." +
                             " Please use an assertion value, to be sure to get a correct result. " + getExpectedValue());
@@ -148,8 +146,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                 return;
             }
         } else {
-            if ((isExpectNull() && value == null)
-                    || isEquals(value)) {
+            if ((isExpectNull() && value == null) || assertMatch(value)) {
                 return;
             }
         }
@@ -160,30 +157,18 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
             String msg = "";
             if (this.isUseRegex()) {
                 msg = "Value expected to match regexp '%s', but it did not match: '%s'";
-            } else if (StringUtils.isNotEmpty(getOption()) && !this.isEquals(value)) {
-                switch (getOption()) {
-                    case "CONTAINS":
-                        msg = "Value contains to be '%s', but found '%s'";
-                        break;
-                    case "NOT_CONTAINS":
-                        msg = "Value not contains to be '%s', but found '%s'";
-                        break;
-                    case "EQUALS":
-                        msg = "Value equals to be '%s', but found '%s'";
-                        break;
-                    case "NOT_EQUALS":
-                        msg = "Value not equals to be '%s', but found '%s'";
-                        break;
-                    case "GT":
-                        msg = "Value > '%s', but found '%s'";
-                        break;
-                    case "LT":
-                        msg = "Value < '%s', but found '%s'";
-                        break;
-                    case "DOCUMENT":
-                        msg = DocumentUtils.documentMsg(this.getName(), value, this.getElementCondition(),decimalFormatter);
-                        break;
-                }
+            } else if (StringUtils.isNotEmpty(getOption()) && !this.assertMatch(value)) {
+                msg = switch (getOption()) {
+                    case "CONTAINS" -> "Value contains to be '%s', but found '%s'";
+                    case "NOT_CONTAINS" -> "Value not contains to be '%s', but found '%s'";
+                    case "EQUALS" -> "Value equals to be '%s', but found '%s'";
+                    case "NOT_EQUALS" -> "Value not equals to be '%s', but found '%s'";
+                    case "GT" -> "Value > '%s', but found '%s'";
+                    case "LT" -> "Value < '%s', but found '%s'";
+                    case "DOCUMENT" ->
+                            DocumentUtils.documentMsg(this.getName(), value, this.getElementCondition(), decimalFormatter);
+                    default -> msg;
+                };
             } else {
                 msg = "Value expected to be '%s', but found '%s'";
             }
@@ -208,27 +193,27 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
             }
         }
         if (isDocument) {
-            return isEquals(value);
+            return assertMatch(value);
         }
 
         for (Object subj : value.toArray()) {
             if (!StringUtils.equals(getOption(), "NOT_CONTAINS")) {
-                if (subj == null && this.isExpectNull() || isEquals(subj)) {
+                if (subj == null && this.isExpectNull() || assertMatch(subj)) {
                     return true;
                 }
             } else {
-                result.add(isEquals(subj));
+                result.add(assertMatch(subj));
             }
         }
         if (CollectionUtils.isNotEmpty(result) && StringUtils.equals(getOption(), "NOT_CONTAINS")) {
-            if (result.stream().filter(item -> item == true).collect(Collectors.toList()).size() == result.size()) {
+            if (result.stream().filter(item -> item).toList().size() == result.size()) {
                 return true;
             } else {
                 return false;
             }
         }
 
-        return isEquals(value);
+        return assertMatch(value);
     }
 
     private boolean isGt(String v1, String v2) {
@@ -251,42 +236,41 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         }
     }
 
-    private boolean isEquals(Object subj) {
-        String str = DocumentUtils.objectToString(subj, decimalFormatter);
+    private boolean assertMatch(Object subj) {
         if (isUseRegex()) {
-            if (USE_JAVA_REGEX) {
-                return JMeterUtils.compilePattern(getExpectedValue()).matcher(str).matches();
+            String expectedValue = getExpectedValue();
+            String resultValue;
+            if (subj instanceof BigDecimal) {
+                resultValue = String.valueOf(((BigDecimal) subj).doubleValue());
+                try {
+                    Double.parseDouble(getExpectedValue());
+                    expectedValue = String.valueOf(Double.parseDouble(getExpectedValue()));
+                } catch (Exception e) {
+                    expectedValue = getExpectedValue();
+                }
             } else {
-                Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
-                return JMeterUtils.getMatcher().matches(str, pattern);
+                resultValue = DocumentUtils.objectToString(subj, decimalFormatter);
+            }
+            if (USE_JAVA_REGEX) {
+                return JMeterUtils.compilePattern(expectedValue).matcher(resultValue).matches();
+            } else {
+                Pattern pattern = JMeterUtils.getPatternCache().getPattern(expectedValue);
+                return JMeterUtils.getMatcher().matches(resultValue, pattern);
             }
         } else {
+            String str = DocumentUtils.objectToString(subj, decimalFormatter);
             if (StringUtils.isNotEmpty(getOption())) {
-                boolean refFlag = false;
-                switch (getOption()) {
-                    case "CONTAINS":
-                        refFlag = str.contains(getExpectedValue());
-                        break;
-                    case "NOT_CONTAINS":
-                        refFlag = !str.contains(getExpectedValue());
-                        break;
-                    case "EQUALS":
-                        refFlag = valueEquals(str, getExpectedValue());
-                        break;
-                    case "NOT_EQUALS":
-                        refFlag = valueNotEquals(str, getExpectedValue());
-                        break;
-                    case "GT":
-                        refFlag = isGt(str, getExpectedValue());
-                        break;
-                    case "LT":
-                        refFlag = isLt(str, getExpectedValue());
-                        break;
-                    case "DOCUMENT":
-                        refFlag = DocumentUtils.documentChecked(subj, this.getElementCondition(), decimalFormatter);
-                        break;
-                }
-                return refFlag;
+                return switch (getOption()) {
+                    case "CONTAINS" -> str.contains(getExpectedValue());
+                    case "NOT_CONTAINS" -> !str.contains(getExpectedValue());
+                    case "EQUALS" -> valueEquals(str, getExpectedValue());
+                    case "NOT_EQUALS" -> valueNotEquals(str, getExpectedValue());
+                    case "GT" -> isGt(str, getExpectedValue());
+                    case "LT" -> isLt(str, getExpectedValue());
+                    case "DOCUMENT" ->
+                            DocumentUtils.documentChecked(subj, this.getElementCondition(), decimalFormatter);
+                    default -> false;
+                };
             }
             Object expected = JSONValue.parse(getExpectedValue());
             return Objects.equals(expected, subj);
@@ -359,7 +343,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         } else if (subj instanceof Map) {
             //noinspection unchecked
             str = new JSONObject((Map<String, ?>) subj).toJSONString();
-        } else if (subj instanceof Double || subj instanceof Float) {
+        } else if (subj instanceof Double || subj instanceof Float || subj instanceof BigDecimal) {
             str = decimalFormatter.get().format(subj);
         } else {
             str = subj.toString();
