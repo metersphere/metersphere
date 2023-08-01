@@ -6,59 +6,47 @@
   </li>
 </template>
 
-<script lang="ts">
-  import type { PropType, CSSProperties } from 'vue';
-  import { computed, defineComponent } from 'vue';
+<script lang="ts" setup>
+  import type { CSSProperties } from 'vue';
+  import { computed } from 'vue';
   import { getPrefixCls } from './utils';
 
-  export default defineComponent({
+  defineOptions({
     name: 'Pager',
-    props: {
-      pageNumber: {
-        type: Number,
-      },
-      current: {
-        type: Number,
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
-      style: {
-        type: Object as PropType<CSSProperties>,
-      },
-      activeStyle: {
-        type: Object as PropType<CSSProperties>,
-      },
+  });
+
+  export interface PageItemProps {
+    pageNumber?: number;
+    current?: number;
+    disabled: boolean;
+    style?: CSSProperties;
+    activeStyle?: CSSProperties;
+  }
+
+  const props = withDefaults(defineProps<PageItemProps>(), {
+    disabled: false,
+  });
+
+  const emit = defineEmits<{
+    (e: 'click', value: number, event: MouseEvent): void;
+  }>();
+
+  const handleClick = (e: MouseEvent) => {
+    if (!props.disabled) {
+      emit('click', props.pageNumber as number, e);
+    }
+  };
+
+  const prefixCls = getPrefixCls('pagination-item');
+  const isActive = computed(() => props.current === props.pageNumber);
+  const cls = computed(() => [
+    prefixCls,
+    {
+      [`${prefixCls}-active`]: props.current === props.pageNumber,
     },
-    emits: ['click'],
-    setup(props, { emit }) {
-      const prefixCls = getPrefixCls('pagination-item');
-      const isActive = computed(() => props.current === props.pageNumber);
+  ]);
 
-      const handleClick = (e: MouseEvent) => {
-        if (!props.disabled) {
-          emit('click', props.pageNumber, e);
-        }
-      };
-
-      const cls = computed(() => [
-        prefixCls,
-        {
-          [`${prefixCls}-active`]: isActive.value,
-        },
-      ]);
-
-      const mergedStyle = computed(() => {
-        return isActive.value ? props.activeStyle : props.style;
-      });
-
-      return {
-        prefixCls,
-        cls,
-        mergedStyle,
-        handleClick,
-      };
-    },
+  const mergedStyle = computed(() => {
+    return isActive.value ? props.activeStyle : props.style;
   });
 </script>

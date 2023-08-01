@@ -17,9 +17,3 @@
     extraProps: { ...props },
   });
 </script>
-
-<style lang="less">
-  .arco-icon {
-    font-size: 14px !important;
-  }
-</style>
