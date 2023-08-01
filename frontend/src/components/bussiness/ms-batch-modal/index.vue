@@ -66,15 +66,16 @@
   );
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'addProject', targetValue: string[]): void;
-    (e: 'addUserGroup', targetValue: string[]): void;
-    (e: 'addOrgnization', targetValue: string[]): void;
+    (e: 'addProject', targetValue: string[], type: string): void;
+    (e: 'addUserGroup', targetValue: string[], type: string): void;
+    (e: 'addOrgnization', targetValue: string[], type: string): void;
   }>();
 
   const showBatchModal = ref(false);
   const batchLoading = ref(false);
   const batchTitle = ref('');
   const target = ref<string[]>([]);
+  const treeList = ref<TreeDataItem[]>([]);
 
   function handelTableBatch(action: string) {
     switch (action) {
@@ -147,9 +148,9 @@
       return treeDataSource;
     };
 
-    return travel(props.treeData);
+    return travel(treeList.value);
   };
-  const transferData = getTransferData(props.treeData, []);
+  let transferData: TransferDataItem[] = [];
 
   function cancelBatch() {
     showBatchModal.value = false;
@@ -164,24 +165,33 @@
       }
       switch (props.action) {
         case 'batchAddProject':
-          emit('addProject', target.value);
+          emit('addProject', target.value, 'project');
           break;
         case 'batchAddUsergroup':
-          emit('addUserGroup', target.value);
+          emit('addUserGroup', target.value, 'usergroup');
           break;
         case 'batchAddOrgnization':
-          emit('addOrgnization', target.value);
+          emit('addOrgnization', target.value, 'orgnization');
           break;
         default:
           break;
       }
       showBatchModal.value = false;
+      target.value = [];
     } catch (error) {
       console.log(error);
     } finally {
       batchLoading.value = false;
     }
   };
+  watch(
+    () => props.treeData,
+    (newVal, oldVal) => {
+      treeList.value = newVal;
+      transferData = getTransferData(treeList.value, []);
+    },
+    { deep: true, immediate: true }
+  );
 </script>
 
 <style lang="less" scoped></style>

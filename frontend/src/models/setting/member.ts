@@ -48,6 +48,7 @@ export interface BatchAddProjectModel {
   organizationId?: string;
   memberIds?: Array<string | number>;
   projectIds?: string[];
+  userRoleIds?: string[];
 }
 // 用户组下拉列表
 
