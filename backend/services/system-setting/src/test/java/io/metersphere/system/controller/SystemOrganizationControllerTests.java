@@ -1,9 +1,11 @@
 package io.metersphere.system.controller;
 
 import base.BaseTest;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.ProjectDTO;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.dto.OrganizationDTO;
@@ -84,6 +86,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-organization-6
         OrganizationDTO organizationDTO1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), OrganizationDTO.class).get(0);
         Assertions.assertTrue(organizationDTO1.getId().contains("default"));
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, ORGANIZATION_LIST, organizationRequest);
     }
 
     @Test
@@ -106,6 +110,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         Assertions.assertEquals(pageData.getCurrent(), organizationRequest.getCurrent());
         // 返回的数据量为0条
         Assertions.assertEquals(0, pageData.getTotal());
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, ORGANIZATION_LIST, organizationRequest);
     }
 
     @Test
@@ -133,7 +139,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回值不为空
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否大于0
-        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size() > 0);
+        Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
     }
 
     @Test
@@ -209,6 +215,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         organizationMemberRequest.setOrganizationId("default-organization-3");
         organizationMemberRequest.setMemberIds(List.of("admin", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
+        // 日志校验
+        checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.ADD);
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
@@ -233,6 +241,9 @@ public class SystemOrganizationControllerTests extends BaseTest{
         Assertions.assertTrue(StringUtils.contains(userExtend.getName(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtend.getEmail(), organizationRequest.getKeyword())
                 || StringUtils.contains(userExtend.getPhone(), organizationRequest.getKeyword()));
+        // 权限校验
+        organizationMemberRequest.setMemberIds(List.of("admin"));
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, ORGANIZATION_ADD_MEMBER, organizationMemberRequest);
     }
 
     @Test
@@ -297,6 +308,10 @@ public class SystemOrganizationControllerTests extends BaseTest{
     @Order(10)
     public void testRemoveOrganizationMemberSuccess() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin", status().isOk());
+        // 日志校验
+        checkLog("default-organization-3", OperationLogType.DELETE);
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
     }
 
     @Test
@@ -338,6 +353,9 @@ public class SystemOrganizationControllerTests extends BaseTest{
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-project
         ProjectDTO projectDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), ProjectDTO.class).get(0);
         Assertions.assertTrue(StringUtils.equals(projectDTO.getId(), "default-project"));
+
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, ORGANIZATION_LIST_PROJECT, projectRequest);
     }
 
     @Test
@@ -371,6 +389,9 @@ public class SystemOrganizationControllerTests extends BaseTest{
         Assertions.assertNotNull(defaultOrg);
         // 返回数据NUM是否为默认100001
         Assertions.assertEquals(defaultOrg.getNum(), 100001L);
+
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, ORGANIZATION_DEFAULT);
     }
 
     @Test

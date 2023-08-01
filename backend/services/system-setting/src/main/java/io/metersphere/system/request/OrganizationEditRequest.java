@@ -4,7 +4,6 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -28,6 +27,5 @@ public class OrganizationEditRequest implements Serializable {
     private String description;
 
     @Schema(title = "成员ID集合")
-    @NotEmpty(message = "{member.id.not_empty}", groups = {Created.class, Updated.class})
     private List<String> memberIds;
 }
