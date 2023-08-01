@@ -141,7 +141,7 @@ public class OperationLogControllerTests extends BaseTest {
         this.requestGetWithOkAndReturn(USER_LIST);
 
         // @@校验权限
-       // requestGetPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, OPTIONS_LIST);
+       // requestGetPermissionTest(PermissionConstants.SYSTEM_OPERATING_LOG_READ, USER_LIST);
     }
 
     @Test
