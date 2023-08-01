@@ -3,7 +3,7 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
         <el-input
-          :disabled="isReadOnly && !duration.label"
+          :disabled="(isReadOnly && !duration.label) || caseEnable"
           :value="value"
           v-bind="$attrs"
           step="100"
@@ -21,18 +21,18 @@
             v-model="duration.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly && !duration.label"
+            :disabled="(isReadOnly && !duration.label) || caseEnable"
             style="width: 30px; margin-right: 10px" />
         </el-tooltip>
         <el-button
-          :disabled="isReadOnly && !duration.label"
+          :disabled="(isReadOnly && !duration.label) || caseEnable"
           type="danger"
           size="mini"
           icon="el-icon-delete"
           circle
           @click="remove"
           v-if="edit" />
-        <el-button :disabled="isReadOnly && !duration.label" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="(isReadOnly && !duration.label) || caseEnable" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -50,6 +50,10 @@ export default {
     edit: Boolean,
     callback: Function,
     isReadOnly: {
+      type: Boolean,
+      default: false,
+    },
+    caseEnable: {
       type: Boolean,
       default: false,
     },

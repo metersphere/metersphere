@@ -3,7 +3,7 @@
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
         <el-input
-          :disabled="isReadOnly && !xPath2.label"
+          :disabled="(isReadOnly && !xPath2.label) || caseEnable"
           v-model="xPath2.expression"
           maxlength="500"
           size="small"
@@ -16,25 +16,25 @@
             v-model="xPath2.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly && !xPath2.label"
+            :disabled="(isReadOnly && !xPath2.label) || caseEnable"
             style="width: 30px; margin-right: 10px" />
         </el-tooltip>
         <el-button
-          :disabled="isReadOnly && !xPath2.label"
+          :disabled="(isReadOnly && !xPath2.label) || caseEnable"
           size="mini"
           icon="el-icon-copy-document"
           circle
           @click="copyRow"
           v-if="edit" />
         <el-button
-          :disabled="isReadOnly && !xPath2.label"
+          :disabled="(isReadOnly && !xPath2.label) || caseEnable"
           type="danger"
           size="mini"
           icon="el-icon-delete"
           circle
           @click="remove"
           v-if="edit" />
-        <el-button :disabled="isReadOnly && !xPath2.label" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="(isReadOnly && !xPath2.label) || caseEnable" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -62,6 +62,10 @@ export default {
     list: Array,
     callback: Function,
     isReadOnly: {
+      type: Boolean,
+      default: false,
+    },
+    caseEnable: {
       type: Boolean,
       default: false,
     },

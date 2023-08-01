@@ -4,7 +4,7 @@
       <el-col>
         <el-tooltip :disabled="showTip" placement="top" :content="jsonPath.expression">
           <el-input
-            :disabled="isReadOnly && !jsonPath.label"
+            :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
             v-model="jsonPath.expression"
             maxlength="500"
             size="small"
@@ -14,7 +14,7 @@
       </el-col>
       <el-col>
         <el-select
-          :disabled="isReadOnly && !jsonPath.label"
+          :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
           v-model="jsonPath.option"
           class="ms-col-type"
           size="small"
@@ -29,7 +29,7 @@
           <el-option :label="$t('api_test.request.assertions.regular_match')" value="REGEX"/>
         </el-select>
         <el-input
-          :disabled="isReadOnly && !jsonPath.label"
+          :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
           v-model="jsonPath.expect"
           size="small"
           show-word-limit
@@ -48,25 +48,25 @@
             v-model="jsonPath.enable"
             class="enable-switch"
             size="mini"
-            :disabled="isReadOnly && !jsonPath.label"
+            :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
             style="width: 30px; margin-right: 10px"/>
         </el-tooltip>
         <el-button
-          :disabled="isReadOnly && !jsonPath.label"
+          :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
           size="mini"
           icon="el-icon-copy-document"
           circle
           @click="copyRow"
           v-if="edit"/>
         <el-button
-          :disabled="isReadOnly && !jsonPath.label"
+          :disabled="(isReadOnly && !jsonPath.label) || caseEnable"
           type="danger"
           size="mini"
           icon="el-icon-delete"
           circle
           @click="remove"
           v-if="edit"/>
-        <el-button :disabled="isReadOnly && !jsonPath.label" type="primary" size="mini" @click="add" v-else>
+        <el-button :disabled="(isReadOnly && !jsonPath.label) || caseEnable" type="primary" size="mini" @click="add" v-else>
           {{ $t('api_test.request.assertions.add') }}
         </el-button>
       </el-col>
@@ -94,6 +94,10 @@ export default {
     list: Array,
     callback: Function,
     isReadOnly: {
+      type: Boolean,
+      default: false,
+    },
+    caseEnable: {
       type: Boolean,
       default: false,
     },
