@@ -38,6 +38,8 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
+  import { Message } from '@arco-design/web-vue';
+  import type { BatchModel } from './types';
 
   const { t } = useI18n();
 
@@ -66,15 +68,16 @@
   );
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'addProject', targetValue: string[]): void;
-    (e: 'addUserGroup', targetValue: string[]): void;
-    (e: 'addOrgnization', targetValue: string[]): void;
+    (e: 'addProject', targetValue: string[], type: string): void;
+    (e: 'addUserGroup', targetValue: string[], type: string): void;
+    (e: 'addOrgnization', targetValue: string[], type: string): void;
   }>();
 
   const showBatchModal = ref(false);
   const batchLoading = ref(false);
   const batchTitle = ref('');
   const target = ref<string[]>([]);
+  const treeList = ref<TreeDataItem[]>([]);
 
   function handelTableBatch(action: string) {
     switch (action) {
@@ -147,41 +150,63 @@
       return treeDataSource;
     };
 
-    return travel(props.treeData);
+    return travel(treeList.value);
   };
-  const transferData = getTransferData(props.treeData, []);
+  let transferData: TransferDataItem[] = [];
 
   function cancelBatch() {
     showBatchModal.value = false;
     target.value = [];
   }
-
-  const confirmBatch = () => {
+  const batchRequestFun = async (reqFun: any, params: BatchModel) => {
     batchLoading.value = true;
     try {
-      if (target.value.length < 1) {
-        return;
-      }
-      switch (props.action) {
-        case 'batchAddProject':
-          emit('addProject', target.value);
-          break;
-        case 'batchAddUsergroup':
-          emit('addUserGroup', target.value);
-          break;
-        case 'batchAddOrgnization':
-          emit('addOrgnization', target.value);
-          break;
-        default:
-          break;
-      }
+      await reqFun(params);
+      Message.success(t('organization.member.batchModalSuccess'));
       showBatchModal.value = false;
+      target.value = [];
     } catch (error) {
       console.log(error);
     } finally {
       batchLoading.value = false;
     }
   };
+
+  const confirmBatch = async () => {
+    batchLoading.value = true;
+    if (target.value.length < 1) {
+      return;
+    }
+    try {
+      switch (props.action) {
+        case 'batchAddProject':
+          emit('addProject', target.value, 'project');
+          break;
+        case 'batchAddUsergroup':
+          emit('addUserGroup', target.value, 'usergroup');
+          break;
+        case 'batchAddOrgnization':
+          emit('addOrgnization', target.value, 'orgnization');
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  watch(
+    () => props.treeData,
+    (newVal, oldVal) => {
+      treeList.value = newVal;
+      transferData = getTransferData(treeList.value, []);
+    },
+    { deep: true, immediate: true }
+  );
+  defineExpose({
+    batchLoading,
+    batchRequestFun,
+  });
 </script>
 
 <style lang="less" scoped></style>

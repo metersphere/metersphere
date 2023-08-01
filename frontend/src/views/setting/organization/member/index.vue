@@ -2,7 +2,9 @@
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="addMember">{{ t('organization.member.addMember') }}</a-button>
+        <a-button class="mr-3" type="primary" @click="addOrEditMember('add')">{{
+          t('organization.member.addMember')
+        }}</a-button>
       </div>
       <a-input-search
         v-model="keyword"
@@ -20,67 +22,71 @@
       @batch-action="handelTableBatch"
     >
       <template #project="{ record }">
-        <div v-if="!record.showProjectSelect">
-          <!-- <a-tag
-            v-for="pro of record.projectIdNameMap"
-            :key="pro.id"
-            class="mr-[4px] bg-transparent"
-            bordered
-            @click="changeUserOrProject(record, 'project')"
-          > -->
-          <a-tag
-            v-for="pro of 3"
-            :key="pro"
-            class="mr-[4px] bg-transparent"
-            bordered
-            @click="changeUserOrProject(record, 'project')"
+        <a-tooltip :content="(record.projectIdNameMap||[]).map((e: any) => e.name).join(',')">
+          <div v-if="!record.showProjectSelect">
+            <a-tag
+              v-for="pro of record.projectIdNameMap"
+              :key="pro.id"
+              class="mr-[4px] bg-transparent"
+              bordered
+              @click="changeUserOrProject(record, 'project')"
+            >
+              {{ pro.name }}
+            </a-tag>
+            <a-tag
+              v-if="(record.projectIdNameMap || []).length > 3"
+              class="mr-[4px] bg-transparent"
+              bordered
+              @click="changeUserOrProject(record, 'project')"
+            >
+              +{{ (record.projectIdNameMap || []).length - 3 }}
+            </a-tag>
+          </div>
+          <a-select
+            v-else
+            v-model="record.selectProjectList"
+            multiple
+            :max-tag-count="2"
+            size="small"
+            @change="(value) => selectUserOrProject(value, record, 'project')"
+            @popup-visible-change="visibleChange($event, record, 'project')"
           >
-            {{ pro }}
-          </a-tag>
-        </div>
-        <a-select
-          v-else
-          v-model="record.selectProjectList"
-          multiple
-          :max-tag-count="2"
-          size="small"
-          @change="(value) => selectUserOrProject(value, record, 'project')"
-          @popup-visible-change="visibleChange($event, record, 'project')"
-        >
-          <a-option v-for="item of projectList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
+            <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+          </a-select>
+        </a-tooltip>
       </template>
       <template #userRole="{ record }">
-        <div v-if="!record.showUserSelect">
-          <a-tag
-            v-for="org of Object.keys(record.userRoleIdNameMap).slice(0, 3)"
-            :key="org"
-            class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-            bordered
-            @click="changeUserOrProject(record, 'user')"
+        <a-tooltip :content="(record.userRoleIdNameMap||[]).map((e: any) => e.name).join(',')">
+          <div v-if="!record.showUserSelect">
+            <a-tag
+              v-for="org of (record.userRoleIdNameMap || []).slice(0, 3)"
+              :key="org"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+              @click="changeUserOrProject(record, 'user')"
+            >
+              {{ org.name }}
+            </a-tag>
+            <a-tag
+              v-if="record.userRoleIdNameMap.length > 3"
+              class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
+              bordered
+              @click="changeUserOrProject(record, 'user')"
+            >
+              +{{ record.userRoleIdNameMap.length - 3 }}
+            </a-tag>
+          </div>
+          <a-select
+            v-else
+            v-model="record.selectUserList"
+            multiple
+            :max-tag-count="2"
+            @change="(value) => selectUserOrProject(value, record, 'user')"
+            @popup-visible-change="(value) => visibleChange(value, record, 'user')"
           >
-            {{ record.userRoleIdNameMap[org] }}
-          </a-tag>
-          <a-tag
-            v-if="Object.keys(record.userRoleIdNameMap).length > 3"
-            class="mr-[4px] border-[rgb(var(--primary-5))] bg-transparent !text-[rgb(var(--primary-5))]"
-            bordered
-            @click="changeUserOrProject(record, 'user')"
-          >
-            +{{ Object.keys(record.userRoleIdNameMap).length - 3 }}
-          </a-tag>
-        </div>
-
-        <a-select
-          v-else
-          v-model="record.selectUserList"
-          multiple
-          :max-tag-count="2"
-          @change="(value) => selectUserOrProject(value, record, 'user')"
-          @popup-visible-change="(value) => visibleChange(value, record, 'user')"
-        >
-          <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
-        </a-select>
+            <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
+          </a-select>
+        </a-tooltip>
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -93,7 +99,7 @@
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton @click="editMember(record)">{{ t('organization.member.edit') }}</MsButton>
+        <MsButton @click="addOrEditMember('edit', record)">{{ t('organization.member.edit') }}</MsButton>
         <MsButton @click="deleteMember(record)">{{ t('organization.member.remove') }}</MsButton>
       </template>
     </ms-base-table>
@@ -101,24 +107,25 @@
   <AddMemberModal
     ref="AddMemberRef"
     v-model:visible="addMemberVisible"
-    :member-list="memberList"
-    :project-list="projectList"
+    :project-list="projectOptions"
     :user-group-options="userGroupOptions"
-    @success="handlerOk"
+    @success="initData()"
   />
   <MSBatchModal
     v-if="treeData.length > 0"
+    ref="batchModalRef"
     v-model:visible="showBatchModal"
     :table-selected="tableSelected"
     :action="batchAction"
     :tree-data="treeData"
-    @add-project="addProject"
-    @add-user-group="addUserGroup"
+    :select-data="selectData"
+    @add-project="addProjectOrAddUserGroup"
+    @add-user-group="addProjectOrAddUserGroup"
   />
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from 'vue';
+  import { onBeforeMount, ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -131,20 +138,27 @@
     deleteMemberReq,
     addOrUpdate,
     batchAddProject,
+    batchAddUserGroup,
     getProjectList,
     getGlobalUserGroup,
-    getUser,
   } from '@/api/modules/setting/member';
   import useModal from '@/hooks/useModal';
   import { TableKeyEnum } from '@/enums/tableEnum';
   import MSBatchModal from '@/components/bussiness/ms-batch-modal/index.vue';
   import { useTableStore, useUserStore } from '@/store';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import type { MemberItem, AddorUpdateMemberModel, LinkList, BatchAddProjectModel } from '@/models/setting/member';
+  import type {
+    MemberItem,
+    AddorUpdateMemberModel,
+    LinkList,
+    LinkItem,
+    BatchAddProjectModel,
+  } from '@/models/setting/member';
 
   const tableStore = useTableStore();
   const { t } = useI18n();
   const userStore = useUserStore();
+  const lastOrganizationId = userStore.$state?.lastOrganizationId as string;
 
   const columns: MsTableColumn = [
     {
@@ -193,7 +207,7 @@
       title: 'organization.member.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
-      width: 150,
+      width: 100,
       showDrag: false,
       showInTable: true,
     },
@@ -214,22 +228,40 @@
   };
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getMemberList, {
     tableKey: TableKeyEnum.ORGANNATIONMEMBER,
-    scroll: { y: 'auto', x: 1400 },
+    scroll: { x: 1200 },
     selectable: true,
   });
   const keyword = ref('');
+  const tableSelected = ref<(string | number)[]>([]);
+  const selectData = ref<string[]>([]);
+  const { openModal } = useModal();
+
+  interface TreeDataItem {
+    key: string;
+    title: string;
+    children?: TreeDataItem[];
+  }
+  const batchAction = ref('');
+
   const initData = async () => {
-    setLoadListParams({ keyword: keyword.value, organizationId: userStore.$state?.lastOrganizationId });
+    setLoadListParams({ keyword: keyword.value, organizationId: lastOrganizationId });
     await loadList();
   };
   const searchHandler = () => {
     initData();
   };
+
   const addMemberVisible = ref<boolean>(false);
   const AddMemberRef = ref();
-  const tableSelected = ref<(string | number)[]>([]);
-  const { openModal } = useModal();
-  function deleteMember(record: MemberItem) {
+
+  const addOrEditMember = (type: string, record: AddorUpdateMemberModel = {}) => {
+    addMemberVisible.value = true;
+    AddMemberRef.value.type = type;
+    if (type === 'edit') {
+      AddMemberRef.value.edit(record);
+    }
+  };
+  const deleteMember = (record: MemberItem) => {
     openModal({
       type: 'warning',
       title: t('organization.member.deleteMemberTip', { name: record.name }),
@@ -241,7 +273,7 @@
       },
       onBeforeOk: async () => {
         try {
-          await deleteMemberReq(record.lastOrganizationId, record.id);
+          await deleteMemberReq(lastOrganizationId, record.id);
           Message.success(t('organization.member.deleteMemberSuccess'));
           initData();
         } catch (error) {
@@ -250,79 +282,73 @@
       },
       hideCancel: false,
     });
-  }
-  function editMember(record: AddorUpdateMemberModel) {
-    addMemberVisible.value = true;
-    AddMemberRef.value.type = 'edit';
-    AddMemberRef.value.edit(record);
-  }
-  function handleTableSelect(selectArr: (string | number)[]) {
+  };
+  const handleTableSelect = (selectArr: (string | number)[]) => {
     tableSelected.value = selectArr;
-  }
-  function addMember() {
-    addMemberVisible.value = true;
-    AddMemberRef.value.type = 'add';
-  }
-  function handlerOk() {
-    initData();
-  }
-  const showBatchModal = ref(false);
-  const batchAction = ref('');
-  const treeData = ref([]);
-  const getProjectTreeData = async () => {
-    treeData.value = [];
+  };
+
+  const treeData = ref<TreeDataItem[]>([]);
+  const getData = async (callBack: any) => {
     try {
-      const result = await getProjectList({
-        current: 1,
-        pageSize: 10,
-        organizationId: userStore.$state?.lastOrganizationId,
-      });
-      treeData.value = result.list.map((item: any) => {
+      const links = await callBack(lastOrganizationId);
+      treeData.value = links.map((item: LinkItem) => {
         return {
           title: item.name,
           key: item.id,
+          id: item.id,
         };
       });
     } catch (error) {
       console.log(error);
     }
   };
-  const getUserTreeData = async () => {
-    treeData.value = [];
-  };
-  // 添加到项目
-  const addProject = async (target: string[]) => {
-    try {
-      const params: BatchAddProjectModel = {
-        organizationId: userStore.$state?.lastOrganizationId,
-        memberIds: tableSelected.value,
-        projectIds: target,
-      };
-      await batchAddProject(params);
-      Message.success(t('organization.member.batchModalSuccess'));
-      initData();
-    } catch (error) {
-      console.log(error);
+
+  const batchModalRef = ref();
+  const showBatchModal = ref(false);
+
+  const batchList = [
+    {
+      type: 'project',
+      request: batchAddProject,
+    },
+    {
+      type: 'usergroup',
+      request: batchAddUserGroup,
+    },
+  ];
+  // 添加到项目和用户组
+  const addProjectOrAddUserGroup = (target: string[], type: string) => {
+    const currentType = batchList.find((item) => item.type === type);
+    const params: BatchAddProjectModel = {
+      organizationId: lastOrganizationId,
+      memberIds: tableSelected.value,
+    };
+    if (type === 'project') {
+      params.projectIds = target;
+    } else {
+      params.userRoleIds = target;
     }
+    if (currentType) batchModalRef.value.batchRequestFun(currentType.request, params);
   };
-  // 添加到用户组
-  function addUserGroup() {}
-  function handelTableBatch(actionItem: any) {
+  // 批量操作
+  const handelTableBatch = (actionItem: any) => {
     showBatchModal.value = true;
+    treeData.value = [];
     batchAction.value = actionItem.eventTag;
-    if (actionItem.eventTag === 'batchAddProject') getProjectTreeData();
-    if (actionItem.eventTag === 'batchAddUsergroup') getUserTreeData();
-  }
+    if (actionItem.eventTag === 'batchAddProject') getData(getProjectList);
+    if (actionItem.eventTag === 'batchAddUsergroup') getData(getGlobalUserGroup);
+  };
   // 列表编辑更新用户组和项目
   const updateUserOrProject = async (record: MemberItem) => {
     try {
       const params = {
-        organizationId: record.lastOrganizationId,
+        organizationId: lastOrganizationId,
         projectIds: [...record.selectProjectList],
         userRoleIds: [...record.selectUserList],
+        memberId: record.id,
       };
       await addOrUpdate(params, 'edit');
-      Message.success(t('organization.member.batchModalSuccess'));
+      Message.success(t('organization.member.batchUpdateSuccess'));
       initData();
     } catch (error) {
       console.log(error);
@@ -333,6 +359,9 @@
   };
   // 编辑模式和下拉选择切换
   const changeUserOrProject = (record: MemberItem, type: string) => {
+    if (!record.enable) {
+      return;
+    }
     if (type === 'project') {
       record.showProjectSelect = true;
       record.showUserSelect = false;
@@ -340,8 +369,8 @@
       record.showUserSelect = true;
       record.showProjectSelect = false;
     }
-    record.selectProjectList = Object.keys(record.projectIdNameMap || {});
-    record.selectUserList = Object.keys(record.userRoleIdNameMap || {});
+    record.selectProjectList = (record.projectIdNameMap || []).map((item) => item.id);
+    record.selectUserList = (record.userRoleIdNameMap || []).map((item) => item.id);
   };
   // 用户和项目选择改变的回调
   const selectUserOrProject = (value: any, record: MemberItem, type: string) => {
@@ -358,38 +387,19 @@
         Message.warning(t('organization.member.selectUserEmptyTip'));
         return;
       }
-      if (type === 'project' && record.selectProjectList.length < 1) {
-        Message.warning(t('organization.member.selectProjectScope'));
-        return;
-      }
       updateUserOrProject(record);
     }
   };
-  const memberList = ref<LinkList>([]);
+
   const userGroupOptions = ref<LinkList>([]);
-  const projectList = ref<LinkList>([
-    {
-      id: '1',
-      name: '项目一',
-    },
-    {
-      id: '2',
-      name: '项目二',
-    },
-  ]);
-  const getUserAndGroupList = async () => {
-    try {
-      const userGroupData = await getGlobalUserGroup();
-      const userData = await getUser();
-      userGroupOptions.value = userGroupData.filter((item: any) => item.type === 'ORGANIZATION');
-      memberList.value = userData;
-    } catch (error) {
-      console.log(error);
-    }
+  const projectOptions = ref<LinkList>([]);
+  const getLinkList = async () => {
+    userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId);
+    projectOptions.value = await getProjectList(lastOrganizationId);
   };
-  onMounted(() => {
-    getUserAndGroupList();
+  onBeforeMount(() => {
     initData();
+    getLinkList();
   });
 </script>
 
