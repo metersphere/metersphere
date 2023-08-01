@@ -22,82 +22,60 @@
   </span>
 </template>
 
-<script lang="ts">
-  import { computed, defineComponent, nextTick, PropType, ref, watch } from 'vue';
+<script lang="ts" setup>
+  import { computed, nextTick, ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { getPrefixCls } from './utils';
 
-  export default defineComponent({
-    name: 'PageJumper',
-    props: {
-      current: {
-        type: Number,
-        required: true,
-      },
-      simple: {
-        type: Boolean,
-        default: false,
-      },
-      disabled: {
-        type: Boolean,
-        default: false,
-      },
-      pages: {
-        type: Number,
-        required: true,
-      },
-      size: {
-        type: String as PropType<'small' | 'mini' | 'medium' | 'large' | undefined>,
-      },
-      onChange: {
-        type: Function as PropType<(value: number) => void>,
-      },
-    },
-    emits: ['change'],
-    setup(props, { emit }) {
-      const prefixCls = getPrefixCls('pagination-jumper');
-      const { t } = useI18n();
-      const inputValue = ref(props.simple ? props.current : undefined);
+  defineOptions({ name: 'PageJumper' });
 
-      const handleFormatter = (value: number) => {
-        const parseIntVal = parseInt(value.toString(), 10);
-        return Number.isNaN(parseIntVal) ? undefined : String(parseIntVal);
-      };
+  export interface PageJumperProps {
+    current: number;
+    simple: boolean;
+    disabled: boolean;
+    pages: number;
+    size?: 'small' | 'mini' | 'medium' | 'large';
+    onChange?: (value: number) => void;
+  }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const handleChange = (value: number | undefined) => {
-        emit('change', inputValue.value);
-        nextTick(() => {
-          if (!props.simple) {
-            inputValue.value = undefined;
-          }
-        });
-      };
-
-      watch(
-        () => props.current,
-        (value) => {
-          if (props.simple && value !== inputValue.value) {
-            inputValue.value = value;
-          }
-        }
-      );
-
-      const cls = computed(() => [
-        prefixCls,
-        {
-          [`${prefixCls}-simple`]: props.simple,
-        },
-      ]);
-
-      return {
-        prefixCls,
-        cls,
-        t,
-        inputValue,
-        handleChange,
-        handleFormatter,
-      };
-    },
+  const props = withDefaults(defineProps<PageJumperProps>(), {
+    simple: false,
+    disabled: false,
   });
+
+  const emit = defineEmits<{
+    (e: 'change', value: number): void;
+  }>();
+
+  const prefixCls = getPrefixCls('pagination-jumper');
+  const { t } = useI18n();
+  const inputValue = ref(props.simple ? props.current : undefined);
+  const handleFormatter = (value: number) => {
+    const parseIntVal = parseInt(value.toString(), 10);
+    return Number.isNaN(parseIntVal) ? undefined : String(parseIntVal);
+  };
+  const handleChange = () => {
+    emit('change', inputValue.value as number);
+    nextTick(() => {
+      if (!props.simple) {
+        inputValue.value = undefined;
+      }
+    });
+  };
+
+  watch(
+    () => props.current,
+    (value) => {
+      if (props.simple && value !== inputValue.value) {
+        inputValue.value = value;
+      }
+    }
+  );
+
+  const cls = computed(() => [
+    prefixCls,
+    {
+      [`${prefixCls}-simple`]: props.simple,
+    },
+  ]);
 </script>
