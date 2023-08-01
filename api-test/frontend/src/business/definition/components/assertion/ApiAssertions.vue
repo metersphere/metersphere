@@ -80,6 +80,7 @@
       :assertions="assertions"
       :apiId="apiId"
       :reloadData="reloadData"
+      :case-enable="request.caseEnable"
       style="margin-bottom: 20px" />
 
     <ms-api-jsonpath-suggest
@@ -249,11 +250,13 @@ export default {
       this.assertions.jsonPath.push(jsonItem);
     },
     clearJson() {
-      if (this.assertions.jsonPath) {
+      if (this.isReadOnly && this.assertions.jsonPath) {
         const tmpArr = this.assertions.jsonPath.filter((item) =>
           !item.label
         );
         this.assertions.jsonPath = tmpArr;
+      }else {
+        this.assertions.jsonPath = [];
       }
     },
   },
