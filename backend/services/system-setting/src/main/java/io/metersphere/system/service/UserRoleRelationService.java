@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.log.constants.OperationLogModule;
@@ -61,8 +62,8 @@ public class UserRoleRelationService {
         userRoleList.forEach(userRole -> {
             LogDTO log = new LogDTO();
             log.setId(UUID.randomUUID().toString());
-            log.setProjectId("system");
-            log.setOrganizationId("");
+            log.setProjectId(OperationLogConstants.SYSTEM);
+            log.setOrganizationId(OperationLogConstants.SYSTEM);
             log.setType(operationType);
             log.setCreateUser(operator);
             log.setModule(OperationLogModule.SYSTEM_USER);

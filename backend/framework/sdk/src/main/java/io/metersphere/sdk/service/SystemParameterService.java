@@ -1,6 +1,7 @@
 package io.metersphere.sdk.service;
 
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ParamConstants;
 import io.metersphere.sdk.dto.BaseSystemConfigDTO;
 import io.metersphere.sdk.dto.EMailInfoDto;
@@ -222,8 +223,8 @@ public class SystemParameterService {
     public LogDTO updateBaseLog(List<SystemParameter> systemParameter) {
         List<SystemParameter> originalValue = getOriginalValue(systemParameter);
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),
@@ -239,8 +240,8 @@ public class SystemParameterService {
     public LogDTO updateLog(List<SystemParameter> systemParameter) {
         List<SystemParameter> originalValue = getOriginalValue(systemParameter);
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 "system-parameter",
                 null,
                 OperationLogType.ADD.name(),

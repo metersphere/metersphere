@@ -22,10 +22,10 @@
                 AND t.create_time BETWEEN #{request.startTime} AND #{request.endTime}
             </if>
             <if test="request.level != null and request.level != 'system'">
-                AND t.project_id != 'system'
+                AND t.project_id <![CDATA[<>]]> 'SYSTEM'
             </if>
             <if test="request.level != null and request.level == 'project'">
-                AND t.project_id <![CDATA[<>]]> ''
+                AND t.project_id <![CDATA[<>]]> 'ORGANIZATION'
             </if>
             <if test="request.projectIds != null and request.projectIds.size > 0 ">
                 AND t.project_id IN

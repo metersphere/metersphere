@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.BasePageRequest;
 import io.metersphere.sdk.dto.ExcelParseDTO;
 import io.metersphere.sdk.dto.LogDTO;
@@ -71,8 +72,8 @@ public class UserService {
             LogDTO log = new LogDTO();
             log.setId(UUID.randomUUID().toString());
             log.setCreateUser(user.getCreateUser());
-            log.setProjectId("system");
-            log.setOrganizationId("");
+            log.setProjectId(OperationLogConstants.SYSTEM);
+            log.setOrganizationId(OperationLogConstants.SYSTEM);
             log.setType(OperationLogType.ADD.name());
             log.setModule(OperationLogModule.SYSTEM_USER);
             log.setMethod("addUser");
@@ -312,8 +313,8 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(request.getId());
         if (user != null) {
             LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
@@ -332,8 +333,8 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(userId);
         if (user != null) {
             LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     userId,
                     null,
                     OperationLogType.UPDATE.name(),
@@ -354,8 +355,8 @@ public class UserService {
             if (user != null) {
 
                 LogDTO dto = new LogDTO(
-                        "system",
-                        "",
+                        OperationLogConstants.SYSTEM,
+                        OperationLogConstants.SYSTEM,
                         user.getId(),
                         user.getCreateUser(),
                         OperationLogType.DELETE.name(),

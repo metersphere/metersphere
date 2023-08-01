@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
@@ -27,7 +28,7 @@ public class OrganizationUserRoleLogService {
      */
     public LogDTO addLog(OrganizationUserRoleEditRequest request) {
         LogDTO dto = new LogDTO(
-                "",
+                OperationLogConstants.ORGANIZATION,
                 request.getScopeId(),
                 null,
                 null,
@@ -46,7 +47,7 @@ public class OrganizationUserRoleLogService {
      */
     public LogDTO updateLog(OrganizationUserRoleEditRequest request) {
         LogDTO dto = new LogDTO(
-                "",
+                OperationLogConstants.ORGANIZATION,
                 request.getScopeId(),
                 null,
                 null,
@@ -66,7 +67,7 @@ public class OrganizationUserRoleLogService {
     public LogDTO deleteLog(String id) {
         UserRole userRole = userRoleMapper.selectByPrimaryKey(id);
         LogDTO dto = new LogDTO(
-                "",
+                OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
                 null,
                 null,
@@ -105,7 +106,7 @@ public class OrganizationUserRoleLogService {
     private LogDTO getLog(String roleId) {
         UserRole userRole = userRoleMapper.selectByPrimaryKey(roleId);
         return new LogDTO(
-                "",
+                OperationLogConstants.ORGANIZATION,
                 userRole.getScopeId(),
                 null,
                 null,

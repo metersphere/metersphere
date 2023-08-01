@@ -5,6 +5,7 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.dto.AddProjectRequest;
 import io.metersphere.sdk.dto.LogDTO;
 import io.metersphere.sdk.dto.ProjectDTO;
@@ -346,7 +347,7 @@ public class SystemProjectService {
             // delete project
             projectMapper.deleteByPrimaryKey(project.getId());
             setLog(project.getId(), "null", Translator.get("delete") + Translator.get("project") + ": " + project.getName(),
-                    "system", "", OperationLogType.DELETE.name(), "", logDTOList);
+                    OperationLogConstants.SYSTEM, OperationLogConstants.SYSTEM, OperationLogType.DELETE.name(), "", logDTOList);
         });
         operationLogService.batchAdd(logDTOList);
     }
@@ -364,8 +365,8 @@ public class SystemProjectService {
     private static void setLog(String projectId, String path, String content, String userId, Object originalValue,
                                String type, String method, List<LogDTO> logDTOList) {
         LogDTO dto = new LogDTO(
-                "system",
-                "system",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 projectId,
                 userId,
                 type,

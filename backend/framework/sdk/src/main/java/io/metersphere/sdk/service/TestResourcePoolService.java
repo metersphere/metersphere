@@ -1,6 +1,7 @@
 package io.metersphere.sdk.service;
 
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.dto.*;
 import io.metersphere.sdk.exception.MSException;
@@ -278,8 +279,8 @@ public class TestResourcePoolService {
 
     public LogDTO addLog(TestResourcePoolRequest request) {
         LogDTO dto = new LogDTO(
-                "system",
-                "",
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
                 request.getId(),
                 null,
                 OperationLogType.ADD.name(),
@@ -296,8 +297,8 @@ public class TestResourcePoolService {
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
         if (pool != null) {
             LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     id,
                     pool.getCreateUser(),
                     OperationLogType.DELETE.name(),
@@ -317,8 +318,8 @@ public class TestResourcePoolService {
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null) {
             LogDTO dto = new LogDTO(
-                    "system",
-                    "",
+                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.SYSTEM,
                     pool.getId(),
                     pool.getCreateUser(),
                     OperationLogType.UPDATE.name(),
