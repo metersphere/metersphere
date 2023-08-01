@@ -4,7 +4,11 @@ export interface MsPaginationI {
   current: number;
   pageSize: number;
   total: number;
-  showPageSize: boolean;
+  showPageSize?: boolean;
+  showTotal?: boolean;
+  showJumper?: boolean;
+  hideOnSinglePage?: boolean;
+  simple?: boolean;
 }
 
 export interface MsTableColumnData extends TableColumnData {
@@ -50,10 +54,11 @@ export interface MsTableProps {
   // loading
   loading?: boolean;
   bordered?: boolean;
-  // 分页配置
-  pagination: MsPaginationI | boolean;
+  msPagination?: MsPaginationI;
   // 展示列表选择按钮
   showSetting?: boolean;
+  // 分页是否是简单模式
+  pageSimple?: boolean;
   [key: string]: any;
 }
 

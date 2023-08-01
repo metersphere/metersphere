@@ -1,44 +1,47 @@
 <template>
-  <div class="user-group flex flex-row bg-white">
-    <div class="user-group-left">
-      <user-group-left v-if="collapse" />
-      <div class="usergroup-collapse">
-        <icon-double-left v-if="collapse" class="icon" @click="collapse = false" />
-        <icon-double-right v-else class="icon" @click="collapse = true" />
-      </div>
-    </div>
-    <div class="grow-1 w-[100%] overflow-x-scroll p-[24px]">
-      <div class="grow-1 flex flex-row items-center justify-between">
-        <div class="title">{{ store.userGroupInfo.currentName }}</div>
-        <div class="flex items-center">
-          <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlacehoder')">
-            <template #prefix>
-              <icon-search />
-            </template>
-          </a-input>
-          <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
-            <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
-            <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
-          </a-radio-group>
+  <MsCard simple>
+    <div class="flex flex-row">
+      <div class="user-group-left">
+        <user-group-left v-if="collapse" />
+        <div class="usergroup-collapse">
+          <icon-double-left v-if="collapse" class="icon" @click="collapse = false" />
+          <icon-double-right v-else class="icon" @click="collapse = true" />
         </div>
       </div>
-      <div class="grow-1 mt-[16px]">
-        <user-table v-if="currentTable === 'user'" />
-        <auth-table v-if="currentTable === 'auth'" />
+      <div class="grow-1 w-[100%] overflow-x-scroll p-[24px]">
+        <div class="grow-1 flex flex-row items-center justify-between">
+          <div class="title">{{ store.userGroupInfo.currentName }}</div>
+          <div class="flex items-center">
+            <a-input class="w-[240px]" :placeholder="t('system.userGroup.searchPlacehoder')">
+              <template #prefix>
+                <icon-search />
+              </template>
+            </a-input>
+            <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
+              <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
+              <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
+            </a-radio-group>
+          </div>
+        </div>
+        <div class="grow-1 mt-[16px]">
+          <user-table v-if="currentTable === 'user'" />
+          <auth-table v-if="currentTable === 'auth'" />
+        </div>
       </div>
     </div>
-  </div>
+  </MsCard>
 </template>
 
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
+  import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
   import UserGroupLeft from './components/index.vue';
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
 
-  const currentTable = ref('auth');
+  const currentTable = ref('user');
   const collapse = ref(true);
 
   const { t } = useI18n();

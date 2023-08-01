@@ -23,6 +23,10 @@ export interface AppState {
   currentOrgId: string;
   currentProjectId: string;
   pageSize: number;
+  showPageSize: boolean;
+  showTotal: boolean;
+  showJumper: boolean;
+  hideOnSinglePage: boolean;
   [key: string]: unknown;
 }
 

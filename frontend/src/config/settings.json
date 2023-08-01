@@ -15,5 +15,6 @@
   "pageSize": 10,
   "showPageSize": true,
   "showTotal": true,
-  "showJumper": true
+  "showJumper": true,
+  "hideOnSinglePage": false
 }
