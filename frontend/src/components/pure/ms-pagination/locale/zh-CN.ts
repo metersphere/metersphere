@@ -4,7 +4,7 @@ export default {
     current: '当前页数 {current}',
     countPerPage: '条/页',
     pageSize: '每页条数',
-    goto: '前往',
-    page: '页',
+    goto: '跳至',
+    page: '/{page} 页',
   },
 };

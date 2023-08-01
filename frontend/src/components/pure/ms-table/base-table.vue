@@ -49,12 +49,20 @@
         </a-table-column>
       </template>
     </a-table>
-    <div v-if="selectCurrent > 0 && attrs.showSelectAll" class="mt-[21px]">
+    <div class="ms-table-footer" :class="{ 'batch-action': showBatchAction }">
       <batch-action
+        v-if="showBatchAction"
         :select-row-count="selectCurrent"
         :action-config="props.actionConfig"
         @batch-action="(item: BatchActionParams) => emit('batchAction', item)"
         @clear="selectionChange([], true)"
+      />
+      <ms-pagination
+        v-else-if="attrs.showPagination"
+        size="small"
+        v-bind="attrs.msPagination"
+        @change="pageChange"
+        @page-size-change="pageSizeChange"
       />
     </div>
   </div>
@@ -74,7 +82,7 @@
     MsTableColumn,
   } from './type';
   import BatchAction from './batchAction.vue';
-
+  import MsPagination from '@/components/pure/ms-pagination/index';
   import type { TableData } from '@arco-design/web-vue';
   import ColumnSelector from './columnSelector.vue';
 
@@ -90,6 +98,8 @@
   const emit = defineEmits<{
     (e: 'selectedChange', value: (string | number)[]): void;
     (e: 'batchAction', value: BatchActionParams): void;
+    (e: 'pageChange', value: number): void;
+    (e: 'pageSizeChange', value: number): void;
   }>();
   const isSelectAll = ref(false);
   const attrs = useAttrs();
@@ -145,6 +155,19 @@
     }
   };
 
+  // 分页change事件
+  const pageChange = (v: number) => {
+    emit('pageChange', v);
+  };
+  // 分页size change事件
+  const pageSizeChange = (v: number) => {
+    emit('pageSizeChange', v);
+  };
+
+  const showBatchAction = computed(() => {
+    return selectCurrent.value > 0 && attrs.showSelectAll;
+  });
+
   // 根据参数获取全选按钮的位置
   const getBatchLeft = () => {
     if (attrs.enableDrag) {
@@ -195,6 +218,18 @@
     }
     .title {
       color: var(--color-text-3);
+    }
+    .ms-table-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 16px 0;
+      width: 100%;
+      height: 62px;
+      flex-flow: row nowrap;
+    }
+    .batch-action {
+      justify-content: flex-start;
     }
   }
 </style>

@@ -13,7 +13,6 @@ export interface Pagination {
   current: number;
   pageSize: number;
   total: number;
-  showPageSize: boolean;
 }
 
 const appStore = useAppStore();
@@ -37,14 +36,6 @@ export default function useTableProps(
     loading: true,
     data: [] as MsTableData,
     columns: [] as MsTableColumn,
-    pagination: {
-      current: 1,
-      pageSize: appStore.pageSize,
-      total: 0,
-      showPageSize: appStore.showPageSize,
-      showTotal: appStore.showTotal,
-      showJumper: appStore.showJumper,
-    } as Pagination,
     rowKey: 'id',
     selectedKeys: [],
     selectedAll: false,
@@ -52,6 +43,9 @@ export default function useTableProps(
     showSelectAll: true,
     showSetting: true,
     columnResizable: true,
+    // 禁用 arco-table 的分页
+    pagination: false,
+    pageSimple: false,
     ...props,
   };
 
@@ -59,10 +53,14 @@ export default function useTableProps(
   const propsRes = ref(defaultProps);
   const oldPagination = ref<Pagination>({
     current: 1,
-    pageSize: 20,
+    pageSize: appStore.pageSize,
     total: 0,
-    showPageSize: true,
-  });
+    showPageSize: appStore.showPageSize,
+    showTotal: appStore.showTotal,
+    showJumper: appStore.showJumper,
+    hideOnSinglePage: appStore.hideOnSinglePage,
+    simple: defaultProps.pageSimple,
+  } as Pagination);
 
   // 排序
   const sortItem = ref<object>({});
@@ -74,8 +72,17 @@ export default function useTableProps(
   const keyword = ref('');
 
   // 是否分页
-  if (!propsRes.value.showPagination) {
-    propsRes.value.pagination = false;
+  if (propsRes.value.showPagination) {
+    propsRes.value.msPagination = {
+      current: 1,
+      pageSize: appStore.pageSize,
+      total: 0,
+      showPageSize: appStore.showPageSize,
+      showTotal: appStore.showTotal,
+      showJumper: appStore.showJumper,
+      hideOnSinglePage: appStore.hideOnSinglePage,
+      simple: defaultProps.pageSimple,
+    };
   }
 
   // 是否可选中
@@ -105,10 +112,10 @@ export default function useTableProps(
   }
 
   const setPagination = ({ current, total }: SetPaginationPrams) => {
-    if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
-      propsRes.value.pagination.current = current;
+    if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
+      propsRes.value.msPagination.current = current;
       if (total) {
-        propsRes.value.pagination.total = total;
+        propsRes.value.msPagination.total = total;
       }
     }
   };
@@ -134,7 +141,7 @@ export default function useTableProps(
 
   // 加载分页列表数据
   const loadList = async () => {
-    const { current, pageSize } = propsRes.value.pagination as Pagination;
+    const { current, pageSize } = propsRes.value.msPagination as Pagination;
     setLoading(true);
     try {
       const data = await loadListFunc({
@@ -168,9 +175,9 @@ export default function useTableProps(
 
   // 重置页码和条数
   const resetPagination = () => {
-    if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
-      propsRes.value.pagination.current = 1;
-      propsRes.value.pagination.pageSize = appStore.pageSize;
+    if (propsRes.value.msPagination) {
+      propsRes.value.msPagination.current = 1;
+      propsRes.value.msPagination.pageSize = appStore.pageSize;
     }
   };
 
@@ -195,18 +202,19 @@ export default function useTableProps(
     },
     // 修改每页显示条数
     pageSizeChange: (pageSize: number) => {
-      if (propsRes.value.pagination && typeof propsRes.value.pagination === 'object') {
-        propsRes.value.pagination.pageSize = pageSize;
+      if (propsRes.value.msPagination && typeof propsRes.value.msPagination === 'object') {
+        propsRes.value.msPagination.pageSize = pageSize;
       }
       loadList();
     },
     // 选择触发
     selectedChange: (arr: (string | number)[]) => {
       if (arr.length === 0) {
-        propsRes.value.pagination = oldPagination.value;
+        propsRes.value.showPagination = true;
+        propsRes.value.msPagination = oldPagination.value;
       } else {
-        oldPagination.value = propsRes.value.pagination as Pagination;
-        propsRes.value.pagination = false;
+        oldPagination.value = propsRes.value.msPagination as Pagination;
+        propsRes.value.showPagination = false;
       }
       propsRes.value.selectedKeys = arr;
     },

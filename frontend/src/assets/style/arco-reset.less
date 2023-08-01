@@ -491,6 +491,36 @@
 }
 
 /** 分页 **/
+.arco-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+.arco-pagination-list {
+  display: flex;
+  flex-direction: row;
+}
+.arco-pagination-jumper {
+  padding: 2px 8px;
+  background: var(--color-text-n9);
+}
+.arco-pagination-jumper-input {
+  padding: 3px 8px;
+  width: 57px;
+  height: 28px;
+  border: 1px solid var(--color-text-input-border);
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.arco-pagination-jumper-total-page {
+  margin-right: 0;
+  margin-left: 8px;
+  color: var(--color-text-2);
+}
+.arco-pagination-simple .arco-pagination-jumper .arco-pagination-jumper-input {
+  width: 57px;
+}
 .arco-pagination-total {
   color: var(--color-text-2) !important;
 }
@@ -504,6 +534,20 @@
   margin-left: 14px !important;
 }
 .arco-pagination-size-small .arco-pagination-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px 0;
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+}
+.arco-pagination-item-ellipsis:hover {
+  width: 32px;
+  height: 32px;
+}
+.arco-pagination-size-small
+  .arco-pagination-item:not(:last-child):not(:first-child):not(.arco-pagination-item-ellipsis) {
   border: 1px solid var(--color-text-input-border);
 }
 .arco-pagination-item-active {

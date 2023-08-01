@@ -1,10 +1,10 @@
 export default {
   msPagination: {
     total: 'A total of {total} items',
-    current: 'Current {current}',
+    current: 'Current page {current}',
+    countPerPage: 'items/page',
     pageSize: 'Page size',
     goto: 'Goto',
-    page: 'Page',
-    countPerPage: ' / Page',
+    page: '/{page} pages',
   },
 };

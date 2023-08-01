@@ -1,6 +1,6 @@
 <template>
   <span :class="cls">
-    <span v-if="!simple" :class="[`${prefixCls}-prepend`, `${prefixCls}-text-goto`]">
+    <span :class="[`${prefixCls}-prepend`, `${prefixCls}-text-goto`]">
       <slot name="jumper-prepend">{{ t('msPagination.goto') }}</slot>
     </span>
     <a-input-number
@@ -15,15 +15,12 @@
       @change="handleChange"
     />
     <span v-if="$slots['jumper-append']" :class="`${prefixCls}-append`"><slot name="jumper-append" /></span>
-    <template v-if="simple">
-      <span :class="`${prefixCls}-separator`">/</span>
-      <span :class="`${prefixCls}-total-page`">{{ pages }}</span>
-    </template>
+    <span :class="`${prefixCls}-total-page`">{{ t('msPagination.page', { page: pages }) }}</span>
   </span>
 </template>
 
 <script lang="ts" setup>
-  import { computed, nextTick, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { getPrefixCls } from './utils';
 
@@ -56,17 +53,12 @@
   };
   const handleChange = () => {
     emit('change', inputValue.value as number);
-    nextTick(() => {
-      if (!props.simple) {
-        inputValue.value = undefined;
-      }
-    });
   };
 
   watch(
     () => props.current,
     (value) => {
-      if (props.simple && value !== inputValue.value) {
+      if (value !== inputValue.value) {
         inputValue.value = value;
       }
     }
