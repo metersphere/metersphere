@@ -250,6 +250,10 @@ public class FileMetadataService {
         return null;
     }
 
+    public FileMetadataWithBLOBs selectById(String id) {
+        return fileMetadataMapper.selectByPrimaryKey(id);
+    }
+
     public byte[] loadFileAsBytes(String id) {
         FileMetadataWithBLOBs fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         if (fileMetadata == null) {
@@ -258,7 +262,7 @@ public class FileMetadataService {
         return this.loadFileAsBytes(fileMetadata);
     }
 
-    private byte[] loadFileAsBytes(FileMetadataWithBLOBs fileMetadata) {
+    public byte[] loadFileAsBytes(FileMetadataWithBLOBs fileMetadata) {
         byte[] bytes = new byte[0];
         // 兼容历史数据
         if (StringUtils.isEmpty(fileMetadata.getStorage()) && StringUtils.isEmpty(fileMetadata.getResourceType())) {
