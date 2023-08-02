@@ -49,7 +49,7 @@ public class OperationLogModule {
     public static final String UI_AUTOMATION = "UI_AUTOMATION";
     public static final String UI_AUTOMATION_REPORT = "UI_AUTOMATION_REPORT";
     public static final String UI_AUTOMATION_SCHEDULE = "UI_AUTOMATION_SCHEDULE";
-    public static final String PLUGIN_MANAGE = "PLUGIN_MANAGE";
+    public static final String SYSTEM_PLUGIN = "SYSTEM_PLUGIN";
     public static final String SYSTEM_PROJECT = "SYSTEM_PROJECT";
     public static final String SYSTEM_PROJECT_MEMBER = "SYSTEM_PROJECT_MEMBER";
 }

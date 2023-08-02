@@ -2,14 +2,19 @@ package io.metersphere.listener;
 
 import io.metersphere.api.event.APIEventSource;
 import io.metersphere.plan.listener.ExecEventListener;
+import io.metersphere.sdk.service.PluginLoadService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
+import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AppStartListener implements ApplicationRunner {
+
+    @Resource
+    private PluginLoadService pluginLoadService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -32,5 +37,8 @@ public class AppStartListener implements ApplicationRunner {
         // 触发事件
         apiEventSource.fireEvent("API", "Event after removing the listener test.");
         //loadEventSource.fireEvent("LOAD","Event after removing the listener.");
+
+        // 加载插件
+        pluginLoadService.loadPlugins();
     }
 }

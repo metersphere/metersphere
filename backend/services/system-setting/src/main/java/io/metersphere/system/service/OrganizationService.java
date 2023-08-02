@@ -25,6 +25,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,9 @@ public class OrganizationService {
     private SystemProjectService systemProjectService;
     @Resource
     private UserRolePermissionMapper userRolePermissionMapper;
+    @Resource
+    @Lazy
+    private PluginOrganizationService pluginOrganizationService;
 
     private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
@@ -118,6 +122,9 @@ public class OrganizationService {
             userRolePermissionExample.createCriteria().andRoleIdIn(roleIds);
             userRolePermissionMapper.deleteByExample(userRolePermissionExample);
         }
+
+        // 删除组织和插件的关联关系
+        pluginOrganizationService.deleteByOrgId(organizationId);
 
         // TODO: 删除环境组, 删除定时任务
         // 删除组织
@@ -722,5 +729,12 @@ public class OrganizationService {
         dto.setOriginalValue(JSON.toJSONBytes(originalValue));
         dto.setModifiedValue(JSON.toJSONBytes(modifiedValue));
         logs.add(dto);
+    }
+
+    public List<OptionDTO> getOptionsByIds(List<String> orgIds) {
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return new ArrayList<>(0);
+        }
+        return extOrganizationMapper.getOptionsByIds(orgIds);
     }
 }

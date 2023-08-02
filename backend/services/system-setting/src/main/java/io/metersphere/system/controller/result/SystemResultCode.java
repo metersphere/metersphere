@@ -16,7 +16,11 @@ public enum SystemResultCode implements IResultCode {
     /**
      * 获取/编辑组织自定义用户组，如果非组织自定义用户组，会返回该响应码
      */
-    NO_ORG_USER_ROLE_PERMISSION(101007, "organization_user_role_permission_error");
+    NO_ORG_USER_ROLE_PERMISSION(101007, "organization_user_role_permission_error"),
+    PLUGIN_EXIST(101008, "plugin.exist"),
+    PLUGIN_TYPE_EXIST(101009, "plugin.type.exist"),
+    PLUGIN_SCRIPT_EXIST(101010, "plugin.script.exist"),
+    PLUGIN_SCRIPT_FORMAT(101011, "plugin.script.format");
 
     private final int code;
     private final String message;

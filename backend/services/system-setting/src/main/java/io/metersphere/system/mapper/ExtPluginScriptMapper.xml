@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtPluginScriptMapper">
+    <select id="getOptionByPluginIds" resultType="io.metersphere.system.domain.PluginScript">
+        select plugin_id, script_id, name from plugin_script where plugin_id in
+        <foreach collection="pluginIds" item="pluginId" open="(" separator="," close=")">
+            #{pluginId}
+        </foreach>
+    </select>
+</mapper>

@@ -24,8 +24,8 @@ public class MinioRepository implements FileRepository {
         // 文件存储路径
         return StringUtils.join(
                 request.getProjectId(),
-                File.separator,
-                StringUtils.isNotBlank(request.getResourceId()) ? request.getResourceId() + File.separator : StringUtils.EMPTY,
+                "/",
+                StringUtils.isNotBlank(request.getResourceId()) ? request.getResourceId() + "/" : StringUtils.EMPTY,
                 request.getFileName());
     }
 
@@ -66,6 +66,11 @@ public class MinioRepository implements FileRepository {
         String filePath = getPath(request);
         // 删除文件夹
         removeObjects(MinioConfig.BUCKET, filePath);
+    }
+
+    @Override
+    public List<String> getFolderFileNames(FileRequest request) throws Exception {
+        return listObjects(MinioConfig.BUCKET, getPath(request));
     }
 
     private boolean removeObject(String bucketName, String objectName) throws Exception {
@@ -128,6 +133,7 @@ public class MinioRepository implements FileRepository {
         }
     }
 
+    @Override
     public InputStream getFileAsStream(FileRequest request) throws Exception {
         String fileName = getPath(request);
         return client.getObject(GetObjectArgs.builder()
