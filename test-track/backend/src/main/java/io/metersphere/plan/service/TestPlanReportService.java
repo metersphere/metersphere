@@ -49,6 +49,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -622,6 +623,7 @@ public class TestPlanReportService {
         }
     }
 
+    @Async
     public void testPlanUnExecute(TestPlanReport testPlanReport) {
         if (testPlanReport != null && !StringUtils.equalsIgnoreCase(testPlanReport.getStatus(), TestPlanReportStatus.COMPLETED.name())) {
             testPlanReport.setIsApiCaseExecuting(false);

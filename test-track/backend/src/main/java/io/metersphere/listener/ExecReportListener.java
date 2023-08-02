@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.ApiExecutionQueueMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
 import io.metersphere.plan.service.AutomationCaseExecOverService;
 import io.metersphere.plan.service.TestPlanReportService;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.utils.LoggerUtil;
 import io.metersphere.utils.NamedThreadFactory;
 import jakarta.annotation.Resource;
@@ -27,6 +28,8 @@ public class ExecReportListener {
     private ApiExecutionQueueDetailMapper executionQueueDetailMapper;
     @Resource
     private TestPlanReportService testPlanReportService;
+    @Resource
+    private RedisTemplateService redisTemplateService;
     @Resource
     private AutomationCaseExecOverService automationCaseExecOverService;
 
@@ -57,6 +60,7 @@ public class ExecReportListener {
                 task.setApiExecutionQueueDetailMapper(executionQueueDetailMapper);
                 task.setAutomationCaseExecOverService(automationCaseExecOverService);
                 task.setTestPlanReportService(testPlanReportService);
+                task.setRedisTemplateService(redisTemplateService);
                 task.setRecord(item);
                 threadPool.execute(task);
             });

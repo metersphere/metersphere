@@ -1,12 +1,12 @@
 <template>
   <el-dialog
-    v-loading="result.loading"
-    :close-on-click-modal="false"
-    width="60%"
-    class="schedule-edit"
-    :visible.sync="dialogVisible"
-    :append-to-body="true"
-    @close="close"
+      v-loading="result.loading"
+      :close-on-click-modal="false"
+      width="60%"
+      class="schedule-edit"
+      :visible.sync="dialogVisible"
+      :append-to-body="true"
+      @close="close"
   >
     <template>
       <div>
@@ -17,32 +17,32 @@
             </div>
             <span>{{ $t("schedule.edit_timer_task") }}</span>
             <el-form
-              :model="form"
-              :rules="rules"
-              ref="from"
-              style="padding-top: 10px; margin-left: 20px"
-              class="ms-el-form-item__error"
+                :model="form"
+                :rules="rules"
+                ref="from"
+                style="padding-top: 10px; margin-left: 20px"
+                class="ms-el-form-item__error"
             >
               <el-form-item
-                :label="$t('commons.schedule_cron_title')"
-                prop="cronValue"
-                style="height: 50px"
+                  :label="$t('commons.schedule_cron_title')"
+                  prop="cronValue"
+                  style="height: 50px"
               >
                 <el-row :gutter="20">
                   <el-col :span="16">
                     <el-input
-                      :disabled="isReadOnly"
-                      v-model="form.cronValue"
-                      class="inp"
-                      :placeholder="$t('schedule.please_input_cron_expression')"
-                      size="mini"
+                        :disabled="isReadOnly"
+                        v-model="form.cronValue"
+                        class="inp"
+                        :placeholder="$t('schedule.please_input_cron_expression')"
+                        size="mini"
                     >
                       <a
-                        :disabled="isReadOnly"
-                        type="primary"
-                        @click="showCronDialog"
-                        slot="suffix"
-                        class="head"
+                          :disabled="isReadOnly"
+                          type="primary"
+                          @click="showCronDialog"
+                          slot="suffix"
+                          class="head"
                       >
                         {{ $t("schedule.generate_expression") }}
                       </a>
@@ -50,197 +50,198 @@
 
                     <span>{{ this.$t("commons.schedule_switch") }}</span>
                     <el-tooltip
-                      effect="dark"
-                      placement="bottom"
-                      :content="
+                        effect="dark"
+                        placement="bottom"
+                        :content="
                         schedule.enable
                           ? $t('commons.close_schedule')
                           : $t('commons.open_schedule')
                       "
                     >
                       <el-switch
-                        v-model="schedule.enable"
-                        style="margin-left: 20px"
+                          v-model="schedule.enable"
+                          style="margin-left: 20px"
                       ></el-switch>
                     </el-tooltip>
                   </el-col>
                   <el-col :span="2">
                     <el-button
-                      :disabled="isReadOnly"
-                      type="primary"
-                      @click="saveCron"
-                      size="mini"
-                      >{{ $t("commons.save") }}
+                        :disabled="isReadOnly"
+                        type="primary"
+                        @click="saveCron"
+                        size="mini"
+                    >{{ $t("commons.save") }}
                     </el-button>
                   </el-col>
                 </el-row>
               </el-form-item>
-              <crontab-result :ex="form.cronValue" ref="crontabResult" />
+              <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
 
-            <div class="el-step__icon is-text" style="margin-right: 10px">
-              <div class="el-step__icon-inner">2</div>
-            </div>
-            <span>{{ $t("load_test.runtime_config") }}</span>
-            <div class="ms-mode-div">
-              <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
-              <el-radio-group v-model="runConfig.mode" @change="changeMode">
-                <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
-                <el-radio label="parallel"
+            <div v-if="haveUICase || haveOtherExecCase">
+              <div class="el-step__icon is-text" style="margin-right: 10px">
+                <div class="el-step__icon-inner">2</div>
+              </div>
+              <span>{{ $t("load_test.runtime_config") }}</span>
+              <div class="ms-mode-div">
+                <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
+                <el-radio-group v-if="haveUICase || haveOtherExecCase" v-model="runConfig.mode" @change="changeMode">
+                  <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
+                  <el-radio label="parallel"
                   >{{ $t("run_mode.parallel") }}
-                </el-radio>
-              </el-radio-group>
-            </div>
-            <div style="margin-top: 10px">
-              <span class="ms-mode-span">{{ $t("浏览器") }}：</span>
-              <el-select
-                size="mini"
-                v-model="runConfig.browser"
-                style="margin-right: 30px; width: 100px"
-              >
-                <el-option
-                  v-for="b in browsers"
-                  :key="b.value"
-                  :value="b.value"
-                  :label="b.label"
-                ></el-option>
-              </el-select>
-            </div>
-            <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
-              <el-row>
-                <el-col :span="3">
+                  </el-radio>
+                </el-radio-group>
+              </div>
+              <div v-if="haveUICase" style="margin-top: 10px">
+                <span class="ms-mode-span">{{ $t("浏览器") }}：</span>
+                <el-select
+                    size="mini"
+                    v-model="runConfig.browser"
+                    style="margin-right: 30px; width: 100px"
+                >
+                  <el-option
+                      v-for="b in browsers"
+                      :key="b.value"
+                      :value="b.value"
+                      :label="b.label"
+                  ></el-option>
+                </el-select>
+              </div>
+              <div class="ms-mode-div" v-if="(haveUICase || haveOtherExecCase) && runConfig.mode === 'serial'">
+                <el-row>
+                  <el-col :span="3">
                   <span class="ms-mode-span"
-                    >{{ $t("run_mode.other_config") }}：</span
+                  >{{ $t("run_mode.other_config") }}：</span
                   >
-                </el-col>
-                <el-col :span="18">
-                  <div v-if="testType === 'API'">
-                   <sapn>{{ $t("run_mode.run_with_resource_pool") }}: </sapn>
-                    <el-select
-                      v-model="runConfig.resourcePoolId"
-                      size="mini"
-                    >
-                      <el-option
-                        v-for="item in resourcePools"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
+                  </el-col>
+                  <el-col :span="18">
+                    <div v-if="haveOtherExecCase && testType === 'API'">
+                      <sapn>{{ $t("run_mode.run_with_resource_pool") }}:</sapn>
+                      <el-select
+                          v-model="runConfig.resourcePoolId"
+                          size="mini"
                       >
-                      </el-option>
-                    </el-select>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-            <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
-              <el-row>
-                <el-col :span="3">
+                        <el-option
+                            v-for="item in resourcePools"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.id"
+                        >
+                        </el-option>
+                      </el-select>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
+              <div class="ms-mode-div" v-if="(haveUICase || haveOtherExecCase) && runConfig.mode === 'parallel'">
+                <el-row>
+                  <el-col :span="3">
                   <span class="ms-mode-span"
-                    >{{ $t("run_mode.other_config") }}：</span
+                  >{{ $t("run_mode.other_config") }}：</span
                   >
-                </el-col>
-                <el-col :span="18">
-                  <div v-if="testType === 'API'">
+                  </el-col>
+                  <el-col :span="18">
+                    <div v-if="haveOtherExecCase && testType === 'API'">
                    <span>
                      {{ $t("run_mode.run_with_resource_pool") }} :
                    </span>
-                    <el-select
-                      v-model="runConfig.resourcePoolId"
-                      size="mini"
-                    >
-                      <el-option
-                        v-for="item in resourcePools"
-                        :key="item.id"
-                        :label="item.name"
-                        :disabled="!item.api"
-                        :value="item.id"
+                      <el-select
+                          v-model="runConfig.resourcePoolId"
+                          size="mini"
                       >
-                      </el-option>
-                    </el-select>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
+                        <el-option
+                            v-for="item in resourcePools"
+                            :key="item.id"
+                            :label="item.name"
+                            :disabled="!item.api"
+                            :value="item.id"
+                        >
+                        </el-option>
+                      </el-select>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
 
-            <!-- 失败重试 -->
-            <div class="ms-mode-div">
-              <el-row>
-                <el-col :span="3">
-                  <span class="ms-mode-span">&nbsp;</span>
-                </el-col>
-                <el-col :span="18">
-                  <el-checkbox
-                    v-model="runConfig.retryEnable"
-                    class="ms-failure-div-right"
-                  >
-                    {{ $t("run_mode.retry_on_failure") }}
-                  </el-checkbox>
-                  <span v-if="runConfig.retryEnable">
+              <!-- 失败重试 -->
+              <div class="ms-mode-div">
+                <el-row>
+                  <el-col :span="3">
+                    <span class="ms-mode-span">&nbsp;</span>
+                  </el-col>
+                  <el-col :span="18">
+                    <el-checkbox
+                        v-model="runConfig.retryEnable"
+                        class="ms-failure-div-right"
+                    >
+                      {{ $t("run_mode.retry_on_failure") }}
+                    </el-checkbox>
+                    <span v-if="runConfig.retryEnable">
                     <el-tooltip placement="top">
                       <div slot="content">
                         {{ $t("run_mode.retry_message") }}
                       </div>
-                      <i class="el-icon-question" style="cursor: pointer" />
+                      <i class="el-icon-question" style="cursor: pointer"/>
                     </el-tooltip>
                     <span>
                       {{ $t("run_mode.retry") }}
                       <el-input-number
-                        :value="runConfig.retryNum"
-                        v-model="runConfig.retryNum"
-                        :min="1"
-                        :max="10000000"
-                        size="mini"
+                          :value="runConfig.retryNum"
+                          v-model="runConfig.retryNum"
+                          :min="1"
+                          :max="10000000"
+                          size="mini"
                       />
                       &nbsp;
                       {{ $t("run_mode.retry_frequency") }}
                     </span>
                   </span>
-                </el-col>
-              </el-row>
-            </div>
-            <div class="ms-failure-div" v-if="runConfig.mode === 'serial'">
-              <el-row>
-                <el-col :span="18" :offset="3">
-                  <div>
-                    <el-checkbox v-model="runConfig.onSampleError"
+                  </el-col>
+                </el-row>
+              </div>
+              <div class="ms-failure-div" v-if="runConfig.mode === 'serial'">
+                <el-row>
+                  <el-col :span="18" :offset="3">
+                    <div>
+                      <el-checkbox v-model="runConfig.onSampleError"
                       >{{ $t("api_test.fail_to_stop") }}
-                    </el-checkbox>
-                  </div>
-                </el-col>
-              </el-row>
+                      </el-checkbox>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
+              <div v-if="haveUICase">
+                <el-row>
+                  <el-col :span="3"> &nbsp;</el-col>
+                  <el-col :span="18">
+                    <div style="margin-top: 10px">
+                      <el-checkbox v-model="runConfig.headlessEnabled">
+                        {{ $t("性能模式") }}
+                      </el-checkbox>
+                    </div>
+                  </el-col>
+                </el-row>
+              </div>
             </div>
-            <div>
-              <el-row>
-                <el-col :span="3"> &nbsp;</el-col>
-                <el-col :span="18">
-                  <div style="margin-top: 10px">
-                    <el-checkbox v-model="runConfig.headlessEnabled">
-                      {{ $t("性能模式") }}
-                    </el-checkbox>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-
             <el-dialog
-              width="60%"
-              :title="$t('schedule.generate_expression')"
-              :visible.sync="showCron"
-              :modal="false"
+                width="60%"
+                :title="$t('schedule.generate_expression')"
+                :visible.sync="showCron"
+                :modal="false"
             >
               <crontab
-                @hide="showCron = false"
-                @fill="crontabFill"
-                :expression="schedule.value"
-                ref="crontab"
+                  @hide="showCron = false"
+                  @fill="crontabFill"
+                  :expression="schedule.value"
+                  ref="crontab"
               />
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second"
                        v-permission="['PROJECT_MESSAGE:READ']">
             <ms-schedule-notification
-              :test-id="testId"
-              :schedule-receiver-options="scheduleReceiverOptions"
+                :test-id="testId"
+                :schedule-receiver-options="scheduleReceiverOptions"
             />
           </el-tab-pane>
         </el-tabs>
@@ -250,21 +251,14 @@
 </template>
 
 <script>
-import {
-  getCurrentProjectID,
-  getCurrentUser,
-  getCurrentWorkspaceId,
-} from "metersphere-frontend/src/utils/token";
-import {
-  listenGoBack,
-  removeGoBackListener,
-} from "metersphere-frontend/src/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId,} from "metersphere-frontend/src/utils/token";
+import {listenGoBack, removeGoBackListener,} from "metersphere-frontend/src/utils";
 import Crontab from "metersphere-frontend/src/components/cron/Crontab";
 import CrontabResult from "metersphere-frontend/src/components/cron/CrontabResult";
-import { cronValidate } from "metersphere-frontend/src/utils/cron";
+import {cronValidate} from "metersphere-frontend/src/utils/cron";
 import MsScheduleNotification from "./ScheduleNotification";
 import ScheduleSwitch from "./ScheduleSwitch";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import MxNotification from "metersphere-frontend/src/components/MxNoticeTemplate";
 import {
   createSchedule,
@@ -272,14 +266,13 @@ import {
   updateSchedule,
   updateScheduleEnableByPrimyKey,
 } from "@/api/remote/plan/test-plan";
-import { saveNotice } from "@/api/notice";
-import { getProjectMember } from "@/api/user";
-import { getQuotaValidResourcePools } from "@/api/remote/resource-pool";
-import { getProjectConfig } from "@/api/project";
-import { getSystemBaseSetting } from "metersphere-frontend/src/api/system";
+import {saveNotice} from "@/api/notice";
+import {getProjectMember} from "@/api/user";
+import {getQuotaValidResourcePools} from "@/api/remote/resource-pool";
+import {getProjectConfig} from "@/api/project";
 
 function defaultCustomValidate() {
-  return { pass: true };
+  return {pass: true};
 }
 
 export default {
@@ -307,6 +300,11 @@ export default {
     haveUICase: {
       type: Boolean,
       default: false,
+    },
+    //是否有其他用例（性能测试除外）
+    haveOtherExecCase: {
+      type: Boolean,
+      default: true,
     },
   },
 
@@ -351,7 +349,7 @@ export default {
       activeName: "first",
       rules: {
         cronValue: [
-          { required: true, validator: validateCron, trigger: "blur" },
+          {required: true, validator: validateCron, trigger: "blur"},
         ],
       },
       resourcePools: [],
@@ -382,7 +380,7 @@ export default {
     };
   },
   methods: {
-    async checkPool(){
+    async checkPool() {
       let hasPool = false;
       this.resourcePools.forEach(item => {
         if (item.id === this.runConfig.resourcePoolId) {
@@ -454,22 +452,22 @@ export default {
     async findSchedule() {
       let scheduleResourceID = this.testId;
       this.result = getPlanSchedule(scheduleResourceID, "TEST_PLAN_TEST").then(
-        (response) => {
-          if (response.data != null) {
-            this.schedule = response.data;
-            if (response.data.config) {
-              this.runConfig = JSON.parse(response.data.config);
-              if (this.runConfig.environmentType) {
-                delete this.runConfig.environmentType;
+          (response) => {
+            if (response.data != null) {
+              this.schedule = response.data;
+              if (response.data.config) {
+                this.runConfig = JSON.parse(response.data.config);
+                if (this.runConfig.environmentType) {
+                  delete this.runConfig.environmentType;
+                }
               }
+            } else {
+              this.schedule = {
+                value: "",
+                enable: false,
+              };
             }
-          } else {
-            this.schedule = {
-              value: "",
-              enable: false,
-            };
           }
-        }
       );
     },
     crontabFill(value, resultList) {
@@ -492,10 +490,10 @@ export default {
     },
     saveCron() {
       if (
-        this.runConfig.resourcePoolId == null
+          this.runConfig.resourcePoolId == null
       ) {
         this.$warning(
-          this.$t("workspace.env_group.please_select_run_within_resource_pool")
+            this.$t("workspace.env_group.please_select_run_within_resource_pool")
         );
         return;
       }
@@ -525,10 +523,10 @@ export default {
         param.workspaceId = getCurrentWorkspaceId();
       }
       if (
-        this.runConfig.resourcePoolId == null
+          this.runConfig.resourcePoolId == null
       ) {
         this.$warning(
-          this.$t("workspace.env_group.please_select_run_within_resource_pool")
+            this.$t("workspace.env_group.please_select_run_within_resource_pool")
         );
         return;
       }
@@ -636,7 +634,7 @@ export default {
   border-bottom: 1px solid var(--primary_color);
   color: var(--primary_color);
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
-    Arial, sans-serif;
+  Arial, sans-serif;
   font-size: 13px;
   cursor: pointer;
 }

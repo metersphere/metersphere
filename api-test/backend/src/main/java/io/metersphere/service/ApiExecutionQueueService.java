@@ -11,10 +11,7 @@ import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.base.mapper.plan.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.CommonConstants;
-import io.metersphere.commons.constants.KafkaTopicConstants;
-import io.metersphere.commons.constants.TestPlanReportStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.enums.ApiReportStatus;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.JSON;
@@ -89,9 +86,11 @@ public class ApiExecutionQueueService {
         Map<String, String> detailMap = new HashMap<>();
         List<ApiExecutionQueueDetail> queueDetails = new LinkedList<>();
         // 初始化API/用例队列
+        String redisLockType = TestPlanExecuteCaseType.SCENARIO.name();
         if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.DEFINITION.name(), ApiRunMode.API_PLAN.name())) {
             Map<String, ApiDefinitionExecResult> runMap = (Map<String, ApiDefinitionExecResult>) runObj;
             initApi(runMap, resQueue, config, detailMap, queueDetails);
+            redisLockType = TestPlanExecuteCaseType.API_CASE.name();
         }
         // 初始化场景
         else {
@@ -101,10 +100,15 @@ public class ApiExecutionQueueService {
         if (CollectionUtils.isNotEmpty(queueDetails)) {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
+        //redis移除key （执行测试计划时会添加key)
+        redisTemplateService.unlock(reportId, redisLockType, reportId);
         resQueue.setDetailMap(detailMap);
         LoggerUtil.info("报告【" + type + "】生成执行链结束", reportId);
         return resQueue;
     }
+
+    @Resource
+    private RedisTemplateService redisTemplateService;
 
     private void initScenario(Map<String, RunModeDataDTO> runMap, DBTestQueue resQueue, RunModeConfigDTO config, Map<String, String> detailMap, List<ApiExecutionQueueDetail> queueDetails) {
         final int[] sort = {0};
