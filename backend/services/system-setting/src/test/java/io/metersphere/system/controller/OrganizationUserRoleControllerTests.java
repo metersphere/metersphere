@@ -2,17 +2,21 @@ package io.metersphere.system.controller;
 
 import base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.controller.handler.ResultHolder;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +50,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     private MockMvc mockMvc;
     @Resource
     private BaseUserRolePermissionService baseUserRolePermissionService;
+    @Resource
+    private OrganizationService organizationService;
 
     public static final String ORGANIZATION_ROLE_TYPE = "ORGANIZATION";
     public static final String ORGANIZATION_USER_ROLE_LIST = "/user/role/organization/list";
@@ -71,6 +77,9 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
         Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        // 权限校验
+        OrganizationDTO defaultOrganization = getDefault();
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ, ORGANIZATION_USER_ROLE_LIST + "/" + defaultOrganization.getId());
     }
 
     @Test
@@ -80,7 +89,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request.setName("default-org-role-5");
         request.setType(ORGANIZATION_ROLE_TYPE);
         request.setScopeId("default-organization-2");
-        this.requestPost(ORGANIZATION_USER_ROLE_ADD, request, status().isOk());
+        MvcResult addResult = this.responsePost(ORGANIZATION_USER_ROLE_ADD, request);
         // 验证是否添加成功
         String organizationId = "default-organization-2";
         MvcResult mvcResult = this.responseGet(ORGANIZATION_USER_ROLE_LIST + "/" + organizationId);
@@ -91,6 +100,13 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
         Assertions.assertFalse(JSON.parseArray(JSON.toJSONString(resultHolder.getData())).isEmpty());
+        // 日志校验
+        String addResultStr = addResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder addResultHolder = JSON.parseObject(addResultStr, ResultHolder.class);
+        UserRole userRole = JSON.parseObject(JSON.toJSONString(addResultHolder.getData()), UserRole.class);
+        checkLog(userRole.getId(), OperationLogType.ADD);
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_ADD, ORGANIZATION_USER_ROLE_ADD, request);
     }
 
     @Test
@@ -148,6 +164,10 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 返回总条数是否包含修改后的数据
         List<UserRole> userRoles = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), UserRole.class);
         Assertions.assertTrue(userRoles.stream().anyMatch(userRole -> "default-org-role-x".equals(userRole.getName())));
+        // 日志校验
+        checkLog(request.getId(), OperationLogType.UPDATE);
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_UPDATE, request);
     }
 
     @Test
@@ -165,6 +185,10 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Order(6)
     public void testOrganizationUserRoleDeleteSuccess() throws Exception {
         this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-2", status().isOk());
+        // 日志校验
+        checkLog("default-org-role-id-2", OperationLogType.DELETE);
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_DELETE, ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-2");
     }
 
     @Test
@@ -178,6 +202,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         // 返回总条数是否为init_organization_user_role.sql中的数据总数
         Assertions.assertEquals(1, JSON.parseArray(JSON.toJSONString(resultHolder.getData())).size());
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ, ORGANIZATION_USER_ROLE_PERMISSION_SETTING + "/default-org-role-id-3");
     }
 
     @Test
@@ -193,17 +219,8 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testOrganizationUserRolePermissionUpdateSuccess() throws Exception {
-        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
+        PermissionSettingUpdateRequest request = getPermissionSettingUpdateRequest();
         request.setUserRoleId("default-org-role-id-3");
-        request.setPermissions(new ArrayList<>() {
-            {
-                // 取消ORGANIZATION_USER_ROLE:READ权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
-                // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
-            }
-        });
         this.requestPost(ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request, status().isOk());
         // 返回权限勾选ORGANIZATION_USER_ROLE:CREATE
         Set<String> permissionIds = baseUserRolePermissionService.getPermissionIdSetByRoleId(request.getUserRoleId());
@@ -213,50 +230,25 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
                 .collect(Collectors.toSet());
         // 校验请求成功数据
         Assertions.assertEquals(requestPermissionIds, permissionIds);
+        // 日志校验
+        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
+        // 权限校验
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request);
     }
 
     @Test
     @Order(10)
     public void testOrganizationUserRolePermissionUpdateError() throws Exception {
-        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
-        request.setUserRoleId("default-org-role-id-10");
-        request.setPermissions(new ArrayList<>() {
-            {
-                // 取消ORGANIZATION_USER_ROLE:READ权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
-                // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
-            }
-        });
         // 用户组不存在
+        PermissionSettingUpdateRequest request = getPermissionSettingUpdateRequest();
+        request.setUserRoleId("default-org-role-id-10");
         this.requestPost(ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request, status().is5xxServerError());
         // 非组织下用户组异常
-        request = new PermissionSettingUpdateRequest();
         request.setUserRoleId(InternalUserRole.ADMIN.getValue());
-        request.setPermissions(new ArrayList<>() {
-            {
-                // 取消ORGANIZATION_USER_ROLE:READ权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
-                // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
-            }
-        });
         this.requestPost(ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request)
                 .andExpect(jsonPath("$.code").value(NO_ORG_USER_ROLE_PERMISSION.getCode()));
         // 内置用户组异常
-        request = new PermissionSettingUpdateRequest();
         request.setUserRoleId(InternalUserRole.ORG_ADMIN.getValue());
-        request.setPermissions(new ArrayList<>() {
-            {
-                // 取消ORGANIZATION_USER_ROLE:READ权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
-                // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
-                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
-            }
-        });
         this.requestPost(ORGANIZATION_USER_ROLE_PERMISSION_UPDATE, request)
                 .andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
     }
@@ -290,6 +282,9 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
         }
+        // 权限校验
+        request.setOrganizationId(getDefault().getId());
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ, ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
     }
 
     @Test
@@ -319,6 +314,11 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         request.setUserRoleId("default-org-role-id-3");
         request.setUserIds(List.of("admin"));
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
+        // 日志校验
+        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
+        // 权限校验
+        request.setOrganizationId(getDefault().getId());
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_ADD_MEMBER, request);
     }
 
     @Test
@@ -348,6 +348,11 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
         // 成员组织用户组存在多个, 移除成功
         this.requestPost(ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request, status().isOk());
+        // 日志校验
+        checkLog(request.getUserRoleId(), OperationLogType.UPDATE);
+        // 权限校验
+        request.setOrganizationId(getDefault().getId());
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE, ORGANIZATION_USER_ROLE_REMOVE_MEMBER, request);
     }
 
     @Test
@@ -378,6 +383,24 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     public void testOrganizationUserRoleDeleteOnlyMemberSuccess() throws Exception {
         // 移除用户组, 且存在成员仅有该用户组
         this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-3", status().isOk());
+    }
+
+    private PermissionSettingUpdateRequest getPermissionSettingUpdateRequest(){
+        PermissionSettingUpdateRequest request = new PermissionSettingUpdateRequest();
+        request.setPermissions(new ArrayList<>() {
+            {
+                // 取消ORGANIZATION_USER_ROLE:READ权限
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:READ", false));
+                // 添加ORGANIZATION_USER_ROLE:CREATE, ORGANIZATION_USER_ROLE:UPDATE权限
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:CREATE", true));
+                add(new PermissionSettingUpdateRequest.PermissionUpdateRequest("ORGANIZATION_USER_ROLE:UPDATE", true));
+            }
+        });
+        return request;
+    }
+
+    private OrganizationDTO getDefault() {
+        return organizationService.getDefault();
     }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {

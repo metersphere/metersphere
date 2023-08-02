@@ -85,11 +85,10 @@ public abstract class BaseTest {
         }
         if (permissionAuthInfoMap.isEmpty()) {
             // 获取系统，组织，项目对应的权限测试用户的认证信息
-            // 暂时只支持 SYSTEM
-            // todo 补充 ORGANIZATION PROJECT
-            String permissionType = UserRoleType.SYSTEM.name();
-            AuthInfo authInfo = initAuthInfo(permissionType, "metersphere");
-            permissionAuthInfoMap.put(permissionType, authInfo);
+            // 暂时只支持 SYSTEM, ORGANIZATION
+            // todo 补充 PROJECT
+            permissionAuthInfoMap.put(UserRoleType.SYSTEM.name(), initAuthInfo(UserRoleType.SYSTEM.name(), "metersphere"));
+            permissionAuthInfoMap.put(UserRoleType.ORGANIZATION.name(), initAuthInfo(UserRoleType.ORGANIZATION.name(), "metersphere"));
         }
     }
 

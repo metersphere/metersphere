@@ -96,7 +96,7 @@ public class OrganizationUserRoleController {
 
     @PostMapping("/list-member")
     @Operation(summary = "获取组织用户组-成员")
-    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ, PermissionConstants.SYSTEM_USER_READ})
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_USER_ROLE_READ})
     public Pager<List<User>> listMember(@Validated @RequestBody OrganizationUserRoleMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, organizationUserRoleService.listMember(request));
