@@ -381,6 +381,11 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
     @Test
     @Order(17)
     public void testOrganizationUserRoleDeleteOnlyMemberSuccess() throws Exception {
+        OrganizationUserRoleMemberEditRequest request = new OrganizationUserRoleMemberEditRequest();
+        request.setOrganizationId("default-organization-2");
+        request.setUserRoleId("default-org-role-id-4");
+        request.setUserIds(List.of("default-admin-user"));
+        this.requestPost(ORGANIZATION_USER_ROLE_ADD_MEMBER, request, status().isOk());
         // 移除用户组, 且存在成员仅有该用户组
         this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/default-org-role-id-3", status().isOk());
     }
