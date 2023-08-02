@@ -255,17 +255,6 @@
           </a-tooltip>
         </a-form-item>
         <a-form-item
-          :label="t('system.resourcePool.testResourceDTO.apiTestImage')"
-          field="testResourceDTO.apiTestImage"
-          class="form-item"
-        >
-          <a-input
-            v-model:model-value="form.testResourceDTO.apiTestImage"
-            :placeholder="t('system.resourcePool.testResourceDTO.apiTestImagePlaceholder')"
-            :max-length="250"
-          ></a-input>
-        </a-form-item>
-        <a-form-item
           :label="t('system.resourcePool.testResourceDTO.deployName')"
           field="testResourceDTO.deployName"
           class="form-item"
@@ -352,6 +341,7 @@
   import { scrollIntoView } from '@/utils/dom';
   import { addPool, getPoolInfo, updatePoolInfo } from '@/api/modules/setting/resourcePool';
   import { getAllOrgList } from '@/api/modules/setting/orgnization';
+  import useAppStore from '@/store/modules/app';
 
   import type { MsBatchFormInstance, FormItemModel } from '@/components/bussiness/ms-batch-form/types';
   import type { UpdateResourcePoolParams, NodesListItem } from '@/models/setting/resourcePool';
@@ -359,6 +349,8 @@
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
+  const appStore = useAppStore();
+
   const title = ref('');
   const loading = ref(false);
   const defaultForm = {
@@ -383,7 +375,6 @@
       token: '',
       nameSpaces: '',
       jobDefinition: job,
-      apiTestImage: '',
       deployName: '',
       orgIds: [] as string[],
     },
@@ -626,7 +617,6 @@
     }
   }
 
-  const apiImageTag = ref('dev');
   /**
    * 下载 yaml 文件
    * @param type 文件类型
@@ -634,11 +624,8 @@
   function downloadYaml(type: YamlType) {
     let name = '';
     let yamlStr = '';
-    const { nameSpaces, deployName, apiTestImage } = form.value.testResourceDTO;
-    let apiImage = `registry.cn-qingdao.aliyuncs.com/metersphere/node-controller:${apiImageTag.value}`;
-    if (apiTestImage) {
-      apiImage = apiTestImage;
-    }
+    const { nameSpaces, deployName } = form.value.testResourceDTO;
+    const apiImage = `registry.cn-qingdao.aliyuncs.com/metersphere/node-controller:${appStore.version}`;
     switch (type) {
       case 'role':
         name = 'Role.yml';
@@ -680,7 +667,6 @@
       concurrentNumber, // k8s 最大并发数
       podThreads, // k8s 单pod最大线程数
       jobDefinition, // k8s job自定义模板
-      apiTestImage, // k8s api测试镜像
       deployName, // k8s api测试部署名称
       nodesList,
       loadTestImage,
@@ -701,7 +687,6 @@
             nameSpaces,
             concurrentNumber,
             podThreads,
-            apiTestImage,
             deployName,
           }
         : {};

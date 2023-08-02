@@ -1,12 +1,12 @@
 <template>
   <a-layout class="layout" :class="{ mobile: appStore.hideMenu }">
     <div v-if="navbar" class="layout-navbar z-[100]">
-      <NavBar />
+      <NavBar :is-preview="innerProps.isPreview" :logo="innerLogo" :name="innerName" />
     </div>
     <a-layout>
       <a-layout>
         <a-layout-sider
-          v-if="renderMenu"
+          v-if="renderMenu && !innerProps.isPreview"
           v-show="!hideMenu"
           class="layout-sider z-[99]"
           breakpoint="xl"
@@ -43,7 +43,8 @@
             >
               <MsBreadCrumb />
               <a-layout-content>
-                <PageLayout />
+                <PageLayout v-if="!props.isPreview" />
+                <slot></slot>
               </a-layout-content>
               <Footer v-if="footer" />
             </a-scrollbar>
@@ -65,12 +66,39 @@
   import PageLayout from './page-layout.vue';
   import MsBreadCrumb from '@/components/bussiness/ms-breadcrumb/index.vue';
 
+  interface Props {
+    isPreview?: boolean;
+    logo?: string;
+    name?: string;
+  }
+  const props = defineProps<Props>();
+
+  const innerProps = ref<Props>(props);
+
+  watch(
+    () => props.logo,
+    () => {
+      innerProps.value = { ...props };
+    }
+  );
+
+  watch(
+    () => props.name,
+    () => {
+      innerProps.value = { ...props };
+    }
+  );
+
   const isInit = ref(false);
   const appStore = useAppStore();
   const userStore = useUserStore();
   const router = useRouter();
   const route = useRoute();
   const permission = usePermission();
+
+  const innerLogo = computed(() => innerProps.value.logo || appStore.pageConfig.logoPlatform[0]?.url);
+  const innerName = computed(() => innerProps.value.name || appStore.pageConfig.platformName);
+
   const navbarHeight = `56px`;
   const navbar = computed(() => appStore.navbar);
   const renderMenu = computed(() => appStore.menu);

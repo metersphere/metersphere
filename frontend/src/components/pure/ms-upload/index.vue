@@ -8,31 +8,33 @@
     @before-upload="beforeUpload"
   >
     <template #upload-button>
-      <div class="ms-upload-area">
-        <div class="ms-upload-icon-box">
-          <MsIcon v-if="fileList.length > 0" :type="IconMap[props.accept]" class="ms-upload-icon" />
-          <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
+      <slot>
+        <div class="ms-upload-area">
+          <div class="ms-upload-icon-box">
+            <MsIcon v-if="fileList.length > 0" :type="IconMap[props.accept]" class="ms-upload-icon" />
+            <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
+          </div>
+          <template v-if="fileList.length === 0">
+            <div class="ms-upload-main-text">
+              {{ t(props.mainText || 'ms.upload.importModalDragtext') }}
+            </div>
+            <div class="ms-upload-sub-text">
+              {{
+                t(props.subText || 'ms.upload.importModalFileTip', {
+                  type: UploadAcceptEnum[props.accept],
+                  size: props.maxSize || defaultMaxSize,
+                })
+              }}
+            </div>
+          </template>
+          <template v-else>
+            <div class="ms-upload-main-text">
+              {{ fileList[0]?.name }}
+            </div>
+            <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
+          </template>
         </div>
-        <template v-if="fileList.length === 0">
-          <div class="ms-upload-main-text">
-            {{ t(props.mainText || 'ms.upload.importModalDragtext') }}
-          </div>
-          <div class="ms-upload-sub-text">
-            {{
-              t(props.subText || 'ms.upload.importModalFileTip', {
-                type: UploadAcceptEnum[props.accept],
-                size: props.maxSize || defaultMaxSize,
-              })
-            }}
-          </div>
-        </template>
-        <template v-else>
-          <div class="ms-upload-main-text">
-            {{ fileList[0]?.name }}
-          </div>
-          <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
-        </template>
-      </div>
+      </slot>
     </template>
   </a-upload>
 </template>
@@ -60,7 +62,7 @@
     disabled: boolean;
     iconType: string;
     maxSize: number; // 文件大小限制，单位 MB
-    [key: string]: any;
+    sizeUnit: 'MB' | 'KB'; // 文件大小单位
   }> & {
     accept: UploadType;
     fileList: FileItem[];
@@ -107,7 +109,8 @@
       fileList.value = [];
     }
     const maxSize = props.maxSize || defaultMaxSize;
-    if (file.size > maxSize * 1024 * 1024) {
+    const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
+    if (file.size > _maxSize) {
       Message.warning(t('ms.upload.overSize'));
       return Promise.resolve(false);
     }

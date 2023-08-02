@@ -4,7 +4,7 @@ export interface ScrollToViewOptions {
   inline?: 'start' | 'center' | 'end' | 'nearest';
 }
 
-export function scrollIntoView(targetRef: HTMLElement | null, options: ScrollToViewOptions = {}) {
+export function scrollIntoView(targetRef: HTMLElement | Element | null, options: ScrollToViewOptions = {}) {
   const scrollOptions: ScrollToViewOptions = {
     behavior: options.behavior || 'smooth',
     block: options.block || 'start',

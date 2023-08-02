@@ -298,7 +298,6 @@
           nameSpaces, // k8s 命名空间
           concurrentNumber, // k8s 最大并发数
           podThreads, // k8s 单pod最大线程数
-          apiTestImage, // k8s api测试镜像
           deployName, // k8s api测试部署名称
           girdConcurrentNumber,
           nodesList,
@@ -336,10 +335,6 @@
                 {
                   label: t('system.resourcePool.testResourceDTO.deployName'),
                   value: deployName,
-                },
-                {
-                  label: t('system.resourcePool.testResourceDTO.apiTestImage'),
-                  value: apiTestImage,
                 },
                 {
                   label: t('system.resourcePool.testResourceDTO.concurrentNumber'),

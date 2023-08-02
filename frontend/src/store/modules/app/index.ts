@@ -2,13 +2,36 @@ import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
 import defaultSettings from '@/config/settings.json';
 import { getMenuList } from '@/api/modules/user';
+import { getSystemVersion } from '@/api/modules/system';
 import { useI18n } from '@/hooks/useI18n';
 import { cloneDeep } from 'lodash-es';
+import { getPageConfig } from '@/api/modules/setting/config';
+import { setFavicon } from '@/utils';
 
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import type { AppState } from './types';
 import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
+import type { PageConfig, PageConfigKeys } from '@/models/setting/config';
+
+const defaultThemeConfig = {
+  style: 'default',
+  customStyle: '',
+  theme: 'default',
+  customTheme: '',
+};
+const defaultLoginConfig = {
+  title: 'MeterSphere',
+  icon: [],
+  loginLogo: [],
+  loginImage: [],
+  slogan: '一站式开源持续测试平台',
+};
+const defaultPlatformConfig = {
+  logoPlatform: [],
+  platformName: 'MeterSphere',
+  helpDoc: '',
+};
 
 const useAppStore = defineStore('app', {
   state: (): AppState => ({
@@ -20,6 +43,15 @@ const useAppStore = defineStore('app', {
     breadcrumbList: [] as BreadcrumbItem[],
     currentOrgId: '',
     currentProjectId: '',
+    version: '',
+    defaultThemeConfig,
+    defaultLoginConfig,
+    defaultPlatformConfig,
+    pageConfig: {
+      ...defaultThemeConfig,
+      ...defaultLoginConfig,
+      ...defaultPlatformConfig,
+    },
   }),
 
   getters: {
@@ -31,9 +63,6 @@ const useAppStore = defineStore('app', {
     },
     appAsyncMenus(state: AppState): RouteRecordNormalized[] {
       return state.serverMenu as unknown as RouteRecordNormalized[];
-    },
-    getCustomTheme(state: AppState): string {
-      return state.customTheme as string;
     },
     getLoadingStatus(state: AppState): boolean {
       return state.loading;
@@ -52,6 +81,13 @@ const useAppStore = defineStore('app', {
     },
     getCurrentProjectId(state: AppState): string {
       return state.currentProjectId;
+    },
+    getDefaulPageConfig(state: AppState): PageConfig {
+      return {
+        ...state.defaultThemeConfig,
+        ...state.defaultLoginConfig,
+        ...state.defaultPlatformConfig,
+      };
     },
   },
 
@@ -158,9 +194,59 @@ const useAppStore = defineStore('app', {
     setCurrentProjectId(id: string) {
       this.currentProjectId = id;
     },
+    /**
+     * 获取系统版本
+     */
+    async initSystemversion() {
+      try {
+        this.version = await getSystemVersion();
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     * 初始化页面配置
+     */
+    async initPageConfig() {
+      try {
+        const res = await getPageConfig();
+        if (Array.isArray(res) && res.length > 0) {
+          res.forEach((e) => {
+            const key = e.paramKey.split('ui.')[1] as PageConfigKeys; // 参数名前缀ui.去掉
+            if (['icon', 'loginLogo', 'loginImage', 'logoPlatform'].includes(key)) {
+              // 四个属性值为文件类型，单独处理
+              this.pageConfig[key] = [
+                {
+                  url: e.paramValue,
+                  name: e.fileName,
+                },
+              ] as any;
+            } else {
+              this.pageConfig[key] = e.paramValue as any;
+            }
+          });
+          if (this.pageConfig.theme !== 'default') {
+            // 判断是否选择了自定义主题色
+            this.pageConfig.customTheme = this.pageConfig.theme;
+            this.pageConfig.theme = 'custom';
+          }
+          if (!['default', 'follow'].includes(this.pageConfig.style)) {
+            // 判断是否选择了自定义平台风格
+            this.pageConfig.customStyle = this.pageConfig.style;
+            this.pageConfig.style = 'custom';
+          }
+          if (this.pageConfig.icon[0]?.url) {
+            // 设置网站 favicon
+            setFavicon(this.pageConfig.icon[0].url);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
   persist: {
-    paths: ['currentOrgId', 'currentProjectId'],
+    paths: ['currentOrgId', 'currentProjectId', 'pageConfig'],
   },
 });
 

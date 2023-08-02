@@ -1,39 +1,35 @@
 <template>
-  <div class="login-form flex flex-col items-center">
+  <div class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
     <div class="title">
-      <div class="mt-40 flex justify-center">
-        <svg-icon width="290px" height="60px" name="login-logo" />
+      <div class="flex justify-center">
+        <img v-if="innerLogo" :src="innerLogo" class="h-[60px] w-[290px]" />
+        <svg-icon v-else width="290px" height="60px" name="login-logo" />
       </div>
-      <div class="title-0 flex justify-center">
-        <span class="title-welcome">{{ $t('login.form.title') }}</span>
+      <div class="title-0 mt-[16px] flex justify-center">
+        <span class="title-welcome">{{ innerSlogan || $t('login.form.title') }}</span>
       </div>
     </div>
-    <div class="form mt-20">
+    <div class="form mt-[32px]">
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
-        <a-form-item field="radio" hide-label>
-          <a-radio-group v-model="userInfo.authenticate">
-            <a-radio value="LDAP">LDAP</a-radio>
+        <a-form-item class="login-form-item" field="radio" hide-label>
+          <a-radio-group v-model="userInfo.authenticate" type="button">
             <a-radio value="LOCAL">普通登陆</a-radio>
+            <a-radio value="LDAP">LDAP</a-radio>
+            <a-radio value="OAuth2">OAuth2 测试</a-radio>
             <a-radio value="OIDC 90">OIDC 90</a-radio>
           </a-radio-group>
         </a-form-item>
         <a-form-item
+          class="login-form-item"
           field="username"
           :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
           :validate-trigger="['change', 'blur']"
           hide-label
         >
-          <a-input
-            v-model="userInfo.username"
-            :placeholder="$t('login.form.userName.placeholder')"
-            style="border-radius: 1.5rem"
-          >
-            <template #prefix>
-              <icon-user />
-            </template>
-          </a-input>
+          <a-input v-model="userInfo.username" :placeholder="$t('login.form.userName.placeholder')" />
         </a-form-item>
         <a-form-item
+          class="login-form-item"
           field="password"
           :rules="[{ required: true, message: $t('login.form.password.errMsg') }]"
           :validate-trigger="['change', 'blur']"
@@ -43,40 +39,52 @@
             v-model="userInfo.password"
             :placeholder="$t('login.form.password.placeholder')"
             allow-clear
-            style="border-radius: 1.5rem"
-          >
-            <template #prefix>
-              <icon-lock />
-            </template>
-          </a-input-password>
+          />
         </a-form-item>
-        <div class="mt-4">
-          <a-button style="border-radius: 1.5rem" type="primary" html-type="submit" long :loading="loading">
+        <div class="mt-[12px]">
+          <a-button type="primary" html-type="submit" long :loading="loading">
             {{ $t('login.form.login') }}
           </a-button>
         </div>
       </a-form>
+      <div v-if="props.isPreview" class="mask"></div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, computed } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
   import { useI18n } from '@/hooks/useI18n';
   import { useStorage } from '@vueuse/core';
-  import { useUserStore } from '@/store';
+  import { useUserStore, useAppStore } from '@/store';
   import useLoading from '@/hooks/useLoading';
   import type { LoginData } from '@/models/user';
   import { setLoginExpires } from '@/utils/auth';
 
   const router = useRouter();
   const { t } = useI18n();
+  const userStore = useUserStore();
+  const appStore = useAppStore();
+
+  const props = defineProps<{
+    isPreview?: boolean;
+    slogan?: string;
+    logo?: string;
+  }>();
+
+  const innerLogo = computed(() => {
+    return props.logo || appStore.pageConfig.loginLogo[0]?.url;
+  });
+
+  const innerSlogan = computed(() => {
+    return props.slogan || appStore.pageConfig.slogan;
+  });
+
   const errorMessage = ref('');
   const { loading, setLoading } = useLoading();
-  const userStore = useUserStore();
 
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
@@ -127,12 +135,31 @@
 </script>
 
 <style lang="less" scoped>
+  /* stylelint-disable color-function-notation */
   .login-form {
+    @apply flex flex-1 flex-col items-center justify-center;
+
+    background: linear-gradient(
+      26.72deg,
+      rgba(var(--primary-5), 0.02) 0%,
+      rgba(var(--primary-5), 0.1) 51.67%,
+      var(--color-text-fff) 100%
+    );
     .title-welcome {
-      color: #783887;
+      color: rgb(var(--primary-5));
     }
     .form {
-      width: 443px;
+      @apply relative bg-white;
+
+      padding: 40px;
+      border-radius: var(--border-radius-large);
+      box-shadow: 0 8px 10px 0 #3232330d, 0 16px 24px 0 #3232330d, 0 6px 30px 0 #3232330d;
+      .login-form-item {
+        margin-bottom: 28px;
+      }
+      .mask {
+        @apply absolute left-0 top-0 h-full w-full;
+      }
     }
   }
 </style>

@@ -2,10 +2,16 @@
   <div class="navbar">
     <div class="left-side">
       <a-space>
-        <svg-icon width="145px" height="32px" name="MS-full-logo" />
+        <template v-if="props.logo">
+          <div class="flex max-w-[145px] items-center overflow-hidden">
+            <img :src="props.logo" class="mr-[4px] h-[32px] w-[32px]" />
+            {{ props.name }}
+          </div>
+        </template>
+        <svg-icon v-else width="145px" height="32px" name="MS-full-logo" />
       </a-space>
     </div>
-    <div class="center-side">
+    <div v-if="!props.isPreview" class="center-side">
       <template v-if="showProjectSelect">
         <a-divider direction="vertical" class="ml-0" />
         <a-select
@@ -29,7 +35,7 @@
       </template>
       <TopMenu />
     </div>
-    <ul class="right-side">
+    <ul v-if="!props.isPreview" class="right-side">
       <li>
         <a-tooltip :content="t('settings.navbar.search')">
           <a-button type="secondary">
@@ -189,6 +195,12 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { ProjectListItem } from '@/models/setting/project';
+
+  const props = defineProps<{
+    isPreview?: boolean;
+    logo?: string;
+    name?: string;
+  }>();
 
   const appStore = useAppStore();
   // const { logout } = useUser();
