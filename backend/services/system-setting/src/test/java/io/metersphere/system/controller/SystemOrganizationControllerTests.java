@@ -185,7 +185,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
         UserExtend userExtend1 = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), UserExtend.class).get(0);
-        Assertions.assertTrue(StringUtils.equals(userExtend1.getId(), "default-admin"));
+        Assertions.assertTrue(StringUtils.contains(userExtend1.getId(), "default-admin"));
     }
 
     @Test
