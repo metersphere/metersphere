@@ -1,3 +1,6 @@
+import { Recordable } from '#/global';
+import { FileItem } from '@arco-design/web-vue';
+
 // 基础信息配置
 export interface BaseConfig {
   url: string;
@@ -36,3 +39,47 @@ export interface TestEmailParams {
   'smtp.tsl': string;
   'smtp.recipient': string;
 }
+
+// 界面配置入参
+export interface SavePageConfigParams {
+  fileList: (File | undefined)[];
+  request: Recordable[];
+}
+
+interface FileParamItem extends ParamItem {
+  file: string;
+  fileName: string;
+}
+
+// 页面配置返回参数
+export type PageConfigReturns = FileParamItem[];
+
+// 主题配置对象
+
+export interface ThemeConfig {
+  style: string;
+  customStyle: string;
+  theme: string;
+  customTheme: string;
+}
+
+// 登录页配置对象
+export interface LoginConfig {
+  title: string;
+  icon: (FileItem | never)[];
+  loginLogo: (FileItem | never)[];
+  loginImage: (FileItem | never)[];
+  slogan: string;
+}
+
+//  平台配置对象
+export interface PlatformConfig {
+  logoPlatform: (FileItem | never)[];
+  platformName: string;
+  helpDoc: string;
+}
+
+//  界面配置对象
+export interface PageConfig extends ThemeConfig, LoginConfig, PlatformConfig {}
+
+export type PageConfigKeys = keyof PageConfig;

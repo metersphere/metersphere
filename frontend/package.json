@@ -36,10 +36,10 @@
   "dependencies": {
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
-    "@arco-design/web-vue": "^2.48.0",
-    "@arco-themes/vue-ms-theme-default": "^0.0.21",
+    "@arco-design/web-vue": "^2.49.2",
+    "@arco-themes/vue-ms-theme-default": "^0.0.24",
     "@form-create/arco-design": "^3.1.21",
-    "@vueuse/core": "^9.13.0",
+    "@vueuse/core": "^10.2.1",
     "ace-builds": "^1.22.0",
     "axios": "^0.24.0",
     "dayjs": "^1.11.8",
@@ -60,6 +60,7 @@
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.2.2",
     "vue3-ace-editor": "^2.2.2",
+    "vue3-colorpicker": "^2.1.6",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {

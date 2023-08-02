@@ -14,6 +14,7 @@
     </a-tabs>
   </MsCard>
   <baseConfig v-show="activeTab === 'baseConfig'" />
+  <pageConfig v-show="activeTab === 'pageConfig'" />
 </template>
 
 <script setup lang="ts">
@@ -21,10 +22,11 @@
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
   import baseConfig from './components/baseConfig.vue';
+  import pageConfig from './components/pageConfig.vue';
 
   const { t } = useI18n();
 
-  const activeTab = ref('baseConfig');
+  const activeTab = ref('pageConfig');
 </script>
 
 <style lang="less" scoped>
