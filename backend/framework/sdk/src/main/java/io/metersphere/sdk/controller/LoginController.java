@@ -7,11 +7,16 @@ import io.metersphere.sdk.dto.LoginRequest;
 import io.metersphere.sdk.dto.SessionUser;
 import io.metersphere.sdk.dto.UserDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.log.annotation.Log;
+import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserService;
+import io.metersphere.sdk.service.LoginLogService;
 import io.metersphere.sdk.util.RsaKey;
 import io.metersphere.sdk.util.RsaUtil;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.sdk.util.Translator;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
@@ -22,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
+@Tag(name="登陆")
 public class LoginController {
 
     @Resource
@@ -29,6 +35,7 @@ public class LoginController {
 
 
     @GetMapping(value = "/is-login")
+    @Operation(summary = "是否登录")
     public ResultHolder isLogin() throws Exception {
         RsaKey rsaKey = RsaUtil.getRsaKey();
         SessionUser user = SessionUtils.getUser();
@@ -51,6 +58,8 @@ public class LoginController {
     }
 
     @PostMapping(value = "/login")
+    @Operation(summary = "登录")
+    @Log(type = OperationLogType.LOGIN, expression = "#msClass.loginLog()", msClass = LoginLogService.class)
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
@@ -67,6 +76,8 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
+    @Operation(summary = "退出登录")
+    @Log(type = OperationLogType.LOGOUT, expression = "#msClass.logoutLog()", msClass = LoginLogService.class)
     public ResultHolder logout(HttpServletResponse response) throws Exception {
         SecurityUtils.getSubject().logout();
         return ResultHolder.success("logout success");
