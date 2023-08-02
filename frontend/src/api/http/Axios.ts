@@ -81,16 +81,22 @@ export class MSAxios {
   /**
    * @description:  文件上传
    */
-  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams): Promise<T> {
+  uploadFile<T = any>(config: AxiosRequestConfig, params: UploadFileParams, customFileKey = ''): Promise<T> {
     const formData = new window.FormData();
     const fileName = params.fileList.length === 1 ? 'file' : 'files';
 
-    params.fileList.forEach((file: File) => {
-      formData.append(fileName, file);
-    });
+    if (customFileKey !== '') {
+      params.fileList.forEach((file: File) => {
+        formData.append(customFileKey, file);
+      });
+    } else {
+      params.fileList.forEach((file: File) => {
+        formData.append(fileName, file);
+      });
+    }
     if (params.request) {
       const requestData = JSON.stringify(params.request);
-      formData.append('request', requestData);
+      formData.append('request', new Blob([requestData], { type: ContentTypeEnum.JSON }));
     }
     return new Promise((resolve, reject) => {
       this.axiosInstance

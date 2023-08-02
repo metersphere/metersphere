@@ -11,7 +11,7 @@
     >
       <div v-if="!props.simple" class="card-header">
         <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
-        <div class="text-[var(--color-text-000)]">{{ props.title }}</div>
+        <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
       </div>
       <a-divider v-if="!props.simple" class="mb-[16px]" />
       <div class="ms-card-container">

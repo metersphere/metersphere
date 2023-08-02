@@ -1,15 +1,14 @@
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
+import type { PageConfig, ThemeConfig, LoginConfig, PlatformConfig } from '@/models/setting/config';
 
 export interface AppState {
-  theme: string;
   colorWeak: boolean;
   navbar: boolean;
   menu: boolean;
   hideMenu: boolean;
   menuCollapse: boolean;
   footer: boolean;
-  themeColor: string;
   menuWidth: number;
   globalSettings: boolean;
   device: string;
@@ -27,7 +26,11 @@ export interface AppState {
   showTotal: boolean;
   showJumper: boolean;
   hideOnSinglePage: boolean;
-  [key: string]: unknown;
+  version: string;
+  defaultThemeConfig: ThemeConfig;
+  defaultLoginConfig: LoginConfig;
+  defaultPlatformConfig: PlatformConfig;
+  pageConfig: PageConfig;
 }
 
 export type CustomTheme = 'theme-default' | 'theme-green';

@@ -23,7 +23,6 @@ export interface TestResourceDTO {
   concurrentNumber: number; // k8s 最大并发数
   podThreads: number; // k8s 单pod最大线程数
   jobDefinition: string; // k8s job自定义模板
-  apiTestImage: string; // k8s api测试镜像
   deployName: string; // k8s api测试部署名称
   uiGrid: string; // ui测试selenium-grid
   girdConcurrentNumber: number; // ui测试selenium-grid最大并发数

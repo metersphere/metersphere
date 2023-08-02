@@ -1,19 +1,32 @@
 <template>
   <div class="banner-wrap">
-    <img class="img w-567px m-auto block" :src="bannerImage" />
+    <img class="img" :style="props.isPreview ? 'height: 100%;' : 'height: 100vh'" :src="innerBanner" />
   </div>
 </template>
 
-<script setup>
-  import bannerImage from '@/assets/images/login-banner.png';
+<script lang="ts" setup>
+  import { computed } from 'vue';
+  import useAppStore from '@/store/modules/app';
+  import defaultBanner from '@/assets/images/login-banner.jpg';
+
+  const props = defineProps<{
+    isPreview?: boolean;
+    banner?: string;
+  }>();
+
+  const appStore = useAppStore();
+
+  const innerBanner = computed(() => {
+    return props.banner || appStore.pageConfig.loginImage[0]?.url || defaultBanner;
+  });
 </script>
 
 <style lang="less" scoped>
   .banner-wrap {
-    padding-top: 160px;
-    height: 760px;
+    width: 55%;
     .img {
-      height: 365px;
+      width: 100%;
+      object-fit: cover;
     }
   }
 </style>

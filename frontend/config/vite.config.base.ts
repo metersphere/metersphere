@@ -7,7 +7,6 @@ import configArcoStyleImportPlugin from './plugin/arcoStyleImport';
 import configArcoResolverPlugin from './plugin/arcoResolver';
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 export default defineConfig({
   plugins: [
@@ -23,7 +22,6 @@ export default defineConfig({
       // 指定symbolId格式
       symbolId: 'icon-[name]',
     }),
-    monacoEditorPlugin({}),
   ],
   resolve: {
     alias: [
