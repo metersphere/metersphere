@@ -33,17 +33,17 @@ export function batchAddUserGroup(data: BatchAddProjectModel) {
 }
 // 移除成员
 export function deleteMemberReq(organizationId: string, userId: string) {
-  return MSR.get({ url: DeleteMemberUrl, params: `/${organizationId}/${userId}` });
+  return MSR.get({ url: DeleteMemberUrl, params: `${organizationId}/${userId}` });
 }
 // 获取用户组下拉
 export function getGlobalUserGroup(organizationId: string) {
-  return MSR.get({ url: getUserGroupList, params: `/${organizationId}` });
+  return MSR.get({ url: getUserGroupList, params: organizationId });
 }
 // 获取系统用户下拉
 export function getUser(organizationId: string) {
-  return MSR.get<LinkItem[]>({ url: getUserList, params: `/${organizationId}` });
+  return MSR.get<LinkItem[]>({ url: getUserList, params: organizationId });
 }
 // 获取组织下边的项目
 export function getProjectList(organizationId: string) {
-  return MSR.get<LinkItem[]>({ url: getProjectListUrl, params: `/${organizationId}` });
+  return MSR.get<LinkItem[]>({ url: getProjectListUrl, params: organizationId });
 }
