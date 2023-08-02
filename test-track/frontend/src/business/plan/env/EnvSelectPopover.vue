@@ -1,79 +1,89 @@
 <template>
   <div>
+    <!--    {{ JSON.stringify(eventData) }}-->
     <el-radio-group
-      v-model="radio"
-      style="width: 100%"
-      @change="radioChange"
-      class="radio-change"
+        v-model="radio"
+        style="width: 100%"
+        @change="radioChange"
+        class="radio-change"
     >
+      <el-radio v-show="!isEnvSaved" :label="ENV_TYPE.DEFAULT">{{
+          $t("workspace.env_group.case_env")
+        }}
+      </el-radio>
       <el-radio :label="ENV_TYPE.JSON">{{
-        $t("workspace.env_group.env_list")
-      }}</el-radio>
+          $t("workspace.env_group.env_list")
+        }}
+      </el-radio>
       <el-radio :label="ENV_TYPE.GROUP" v-if="showEnvGroup"
-        >{{ $t("workspace.env_group.name")
+      >{{
+          $t("workspace.env_group.name")
         }}<i class="el-icon-tickets mode-span" @click="viewGroup"></i
-      ></el-radio>
+        ></el-radio>
     </el-radio-group>
     <div
-      v-for="(pe, pIndex) in eventData"
-      :key="pe.id"
-      v-show="radio === ENV_TYPE.JSON"
+        v-for="(pe, pIndex) in eventData"
+        :key="pe.id"
+        v-show="radio === ENV_TYPE.JSON"
     >
       <el-card
-        shadow="never"
-        style="margin-top: 8px; background: #f5f6f7; border-radius: 4px"
+          shadow="never"
+          style="margin-top: 8px; background: #f5f6f7; border-radius: 4px"
       >
         <i
-          @click="expandCard(pIndex)"
-          v-if="pe.expendStatus === 'close'"
-          class="el-icon-caret-right"
-          style="color: var(--primary_color)"
+            @click="expandCard(pIndex)"
+            v-if="pe.expendStatus === 'close'"
+            class="el-icon-caret-right"
+            style="color: var(--primary_color)"
         />
         <i
-          @click="expandCard(pIndex)"
-          v-else
-          class="el-icon-caret-bottom"
-          style="color: var(--primary_color)"
+            @click="expandCard(pIndex)"
+            v-else
+            class="el-icon-caret-bottom"
+            style="color: var(--primary_color)"
         />
         <span class="project-name" :title="getProjectName(pe.id)">
           {{ getProjectName(pe.id) }} </span
-        ><br />
+        ><br/>
         <div v-if="pe.expendStatus === 'open'">
           <el-radio-group
-            v-model="pe.envRadio"
-            style="width: 100%"
-            @change="envRadioChange(pe.envRadio, pIndex)"
-            class="radio-change"
+              v-model="pe.envRadio"
+              style="width: 100%"
+              @change="envRadioChange(pe.envRadio, pIndex)"
+              class="radio-change"
           >
             <el-radio label="DEFAULT_ENV" style="margin-top: 7px">{{
-              $t("api_test.environment.default_environment")
-            }}</el-radio>
+                $t("api_test.environment.default_environment")
+              }}
+            </el-radio>
             <el-radio label="CUSTOMIZE_ENV" style="margin-top: 7px">{{
-              $t("api_test.environment.choose_new_environment")
-            }}</el-radio>
+                $t("api_test.environment.choose_new_environment")
+              }}
+            </el-radio>
           </el-radio-group>
           <el-tag
-            v-show="!pe.showEnvSelect"
-            v-for="(itemName, index) in selectedEnvName.get(pe.id)"
-            :key="index"
-            size="mini"
-            style="margin-left: 0; margin-right: 2px; margin-top: 8px"
-            >{{ itemName }}</el-tag
+              v-show="!pe.showEnvSelect"
+              v-for="(itemName, index) in selectedEnvName.get(pe.id)"
+              :key="index"
+              size="mini"
+              style="margin-left: 0; margin-right: 2px; margin-top: 8px"
+          >{{ itemName }}
+          </el-tag
           >
           <el-select
-            v-show="pe.showEnvSelect"
-            v-model="pe['selectEnv']"
-            filterable
-            :placeholder="$t('api_test.environment.select_environment')"
-            style="margin-top: 8px; width: 100%"
-            size="small"
-            @change="chooseEnv"
+              v-show="pe.showEnvSelect"
+              v-model="pe['selectEnv']"
+              filterable
+              :placeholder="$t('api_test.environment.select_environment')"
+              style="margin-top: 8px; width: 100%"
+              size="small"
+              @change="chooseEnv"
           >
             <el-option
-              v-for="(environment, index) in pe.envs"
-              :key="index"
-              :label="environment.name"
-              :value="environment.id"
+                v-for="(environment, index) in pe.envs"
+                :key="index"
+                :label="environment.name"
+                :value="environment.id"
             />
           </el-select>
         </div>
@@ -82,57 +92,57 @@
     <div v-show="radio === ENV_TYPE.GROUP">
       <div>
         <el-select
-          v-show="!hasOptionGroup"
-          v-model="envGroupId"
-          :placeholder="$t('workspace.env_group.select')"
-          @change="chooseEnvGroup"
-          style="margin-top: 8px; width: 100%"
-          size="small"
+            v-show="!hasOptionGroup"
+            v-model="envGroupId"
+            :placeholder="$t('workspace.env_group.select')"
+            @change="chooseEnvGroup"
+            style="margin-top: 8px; width: 100%"
+            size="small"
         >
           <el-option
-            v-for="(group, index) in groups"
-            :key="index"
-            :label="group.name"
-            :value="group.id"
+              v-for="(group, index) in groups"
+              :key="index"
+              :label="group.name"
+              :value="group.id"
           />
         </el-select>
         <el-select
-          v-show="hasOptionGroup"
-          v-model="envGroupId"
-          :placeholder="$t('workspace.env_group.select')"
-          style="margin-top: 8px; width: 100%"
-          @change="chooseEnvGroup"
-          size="small"
-          clearable
+            v-show="hasOptionGroup"
+            v-model="envGroupId"
+            :placeholder="$t('workspace.env_group.select')"
+            style="margin-top: 8px; width: 100%"
+            @change="chooseEnvGroup"
+            size="small"
+            clearable
         >
           <el-option-group
-            v-for="group in groups"
-            :key="group.label"
-            :label="group.label"
+              v-for="group in groups"
+              :key="group.label"
+              :label="group.label"
           >
             <el-option
-              v-for="item in group.options"
-              :key="item.name"
-              :label="item.name"
-              :disabled="item.disabled"
-              :value="item.id"
+                v-for="item in group.options"
+                :key="item.name"
+                :label="item.name"
+                :disabled="item.disabled"
+                :value="item.id"
             >
             </el-option>
           </el-option-group>
         </el-select>
       </div>
       <el-dialog
-        :visible="visible"
-        append-to-body
-        :title="$t('workspace.env_group.name')"
-        @close="visible = false"
-        style="height: 800px"
+          :visible="visible"
+          append-to-body
+          :title="$t('workspace.env_group.name')"
+          @close="visible = false"
+          style="height: 800px"
       >
         <template>
           <environment-group
-            style="overflow-y: auto"
-            :screen-height="'350px'"
-            :read-only="true"
+              style="overflow-y: auto"
+              :screen-height="'350px'"
+              :read-only="true"
           ></environment-group>
         </template>
       </el-dialog>
@@ -141,19 +151,16 @@
 </template>
 
 <script>
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
-import {
-  environmentGetALL,
-  getEnvironmentOptions,
-} from "metersphere-frontend/src/api/environment";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
+import {environmentGetALL, getEnvironmentOptions,} from "metersphere-frontend/src/api/environment";
 import MsTag from "metersphere-frontend/src/components/MsTag";
 import EnvironmentGroup from "@/business/plan/env/EnvironmentGroupList";
-import { getEnvironmentByProjectId } from "@/api/remote/api/api-environment";
-import { parseEnvironment } from "metersphere-frontend/src/model/EnvironmentModel";
+import {getEnvironmentByProjectId} from "@/api/remote/api/api-environment";
+import {parseEnvironment} from "metersphere-frontend/src/model/EnvironmentModel";
 
 export default {
   name: "EnvSelectPopover",
-  components: { MsTag, EnvironmentGroup },
+  components: {MsTag, EnvironmentGroup},
   data() {
     return {
       radio: this.environmentType,
@@ -189,6 +196,11 @@ export default {
     },
     projectIds: Set,
     projectList: Array,
+    //环境是否保存过
+    isEnvSaved: {
+      type: Boolean,
+      default: true,
+    },
     projectEnvMap: Object,
     envMap: Map,
     environmentType: String,
@@ -221,7 +233,7 @@ export default {
     envRadioChange(val, index) {
       this.eventData[index].envRadio = val;
       this.eventData[index].showEnvSelect =
-        this.eventData[index].envRadio === "CUSTOMIZE_ENV";
+          this.eventData[index].envRadio === "CUSTOMIZE_ENV";
     },
     viewGroup() {
       this.visible = true;
@@ -233,24 +245,24 @@ export default {
           this.groups = data ? data : [];
         });
       } else {
-        getEnvironmentOptions({ projectIds: [...this.projectIds] }).then(
-          (res) => {
-            let groups = res.data;
-            this.disabledGroups = groups.filter(
-              (group) => group.disabled === true
-            );
-            this.notDisabledGroups = groups.filter(
-              (group) => group.disabled === false
-            );
-            this.$set(this.groups, 0, {
-              label: this.$t("workspace.env_group.available_group"),
-              options: this.notDisabledGroups,
-            });
-            this.$set(this.groups, 1, {
-              label: this.$t("workspace.env_group.not_available_group"),
-              options: this.disabledGroups,
-            });
-          }
+        getEnvironmentOptions({projectIds: [...this.projectIds]}).then(
+            (res) => {
+              let groups = res.data;
+              this.disabledGroups = groups.filter(
+                  (group) => group.disabled === true
+              );
+              this.notDisabledGroups = groups.filter(
+                  (group) => group.disabled === false
+              );
+              this.$set(this.groups, 0, {
+                label: this.$t("workspace.env_group.available_group"),
+                options: this.notDisabledGroups,
+              });
+              this.$set(this.groups, 1, {
+                label: this.$t("workspace.env_group.not_available_group"),
+                options: this.disabledGroups,
+              });
+            }
         );
       }
     },
@@ -291,11 +303,11 @@ export default {
             let envId = this.envMap.get(id);
             // 选中环境是否存在
             temp.selectEnv =
-              envs.filter((e) => e.id === envId).length === 0 ? null : envId;
+                envs.filter((e) => e.id === envId).length === 0 ? null : envId;
           }
           if (
-            this.projectEnvMap &&
-            Object.keys(this.projectEnvMap).length > 0
+              this.projectEnvMap &&
+              Object.keys(this.projectEnvMap).length > 0
           ) {
             let projectEnvMapElement = this.projectEnvMap[d];
             if (projectEnvMapElement.length > 0) {

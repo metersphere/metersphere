@@ -40,6 +40,7 @@ import io.metersphere.plan.request.performance.LoadPlanReportDTO;
 import io.metersphere.plan.request.ui.RunUiScenarioRequest;
 import io.metersphere.plan.request.ui.TestPlanUiExecuteReportDTO;
 import io.metersphere.plan.request.ui.UiPlanReportRequest;
+import io.metersphere.plan.service.execute.TestPlanExecuteService;
 import io.metersphere.plan.service.remote.api.PlanApiAutomationService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanApiCaseService;
 import io.metersphere.plan.service.remote.api.PlanTestPlanScenarioCaseService;
@@ -495,6 +496,22 @@ public class TestPlanService {
             request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlanList = extTestPlanMapper.list(request);
+
+        //统计测试计划的测试用例数
+        List<String> testPlanIdList = testPlanList.stream().map(TestPlanDTOWithMetric::getId).collect(Collectors.toList());
+        Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(testPlanIdList);
+        Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(testPlanIdList);
+        Map<String, ParamsDTO> planApiScenarioMap = extTestPlanMapper.testPlanApiScenarioCount(testPlanIdList);
+        Map<String, ParamsDTO> planUiScenarioMap = extTestPlanMapper.testPlanUiScenarioCount(testPlanIdList);
+        Map<String, ParamsDTO> planLoadCaseMap = extTestPlanMapper.testPlanLoadCaseCount(testPlanIdList);
+        for (TestPlanDTOWithMetric testPlanMetric : testPlanList) {
+            testPlanMetric.setTestPlanTestCaseCount(planTestCaseCountMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planTestCaseCountMap.get(testPlanMetric.getId()).getValue()));
+            testPlanMetric.setTestPlanApiCaseCount(planApiCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiCaseMap.get(testPlanMetric.getId()).getValue()));
+            testPlanMetric.setTestPlanApiScenarioCount(planApiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiScenarioMap.get(testPlanMetric.getId()).getValue()));
+            testPlanMetric.setTestPlanUiScenarioCount(planUiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planUiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planUiScenarioMap.get(testPlanMetric.getId()).getValue()));
+            testPlanMetric.setTestPlanLoadCaseCount(planLoadCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planLoadCaseMap.get(testPlanMetric.getId()).getValue()));
+        }
+
         if (CollectionUtils.isNotEmpty(testPlanList)) {
             List<String> changeToFinishedIds = new ArrayList<>();
             //检查定时任务的设置
@@ -556,17 +573,7 @@ public class TestPlanService {
 
     public List<TestPlanDTOWithMetric> selectTestPlanMetricById(List<String> idList) {
         List<TestPlanDTOWithMetric> testPlanMetricList = this.calcTestPlanRateByIdList(idList);
-        Map<String, ParamsDTO> planTestCaseCountMap = extTestPlanMapper.testPlanTestCaseCount(idList);
-        Map<String, ParamsDTO> planApiCaseMap = extTestPlanMapper.testPlanApiCaseCount(idList);
-        Map<String, ParamsDTO> planApiScenarioMap = extTestPlanMapper.testPlanApiScenarioCount(idList);
-        Map<String, ParamsDTO> planUiScenarioMap = extTestPlanMapper.testPlanUiScenarioCount(idList);
-        Map<String, ParamsDTO> planLoadCaseMap = extTestPlanMapper.testPlanLoadCaseCount(idList);
         for (TestPlanDTOWithMetric testPlanMetric : testPlanMetricList) {
-            testPlanMetric.setTestPlanTestCaseCount(planTestCaseCountMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planTestCaseCountMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planTestCaseCountMap.get(testPlanMetric.getId()).getValue()));
-            testPlanMetric.setTestPlanApiCaseCount(planApiCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiCaseMap.get(testPlanMetric.getId()).getValue()));
-            testPlanMetric.setTestPlanApiScenarioCount(planApiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planApiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planApiScenarioMap.get(testPlanMetric.getId()).getValue()));
-            testPlanMetric.setTestPlanUiScenarioCount(planUiScenarioMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planUiScenarioMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planUiScenarioMap.get(testPlanMetric.getId()).getValue()));
-            testPlanMetric.setTestPlanLoadCaseCount(planLoadCaseMap.get(testPlanMetric.getId()) == null ? 0 : Integer.parseInt(planLoadCaseMap.get(testPlanMetric.getId()).getValue() == null ? "0" : planLoadCaseMap.get(testPlanMetric.getId()).getValue()));
             List<User> followUsers = this.getPlanFollow(testPlanMetric.getId());
             testPlanMetric.setFollowUsers(followUsers);
         }

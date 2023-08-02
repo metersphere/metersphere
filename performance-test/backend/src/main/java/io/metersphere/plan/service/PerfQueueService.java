@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.ApiExecutionQueueMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.BaseApiExecutionQueueMapper;
 import io.metersphere.commons.constants.KafkaTopicConstants;
+import io.metersphere.commons.constants.TestPlanExecuteCaseType;
 import io.metersphere.commons.constants.TestPlanLoadCaseStatus;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.BeanUtils;
@@ -14,6 +15,7 @@ import io.metersphere.constants.RunModeConstants;
 import io.metersphere.dto.RunModeConfigDTO;
 import io.metersphere.plan.exec.queue.DBTestQueue;
 import io.metersphere.request.RunTestPlanRequest;
+import io.metersphere.service.RedisTemplateService;
 import io.metersphere.utils.LoggerUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -175,13 +177,16 @@ public class PerfQueueService {
         return queue;
     }
 
+    @Resource
+    private RedisTemplateService redisTemplateService;
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public DBTestQueue add(Object runObj, String poolId, String reportId, String reportType, String runMode, RunModeConfigDTO config) {
-        LoggerUtil.info("报告【" + reportId + "】开始生成执行链");
+    public DBTestQueue add(Object runObj, String poolId, String testPlanReportId, String reportType, String runMode, RunModeConfigDTO config) {
+        LoggerUtil.info("报告【" + testPlanReportId + "】开始生成执行链");
         if (config.getEnvMap() == null) {
             config.setEnvMap(new LinkedHashMap<>());
         }
-        ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, reportId, reportType, runMode, config);
+        ApiExecutionQueue executionQueue = getApiExecutionQueue(poolId, testPlanReportId, reportType, runMode, config);
         queueMapper.insert(executionQueue);
         DBTestQueue resQueue = new DBTestQueue();
         BeanUtils.copyBean(resQueue, executionQueue);
@@ -196,7 +201,9 @@ public class PerfQueueService {
             extApiExecutionQueueMapper.sqlInsert(queueDetails);
         }
         resQueue.setDetailMap(detailMap);
-        LoggerUtil.info("报告【" + reportId + "】生成执行链结束");
+        LoggerUtil.info("报告【" + testPlanReportId + "】生成执行链结束");
+        //移除Redis中的标志
+        redisTemplateService.unlock(testPlanReportId, TestPlanExecuteCaseType.LOAD_CASE.name(), testPlanReportId);
         return resQueue;
     }
 
@@ -207,7 +214,7 @@ public class PerfQueueService {
         executionQueue.setPoolId(poolId);
         executionQueue.setFailure(config.isOnSampleError());
         executionQueue.setReportId(reportId);
-        executionQueue.setReportType(StringUtils.isNotEmpty(reportType) ? reportType : RunModeConstants.INDEPENDENCE.toString());
+        executionQueue.setReportType(TestPlanExecuteCaseType.LOAD_CASE.name());
         executionQueue.setRunMode(runMode);
         return executionQueue;
     }

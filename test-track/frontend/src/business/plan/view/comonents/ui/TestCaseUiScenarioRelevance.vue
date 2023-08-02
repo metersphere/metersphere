@@ -1,46 +1,46 @@
 <template>
   <test-case-relevance-base
-    @setProject="setProject"
-    @save="saveCaseRelevance"
-    @close="close"
-    :plan-id="planId"
-    :is-saving="isSaving"
-    ref="baseRelevance"
+      @setProject="setProject"
+      @save="saveCaseRelevance"
+      @close="close"
+      :plan-id="planId"
+      :is-saving="isSaving"
+      ref="baseRelevance"
   >
     <template v-slot:aside>
       <ui-scenario-module
-        class="node-tree"
-        @nodeSelectEvent="nodeChange"
-        @refreshTable="refresh"
-        @setModuleOptions="setModuleOptions"
-        :relevance-project-id="projectId"
-        :is-read-only="true"
-        :show-case-num="false"
-        ref="nodeTree"
+          class="node-tree"
+          @nodeSelectEvent="nodeChange"
+          @refreshTable="refresh"
+          @setModuleOptions="setModuleOptions"
+          :relevance-project-id="projectId"
+          :is-read-only="true"
+          :show-case-num="false"
+          ref="nodeTree"
       />
     </template>
 
     <relevance-ui-scenario-list
-      :select-node-ids="selectNodeIds"
-      :trash-enable="trashEnable"
-      :version-enable="versionEnable"
-      :plan-id="planId"
-      :project-id="projectId"
-      @selectCountChange="setSelectCounts"
-      ref="apiScenarioList"
+        :select-node-ids="selectNodeIds"
+        :trash-enable="trashEnable"
+        :version-enable="versionEnable"
+        :plan-id="planId"
+        :project-id="projectId"
+        @selectCountChange="setSelectCounts"
+        ref="apiScenarioList"
     />
   </test-case-relevance-base>
 </template>
 
 <script>
 import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
-import { strMapToObj } from "metersphere-frontend/src/utils";
-import { ENV_TYPE } from "metersphere-frontend/src/utils/constants";
+import {strMapToObj} from "metersphere-frontend/src/utils";
+import {ENV_TYPE} from "metersphere-frontend/src/utils/constants";
 import RelevanceUiScenarioList from "@/business/plan/view/comonents/ui/RelevanceUiScenarioList";
-import { testPlanAutoCheck } from "@/api/remote/plan/test-plan";
-import { testPlanUiScenarioRelevanceListIds } from "@/api/remote/ui/test-plan-ui-scenario-case";
+import {testPlanAutoCheck} from "@/api/remote/plan/test-plan";
+import {testPlanUiScenarioRelevanceListIds} from "@/api/remote/ui/test-plan-ui-scenario-case";
 import UiScenarioModule from "@/business/plan/view/comonents/ui/UiScenarioModule";
-import { uiAutomationRelevance } from "@/api/remote/ui/api-scenario";
+import {uiAutomationRelevance} from "@/api/remote/ui/api-scenario";
 
 export default {
   name: "TestCaseUiScenarioRelevance",
@@ -163,12 +163,6 @@ export default {
         return;
       }
 
-      if (!envMap || envMap.size == 0) {
-        this.isSaving = false;
-        this.$warning(this.$t("api_test.environment.select_environment"));
-        return;
-      }
-
       let param = {};
       param.planId = this.planId;
       param.mapping = strMapToObj(map);
@@ -184,17 +178,17 @@ export default {
       }
       this.loading = true;
       uiAutomationRelevance(param)
-        .then(() => {
-          this.loading = false;
-          this.isSaving = false;
-          this.$success(this.$t("plan.relevance_case_success"));
-          this.$emit("refresh");
-          this.refresh();
-          this.autoCheckStatus();
-        })
-        .catch(() => {
-          this.isSaving = false;
-        });
+          .then(() => {
+            this.loading = false;
+            this.isSaving = false;
+            this.$success(this.$t("plan.relevance_case_success"));
+            this.$emit("refresh");
+            this.refresh();
+            this.autoCheckStatus();
+          })
+          .catch(() => {
+            this.isSaving = false;
+          });
     },
     autoCheckStatus() {
       //  检查执行结果，自动更新计划状态

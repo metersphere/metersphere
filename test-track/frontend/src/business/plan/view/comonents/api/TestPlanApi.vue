@@ -3,16 +3,16 @@
   <ms-test-plan-common-component>
     <template v-slot:aside>
       <ms-api-module
-        v-if="model === 'api'"
-        @nodeSelectEvent="nodeChange"
-        @protocolChange="handleProtocolChange"
-        @refreshTable="refreshTable"
-        @setModuleOptions="setModuleOptions"
-        :plan-id="planId"
-        :plan-status="planStatus"
-        :is-read-only="true"
-        :redirectCharType="redirectCharType"
-        ref="apiNodeTree">
+          v-if="model === 'api'"
+          @nodeSelectEvent="nodeChange"
+          @protocolChange="handleProtocolChange"
+          @refreshTable="refreshTable"
+          @setModuleOptions="setModuleOptions"
+          :plan-id="planId"
+          :plan-status="planStatus"
+          :is-read-only="true"
+          :redirectCharType="redirectCharType"
+          ref="apiNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
             <el-radio v-model="model" label="api">{{ $t('commons.api_case') }}</el-radio>
@@ -22,14 +22,14 @@
       </ms-api-module>
 
       <ms-api-scenario-module
-        v-if="model === 'scenario'"
-        @nodeSelectEvent="nodeChange"
-        @refreshTable="refreshTable"
-        @setModuleOptions="setModuleOptions"
-        :is-read-only="true"
-        :plan-id="planId"
-        :plan-status="planStatus"
-        ref="scenarioNodeTree">
+          v-if="model === 'scenario'"
+          @nodeSelectEvent="nodeChange"
+          @refreshTable="refreshTable"
+          @setModuleOptions="setModuleOptions"
+          :is-read-only="true"
+          :plan-id="planId"
+          :plan-status="planStatus"
+          ref="scenarioNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
             <el-radio v-model="model" label="api">{{ $t('commons.api_case') }}</el-radio>
@@ -43,62 +43,62 @@
     <template v-slot:main>
       <!--测试用例列表-->
       <test-plan-api-case-list
-        v-if="model === 'api'"
-        :current-protocol="currentProtocol"
-        :currentRow="currentRow"
-        :select-node-ids="selectNodeIds"
-        :trash-enable="trashEnable"
-        :is-case-relevance="true"
-        :version-enable="versionEnable"
-        :model="'plan'"
-        :plan-id="planId"
-        :plan-status="planStatus"
-        :clickType="clickType"
-        @refresh="refreshTree"
-        @relevanceCase="openTestCaseRelevanceDialog"
-        ref="apiCaseList"/>
+          v-if="model === 'api'"
+          :current-protocol="currentProtocol"
+          :currentRow="currentRow"
+          :select-node-ids="selectNodeIds"
+          :trash-enable="trashEnable"
+          :is-case-relevance="true"
+          :version-enable="versionEnable"
+          :model="'plan'"
+          :plan-id="planId"
+          :plan-status="planStatus"
+          :clickType="clickType"
+          @refresh="refreshTree"
+          @relevanceCase="openTestCaseRelevanceDialog"
+          ref="apiCaseList"/>
 
       <ms-test-plan-api-scenario-list
-        v-if="model === 'scenario'"
-        :select-node-ids="selectNodeIds"
-        :trash-enable="trashEnable"
-        :version-enable="versionEnable"
-        :plan-id="planId"
-        :plan-status="planStatus"
-        :clickType="clickType"
-        @refresh="refreshTree"
-        @relevanceCase="openTestCaseRelevanceDialog"
-        ref="apiScenarioList"/>
+          v-if="model === 'scenario'"
+          :select-node-ids="selectNodeIds"
+          :trash-enable="trashEnable"
+          :version-enable="versionEnable"
+          :plan-id="planId"
+          :plan-status="planStatus"
+          :clickType="clickType"
+          @refresh="refreshTree"
+          @relevanceCase="openTestCaseRelevanceDialog"
+          ref="apiScenarioList"/>
 
     </template>
 
     <test-case-api-relevance
-      @refresh="refresh"
-      :plan-id="planId"
-      :model="model"
-      :version-enable="versionEnable"
-      ref="apiCaseRelevance"/>
+        @refresh="refresh"
+        :plan-id="planId"
+        :model="model"
+        :version-enable="versionEnable"
+        ref="apiCaseRelevance"/>
 
     <test-case-scenario-relevance
-      @refresh="refresh"
-      :plan-id="planId"
-      :model="model"
-      :version-enable="versionEnable"
-      ref="scenarioCaseRelevance"/>
+        @refresh="refresh"
+        :plan-id="planId"
+        :model="model"
+        :version-enable="versionEnable"
+        ref="scenarioCaseRelevance"/>
 
   </ms-test-plan-common-component>
 
 </template>
 
 <script>
-    import NodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
-    import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
-    import TestPlanApiCaseList from "./TestPlanApiCaseList";
-    import TestCaseApiRelevance from "./TestCaseApiRelevance";
-    import MsTestPlanApiScenarioList from "./TestPlanApiScenarioList";
-    import TestCaseScenarioRelevance from "./TestCaseScenarioRelevance";
-    import MsApiModule from "@/business/plan/view/comonents/api/module/ApiModule";
-    import MsApiScenarioModule from "@/business/plan/view/comonents/api/module/ApiScenarioModule";
+import NodeTree from "metersphere-frontend/src/components/module/MsNodeTree";
+import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
+import TestPlanApiCaseList from "./TestPlanApiCaseList";
+import TestCaseApiRelevance from "./TestCaseApiRelevance";
+import MsTestPlanApiScenarioList from "./TestPlanApiScenarioList";
+import TestCaseScenarioRelevance from "./TestCaseScenarioRelevance";
+import MsApiModule from "@/business/plan/view/comonents/api/module/ApiModule";
+import MsApiScenarioModule from "@/business/plan/view/comonents/api/module/ApiScenarioModule";
 
 export default {
   name: "TestPlanApi",
@@ -140,19 +140,19 @@ export default {
       this.selectNodeIds = [];
       this.moduleOptions = {};
     },
-    redirectCharType(){
-      if(this.redirectCharType=='scenario'){
+    redirectCharType() {
+      if (this.redirectCharType == 'scenario') {
         this.model = 'scenario';
-      }else{
+      } else {
         this.model = 'api';
       }
     }
   },
   methods: {
-    checkRedirectCharType(){
-      if(this.redirectCharType=='scenario'){
+    checkRedirectCharType() {
+      if (this.redirectCharType == 'scenario') {
         this.model = 'scenario';
-      }else{
+      } else {
         this.model = 'api';
       }
     },

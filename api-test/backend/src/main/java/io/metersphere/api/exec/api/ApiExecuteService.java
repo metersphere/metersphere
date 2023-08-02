@@ -287,8 +287,16 @@ public class ApiExecuteService {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();
             example.createCriteria().andTestPlanIdEqualTo(request.getTestPlanId()).andApiCaseIdEqualTo(request.getCaseId());
             List<TestPlanApiCase> list = testPlanApiCaseMapper.selectByExample(example);
-            request.setEnvironmentId(list.get(0).getEnvironmentId());
-            element.setName(list.get(0).getId());
+            if (CollectionUtils.isNotEmpty(list)) {
+                request.setEnvironmentId(list.get(0).getEnvironmentId());
+                element.setName(list.get(0).getId());
+            } else {
+                TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(request.getCaseId());
+                if (apiCase != null) {
+                    request.setEnvironmentId(apiCase.getEnvironmentId());
+                    element.setName(request.getCaseId());
+                }
+            }
         } else {
             element.setName(request.getCaseId());
         }

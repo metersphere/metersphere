@@ -846,9 +846,8 @@ public class MockConfigService {
         if (project != null) {
             RequestMockParams requestMockParams = MockApiUtils.genRequestMockParamsFromHttpRequest(request, true);
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            LogUtil.info("Mock urlSuffix:{}", urlSuffix);
-            LogUtil.info("Mock requestHeaderMap:{}", requestHeaderMap);
-            LogUtil.info("Mock requestMockParams:{}", JSON.toJSONString(requestMockParams));
+            LogUtil.info("Mock [" + url + "] Header:{}", requestHeaderMap);
+            LogUtil.info("Mock [" + url + "] request:{}", JSON.toJSONString(requestMockParams));
             List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             for (ApiDefinitionWithBLOBs api : qualifiedApiList) {
                 if (StringUtils.isEmpty(returnStr)) {
@@ -872,6 +871,7 @@ public class MockConfigService {
             response.setStatus(404);
             returnStr = Translator.get("mock_warning");
         }
+        LogUtil.info("Mock [" + url + "] response:{}", returnStr);
         return returnStr;
     }
 
@@ -883,9 +883,8 @@ public class MockConfigService {
             RequestMockParams requestMockParams = MockApiUtils.genRequestMockParamsFromHttpRequest(request, false);
 
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
-            LogUtil.info("Mock urlSuffix:{}", urlSuffix);
-            LogUtil.info("Mock requestHeaderMap:{}", requestHeaderMap);
-            LogUtil.info("Mock requestMockParams:{}", JSON.toJSONString(requestMockParams));
+            LogUtil.info("Mock [" + url + "] Header:{}", requestHeaderMap);
+            LogUtil.info("Mock [" + url + "] request:{}", JSON.toJSONString(requestMockParams));
             List<ApiDefinitionWithBLOBs> qualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, requestHeaderMap.get(MockApiHeaders.MOCK_API_RESOURCE_ID));
             /*
               GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
@@ -919,6 +918,7 @@ public class MockConfigService {
             response.setStatus(404);
             returnStr = Translator.get("mock_warning");
         }
+        LogUtil.info("Mock [" + url + "] response:{}", returnStr);
         return returnStr;
     }
 

@@ -4,36 +4,36 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-      v-if="refreshDataOver"
-      v-loading="loading"
-      :tree-nodes="data"
-      :type="isReadOnly ? 'view' : 'edit'"
-      :allLabel="$t('api_test.definition.api_all')"
-      :default-label="$t('api_test.definition.unplanned_api')"
-      :hide-opretor="true"
-      local-suffix="api_definition"
-      @refresh="list"
-      @filter="filter"
-      :show-case-num="showCaseNum"
-      :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
-      :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
-      :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
-      @nodeSelectEvent="nodeChange"
-      ref="nodeTree">
+        v-if="refreshDataOver"
+        v-loading="loading"
+        :tree-nodes="data"
+        :type="isReadOnly ? 'view' : 'edit'"
+        :allLabel="$t('api_test.definition.api_all')"
+        :default-label="$t('api_test.definition.unplanned_api')"
+        :hide-opretor="true"
+        local-suffix="api_definition"
+        @refresh="list"
+        @filter="filter"
+        :show-case-num="showCaseNum"
+        :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
+        :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
+        :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
+        @nodeSelectEvent="nodeChange"
+        ref="nodeTree">
 
       <template v-slot:header>
         <api-module-header
-          :show-operator="showOperator"
-          :condition="condition"
-          :current-module="currentModule"
-          :is-read-only="isReadOnly"
-          :moduleOptions="data"
-          :options="options"
-          :total="total"
-          :select-project-id="projectId"
-          @refreshTable="$emit('refreshTable')"
-          @schedule="$emit('schedule')"
-          @refresh="refresh"/>
+            :show-operator="showOperator"
+            :condition="condition"
+            :current-module="currentModule"
+            :is-read-only="isReadOnly"
+            :moduleOptions="data"
+            :options="options"
+            :total="total"
+            :select-project-id="projectId"
+            @refreshTable="$emit('refreshTable')"
+            @schedule="$emit('schedule')"
+            @refresh="refresh"/>
       </template>
 
     </ms-node-tree>
@@ -124,6 +124,9 @@ export default {
       }
     }
   },
+  mounted() {
+    this.initProtocol();
+  },
   watch: {
     'condition.filterText'() {
       this.filter();
@@ -200,19 +203,19 @@ export default {
       this.loading = true;
       if (this.isPlanModel) {
         apiCaseModulePlanList(this.planId, this.condition.protocol)
-          .then((response) => {
-            this.getData(response);
-          });
+            .then((response) => {
+              this.getData(response);
+            });
       } else if (this.isRelevanceModel) {
         apiModuleProjectList(this.relevanceProjectId, this.condition.protocol)
-          .then((response) => {
-            this.getData(response);
-          });
+            .then((response) => {
+              this.getData(response);
+            });
       } else {
         apiModuleProjectList(getCurrentProjectID())
-          .then((response) => {
-            this.getData(response);
-          });
+            .then((response) => {
+              this.getData(response);
+            });
       }
     },
     nodeChange(node, nodeIds, pNodes) {
@@ -228,14 +231,14 @@ export default {
       this.loading = true;
       if (this.isPlanModel) {
         apiCaseModulePlanList(this.planId, this.condition.protocol)
-          .then((response) => {
-            this.getNohupReloadData(response, selectNodeId);
-          });
+            .then((response) => {
+              this.getNohupReloadData(response, selectNodeId);
+            });
       } else if (this.isRelevanceModel) {
         apiModuleProjectList(this.relevanceProjectId, this.condition.protocol)
-          .then((response) => {
-            this.getNohupReloadData(response, selectNodeId);
-          });
+            .then((response) => {
+              this.getNohupReloadData(response, selectNodeId);
+            });
       }
     },
     getData(response) {

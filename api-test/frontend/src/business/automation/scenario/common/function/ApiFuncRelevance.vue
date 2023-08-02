@@ -1,58 +1,58 @@
 <template>
   <test-case-relevance-base
-    @setProject="setProject"
-    @save="save"
-    :plan-id="planId"
-    :dialog-title="dialogTitle"
-    ref="baseRelevance">
+      @setProject="setProject"
+      @save="save"
+      :plan-id="planId"
+      :dialog-title="dialogTitle"
+      ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
-        :options="options"
-        :relevance-project-id="projectId"
-        @nodeSelectEvent="nodeChange"
-        @protocolChange="handleProtocolChange"
-        @refreshTable="refresh"
-        @setModuleOptions="setModuleOptions"
-        :is-read-only="true"
-        :is-relevance="true"
-        ref="nodeTree" />
+          :options="options"
+          :relevance-project-id="projectId"
+          @nodeSelectEvent="nodeChange"
+          @protocolChange="handleProtocolChange"
+          @refreshTable="refresh"
+          @setModuleOptions="setModuleOptions"
+          :is-read-only="true"
+          :is-relevance="true"
+          ref="nodeTree"/>
     </template>
 
     <relevance-api-list
-      v-if="isApiListEnable"
-      :current-protocol="currentProtocol"
-      :select-node-ids="selectNodeIds"
-      :is-api-list-enable="isApiListEnable"
-      :project-id="projectId"
-      :is-test-plan="isTestPlan"
-      :is-script="isScript"
-      :plan-id="planId"
-      @isApiListEnableChange="isApiListEnableChange"
-      ref="apiList" />
+        v-if="isApiListEnable"
+        :current-protocol="currentProtocol"
+        :select-node-ids="selectNodeIds"
+        :is-api-list-enable="isApiListEnable"
+        :project-id="projectId"
+        :is-test-plan="isTestPlan"
+        :is-script="isScript"
+        :plan-id="planId"
+        @isApiListEnableChange="isApiListEnableChange"
+        ref="apiList"/>
 
     <relevance-case-list
-      v-if="!isApiListEnable"
-      :current-protocol="currentProtocol"
-      :select-node-ids="selectNodeIds"
-      :is-api-list-enable="isApiListEnable"
-      :project-id="projectId"
-      :is-test-plan="isTestPlan"
-      :is-script="isScript"
-      :plan-id="planId"
-      @isApiListEnableChange="isApiListEnableChange"
-      ref="apiCaseList" />
+        v-if="!isApiListEnable"
+        :current-protocol="currentProtocol"
+        :select-node-ids="selectNodeIds"
+        :is-api-list-enable="isApiListEnable"
+        :project-id="projectId"
+        :is-test-plan="isTestPlan"
+        :is-script="isScript"
+        :plan-id="planId"
+        @isApiListEnableChange="isApiListEnableChange"
+        ref="apiCaseList"/>
   </test-case-relevance-base>
 </template>
 
 <script>
-import { getApiCaseWithBLOBs } from '@/api/api-test-case';
-import { apiListBatch } from '@/api/definition';
+import {getApiCaseWithBLOBs} from '@/api/api-test-case';
+import {apiListBatch} from '@/api/definition';
 import RelevanceCaseList from '@/business/automation/scenario/api/RelevanceCaseList';
 import RelevanceApiList from '@/business/automation/scenario/api/RelevanceApiList';
 import MsApiModule from '@/business/definition/components/module/ApiModule';
-import { getEnvironmentById } from 'metersphere-frontend/src/api/environment';
+import {getEnvironmentById} from 'metersphere-frontend/src/api/environment';
 import TestCaseRelevanceBase from '@/business/commons/TestCaseRelevanceBase';
-import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
+import {parseEnvironment} from '@/business/environment/model/EnvironmentModel';
 
 export default {
   name: 'ApiFuncRelevance',
@@ -75,7 +75,7 @@ export default {
       condition: {},
       currentRow: {},
       projectId: '',
-      options: [{ value: 'HTTP', name: 'HTTP' }],
+      options: [{value: 'HTTP', name: 'HTTP'}],
     };
   },
   props: {
