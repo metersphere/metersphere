@@ -387,12 +387,14 @@ public class PerformanceTestService {
         loadTestFileExample.createCriteria().andTestIdEqualTo(id);
         List<LoadTestFile> loadTestFileList = loadTestFileMapper.selectByExample(loadTestFileExample);
         List<String> fileIdList = loadTestFileList.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
-        List<FileInfoDTO> fileInfoDTOList = fileMetadataService.downloadFileByIds(fileIdList);
+
         boolean hasJmx = false;
-        for (FileInfoDTO fileInfoDTO : fileInfoDTOList) {
-            if (StringUtils.equalsIgnoreCase(fileInfoDTO.getType(), "jmx")) {
+        for (String fileId : fileIdList) {
+            FileMetadataWithBLOBs fileMetadata = fileMetadataService.selectById(fileId);
+            if (fileMetadata != null && StringUtils.equalsIgnoreCase(fileMetadata.getType(), "jmx")) {
                 hasJmx = true;
-                if (!JmxParseUtil.isJmxFile(fileInfoDTO.getFileByte())) {
+                byte[] bytes = fileMetadataService.loadFileAsBytes(fileMetadata);
+                if (bytes == null || bytes.length == 0) {
                     MSException.throwException(Translator.get("load_test_file_is_not_jmx"));
                 }
             }
