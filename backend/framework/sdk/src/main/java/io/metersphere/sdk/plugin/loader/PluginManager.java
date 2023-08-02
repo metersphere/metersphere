@@ -55,15 +55,15 @@ public class PluginManager {
      *
      * @param in
      */
-    public PluginManager loadJar(String pluginId, InputStream in, StorageStrategy storageStrategy) throws IOException {
-        PluginClassLoader pluginClassLoader = new PluginClassLoader(storageStrategy);
+    public PluginManager loadJar(String pluginId, InputStream in, StorageStrategy storageStrategy, boolean isNeedUploadFile) throws Exception {
+        PluginClassLoader pluginClassLoader = new PluginClassLoader(storageStrategy, isNeedUploadFile);
         classLoaderMap.put(pluginId, pluginClassLoader);
         pluginClassLoader.loadJar(in);
         return this;
     }
 
-    public PluginManager loadJar(String pluginId, InputStream in) throws IOException {
-        return this.loadJar(pluginId, in, null);
+    public PluginManager loadJar(String pluginId, InputStream in, boolean isNeedUploadFile) throws Exception {
+        return this.loadJar(pluginId, in, null, isNeedUploadFile);
     }
 
     /**
@@ -87,6 +87,9 @@ public class PluginManager {
     public <T> T getImplInstance(String pluginId, Class<T> superClazz) {
         try {
             Class<T> clazz = getImplClass(pluginId, superClazz);
+            if (clazz == null) {
+                throw new MSException("未找到插件实现类");
+            }
             return clazz.getConstructor().newInstance();
         } catch (InvocationTargetException e) {
             LogUtils.error(e);

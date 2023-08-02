@@ -1,5 +1,6 @@
 package io.metersphere.system.mapper;
 
+import io.metersphere.sdk.dto.OptionDTO;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.OrganizationDTO;
@@ -75,4 +76,6 @@ public interface ExtOrganizationMapper {
      * @return 组织列表数据
      */
     List<OrganizationProjectOptionsDTO> selectOrganizationOptions();
+
+    List<OptionDTO> getOptionsByIds(@Param("ids") List<String> ids);
 }

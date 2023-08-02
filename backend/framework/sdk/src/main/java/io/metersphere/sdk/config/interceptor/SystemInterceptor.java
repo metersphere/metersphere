@@ -20,6 +20,8 @@ public class SystemInterceptor {
         configList.add(new MybatisInterceptorConfig(NoviceStatistics.class, "dataOption", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(ServiceIntegration.class, "configuration", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(UserExtend.class, "platformInfo", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(PluginScript.class, "script", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(PluginScript.class, "script", CompressUtils.class, "zip", "unzip"));
 
         return configList;
     }

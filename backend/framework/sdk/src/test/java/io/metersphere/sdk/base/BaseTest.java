@@ -163,6 +163,12 @@ public abstract class BaseTest {
                 .andExpect(status().isOk());
     }
 
+    protected ResultActions requestMultipart(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilder(url, paramMap, uriVariables);
+        return mockMvc.perform(requestBuilder)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
     protected MvcResult requestMultipartWithOkAndReturn(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
         return this.requestMultipartWithOk(url, paramMap, uriVariables).andReturn();
     }

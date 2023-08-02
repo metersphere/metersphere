@@ -157,11 +157,12 @@ CREATE TABLE IF NOT EXISTS plugin
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '插件';
 
-CREATE TABLE IF NOT EXISTS plugin_front_script
+CREATE TABLE IF NOT EXISTS plugin_script
 (
     `plugin_id` VARCHAR(50) NOT NULL   COMMENT '插件的ID' ,
     `script_id` VARCHAR(50) NOT NULL   COMMENT '插件中对应表单配置的ID' ,
-    `script` TEXT    COMMENT '脚本内容' ,
+    `name` VARCHAR(255)    COMMENT '插件中对应表单配置的名称' ,
+    `script` LONGBLOB COMMENT '脚本内容' ,
     PRIMARY KEY (plugin_id,script_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

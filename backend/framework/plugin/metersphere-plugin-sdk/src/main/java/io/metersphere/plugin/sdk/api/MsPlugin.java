@@ -1,7 +1,5 @@
 package io.metersphere.plugin.sdk.api;
 
-import java.util.List;
-
 /**
  * 插件的基本信息
  *
@@ -38,13 +36,13 @@ public interface MsPlugin {
     String getPluginId();
 
     /**
-     * @return 返回前端渲染需要的数据
-     * 默认会返回 resources下的 script 下的 json 文件
-     */
-    List<String> getFrontendScript();
-
-    /**
      * @return 返回插件的版本
      */
     String getVersion();
+
+    /**
+     * @return 返回该加载前端配置文件的目录，默认是 script
+     * 可以重写定制
+     */
+    String getScriptDir();
 }

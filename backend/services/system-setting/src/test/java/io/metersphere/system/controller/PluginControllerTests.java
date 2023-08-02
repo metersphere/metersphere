@@ -2,20 +2,31 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.domain.Plugin;
+import io.metersphere.sdk.constants.PluginScenarioType;
+import io.metersphere.sdk.dto.OptionDTO;
+import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
+import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.OrganizationDTO;
+import io.metersphere.system.dto.PluginDTO;
 import io.metersphere.system.mapper.PluginMapper;
+import io.metersphere.system.mapper.PluginOrganizationMapper;
+import io.metersphere.system.mapper.PluginScriptMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
+import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.MultiValueMap;
 
 import java.io.File;
+import java.util.*;
+
+import static io.metersphere.system.controller.result.SystemResultCode.*;
 
 /**
  * @author jianxing
@@ -29,99 +40,240 @@ public class PluginControllerTests extends BaseTest {
     private static final String SCRIPT_GET = "script/get/{0}/{1}";
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private PluginOrganizationMapper pluginOrganizationMapper;
+    @Resource
+    private PluginScriptMapper pluginScriptMapper;
+    @Resource
+    private OrganizationService organizationService;
     private static Plugin addPlugin;
+    private static Plugin anotherAddPlugin;
+
     @Override
     protected String getBasePath() {
         return BASE_PATH;
     }
 
     @Test
-    public void list() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(DEFAULT_LIST)
-                .andReturn();
-//        List<Plugin> pluginList = getResultDataArray(mvcResult, Plugin.class);
-        // todo 校验数据是否正确
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_READ, DEFAULT_LIST);
+    @Order(0)
+    public void listEmpty() throws Exception {
+        // @@没有数据是校验是否成功
+        this.requestGetWithOkAndReturn(DEFAULT_LIST);
     }
 
     @Test
-    @Order(0)
+    @Order(1)
     public void add() throws Exception {
         // @@请求成功
         PluginUpdateRequest request = new PluginUpdateRequest();
+        OrganizationDTO org = organizationService.getDefault();
+        File jarFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-mqtt-plugin-3.x.jar")
+                        .getPath()
+        );
+        File anotherJarFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
+                        .getPath()
+        );
+
         request.setName("test");
         request.setDescription("test desc");
-        MultiValueMap<String, Object> multiValueMap = getDefaultMultiPartParam(request,
-                new File("src/test/resources/application.properties"));
+        request.setGlobal(false);
+        request.setEnable(false);
+        request.setOrganizationIds(Arrays.asList(org.getId()));
+        MultiValueMap<String, Object> multiValueMap = getDefaultMultiPartParam(request, jarFile);
+
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD, multiValueMap);
+        // 校验数据是否正确
         Plugin resultData = getResultData(mvcResult, Plugin.class);
         Plugin plugin = pluginMapper.selectByPrimaryKey(resultData.getId());
+        Assertions.assertEquals(plugin.getName(), request.getName());
+        Assertions.assertEquals(plugin.getDescription(), request.getDescription());
+        Assertions.assertEquals(plugin.getEnable(), request.getEnable());
+        Assertions.assertEquals(plugin.getGlobal(), request.getGlobal());
+        Assertions.assertEquals(plugin.getXpack(), false);
+        Assertions.assertEquals(plugin.getFileName(), jarFile.getName());
+        Assertions.assertEquals(plugin.getScenario(), PluginScenarioType.API.name());
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+        Assertions.assertEquals(Arrays.asList("connect", "disconnect", "pub", "sub"), getScriptIdsByPlugId(plugin.getId()));
+        addPlugin = plugin;
+
+        // @@重名校验异常
+        // 校验插件名称重名
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, anotherJarFile)), PLUGIN_EXIST);
+
+        // 校验文件名重名
+        request.setName("test1");
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, jarFile)), PLUGIN_EXIST);
+
+        // 校验插件 key 重复
+        File typeRepeatFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-mqtt-plugin-repeat-key.jar")
+                        .getPath()
+        );
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, typeRepeatFile)), PLUGIN_TYPE_EXIST);
+
+        // @@校验插件脚本解析失败
+        File scriptParseFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-plugin-script-parse-error.jar")
+                        .getPath()
+        );
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, scriptParseFile)), PLUGIN_SCRIPT_FORMAT);
+
+        // @@校验插件脚本ID重复
+        File scriptIdRepeatFile = new File(
+                this.getClass().getClassLoader().getResource("file/metersphere-plugin-script-id-repeat-error.jar")
+                        .getPath()
+        );
+        assertErrorCode(this.requestMultipart(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, scriptIdRepeatFile)), PLUGIN_SCRIPT_EXIST);
+
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setName("test2");
+        MvcResult antoherMvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, anotherJarFile));
+        // 校验 global 为 tru e时，organizationIds 为空
+        Plugin antoherPlugin = pluginMapper.selectByPrimaryKey(getResultData(antoherMvcResult, Plugin.class).getId());
+        Assertions.assertEquals(antoherPlugin.getEnable(), request.getEnable());
+        Assertions.assertEquals(antoherPlugin.getGlobal(), request.getGlobal());
+        Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(antoherPlugin.getId()));
+        anotherAddPlugin = antoherPlugin;
+
         this.addPlugin = plugin;
-        // todo 校验请求成功数据
+
         // @@校验日志
-        // checkLog(this.addPlugin.getId(), OperationLogType.ADD);
-        // @@异常参数校验
-//        createdGroupParamValidateTest(PluginUpdateRequestDefinition.class, ADD);
+        checkLog(this.addPlugin.getId(), OperationLogType.ADD);
         // @@校验权限
         requestMultipartPermissionTest(PermissionConstants.SYSTEM_PLUGIN_ADD, DEFAULT_ADD, multiValueMap);
     }
 
     @Test
-    @Order(1)
-    public void get() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(DEFAULT_GET, this.addPlugin.getId())
-                .andReturn();
-//        Plugin plugin = getResultData(mvcResult, Plugin.class);
-        // todo 校验数据是否正确
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_READ, DEFAULT_GET, this.addPlugin.getId());
-    }
-
-    @Test
     @Order(2)
-    public void getScript() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(SCRIPT_GET, this.addPlugin.getId(), "script id")
-                .andReturn();
-//        Plugin plugin = getResultData(mvcResult, Plugin.class);
-        // todo 校验数据是否正确
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_READ, SCRIPT_GET, this.addPlugin.getId(), "script id");
-    }
-
-
-    @Test
     public void update() throws Exception {
         // @@请求成功
         PluginUpdateRequest request = new PluginUpdateRequest();
+        OrganizationDTO org = organizationService.getDefault();
         request.setId(addPlugin.getId());
         request.setName("test update");
+        request.setCreateUser("test update user");
+        request.setDescription("test update desc");
+        request.setEnable(true);
+        request.setGlobal(true);
+        request.setOrganizationIds(Arrays.asList(org.getId()));
 
-        MultiValueMap<String, Object> multiValueMap = getDefaultMultiPartParam(request,
-                new File("src/test/resources/application.properties"));
-        this.requestMultipartWithOk(DEFAULT_UPDATE, multiValueMap);
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
-//        Plugin plugin = pluginMapper.selectByPrimaryKey(request.getId());
-        // todo 校验请求成功数据
+        Plugin plugin = pluginMapper.selectByPrimaryKey(request.getId());
+        Assertions.assertEquals(plugin.getName(), request.getName());
+        Assertions.assertEquals(plugin.getDescription(), request.getDescription());
+        Assertions.assertEquals(plugin.getEnable(), request.getEnable());
+        Assertions.assertEquals(plugin.getGlobal(), request.getGlobal());
+        Assertions.assertEquals(plugin.getXpack(), false);
+        // 校验 global 为 true 时，organizationIds 为空
+        Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(plugin.getId()));
+
+        // 这些数据不能修改
+        Assertions.assertEquals(plugin.getFileName(), addPlugin.getFileName());
+        Assertions.assertEquals(plugin.getScenario(), addPlugin.getScenario());
+        Assertions.assertEquals(plugin.getCreateUser(), addPlugin.getCreateUser());
+
+        // 校验 global 为 false 时，organizationIds 数据
+        request.setGlobal(false);
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+
+        // 校验组织为null，不修改关联关系
+        request.setOrganizationIds(null);
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+
+        // @@重名校验异常
+        request.setName(anotherAddPlugin.getName());
+        assertErrorCode( this.requestPost(DEFAULT_UPDATE, request), PLUGIN_EXIST);
+
         // @@校验日志
-        //  checkLog(request.getId(), OperationLogType.UPDATE);
+        checkLog(request.getId(), OperationLogType.UPDATE);
         // @@异常参数校验
-//        updatedGroupParamValidateTest(PluginUpdateRequestDefinition.class, UPDATE);
+        updatedGroupParamValidateTest(PluginUpdateRequestDefinition.class, DEFAULT_UPDATE);
         // @@校验权限
-        requestMultipartPermissionTest(PermissionConstants.SYSTEM_PLUGIN_UPDATE, DEFAULT_UPDATE, multiValueMap);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PLUGIN_UPDATE, DEFAULT_UPDATE, request);
     }
 
     @Test
+    @Order(3)
+    public void getScript() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOk(SCRIPT_GET, this.addPlugin.getId(), "connect").andReturn();
+        // 校验数据是否正确
+        Assertions.assertTrue(StringUtils.isNotBlank(getResultData(mvcResult, String.class)));
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_READ, SCRIPT_GET, this.addPlugin.getId(), "connect");
+    }
+
+    @Test
+    @Order(4)
+    public void list() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_LIST);
+        // 校验数据是否正确
+        List<PluginDTO> pluginList = getResultDataArray(mvcResult, PluginDTO.class);
+        Assertions.assertEquals(2, pluginList.size());
+        for (PluginDTO pluginDTO : pluginList) {
+            Plugin comparePlugin = null;
+            if (StringUtils.equals(pluginDTO.getId(), addPlugin.getId())) {
+                comparePlugin = pluginMapper.selectByPrimaryKey(addPlugin.getId());
+            } else if (StringUtils.equals(pluginDTO.getId(), anotherAddPlugin.getId())) {
+                comparePlugin =  pluginMapper.selectByPrimaryKey(anotherAddPlugin.getId());
+            }
+            Plugin plugin = JSON.parseObject(JSON.toJSONString(pluginDTO), Plugin.class);
+            List<String> scriptIds = pluginDTO.getPluginForms().stream().map(OptionDTO::getId).toList();
+            Assertions.assertEquals(plugin, comparePlugin);
+            Assertions.assertEquals(scriptIds, getScriptIdsByPlugId(plugin.getId()));
+            List<OptionDTO> orgList = Optional.ofNullable(pluginDTO.getOrganizations()).orElse(new ArrayList<>(0));
+            Assertions.assertEquals(orgList.stream().map(OptionDTO::getId).toList(), getOrgIdsByPlugId(plugin.getId()));
+        }
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_READ, DEFAULT_LIST);
+    }
+
+    @Test
+    @Order(5)
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addPlugin.getId());
-        // todo 校验请求成功数据
+        // 校验请求成功数据
+        Plugin plugin = pluginMapper.selectByPrimaryKey(addPlugin.getId());
+        Assertions.assertNull(plugin);
+        Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(addPlugin.getId()));
+        Assertions.assertEquals(new ArrayList<>(0), getScriptIdsByPlugId(addPlugin.getId()));
+
         // @@校验日志
-        // checkLog(addPlugin.getId(), OperationLogType.DELETE);
+        checkLog(addPlugin.getId(), OperationLogType.DELETE);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_PLUGIN_DELETE, DEFAULT_DELETE, addPlugin.getId());
+    }
+
+    private List<String> getOrgIdsByPlugId(String pluginId) {
+        PluginOrganizationExample example = new PluginOrganizationExample();
+        example.createCriteria().andPluginIdEqualTo(pluginId);
+        return pluginOrganizationMapper.selectByExample(example)
+                .stream()
+                .map(PluginOrganization::getOrganizationId)
+                .toList();
+    }
+
+    private List<String> getScriptIdsByPlugId(String pluginId) {
+        PluginScriptExample example = new PluginScriptExample();
+        example.createCriteria().andPluginIdEqualTo(pluginId);
+        return pluginScriptMapper.selectByExample(example)
+                .stream()
+                .map(PluginScript::getScriptId)
+                .toList();
     }
 }

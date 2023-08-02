@@ -1,6 +1,7 @@
 package io.metersphere.sdk.plugin.loader;
 
 import io.metersphere.sdk.plugin.storage.StorageStrategy;
+import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
@@ -25,12 +26,12 @@ public class PluginClassLoader extends ClassLoader {
     /**
      * 保存加载失败的类，之后重试
      */
-    protected Map<String, byteArrayWrapper> loadErrorMap = new HashMap<>();
+    protected Map<String, ByteArrayWrapper> loadErrorMap = new HashMap<>();
 
-    private class byteArrayWrapper {
+    private class ByteArrayWrapper {
         private byte[] values;
 
-        public byteArrayWrapper(byte[] values) {
+        public ByteArrayWrapper(byte[] values) {
             this.values = values;
         }
 
@@ -49,14 +50,21 @@ public class PluginClassLoader extends ClassLoader {
      */
     protected StorageStrategy storageStrategy;
 
+    protected boolean isNeedUploadFile;
+
     public PluginClassLoader() {
         // 将父加载器设置成当前的类加载器，目的是由父加载器加载接口，实现类由该加载器加载
         super(PluginClassLoader.class.getClassLoader());
     }
 
     public PluginClassLoader(StorageStrategy storageStrategy) {
+        this(storageStrategy, true);
+    }
+
+    public PluginClassLoader(StorageStrategy storageStrategy, boolean isNeedUploadFile) {
         this();
         this.storageStrategy = storageStrategy;
+        this.isNeedUploadFile = isNeedUploadFile;
     }
 
     public StorageStrategy getStorageStrategy() {
@@ -106,7 +114,7 @@ public class PluginClassLoader extends ClassLoader {
      *
      * @param in
      */
-    public void loadJar(InputStream in) throws IOException {
+    public void loadJar(InputStream in) throws Exception {
         if (in != null) {
             try (JarInputStream jis = new JarInputStream(in)) {
                 JarEntry je;
@@ -132,8 +140,8 @@ public class PluginClassLoader extends ClassLoader {
             JarEntry je = en.nextElement();
             try (InputStream in = jar.getInputStream(je)) {
                 loadJar(in, je);
-            } catch (IOException e) {
-//                LogUtils.error(e);
+            } catch (Exception e) {
+                LogUtils.error(e);
             }
         }
         reloadErrorClazz();
@@ -146,7 +154,7 @@ public class PluginClassLoader extends ClassLoader {
      * @param je
      * @throws IOException
      */
-    protected void loadJar(InputStream in, JarEntry je) throws IOException {
+    protected void loadJar(InputStream in, JarEntry je) throws Exception {
         je.getName();
         String name = je.getName();
         if (name.endsWith(".class")) {
@@ -167,13 +175,13 @@ public class PluginClassLoader extends ClassLoader {
                 Class<?> clazz = defineClass(className, bytes, 0, bytes.length);
                 clazzSet.add(clazz);
             } catch (NoClassDefFoundError e) {
-                loadErrorMap.put(className, new byteArrayWrapper(bytes));
+                loadErrorMap.put(className, new ByteArrayWrapper(bytes));
             } catch (Throwable e) {
-//                LogUtils.error(e);
+                LogUtils.error(e);
             }
         } else if (!name.endsWith("/")) {
             // 非目录即静态资源
-            if (storageStrategy != null) {
+            if (storageStrategy != null && isNeedUploadFile) {
                 storageStrategy.store(name, in);
             }
         }
@@ -190,13 +198,13 @@ public class PluginClassLoader extends ClassLoader {
             while (iterator.hasNext()) {
                 String className = iterator.next();
                 try {
-//                    LogUtils.info("reload class: " + className);
+                    LogUtils.info("reload class: " + className);
                     byte[] bytes = loadErrorMap.get(className).getValues();
                     Class<?> clazz = defineClass(className, bytes, 0, bytes.length);
                     clazzSet.add(clazz);
                     iterator.remove();
                 } catch (Throwable e) {
-//                    LogUtils.error(e);
+                    LogUtils.error(e);
                 }
             }
         }
@@ -212,8 +220,8 @@ public class PluginClassLoader extends ClassLoader {
         if (null != storageStrategy) {
             try {
                 return storageStrategy.get(name);
-            } catch (IOException e) {
-//                LogUtils.error(e, logger);
+            } catch (Exception e) {
+                LogUtils.error(e);
                 return null;
             }
         }
