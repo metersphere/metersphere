@@ -24,10 +24,11 @@ public class EventSourceTests {
         // 注册所有监听源
         LogUtils.info("初始化接口事件源");
         APIEventSource apiEventSource = CommonBeanFactory.getBean(APIEventSource.class);
+        assert apiEventSource != null;
         apiEventSource.addListener(new EventListener<Event>() {
             @Override
             public void onEvent(Event event) {
-                LogUtils.info("ExecEventListener: " + event.getModule() + "：" + event.getMessage());
+                LogUtils.info("ExecEventListener: " + event.module() + "：" + event.message());
             }
         });
         // 触发事件

@@ -2,14 +2,12 @@ package io.metersphere.sdk.listener;
 
 public interface EventSource {
     /**
-     * @param listener
+     * 注册监听
      */
     void addListener(EventListener<Event> listener);
 
     /**
-     * @param module
-     * @param message
+     * 触发事件
      */
     void fireEvent(String module, String message);
-
 }
