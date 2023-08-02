@@ -16,7 +16,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +33,7 @@ public class LoginController {
         RsaKey rsaKey = RsaUtil.getRsaKey();
         SessionUser user = SessionUtils.getUser();
         if (user != null) {
-            UserDTO userDTO = baseUserService.getUserDTO((String) MethodUtils.invokeMethod(user, "getId"));
+            UserDTO userDTO = baseUserService.getUserDTO(user.getId());
             if (StringUtils.isBlank(userDTO.getLanguage())) {
                 userDTO.setLanguage(LocaleContextHolder.getLocale().toString());
             }
