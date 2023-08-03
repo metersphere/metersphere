@@ -163,7 +163,9 @@ export default {
   created() {
     this.$EventBus.$on('scenarioConditionBus', (param) => {
       this.param = param;
-      this.list()
+      if(this.$route.params && this.$route.params.versionId) {
+        this.list()
+      }
     });
   },
   beforeDestroy() {

@@ -216,7 +216,7 @@ export default {
         return;
       }
       this.protocol = 'HTTP';
-      this.$refs.apiImport.open(this.moduleOptions);
+      this.$refs.apiImport.open(this.currentModule.id ? this.currentModule : this.moduleOptions);
     },
     addApi() {
       if (!this.projectId) {

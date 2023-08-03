@@ -379,6 +379,9 @@ export default {
       this.currentModule = module;
       this.visible = true;
       this.formData.moduleId = this.rememberModuleId();
+      if (module.id) {
+        this.formData.moduleId = module.id;
+      }
       listenGoBack(this.close);
     },
     rememberModuleId() {
