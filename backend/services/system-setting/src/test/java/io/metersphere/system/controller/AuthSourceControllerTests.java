@@ -9,6 +9,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
+import io.metersphere.system.request.AuthSourceStatusRequest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,13 +46,18 @@ public class AuthSourceControllerTests extends BaseTest {
 
     private static final ResultMatcher CLIENT_ERROR_MATCHER = status().is4xxClientError();
 
+    public static final String AUTH_SOURCE_UPDATE_STATUS = "/system/authsource/update/status";
+
+    private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
+
     @Test
     @Order(1)
     public void testAddSource() throws Exception {
         AuthSourceRequest authSource = new AuthSourceRequest();
-        authSource.setConfiguration("123");
         authSource.setName("测试CAS");
         authSource.setType("CAS");
+        this.requestPost(AUTH_SOURCE_ADD, authSource,ERROR_REQUEST_MATCHER);
+        authSource.setConfiguration("123");
         this.requestPost(AUTH_SOURCE_ADD, authSource);
 
         // @@校验权限
@@ -64,6 +71,10 @@ public class AuthSourceControllerTests extends BaseTest {
         basePageRequest.setCurrent(1);
         basePageRequest.setPageSize(10);
         this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
+        basePageRequest.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        this.requestPost(AUTH_SOURCE_LIST, basePageRequest);
 
         requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ, AUTH_SOURCE_LIST, basePageRequest);
     }
@@ -74,11 +85,12 @@ public class AuthSourceControllerTests extends BaseTest {
     public void testUpdateSource() throws Exception {
         List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
         AuthSourceRequest authSource = new AuthSourceRequest();
-        authSource.setId(authSourceList.get(0).getId());
+        authSource.setId("authsource_id");
         authSource.setConfiguration("123666");
         authSource.setName("更新");
         authSource.setType("CAS");
         this.requestPost(AUTH_SOURCE_UPDATE, authSource);
+        authSource.setId(authSourceList.get(0).getId());
 
         requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, AUTH_SOURCE_UPDATE, authSource);
     }
@@ -86,11 +98,14 @@ public class AuthSourceControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void testUpdateStatus() throws Exception {
-        List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
-        String url = AUTH_SOURCE_UPDATE + "/" + authSourceList.get(0).getId() + "/status/false";
-        this.requestGet(url);
 
-        requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, url);
+        List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
+        AuthSourceStatusRequest request = new AuthSourceStatusRequest();
+        request.setId(authSourceList.get(0).getId());
+        this.requestPost(AUTH_SOURCE_UPDATE_STATUS, request);
+        request.setEnable(false);
+        this.requestPost(AUTH_SOURCE_UPDATE_STATUS, request);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, AUTH_SOURCE_UPDATE_STATUS, request);
     }
 
 

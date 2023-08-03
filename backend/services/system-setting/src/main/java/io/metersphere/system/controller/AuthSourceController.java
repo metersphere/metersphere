@@ -10,6 +10,7 @@ import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.request.AuthSourceRequest;
+import io.metersphere.system.request.AuthSourceStatusRequest;
 import io.metersphere.system.service.AuthSourceLogService;
 import io.metersphere.system.service.AuthSourceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,16 +43,16 @@ public class AuthSourceController {
     @Operation(summary = "新增认证设置")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_CREAT)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#authSource)", msClass = AuthSourceLogService.class)
-    public void add(@Validated @RequestBody AuthSourceRequest authSource) {
-        authSourceService.addAuthSource(authSource);
+    public AuthSource add(@Validated @RequestBody AuthSourceRequest authSource) {
+        return authSourceService.addAuthSource(authSource);
     }
 
     @PostMapping("/update")
     @Operation(summary = "更新认证设置")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authSource)", msClass = AuthSourceLogService.class)
-    public void update(@Validated @RequestBody AuthSourceRequest authSource) {
-        authSourceService.updateAuthSource(authSource);
+    public AuthSourceRequest update(@Validated @RequestBody AuthSourceRequest authSource) {
+        return authSourceService.updateAuthSource(authSource);
     }
 
     @GetMapping("/get/{id}")
@@ -70,11 +71,11 @@ public class AuthSourceController {
     }
 
 
-    @GetMapping("/update/{authId}/status/{status}")
+    @PostMapping("/update/status")
     @Operation(summary = "更新状态")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#authId)", msClass = AuthSourceLogService.class)
-    public void updateStatus(@PathVariable(value = "authId") String authId, @PathVariable("status") String status) {
-        authSourceService.updateStatus(authId, status);
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = AuthSourceLogService.class)
+    public void updateStatus(@Validated @RequestBody AuthSourceStatusRequest request ) {
+        authSourceService.updateStatus(request.getId(), request.getEnable());
     }
 }

@@ -26,10 +26,11 @@ public class AuthSourceService {
         return authSourceMapper.selectByExample(example);
     }
 
-    public void addAuthSource(AuthSourceRequest authSource) {
+    public AuthSource addAuthSource(AuthSourceRequest authSource) {
         checkAuthSource(authSource);
         AuthSource source = delRequestToDB(authSource);
         authSourceMapper.insertSelective(source);
+        return source;
     }
 
     private AuthSource delRequestToDB(AuthSourceRequest authSource) {
@@ -47,9 +48,6 @@ public class AuthSourceService {
 
     public void checkAuthSource(AuthSourceRequest authSource) {
         String resourcePoolName = authSource.getName();
-        if (StringUtils.isBlank(resourcePoolName)) {
-            throw new MSException(Translator.get("authsource_name_is_null"));
-        }
 
         AuthSourceExample example = new AuthSourceExample();
         AuthSourceExample.Criteria criteria = example.createCriteria();
@@ -74,7 +72,7 @@ public class AuthSourceService {
         return authSourceMapper.selectByPrimaryKey(id);
     }
 
-    public void updateAuthSource(AuthSourceRequest authSource) {
+    public AuthSourceRequest updateAuthSource(AuthSourceRequest authSource) {
         checkAuthSource(authSource);
         AuthSource source = authSourceMapper.selectByPrimaryKey(authSource.getId());
         if (source != null) {
@@ -84,13 +82,16 @@ public class AuthSourceService {
             source.setUpdateTime(System.currentTimeMillis());
             authSourceMapper.updateByPrimaryKeySelective(source);
         }
+        return authSource;
     }
 
-    public void updateStatus(String id, String status) {
-        AuthSource record = new AuthSource();
-        record.setId(id);
-        record.setEnable(Boolean.parseBoolean(status));
-        record.setUpdateTime(System.currentTimeMillis());
-        authSourceMapper.updateByPrimaryKeySelective(record);
+    public void updateStatus(String id, Boolean status) {
+        if (status != null) {
+            AuthSource record = new AuthSource();
+            record.setId(id);
+            record.setEnable(status);
+            record.setUpdateTime(System.currentTimeMillis());
+            authSourceMapper.updateByPrimaryKeySelective(record);
+        }
     }
 }
