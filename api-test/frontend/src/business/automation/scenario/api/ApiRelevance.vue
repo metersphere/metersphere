@@ -6,6 +6,7 @@
     ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
+        class="node-tree"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
@@ -283,5 +284,13 @@ export default {
 
 .version-select {
   padding-left: 10px;
+}
+
+.node-tree {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  max-height: calc(75vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 </style>

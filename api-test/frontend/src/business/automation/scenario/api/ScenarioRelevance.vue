@@ -8,6 +8,7 @@
     <template v-slot:aside>
       <ms-api-scenario-module
         style="margin-top: 5px"
+        class="node-tree"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
@@ -285,4 +286,12 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.node-tree {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  max-height: calc(75vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+</style>
