@@ -19,9 +19,17 @@
     </el-header>
 
     <el-container class="main-content">
-      <el-aside class="tree-aside" width="250px">
+      <el-aside class="ms-aside-container"
+                :style="{
+        'min-width': '300px',
+        'max-width': '600px',
+        'height': calHeight,
+        'max-height': calHeight,
+        }">
         <slot name="aside"></slot>
+        <ms-horizontal-drag-bar v-if="draggable"/>
       </el-aside>
+
 
       <el-container>
         <el-main class="case-content">
@@ -37,6 +45,7 @@
 </template>
 
 <script>
+import MsHorizontalDragBar from "metersphere-frontend/src/components/dragbar/MsLeft2RightDragBar"
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
 import SelectMenu from '@/business/commons/SelectMenu';
 
@@ -45,6 +54,7 @@ export default {
   components: {
     SelectMenu,
     MsDialogFooter,
+    MsHorizontalDragBar
   },
   data() {
     return {
@@ -52,7 +62,26 @@ export default {
       dialogVisible: false,
     };
   },
-  props: ['title', 'width', 'fullScreen'],
+  props: {
+    title: {
+      type: String
+    },
+    width: {
+      type: String
+    },
+    fullScreen: {
+      type: Boolean
+    },
+    draggable: {
+      type: Boolean,
+      default: true
+    }
+  },
+  computed: {
+    calHeight() {
+      return 'calc(75vh - 50px)'
+    }
+  },
   methods: {
     open() {
       this.dialogVisible = true;
@@ -87,5 +116,16 @@ export default {
   outline: 0;
   cursor: pointer;
   height: 30px;
+}
+
+.ms-aside-container {
+  border: 1px solid #E6E6E6;
+  padding: 10px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  background-color: #FFF;
+  border-right: 0;
+  position: relative;
+  overflow: visible;
 }
 </style>
