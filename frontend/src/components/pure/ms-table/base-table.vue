@@ -43,13 +43,45 @@
             <div v-else class="title">{{ t(item.title as string) }}</div>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <slot v-if="item.slotName" :name="item.slotName" v-bind="{ record, rowIndex, column }"></slot>
-            <template v-else>{{ record[item.dataIndex as string] }}</template>
+            <div class="flex flex-row items-center">
+              <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
+                <div v-if="record.enable" class="flex items-center">
+                  <icon-check-circle-fill class="mr-[2px] text-[rgb(var(--success-6))]" />
+                  {{ t('system.user.tableEnable') }}
+                </div>
+                <div v-else class="flex items-center text-[var(--color-text-4)]">
+                  <icon-stop class="mr-[2px]" />
+                  {{ t('system.user.tableDisable') }}
+                </div>
+              </template>
+              <template v-else>
+                <a-input
+                  v-if="editActiveKey === rowIndex && item.dataIndex === editKey"
+                  ref="currentInputRef"
+                  v-model="record[item.dataIndex as string]"
+                  @blur="handleEditInputBlur()"
+                  @press-enter="handleEditInputEnter(record)"
+                />
+                <slot v-else :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                  <span>{{ record[item.dataIndex as string] }}</span>
+                </slot>
+                <MsIcon
+                  v-if="item.editable && item.dataIndex === editKey"
+                  class="ml-2 cursor-pointer"
+                  :class="{ 'ms-table-edit-active': editActiveKey === rowIndex }"
+                  type="icon-icon_edit_outlined"
+                  @click="handleEdit(rowIndex)"
+                />
+              </template>
+            </div>
           </template>
         </a-table-column>
       </template>
     </a-table>
-    <div class="ms-table-footer" :class="{ 'batch-action': showBatchAction }">
+    <div
+      class="flex h-[64px] w-[100%] flex-row flex-nowrap items-center justify-end px-0 py-4"
+      :class="{ 'batch-action': showBatchAction }"
+    >
       <batch-action
         v-if="showBatchAction"
         :select-row-count="selectCurrent"
@@ -71,7 +103,7 @@
 <script lang="ts" setup>
   import { useI18n } from '@/hooks/useI18n';
   import { useAttrs, computed, ref, onMounted } from 'vue';
-  import { useTableStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
   import selectAll from './select-all.vue';
   import {
     MsTableProps,
@@ -80,6 +112,7 @@
     BatchActionParams,
     BatchActionConfig,
     MsTableColumn,
+    SpecialColumnEnum,
   } from './type';
   import BatchAction from './batchAction.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -89,7 +122,9 @@
   const batchleft = ref('10px');
   const { t } = useI18n();
   const tableStore = useTableStore();
+  const appStore = useAppStore();
   const columns = ref<MsTableColumn>([]);
+
   const props = defineProps<{
     selectedKeys?: (string | number)[];
     actionConfig?: BatchActionConfig;
@@ -100,28 +135,35 @@
     (e: 'batchAction', value: BatchActionParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
+    (e: 'rowNameChange', value: TableData): void;
   }>();
   const isSelectAll = ref(false);
   const attrs = useAttrs();
   // 全选按钮-当前的条数
   const selectCurrent = ref(0);
-  const { rowKey, pagination }: Partial<MsTableProps> = attrs;
-
   // 全选按钮-总条数
-  const selectTotal = computed(() => {
-    const { data }: Partial<MsTableProps> = attrs;
-    if (pagination) {
-      const { pageSize } = pagination as MsPaginationI;
-      return pageSize;
+  const selectTotal = ref(0);
+  // 编辑按钮的Active状态
+  const editActiveKey = ref(-1);
+  // 编辑input的Ref
+  const currentInputRef = ref(null);
+  const { rowKey, editKey }: Partial<MsTableProps> = attrs;
+
+  const setSelectAllTotal = (isAll: boolean) => {
+    const { data, msPagination }: Partial<MsTableProps> = attrs;
+    if (isAll) {
+      selectTotal.value = msPagination?.total || data?.length || appStore.pageSize;
+    } else {
+      selectTotal.value = data ? data.length : appStore.pageSize;
     }
-    return data ? data.length : 20;
-  });
+  };
 
   const initColumn = () => {
     columns.value = tableStore.getShowInTableColumns(attrs.tableKey as string);
   };
-  // 选择行change事件
-  const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean) => {
+  // 选择公共执行方法
+  const selectionChange = (arr: (string | number)[], setCurrentSelect: boolean, isAll = false) => {
+    setSelectAllTotal(isAll);
     emit('selectedChange', arr);
     if (setCurrentSelect) {
       selectCurrent.value = arr.length;
@@ -130,7 +172,7 @@
 
   // 全选change事件
   const handleChange = (v: string) => {
-    const { data }: Partial<MsTableProps> = attrs;
+    const { data, msPagination }: Partial<MsTableProps> = attrs;
     isSelectAll.value = v === SelectAllEnum.ALL;
     if (v === SelectAllEnum.NONE) {
       selectionChange([], true);
@@ -144,10 +186,11 @@
       }
     }
     if (v === SelectAllEnum.ALL) {
-      const { total } = pagination as MsPaginationI;
+      const { total } = msPagination as MsPaginationI;
       if (data && data.length > 0) {
         selectionChange(
           data.map((item: any) => item[rowKey || 'id']),
+          false,
           true
         );
         selectCurrent.value = total;
@@ -167,6 +210,20 @@
   const showBatchAction = computed(() => {
     return selectCurrent.value > 0 && attrs.showSelectAll;
   });
+
+  const handleEditInputEnter = (record: TableData) => {
+    editActiveKey.value = -1;
+    emit('rowNameChange', record);
+  };
+
+  const handleEditInputBlur = () => {
+    editActiveKey.value = -1;
+  };
+
+  // 编辑单元格的input
+  const handleEdit = (rowIndex: number) => {
+    editActiveKey.value = rowIndex;
+  };
 
   // 根据参数获取全选按钮的位置
   const getBatchLeft = () => {
@@ -219,17 +276,14 @@
     .title {
       color: var(--color-text-3);
     }
-    .ms-table-footer {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 16px 0;
-      width: 100%;
-      height: 62px;
-      flex-flow: row nowrap;
-    }
     .batch-action {
       justify-content: flex-start;
+    }
+    .pop-title {
+      color: var(--color-text-1);
+    }
+    .ms-table-edit-active {
+      color: rgb(var(--primary-5));
     }
   }
 </style>

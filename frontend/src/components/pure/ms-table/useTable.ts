@@ -7,7 +7,7 @@ import { TableQueryParams } from '@/models/common';
 import { useAppStore } from '@/store';
 
 import type { TableData } from '@arco-design/web-vue';
-import type { MsTableProps, MsTableData, MsTableColumn } from './type';
+import { type MsTableProps, type MsTableData, type MsTableColumn, SpecialColumnEnum } from './type';
 
 export interface Pagination {
   current: number;
@@ -18,7 +18,11 @@ export interface Pagination {
 const appStore = useAppStore();
 export default function useTableProps(
   loadListFunc: (v: TableQueryParams) => Promise<any>,
-  props?: Partial<MsTableProps>
+  props?: Partial<MsTableProps>,
+  // 数据处理的回调函数
+  callBack?: (item: TableData) => TableData,
+  // 编辑操作的保存回调函数
+  saveCallBack?: (item: TableData) => Promise<any>
 ) {
   // 行选择
   const rowSelection = {
@@ -46,6 +50,8 @@ export default function useTableProps(
     // 禁用 arco-table 的分页
     pagination: false,
     pageSimple: false,
+    // 编辑的key
+    editKey: SpecialColumnEnum.NAME,
     ...props,
   };
 
@@ -160,6 +166,9 @@ export default function useTableProps(
         if (item.createTime) {
           item.createTime = dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss');
         }
+        if (callBack) {
+          item = callBack(item);
+        }
         return item;
       });
       setPagination({ current: data.current, total: data.total });
@@ -222,6 +231,12 @@ export default function useTableProps(
       if (propsRes.value.draggable && _data instanceof Array) {
         // eslint-disable-next-line vue/require-explicit-emits
         propsRes.value.data = _data;
+      }
+    },
+    // 编辑触发
+    rowNameChange: (record: TableData) => {
+      if (saveCallBack) {
+        saveCallBack(record);
       }
     },
   });

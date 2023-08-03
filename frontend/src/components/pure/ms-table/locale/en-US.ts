@@ -24,5 +24,10 @@ export default {
       resetDefault: 'Reset default',
       nonSort: 'The above properties cannot be sorted',
     },
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    modify: 'Modify{name}',
+    nameIsNotNull: 'Name cannot be empty',
+    nameIsExist: '{name} already exists',
   },
 };

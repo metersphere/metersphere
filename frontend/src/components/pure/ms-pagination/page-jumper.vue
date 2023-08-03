@@ -28,7 +28,7 @@
 
   export interface PageJumperProps {
     current: number;
-    simple: boolean;
+    simple?: boolean;
     disabled: boolean;
     pages: number;
     size?: 'small' | 'mini' | 'medium' | 'large';

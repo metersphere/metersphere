@@ -32,6 +32,7 @@
       dataIndex: 'name',
       showDrag: false,
       showInTable: true,
+      editable: true,
     },
     {
       title: 'system.userGroup.email',

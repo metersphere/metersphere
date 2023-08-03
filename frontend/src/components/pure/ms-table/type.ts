@@ -16,6 +16,8 @@ export interface MsTableColumnData extends TableColumnData {
   showDrag?: boolean;
   // 是否展示在表格上
   showInTable?: boolean;
+  // 是否可编辑
+  editable?: boolean;
 }
 // 表格属性
 export interface MsTableProps {
@@ -59,6 +61,8 @@ export interface MsTableProps {
   showSetting?: boolean;
   // 分页是否是简单模式
   pageSimple?: boolean;
+  // 编辑的key，默认为name
+  editKey?: string;
   [key: string]: any;
 }
 
@@ -93,4 +97,17 @@ export interface BatchActionParams {
 export interface BatchActionConfig {
   baseAction: BatchActionParams[];
   moreAction?: BatchActionParams[];
+}
+
+export interface renamePopconfirmVisibleType {
+  [key: string]: boolean;
+}
+
+// 具有特殊功能的列
+// eslint-disable-next-line no-shadow
+export enum SpecialColumnEnum {
+  // 编辑列
+  NAME = 'name',
+  // 状态列
+  ENABLE = 'enable',
 }
