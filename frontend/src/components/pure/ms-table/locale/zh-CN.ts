@@ -24,5 +24,10 @@ export default {
       resetDefault: '恢复默认',
       nonSort: '以上属性不可排序',
     },
+    cancel: '取消',
+    confirm: '确定',
+    modify: '修改{name}',
+    nameIsNotNull: 'Name cannot be empty',
+    nameIsExist: '已有 {name}, 请更改',
   },
 };
