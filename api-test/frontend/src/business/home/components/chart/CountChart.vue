@@ -84,7 +84,7 @@ export default {
       let dataIsNotEmpty = false;
       let protocolData = [
         { value: 0, name: 'HTTP' },
-        { value: 0, name: 'RPC' },
+        { value: 0, name: 'DUBBO' },
         { value: 0, name: 'TCP' },
         { value: 0, name: 'SQL' },
       ];
@@ -96,7 +96,7 @@ export default {
         dataIsNotEmpty = true;
         protocolData = [
           { value: this.apiData.httpCount > 0 ? this.apiData.httpCount : '-', name: 'HTTP' },
-          { value: this.apiData.rpcCount > 0 ? this.apiData.rpcCount : '-', name: 'RPC' },
+          { value: this.apiData.rpcCount > 0 ? this.apiData.rpcCount : '-', name: 'DUBBO' },
           { value: this.apiData.tcpCount > 0 ? this.apiData.tcpCount : '-', name: 'TCP' },
           { value: this.apiData.sqlCount > 0 ? this.apiData.sqlCount : '-', name: 'SQL' },
         ];

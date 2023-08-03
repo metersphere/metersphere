@@ -50,7 +50,7 @@
                                         margin: 7px;
                                         float: left;
                                       " />
-                                    <span style="line-height: 22px">HTTP:</span>
+                                    <span style="line-height: 22px">HTTP :</span>
                                     <div style="float: right">
                                       <el-link
                                         class="coverage-num-link"
@@ -69,7 +69,7 @@
                                       margin: 7px;
                                       float: left;
                                     " />
-                                  <span style="line-height: 22px">RPC :</span>
+                                  <span style="line-height: 22px">DUBBO :</span>
                                   <div style="float: right">
                                     <el-link
                                       class="coverage-num-link"
@@ -155,7 +155,7 @@
                                       margin: 7px;
                                       float: left;
                                     " />
-                                  <span style="line-height: 22px">RPC :</span>
+                                  <span style="line-height: 22px">DUBBO :</span>
                                   <div style="float: right">
                                     <el-link
                                       class="coverage-num-link"
