@@ -245,6 +245,7 @@ export default {
     saveAs() {
       this.$refs['debugForm'].validate((valid) => {
         if (valid) {
+          let url = this.debugForm.url;
           this.request.id = getUUID();
           this.request.method = this.debugForm.method;
           this.request.path = this.debugForm.path;
@@ -261,6 +262,7 @@ export default {
             this.compatibleHistory(this.debugForm.request.hashTree);
           }
           this.$refs.caseList.saveApiAndCase(this.debugForm);
+          this.debugForm.url = url;
         } else {
           return false;
         }
