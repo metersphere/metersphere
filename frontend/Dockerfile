@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:1.24.0
 
 COPY dist/ /app/
 RUN mkdir /cnf && chown 777 /cnf
