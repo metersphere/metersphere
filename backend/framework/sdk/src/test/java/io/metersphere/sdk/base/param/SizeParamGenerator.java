@@ -1,6 +1,6 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
 import java.lang.annotation.Annotation;
@@ -9,19 +9,20 @@ import java.lang.reflect.Field;
 /**
  * @author jianxing
  */
-public class MinParamGenerator extends ParamGenerator {
+public class SizeParamGenerator extends ParamGenerator {
 
     /**
-     * 返回 null
+     * 生成超过指定长度的字符串
      */
     @Override
     public Object invalidGenerate(Annotation annotation, Field field) {
-        Min minAnnotation = (Min) annotation;
+        Size sizeAnnotation = (Size) annotation;
+        int max = sizeAnnotation.max();
         if (isNumberType(field.getType())) {
-            return convertToNumberType(field.getType(), minAnnotation.value() - 1);
+            return max + 1;
         } else {
             // todo 做缓存优化
-            return RandomStringUtils.random((int) (minAnnotation.value() - 1));
+            return RandomStringUtils.random(max + 1);
         }
     }
 }

@@ -1,4 +1,4 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
 import jakarta.validation.constraints.Max;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;

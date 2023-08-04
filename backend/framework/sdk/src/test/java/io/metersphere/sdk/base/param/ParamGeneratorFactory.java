@@ -1,4 +1,4 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.valid.EnumValue;

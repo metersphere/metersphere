@@ -1,6 +1,6 @@
 package io.metersphere.system.job;
 
-import base.BaseTest;
+import io.metersphere.sdk.base.BaseTest;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
