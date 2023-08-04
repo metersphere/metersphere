@@ -5,6 +5,8 @@ import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.assertions.*;
+import io.metersphere.api.dto.definition.request.assertions.document.MsAssertionDocument;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ProjectMapper;
@@ -16,6 +18,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.ProjectConfig;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import jakarta.annotation.Resource;
@@ -244,6 +247,35 @@ public class MsHashTreeService {
         return sourceHashTree;
     }
 
+    public static List<MsTestElement> mergeCaseAssertions(List<MsTestElement> sourceHashTree, List<MsTestElement> targetHashTree) {
+        try {
+            if (CollectionUtils.isNotEmpty(targetHashTree)) {
+                MsAssertions target = (MsAssertions) targetHashTree.get(0);
+
+                if (CollectionUtils.isNotEmpty(sourceHashTree)) {
+                    MsAssertions source = (MsAssertions) sourceHashTree.get(0);
+                    //jsonPath
+                    target.setJsonPath(mergeArray(target.getJsonPath(), source.getJsonPath()));
+                    //jsr223
+                    target.setJsr223(mergeArray(target.getJsr223(), source.getJsr223()));
+                    //xpath
+                    target.setXpath2(mergeArray(target.getXpath2(), source.getXpath2()));
+                    //regex
+                    target.setRegex(mergeArray(target.getRegex(), source.getRegex()));
+                    //duration
+                    target.setDuration((MsAssertionDuration) mergeObject(target.getDuration(), source.getDuration()));
+                    //document
+                    target.setDocument((MsAssertionDocument) mergeObject(target.getDocument(), source.getDocument()));
+                    sourceHashTree.remove(0);
+                    sourceHashTree.add(target);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error("mergeAssertions error", e);
+        }
+        return sourceHashTree;
+    }
+
     private static void mergeObject(JSONObject target, JSONObject durationTar, JSONObject durationSource, String type) {
         if (durationSource != null && durationSource.has(LABEL) &&
                 StringUtils.equals(durationSource.optString(LABEL), SCENARIO_REF)) {
@@ -251,6 +283,46 @@ public class MsHashTreeService {
         }
         target.remove(type);
         target.put(type, durationTar);
+    }
+
+    private static Object mergeObject(Object durationTar, Object durationSource) {
+        if (durationSource != null) {
+            if (durationSource instanceof MsAssertionDuration d) {
+                if (StringUtils.equals(d.getLabel(), SCENARIO_REF)) {
+                    durationTar = durationSource;
+                }
+            } else if (durationSource instanceof MsAssertionDocument d) {
+                if (StringUtils.equals(d.getLabel(), SCENARIO_REF)) {
+                    durationTar = durationSource;
+                }
+            }
+        }
+        return durationTar;
+    }
+
+    private static List mergeArray(List jsonArray, List source) {
+        if (!source.isEmpty()) {
+            source.forEach(obj -> {
+                if (obj instanceof MsAssertionJsonPath jsonObject) {
+                    if (StringUtils.equals(jsonObject.getLabel(), SCENARIO_REF)) {
+                        jsonArray.add(jsonObject);
+                    }
+                } else if (obj instanceof MsAssertionJSR223 jsonObject) {
+                    if (StringUtils.equals(jsonObject.getLabel(), SCENARIO_REF)) {
+                        jsonArray.add(jsonObject);
+                    }
+                } else if (obj instanceof MsAssertionXPath2 jsonObject) {
+                    if (StringUtils.equals(jsonObject.getLabel(), SCENARIO_REF)) {
+                        jsonArray.add(jsonObject);
+                    }
+                } else if (obj instanceof MsAssertionRegex jsonObject) {
+                    if (StringUtils.equals(jsonObject.getLabel(), SCENARIO_REF)) {
+                        jsonArray.add(jsonObject);
+                    }
+                }
+            });
+        }
+        return jsonArray;
     }
 
     private static void mergeArray(JSONObject target, JSONArray jsonArray, JSONArray source, String type) {

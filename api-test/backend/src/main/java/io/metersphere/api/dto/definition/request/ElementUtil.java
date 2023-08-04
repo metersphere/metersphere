@@ -436,18 +436,12 @@ public class ElementUtil {
 
     public static void mergeHashTree(MsTestElement element, LinkedList<MsTestElement> targetHashTree) {
         try {
-            if (CollectionUtils.isNotEmpty(element.getHashTree())
-                    && CollectionUtils.isNotEmpty(targetHashTree)
-                    && element.getHashTree().size() == targetHashTree.size()) {
-                element.setHashTree(targetHashTree);
-                return;
-            }
             Map<String, LinkedList<MsTestElement>> source = groupCase(element.getHashTree());
             Map<String, LinkedList<MsTestElement>> target = groupCase(targetHashTree);
+            List<MsTestElement> step = new LinkedList<>();
             List<MsTestElement> pre = ElementUtil.mergeCaseHashTree(source.get(PRE), target.get(PRE));
             List<MsTestElement> post = ElementUtil.mergeCaseHashTree(source.get(POST), target.get(POST));
-            List<MsTestElement> rules = mergeCaseHashTree(source.get(ASSERTIONS), target.get(ASSERTIONS));
-            List<MsTestElement> step = new LinkedList<>();
+            List<MsTestElement> rules = MsHashTreeService.mergeCaseAssertions(source.get(ASSERTIONS), target.get(ASSERTIONS));
             if (CollectionUtils.isNotEmpty(pre)) {
                 step.addAll(pre);
             }
@@ -457,7 +451,6 @@ public class ElementUtil {
             if (CollectionUtils.isNotEmpty(rules)) {
                 step.addAll(rules);
             }
-
             element.getHashTree().clear();
             element.getHashTree().addAll(step);
         } catch (Exception e) {
@@ -499,7 +492,6 @@ public class ElementUtil {
         }
         return groupMap;
     }
-
 
     public static List<MsTestElement> mergeCaseHashTree(List<MsTestElement> targets, List<MsTestElement> sources) {
         try {
