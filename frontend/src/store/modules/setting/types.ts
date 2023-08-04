@@ -3,4 +3,6 @@ export interface UserGroupState {
   currentName: string;
   currentTitle: string;
   currentId: string;
+  // 当前用户类型
+  currentType: string;
 }

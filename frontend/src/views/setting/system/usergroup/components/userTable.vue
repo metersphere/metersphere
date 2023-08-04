@@ -32,7 +32,6 @@
       dataIndex: 'name',
       showDrag: false,
       showInTable: true,
-      editable: true,
     },
     {
       title: 'system.userGroup.email',
@@ -60,8 +59,9 @@
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(postUserByUserGroup, {
     tableKey: TableKeyEnum.USERGROUPUSER,
-    scroll: { y: 750, x: '600px' },
+    scroll: { y: 'auto', x: '600px' },
     selectable: true,
+    noDisable: true,
   });
 
   const fetchData = async () => {

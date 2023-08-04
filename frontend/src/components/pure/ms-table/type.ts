@@ -64,6 +64,8 @@ export interface MsTableProps {
   // 编辑的key，默认为name
   editKey?: string;
   [key: string]: any;
+  // 是否展示禁用的行
+  noDisable?: boolean;
 }
 
 export interface MsTableSelectAll {

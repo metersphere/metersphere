@@ -286,7 +286,6 @@
 <style scoped lang="less">
   .usergroup-auth-table {
     position: relative;
-    height: 100vh;
     :deep(.arco-table-container) {
       border-top: 1px solid var(--color-text-n8) !important;
       border-right: 1px solid var(--color-text-n8) !important;
