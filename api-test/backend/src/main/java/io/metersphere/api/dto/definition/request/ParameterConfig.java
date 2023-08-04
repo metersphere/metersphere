@@ -121,6 +121,7 @@ public class ParameterConfig extends MsParameter {
 
     public HttpConfig matchConfig(MsHTTPSamplerProxy samplerProxy, HttpConfig httpConfig) {
         boolean isNext = true;
+        httpConfig.setSocket(null);
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {
                 if (item.getType().equals(ConditionType.PATH.name())) {
