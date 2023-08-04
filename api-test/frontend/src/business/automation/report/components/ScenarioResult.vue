@@ -27,7 +27,7 @@
                 :status="node.totalStatus"
                 v-if="
                   node.type !== 'ConstantTimer' &&
-                  node.type !== 'Assertion' &&
+                  node.type !== 'Assertions' &&
                   node.children
                 " />
             </div>
@@ -95,7 +95,7 @@ export default {
           return this.$t('api_test.automation.wait_controller');
         case 'LoopController':
           return this.$t('api_test.automation.loop_controller');
-        case 'Assertion':
+        case 'Assertions':
           return this.$t('api_test.definition.request.scenario_assertions');
         case 'IfController':
           return this.$t('api_test.automation.if_controller');
