@@ -32,7 +32,8 @@ const message = {
     theme_style: '主题风格设置',
     theme_default: '默认',
     theme_light: '白色',
-    theme_follow: '跟随主题色'
+    theme_follow: '跟随主题色',
+    css_file: '自定义CSS',
   },
   system_custom_template: {
     api_template: "接口模版"

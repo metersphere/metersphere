@@ -32,7 +32,8 @@ const message = {
     theme_style: 'Theme style set',
     theme_default: 'Default',
     theme_light: 'White',
-    theme_follow: 'Follow the theme color'
+    theme_follow: 'Follow the theme color',
+    css_file: 'Custom CSS',
   },
   system_custom_template: {
     api_template: "Api Template",

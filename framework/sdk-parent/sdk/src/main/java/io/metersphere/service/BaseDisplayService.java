@@ -51,24 +51,24 @@ public class BaseDisplayService {
         if (bytes == null) {
             PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(getClass().getClassLoader());
             switch (imageName) {
-                case "logo":
+                case "logo" -> {
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/logo-light-MeterSphere.svg").getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
-                    break;
-                case "loginImage":
-                    bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/info.png").getInputStream());
-                    break;
-                case "loginLogo":
+                }
+                case "loginImage" ->
+                        bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/info.png").getInputStream());
+                case "loginLogo" -> {
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/logo-dark-MeterSphere.svg").getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
-                    break;
-                default:
+                }
+                case "css" -> bytes = new byte[0];
+                default -> {
                     // /display/file/logo-dark-MeterSphere.svg
                     bytes = IOUtils.toByteArray(resolver.getResource("/static/assets/" + imageName).getInputStream());
                     if (StringUtils.endsWithIgnoreCase(imageName, ".svg")) {
                         contentType = MediaType.valueOf("image/svg+xml");
                     }
-                    break;
+                }
             }
         }
 
