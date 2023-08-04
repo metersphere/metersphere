@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isShow" v-loading="loading">
+  <div v-if="isShow" v-loading="loading" style="height: calc(100vh - 80px); overflow: auto">
     <el-form :model="formInline" ref="formInline" label-position="top"
              :disabled="show" size="small">
 
@@ -108,6 +108,25 @@
           size="small"
           popper-class="theme-picker-dropdown"/>
       </el-form-item>
+      <el-form-item :label="$t('display.css_file')" prop="loginTitle">
+        <el-col :span="8">
+          <el-upload
+            accept=".css"
+            action=""
+            :show-file-list="false"
+            :http-request="handleUploadcss"
+            :on-exceed="handleExceed"
+            :limit="1"
+            :file-list="cssList">
+            <el-button icon="el-icon-plus" size="mini"></el-button>
+            <span slot="tip" class="el-upload__tip"></span>
+          </el-upload>
+          <div v-if="cssList[0]">
+            <span> {{ cssList[0].name }} </span>
+            <el-link :underline="false" @click="handleDelete('cssList')" :disabled="show">&times;</el-link>
+          </div>
+        </el-col>
+      </el-form-item>
     </el-form>
     <div>
       <el-button @click="edit" v-if="showEdit" size="small" v-permission="['SYSTEM_SETTING:READ+EDIT']">
@@ -139,6 +158,7 @@ export default {
         logo: null,
         loginLogo: null,
         loginImage: null,
+        css: null,
         loginTitle: null,
         sysTitle: null,
         title: null,
@@ -151,6 +171,7 @@ export default {
       logoList: [],
       loginLogoList: [],
       loginImageList: [],
+      cssList: [],
       uploadList: [],
       showEdit: true,
       showSave: false,
@@ -180,6 +201,9 @@ export default {
     },
     handleUploadLoginImage(uploadResources) {
       this.loginImageList.push(uploadResources.file);
+    },
+    handleUploadcss(uploadResources) {
+      this.cssList.push(uploadResources.file);
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
@@ -260,6 +284,14 @@ export default {
           uploadList.push(newfile);
         }
       }
+      if (this.cssList.length > 0) {
+        let file = this.cssList[0];
+        let name = 'ui.css' + "," + file.name;
+        if (!file.db) {
+          let newfile = new File([file], name, {type: file.type});
+          uploadList.push(newfile);
+        }
+      }
 
       if (uploadList.length > 0) {
         uploadList.forEach(f => {
@@ -293,6 +325,13 @@ export default {
         {paramKey: "ui.sideTheme", paramValue: this.formInline.sideTheme, type: "text", sort: 8},
         {paramKey: "ui.title", paramValue: this.formInline.title, type: "text", sort: 5},
         {paramKey: "ui.theme", paramValue: this.formInline.theme, type: "text", sort: 6},
+        {
+          paramKey: "ui.css",
+          paramValue: this.formInline.css,
+          type: "file",
+          fileName: this.cssList[0] ? this.cssList[0].name : null,
+          sort: 9
+        },
       ]
       let requestJson = JSON.stringify(param);
       formData.append('request', new Blob([requestJson], {
@@ -326,6 +365,10 @@ export default {
           this.formInline.title = response.data[4].paramValue;
           if (response.data[5] && response.data[5].paramValue) {
             this.formInline.theme = response.data[5].paramValue;
+          }
+          if (response.data[8].paramValue) {
+            this.formInline.css = response.data[8].paramValue;
+            this.cssList.push({name: response.data[8].fileName, db: true});
           }
           if (response.data[0].paramValue) {
             this.shortcutIcon();
@@ -404,5 +447,9 @@ img {
 .ms-theme-setting-selectIcon-top {
   width: 48px;
   height: 60px;
+}
+
+.el-form-item--mini.el-form-item, .el-form-item--small.el-form-item {
+  margin-bottom: 5px;
 }
 </style>
