@@ -19,7 +19,7 @@
           </el-col>
           <el-col :span="2">
             <div style="float: right">
-              <ms-api-report-status :status="node.totalStatus" v-if="node.type !=='ConstantTimer' && node.type !=='Assertion'
+              <ms-api-report-status :status="node.totalStatus" v-if="node.type !=='ConstantTimer' && node.type !=='Assertions'
                                      && node.children && node.children.length > 0"/>
             </div>
           </el-col>
@@ -93,7 +93,7 @@ export default {
           return this.$t('api_test.automation.wait_controller');
         case 'LoopController':
           return this.$t('api_test.automation.loop_controller');
-        case 'Assertion':
+        case 'Assertions':
           return this.$t('api_test.definition.request.scenario_assertions');
         case 'IfController':
           return this.$t('api_test.automation.if_controller');
