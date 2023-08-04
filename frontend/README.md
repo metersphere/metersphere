@@ -777,3 +777,11 @@ export default mergeConfig(
   })
 );
 ```
+## 本地生产环境调试
+需安装docker： https://www.docker.com/, 选择对应系统版本安装。
+```bash
+cd frontend/
+pnpm run build:local
+docker build -t metersphere/ms-v3 .
+docker run -d -p 5100:5100 --name ms-v3 metersphere/ms-v3
+```

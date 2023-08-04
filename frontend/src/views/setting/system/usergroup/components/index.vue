@@ -115,7 +115,7 @@
   const handleListItemClick = (element: UserGroupItem) => {
     const { id, name, type } = element;
     currentId.value = id;
-    store.setInfo({ currentName: name, currentTitle: type, currentId: id });
+    store.setInfo({ currentName: name, currentTitle: type, currentId: id, currentType: type });
   };
 
   // 用户组数据初始化

@@ -3,7 +3,7 @@ import { getCurrentInstance, inject, InjectionKey } from 'vue';
 import type { ArcoOptions, ConfigProvider } from './types';
 
 const COMPONENT_PREFIX = 'A';
-const CLASS_PREFIX = 'arco';
+const CLASS_PREFIX = 'ms';
 const GLOBAL_CONFIG_NAME = '$arco';
 
 export const configProviderInjectionKey: InjectionKey<ConfigProvider> = Symbol('ArcoConfigProvider');

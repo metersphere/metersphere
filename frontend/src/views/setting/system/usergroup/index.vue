@@ -17,7 +17,7 @@
                 <icon-search />
               </template>
             </a-input>
-            <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
+            <a-radio-group v-if="couldShowUser" v-model="currentTable" class="ml-[14px]" type="button">
               <a-radio value="auth">{{ t('system.userGroup.auth') }}</a-radio>
               <a-radio value="user">{{ t('system.userGroup.user') }}</a-radio>
             </a-radio-group>
@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { ref, computed } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import useUserGroupStore from '@/store/modules/setting/usergroup';
@@ -41,12 +41,13 @@
   import UserTable from './components/userTable.vue';
   import AuthTable from './components/authTable.vue';
 
-  const currentTable = ref('user');
+  const currentTable = ref('auth');
   const collapse = ref(true);
 
   const { t } = useI18n();
 
   const store = useUserGroupStore();
+  const couldShowUser = computed(() => store.userGroupInfo.currentType === 'SYSTEM');
 </script>
 
 <style lang="scss" scoped>
