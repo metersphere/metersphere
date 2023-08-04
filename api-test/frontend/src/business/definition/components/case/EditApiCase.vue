@@ -268,6 +268,9 @@ export default {
       if (api && api.request && api.request.url) {
         api.request.url = undefined;
       }
+      if (api && api.name) {
+        api.name = undefined;
+      }
       this.visible = true;
       this.api = api;
       if (this.currentApi && api) {
