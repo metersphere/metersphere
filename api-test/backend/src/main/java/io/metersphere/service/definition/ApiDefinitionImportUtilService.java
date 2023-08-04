@@ -848,6 +848,11 @@ public class ApiDefinitionImportUtilService {
                 apiTestCaseWithBLOBs.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
                 apiTestCaseWithBLOBs.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
                 apiTestCaseWithBLOBs.setCreateTime(System.currentTimeMillis());
+                JSONObject o = JSONUtil.parseObject(apiTestCaseWithBLOBs.getRequest());
+                if (o != null) {
+                    o.put("projectId", apiTestCaseWithBLOBs.getProjectId());
+                    apiTestCaseWithBLOBs.setRequest(o.toString());
+                }
                 BeanUtils.copyBean(apiTestCaseDTO, apiTestCaseWithBLOBs);
                 apiTestCaseDTO.setUpdated(false);
                 apiTestCaseMapper.insert(apiTestCaseWithBLOBs);

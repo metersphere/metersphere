@@ -991,6 +991,7 @@ export default {
         this.apiCase.request.headers = [];
         this.apiCase.request.headers.push(new KeyValue({ enable: true, name: '', value: '' }));
       }
+      this.apiCase.request.projectId = this.apiCase.projectId;
       if (this.apiCase.request.hashTree) {
         this.initStepSize(this.apiCase.request.hashTree);
         this.historicalDataProcessing(this.apiCase.request.hashTree);
