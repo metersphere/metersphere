@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import base.BaseTest;
+import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;

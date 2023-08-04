@@ -1,4 +1,4 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -6,13 +6,13 @@ import java.lang.reflect.Field;
 /**
  * @author jianxing
  */
-public class NotNullParamGenerator extends ParamGenerator {
+public class EmailParamGenerator extends ParamGenerator {
 
     /**
-     * 返回 null
+     * 返回非邮件格式的字符串
      */
     @Override
     public Object invalidGenerate(Annotation annotation, Field field) {
-        return null;
+        return "111111111";
     }
 }

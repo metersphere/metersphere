@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import base.BaseTest;
+import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;

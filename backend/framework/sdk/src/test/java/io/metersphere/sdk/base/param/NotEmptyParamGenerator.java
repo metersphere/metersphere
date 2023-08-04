@@ -1,18 +1,19 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 /**
  * @author jianxing
  */
-public class EmailParamGenerator extends ParamGenerator {
+public class NotEmptyParamGenerator extends ParamGenerator {
 
     /**
-     * 返回非邮件格式的字符串
+     * 生成空字符串
      */
     @Override
     public Object invalidGenerate(Annotation annotation, Field field) {
-        return "111111111";
+        return new ArrayList<>(0);
     }
 }

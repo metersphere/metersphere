@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import base.BaseTest;
+import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.log.vo.OperationLogRequest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;

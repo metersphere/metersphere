@@ -1,7 +1,7 @@
-package base;
+package io.metersphere.sdk.base;
 
-import base.param.InvalidateParamInfo;
-import base.param.ParamGeneratorFactory;
+import io.metersphere.sdk.base.param.InvalidateParamInfo;
+import io.metersphere.sdk.base.param.ParamGeneratorFactory;
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.UserRoleType;

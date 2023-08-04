@@ -1,4 +1,4 @@
-package base.param;
+package io.metersphere.sdk.base.param;
 
 import lombok.Data;
 
