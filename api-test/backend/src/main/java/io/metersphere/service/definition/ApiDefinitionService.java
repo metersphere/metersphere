@@ -917,6 +917,15 @@ public class ApiDefinitionService {
     }
 
     private ApiDefinitionResult createTest(SaveApiDefinitionRequest request) {
+        if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
+            ApiModuleExample example = new ApiModuleExample();
+            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andProtocolEqualTo(request.getProtocol()).andNameEqualTo(ProjectModuleDefaultNodeEnum.API_MODULE_DEFAULT_NODE.getNodeName()).andLevelEqualTo(1);
+            List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(modules)) {
+                request.setModuleId(modules.get(0).getId());
+                request.setModulePath("/未规划接口");
+            }
+        }
         checkNameExist(request, false);
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
@@ -938,9 +947,6 @@ public class ApiDefinitionService {
         test.setRefId(request.getId());
         test.setVersionId(request.getVersionId());
         test.setLatest(true); // 新建一定是最新的
-        if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
-            initModulePathAndId(test.getProjectId(), test);
-        }
         test.setResponse(JSON.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setNum(getNextNum(request.getProjectId()));
