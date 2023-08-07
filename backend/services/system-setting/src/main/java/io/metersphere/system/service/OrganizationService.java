@@ -325,7 +325,16 @@ public class OrganizationService {
                         userRoleRelationMapper.insert(userRoleRelation);
                         //add Log
                         String path = add ? "/organization/add-member" : "/organization/role/update-member";
-                        setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, add);
+                        String type = add ? OperationLogType.ADD.name() : OperationLogType.UPDATE.name();
+                        LogDTO dto = new LogDTO(
+                                OperationLogConstants.ORGANIZATION,
+                                organizationId,
+                                memberId,
+                                createUserId,
+                                type,
+                                OperationLogModule.ORGANIZATION_MEMBER,
+                                "成员");
+                        setLog(dto, path, logDTOList, userRoleRelation);
                     }
                 }
             });
@@ -336,16 +345,7 @@ public class OrganizationService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private static void setLog(String organizationId, String projectId, String path, String module, String content, List<LogDTO> logDTOList, String memberId, Object originalValue, boolean add) {
-        String type = add ? OperationLogType.ADD.name() : OperationLogType.UPDATE.name();
-        LogDTO dto = new LogDTO(
-                projectId,
-                organizationId,
-                memberId,
-                null,
-                type,
-                module,
-                content);
+    private static void setLog(LogDTO dto,  String path,  List<LogDTO> logDTOList,  Object originalValue) {
         dto.setPath(path);
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(originalValue));
@@ -386,7 +386,15 @@ public class OrganizationService {
                     UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
                     userRoleRelationMapper.insert(userRoleRelation);
                     //add Log
-                    setLog(requestOrganizationId, projectId, "/organization/project/add-member", OperationLogModule.PROJECT_PROJECT_MEMBER, "", logDTOList, memberId, userRoleRelation, true);
+                    LogDTO dto = new LogDTO(
+                            projectId,
+                            requestOrganizationId,
+                            memberId,
+                            userId,
+                            OperationLogType.ADD.name(),
+                            OperationLogModule.PROJECT_PROJECT_MEMBER,
+                            "");
+                    setLog(dto, "/organization/project/add-member",  logDTOList,  userRoleRelation);
                 }
             });
         });
@@ -509,7 +517,15 @@ public class OrganizationService {
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
-            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false);
+            LogDTO dto = new LogDTO(
+                    projectId,
+                    organizationId,
+                    memberId,
+                    createUserId,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.ORGANIZATION_MEMBER,
+                    "成员");
+            setLog(dto, path, logDTOList, userRoleRelation);
         });
     }
 
@@ -538,7 +554,15 @@ public class OrganizationService {
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
-            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false);
+            LogDTO dto = new LogDTO(
+                    OperationLogConstants.ORGANIZATION,
+                    organizationId,
+                    memberId,
+                    createUserId,
+                    OperationLogType.UPDATE.name(),
+                    OperationLogModule.ORGANIZATION_MEMBER,
+                    "成员");
+            setLog(dto, path,  logDTOList, userRoleRelation);
         });
     }
 
