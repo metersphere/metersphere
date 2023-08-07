@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class SystemProjectLogService {
+public class OrganizationProjectLogService {
 
     @Resource
     private ProjectMapper projectMapper;
@@ -31,7 +31,7 @@ public class SystemProjectLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PROJECT,
+                OperationLogModule.ORGANIZATION_PROJECT,
                 project.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -51,7 +51,7 @@ public class SystemProjectLogService {
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -76,7 +76,7 @@ public class SystemProjectLogService {
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -99,7 +99,7 @@ public class SystemProjectLogService {
                     id,
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;
