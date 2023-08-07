@@ -2,16 +2,20 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.domain.AuthSourceExample;
+import io.metersphere.system.dto.AuthSourceDTO;
 import io.metersphere.system.mapper.AuthSourceMapper;
 import io.metersphere.system.request.AuthSourceRequest;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +41,7 @@ public class AuthSourceService {
         long createTime = System.currentTimeMillis();
         AuthSource source = new AuthSource();
         source.setName(authSource.getName());
-        source.setConfiguration(authSource.getConfiguration().getBytes());
+        source.setConfiguration(authSource.getConfiguration().getBytes(StandardCharsets.UTF_8));
         source.setDescription(authSource.getDescription());
         source.setType(authSource.getType());
         source.setCreateTime(createTime);
@@ -68,8 +72,12 @@ public class AuthSourceService {
         authSourceMapper.deleteByPrimaryKey(id);
     }
 
-    public AuthSource getAuthSource(String id) {
-        return authSourceMapper.selectByPrimaryKey(id);
+    public AuthSourceDTO getAuthSource(String id) {
+        AuthSource source = authSourceMapper.selectByPrimaryKey(id);
+        AuthSourceDTO authSourceDTO = new AuthSourceDTO();
+        BeanUtils.copyBean(authSourceDTO, source);
+        authSourceDTO.setConfiguration(new String(source.getConfiguration(), StandardCharsets.UTF_8));
+        return authSourceDTO;
     }
 
     public AuthSourceRequest updateAuthSource(AuthSourceRequest authSource) {
@@ -85,13 +93,12 @@ public class AuthSourceService {
         return authSource;
     }
 
-    public void updateStatus(String id, Boolean status) {
-        if (status != null) {
-            AuthSource record = new AuthSource();
-            record.setId(id);
-            record.setEnable(status);
-            record.setUpdateTime(System.currentTimeMillis());
-            authSourceMapper.updateByPrimaryKeySelective(record);
-        }
+    public AuthSource updateStatus(String id, Boolean status) {
+        AuthSource record = new AuthSource();
+        record.setId(id);
+        record.setEnable(BooleanUtils.toBooleanDefaultIfNull(status,false));
+        record.setUpdateTime(System.currentTimeMillis());
+        authSourceMapper.updateByPrimaryKeySelective(record);
+        return record;
     }
 }
