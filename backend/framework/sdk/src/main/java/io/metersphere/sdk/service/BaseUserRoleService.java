@@ -4,7 +4,9 @@ import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.PermissionCache;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.mapper.UserRoleMapper;
@@ -15,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 
@@ -48,22 +47,33 @@ public class BaseUserRoleService {
         Set<String> permissionIds = baseUserRolePermissionService.getPermissionIdSetByRoleId(userRole.getId());
         // 获取所有的权限
         List<PermissionDefinitionItem> permissionDefinition = permissionCache.getPermissionDefinition();
+        // 深拷贝
+        permissionDefinition = JSON.parseArray(JSON.toJSONString(permissionDefinition), PermissionDefinitionItem.class);
+
         // 过滤该用户组级别的菜单，例如系统级别
         permissionDefinition = permissionDefinition.stream()
                 .filter(item -> StringUtils.equals(item.getType(), userRole.getType()))
                 .toList();
 
         // 设置勾选项
-        permissionDefinition.forEach(firstLevel -> {
+        for (PermissionDefinitionItem firstLevel : permissionDefinition) {
             List<PermissionDefinitionItem> children = firstLevel.getChildren();
             boolean allCheck = true;
+            firstLevel.setName(Translator.get(firstLevel.getName()));
             for (PermissionDefinitionItem secondLevel : children) {
                 List<Permission> permissions = secondLevel.getPermissions();
+                secondLevel.setName(Translator.get(secondLevel.getName()));
                 if (CollectionUtils.isEmpty(permissions)) {
                     continue;
                 }
                 boolean secondAllCheck = true;
                 for (Permission p : permissions) {
+                    if (StringUtils.isNotBlank(p.getName())) {
+                        // 有 name 字段翻译 name 字段
+                        p.setName(Translator.get(p.getName()));
+                    } else {
+                        p.setName(translateDefaultPermissionName(p));
+                    }
                     if (permissionIds.contains(p.getId())) {
                         p.setEnable(true);
                     } else {
@@ -79,9 +89,27 @@ public class BaseUserRoleService {
                 }
             }
             firstLevel.setEnable(allCheck);
-        });
+        }
+
 
         return permissionDefinition;
+    }
+
+    private String translateDefaultPermissionName(Permission p) {
+        if (StringUtils.isNotBlank(p.getName())) {
+            p.getName();
+        }
+        String[] idSplit = p.getId().split(":");
+        String permissionKey = idSplit[idSplit.length - 1];
+        Map<String, String> translationMap = new HashMap<>(){{
+            put("READ", "permission.read");
+            put("READ+ADD", "permission.add");
+            put("READ+UPDATE", "permission.edit");
+            put("READ+DELETE", "permission.delete");
+            put("READ+IMPORT", "permission.import");
+            put("READ+RECOVER", "permission.recover");
+        }};
+        return Translator.get(translationMap.get(permissionKey));
     }
 
     /**

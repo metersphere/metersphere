@@ -9,24 +9,19 @@
         "name": "permission.system_organization_project.name",
         "permissions": [
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT:READ",
-            "name": "permission.system_organization_project.read"
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+ADD",
-            "name": "permission.system_organization_project.add"
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+ADD"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE",
-            "name": "permission.system_organization_project.update"
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+DELETE",
-            "name": "permission.system_organization_project.delete"
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+DELETE"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER",
-            "name": "permission.system_organization_project.recover"
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER"
           }
         ]
       },
@@ -35,20 +30,16 @@
         "name": "permission.system_user_role.name",
         "permissions": [
           {
-            "id": "SYSTEM_USER_ROLE:READ",
-            "name": "permission.system_user_role.read"
+            "id": "SYSTEM_USER_ROLE:READ"
           },
           {
-            "id": "SYSTEM_USER_ROLE:READ+ADD",
-            "name": "permission.system_user_role.add"
+            "id": "SYSTEM_USER_ROLE:READ+ADD"
           },
           {
-            "id": "SYSTEM_USER_ROLE:READ+UPDATE",
-            "name": "permission.system_user_role.update"
+            "id": "SYSTEM_USER_ROLE:READ+UPDATE"
           },
           {
-            "id": "SYSTEM_USER_ROLE:READ+DELETE",
-            "name": "permission.system_user_role.delete"
+            "id": "SYSTEM_USER_ROLE:READ+DELETE"
           }
         ]
       },
@@ -57,42 +48,36 @@
         "name": "permission.system_test_resource_pool.name",
         "permissions": [
           {
-            "id": "SYSTEM_TEST_RESOURCE_POOL:READ",
-            "name": "permission.system_test_resource_pool.read"
+            "id": "SYSTEM_TEST_RESOURCE_POOL:READ"
           },
           {
-            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+ADD",
-            "name": "permission.system_test_resource_pool.add"
+            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+ADD"
           },
           {
-            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE",
-            "name": "permission.system_test_resource_pool.update"
+            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE"
           },
           {
-            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+DELETE",
-            "name": "permission.system_test_resource_pool.delete"
+            "id": "SYSTEM_TEST_RESOURCE_POOL:READ+DELETE"
           }
         ]
       },
       {
-        "id": "SYSTEM_PLUGIN:READ",
-        "name": "permission.system_plugin.read",
-        "resourceId": "SYSTEM_PLUGIN"
-      },
-      {
-        "id": "SYSTEM_PLUGIN:READ+ADD",
-        "name": "permission.system_plugin.add",
-        "resourceId": "SYSTEM_PLUGIN"
-      },
-      {
-        "id": "SYSTEM_PLUGIN:READ+UPDATE",
-        "name": "permission.system_plugin.edit",
-        "resourceId": "SYSTEM_PLUGIN"
-      },
-      {
-        "id": "SYSTEM_PLUGIN:READ+DELETE",
-        "name": "permission.system_plugin.delete",
-        "resourceId": "SYSTEM_PLUGIN"
+        "id": "SYSTEM_PLUGIN",
+        "name": "permission.system_plugin.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_PLUGIN:READ"
+          },
+          {
+            "id": "SYSTEM_PLUGIN:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_PLUGIN:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_PLUGIN:READ+DELETE"
+          }
+        ]
       },
       {
         "id": "SYSTEM_PARAMETER_SETTING",
@@ -119,8 +104,8 @@
             "name": "permission.system_parameter_setting_auth.read"
           },
           {
-            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+CREAT",
-            "name": "permission.system_parameter_setting_auth.creat"
+            "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+ADD",
+            "name": "permission.system_parameter_setting_auth.add"
           },
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE",
@@ -144,20 +129,16 @@
         "name": "permission.organization_user_role.name",
         "permissions": [
           {
-            "id": "ORGANIZATION_USER_ROLE:READ",
-            "name": "permission.organization_user_role.read"
+            "id": "ORGANIZATION_USER_ROLE:READ"
           },
           {
-            "id": "ORGANIZATION_USER_ROLE:READ+ADD",
-            "name": "permission.organization_user_role.add"
+            "id": "ORGANIZATION_USER_ROLE:READ+ADD"
           },
           {
-            "id": "ORGANIZATION_USER_ROLE:READ+UPDATE",
-            "name": "permission.organization_user_role.update"
+            "id": "ORGANIZATION_USER_ROLE:READ+UPDATE"
           },
           {
-            "id": "ORGANIZATION_USER_ROLE:READ+DELETE",
-            "name": "permission.organization_user_role.delete"
+            "id": "ORGANIZATION_USER_ROLE:READ+DELETE"
           }
         ]
       },
@@ -166,20 +147,16 @@
         "name": "permission.organization_member.name",
         "permissions": [
           {
-            "id": "ORGANIZATION_MEMBER:READ",
-            "name": "permission.organization_member.read"
+            "id": "ORGANIZATION_MEMBER:READ"
           },
           {
-            "id": "ORGANIZATION_MEMBER:READ+ADD",
-            "name": "permission.organization_member.add"
+            "id": "ORGANIZATION_MEMBER:READ+ADD"
           },
           {
-            "id": "ORGANIZATION_MEMBER:READ+UPDATE",
-            "name": "permission.organization_member.update"
+            "id": "ORGANIZATION_MEMBER:READ+UPDATE"
           },
           {
-            "id": "ORGANIZATION_MEMBER:READ+DELETE",
-            "name": "permission.organization_member.delete"
+            "id": "ORGANIZATION_MEMBER:READ+DELETE"
           }
         ]
       }
