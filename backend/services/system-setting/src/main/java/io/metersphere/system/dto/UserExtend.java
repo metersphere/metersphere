@@ -15,4 +15,9 @@ public class UserExtend extends User {
      * 是否管理员(组织, 项目)
      */
     private boolean adminFlag;
+
+    /**
+     * 是否成员(组织, 项目)
+     */
+    private boolean memberFlag;
 }

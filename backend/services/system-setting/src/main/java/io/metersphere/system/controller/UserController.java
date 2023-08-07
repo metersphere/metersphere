@@ -14,6 +14,7 @@ import io.metersphere.sdk.util.Pager;
 import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.UserRoleOption;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.UserEditRequest;
@@ -25,6 +26,8 @@ import io.metersphere.system.service.UserService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -117,5 +120,13 @@ public class UserController {
     public boolean resetPassword(@RequestBody String userId) {
         userService.resetPassword(userId, SessionUtils.getUserId());
         return true;
+    }
+
+    @GetMapping("/get-option/{sourceId}")
+    @Operation(summary = "系统-组织及项目, 获取用户下拉选项")
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_USER_READ})
+    @Parameter(name = "sourceId", description = "组织ID或项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    public List<UserExtend> getMemberOption(@PathVariable String sourceId) {
+        return userService.getMemberOption(sourceId);
     }
 }

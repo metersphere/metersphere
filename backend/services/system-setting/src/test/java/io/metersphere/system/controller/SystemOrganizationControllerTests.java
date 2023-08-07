@@ -48,6 +48,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public static final String ORGANIZATION_ADD_MEMBER = "/system/organization/add-member";
     public static final String ORGANIZATION_REMOVE_MEMBER = "/system/organization/remove-member";
     public static final String ORGANIZATION_LIST_PROJECT = "/system/organization/list-project";
+    public static final String ORGANIZATION_MEMBER_OPTION = "/system/user/get-option";
 
     @Test
     @Order(0)
@@ -400,7 +401,19 @@ public class SystemOrganizationControllerTests extends BaseTest{
         this.requestPost(ORGANIZATION_DEFAULT, null, status().isMethodNotAllowed());
     }
 
+    @Test
+    @Order(16)
+    public void testGetOrganizationMemberOption() throws Exception {
+        MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
 
+        // 权限校验
+        requestGetPermissionTest(PermissionConstants.SYSTEM_USER_READ, SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
+    }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
