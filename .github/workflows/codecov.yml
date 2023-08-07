@@ -23,7 +23,7 @@ jobs:
           distribution: 'temurin'
           java-version: 17
       - name: Build with Maven
-        run: mvn -B package -DskipAntRunForJenkins --file backend/pom.xml
+        run: mvn -B package --file pom.xml
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         with:
