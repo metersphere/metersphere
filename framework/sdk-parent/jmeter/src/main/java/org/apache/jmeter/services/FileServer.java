@@ -255,8 +255,8 @@ public class FileServer {
             throw new IllegalArgumentException("Alias must not be null");
         }
         // todo 这里更改了原始代码
-        if(!new File(filename).exists()){
-            log.error("file does not exist [ "+ filename+" ]");
+        if (!new File(filename).exists()) {
+            log.error("file does not exist [ " + filename + " ]");
             return "";
         }
 
@@ -575,8 +575,15 @@ public class FileServer {
      * @return {@link File} instance
      */
     public File getResolvedFile(String path) {
+        log.info("getResolvedFile: {}", path);
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(path, threadName)) {
+            path = StringUtils.join(threadName, path);
+        }
         reserveFile(path);
-        return files.get(path).file;
+
+        FileEntry fileEntry = files.get(path);
+        return fileEntry != null ? fileEntry.file : null;
     }
 
     private static class FileEntry {
