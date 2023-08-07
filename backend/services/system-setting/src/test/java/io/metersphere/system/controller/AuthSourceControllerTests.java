@@ -61,7 +61,7 @@ public class AuthSourceControllerTests extends BaseTest {
         this.requestPost(AUTH_SOURCE_ADD, authSource);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_CREAT, AUTH_SOURCE_ADD, authSource);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_ADD, AUTH_SOURCE_ADD, authSource);
     }
 
     @Test

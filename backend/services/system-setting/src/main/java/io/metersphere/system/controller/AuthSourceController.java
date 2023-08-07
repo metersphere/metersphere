@@ -41,7 +41,7 @@ public class AuthSourceController {
 
     @PostMapping("/add")
     @Operation(summary = "新增认证设置")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_CREAT)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#authSource)", msClass = AuthSourceLogService.class)
     public AuthSource add(@Validated @RequestBody AuthSourceRequest authSource) {
         return authSourceService.addAuthSource(authSource);
