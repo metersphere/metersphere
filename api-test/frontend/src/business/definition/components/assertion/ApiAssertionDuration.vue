@@ -81,6 +81,13 @@ export default {
       }
     },
     input(value) {
+      if (value === '' || Number(value) <= 0) {
+        this.$warning(this.$t('commons.response_time_warning'));
+        if (this.duration.value) {
+          this.value = this.duration.value;
+        }
+        return;
+      }
       this.$emit('input', value);
     },
     validate() {
