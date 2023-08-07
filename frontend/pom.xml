@@ -45,14 +45,14 @@
           <execution>
             <id>npm install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>npx</goal>
             </goals>
             <configuration>
               <!-- optional: The default argument is actually
               "install", so unless you need to run some other yarn command,
               you can remove this whole <configuration> section.
               -->
-              <arguments>install --legacy-peer-deps</arguments>
+              <arguments>pnpm install</arguments>
             </configuration>
           </execution>
           <execution>
