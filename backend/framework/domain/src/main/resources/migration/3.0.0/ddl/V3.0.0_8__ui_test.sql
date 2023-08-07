@@ -335,6 +335,44 @@ CREATE TABLE IF NOT EXISTS ui_scenario_follower(
 CREATE INDEX idx_user_id ON ui_scenario_follower(user_id);
 
 
+DROP TABLE IF EXISTS ui_scenario_variable;
+CREATE TABLE ui_scenario_variable(
+                                     `resource_id` VARCHAR(50) NOT NULL   COMMENT '场景ID' ,
+                                     `type` VARCHAR(100) NOT NULL   COMMENT '变量类型' ,
+                                     `value` VARCHAR(1000) NOT NULL   COMMENT '变量值' ,
+                                     `name` VARCHAR(255) NOT NULL   COMMENT '变量名称' ,
+                                     `description` VARCHAR(500)    COMMENT '描述' ,
+                                     PRIMARY KEY (resource_id)
+)  COMMENT = '场景变量';
+
+
+CREATE INDEX idx_resource_id ON ui_scenario_variable(resource_id);
+CREATE INDEX idx_name ON ui_scenario_variable(name);
+CREATE INDEX idx_type ON ui_scenario_variable(type);
+
+DROP TABLE IF EXISTS ui_custom_variable;
+CREATE TABLE ui_custom_variable(
+                                   `resource_id` VARCHAR(50) NOT NULL   COMMENT '指令ID' ,
+                                   `type` VARCHAR(100) NOT NULL   COMMENT '变量类型' ,
+                                   `value` VARCHAR(1000) NOT NULL   COMMENT '变量值' ,
+                                   `name` VARCHAR(255) NOT NULL   COMMENT '变量名称' ,
+                                   `description` VARCHAR(500)    COMMENT '描述' ,
+                                   `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
+                                   `out_put` BIT NOT NULL  DEFAULT 0 COMMENT '是否是出参' ,
+                                   `enable` BIT NOT NULL  DEFAULT 1 COMMENT '启用禁用' ,
+                                   PRIMARY KEY (resource_id)
+)  COMMENT = '指令初入参变量';
+
+
+CREATE INDEX idx_resource_id ON ui_custom_variable(resource_id);
+CREATE INDEX idx_type ON ui_custom_variable(type);
+CREATE INDEX idx_enable ON ui_custom_variable(enable);
+CREATE INDEX idx_name ON ui_custom_variable(name);
+CREATE INDEX idx_deleted ON ui_custom_variable(deleted);
+CREATE INDEX idx_out_put ON ui_custom_variable(out_put);
+
+
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
+
