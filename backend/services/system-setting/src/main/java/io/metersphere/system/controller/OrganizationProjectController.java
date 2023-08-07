@@ -17,9 +17,9 @@ import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
-import io.metersphere.system.request.ProjectRequest;
-import io.metersphere.system.service.SystemProjectLogService;
-import io.metersphere.system.service.SystemProjectService;
+import io.metersphere.system.request.OrganizationProjectRequest;
+import io.metersphere.system.service.OrganizationProjectLogService;
+import io.metersphere.system.service.OrganizationProjectService;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,90 +37,91 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name = "系统-项目")
-@RequestMapping("/system/project")
-public class SystemProjectController {
+@Tag(name = "组织-项目")
+@RequestMapping("/organization-project")
+public class OrganizationProjectController {
     @Resource
-    private SystemProjectService systemProjectService;
+    private OrganizationProjectService organizationProjectService;
 
     @PostMapping("/add")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_ADD)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "添加项目")
     public Project addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
-        return systemProjectService.add(project, SessionUtils.getUserId());
+        return organizationProjectService.add(project, SessionUtils.getUserId());
     }
 
 
     @GetMapping("/get/{id}")
     @Operation(summary = "根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     public Project getProject(@PathVariable @NotBlank String id) {
-        return systemProjectService.get(id);
+        return organizationProjectService.get(id);
     }
 
     @PostMapping("/page")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "获取项目列表")
-    public Pager<List<ProjectDTO>> getProjectList(@Validated @RequestBody ProjectRequest request) {
+    public Pager<List<ProjectDTO>> getProjectList(@Validated @RequestBody OrganizationProjectRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, systemProjectService.getProjectList(request));
+        return PageUtils.setPageInfo(page, organizationProjectService.getProjectList(request));
     }
 
     @PostMapping("/update")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "更新项目信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     public Project updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
-        return systemProjectService.update(project, SessionUtils.getUserId());
+        return organizationProjectService.update(project, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_DELETE)
     @Operation(summary = "删除项目")
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemProjectLogService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = OrganizationProjectLogService.class)
     public int deleteProject(@PathVariable String id) {
-        return systemProjectService.delete(id, SessionUtils.getUserId());
+        return organizationProjectService.delete(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/revoke/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = SystemProjectLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_RECOVER)
+    @Operation(summary = "恢复项目")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = OrganizationProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     public int revokeProject(@PathVariable String id) {
-       return systemProjectService.revoke(id);
+        return organizationProjectService.revoke(id);
     }
 
     @PostMapping("/member-list")
-    @RequiresPermissions(value = {PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_PROJECT_READ, PermissionConstants.SYSTEM_USER_READ}, logical = Logical.OR)
     @Operation(summary = "获取项目下成员列表")
     public Pager<List<UserExtend>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, systemProjectService.getProjectMember(request));
+        return PageUtils.setPageInfo(page, organizationProjectService.getProjectMember(request));
     }
 
     @PostMapping("/add-member")
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     @Operation(summary = "添加项目成员")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
         batchRequest.setUserIds(request.getUserIds());
-        systemProjectService.addProjectMember(batchRequest, SessionUtils.getUserId());
+        organizationProjectService.addProjectMember(batchRequest, SessionUtils.getUserId());
     }
 
     @GetMapping("/remove-member/{projectId}/{userId}")
     @Operation(summary = "移除项目成员")
     @Parameter(name = "userId", description = "用户id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
-    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
+    @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = OrganizationProjectLogService.class)
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
-        return systemProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
+        return organizationProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
     }
 
 

@@ -8,10 +8,11 @@ import io.metersphere.sdk.dto.ProjectDTO;
 import io.metersphere.sdk.dto.UpdateProjectRequest;
 import io.metersphere.sdk.log.constants.OperationLogModule;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
+import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
 import io.metersphere.system.request.ProjectRequest;
@@ -24,7 +25,7 @@ import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class SystemProjectService {
+public class OrganizationProjectService {
 
     @Resource
     private ProjectMapper projectMapper;
@@ -33,7 +34,8 @@ public class SystemProjectService {
     @Resource
     private CommonProjectService commonProjectService;
 
-    private final static String PREFIX = "/system/project";
+
+    private final static String PREFIX = "/organization-project";
     private final static String ADD_PROJECT = PREFIX + "/add";
     private final static String UPDATE_PROJECT = PREFIX + "/update";
     private final static String REMOVE_PROJECT_MEMBER = PREFIX + "/remove-member/";
@@ -52,8 +54,10 @@ public class SystemProjectService {
         return project;
     }
 
-    public List<ProjectDTO> getProjectList(ProjectRequest request) {
-        List<ProjectDTO> projectList = extSystemProjectMapper.getProjectList(request);
+    public List<ProjectDTO> getProjectList(OrganizationProjectRequest request) {
+        ProjectRequest projectRequest = new ProjectRequest();
+        BeanUtils.copyBean(projectRequest, request);
+        List<ProjectDTO> projectList = extSystemProjectMapper.getProjectList(projectRequest);
         return commonProjectService.buildUserInfo(projectList);
     }
 
@@ -90,12 +94,4 @@ public class SystemProjectService {
         return commonProjectService.revoke(id);
     }
 
-    public void deleteProject(List<Project> projects) {
-        commonProjectService.deleteProject(projects);
-    }
-
-
-    public List<OrganizationProjectOptionsDTO> getProjectOptions() {
-        return extSystemProjectMapper.selectProjectOptions();
-    }
 }
