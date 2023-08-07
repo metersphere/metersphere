@@ -9,6 +9,7 @@ import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.util.PageUtils;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.AuthSource;
+import io.metersphere.system.dto.AuthSourceDTO;
 import io.metersphere.system.request.AuthSourceRequest;
 import io.metersphere.system.request.AuthSourceStatusRequest;
 import io.metersphere.system.service.AuthSourceLogService;
@@ -58,7 +59,7 @@ public class AuthSourceController {
     @GetMapping("/get/{id}")
     @Operation(summary = "获取认证设置详细信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ)
-    public AuthSource get(@PathVariable(value = "id") String id) {
+    public AuthSourceDTO get(@PathVariable(value = "id") String id) {
         return authSourceService.getAuthSource(id);
     }
 
@@ -75,7 +76,7 @@ public class AuthSourceController {
     @Operation(summary = "更新状态")
     @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request.getId())", msClass = AuthSourceLogService.class)
-    public void updateStatus(@Validated @RequestBody AuthSourceStatusRequest request ) {
-        authSourceService.updateStatus(request.getId(), request.getEnable());
+    public AuthSource updateStatus(@Validated @RequestBody AuthSourceStatusRequest request ) {
+        return authSourceService.updateStatus(request.getId(), request.getEnable());
     }
 }

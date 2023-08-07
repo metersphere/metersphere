@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS operation_log
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '操作日志';
 
+CREATE INDEX idx_create_time ON operation_log(create_time);
+CREATE INDEX idx_create_user ON operation_log(create_user);
+CREATE INDEX idx_method ON operation_log(method);
+CREATE INDEX idx_module ON operation_log(module);
+CREATE INDEX idx_project_id ON operation_log(project_id);
+CREATE INDEX idx_type ON operation_log(type);
+CREATE INDEX idx_organization_id ON operation_log(organization_id);
+CREATE INDEX idx_source_id ON operation_log(source_id);
+
+
 DROP TABLE IF EXISTS operation_log_blob;
 CREATE TABLE operation_log_blob(
                                    `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
