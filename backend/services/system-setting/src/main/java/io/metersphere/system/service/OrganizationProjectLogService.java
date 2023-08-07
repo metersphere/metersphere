@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class SystemProjectLogService {
+public class OrganizationProjectLogService {
 
     @Resource
     private ProjectMapper projectMapper;
@@ -27,12 +27,12 @@ public class SystemProjectLogService {
      */
     public LogDTO addLog(AddProjectRequest project) {
         LogDTO dto = new LogDTO(
-                OperationLogConstants.SYSTEM,
-                OperationLogConstants.SYSTEM,
+                OperationLogConstants.ORGANIZATION,
+                project.getOrganizationId(),
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SYSTEM_PROJECT,
+                OperationLogModule.ORGANIZATION_PROJECT,
                 project.getName());
 
         dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -47,12 +47,12 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(request.getId());
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.ORGANIZATION,
+                    project.getOrganizationId(),
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -65,12 +65,12 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.ORGANIZATION,
+                    project.getOrganizationId(),
                     project.getId(),
                     project.getCreateUser(),
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -90,12 +90,12 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.ORGANIZATION,
+                    project.getOrganizationId(),
                     id,
                     project.getCreateUser(),
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
 
             dto.setOriginalValue(JSON.toJSONBytes(project));
@@ -113,12 +113,12 @@ public class SystemProjectLogService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             LogDTO dto = new LogDTO(
-                    OperationLogConstants.SYSTEM,
-                    OperationLogConstants.SYSTEM,
+                    OperationLogConstants.ORGANIZATION,
+                    project.getOrganizationId(),
                     id,
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.SYSTEM_PROJECT,
+                    OperationLogModule.ORGANIZATION_PROJECT,
                     project.getName());
             dto.setOriginalValue(JSON.toJSONBytes(project));
             return dto;

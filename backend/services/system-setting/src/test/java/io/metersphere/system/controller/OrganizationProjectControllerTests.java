@@ -1,6 +1,6 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.base.BaseTest;
+import base.BaseTest;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -16,19 +16,19 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.request.OrganizationProjectRequest;
 import io.metersphere.system.request.ProjectAddMemberRequest;
 import io.metersphere.system.request.ProjectMemberRequest;
-import io.metersphere.system.request.ProjectRequest;
+import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -47,12 +47,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemProjectControllerTests extends BaseTest {
+public class OrganizationProjectControllerTests extends BaseTest {
 
     @Resource
     private MockMvc mockMvc;
 
-    private final static String prefix = "/system/project";
+    private final static String prefix = "/organization-project";
     private final static String addProject = prefix + "/add";
     private final static String updateProject = prefix + "/update";
     private final static String deleteProject = prefix + "/delete/";
@@ -71,6 +71,12 @@ public class SystemProjectControllerTests extends BaseTest {
     private ProjectMapper projectMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private OrganizationService organizationService;
+
+    private OrganizationDTO getDefault() {
+        return organizationService.getDefault();
+    }
 
     private void requestPost(String url, Object param, ResultMatcher resultMatcher) throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -165,11 +171,8 @@ public class SystemProjectControllerTests extends BaseTest {
     /**
      * 测试添加项目成功的情况
      */
-    @Sql(scripts = {"/dml/init_project.sql"},
-            config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
-            executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     public void testAddProjectSuccess() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","name", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
         ProjectExample projectExample = new ProjectExample();
@@ -187,10 +190,12 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
          userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
-
+        projectId = result.getId();
+        // 校验日志
+        checkLog(projectId, OperationLogType.ADD);
 
         //userId为空的时候
-        project = this.generatorAdd("organizationId","userIdIsNull", "description", true, new ArrayList<>());
+        project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
         result = this.parseObjectFromMvcResult(mvcResult, Project.class);
         projectExample = new ProjectExample();
@@ -209,9 +214,10 @@ public class SystemProjectControllerTests extends BaseTest {
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin")), true);
 
-        project.setName("testAddProjectSuccess1");
+        project.setName("organization-testAddProjectSuccess1");
+        project.setOrganizationId(getDefault().getId());
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD, addProject, project);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_ADD, addProject, project);
     }
 
     @Test
@@ -220,10 +226,10 @@ public class SystemProjectControllerTests extends BaseTest {
      * 测试添加项目失败的用例
      */
     public void testAddProjectError() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId","organization-nameError", "description", true, List.of("admin"));
         this.responsePost(addProject, project);
         //项目名称存在 500
-        project = this.generatorAdd("organizationId","nameError", "description", true, List.of("admin"));
+        project = this.generatorAdd("organizationId","organization-nameError", "description", true, List.of("admin"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorAdd(null, null, null, true, List.of("admin"));
@@ -239,7 +245,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testGetProject() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","getName", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
         projectId = result.getId();
@@ -247,7 +253,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Project getProjects = this.parseObjectFromMvcResult(mvcResult, Project.class);
         Assertions.assertTrue(StringUtils.equals(getProjects.getId(), projectId));
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProject + projectId);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
     @Test
     @Order(4)
@@ -262,9 +268,10 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testGetProjectList() throws Exception {
-        ProjectRequest projectRequest = new ProjectRequest();
+        OrganizationProjectRequest projectRequest = new OrganizationProjectRequest();
         projectRequest.setCurrent(1);
         projectRequest.setPageSize(10);
+        projectRequest.setOrganizationId(getDefault().getId());
         MvcResult mvcResult = this.responsePost(getProjectList, projectRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
@@ -295,45 +302,54 @@ public class SystemProjectControllerTests extends BaseTest {
         List<String> createUsers = projectDTOS.stream().map(ProjectDTO::getCreateUser).collect(Collectors.toList());
         Assertions.assertTrue(List.of("test").containsAll(createUsers));
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProjectList, projectRequest);
     }
 
     @Test
     @Order(6)
     public void testPageError() throws Exception {
         //当前页码不大于0
-        ProjectRequest projectRequest = new ProjectRequest();
+        OrganizationProjectRequest projectRequest = new OrganizationProjectRequest();
         projectRequest.setPageSize(5);
+        projectRequest.setOrganizationId("organizationId");
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
         //当前页数不大于5
-        projectRequest = new ProjectRequest();
+        projectRequest = new OrganizationProjectRequest();
         projectRequest.setCurrent(1);
+        projectRequest.setOrganizationId("organizationId");
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
         //当前页数大于100
-        projectRequest = new ProjectRequest();
+        projectRequest = new OrganizationProjectRequest();
         projectRequest.setCurrent(1);
         projectRequest.setPageSize(101);
+        projectRequest.setOrganizationId("organizationId");
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
         //排序字段不合法
-        projectRequest = new ProjectRequest();
+        projectRequest = new OrganizationProjectRequest();
         projectRequest.setCurrent(1);
         projectRequest.setPageSize(5);
+        projectRequest.setOrganizationId("organizationId");
         projectRequest.setSort(new HashMap<>() {{
             put("SELECT * FROM user", "asc");
         }});
+        this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
+        //组织id为空
+        projectRequest = new OrganizationProjectRequest();
+        projectRequest.setCurrent(1);
+        projectRequest.setPageSize(5);
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
     }
 
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","TestName", "Edit name", true, List.of("admin", "admin1"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", projectId,"organization-TestName", "Edit name", true, List.of("admin", "admin1"));
         MvcResult mvcResult = this.responsePost(updateProject, project);
         Project result = this.parseObjectFromMvcResult(mvcResult, Project.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
         this.compareProjectDTO(currentProject, result);
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId1").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin", "admin1")), true);
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
@@ -341,26 +357,27 @@ public class SystemProjectControllerTests extends BaseTest {
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(List.of("admin", "admin1")), true);
 
         //用户id为空
-        project = this.generatorUpdate("organizationId", "projectId1", "TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
+        project = this.generatorUpdate("organizationId", projectId, "organization-TestNameUserIdIsNull", "Edit name", true, new ArrayList<>());
         mvcResult = this.responsePost(updateProject, project);
         result = this.parseObjectFromMvcResult(mvcResult, Project.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
         this.compareProjectDTO(currentProject, result);
         userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId1").andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         //断言userRoleRelations是空的
         Assertions.assertTrue(userRoleRelations.isEmpty());
         // @@校验权限
-        project.setName("TestName2");
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, updateProject, project);
+        project.setName("organization-TestName2");
+        project.setOrganizationId(getDefault().getId());
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, updateProject, project);
     }
 
     @Test
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", "projectId1","TestName2", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate(getDefault().getId(), "projectId1","organization-TestName2", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
@@ -380,15 +397,14 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(9)
     public void testDeleteProject() throws Exception {
-        String id = "projectId";
-        MvcResult mvcResult = this.responseGet(deleteProject + id);
+        MvcResult mvcResult = this.responseGet(deleteProject + projectId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Project currentProject = projectMapper.selectByPrimaryKey(id);
+        Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(currentProject.getDeleted(), true);
-        Assertions.assertTrue(currentProject.getId().equals(id));
+        Assertions.assertTrue(currentProject.getId().equals(projectId));
         Assertions.assertTrue(count == 1);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE, deleteProject + id);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_DELETE, deleteProject + projectId);
     }
 
     @Test
@@ -401,15 +417,14 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void revokeSuccess() throws Exception {
-        String id = "projectId";
-        MvcResult mvcResult = this.responseGet(revokeProject + id);
+        MvcResult mvcResult = this.responseGet(revokeProject + projectId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
-        Project currentProject = projectMapper.selectByPrimaryKey(id);
+        Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertEquals(currentProject.getDeleted(), false);
-        Assertions.assertTrue(currentProject.getId().equals(id));
+        Assertions.assertTrue(currentProject.getId().equals(projectId));
         Assertions.assertTrue(count == 1);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER, revokeProject + id);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_RECOVER, revokeProject + projectId);
     }
 
     @Test
@@ -423,17 +438,18 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(13)
     public void testAddProjectMember() throws Exception{
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
-        projectAddMemberRequest.setProjectId("projectId");
+        projectAddMemberRequest.setProjectId(projectId);
         List<String> userIds = List.of("admin1", "admin2");
         projectAddMemberRequest.setUserIds(userIds);
         this.requestPost(addProjectMember, projectAddMemberRequest, status().isOk());
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
-        userRoleRelationExample.createCriteria().andSourceIdEqualTo("projectId").andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
+        userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_MEMBER.getValue());
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertEquals(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds), true);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).collect(Collectors.toList()).containsAll(userIds));
+
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, addProjectMember, projectAddMemberRequest);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, addProjectMember, projectAddMemberRequest);
     }
 
     @Test
@@ -465,7 +481,7 @@ public class SystemProjectControllerTests extends BaseTest {
         ProjectMemberRequest memberRequest = new ProjectMemberRequest();
         memberRequest.setCurrent(1);
         memberRequest.setPageSize(5);
-        memberRequest.setProjectId("projectId");
+        memberRequest.setProjectId(projectId);
         MvcResult mvcResult = this.responsePost(getProjectMemberList, memberRequest);
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
@@ -486,8 +502,7 @@ public class SystemProjectControllerTests extends BaseTest {
             Assertions.assertFalse(userExtend.getCreateTime() > firstCreateTime);
         }
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProjectMemberList, memberRequest);
-
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProjectMemberList, memberRequest);
     }
 
     @Test
@@ -511,12 +526,6 @@ public class SystemProjectControllerTests extends BaseTest {
         memberRequest.setCurrent(1);
         memberRequest.setPageSize(5);
         this.requestPost(getProjectMemberList, memberRequest, BAD_REQUEST_MATCHER);
-        //项目Id不存在
-        memberRequest = new ProjectMemberRequest();
-        memberRequest.setCurrent(1);
-        memberRequest.setPageSize(5);
-        memberRequest.setProjectId("projectId111");
-        this.requestPost(getProjectMemberList, memberRequest, ERROR_REQUEST_MATCHER);
         //排序字段不合法
         memberRequest = new ProjectMemberRequest();
         memberRequest.setCurrent(1);
@@ -531,7 +540,6 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(17)
     public void testRemoveProjectMember() throws Exception{
-        String projectId = "projectId1";
         String userId = "admin1";
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
@@ -540,13 +548,12 @@ public class SystemProjectControllerTests extends BaseTest {
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
         Assertions.assertTrue(count == userRoleRelations.size());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE, removeProjectMember + projectId + "/" + userId);
+        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, removeProjectMember + projectId + "/" + userId);
     }
 
     @Test
     @Order(18)
     public void testRemoveProjectMemberError() throws Exception{
-        String projectId = "projectId1";
         String userId = "admin1";
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
