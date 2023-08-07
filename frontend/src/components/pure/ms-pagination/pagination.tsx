@@ -414,6 +414,7 @@ export default defineComponent({
                 'jumper-prepend': slots['jumper-prepend'],
                 'jumper-append': slots['jumper-append'],
               }}
+              simple
               disabled={props.disabled}
               current={computedCurrent.value}
               pages={pages.value}

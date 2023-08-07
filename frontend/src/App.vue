@@ -14,6 +14,7 @@
   import { saveBaseInfo, getBaseInfo } from '@/api/modules/setting/config';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import useAppStore from '@/store/modules/app';
+  import { watchStyle, watchTheme } from '@/utils/theme';
 
   const appStore = useAppStore();
 
@@ -28,6 +29,11 @@
         return zhCN;
     }
   });
+
+  // 初始化平台风格和主题色
+  watchStyle(appStore.pageConfig.style, appStore.pageConfig);
+  watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
+  window.document.title = appStore.pageConfig.title;
 
   onBeforeMount(async () => {
     try {

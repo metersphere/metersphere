@@ -43,7 +43,7 @@ export interface TestEmailParams {
 // 界面配置入参
 export interface SavePageConfigParams {
   fileList: (File | undefined)[];
-  request: Recordable[];
+  request: (Recordable | undefined)[];
 }
 
 interface FileParamItem extends ParamItem {
@@ -54,12 +54,17 @@ interface FileParamItem extends ParamItem {
 // 页面配置返回参数
 export type PageConfigReturns = FileParamItem[];
 
-// 主题配置对象
+// 平台风格
+export type Style = 'default' | 'custom' | 'follow';
 
+// 主题
+export type Theme = 'default' | 'custom';
+
+// 主题配置对象
 export interface ThemeConfig {
-  style: string;
+  style: Style;
   customStyle: string;
-  theme: string;
+  theme: Theme;
   customTheme: string;
 }
 
@@ -83,3 +88,36 @@ export interface PlatformConfig {
 export interface PageConfig extends ThemeConfig, LoginConfig, PlatformConfig {}
 
 export type PageConfigKeys = keyof PageConfig;
+
+// 认证源配置列表项对象
+export interface AuthItem {
+  id: string;
+  enable: boolean;
+  createTime: number;
+  updateTime: number;
+  description: string;
+  name: string;
+  type: string;
+  configuration: string;
+}
+
+// 认证源配置对象
+export type AuthConfig = Omit<AuthItem, 'id'>;
+
+// 认证源配置表单对象
+export interface AuthForm {
+  id?: string;
+  enable: boolean;
+  description: string;
+  name: string;
+  type: string;
+  configuration: Recordable;
+}
+
+// 认证源配置接口入参
+export type AuthParams = Omit<AuthForm, 'configuration'> & {
+  configuration: string;
+};
+
+// 认证源配置详情对象
+export type AuthDetail = AuthForm & Omit<AuthItem, 'configuration'>;

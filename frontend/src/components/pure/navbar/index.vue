@@ -191,7 +191,7 @@
   import TopMenu from '@/components/bussiness/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
   import { NOT_SHOW_PROJECT_SELECT_MODULE } from '@/router/constants';
-  import { getProjectList } from '@/api/modules/setting/project';
+  // import { getProjectList } from '@/api/modules/setting/project';
   import { useI18n } from '@/hooks/useI18n';
 
   import type { ProjectListItem } from '@/models/setting/project';
@@ -210,12 +210,12 @@
   const projectList: Ref<ProjectListItem[]> = ref([]);
 
   onBeforeMount(async () => {
-    try {
-      const res = await getProjectList(appStore.getCurrentOrgId);
-      projectList.value = res;
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   const res = await getProjectList(appStore.getCurrentOrgId);
+    //   projectList.value = res;
+    // } catch (error) {
+    //   console.log(error);
+    // }
   });
 
   const showProjectSelect = computed(() => {
@@ -279,9 +279,7 @@
 
 <style scoped lang="less">
   .navbar {
-    @apply flex h-full justify-between;
-
-    background-color: var(--color-bg-3);
+    @apply flex h-full justify-between bg-transparent;
   }
   .left-side {
     @apply flex items-center;
