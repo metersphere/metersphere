@@ -7,7 +7,6 @@
 <script lang="ts" setup>
   import { computed } from 'vue';
   import useAppStore from '@/store/modules/app';
-  import defaultBanner from '@/assets/images/login-banner.jpg';
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -16,6 +15,7 @@
 
   const appStore = useAppStore();
 
+  const defaultBanner = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
   const innerBanner = computed(() => {
     return props.banner || appStore.pageConfig.loginImage[0]?.url || defaultBanner;
   });

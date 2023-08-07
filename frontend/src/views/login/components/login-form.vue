@@ -76,11 +76,11 @@
   }>();
 
   const innerLogo = computed(() => {
-    return props.logo || appStore.pageConfig.loginLogo[0]?.url;
+    return props.isPreview ? props.logo : appStore.pageConfig.loginLogo[0]?.url;
   });
 
   const innerSlogan = computed(() => {
-    return props.slogan || appStore.pageConfig.slogan;
+    return props.isPreview ? props.slogan : appStore.pageConfig.slogan;
   });
 
   const errorMessage = ref('');

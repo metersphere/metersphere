@@ -3,20 +3,6 @@
     <!-- 风格、主题色配置 -->
     <MsCard class="mb-[16px]" :loading="pageloading" simple auto-height>
       <div class="config-title">
-        {{ t('system.config.page.style') }}
-        <a-tooltip :content="t('system.config.page.styleTip')" position="tl" mini>
-          <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
-        </a-tooltip>
-      </div>
-      <a-radio-group v-model:model-value="pageConfig.style" type="button" class="mb-[4px]">
-        <a-radio v-for="item of styleList" :key="item.value" :value="item.value">
-          {{ item.label }}
-        </a-radio>
-      </a-radio-group>
-      <div v-if="pageConfig.style === 'custom'" class="ml-[4px]">
-        <MsColorSelect v-model:pure-color="pageConfig.customStyle" />
-      </div>
-      <div class="config-title mt-[16px]">
         {{ t('system.config.page.theme') }}
         <a-tooltip :content="t('system.config.page.themeTip')" position="tl" mini>
           <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
@@ -27,8 +13,22 @@
           {{ item.label }}
         </a-radio>
       </a-radio-group>
-      <div v-if="pageConfig.theme === 'custom'" class="mb-[4px] ml-[4px]">
-        <MsColorSelect v-model:pure-color="pageConfig.customTheme" />
+      <div v-if="pageConfig.theme === 'custom'" class="ml-[4px]">
+        <MsColorSelect key="customTheme" v-model:pure-color="pageConfig.customTheme" />
+      </div>
+      <div class="config-title mt-[16px]">
+        {{ t('system.config.page.style') }}
+        <a-tooltip :content="t('system.config.page.styleTip')" position="tl" mini>
+          <icon-question-circle class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-6))]" />
+        </a-tooltip>
+      </div>
+      <a-radio-group v-model:model-value="pageConfig.style" type="button" class="mb-[4px]">
+        <a-radio v-for="item of styleList" :key="item.value" :value="item.value">
+          {{ item.label }}
+        </a-radio>
+      </a-radio-group>
+      <div v-if="pageConfig.style === 'custom'" class="mb-[4px] ml-[4px]">
+        <MsColorSelect key="customStyle" v-model:pure-color="pageConfig.customStyle" />
       </div>
     </MsCard>
     <!-- 登录页配置 -->
@@ -60,7 +60,7 @@
             </div>
             <!-- 登录页预览实际渲染 DOM，按三种屏幕尺寸缩放 -->
             <div :class="['page-preview', isLoginPageFullscreen ? 'full-preview' : 'normal-preview']">
-              <banner :banner="pageConfig.loginImage[0]?.url" is-preview />
+              <banner :banner="pageConfig.loginImage[0]?.url || defaultBanner" is-preview />
               <loginForm :slogan="pageConfig.slogan" :logo="pageConfig.loginLogo[0]?.url" is-preview />
             </div>
           </div>
@@ -195,12 +195,12 @@
         </div>
         <!-- 平台主页预览盒子 -->
         <div class="config-preview !h-[290px]">
-          <div ref="loginPageFullRef" class="login-preview">
+          <div ref="platformPageFullRef" class="login-preview">
             <div
-              class="absolute right-[18px] top-[16px] z-10 w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
-              @click="loginFullscreenToggle"
+              class="absolute right-[18px] top-[16px] z-[999] w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+              @click="platformFullscreenToggle"
             >
-              <MsIcon v-if="isLoginPageFullscreen" type="icon-icon_off_screen" />
+              <MsIcon v-if="isPlatformPageFullscreen" type="icon-icon_off_screen" />
               <MsIcon v-else type="icon-icon_full_screen_one" />
             </div>
             <!-- 平台主页预览实际渲染 DOM，按三种屏幕尺寸缩放 -->
@@ -209,7 +209,7 @@
                 'page-preview',
                 'platform-preview',
                 '!h-[550px]',
-                isLoginPageFullscreen ? 'full-preview' : 'normal-preview',
+                isPlatformPageFullscreen ? 'full-preview' : 'normal-preview',
               ]"
             >
               <defaultLayout
@@ -298,7 +298,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed, ref, watch, onBeforeUnmount } from 'vue';
   import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
@@ -312,10 +312,12 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import defaultLayout from '@/layout/default-layout.vue';
   import { scrollIntoView } from '@/utils/dom';
+  import { setCustomTheme, setPlatformColor, watchStyle, watchTheme } from '@/utils/theme';
   import { savePageConfig } from '@/api/modules/setting/config';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
+  const defaultBanner = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
   const { t } = useI18n();
   const appStore = useAppStore();
   const collapsedWidth = 86;
@@ -325,7 +327,10 @@
   const pageloading = ref(false);
   const pageConfig = ref({ ...appStore.pageConfig });
   const loginPageFullRef = ref<HTMLElement | null>(null);
+  const platformPageFullRef = ref<HTMLElement | null>(null);
   const { isFullscreen: isLoginPageFullscreen, toggle: loginFullscreenToggle } = useFullscreen(loginPageFullRef);
+  const { isFullscreen: isPlatformPageFullscreen, toggle: platformFullscreenToggle } =
+    useFullscreen(platformPageFullRef);
   const loginConfigFormRef = ref<FormInstance>();
   const platformConfigFormRef = ref<FormInstance>();
 
@@ -355,6 +360,42 @@
     },
   ];
 
+  watch(
+    () => pageConfig.value.style,
+    (val) => {
+      watchStyle(val, pageConfig.value);
+    }
+  );
+
+  watch(
+    () => pageConfig.value.customStyle,
+    (val) => {
+      if (val && pageConfig.value.style === 'custom') {
+        setPlatformColor(val);
+      }
+    }
+  );
+
+  watch(
+    () => pageConfig.value.theme,
+    (val) => {
+      watchTheme(val, pageConfig.value);
+    }
+  );
+
+  watch(
+    () => pageConfig.value.customTheme,
+    (val) => {
+      if (val && pageConfig.value.theme === 'custom') {
+        setCustomTheme(val);
+        if (pageConfig.value.style === 'follow') {
+          // 若平台风格跟随主题色
+          setPlatformColor(pageConfig.value.customTheme, true);
+        }
+      }
+    }
+  );
+
   function resetLoginPageConfig() {
     pageConfig.value = {
       ...pageConfig.value,
@@ -383,57 +424,80 @@
         paramValue: pageConfig.value.icon[0]?.url,
         type: 'file',
         fileName: pageConfig.value.icon[0]?.name,
+        isDefault: pageConfig.value.icon.length === 0, // 是否为默认值
+        hasFile: pageConfig.value.icon[0]?.file, // 是否是上传了文件
       },
       {
         paramKey: 'ui.loginLogo',
         paramValue: pageConfig.value.loginLogo[0]?.url,
         type: 'file',
         fileName: pageConfig.value.loginLogo[0]?.name,
+        isDefault: pageConfig.value.loginLogo.length === 0,
+        hasFile: pageConfig.value.loginLogo[0]?.file,
       },
       {
         paramKey: 'ui.loginImage',
         paramValue: pageConfig.value.loginImage[0]?.url,
         type: 'file',
         fileName: pageConfig.value.loginImage[0]?.name,
+        isDefault: pageConfig.value.loginImage.length === 0,
+        hasFile: pageConfig.value.loginImage[0]?.file,
       },
       {
         paramKey: 'ui.logoPlatform',
         paramValue: pageConfig.value.logoPlatform[0]?.url,
         type: 'file',
         fileName: pageConfig.value.logoPlatform[0]?.name,
+        isDefault: pageConfig.value.logoPlatform.length === 0,
+        hasFile: pageConfig.value.logoPlatform[0]?.file,
       },
       { paramKey: 'ui.slogan', paramValue: pageConfig.value.slogan, type: 'text' },
       { paramKey: 'ui.title', paramValue: pageConfig.value.title, type: 'text' },
-      { paramKey: 'ui.style', paramValue: pageConfig.value.customStyle || pageConfig.value.style, type: 'text' },
-      { paramKey: 'ui.theme', paramValue: pageConfig.value.customTheme || pageConfig.value.theme, type: 'text' },
+      {
+        paramKey: 'ui.style',
+        paramValue: pageConfig.value.style === 'custom' ? pageConfig.value.customStyle : pageConfig.value.style,
+        type: 'text',
+      },
+      {
+        paramKey: 'ui.theme',
+        paramValue: pageConfig.value.theme === 'custom' ? pageConfig.value.customTheme : pageConfig.value.theme,
+        type: 'text',
+      },
       { paramKey: 'ui.helpDoc', paramValue: pageConfig.value.helpDoc, type: 'text' },
       { paramKey: 'ui.platformName', paramValue: pageConfig.value.platformName, type: 'text' },
-    ];
+    ].filter((e) => {
+      if (e.type === 'file') {
+        return e.hasFile || e.isDefault;
+      }
+      return true;
+    });
     const fileList = [
-      pageConfig.value.icon[0].file
+      pageConfig.value.icon[0]?.file
         ? new File([pageConfig.value.icon[0].file as File], `ui.icon,${pageConfig.value.icon[0].file?.name}`)
         : undefined,
-      pageConfig.value.loginLogo[0].file
+      pageConfig.value.loginLogo[0]?.file
         ? new File(
             [pageConfig.value.loginLogo[0].file as File],
             `ui.loginLogo,${pageConfig.value.loginLogo[0].file?.name}`
           )
         : undefined,
-      pageConfig.value.loginImage[0].file
+      pageConfig.value.loginImage[0]?.file
         ? new File(
             [pageConfig.value.loginImage[0].file as File],
             `ui.loginImage,${pageConfig.value.loginImage[0].file?.name}`
           )
         : undefined,
-      pageConfig.value.logoPlatform[0].file
+      pageConfig.value.logoPlatform[0]?.file
         ? new File(
-            [pageConfig.value.logoPlatform[0].file as File],
+            [pageConfig.value.logoPlatform[0]?.file as File],
             `ui.logoPlatform,${pageConfig.value.logoPlatform[0].file?.name}`
           )
         : undefined,
     ].filter((e) => e !== undefined);
     return { request, fileList };
   }
+
+  const isSave = ref(false); // 是否保存，没有保存但是更改了主题配置需要重置一下。保存了就不需要重置了。
 
   /**
    * 保存并应用
@@ -444,6 +508,7 @@
       await savePageConfig(makeParams());
       Message.success(t('system.config.page.saveSuccess'));
       appStore.initPageConfig(); // 初始化页面配置
+      isSave.value = true;
     } catch (error) {
       console.log(error);
     } finally {
@@ -470,9 +535,27 @@
     } catch (error) {
       console.log(error);
     }
-    const errDom = document.querySelector('.arco-input-error');
+    const errDom = document.querySelector('.arco-form-item-message');
     scrollIntoView(errDom, { block: 'center' });
   }
+
+  onBeforeUnmount(() => {
+    if (isSave.value === false) {
+      // 离开前未保存，需要判断是否更改了主题和风格，改了的话需要重置回来
+      if (
+        pageConfig.value.style !== appStore.pageConfig.style &&
+        pageConfig.value.customStyle !== appStore.pageConfig.style
+      ) {
+        watchStyle(appStore.pageConfig.style, appStore.pageConfig);
+      }
+      if (
+        pageConfig.value.theme !== appStore.pageConfig.theme &&
+        pageConfig.value.customTheme !== appStore.pageConfig.theme
+      ) {
+        watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
+      }
+    }
+  });
 </script>
 
 <style lang="less" scoped>
@@ -512,7 +595,8 @@
         width: 100vw;
       }
       .login-preview {
-        position: relative;
+        @apply relative bg-white;
+
         width: 740px;
         @media screen and (min-width: 1600px) {
           width: 882px;
@@ -532,7 +616,7 @@
         .page-preview {
           @apply relative flex flex-1;
 
-          width: 1470px;
+          width: 1480px;
           height: 916px;
           transform-origin: center;
           @media screen and (min-width: 1800px) {
@@ -547,6 +631,7 @@
         }
         .full-preview {
           width: 100vw;
+          height: 100vh !important;
           transform: none;
         }
       }

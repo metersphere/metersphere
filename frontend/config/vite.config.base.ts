@@ -18,7 +18,7 @@ export default defineConfig({
     configArcoStyleImportPlugin(),
     createSvgIconsPlugin({
       // 指定需要缓存的图标文件夹
-      iconDirs: [resolve(process.cwd(), 'src/assets/svg')], // 与本地储存地址一致
+      iconDirs: [resolve(process.cwd(), 'src/assets/svg'), resolve(process.cwd(), 'public/images')], // 与本地储存地址一致
       // 指定symbolId格式
       symbolId: 'icon-[name]',
     }),

@@ -1,5 +1,5 @@
 <template>
-  <ColorPicker v-model:pureColor="innerPureColor" :z-index="1" is-widget picker-type="chrome" round-history />
+  <ColorPicker v-model:pureColor="innerPureColor" :z-index="1" picker-type="chrome" is-widget round-history />
 </template>
 
 <script setup lang="ts">
@@ -19,6 +19,9 @@
     () => props.pureColor,
     (val) => {
       innerPureColor.value = val;
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -30,4 +33,18 @@
   );
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+  .color-cube {
+    overflow: hidden;
+    border-radius: var(--border-radius-small);
+  }
+  .vc-transparent {
+    background-image: none !important;
+  }
+  .color-list {
+    width: 100% !important;
+  }
+  .color-item:not(:last-child) {
+    margin-right: 2px !important;
+  }
+</style>

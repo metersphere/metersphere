@@ -5,3 +5,7 @@ export const GetEmailInfoUrl = '/system/parameter/get/email-info';
 export const GetBaseInfoUrl = '/system/parameter/get/base-info';
 export const SavePageConfigUrl = '/display/save';
 export const GetPageConfigUrl = '/display/info';
+export const UpdateAuthUrl = '/system/authsource/update';
+export const GetAuthListUrl = '/system/authsource/list';
+export const AddAuthUrl = '/system/authsource/add';
+export const GetAuthDetailUrl = '/system/authsource/get';

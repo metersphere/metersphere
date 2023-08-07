@@ -14,19 +14,34 @@
     </a-tabs>
   </MsCard>
   <baseConfig v-show="activeTab === 'baseConfig'" />
-  <pageConfig v-show="activeTab === 'pageConfig'" />
+  <pageConfig v-if="isInitedPageConfig" v-show="activeTab === 'pageConfig'" />
+  <authConfig v-if="isInitedAuthConfig" v-show="activeTab === 'authConfig'" />
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import { useI18n } from '@/hooks/useI18n';
   import baseConfig from './components/baseConfig.vue';
   import pageConfig from './components/pageConfig.vue';
+  import authConfig from './components/authConfig.vue';
 
   const { t } = useI18n();
 
-  const activeTab = ref('pageConfig');
+  const activeTab = ref('authConfig');
+  const isInitedPageConfig = ref(activeTab.value === 'pageConfig');
+  const isInitedAuthConfig = ref(activeTab.value === 'authConfig');
+
+  watch(
+    () => activeTab.value,
+    (val) => {
+      if (val === 'pageConfig' && !isInitedPageConfig.value) {
+        isInitedPageConfig.value = true;
+      } else if (val === 'authConfig' && !isInitedAuthConfig.value) {
+        isInitedAuthConfig.value = true;
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

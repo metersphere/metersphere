@@ -7,18 +7,19 @@ import { useI18n } from '@/hooks/useI18n';
 import { cloneDeep } from 'lodash-es';
 import { getPageConfig } from '@/api/modules/setting/config';
 import { setFavicon } from '@/utils';
+import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import type { AppState } from './types';
 import type { BreadcrumbItem } from '@/components/bussiness/ms-breadcrumb/types';
-import type { PageConfig, PageConfigKeys } from '@/models/setting/config';
+import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 
 const defaultThemeConfig = {
-  style: 'default',
-  customStyle: '',
-  theme: 'default',
-  customTheme: '',
+  style: 'default' as Style,
+  customStyle: '#f9f9fe',
+  theme: 'default' as Theme,
+  customTheme: '#811fa3',
 };
 const defaultLoginConfig = {
   title: 'MeterSphere',
@@ -211,6 +212,8 @@ const useAppStore = defineStore('app', {
       try {
         const res = await getPageConfig();
         if (Array.isArray(res) && res.length > 0) {
+          let hasStyleChange = false;
+          let hasThemeChange = false;
           res.forEach((e) => {
             const key = e.paramKey.split('ui.')[1] as PageConfigKeys; // 参数名前缀ui.去掉
             if (['icon', 'loginLogo', 'loginImage', 'logoPlatform'].includes(key)) {
@@ -222,6 +225,19 @@ const useAppStore = defineStore('app', {
                 },
               ] as any;
             } else {
+              if (key === 'style') {
+                // 风格是否更改，先判断自定义风格的值是否相等，再判断非自定义的俩值是否相等
+                hasStyleChange = !['default', 'follow'].includes(e.paramValue)
+                  ? this.pageConfig.customStyle !== e.paramValue
+                  : this.pageConfig.style !== e.paramValue;
+              }
+              if (key === 'theme') {
+                // 主题是否更改，先判断自定义主题的值是否相等，再判断非自定义的俩值是否相等
+                hasThemeChange =
+                  e.paramValue !== 'default'
+                    ? this.pageConfig.customTheme !== e.paramValue
+                    : this.pageConfig.theme !== e.paramValue;
+              }
               this.pageConfig[key] = e.paramValue as any;
             }
           });
@@ -229,15 +245,28 @@ const useAppStore = defineStore('app', {
             // 判断是否选择了自定义主题色
             this.pageConfig.customTheme = this.pageConfig.theme;
             this.pageConfig.theme = 'custom';
+          } else {
+            // 非自定义则需要重置自定义主题色为空，避免本地缓存与接口配置不一致
+            this.pageConfig.customTheme = defaultThemeConfig.customTheme;
           }
           if (!['default', 'follow'].includes(this.pageConfig.style)) {
             // 判断是否选择了自定义平台风格
             this.pageConfig.customStyle = this.pageConfig.style;
             this.pageConfig.style = 'custom';
+          } else {
+            // 非自定义则需要重置自定义风格，避免本地缓存与接口配置不一致
+            this.pageConfig.customStyle = defaultThemeConfig.customStyle;
           }
           if (this.pageConfig.icon[0]?.url) {
             // 设置网站 favicon
             setFavicon(this.pageConfig.icon[0].url);
+          }
+          // 如果风格和主题有变化，则初始化一下主题和风格；没有变化则不需要在此初始化，在 App.vue 中初始化过了
+          if (hasStyleChange) {
+            watchStyle(this.pageConfig.style, this.pageConfig);
+          }
+          if (hasThemeChange) {
+            watchTheme(this.pageConfig.theme, this.pageConfig);
           }
         }
       } catch (error) {

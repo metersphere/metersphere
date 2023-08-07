@@ -96,8 +96,10 @@
   const route = useRoute();
   const permission = usePermission();
 
-  const innerLogo = computed(() => innerProps.value.logo || appStore.pageConfig.logoPlatform[0]?.url);
-  const innerName = computed(() => innerProps.value.name || appStore.pageConfig.platformName);
+  const innerLogo = computed(() =>
+    props.isPreview ? innerProps.value.logo : appStore.pageConfig.logoPlatform[0]?.url
+  );
+  const innerName = computed(() => (props.isPreview ? innerProps.value.name : appStore.pageConfig.platformName));
 
   const navbarHeight = `56px`;
   const navbar = computed(() => appStore.navbar);
@@ -175,7 +177,7 @@
       }
     }
     :deep(.arco-menu-light) {
-      background-color: var(--color-bg-3) !important;
+      background-color: transparent !important;
       .arco-menu-item {
         :hover {
           background-color: var(--color-bg-6);
@@ -199,5 +201,8 @@
       padding: 16px 16px 0 0;
       min-height: 500px;
     }
+  }
+  .arco-layout-sider-light {
+    @apply bg-transparent;
   }
 </style>

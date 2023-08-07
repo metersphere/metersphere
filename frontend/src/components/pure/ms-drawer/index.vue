@@ -37,6 +37,9 @@
         <a-button :disabled="props.okLoading" @click="handleCancel">
           {{ t(props.cancelText || 'ms.drawer.cancel') }}
         </a-button>
+        <a-button v-if="showContinue" type="secondary" :loading="props.okLoading" @click="handleContinue">
+          {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}
+        </a-button>
         <a-button type="primary" :loading="props.okLoading" @click="handleOk">
           {{ t(props.okText || 'ms.drawer.ok') }}
         </a-button>
@@ -66,6 +69,8 @@
     okLoading?: boolean;
     okText?: string;
     cancelText?: string;
+    saveContinueText?: string;
+    showContinue?: boolean;
     width: number;
   }
 
@@ -73,8 +78,9 @@
     footer: true,
     mask: true,
     showSkeleton: false,
+    showContinue: false,
   });
-  const emit = defineEmits(['update:visible', 'confirm', 'cancel']);
+  const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 
   const { t } = useI18n();
 
@@ -86,6 +92,10 @@
       visible.value = val;
     }
   );
+
+  const handleContinue = () => {
+    emit('continue');
+  };
 
   const handleOk = () => {
     emit('confirm');
