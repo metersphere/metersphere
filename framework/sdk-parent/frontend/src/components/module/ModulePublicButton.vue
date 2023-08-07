@@ -4,7 +4,7 @@
       <svg-icon icon-class="icon_folder-share" style="width: 1.3em;height: 1.3em;position: relative;top: 2px;left: 1px;margin-right: 9px;"/>
       <span style="margin-right: 12px;" class="to-public-content">{{ $t('project.case_public') }}</span>
       <span style="color: #8F959E">{{ '(' + publicTotal + ')' }}</span>
-      <svg-icon icon-class="icon_arrow-right_outlined_1" class-name="enter-public" style="float: right;display: none;position: relative;top: 4px;left: 150px;width: 1.1em;height: 1.1em;"/>
+      <svg-icon icon-class="icon_arrow-right_outlined_1" class-name="enter-public" style="display: none; width: 1.1em; height: 1.1em; order: 100; margin-left: auto; margin-top: 2px;"/>
     </div>
   </div>
 </template>
@@ -28,27 +28,20 @@ export default {
   },
   data() {
     return {
-      isXPack: false
+      isXpack: false
     }
   },
   created() {
-    if (hasLicense()) {
-      this.isXpack = true;
-    } else {
-      this.isXpack = false;
-    }
+    this.isXpack = hasLicense();
   },
-  methods: {}
 }
 </script>
 
 <style scoped>
-
 .recycle {
-  padding: 14px 0px 14px 13px px;
-  height: 26px;
+  padding-bottom: 24px;
   line-height: 26px;
-  height: 52px;
+  height: 26px;
   border-bottom: 1px solid rgba(31, 35, 41, 0.15);
 }
 
@@ -87,9 +80,5 @@ export default {
 
 .to-public:hover .enter-public{
   display: block!important;
-}
-
-.to-public:hover .to-public-content{
-  margin-left: -10.5px;
 }
 </style>

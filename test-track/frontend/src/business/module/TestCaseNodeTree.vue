@@ -21,6 +21,9 @@
       @filter="filter"
       ref="nodeTree">
       <template v-slot:header>
+        <ms-search-bar
+            :show-operator="showOperator"
+            :condition="condition"/>
         <module-public-button
           v-if="showPublicBtn"
           :condition="condition"

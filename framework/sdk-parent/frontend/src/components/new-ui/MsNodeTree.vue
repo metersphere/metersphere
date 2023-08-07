@@ -1,9 +1,6 @@
 <template>
   <div>
-
-    <slot name="header">
-      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true" class="search-input"/>
-    </slot>
+    <slot name="header"></slot>
 
     <el-scrollbar>
       <ms-left-2-right-container v-if="scroll">
@@ -536,7 +533,7 @@ export default {
         this.$emit('remove', nodeIds, data);
       }
     },
-    handleDragEnd(draggingNode, dropNode, dropType, ev) {
+    handleDragEnd(draggingNode, dropNode, dropType) {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
@@ -563,7 +560,7 @@ export default {
       } else {
         param.level = 1;
         param.type = 'add';
-        if (parentData.id != 'root') {
+        if (parentData.id !== 'root') {
           // 非根节点
           param.parentId = parentData.id;
           param.level = parentData.level + 1;
@@ -714,7 +711,7 @@ export default {
 }
 
 .node-tree {
-  height: calc(100vh - 270px);
+  height: calc(100vh - 300px);
 }
 
 .father .child {
@@ -761,7 +758,7 @@ export default {
   width: auto;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0px 5px;
+  padding: 0 5px;
   overflow: hidden;
 }
 
