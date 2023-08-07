@@ -325,7 +325,7 @@ public class OrganizationService {
                         userRoleRelationMapper.insert(userRoleRelation);
                         //add Log
                         String path = add ? "/organization/add-member" : "/organization/role/update-member";
-                        setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, add);
+                        setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, add, createUserId);
                     }
                 }
             });
@@ -336,13 +336,13 @@ public class OrganizationService {
         operationLogService.batchAdd(logDTOList);
     }
 
-    private static void setLog(String organizationId, String projectId, String path, String module, String content, List<LogDTO> logDTOList, String memberId, Object originalValue, boolean add) {
+    private static void setLog(String organizationId, String projectId, String path, String module, String content, List<LogDTO> logDTOList, String memberId, Object originalValue, boolean add, String createUserId) {
         String type = add ? OperationLogType.ADD.name() : OperationLogType.UPDATE.name();
         LogDTO dto = new LogDTO(
                 projectId,
                 organizationId,
                 memberId,
-                null,
+                createUserId,
                 type,
                 module,
                 content);
@@ -386,7 +386,7 @@ public class OrganizationService {
                     UserRoleRelation userRoleRelation = buildUserRoleRelation(userId, memberId, projectId, InternalUserRole.PROJECT_MEMBER.getValue());
                     userRoleRelationMapper.insert(userRoleRelation);
                     //add Log
-                    setLog(requestOrganizationId, projectId, "/organization/project/add-member", OperationLogModule.PROJECT_PROJECT_MEMBER, "", logDTOList, memberId, userRoleRelation, true);
+                    setLog(requestOrganizationId, projectId, "/organization/project/add-member", OperationLogModule.PROJECT_PROJECT_MEMBER, "", logDTOList, memberId, userRoleRelation, true, userId);
                 }
             });
         });
@@ -509,7 +509,7 @@ public class OrganizationService {
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
-            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false);
+            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false, createUserId);
         });
     }
 
@@ -538,7 +538,7 @@ public class OrganizationService {
             userRoleRelationMapper.insert(userRoleRelation);
             //add Log
             String path = "/organization/update-member";
-            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false);
+            setLog(organizationId, OperationLogConstants.ORGANIZATION, path, OperationLogModule.ORGANIZATION_MEMBER, "成员", logDTOList, memberId, userRoleRelation, false, createUserId);
         });
     }
 
