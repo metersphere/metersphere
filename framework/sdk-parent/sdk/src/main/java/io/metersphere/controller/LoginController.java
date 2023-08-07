@@ -112,6 +112,11 @@ public class LoginController {
         return baseDisplayService.getImage(imageName);
     }
 
+    @GetMapping("display/file/css")
+    public ResponseEntity<byte[]> cssFile() throws IOException {
+        return baseDisplayService.getCss();
+    }
+
     @GetMapping(value = "/services")
     public List<ServiceDTO> services() {
         return List.of(new ServiceDTO(serviceId, port));

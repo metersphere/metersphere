@@ -4,6 +4,7 @@ import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
 import io.metersphere.base.mapper.SystemParameterMapper;
 import io.metersphere.metadata.service.FileMetadataService;
+import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -75,6 +75,23 @@ public class BaseDisplayService {
         return ResponseEntity.ok()
                 .contentType(contentType)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + imageName + "\"")
+                .body(bytes);
+    }
+
+    public ResponseEntity<byte[]> getCss() {
+        byte[] bytes = new byte[0];
+        List<SystemParameter> paramList = getParamList("ui.css");
+        if (!CollectionUtils.isEmpty(paramList)) {
+            SystemParameter sp = paramList.get(0);
+            String paramValue = sp.getParamValue();
+            if (StringUtils.isNotBlank(paramValue)) {
+                bytes = loadFileAsBytes(paramValue);
+            }
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/css"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=css")
                 .body(bytes);
     }
 }

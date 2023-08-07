@@ -109,6 +109,13 @@ public class LoginController {
         return Mono.just(image);
     }
 
+    @GetMapping("display/file/css")
+    public Mono<ResponseEntity<byte[]>> cssFile() throws IOException {
+        ResponseEntity<byte[]> css = baseDisplayService.getCss();
+        return Mono.just(css);
+    }
+
+
     @GetMapping("display/info")
     public Mono<ResultHolder> uiInfo() {
         return Mono.just(ResultHolder.success(baseDisplayService.uiInfo("ui")));

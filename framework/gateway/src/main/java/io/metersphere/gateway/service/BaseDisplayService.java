@@ -96,4 +96,21 @@ public class BaseDisplayService {
         dtoList.sort(Comparator.comparingInt(SystemParameter::getSort));
         return dtoList;
     }
+
+    public ResponseEntity<byte[]> getCss() {
+        byte[] bytes = new byte[0];
+        List<SystemParameter> paramList = getParamList("ui.css");
+        if (!CollectionUtils.isEmpty(paramList)) {
+            SystemParameter sp = paramList.get(0);
+            String paramValue = sp.getParamValue();
+            if (StringUtils.isNotBlank(paramValue)) {
+                bytes = loadFileAsBytes(paramValue);
+            }
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/css"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=css")
+                .body(bytes);
+    }
 }
