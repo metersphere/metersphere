@@ -15,7 +15,9 @@
       @change="handleChange"
     />
     <span v-if="$slots['jumper-append']" :class="`${prefixCls}-append`"><slot name="jumper-append" /></span>
-    <span :class="`${prefixCls}-total-page`">{{ t('msPagination.page', { page: pages }) }}</span>
+    <span :class="`${prefixCls}-total-page`" :style="{ width: totalPageWidth }">{{
+      t('msPagination.page', { page: pages })
+    }}</span>
   </span>
 </template>
 
@@ -23,6 +25,7 @@
   import { computed, ref, watch } from 'vue';
   import { useI18n } from '@/hooks/useI18n';
   import { getPrefixCls } from './utils';
+  import useLocale from '@/locale/useLocale';
 
   defineOptions({ name: 'PageJumper' });
 
@@ -43,6 +46,8 @@
   const emit = defineEmits<{
     (e: 'change', value: number): void;
   }>();
+
+  const { currentLocale } = useLocale();
 
   const prefixCls = getPrefixCls('pagination-jumper');
   const { t } = useI18n();
@@ -70,4 +75,8 @@
       [`${prefixCls}-simple`]: props.simple,
     },
   ]);
+
+  const totalPageWidth = computed(() => {
+    return currentLocale.value === 'en-US' ? '64px' : '43px';
+  });
 </script>
