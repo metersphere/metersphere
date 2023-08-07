@@ -30,35 +30,35 @@
         <executions>
           <execution>
             <!-- optional: you don't really need execution ids, but it looks nice in your build log. -->
-            <id>install node and npm</id>
+            <id>install node and pnpm</id>
             <goals>
-              <goal>install-node-and-npm</goal>
+              <goal>install-node-and-pnpm</goal>
             </goals>
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
             <configuration>
               <nodeVersion>${node.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
+              <pnpmVersion>${pnpm.version}</pnpmVersion>
             </configuration>
           </execution>
           <!-- Install all project dependencies -->
           <execution>
-            <id>npm install</id>
+            <id>pnpm install</id>
             <goals>
-              <goal>npm</goal>
+              <goal>pnpm</goal>
             </goals>
             <configuration>
               <!-- optional: The default argument is actually
               "install", so unless you need to run some other yarn command,
               you can remove this whole <configuration> section.
               -->
-              <arguments>install --legacy-peer-deps</arguments>
+              <arguments>install</arguments>
             </configuration>
           </execution>
           <execution>
-            <id>npm run build</id>
+            <id>pnpm run build</id>
             <goals>
-              <goal>npm</goal>
+              <goal>pnpm</goal>
             </goals>
             <configuration>
               <arguments>run build</arguments>
