@@ -166,9 +166,9 @@ public class OrganizationService {
                 if (userMap.get(userId) == null) {
                     throw new MSException(Translator.get("user.not.exist") + ", id: " + userId);
                 }
-                //组织用户成员关系已存在, 不再重复添加
+                //组织用户关系已存在, 不再重复添加
                 UserRoleRelationExample example = new UserRoleRelationExample();
-                example.createCriteria().andSourceIdEqualTo(organizationId).andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
+                example.createCriteria().andSourceIdEqualTo(organizationId).andUserIdEqualTo(userId);
                 if (userRoleRelationMapper.countByExample(example) > 0) {
                     continue;
                 }

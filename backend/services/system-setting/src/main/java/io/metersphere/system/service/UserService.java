@@ -17,6 +17,7 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.UserCreateInfo;
+import io.metersphere.system.dto.UserExtend;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserChangeEnableRequest;
@@ -24,6 +25,7 @@ import io.metersphere.system.dto.request.UserEditRequest;
 import io.metersphere.system.dto.response.UserBatchProcessResponse;
 import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
@@ -54,6 +56,8 @@ public class UserService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
     @Resource
     private UserRoleRelationService userRoleRelationService;
     @Resource
@@ -376,6 +380,10 @@ public class UserService {
         UserExample example = new UserExample();
         example.setOrderByClause("update_time desc");
         return userMapper.selectByExample(example);
+    }
+
+    public List<UserExtend> getMemberOption(String sourceId) {
+        return extUserMapper.getMemberOption(sourceId);
     }
 
     public void resetPassword(String userId, String operator) {
