@@ -52,4 +52,5 @@ public class OperationLogModule {
     public static final String PLUGIN_MANAGE = "PLUGIN_MANAGE";
     public static final String SYSTEM_PROJECT = "SYSTEM_PROJECT";
     public static final String SYSTEM_PROJECT_MEMBER = "SYSTEM_PROJECT_MEMBER";
+    public static final String ORGANIZATION_PROJECT = "ORGANIZATION_PROJECT";
 }

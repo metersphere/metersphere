@@ -6,7 +6,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.service.SystemProjectService;
+import io.metersphere.system.service.CommonProjectService;
 import jakarta.annotation.Resource;
 import org.apache.shiro.util.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,7 @@ public class CleanProjectJob {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private SystemProjectService systemProjectService;
+    private CommonProjectService commonProjectService;
 
     /**
      * 清理状态为删除的项目  每天凌晨三点执行
@@ -44,7 +44,7 @@ public class CleanProjectJob {
         example.createCriteria().andDeletedEqualTo(true).andDeleteTimeLessThanOrEqualTo(timestamp);
         List<Project> projects = projectMapper.selectByExample(example);
         if (!CollectionUtils.isEmpty(projects)) {
-            systemProjectService.deleteProject(projects);
+            commonProjectService.deleteProject(projects);
         }
     }
 }
