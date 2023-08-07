@@ -81,11 +81,11 @@
             <el-checkbox :label="$t('commons.performance')" v-model="form.performance"></el-checkbox>
           </el-form-item>
           <el-form-item label="JMeter HEAP" prop="HEAP">
-            <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
+            <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m" maxlength="200" show-word-limit/>
           </el-form-item>
           <el-form-item label="JMeter GC_ALGO" prop="GC_ALGO">
             <el-input v-model="form.gcAlgo"
-                      placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
+                      placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20" maxlength="200" show-word-limit/>
           </el-form-item>
           <el-form-item prop="type" :label="$t('test_resource_pool.type')">
             <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
