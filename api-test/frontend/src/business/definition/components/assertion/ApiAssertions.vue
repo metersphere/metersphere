@@ -154,7 +154,7 @@ export default {
   data() {
     return {
       options: ASSERTION_TYPE,
-      time: '',
+      time: 1,
       type: '',
       loading: false,
       reloadData: '',
