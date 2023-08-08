@@ -497,7 +497,32 @@ public class OrganizationService {
         List<String> projectIds = organizationMemberUpdateRequest.getProjectIds();
         if (CollectionUtils.isNotEmpty(projectIds)) {
             updateProjectUserRelation(createUserId, organizationId, memberId, projectIds, sqlSession, logDTOList);
+        } else {
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andOrganizationIdEqualTo(organizationId);
+            List<Project> projects = projectMapper.selectByExample(projectExample);
+            if (CollectionUtils.isNotEmpty(projects)) {
+                List<String> projectInDBInOrgIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+                userRoleRelationExample = new UserRoleRelationExample();
+                userRoleRelationExample.createCriteria().andUserIdEqualTo(memberId).andSourceIdIn(projectInDBInOrgIds);
+                userRoleRelationMapper.deleteByExample(userRoleRelationExample);
+                //add Log
+                for (String projectInDBInOrgId : projectInDBInOrgIds) {
+                    String path = "/organization/update-member";
+                    LogDTO dto = new LogDTO(
+                            projectInDBInOrgId,
+                            organizationId,
+                            memberId,
+                            createUserId,
+                            OperationLogType.UPDATE.name(),
+                            OperationLogModule.ORGANIZATION_MEMBER,
+                            "成员");
+                    setLog(dto, path, logDTOList, "");
+                }
+
+            }
         }
+
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         //写入操作日志
