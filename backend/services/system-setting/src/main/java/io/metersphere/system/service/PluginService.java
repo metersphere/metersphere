@@ -16,6 +16,8 @@ import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.request.PluginUpdateRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,6 +76,9 @@ public class PluginService {
         plugin.setFileName(file.getOriginalFilename());
         plugin.setCreateTime(System.currentTimeMillis());
         plugin.setUpdateTime(System.currentTimeMillis());
+        // 如果没有，默认设置为 true
+        request.setEnable(!BooleanUtils.isFalse(request.getEnable()));
+        request.setEnable(!BooleanUtils.isFalse(request.getEnable()));
 
         // 校验重名
         checkPluginAddExist(plugin);
@@ -161,7 +166,7 @@ public class PluginService {
         // 校验重名
         checkPluginUpdateExist(plugin);
         pluginMapper.updateByPrimaryKeySelective(plugin);
-        if (request.getGlobal()) {
+        if (BooleanUtils.isTrue(request.getGlobal())) {
             // 全局插件，删除和组织的关联关系
             request.setOrganizationIds(new ArrayList<>(0));
         }
@@ -170,6 +175,9 @@ public class PluginService {
     }
 
     private void checkPluginUpdateExist(Plugin plugin) {
+        if (StringUtils.isBlank(plugin.getName())) {
+            return;
+        }
         PluginExample example = new PluginExample();
         example.createCriteria()
                 .andIdNotEqualTo(plugin.getId())

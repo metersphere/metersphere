@@ -22,10 +22,10 @@ public class PluginUpdateRequest {
     private String name;
 
     @Schema(title = "是否启用插件, 默认启用")
-    private Boolean enable = true;
+    private Boolean enable;
 
     @Schema(title = "是否是全局插件, 默认全局")
-    private Boolean global = true;
+    private Boolean global;
 
     @Schema(title = "插件描述")
     @Size(min = 1, max = 500, message = "{plugin.scenario.length_range}", groups = {Created.class, Updated.class})

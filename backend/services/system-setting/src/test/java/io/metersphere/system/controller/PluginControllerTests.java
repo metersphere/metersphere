@@ -78,7 +78,7 @@ public class PluginControllerTests extends BaseTest {
 
         request.setName("test");
         request.setDescription("test desc");
-        request.setGlobal(false);
+        request.setGlobal(true);
         request.setEnable(false);
         request.setOrganizationIds(Arrays.asList(org.getId()));
         MultiValueMap<String, Object> multiValueMap = getDefaultMultiPartParam(request, jarFile);
@@ -94,8 +94,25 @@ public class PluginControllerTests extends BaseTest {
         Assertions.assertEquals(plugin.getXpack(), false);
         Assertions.assertEquals(plugin.getFileName(), jarFile.getName());
         Assertions.assertEquals(plugin.getScenario(), PluginScenarioType.API.name());
-        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+        Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(plugin.getId()));
         Assertions.assertEquals(Arrays.asList("connect", "disconnect", "pub", "sub"), getScriptIdsByPlugId(plugin.getId()));
+        addPlugin = plugin;
+
+        // 增加覆盖率
+        this.requestGetWithOkAndReturn(DEFAULT_LIST);
+
+        // 校验 global 为 tru e时，organizationIds 为空
+        request.setGlobal(false);
+        request.setEnable(true);
+        request.setName("test2");
+        request.setOrganizationIds(Arrays.asList(org.getId()));
+        MvcResult antoherMvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
+                getDefaultMultiPartParam(request, anotherJarFile));
+        Plugin antoherPlugin = pluginMapper.selectByPrimaryKey(getResultData(antoherMvcResult, Plugin.class).getId());
+        Assertions.assertEquals(antoherPlugin.getEnable(), request.getEnable());
+        Assertions.assertEquals(antoherPlugin.getGlobal(), request.getGlobal());
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(antoherPlugin.getId()));
+        anotherAddPlugin = antoherPlugin;
         addPlugin = plugin;
 
         // @@重名校验异常
@@ -131,20 +148,6 @@ public class PluginControllerTests extends BaseTest {
         );
         assertErrorCode(this.requestMultipart(DEFAULT_ADD,
                 getDefaultMultiPartParam(request, scriptIdRepeatFile)), PLUGIN_SCRIPT_EXIST);
-
-        request.setGlobal(true);
-        request.setEnable(true);
-        request.setName("test2");
-        MvcResult antoherMvcResult = this.requestMultipartWithOkAndReturn(DEFAULT_ADD,
-                getDefaultMultiPartParam(request, anotherJarFile));
-        // 校验 global 为 tru e时，organizationIds 为空
-        Plugin antoherPlugin = pluginMapper.selectByPrimaryKey(getResultData(antoherMvcResult, Plugin.class).getId());
-        Assertions.assertEquals(antoherPlugin.getEnable(), request.getEnable());
-        Assertions.assertEquals(antoherPlugin.getGlobal(), request.getGlobal());
-        Assertions.assertEquals(new ArrayList<>(0), getOrgIdsByPlugId(antoherPlugin.getId()));
-        anotherAddPlugin = antoherPlugin;
-
-        this.addPlugin = plugin;
 
         // @@校验日志
         checkLog(this.addPlugin.getId(), OperationLogType.ADD);
@@ -185,12 +188,18 @@ public class PluginControllerTests extends BaseTest {
         // 校验 global 为 false 时，organizationIds 数据
         request.setGlobal(false);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
-        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(request.getId()));
+
+        // 只修改启用禁用
+        PluginUpdateRequest activeRequest = new PluginUpdateRequest();
+        activeRequest.setId(request.getId());
+        activeRequest.setEnable(true);
+        this.requestPostWithOk(DEFAULT_UPDATE, activeRequest);
 
         // 校验组织为null，不修改关联关系
         request.setOrganizationIds(null);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
-        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(plugin.getId()));
+        Assertions.assertEquals(Arrays.asList(org.getId()), getOrgIdsByPlugId(request.getId()));
 
         // @@重名校验异常
         request.setName(anotherAddPlugin.getName());
