@@ -1790,6 +1790,11 @@ export default {
             scenario = runScenario;
             this.runScenario = runScenario;
           }
+          if (runScenario && runScenario.type === 'scenario' && !hasRequest) {
+            this.sort(this.runScenario.hashTree);
+          } else {
+            this.sort();
+          }
           //调试时不再保存
           this.debugData = {
             id: scenario ? scenario.id : this.currentScenario.id,

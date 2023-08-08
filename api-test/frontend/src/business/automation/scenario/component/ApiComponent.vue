@@ -454,10 +454,6 @@ export default {
                 selectEnvId = store.scenarioEnvMap.get(this.currentScenario.id + '_' + this.request.projectId);
                 this.environmentMap = this.envMap;
               }
-              if (!selectEnvId && !this.environmentGroupId) {
-                this.$warning(this.$t('api_test.automation.env_message'));
-                return false;
-              }
             }
           }
           if (!this.request.enable) {
