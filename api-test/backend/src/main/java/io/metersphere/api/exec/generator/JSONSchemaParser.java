@@ -3,6 +3,7 @@ package io.metersphere.api.exec.generator;
 import com.google.gson.*;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.utils.EnumPropertyUtil;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -181,13 +183,7 @@ public class JSONSchemaParser {
             JsonObject jsonObject = element.getAsJsonObject();
             if (object.has(PropertyConstant.ITEMS)) {
                 if (FormatterUtil.isMockValue(jsonObject)) {
-                    if (jsonObject.has(PropertyConstant.TYPE)
-                            && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.INTEGER)
-                            && FormatterUtil.isNumber(FormatterUtil.getStrValue(jsonObject))) {
-                        array.put(FormatterUtil.getElementValue(jsonObject).getAsInt());
-                    } else {
-                        array.put(FormatterUtil.getStrValue(jsonObject));
-                    }
+                    JSONSchemaBuilder.formatItems(jsonObject, array, processMap);
                 } else if (jsonObject.has(PropertyConstant.ENUM)) {
                     array.put(EnumPropertyUtil.analyzeEnumProperty(jsonObject));
                 } else if (jsonObject.has(PropertyConstant.TYPE) && jsonObject.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.STRING)) {
@@ -240,9 +236,12 @@ public class JSONSchemaParser {
         analyzeSchema(jsonSchema, root, processMap);
         // 格式化返回
         if (root.opt(PropertyConstant.MS_OBJECT) != null) {
-            json = root.get(PropertyConstant.MS_OBJECT).toString();
+            JSONArray jsonArray = (JSONArray) root.get(PropertyConstant.MS_OBJECT);
+            List<String> list = new LinkedList<>();
+            toJsonString(jsonArray, list);
+            json = list.toString();
         } else {
-            json = root.toString();
+            json = JSON.toJSONString(root.toMap());
         }
         if (MapUtils.isNotEmpty(processMap)) {
             for (String str : processMap.keySet()) {
@@ -250,6 +249,22 @@ public class JSONSchemaParser {
             }
         }
         return json;
+    }
+
+    public static void toJsonString(JSONArray jsonArray, List<String> list) {
+        jsonArray.forEach(element -> {
+            if (element instanceof JSONObject o) {
+                list.add(JSON.toJSONString(o.toMap()));
+            } else if (element instanceof JSONArray o) {
+                List<String> aa = new LinkedList<>();
+                toJsonString(o, aa);
+                list.add(aa.toString());
+            } else if (element instanceof BigDecimal) {
+                list.add(element.toString());
+            } else {
+                list.add(element.toString());
+            }
+        });
     }
 
     public static String schemaToJson(String jsonSchema) {
