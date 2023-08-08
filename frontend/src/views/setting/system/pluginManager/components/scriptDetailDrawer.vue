@@ -5,6 +5,7 @@
     :mask="false"
     :footer="false"
     :title="t('system.plugin.showScriptTitle', { name: props.config.title })"
+    @close="handleClose"
   >
     <MsCodeEditor
       v-model:model-value="jobDefinition"
@@ -12,6 +13,7 @@
       width="100%"
       height="calc(100vh - 155px)"
       theme="MS-text"
+      :read-only="props.readOnly"
     />
   </MsDrawer>
 </template>
@@ -27,6 +29,8 @@
     visible: boolean;
     value: string;
     config: DrawerConfig;
+    defaultVal?: string | null;
+    readOnly?: boolean;
   }>();
 
   const emit = defineEmits(['update:value', 'update:visible']);
@@ -41,6 +45,14 @@
       showScriptDrawer.value = val;
     }
   );
+  watch(
+    () => props.value,
+    (val) => {
+      if (val) {
+        jobDefinition.value = val;
+      }
+    }
+  );
 
   watch(
     () => showScriptDrawer.value,
@@ -48,6 +60,9 @@
       emit('update:visible', val);
     }
   );
+  function handleClose() {
+    emit('update:value', jobDefinition.value);
+  }
 </script>
 
 <style lang="less" scoped></style>

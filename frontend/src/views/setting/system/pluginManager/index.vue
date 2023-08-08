@@ -6,7 +6,7 @@
         {{ t('system.plugin.alertDescribe') }}
         <a class="mx-1" href="javascript:;">{{ t('system.plugin.viewTable') }}</a
         >{{ t('system.plugin.downAddress') }}
-        <a class="mx-1" href="javascript:;">{{ t('system.plugin.goDownload') }} </a>
+        <a class="mx-1" href="https://github.com/metersphere" target="_blank">{{ t('system.plugin.goDownload') }} </a>
       </div>
     </a-alert>
     <div class="mt-4">

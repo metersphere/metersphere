@@ -9,6 +9,7 @@
               <a-input
                 v-model="form.name"
                 size="small"
+                :max-length="250"
                 :placeholder="t('system.plugin.defaultJarNameTip')"
                 allow-clear
               />
@@ -84,10 +85,10 @@
         <div>
           <a-space>
             <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-            <a-button type="secondary" :loading="saveLoading" @click="saveAndAddPlugin">{{
+            <a-button type="secondary" :disabled="isDisabled" :loading="saveLoading" @click="saveAndAddPlugin">{{
               t('system.plugin.saveAndAdd')
             }}</a-button>
-            <a-button type="primary" :loading="confirmLoading" @click="saveConfirm">{{
+            <a-button type="primary" :disabled="isDisabled" :loading="confirmLoading" @click="saveConfirm">{{
               t('system.plugin.pluginConfirm')
             }}</a-button>
           </a-space>
@@ -98,23 +99,23 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, onMounted } from 'vue';
+  import { ref, watchEffect, computed, watch } from 'vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { FormInstance, ValidatedError, SelectOptionData, FileItem } from '@arco-design/web-vue';
   import { addPlugin } from '@/api/modules/setting/pluginManger';
   import { Message } from '@arco-design/web-vue';
-  import { getAllOrgList } from '@/api/modules/setting/orgnization';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
 
   const emits = defineEmits<{
-    (e: 'cancel'): void;
+    (event: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
     (e: 'brash'): void;
   }>();
   const props = defineProps<{
     visible: boolean;
+    originizeList: SelectOptionData;
   }>();
   const pluginVisible = ref(false);
   const fileName = ref<string>('');
@@ -129,19 +130,33 @@
     enable: true,
     global: true,
   };
-  const form = ref({ ...initForm });
-  const originizeList = ref<SelectOptionData>([]);
-  watchEffect(() => {
-    pluginVisible.value = props.visible;
+  const isDisabled = computed(() => {
+    return !(fileList.value.length > 0);
   });
+  const form = ref({ ...initForm });
+  // const originizeList = ref<SelectOptionData>([]);
+
   const resetForm = () => {
     form.value = { ...initForm };
     fileList.value = [];
   };
+  watchEffect(() => {
+    pluginVisible.value = props.visible;
+  });
+  watch(
+    () => pluginVisible.value,
+    (val) => {
+      emits('update:visible', val);
+      if (!val) {
+        resetForm();
+      }
+    }
+  );
+
   const handleCancel = () => {
+    pluginVisible.value = false;
     pluginFormRef.value?.resetFields();
     resetForm();
-    emits('cancel');
   };
   const confirmHandler = async (flag: string) => {
     try {
@@ -166,7 +181,6 @@
       emits('brash');
     } catch (error) {
       console.log(error);
-      return false;
     } finally {
       confirmLoading.value = false;
       saveLoading.value = false;
@@ -195,9 +209,9 @@
   watchEffect(() => {
     fileName.value = fileList.value[0]?.name as string;
   });
-  onMounted(async () => {
-    originizeList.value = await getAllOrgList();
-  });
+  // onBeforeMount(async () => {
+  //   // originizeList.value = await getAllOrgList();
+  // });
 </script>
 
 <style scoped lang="less">

@@ -1,10 +1,15 @@
 <template>
   <a-modal v-model:visible="updateVisible" width="680px" title-align="start" class="ms-modal-form ms-modal-medium">
-    <template #title> {{ t('system.plugin.updateTitle', { name: form.name }) }}</template>
+    <template #title> {{ t('system.plugin.updateTitle', { name: title }) }}</template>
     <div class="form">
       <a-form ref="UpdateFormRef" :model="form" layout="vertical">
         <a-form-item field="name" :label="t('system.plugin.name')" asterisk-position="end">
-          <a-input v-model="form.name" :placeholder="t('system.plugin.defaultJarNameTip')" allow-clear />
+          <a-input
+            v-model="form.name"
+            :placeholder="t('system.plugin.defaultJarNameTip')"
+            :max-length="250"
+            allow-clear
+          />
         </a-form-item>
         <a-form-item field="global" :label="t('system.plugin.appOrganize')" asterisk-position="end">
           <a-radio-group v-model="form.global">
@@ -25,7 +30,7 @@
             :placeholder="t('system.plugin.selectOriginize')"
             allow-clear
           >
-            <a-option v-for="item of originizeList" :key="item.value" :value="item.value">{{ item.label }}</a-option>
+            <a-option v-for="item of originizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
         <a-form-item field="description" :label="t('system.plugin.description')" asterisk-position="end">
@@ -43,8 +48,8 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watchEffect, watch, nextTick, reactive } from 'vue';
-  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
+  import { ref, watchEffect, watch } from 'vue';
+  import { FormInstance, Message, ValidatedError, SelectOptionData } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
   import type { UpdatePluginModel, PluginItem } from '@/models/setting/plugin';
   import { updatePlugin } from '@/api/modules/setting/pluginManger';
@@ -52,6 +57,7 @@
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
+    originizeList: SelectOptionData;
   }>();
   const emits = defineEmits<{
     (e: 'success'): void;
@@ -59,16 +65,7 @@
   }>();
   const confirmLoading = ref<boolean>(false);
   const UpdateFormRef = ref<FormInstance | null>(null);
-  const originizeList = ref([
-    {
-      label: '组织一',
-      value: '1',
-    },
-    {
-      label: '组织二',
-      value: '2',
-    },
-  ]);
+  const title = ref<string>('');
   const form = ref<UpdatePluginModel>({
     name: '',
     global: '',
@@ -91,7 +88,11 @@
     updateVisible.value = false;
   };
   const open = (record: PluginItem) => {
-    form.value = { ...record };
+    title.value = record.name as string;
+    form.value = {
+      ...record,
+      organizationIds: (record.organizations || []).map((item) => item.id),
+    };
   };
 
   const handleOk = () => {
