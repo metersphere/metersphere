@@ -25,7 +25,7 @@ export default {
     'menu.uiTest': 'UI test',
     'menu.performanceTest': 'Performance test',
     'menu.projectManagement': 'Project management',
-    'menu.settings': 'System Settings',
+    'menu.settings': 'Settings',
     'menu.settings.system': 'System',
     'menu.settings.organization': 'Organization',
     'menu.settings.organization.member': 'Member',

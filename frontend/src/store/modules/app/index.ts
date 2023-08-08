@@ -6,7 +6,6 @@ import { getSystemVersion } from '@/api/modules/system';
 import { useI18n } from '@/hooks/useI18n';
 import { cloneDeep } from 'lodash-es';
 import { getPageConfig } from '@/api/modules/setting/config';
-import { setFavicon } from '@/utils';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
@@ -256,10 +255,6 @@ const useAppStore = defineStore('app', {
           } else {
             // 非自定义则需要重置自定义风格，避免本地缓存与接口配置不一致
             this.pageConfig.customStyle = defaultThemeConfig.customStyle;
-          }
-          if (this.pageConfig.icon[0]?.url) {
-            // 设置网站 favicon
-            setFavicon(this.pageConfig.icon[0].url);
           }
           // 如果风格和主题有变化，则初始化一下主题和风格；没有变化则不需要在此初始化，在 App.vue 中初始化过了
           if (hasStyleChange) {

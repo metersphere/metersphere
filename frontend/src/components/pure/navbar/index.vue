@@ -2,13 +2,10 @@
   <div class="navbar">
     <div class="left-side">
       <a-space>
-        <template v-if="props.logo">
-          <div class="flex max-w-[145px] items-center overflow-hidden">
-            <img :src="props.logo" class="mr-[4px] h-[32px] w-[32px]" />
-            {{ props.name }}
-          </div>
-        </template>
-        <svg-icon v-else width="145px" height="32px" name="MS-full-logo" />
+        <div class="flex max-w-[145px] items-center overflow-hidden">
+          <img :src="props.logo" class="mr-[4px] h-[32px] w-[32px]" />
+          {{ props.name }}
+        </div>
       </a-space>
     </div>
     <div v-if="!props.isPreview" class="center-side">

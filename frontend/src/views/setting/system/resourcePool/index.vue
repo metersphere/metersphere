@@ -125,7 +125,7 @@
       title: 'system.resourcePool.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
-      width: 120,
+      width: 140,
       showInTable: true,
     },
   ];

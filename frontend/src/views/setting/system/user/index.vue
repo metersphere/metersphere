@@ -192,9 +192,11 @@
           class="text-[rgb(var(--primary-5))]"
           :href="importErrorFileUrl"
           :download="`${t('system.user.importErrorFile')}.pdf`"
-          >{{ t('system.user.importResultContentDownload') }}</a-link
-        >{{ t('system.user.importResultContentSubEnd') }}</div
-      >
+        >
+          {{ t('system.user.importResultContentDownload') }}
+        </a-link>
+        {{ t('system.user.importResultContentSubEnd') }}
+      </div>
     </template>
     <template #footer>
       <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">
@@ -233,6 +235,7 @@
     deleteUserInfo,
     importUserInfo,
     getSystemRoles,
+    resetUserPassword,
   } from '@/api/modules/setting/user';
   import { validateEmail, validatePhone } from '@/utils/validate';
   import batchModal from './components/batchModal.vue';
@@ -289,7 +292,7 @@
       title: 'system.user.tableColunmActions',
       slotName: 'action',
       fixed: 'right',
-      width: 90,
+      width: 120,
       showInTable: true,
     },
   ];
@@ -337,6 +340,7 @@
       cancelText: t('system.user.resetPswCancel'),
       onBeforeOk: async () => {
         try {
+          await resetUserPassword(userIdList);
           Message.success(t('system.user.resetPswSuccess'));
           return true;
         } catch (error) {

@@ -171,7 +171,6 @@ export default {
   'system.config.auth.linkRangePlaceholder': 'openid profile email',
   'system.config.auth.propertyMap': '属性映射',
   'system.config.auth.propertyMapRequired': '属性映射不能为空',
-  'system.config.auth.propertyMapPlaceholder': '{"userid":"login","username":"name","email":"email"}',
   'system.config.auth.LDAPUrl': 'LDAP 地址',
   'system.config.auth.LDAPUrlRequired': 'LDAP 地址不能为空',
   'system.config.auth.LDAPUrlPlaceholder': '请输入',

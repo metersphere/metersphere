@@ -182,10 +182,10 @@
           <a-switch v-model:model-value="emailConfigForm.tsl" />
           <MsFormItemSub :text="t('system.config.email.tslTip')" :show-fill-icon="false" />
         </a-form-item>
-        <a-button type="outline" class="w-[88px]" :loading="drawerTestLoading" @click="testLink('drawer')">
-          {{ t('system.config.email.test') }}
-        </a-button>
       </a-form>
+      <a-button type="outline" class="flex-1" :loading="drawerTestLoading" @click="testLink('drawer')">
+        {{ t('system.config.email.test') }}
+      </a-button>
     </MsDrawer>
   </div>
 </template>

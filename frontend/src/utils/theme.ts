@@ -132,3 +132,21 @@ export function watchTheme(val: Theme, pageConfig: PageConfig) {
     }
   }
 }
+
+// 动态设置 favicon
+export function setFavicon(url: string) {
+  const head = document.querySelector('head');
+  const link = document.createElement('link');
+  link.rel = 'shortcut icon';
+  link.href = url;
+  link.type = 'image/x-icon';
+
+  // 移除之前的 favicon
+  const oldFavicon = document.querySelector('link[rel="shortcut icon"]');
+  if (oldFavicon) {
+    head?.removeChild(oldFavicon);
+  }
+
+  // 添加新的 favicon
+  head?.appendChild(link);
+}

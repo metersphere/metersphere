@@ -1,5 +1,5 @@
 <template>
-  <a-spin class="block h-full" :loading="props.loading" :size="28">
+  <a-spin class="!block h-full" :loading="props.loading" :size="28">
     <div
       :class="[
         'ms-card',
@@ -30,7 +30,8 @@
       </div>
       <div
         v-if="!props.hideFooter && !props.simple"
-        class="fixed bottom-0 right-[16px] z-10 w-full bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+        class="fixed bottom-0 right-[16px] z-10 bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+        :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
       >
         <div class="ml-0 mr-auto">
           <slot name="footerLeft"></slot>
@@ -109,7 +110,7 @@
       // 隐藏底部
       return 192;
     }
-    return 256 + _spcialHeight;
+    return 246 + _spcialHeight;
   });
 
   function back() {
