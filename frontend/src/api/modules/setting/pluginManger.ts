@@ -21,5 +21,5 @@ export function deletePluginReq(id: string) {
   return MSR.get<PluginItem>({ url: DeletePluginUrl, params: id });
 }
 export function getScriptDetail(pluginId: string, scriptId: string) {
-  return MSR.get({ url: GetScriptUrl, params: `/${pluginId}/${scriptId}` });
+  return MSR.get({ url: GetScriptUrl, params: `${pluginId}/${scriptId}` });
 }
