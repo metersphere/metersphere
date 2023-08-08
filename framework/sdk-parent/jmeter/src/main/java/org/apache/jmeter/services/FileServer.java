@@ -576,13 +576,15 @@ public class FileServer {
      */
     public File getResolvedFile(String path) {
         log.info("getResolvedFile: {}", path);
-        String threadName = JMeterContextService.getContext().getThread().getThreadName();
-        if (!StringUtils.contains(path, threadName)) {
-            path = StringUtils.join(threadName, path);
-        }
         reserveFile(path);
 
-        FileEntry fileEntry = files.get(path);
+        // If path is absolute, then File constructor will simply return it
+        String alias = path;
+        String threadName = JMeterContextService.getContext().getThread().getThreadName();
+        if (!StringUtils.contains(alias, threadName)) {
+            alias = StringUtils.join(threadName, path);
+        }
+        FileEntry fileEntry = files.containsKey(alias) ? files.get(alias) : files.get(path);
         return fileEntry != null ? fileEntry.file : null;
     }
 
