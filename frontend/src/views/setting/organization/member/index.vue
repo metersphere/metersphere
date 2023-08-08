@@ -8,6 +8,7 @@
       </div>
       <a-input-search
         v-model="keyword"
+        :max-length="250"
         :placeholder="t('organization.member.searchMember')"
         class="w-[230px]"
         @search="searchHandler"

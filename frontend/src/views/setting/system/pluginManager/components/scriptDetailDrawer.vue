@@ -8,7 +8,7 @@
     @close="handleClose"
   >
     <MsCodeEditor
-      v-model:model-value="jobDefinition"
+      v-model:model-value="pluginScript"
       title="YAML"
       width="100%"
       height="calc(100vh - 155px)"
@@ -37,7 +37,7 @@
 
   const { t } = useI18n();
   const showScriptDrawer = ref(props.visible);
-  const jobDefinition = ref(props.value);
+  const pluginScript = ref(props.value);
 
   watch(
     () => props.visible,
@@ -49,7 +49,7 @@
     () => props.value,
     (val) => {
       if (val) {
-        jobDefinition.value = val;
+        pluginScript.value = val;
       }
     }
   );
@@ -61,7 +61,7 @@
     }
   );
   function handleClose() {
-    emit('update:value', jobDefinition.value);
+    emit('update:value', pluginScript.value);
   }
 </script>
 
