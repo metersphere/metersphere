@@ -124,7 +124,25 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
+    public void updateOrgMemberSuccessWithNoSysProjectIds() throws Exception {
+        OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
+        organizationMemberRequest.setOrganizationId("sys_default_organization_7");
+        organizationMemberRequest.setMemberIds(Arrays.asList("sys_default_user", "sys_default_user2"));
+        organizationMemberRequest.setUserRoleIds(Arrays.asList("sys_default_org_role_id_7", "sys_default_project_role_id_8"));
+        this.requestPost(ORGANIZATION_LIST_ADD_MEMBER, organizationMemberRequest, status().isOk());
+
+        OrganizationMemberUpdateRequest organizationMemberUpdateRequest = new OrganizationMemberUpdateRequest();
+        organizationMemberUpdateRequest.setOrganizationId("sys_default_organization_7");
+        organizationMemberUpdateRequest.setMemberId("sys_default_user2");
+        organizationMemberUpdateRequest.setUserRoleIds(List.of("sys_default_org_role_id_7"));
+        this.requestPost(ORGANIZATION_UPDATE_MEMBER, organizationMemberUpdateRequest, status().isOk());
+        // 批量添加成员成功后, 验证是否添加成功
+        listByKeyWord("testUserTwo", "sys_default_organization_7", true, "sys_default_org_role_id_7", null, false, null, null);
+    }
+
+    @Test
+    @Order(5)
     public void updateOrgMemberSuccessWithPartRoles() throws Exception {
         OrganizationMemberUpdateRequest organizationMemberUpdateRequest = new OrganizationMemberUpdateRequest();
         organizationMemberUpdateRequest.setOrganizationId("sys_default_organization_3");
@@ -138,7 +156,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(4)
+    @Order(6)
     public void updateOrgMemberError() throws Exception {
         //组织ID正确
         // 成员为空
@@ -159,7 +177,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(5)
+    @Order(7)
     public void updateOrgMemberToRoleSuccess() throws Exception {
         OrganizationMemberExtendRequest organizationMemberRequest = new OrganizationMemberExtendRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
@@ -171,7 +189,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     public void updateOrgMemberToRoleError() throws Exception {
         //组织ID正确
         // 成员选择为空
@@ -200,7 +218,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(7)
+    @Order(9)
     public void addOrgMemberToProjectSuccess() throws Exception {
         OrgMemberExtendProjectRequest organizationMemberRequest = new OrgMemberExtendProjectRequest();
         organizationMemberRequest.setOrganizationId("sys_default_organization_3");
@@ -212,7 +230,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(10)
     public void addOrgMemberToProjectError() throws Exception {
         // 成员选择为空
         addOrUpdateOrganizationProjectMemberError(ORGANIZATION_PROJECT_ADD_MEMBER, "sys_default_organization_3", Collections.emptyList(), Arrays.asList("projectId1", "projectId2"), status().isBadRequest());
@@ -225,13 +243,13 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
     public void getOrgMemberListSuccess() throws Exception {
         listByKeyWord("testUserOne", "sys_default_organization_3", false, null, null, false, null, null);
     }
 
     @Test
-    @Order(7)
+    @Order(12)
     public void getOrgMemberListSuccessWidthEmpty() throws Exception {
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
@@ -258,7 +276,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(13)
     public void getOrgMemberListError() throws Exception {
         // 页码有误
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -278,26 +296,26 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(11)
+    @Order(14)
     public void removeOrgMemberSuccess() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_6/sys_default_user", status().isOk());
     }
 
     @Test
-    @Order(12)
+    @Order(15)
     public void removeOrgMemberSuccessWithNoProject() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_3/sys_default_user", status().isOk());
     }
 
     @Test
-    @Order(13)
+    @Order(16)
     public void removeOrgMemberError() throws Exception {
         // 项目不存在
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-x/admin-x", status().is5xxServerError());
     }
 
     @Test
-    @Order(14)
+    @Order(17)
     public void getProjectListByOrgSuccess() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/project/list/sys_default_organization_3")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -316,7 +334,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(15)
+    @Order(18)
     public void getProjectEmptyListByOrg() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/project/list/sys_default_organization_5")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -332,7 +350,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(16)
+    @Order(19)
     public void getProjectListByOrgError() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/organization/project/list/sys_default_organization_x")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -344,7 +362,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(17)
+    @Order(20)
     public void getUserRoleListByOrgSuccess() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/user/role/list/sys_default_organization_3")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -363,7 +381,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(18)
+    @Order(21)
     public void getUserRoleEmptyListByOrg() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/user/role/list/sys_default_organization_6")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -385,7 +403,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(19)
+    @Order(22)
     public void getUserRoleListByOrgError() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/organization/user/role/list/sys_default_organization_x")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -398,7 +416,7 @@ public class OrganizationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(20)
+    @Order(23)
     public void getNotExistUserListByOrgSuccess() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/not-exist/user/list/sys_default_organization_3")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -417,7 +435,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(21)
+    @Order(24)
     public void getNotExistUserListWithNoRelation() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/not-exist/user/list/sys_default_organization_5")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -433,7 +451,7 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(22)
+    @Order(25)
     public void getNotExistUserListByOrgError() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/organization/not-exist/user/list/sys_default_organization_x")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)

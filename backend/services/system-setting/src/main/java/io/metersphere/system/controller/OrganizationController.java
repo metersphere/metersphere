@@ -61,14 +61,14 @@ public class OrganizationController {
 
     @PostMapping("/update-member")
     @Operation(summary = "更新用户")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD,  PermissionConstants.PROJECT_USER_READ_DELETE})
     public void updateMember(@Validated @RequestBody OrganizationMemberUpdateRequest organizationMemberExtendRequest) {
         organizationService.updateMember(organizationMemberExtendRequest, SessionUtils.getUserId());
     }
 
     @PostMapping("/project/add-member")
     @Operation(summary = "添加组织成员至项目")
-    @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_UPDATE)
+    @RequiresPermissions(value = {PermissionConstants.ORGANIZATION_MEMBER_UPDATE, PermissionConstants.PROJECT_USER_READ_ADD})
     public void addMemberToProject(@Validated @RequestBody OrgMemberExtendProjectRequest orgMemberExtendProjectRequest) {
         organizationService.addMemberToProject(orgMemberExtendProjectRequest, SessionUtils.getUserId());
     }
