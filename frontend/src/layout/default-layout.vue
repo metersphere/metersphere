@@ -65,6 +65,7 @@
   import usePermission from '@/hooks/usePermission';
   import PageLayout from './page-layout.vue';
   import MsBreadCrumb from '@/components/bussiness/ms-breadcrumb/index.vue';
+  import { GetTitleImgUrl } from '@/api/requrls/setting/config';
 
   interface Props {
     isPreview?: boolean;
@@ -96,9 +97,7 @@
   const route = useRoute();
   const permission = usePermission();
 
-  const innerLogo = computed(() =>
-    props.isPreview ? innerProps.value.logo : appStore.pageConfig.logoPlatform[0]?.url
-  );
+  const innerLogo = computed(() => (props.isPreview ? innerProps.value.logo : GetTitleImgUrl));
   const innerName = computed(() => (props.isPreview ? innerProps.value.name : appStore.pageConfig.platformName));
 
   const navbarHeight = `56px`;

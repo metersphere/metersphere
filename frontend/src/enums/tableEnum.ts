@@ -11,6 +11,6 @@ export enum TableKeyEnum {
   USERGROUPUSER = 'userGroupUser',
   SYSTEM_USER = 'systemUser',
   SYSTEM_RESOURCEPOOL = 'systemResourcePool',
-  SYSTEM_AUTH = 'systemResourcePool',
+  SYSTEM_AUTH = 'systemAuth',
   ORGANNATIONMEMBER = 'member',
 }

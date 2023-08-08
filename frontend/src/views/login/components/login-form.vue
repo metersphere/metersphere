@@ -2,8 +2,7 @@
   <div class="login-form" :style="props.isPreview ? 'height: inherit' : 'height: 100vh'">
     <div class="title">
       <div class="flex justify-center">
-        <img v-if="innerLogo" :src="innerLogo" class="h-[60px] w-[290px]" />
-        <svg-icon v-else width="290px" height="60px" name="login-logo" />
+        <img :src="innerLogo" class="h-[60px] w-[290px]" />
       </div>
       <div class="title-0 mt-[16px] flex justify-center">
         <span class="title-welcome">{{ innerSlogan || $t('login.form.title') }}</span>
@@ -61,8 +60,10 @@
   import { useStorage } from '@vueuse/core';
   import { useUserStore, useAppStore } from '@/store';
   import useLoading from '@/hooks/useLoading';
-  import type { LoginData } from '@/models/user';
   import { setLoginExpires } from '@/utils/auth';
+  import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
+
+  import type { LoginData } from '@/models/user';
 
   const router = useRouter();
   const { t } = useI18n();
@@ -76,7 +77,7 @@
   }>();
 
   const innerLogo = computed(() => {
-    return props.isPreview ? props.logo : appStore.pageConfig.loginLogo[0]?.url;
+    return props.isPreview ? props.logo : GetLoginLogoUrl;
   });
 
   const innerSlogan = computed(() => {

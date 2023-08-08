@@ -87,12 +87,17 @@ export interface DeleteUserParams {
 export interface SystemRole {
   id: string;
   name: string;
-  selected: boolean;
-  closeable: boolean;
+  selected: boolean; // 是否可选
+  closeable: boolean; // 是否可取消
 }
 
 export interface ImportResult {
   importCount: number;
   successCount: number;
   errorMessages: Record<string, any>;
+}
+
+export interface BatchAddUserGroupParams {
+  userIds: string[]; // 用户 id 集合
+  roleIds: string[]; // 用户组 id 集合
 }

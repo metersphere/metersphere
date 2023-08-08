@@ -10,7 +10,7 @@
       </div>
       <a-radio-group v-model:model-value="pageConfig.theme" type="button" class="mb-[4px]">
         <a-radio v-for="item of themeList" :key="item.value" :value="item.value">
-          {{ item.label }}
+          {{ t(item.label) }}
         </a-radio>
       </a-radio-group>
       <div v-if="pageConfig.theme === 'custom'" class="ml-[4px]">
@@ -24,7 +24,7 @@
       </div>
       <a-radio-group v-model:model-value="pageConfig.style" type="button" class="mb-[4px]">
         <a-radio v-for="item of styleList" :key="item.value" :value="item.value">
-          {{ item.label }}
+          {{ t(item.label) }}
         </a-radio>
       </a-radio-group>
       <div v-if="pageConfig.style === 'custom'" class="mb-[4px] ml-[4px]">
@@ -42,7 +42,7 @@
           <MsButton class="!leading-none" @click="resetLoginPageConfig">{{ t('system.config.page.reset') }}</MsButton>
         </div>
         <!-- 登录页预览盒子 -->
-        <div class="config-preview">
+        <div :class="['config-preview', currentLocale === 'en-US' ? 'config-preview--en' : '']">
           <div ref="loginPageFullRef" class="login-preview">
             <div :class="['config-preview-head', isLoginPageFullscreen ? 'full-preview-head' : '']">
               <div class="flex items-center justify-between">
@@ -194,7 +194,7 @@
           <MsButton class="!leading-none" @click="resetPlatformConfig">{{ t('system.config.page.reset') }}</MsButton>
         </div>
         <!-- 平台主页预览盒子 -->
-        <div class="config-preview !h-[290px]">
+        <div :class="['config-preview', '!h-[290px]', currentLocale === 'en-US' ? '!h-[340px]' : '']">
           <div ref="platformPageFullRef" class="login-preview">
             <div
               class="absolute right-[18px] top-[16px] z-[999] w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
@@ -302,6 +302,7 @@
   import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import { useI18n } from '@/hooks/useI18n';
+  import useLocale from '@/locale/useLocale';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsColorSelect from '@/components/pure/ms-color-select/index.vue';
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -313,12 +314,14 @@
   import defaultLayout from '@/layout/default-layout.vue';
   import { scrollIntoView } from '@/utils/dom';
   import { setCustomTheme, setPlatformColor, watchStyle, watchTheme } from '@/utils/theme';
+  import { sleep } from '@/utils';
   import { savePageConfig } from '@/api/modules/setting/config';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const defaultBanner = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
   const { t } = useI18n();
+  const { currentLocale } = useLocale();
   const appStore = useAppStore();
   const collapsedWidth = 86;
   const menuWidth = computed(() => {
@@ -336,26 +339,26 @@
 
   const styleList = [
     {
-      label: t('system.config.page.default'),
+      label: 'system.config.page.default',
       value: 'default',
     },
     {
-      label: t('system.config.page.follow'),
+      label: 'system.config.page.follow',
       value: 'follow',
     },
     {
-      label: t('system.config.page.custom'),
+      label: 'system.config.page.custom',
       value: 'custom',
     },
   ];
 
   const themeList = [
     {
-      label: t('system.config.page.default'),
+      label: 'system.config.page.default',
       value: 'default',
     },
     {
-      label: t('system.config.page.custom'),
+      label: 'system.config.page.custom',
       value: 'custom',
     },
   ];
@@ -424,7 +427,7 @@
         paramValue: pageConfig.value.icon[0]?.url,
         type: 'file',
         fileName: pageConfig.value.icon[0]?.name,
-        isDefault: pageConfig.value.icon.length === 0, // 是否为默认值
+        original: pageConfig.value.icon.length === 0, // 是否为默认值
         hasFile: pageConfig.value.icon[0]?.file, // 是否是上传了文件
       },
       {
@@ -432,7 +435,7 @@
         paramValue: pageConfig.value.loginLogo[0]?.url,
         type: 'file',
         fileName: pageConfig.value.loginLogo[0]?.name,
-        isDefault: pageConfig.value.loginLogo.length === 0,
+        original: pageConfig.value.loginLogo.length === 0,
         hasFile: pageConfig.value.loginLogo[0]?.file,
       },
       {
@@ -440,7 +443,7 @@
         paramValue: pageConfig.value.loginImage[0]?.url,
         type: 'file',
         fileName: pageConfig.value.loginImage[0]?.name,
-        isDefault: pageConfig.value.loginImage.length === 0,
+        original: pageConfig.value.loginImage.length === 0,
         hasFile: pageConfig.value.loginImage[0]?.file,
       },
       {
@@ -448,7 +451,7 @@
         paramValue: pageConfig.value.logoPlatform[0]?.url,
         type: 'file',
         fileName: pageConfig.value.logoPlatform[0]?.name,
-        isDefault: pageConfig.value.logoPlatform.length === 0,
+        original: pageConfig.value.logoPlatform.length === 0,
         hasFile: pageConfig.value.logoPlatform[0]?.file,
       },
       { paramKey: 'ui.slogan', paramValue: pageConfig.value.slogan, type: 'text' },
@@ -467,7 +470,7 @@
       { paramKey: 'ui.platformName', paramValue: pageConfig.value.platformName, type: 'text' },
     ].filter((e) => {
       if (e.type === 'file') {
-        return e.hasFile || e.isDefault;
+        return e.hasFile || e.original;
       }
       return true;
     });
@@ -507,8 +510,8 @@
       pageloading.value = true;
       await savePageConfig(makeParams());
       Message.success(t('system.config.page.saveSuccess'));
-      appStore.initPageConfig(); // 初始化页面配置
-      isSave.value = true;
+      await sleep(300);
+      window.location.reload();
     } catch (error) {
       console.log(error);
     } finally {
@@ -543,14 +546,16 @@
     if (isSave.value === false) {
       // 离开前未保存，需要判断是否更改了主题和风格，改了的话需要重置回来
       if (
-        pageConfig.value.style !== appStore.pageConfig.style &&
-        pageConfig.value.customStyle !== appStore.pageConfig.style
+        pageConfig.value.style === 'custom'
+          ? pageConfig.value.customStyle !== appStore.pageConfig.style
+          : pageConfig.value.style !== appStore.pageConfig.style
       ) {
         watchStyle(appStore.pageConfig.style, appStore.pageConfig);
       }
       if (
-        pageConfig.value.theme !== appStore.pageConfig.theme &&
-        pageConfig.value.customTheme !== appStore.pageConfig.theme
+        pageConfig.value.theme === 'custom'
+          ? pageConfig.value.customTheme !== appStore.pageConfig.theme
+          : pageConfig.value.theme !== appStore.pageConfig.theme
       ) {
         watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
       }
@@ -576,8 +581,14 @@
       @apply relative flex  items-start overflow-hidden;
 
       height: 495px;
+      &--en {
+        height: 595px;
+      }
       @media screen and (min-width: 1600px) {
         height: 550px;
+        &--en {
+          height: 570px;
+        }
       }
       @media screen and (min-width: 1800px) {
         height: auto;
@@ -599,7 +610,7 @@
 
         width: 740px;
         @media screen and (min-width: 1600px) {
-          width: 882px;
+          width: 888px;
         }
         @media screen and (min-width: 1800px) {
           width: 100%;
@@ -637,6 +648,7 @@
       }
       .config-form {
         margin-left: 12px;
+        width: 40%;
         .config-form-card {
           @apply bg-white;
 

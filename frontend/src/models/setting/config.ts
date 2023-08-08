@@ -89,6 +89,9 @@ export interface PageConfig extends ThemeConfig, LoginConfig, PlatformConfig {}
 
 export type PageConfigKeys = keyof PageConfig;
 
+// 认证源类型
+export type AuthType = 'CAS' | 'LDAP' | 'OAuth2' | 'OIDC';
+
 // 认证源配置列表项对象
 export interface AuthItem {
   id: string;
@@ -97,7 +100,7 @@ export interface AuthItem {
   updateTime: number;
   description: string;
   name: string;
-  type: string;
+  type: AuthType;
   configuration: string;
 }
 
@@ -110,7 +113,7 @@ export interface AuthForm {
   enable: boolean;
   description: string;
   name: string;
-  type: string;
+  type: AuthType;
   configuration: Recordable;
 }
 
@@ -121,3 +124,9 @@ export type AuthParams = Omit<AuthForm, 'configuration'> & {
 
 // 认证源配置详情对象
 export type AuthDetail = AuthForm & Omit<AuthItem, 'configuration'>;
+
+// 更新认证源状态入参
+export interface UpdateAuthStatusParams {
+  id: string;
+  enable: boolean;
+}

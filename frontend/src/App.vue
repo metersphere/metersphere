@@ -14,7 +14,8 @@
   import { saveBaseInfo, getBaseInfo } from '@/api/modules/setting/config';
   import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
   import useAppStore from '@/store/modules/app';
-  import { watchStyle, watchTheme } from '@/utils/theme';
+  import { watchStyle, watchTheme, setFavicon } from '@/utils/theme';
+  import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
 
   const appStore = useAppStore();
 
@@ -34,6 +35,7 @@
   watchStyle(appStore.pageConfig.style, appStore.pageConfig);
   watchTheme(appStore.pageConfig.theme, appStore.pageConfig);
   window.document.title = appStore.pageConfig.title;
+  setFavicon(GetPlatformIconUrl);
 
   onBeforeMount(async () => {
     try {

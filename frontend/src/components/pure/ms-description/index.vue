@@ -25,7 +25,9 @@
       </template>
       <a-button v-else-if="item.isButton" type="text" @click="handleItemClick(item)">{{ item.value }}</a-button>
       <div v-else>
-        <slot name="value" :item="item">{{ item.value?.toString() === '' ? '-' : item.value }}</slot>
+        <slot name="value" :item="item">
+          {{ item.value === undefined || item.value === null || item.value?.toString() === '' ? '-' : item.value }}
+        </slot>
       </div>
     </a-descriptions-item>
   </a-descriptions>

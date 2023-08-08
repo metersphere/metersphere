@@ -10,7 +10,9 @@ import {
   GetAuthListUrl,
   GetAuthDetailUrl,
   UpdateAuthUrl,
+  UpdateAuthStatusUrl,
   AddAuthUrl,
+  DeleteAuthUrl,
 } from '@/api/requrls/setting/config';
 import { TableQueryParams } from '@/models/common';
 
@@ -23,6 +25,7 @@ import type {
   PageConfigReturns,
   AuthItem,
   AuthParams,
+  UpdateAuthStatusParams,
 } from '@/models/setting/config';
 
 // 测试邮箱连接
@@ -67,7 +70,7 @@ export function getAuthList(data: TableQueryParams) {
 
 // 获取认证源详情
 export function getAuthDetail(id: string) {
-  return MSR.get<AuthItem>({ url: GetAuthDetailUrl, params: { id } });
+  return MSR.get<AuthItem>({ url: GetAuthDetailUrl, params: id });
 }
 
 // 添加认证源
@@ -78,4 +81,14 @@ export function addAuth(data: AuthParams) {
 // 更新认证源
 export function updateAuth(data: AuthParams) {
   return MSR.post({ url: UpdateAuthUrl, data });
+}
+
+// 更新认证源状态
+export function updateAuthStatus(data: UpdateAuthStatusParams) {
+  return MSR.post({ url: UpdateAuthStatusUrl, data });
+}
+
+// 删除认证源
+export function deleteAuth(id: string) {
+  return MSR.get({ url: DeleteAuthUrl, params: id });
 }

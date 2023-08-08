@@ -32,7 +32,7 @@
     </MsCard>
     <MsDrawer
       v-model:visible="showDetailDrawer"
-      :width="480"
+      :width="680"
       :title="activeAuthDetail.name"
       :title-tag="activeAuthDetail.enable ? t('system.config.auth.enable') : t('system.config.auth.disable')"
       :title-tag-color="activeAuthDetail.enable ? 'green' : 'gray'"
@@ -43,7 +43,7 @@
       show-description
     >
       <template #tbutton>
-        <a-button type="outline" size="mini" :disabled="detailDrawerLoading" @click="editAuth(activeAuthDetail)">
+        <a-button type="outline" size="mini" :disabled="detailDrawerLoading" @click="editAuth(activeAuthDetail, true)">
           {{ t('system.config.auth.edit') }}
         </a-button>
       </template>
@@ -54,7 +54,7 @@
       :ok-text="t(isEdit ? 'system.config.auth.update' : 'system.config.auth.drawerAdd')"
       :ok-loading="drawerLoading"
       :width="680"
-      show-continue
+      :show-continue="!isEdit"
       @confirm="handleDrawerConfirm"
       @continue="handleDrawerConfirm(true)"
       @cancel="handleDrawerCancel"
@@ -62,7 +62,7 @@
       <a-form ref="authFormRef" :model="activeAuthForm" layout="vertical">
         <a-form-item
           :label="t('system.config.auth.name')"
-          field="url"
+          field="name"
           asterisk-position="end"
           :rules="[{ required: true, message: t('system.config.auth.nameRequired') }]"
           required
@@ -74,7 +74,7 @@
             allow-clear
           ></a-input>
         </a-form-item>
-        <a-form-item :label="t('system.config.auth.desc')" field="url" asterisk-position="end">
+        <a-form-item :label="t('system.config.auth.desc')" field="description" asterisk-position="end">
           <a-textarea
             v-model:model-value="activeAuthForm.description"
             :max-length="250"
@@ -82,7 +82,7 @@
             allow-clear
           ></a-textarea>
         </a-form-item>
-        <a-form-item :label="t('system.config.auth.addResource')" field="url" asterisk-position="end">
+        <a-form-item :label="t('system.config.auth.addResource')" field="type" asterisk-position="end">
           <a-radio-group v-model:model-value="activeAuthForm.type" type="button">
             <a-radio v-for="item of authTypeList" :key="item" :value="item">{{ item }}</a-radio>
           </a-radio-group>
@@ -90,13 +90,13 @@
         <template v-if="activeAuthForm.type === 'CAS'">
           <a-form-item
             :label="t('system.config.auth.serviceUrl')"
-            field="url"
+            field="configuration.casUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.serviceUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.serviceUrl"
+              v-model:model-value="activeAuthForm.configuration.casUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.serviceUrlPlaceholder')"
               allow-clear
@@ -104,7 +104,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.loginUrl')"
-            field="url"
+            field="configuration.loginUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.loginUrlRequired') }]"
             required
@@ -119,13 +119,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.callbackUrl')"
-            field="url"
+            field="configuration.redirectUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.callbackUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.callbackUrl"
+              v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.callbackUrlPlaceholder')"
               allow-clear
@@ -133,13 +133,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.verifyUrl')"
-            field="url"
+            field="configuration.validateUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.verifyUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.verifyUrl"
+              v-model:model-value="activeAuthForm.configuration.validateUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.verifyUrlPlaceholder')"
               allow-clear
@@ -150,7 +150,7 @@
         <template v-else-if="activeAuthForm.type === 'OIDC'">
           <a-form-item
             :label="t('system.config.auth.authUrl')"
-            field="url"
+            field="configuration.authUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.authUrlRequired') }]"
             required
@@ -164,7 +164,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.tokenUrl')"
-            field="url"
+            field="configuration.tokenUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.tokenUrlRequired') }]"
             required
@@ -178,7 +178,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.userInfoUrl')"
-            field="url"
+            field="configuration.userInfoUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.userInfoUrlRequired') }]"
             required
@@ -192,13 +192,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.callbackUrl')"
-            field="url"
+            field="configuration.redirectUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.callbackUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.callbackUrl"
+              v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.OIDCCallbackUrlPlaceholder')"
               allow-clear
@@ -206,7 +206,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.clientId')"
-            field="url"
+            field="configuration.clientId"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.clientIdRequired') }]"
             required
@@ -220,13 +220,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.clientSecret')"
-            field="url"
+            field="configuration.secret"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.clientSecretRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.clientSecret"
+              v-model:model-value="activeAuthForm.configuration.secret"
               :max-length="250"
               :placeholder="t('system.config.auth.clientSecretPlaceholder')"
               allow-clear
@@ -234,19 +234,19 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.logoutSessionUrl')"
-            field="url"
+            field="configuration.logoutUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.logoutSessionUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.logoutSessionUrl"
+              v-model:model-value="activeAuthForm.configuration.logoutUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.logoutSessionUrlPlaceholder')"
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.loginUrl')" field="url" asterisk-position="end">
+          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="250"
@@ -259,7 +259,7 @@
         <template v-else-if="activeAuthForm.type === 'OAuth2'">
           <a-form-item
             :label="t('system.config.auth.authUrl')"
-            field="url"
+            field="configuration.authUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.authUrlRequired') }]"
             required
@@ -273,7 +273,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.tokenUrl')"
-            field="url"
+            field="configuration.tokenUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.tokenUrlRequired') }]"
             required
@@ -287,7 +287,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.userInfoUrl')"
-            field="url"
+            field="configuration.userInfoUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.userInfoUrlRequired') }]"
             required
@@ -301,13 +301,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.callbackUrl')"
-            field="url"
+            field="configuration.redirectUrl"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.callbackUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.callbackUrl"
+              v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.OIDCCallbackUrlPlaceholder')"
               allow-clear
@@ -315,7 +315,7 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.clientId')"
-            field="url"
+            field="configuration.clientId"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.clientIdRequired') }]"
             required
@@ -329,13 +329,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.clientSecret')"
-            field="url"
+            field="configuration.secret"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.clientSecretRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.clientSecret"
+              v-model:model-value="activeAuthForm.configuration.secret"
               :max-length="250"
               :placeholder="t('system.config.auth.clientSecretPlaceholder')"
               allow-clear
@@ -343,35 +343,39 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.propertyMap')"
-            field="url"
+            field="configuration.mapping"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.propertyMapRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.propertyMap"
+              v-model:model-value="activeAuthForm.configuration.mapping"
               :max-length="250"
-              :placeholder="t('system.config.auth.propertyMapPlaceholder')"
+              placeholder="{'userid':'login','username':'name','email':'email'}"
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.logoutSessionUrl')" field="url" asterisk-position="end">
+          <a-form-item
+            :label="t('system.config.auth.logoutSessionUrl')"
+            field="configuration.logoutUrl"
+            asterisk-position="end"
+          >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.logoutSessionUrl"
+              v-model:model-value="activeAuthForm.configuration.logoutUrl"
               :max-length="250"
               :placeholder="t('system.config.auth.logoutSessionUrlPlaceholder')"
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.linkRange')" field="url" asterisk-position="end">
+          <a-form-item :label="t('system.config.auth.linkRange')" field="configuration.scope" asterisk-position="end">
             <a-input
-              v-model:model-value="activeAuthForm.configuration.linkRange"
+              v-model:model-value="activeAuthForm.configuration.scope"
               :max-length="250"
               :placeholder="t('system.config.auth.linkRangePlaceholder')"
               allow-clear
             ></a-input>
           </a-form-item>
-          <a-form-item :label="t('system.config.auth.loginUrl')" field="url" asterisk-position="end">
+          <a-form-item :label="t('system.config.auth.loginUrl')" field="configuration.loginUrl" asterisk-position="end">
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="250"
@@ -384,13 +388,13 @@
         <template v-else-if="activeAuthForm.type === 'LDAP'">
           <a-form-item
             :label="t('system.config.auth.LDAPUrl')"
-            field="url"
+            field="configuration.url"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.LDAPUrlRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.LDAPUrl"
+              v-model:model-value="activeAuthForm.configuration.url"
               :max-length="250"
               :placeholder="t('system.config.auth.LDAPUrlPlaceholder')"
               allow-clear
@@ -399,41 +403,43 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.DN')"
-            field="url"
+            field="configuration.dn"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.DNRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.DN"
+              v-model:model-value="activeAuthForm.configuration.dn"
               :max-length="250"
               :placeholder="t('system.config.auth.DNPlaceholder')"
+              :input-attrs="{ autocomplete: 'off' }"
               allow-clear
             ></a-input>
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.password')"
-            field="url"
+            field="configuration.password"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.passwordRequired') }]"
             required
           >
-            <a-input
+            <a-input-password
               v-model:model-value="activeAuthForm.configuration.password"
               :max-length="250"
-              :placeholder="t('system.config.auth.passwordPlaceholder')"
+              :placeholder="t('system.config.auth.LDAPPasswordPlaceholder')"
+              :input-attrs="{ autocomplete: 'off' }"
               allow-clear
-            ></a-input>
+            ></a-input-password>
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.OU')"
-            field="url"
+            field="configuration.ou"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.OURequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.OU"
+              v-model:model-value="activeAuthForm.configuration.ou"
               :max-length="250"
               :placeholder="t('system.config.auth.OUPlaceholder')"
               allow-clear
@@ -442,13 +448,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.userFilter')"
-            field="url"
+            field="configuration.filter"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.userFilterRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.userFilter"
+              v-model:model-value="activeAuthForm.configuration.filter"
               :max-length="250"
               :placeholder="t('system.config.auth.userFilterPlaceholder')"
               allow-clear
@@ -457,13 +463,13 @@
           </a-form-item>
           <a-form-item
             :label="t('system.config.auth.LDAPPropertyMap')"
-            field="url"
+            field="configuration.mapping"
             asterisk-position="end"
             :rules="[{ required: true, message: t('system.config.auth.LDAPPropertyMapRequired') }]"
             required
           >
             <a-input
-              v-model:model-value="activeAuthForm.configuration.LDAPPropertyMap"
+              v-model:model-value="activeAuthForm.configuration.mapping"
               :max-length="250"
               :placeholder="t('system.config.auth.LDAPPropertyMapPlaceholder')"
               allow-clear
@@ -495,14 +501,22 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import useModal from '@/hooks/useModal';
-  import { getAuthList, getAuthDetail, addAuth, updateAuth } from '@/api/modules/setting/config';
+  import {
+    getAuthList,
+    getAuthDetail,
+    addAuth,
+    updateAuth,
+    updateAuthStatus,
+    deleteAuth,
+  } from '@/api/modules/setting/config';
   import MsFormItemSub from '@/components/bussiness/ms-form-item-sub/index.vue';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import type { AuthDetail, AuthForm, AuthItem } from '@/models/setting/config';
+  import type { AuthDetail, AuthForm, AuthItem, AuthType } from '@/models/setting/config';
+  import type { Description } from '@/components/pure/ms-description/index.vue';
 
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -572,7 +586,7 @@
    */
   async function enableAuth(record: any) {
     openModal({
-      type: 'warning',
+      type: 'info',
       title: t('system.config.auth.enableTipTitle', { name: record.name }),
       content: t('system.config.auth.enableTipContent'),
       okText: t('system.config.auth.enableConfirm'),
@@ -585,7 +599,10 @@
       onBeforeOk: async () => {
         try {
           enableLoading.value = true;
-          // await togglePoolStatus(record.id);
+          await updateAuthStatus({
+            id: record.id,
+            enable: true,
+          });
           Message.success(t('system.config.auth.enableSuccess'));
           loadList();
           return true;
@@ -606,7 +623,7 @@
    */
   function disabledAuth(record: any) {
     openModal({
-      type: 'warning',
+      type: 'info',
       title: t('system.config.auth.disableTipTitle', { name: record.name }),
       content: t('system.config.auth.disableTipContent'),
       okText: t('system.config.auth.disableConfirm'),
@@ -619,7 +636,10 @@
       onBeforeOk: async () => {
         try {
           disableLoading.value = true;
-          // await togglePoolStatus(record.id);
+          await updateAuthStatus({
+            id: record.id,
+            enable: false,
+          });
           Message.success(t('system.config.auth.disableSuccess'));
           loadList();
           return true;
@@ -638,7 +658,7 @@
   /**
    * 删除认证源
    */
-  function deleteAuth(record: any) {
+  function delAuth(record: any) {
     openModal({
       type: 'warning',
       title: t('system.config.auth.deleteTipTitle', { name: record.name }),
@@ -656,7 +676,7 @@
       onBeforeOk: async () => {
         try {
           delLoading.value = true;
-          // await delPoolInfo(record.id);
+          await deleteAuth(record.id);
           Message.success(t('system.config.auth.deleteSuccess'));
           loadList();
           return true;
@@ -678,7 +698,7 @@
   function handleSelect(item: ActionsItem, record: any) {
     switch (item.eventTag) {
       case 'delete':
-        deleteAuth(record);
+        delAuth(record);
         break;
       default:
         break;
@@ -687,13 +707,13 @@
 
   const showDetailDrawer = ref(false);
   const detailDrawerLoading = ref(false);
-  const activeAuthDesc = ref([]);
+  const activeAuthDesc = ref<Description[]>([]);
   const activeAuthDetail = ref<AuthDetail>({
     id: '',
     enable: true,
     description: '',
     name: '',
-    type: '',
+    type: 'CAS',
     updateTime: 0,
     createTime: 0,
     configuration: {},
@@ -709,6 +729,142 @@
       detailDrawerLoading.value = true;
       const res = await getAuthDetail(record.id);
       activeAuthDetail.value = { ...res, configuration: JSON.parse(res.configuration || '{}') };
+      const { configuration } = activeAuthDetail.value;
+      let description: Description[] = [
+        {
+          label: t('system.config.auth.desc'),
+          value: activeAuthDetail.value.description,
+        },
+      ];
+      switch (res.type) {
+        case 'CAS':
+          description = description.concat([
+            {
+              label: t('system.config.auth.serviceUrl'),
+              value: configuration.casUrl,
+            },
+            {
+              label: t('system.config.auth.loginUrl'),
+              value: configuration.loginUrl,
+            },
+            {
+              label: t('system.config.auth.callbackUrl'),
+              value: configuration.redirectUrl,
+            },
+            {
+              label: t('system.config.auth.verifyUrl'),
+              value: configuration.validateUrl,
+            },
+          ]);
+          break;
+        case 'OIDC':
+          description = description.concat([
+            {
+              label: t('system.config.auth.authUrl'),
+              value: configuration.authUrl,
+            },
+            {
+              label: t('system.config.auth.tokenUrl'),
+              value: configuration.tokenUrl,
+            },
+            {
+              label: t('system.config.auth.userInfoUrl'),
+              value: configuration.userInfoUrl,
+            },
+            {
+              label: t('system.config.auth.callbackUrl'),
+              value: configuration.redirectUrl,
+            },
+            {
+              label: t('system.config.auth.clientId'),
+              value: configuration.clientId,
+            },
+            {
+              label: t('system.config.auth.clientSecret'),
+              value: configuration.secret,
+            },
+            {
+              label: t('system.config.auth.logoutSessionUrl'),
+              value: configuration.logoutUrl,
+            },
+            {
+              label: t('system.config.auth.loginUrl'),
+              value: configuration.loginUrl,
+            },
+          ]);
+          break;
+        case 'OAuth2':
+          description = description.concat([
+            {
+              label: t('system.config.auth.authUrl'),
+              value: configuration.authUrl,
+            },
+            {
+              label: t('system.config.auth.tokenUrl'),
+              value: configuration.tokenUrl,
+            },
+            {
+              label: t('system.config.auth.userInfoUrl'),
+              value: configuration.userInfoUrl,
+            },
+            {
+              label: t('system.config.auth.callbackUrl'),
+              value: configuration.redirectUrl,
+            },
+            {
+              label: t('system.config.auth.clientId'),
+              value: configuration.clientId,
+            },
+            {
+              label: t('system.config.auth.clientSecret'),
+              value: configuration.secret,
+            },
+            {
+              label: t('system.config.auth.logoutSessionUrl'),
+              value: configuration.logoutUrl,
+            },
+            {
+              label: t('system.config.auth.linkRange'),
+              value: configuration.scope,
+            },
+            {
+              label: t('system.config.auth.loginUrl'),
+              value: configuration.loginUrl,
+            },
+          ]);
+          break;
+        case 'LDAP':
+          description = description.concat([
+            {
+              label: t('system.config.auth.LDAPUrl'),
+              value: configuration.url,
+            },
+            {
+              label: t('system.config.auth.DN'),
+              value: configuration.dn,
+            },
+            {
+              label: t('system.config.auth.password'),
+              value: configuration.password,
+            },
+            {
+              label: t('system.config.auth.OU'),
+              value: configuration.ou,
+            },
+            {
+              label: t('system.config.auth.userFilter'),
+              value: configuration.filter,
+            },
+            {
+              label: t('system.config.auth.LDAPPropertyMap'),
+              value: configuration.mapping,
+            },
+          ]);
+          break;
+        default:
+          break;
+      }
+      activeAuthDesc.value = description;
     } catch (error) {
       console.log(error);
     } finally {
@@ -726,7 +882,7 @@
     enable: true,
     description: '',
     name: '',
-    type: 'CAS',
+    type: 'CAS' as AuthType,
     configuration: {},
   };
   const activeAuthForm = ref<AuthForm>({
@@ -737,15 +893,31 @@
   /**
    * 编辑认证源
    * @param record 表格项
+   * @param isFromDetail 是否从详情抽屉打开编辑
    */
-  function editAuth(record: AuthItem | AuthDetail) {
-    drawerTitle.value = t('system.config.auth.update');
-    showDrawer.value = true;
-    activeAuthForm.value = {
-      ...record,
-      configuration:
-        typeof record.configuration === 'string' ? JSON.parse(record.configuration || '{}') : record.configuration,
-    };
+  async function editAuth(record: AuthItem | AuthDetail, isFromDetail = false) {
+    if (isFromDetail) {
+      drawerTitle.value = t('system.config.auth.update');
+      showDrawer.value = true;
+      activeAuthForm.value = { ...record } as AuthDetail;
+      showDetailDrawer.value = false;
+      return;
+    }
+    try {
+      drawerTitle.value = t('system.config.auth.update');
+      showDrawer.value = true;
+      drawerLoading.value = true;
+      const res = await getAuthDetail(record.id);
+      activeAuthForm.value = {
+        ...res,
+        configuration:
+          typeof res.configuration === 'string' ? JSON.parse(res.configuration || '{}') : res.configuration,
+      };
+    } catch (error) {
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
   }
 
   /**
@@ -767,13 +939,64 @@
   async function saveAuth(isContinue: boolean) {
     try {
       drawerLoading.value = true;
+      const { configuration } = activeAuthForm.value;
+      let _configuration = {};
+      switch (activeAuthForm.value.type) {
+        case 'CAS':
+          _configuration = {
+            casUrl: configuration.casUrl,
+            loginUrl: configuration.loginUrl,
+            redirectUrl: configuration.redirectUrl,
+            validateUrl: configuration.validateUrl,
+          };
+          break;
+        case 'OIDC':
+          _configuration = {
+            authUrl: configuration.authUrl,
+            tokenUrl: configuration.tokenUrl,
+            userInfoUrl: configuration.userInfoUrl,
+            redirectUrl: configuration.redirectUrl,
+            clientId: configuration.clientId,
+            secret: configuration.secret,
+            logoutUrl: configuration.logoutUrl,
+            loginUrl: configuration.loginUrl,
+          };
+          break;
+        case 'OAuth2':
+          _configuration = {
+            authUrl: configuration.authUrl,
+            tokenUrl: configuration.tokenUrl,
+            userInfoUrl: configuration.userInfoUrl,
+            redirectUrl: configuration.redirectUrl,
+            clientId: configuration.clientId,
+            secret: configuration.secret,
+            mapping: configuration.mapping,
+            logoutUrl: configuration.logoutUrl,
+            scope: configuration.scope,
+            loginUrl: configuration.loginUrl,
+          };
+          break;
+        case 'LDAP':
+          _configuration = {
+            url: configuration.url,
+            dn: configuration.dn,
+            password: configuration.password,
+            ou: configuration.ou,
+            filter: configuration.filter,
+            mapping: configuration.mapping,
+          };
+          break;
+        default:
+          break;
+      }
       const params = {
         ...activeAuthForm.value,
-        configuration: JSON.stringify(activeAuthForm.value.configuration),
+        configuration: JSON.stringify(_configuration),
       };
       if (isEdit.value) {
         await updateAuth(params);
         Message.success(t('system.config.auth.updateSuccess'));
+        showDrawer.value = false;
       } else {
         await addAuth(params);
         Message.success(t('system.config.auth.addSuccess'));
@@ -783,6 +1006,7 @@
           showDrawer.value = false;
         }
       }
+      loadList();
     } catch (error) {
       console.log(error);
     } finally {
@@ -790,6 +1014,10 @@
     }
   }
 
+  /**
+   * 处理抽屉确认
+   * @param isContinue 是否继续添加
+   */
   function handleDrawerConfirm(isContinue: boolean) {
     authFormRef.value?.validate(async (errors: Record<string, ValidatedError> | undefined) => {
       if (!errors) {
