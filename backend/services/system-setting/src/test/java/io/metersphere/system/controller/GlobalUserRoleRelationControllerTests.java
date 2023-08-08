@@ -5,6 +5,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.dto.UserRoleRelationUserDTO;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.Pager;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationQueryRequestDefinition;
 import io.metersphere.system.controller.param.GlobalUserRoleRelationUpdateRequestDefinition;
@@ -102,12 +103,9 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         request.setUserIds(Arrays.asList(ADMIN.getValue()));
         request.setRoleId(nonInternalUserRole.getId());
         this.requestPostWithOk(DEFAULT_ADD, request);
-        UserRoleRelationExample example = new UserRoleRelationExample();
-        example.createCriteria()
-                .andRoleIdEqualTo(request.getRoleId())
-                .andUserIdEqualTo(ADMIN.getValue());
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleRelationMapper.selectByExample(example)));
-        addUserRoleRelation = userRoleRelationMapper.selectByExample(example).get(0);
+        List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(request.getRoleId(), ADMIN.getValue());
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(userRoleRelations));
+        addUserRoleRelation = userRoleRelations.get(0);
 
         // @@校验日志
         checkLog(addUserRoleRelation.getRoleId(), OperationLogType.ADD);
@@ -153,14 +151,14 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         // @@操作非全局用户组异常
         assertErrorCode(this.requestGet(DEFAULT_DELETE, getNonGlobalUserRoleRelation().getId()), GLOBAL_USER_ROLE_PERMISSION);
 
+        // @@校验必须有一个系统用户组
+        UserRoleRelation permissionUserRoleRelation = userRoleRelationMapper.selectByPrimaryKey(BaseUserRoleService.SYSTEM_TYPE);
+        assertErrorCode(this.requestGet(DEFAULT_DELETE, permissionUserRoleRelation.getId()), GLOBAL_USER_ROLE_LIMIT);
+
         // @@删除admin系统管理员用户组异常
-        UserRoleRelationExample example = new UserRoleRelationExample();
-        example.createCriteria()
-                .andRoleIdEqualTo(ADMIN.getValue())
-                .andUserIdEqualTo(ADMIN.getValue());
-        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        List<UserRoleRelation> userRoleRelations = getUserRoleRelationByRoleIdAndUserId(ADMIN.getValue(), ADMIN.getValue());
         assertErrorCode(this.requestGet(DEFAULT_DELETE, userRoleRelations.get(0).getId()),
-               USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION);
+                USER_ROLE_RELATION_REMOVE_ADMIN_USER_PERMISSION);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_USER_ROLE_UPDATE, DEFAULT_DELETE, addUserRoleRelation.getId());
@@ -221,5 +219,13 @@ class GlobalUserRoleRelationControllerTests extends BaseTest {
         nonInternalRole.setId(UUID.randomUUID().toString());
         userRoleMapper.insert(nonInternalRole);
         return nonInternalRole;
+    }
+
+    private List<UserRoleRelation> getUserRoleRelationByRoleIdAndUserId(String roleId, String userId) {
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria()
+                .andRoleIdEqualTo(roleId)
+                .andUserIdEqualTo(userId);
+        return userRoleRelationMapper.selectByExample(example);
     }
 }

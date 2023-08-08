@@ -188,7 +188,7 @@ public class OrganizationService {
             }
         });
         if (CollectionUtils.isNotEmpty(userRoleRelations)) {
-            extUserRoleRelationMapper.batchInsert(userRoleRelations);
+            userRoleRelationMapper.batchInsert(userRoleRelations);
         }
     }
 

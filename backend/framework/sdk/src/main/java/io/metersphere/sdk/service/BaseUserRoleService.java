@@ -9,6 +9,7 @@ import io.metersphere.sdk.util.PermissionCache;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
+import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 
@@ -33,9 +35,9 @@ public class BaseUserRoleService {
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
-    private BaseUserRolePermissionService baseUserRolePermissionService;
+    protected BaseUserRolePermissionService baseUserRolePermissionService;
     @Resource
-    private BaseUserRoleRelationService baseUserRoleRelationService;
+    protected BaseUserRoleRelationService baseUserRoleRelationService;
 
     /**
      * 根据用户组获取对应的权限配置项
@@ -101,7 +103,7 @@ public class BaseUserRoleService {
         }
         String[] idSplit = p.getId().split(":");
         String permissionKey = idSplit[idSplit.length - 1];
-        Map<String, String> translationMap = new HashMap<>(){{
+        Map<String, String> translationMap = new HashMap<>() {{
             put("READ", "permission.read");
             put("READ+ADD", "permission.add");
             put("READ+UPDATE", "permission.edit");
@@ -114,6 +116,7 @@ public class BaseUserRoleService {
 
     /**
      * 更新单个用户组的配置项
+     *
      * @param request
      */
     protected void updatePermissionSetting(PermissionSettingUpdateRequest request) {
@@ -139,14 +142,24 @@ public class BaseUserRoleService {
 
     /**
      * 删除用户组，并且删除用户组与用户的关联关系，用户组与权限的关联关系
+     *
      * @param userRole
      */
-    public void delete(UserRole userRole) {
+    public void delete(UserRole userRole, String defaultRoleId, String currentUserId) {
         String id = userRole.getId();
         checkInternalUserRole(userRole);
+
+        // 删除用户组的权限设置
         baseUserRolePermissionService.deleteByRoleId(id);
-        baseUserRoleRelationService.deleteByRoleId(id);
+
+        // 删除用户组
         userRoleMapper.deleteByPrimaryKey(id);
+
+        // 检查是否只有一个用户组，如果是则添加系统成员等默认用户组
+        checkOneLimitRole(id, defaultRoleId, currentUserId);
+
+        // 删除用户组与用户的关联关系
+        baseUserRoleRelationService.deleteByRoleId(id);
     }
 
     /**
@@ -163,9 +176,9 @@ public class BaseUserRoleService {
     }
 
     public List<UserRole> getList(List<String> idList) {
-        if(CollectionUtils.isEmpty(idList)){
+        if (CollectionUtils.isEmpty(idList)) {
             return new ArrayList<>();
-        }else {
+        } else {
             UserRoleExample example = new UserRoleExample();
             example.createCriteria().andIdIn(idList);
             return userRoleMapper.selectByExample(example);
@@ -175,5 +188,44 @@ public class BaseUserRoleService {
     public String getLogDetails(String id) {
         UserRole userRole = userRoleMapper.selectByPrimaryKey(id);
         return userRole == null ? null : userRole.getName();
+    }
+
+    /**
+     * 删除用户组时校验必须要有一个用户组
+     * 没有的话，添加系统成员，组织成员，项目成员用户组
+     * @param defaultRoleId 默认用户组id
+     * @param currentUserId 当前用户id
+     */
+    public void checkOneLimitRole(String roleId, String defaultRoleId, String currentUserId) {
+
+        // 查询要删除的用户组关联的用户ID
+        List<String> userIds = baseUserRoleRelationService.getUserIdRoleId(roleId);
+
+        if (CollectionUtils.isEmpty(userIds)) {
+           return;
+        }
+
+        // 查询用户列表与所有用户组的关联关系，并分组（UserRoleRelation 中只有 userId 和 sourceId）
+        Map<String, List<UserRoleRelation>> userRoleRelationMap = baseUserRoleRelationService
+                .getUserIdAndSourceIdByUserIds(userIds)
+                .stream()
+                .collect(Collectors.groupingBy(i -> i.getUserId() + i.getSourceId()));
+
+        List<UserRoleRelation> addRelations = new ArrayList<>();
+        userRoleRelationMap.forEach((groupId, relations) -> {
+            // 如果当前用户组只有一个用户，并且就是要删除的用户组，则添加组织成员等默认用户组
+            if (relations.size() == 1 && StringUtils.equals(relations.get(0).getRoleId(), roleId)) {
+                UserRoleRelation relation = new UserRoleRelation();
+                relation.setId(UUID.randomUUID().toString());
+                relation.setUserId(relations.get(0).getUserId());
+                relation.setSourceId(relations.get(0).getSourceId());
+                relation.setRoleId(defaultRoleId);
+                relation.setCreateTime(System.currentTimeMillis());
+                relation.setCreateUser(currentUserId);
+                addRelations.add(relation);
+            }
+        });
+
+        baseUserRoleRelationService.batchInsert(addRelations);
     }
 }

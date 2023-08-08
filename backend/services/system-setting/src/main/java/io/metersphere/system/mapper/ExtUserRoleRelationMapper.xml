@@ -30,12 +30,4 @@
             )
         </if>
     </select>
-
-    <insert id="batchInsert" parameterType="java.util.List">
-        insert into user_role_relation (id, user_id, role_id, source_id, create_time, create_user)
-        values
-        <foreach collection="list" item="item" separator="," >
-            (#{item.id}, #{item.userId}, #{item.roleId}, #{item.sourceId}, #{item.createTime}, #{item.createUser})
-        </foreach>
-    </insert>
 </mapper>

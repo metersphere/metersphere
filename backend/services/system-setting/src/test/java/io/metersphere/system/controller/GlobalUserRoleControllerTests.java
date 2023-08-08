@@ -4,6 +4,7 @@ import io.metersphere.sdk.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserRoleType;
+import io.metersphere.sdk.constants.UserSourceEnum;
 import io.metersphere.sdk.dto.Permission;
 import io.metersphere.sdk.dto.PermissionDefinitionItem;
 import io.metersphere.sdk.dto.request.PermissionSettingUpdateRequest;
@@ -11,11 +12,18 @@ import io.metersphere.sdk.dto.request.UserRoleUpdateRequest;
 import io.metersphere.sdk.log.constants.OperationLogType;
 import io.metersphere.sdk.service.BaseUserRolePermissionService;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.SessionUtils;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
 import io.metersphere.system.controller.param.UserRoleUpdateRequestDefinition;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -27,7 +35,7 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.constants.InternalUserRole.*;
 import static io.metersphere.sdk.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.*;
 import static io.metersphere.system.service.GlobalUserRoleService.GLOBAL_SCOPE;
@@ -48,6 +56,11 @@ class GlobalUserRoleControllerTests extends BaseTest {
 
     // 保存创建的用户组，方便之后的修改和删除测试使用
     private static UserRole addUserRole;
+    private static UserRole anotherUserRole;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
     @Override
     protected String getBasePath() {
         return BASE_PATH;
@@ -90,11 +103,17 @@ class GlobalUserRoleControllerTests extends BaseTest {
         Assertions.assertEquals(request.getName(), userRole.getName());
         Assertions.assertEquals(request.getType(), userRole.getType());
         Assertions.assertEquals(request.getDescription(), userRole.getDescription());
+
         // @@校验日志
         checkLog(this.addUserRole.getId(), OperationLogType.ADD);
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), GLOBAL_USER_ROLE_EXIST);
+
+        // 在添加一条数据，供删除没有关联用户的用户组使用，提高覆盖率
+        request.setName("other name");
+        MvcResult anotherMvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
+        anotherUserRole = userRoleMapper.selectByPrimaryKey(getResultData(anotherMvcResult, UserRole.class).getId());
 
         // @@异常参数校验
         createdGroupParamValidateTest(UserRoleUpdateRequestDefinition.class, DEFAULT_ADD);
@@ -242,14 +261,27 @@ class GlobalUserRoleControllerTests extends BaseTest {
     @Test
     @Order(3)
     void delete() throws Exception {
+        // 校验删除该用户组，没有用户组的用户会默认添加系统成员用户组
+        UserRoleRelation userRoleRelation = prepareOneLimitTest(addUserRole.getId());
         // @@请求成功
-        this.requestGet(DEFAULT_DELETE, addUserRole.getId());
+        this.requestGetWithOk(DEFAULT_DELETE, addUserRole.getId());
         // 校验请求成功数据
         Assertions.assertNull(userRoleMapper.selectByPrimaryKey(addUserRole.getId()));
         // 校验用户组与权限的关联关系是否删除
         Assertions.assertTrue(CollectionUtils.isEmpty(baseUserRolePermissionService.getByRoleId(addUserRole.getId())));
         // 校验用户组与用户的关联关系是否删除
         Assertions.assertTrue(CollectionUtils.isEmpty(baseUserRoleRelationService.getByRoleId(addUserRole.getId())));
+
+        // 校验删除该用户组，没有用户组的用户会默认添加系统成员用户组
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdEqualTo(userRoleRelation.getUserId());
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        Assertions.assertTrue(userRoleRelations.size() == 1);
+        Assertions.assertTrue(StringUtils.equals(userRoleRelations.get(0).getRoleId(), MEMBER.getValue()));
+        clearOneLimitTest(userRoleRelation.getUserId());
+
+        // 删除没有关联用户的用户组
+        this.requestGetWithOk(DEFAULT_DELETE, anotherUserRole.getId());
 
         // @@校验日志
         checkLog(addUserRole.getId(), OperationLogType.DELETE);
@@ -275,5 +307,43 @@ class GlobalUserRoleControllerTests extends BaseTest {
         nonGlobalUserRole.setId(UUID.randomUUID().toString());
         userRoleMapper.insert(nonGlobalUserRole);
         return nonGlobalUserRole;
+    }
+
+    /**
+     * 创建一个用户和只有一个用户组的
+     * 用于测试删除该用户组后，没有用户组的用户会默认添加系统成员用户组
+     *
+     */
+    private UserRoleRelation prepareOneLimitTest(String userRoleId) {
+        // 插入一条用户数据
+        User user = new User();
+        user.setId(UUID.randomUUID().toString());
+        user.setCreateUser(SessionUtils.getUserId());
+        user.setName("test one user role");
+        user.setSource(UserSourceEnum.LOCAL.name());
+        user.setEmail("1111111111@qq.com");
+        user.setCreateTime(System.currentTimeMillis());
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setCreateUser(ADMIN.getValue());
+        user.setUpdateUser(ADMIN.getValue());
+        user.setEnable(true);
+        user.setDeleted(false);
+        userMapper.insert(user);
+        UserRoleRelation roleRelation = new UserRoleRelation();
+        roleRelation.setId(UUID.randomUUID().toString());
+        roleRelation.setCreateTime(System.currentTimeMillis());
+        roleRelation.setRoleId(userRoleId);
+        roleRelation.setCreateUser(ADMIN.getValue());
+        roleRelation.setUserId(user.getId());
+        roleRelation.setSourceId(BaseUserRoleService.SYSTEM_TYPE);
+        userRoleRelationMapper.insert(roleRelation);
+        return roleRelation;
+    }
+
+    /**
+     * 清理测试数据
+     */
+    private void clearOneLimitTest(String userId) {
+        userMapper.deleteByPrimaryKey(userId);
     }
 }

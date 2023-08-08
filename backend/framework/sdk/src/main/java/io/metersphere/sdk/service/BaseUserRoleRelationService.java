@@ -1,6 +1,7 @@
 package io.metersphere.sdk.service;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.BaseUserRoleRelationMapper;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,9 +30,10 @@ public class BaseUserRoleRelationService {
     @Resource
     protected UserRoleRelationMapper userRoleRelationMapper;
     @Resource
+    protected BaseUserRoleRelationMapper baseUserRoleRelationMapper;
+    @Resource
     @Lazy
     protected BaseUserRoleService baseUserRoleService;
-
 
     protected UserRoleRelation add(UserRoleRelation userRoleRelation) {
         checkExist(userRoleRelation);
@@ -97,5 +100,23 @@ public class BaseUserRoleRelationService {
             return userRole == null ? null : userRole.getName();
         }
         return null;
+    }
+
+    public List<String> getUserIdRoleId(String roleId) {
+       return baseUserRoleRelationMapper.getUserIdRoleId(roleId);
+    }
+
+    public List<UserRoleRelation> getUserIdAndSourceIdByUserIds(List<String> userIds) {
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>(0);
+        }
+       return baseUserRoleRelationMapper.getUserIdAndSourceIdByUserIds(userIds);
+    }
+
+    public void batchInsert(List<UserRoleRelation> addRelations) {
+        if (CollectionUtils.isEmpty(addRelations)) {
+            return;
+        }
+        userRoleRelationMapper.batchInsert(addRelations);
     }
 }
