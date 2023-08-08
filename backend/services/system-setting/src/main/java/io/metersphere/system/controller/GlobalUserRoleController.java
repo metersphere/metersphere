@@ -82,6 +82,6 @@ public class GlobalUserRoleController {
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ROLE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = GlobalUserRoleLogService.class)
     public void delete(@PathVariable String id) {
-        globalUserRoleService.delete(id);
+        globalUserRoleService.delete(id, SessionUtils.getUserId());
     }
 }

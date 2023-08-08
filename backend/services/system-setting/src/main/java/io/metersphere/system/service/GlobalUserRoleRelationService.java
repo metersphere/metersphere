@@ -5,6 +5,7 @@ import io.metersphere.sdk.dto.request.GlobalUserRoleRelationBatchRequest;
 import io.metersphere.sdk.dto.request.GlobalUserRoleRelationUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.service.BaseUserRoleRelationService;
+import io.metersphere.sdk.service.BaseUserRoleService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
@@ -16,12 +17,13 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_LIMIT;
 
 /**
  * @author jianxing
@@ -35,8 +37,6 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     private GlobalUserRoleService globalUserRoleService;
     @Resource
     private UserService userService;
-    @Resource
-    private SqlSessionFactory sqlSessionFactory;
 
     public List<UserRoleRelationUserDTO> list(GlobalUserRoleRelationQueryRequest request) {
         UserRole userRole = globalUserRoleService.get(request.getRoleId());
@@ -62,13 +62,18 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
                 Collections.singletonList(request.getRoleId()));
         //检查用户的合法性
         userService.checkUserLegality(request.getUserIds());
+        List<UserRoleRelation> userRoleRelations = new ArrayList<>();
         request.getUserIds().forEach(userId -> {
             UserRoleRelation userRoleRelation = new UserRoleRelation();
             BeanUtils.copyBean(userRoleRelation, request);
             userRoleRelation.setUserId(userId);
             userRoleRelation.setSourceId(GlobalUserRoleService.SYSTEM_TYPE);
-            super.add(userRoleRelation);
+            checkExist(userRoleRelation);
+            userRoleRelation.setCreateTime(System.currentTimeMillis());
+            userRoleRelation.setId(UUID.randomUUID().toString());
+            userRoleRelations.add(userRoleRelation);
         });
+        userRoleRelationMapper.batchInsert(userRoleRelations);
     }
 
     public List<UserRoleRelation> selectByUserIdAndRuleId(List<String> userIds, List<String> roleIds) {
@@ -113,8 +118,16 @@ public class GlobalUserRoleRelationService extends BaseUserRoleRelationService {
     @Override
     public void delete(String id) {
         UserRole userRole = getUserRole(id);
+        UserRoleRelation userRoleRelation = userRoleRelationMapper.selectByPrimaryKey(id);
         globalUserRoleService.checkSystemUserGroup(userRole);
         globalUserRoleService.checkGlobalUserRole(userRole);
         super.delete(id);
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria()
+                .andUserIdEqualTo(userRoleRelation.getUserId())
+                .andSourceIdEqualTo(BaseUserRoleService.SYSTEM_TYPE);
+        if (CollectionUtils.isEmpty(userRoleRelationMapper.selectByExample(example))) {
+            throw new MSException(GLOBAL_USER_ROLE_LIMIT);
+        }
     }
 }
