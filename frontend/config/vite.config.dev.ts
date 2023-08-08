@@ -12,10 +12,9 @@ export default mergeConfig(
         strict: true,
       },
       proxy: {
-        '/front': {
+        '/app': {
           target: 'http://172.16.200.18:8081/',
           changeOrigin: true,
-          rewrite: (path: string) => path.replace(/^\/front/, ''),
         },
       },
     },
