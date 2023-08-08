@@ -15,13 +15,13 @@
           v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT']"
           icon="el-icon-box"
           :content="$t('commons.import')"
-          @click="importJSON" />
+          @click="importJSON"/>
         <el-dropdown
           @command="handleExportCommand"
           class="scenario-ext-btn"
           trigger="hover"
           v-permission="['PROJECT_ENVIRONMENT:READ+EXPORT']">
-          <ms-table-button style="margin-left: 10px" icon="el-icon-box" :content="$t('commons.export')" />
+          <ms-table-button style="margin-left: 10px" icon="el-icon-box" :content="$t('commons.export')"/>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="exportApi">{{ $t('envrionment.export_variable_tip') }}</el-dropdown-item>
           </el-dropdown-menu>
@@ -56,7 +56,7 @@
         @filter="filter"
         @refresh="onChange"
         ref="variableTable">
-        <ms-table-column prop="num" sortable label="ID" min-width="60" />
+        <ms-table-column prop="num" sortable label="ID" min-width="60"/>
         <ms-table-column
           prop="scope"
           sortable
@@ -69,7 +69,7 @@
               :placeholder="$t('commons.please_select')"
               size="mini"
               @change="changeType(scope.row)">
-              <el-option v-for="item in scopeTypeFilters" :key="item.value" :label="item.text" :value="item.value" />
+              <el-option v-for="item in scopeTypeFilters" :key="item.value" :label="item.text" :value="item.value"/>
             </el-select>
           </template>
         </ms-table-column>
@@ -82,7 +82,7 @@
               maxlength="200"
               :placeholder="$t('api_test.variable_name')"
               show-word-limit
-              @change="change" />
+              @change="change"/>
           </template>
         </ms-table-column>
         <ms-table-column prop="type" :label="$t('test_track.case.type')" min-width="140" sortable>
@@ -93,7 +93,7 @@
               :placeholder="$t('commons.please_select')"
               size="mini"
               @change="changeType(scope.row)">
-              <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value" />
+              <el-option v-for="item in typeSelectOptions" :key="item.value" :label="item.label" :value="item.value"/>
             </el-select>
 
             <el-select v-else v-model="scope.row.type" :placeholder="$t('commons.please_select')" size="mini">
@@ -101,7 +101,7 @@
                 v-for="item in uiTypeSelectOptions"
                 :key="item.value"
                 :label="item.label"
-                :value="item.value" />
+                :value="item.value"/>
             </el-select>
           </template>
         </ms-table-column>
@@ -113,20 +113,20 @@
               size="mini"
               v-if="scope.row.type !== 'CSV'"
               :placeholder="valueText(scope.row)"
-              :disabled="scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'" />
-            <csv-file-upload :parameter="scope.row" v-if="scope.row.type === 'CSV'" />
+              :disabled="scope.row.type === 'COUNTER' || scope.row.type === 'RANDOM'"/>
+            <csv-file-upload :parameter="scope.row" v-if="scope.row.type === 'CSV'"/>
           </template>
         </el-table-column>
         <ms-table-column prop="description" :label="$t('commons.remark')" min-width="160" sortable>
           <template slot-scope="scope">
-            <el-input v-model="scope.row.description" size="mini" />
+            <el-input v-model="scope.row.description" size="mini"/>
           </template>
         </ms-table-column>
 
         <ms-table-column :label="$t('commons.operating')" width="150">
           <template v-slot:default="scope">
             <span>
-              <el-switch v-model="scope.row.enable" size="mini" />
+              <el-switch v-model="scope.row.enable" size="mini"/>
               <el-button
                 icon="el-icon-delete"
                 type="danger"
@@ -134,7 +134,7 @@
                 size="mini"
                 style="margin-left: 10px"
                 @click="remove(scope.row)"
-                v-if="isDisable(scope.row)" />
+                v-if="isDisable(scope.row)"/>
               <el-button
                 v-if="(!scope.row.scope || scope.row.scope == 'api') && scope.row.type !== 'LIST'"
                 icon="el-icon-setting"
@@ -151,16 +151,16 @@
         :change="queryPage"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
-        :total="total" />
+        :total="total"/>
     </div>
-    <batch-add-parameter @batchSave="batchSave" ref="batchAdd" />
+    <batch-add-parameter @batchSave="batchSave" ref="batchAdd"/>
     <api-variable-setting ref="apiVariableSetting" @changeData="change"></api-variable-setting>
     <variable-import ref="variableImport" @mergeData="mergeData"></variable-import>
   </div>
 </template>
 
 <script>
-import { KeyValue } from '../../../model/EnvTestModel';
+import {KeyValue} from '../../../model/EnvTestModel';
 import MsApiVariableInput from './ApiVariableInput';
 import BatchAddParameter from './BatchAddParameter';
 import MsTableButton from '../../MsTableButton';
@@ -168,7 +168,7 @@ import MsTable from '../../table/MsTable';
 import MsTableColumn from '../../table/MsTableColumn';
 import ApiVariableSetting from './ApiVariableSetting';
 import CsvFileUpload from './variable/CsvFileUpload';
-import { downloadFile, getUUID, operationConfirm } from '../../../utils';
+import {downloadFile, getUUID, operationConfirm} from '../../../utils';
 import VariableImport from './variable/VariableImport';
 import {forEach} from 'lodash-es';
 import MsTablePagination from '../../pagination/TablePagination';
@@ -207,6 +207,7 @@ export default {
       pageSize: 10,
       total: 0,
       loading: false,
+      refreshOver: true,
       screenHeight: '460px',
       batchButtons: [
         {
@@ -215,17 +216,17 @@ export default {
         },
       ],
       typeSelectOptions: [
-        { value: 'CONSTANT', label: this.$t('api_test.automation.constant') },
-        { value: 'LIST', label: this.$t('test_track.case.list') },
-        { value: 'CSV', label: 'CSV' },
-        { value: 'COUNTER', label: this.$t('api_test.automation.counter') },
-        { value: 'RANDOM', label: this.$t('api_test.automation.random') },
+        {value: 'CONSTANT', label: this.$t('api_test.automation.constant')},
+        {value: 'LIST', label: this.$t('test_track.case.list')},
+        {value: 'CSV', label: 'CSV'},
+        {value: 'COUNTER', label: this.$t('api_test.automation.counter')},
+        {value: 'RANDOM', label: this.$t('api_test.automation.random')},
       ],
       uiTypeSelectOptions: [
-        { value: 'STRING', label: this.$t('api_test.automation.string') },
-        { value: 'ARRAY', label: this.$t('api_test.automation.array') },
-        { value: 'JSON', label: this.$t('api_test.automation.json') },
-        { value: 'NUMBER', label: this.$t('api_test.automation.number') },
+        {value: 'STRING', label: this.$t('api_test.automation.string')},
+        {value: 'ARRAY', label: this.$t('api_test.automation.array')},
+        {value: 'JSON', label: this.$t('api_test.automation.json')},
+        {value: 'NUMBER', label: this.$t('api_test.automation.number')},
       ],
       pageData: [],
       selectVariable: '',
@@ -233,11 +234,11 @@ export default {
       allData: [],
       lastPage: 1,
       scopeTypeFilters: [
-        { text: this.$t('commons.api'), value: 'api' },
-        { text: this.$t('commons.ui_test'), value: 'ui' },
+        {text: this.$t('commons.api'), value: 'api'},
+        {text: this.$t('commons.ui_test'), value: 'ui'},
       ],
       condition: {
-       selectAll : false,
+        selectAll: false,
         unSelectIds: [],
       },
     };
@@ -301,7 +302,7 @@ export default {
         );
       }
       if (isNeedCreate) {
-        this.items.push(new KeyValue({ enable: true, id: getUUID(), type: 'CONSTANT', scope: 'api' }));
+        this.items.push(new KeyValue({enable: true, id: getUUID(), type: 'CONSTANT', scope: 'api'}));
         this.currentPage = Math.ceil(this.allData.length / this.pageSize);
       }
       // 需过滤数据
@@ -337,11 +338,11 @@ export default {
     },
     querySearch(queryString, cb) {
       let restaurants = [
-        { value: 'UTF-8' },
-        { value: 'UTF-16' },
-        { value: 'GB2312' },
-        { value: 'ISO-8859-15' },
-        { value: 'US-ASCll' },
+        {value: 'UTF-8'},
+        {value: 'UTF-16'},
+        {value: 'GB2312'},
+        {value: 'ISO-8859-15'},
+        {value: 'US-ASCll'},
       ];
       let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
       // 调用 callback 返回建议列表的数据
@@ -369,25 +370,40 @@ export default {
     },
     handleDeleteBatch() {
       operationConfirm(this, this.$t('api_test.environment.variables_delete_info') + ' ？', () => {
-        let ids = this.$refs.variableTable.selectRows;
-        ids.forEach((row) => {
-          if (row.id) {
-            const index = this.pageData.findIndex((d) => d.id === row.id);
-            const allIndex = this.allData.findIndex((d) => d.id === row.id);
-            if (index !== this.pageData.length - 1) {
-              this.pageData.splice(index, 1);
+        if (this.condition.selectAll) {
+          let deleteIndex = 0;
+          let deleteRows = this.items.filter((item) => {
+            return this.condition.unSelectIds.indexOf(item.id) < 0;
+          });
+          deleteRows.forEach(deleteRow => {
+            const index = this.items.findIndex((d) => d.id === deleteRow.id);
+            this.items.splice(index, 1);
+          })
+          this.allData = this.items;
+          this.currentPage = 1;
+          this.queryPage();
+        } else {
+          let ids = this.$refs.variableTable.selectRows;
+          ids.forEach((row) => {
+            if (row.id) {
+              const index = this.pageData.findIndex((d) => d.id === row.id);
+              const allIndex = this.allData.findIndex((d) => d.id === row.id);
+              if (index !== this.pageData.length - 1) {
+                this.pageData.splice(index, 1);
+              }
+              if (allIndex !== this.allData.length - 1) {
+                this.allData.splice(allIndex, 1);
+              }
             }
-            if (allIndex !== this.allData.length - 1) {
-              this.allData.splice(allIndex, 1);
-            }
-          }
-        });
+          });
+        }
         this.sortParameters();
         this.$refs.variableTable.cancelCurrentRow();
         this.$refs.variableTable.clear();
         this.pageData.forEach((item) => {
           item.showMore = false;
         });
+
       });
     },
     filter() {
@@ -498,7 +514,9 @@ export default {
               keyValue
             );
           }
+          this.allData = this.items;
         });
+        this.queryPage();
       }
       this.currentPage = Math.ceil(this.items.length / this.pageSize);
     },
@@ -566,7 +584,7 @@ export default {
   },
   created() {
     if (this.items.length === 0) {
-      this.items.push(new KeyValue({ enable: true, scope: 'api' }));
+      this.items.push(new KeyValue({enable: true, scope: 'api'}));
     } else {
       //历史数据默认是 api 应用场景
       forEach(this.items, (item) => {
