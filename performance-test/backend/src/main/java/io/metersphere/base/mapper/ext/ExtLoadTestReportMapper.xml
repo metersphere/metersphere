@@ -205,13 +205,11 @@
     </select>
 
     <select id="selectDashboardTests" resultType="io.metersphere.dto.DashboardTestDTO">
-        SELECT min(create_time) AS date, count(load_test_report.id) AS count,
-        date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
+        SELECT min(create_time)                                           AS date,
+               count(load_test_report.id)                                 AS count,
+               date_format(from_unixtime(create_time / 1000), '%Y-%m-%d') AS x
         FROM load_test_report
-        WHERE test_id IN (SELECT load_test.id
-            FROM load_test
-            JOIN project ON load_test.project_id = project.id
-            WHERE project_id = #{projectId, jdbcType=VARCHAR})
+        WHERE project_id = #{projectId, jdbcType=VARCHAR}
           AND create_time
             > #{startTimestamp}
         GROUP BY x
@@ -261,7 +259,8 @@
         SELECT id
         FROM load_test_report
         WHERE test_id = #{testId}
-          AND `status` !='Completed' AND `status` !='Error'
+          AND `status` != 'Completed'
+          AND `status` != 'Error'
     </select>
 
     <select id="selectStatusById" resultType="string">
