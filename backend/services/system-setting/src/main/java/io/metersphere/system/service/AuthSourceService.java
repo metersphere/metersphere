@@ -87,6 +87,7 @@ public class AuthSourceService {
             source.setName(authSource.getName());
             source.setDescription(authSource.getDescription());
             source.setConfiguration(authSource.getConfiguration().getBytes());
+            source.setType(authSource.getType());
             source.setUpdateTime(System.currentTimeMillis());
             authSourceMapper.updateByPrimaryKeySelective(source);
         }

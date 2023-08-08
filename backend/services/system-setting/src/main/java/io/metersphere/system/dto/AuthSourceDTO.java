@@ -27,4 +27,7 @@ public class AuthSourceDTO implements Serializable {
 
     @Schema(title = "认证源配置", requiredMode = Schema.RequiredMode.REQUIRED)
     private String configuration;
+
+    @Schema(title = "是否启用")
+    private Boolean enable;
 }
